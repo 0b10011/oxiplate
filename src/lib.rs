@@ -3,12 +3,16 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
-use syn::{Data, DeriveInput, Fields};
+use syn::{Attribute, Data, DeriveInput, Fields};
 
-#[proc_macro_derive(Rustem, attributes(template))]
+#[proc_macro_derive(Rustem, attributes(code))]
 pub fn rustem(input: TokenStream) -> TokenStream {
     let input = syn::parse(input).unwrap();
-    let DeriveInput { ident, data, .. } = &input;
+    let DeriveInput {
+        attrs, ident, data, ..
+    } = &input;
+
+    let source = get_source(&attrs);
 
     let mut field_names = Vec::new();
     match data {
@@ -34,11 +38,29 @@ pub fn rustem(input: TokenStream) -> TokenStream {
 
         impl fmt::Display for #ident {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                #(write!(f, "{}", self.#field_names)?;)*
+                #(write!(f, "{} {}", #source, self.#field_names)?;)*
                 Ok(())
             }
         }
     };
 
     TokenStream::from(expanded)
+}
+
+fn get_source(attrs: &Vec<Attribute>) -> String {
+    for attr in attrs {
+        if !attr.path.is_ident("code") {
+            continue;
+        }
+
+        match attr.parse_meta().expect("Unable to parse attribute") {
+            syn::Meta::NameValue(syn::MetaNameValue {
+                lit: syn::Lit::Str(code),
+                ..
+            }) => return code.value(),
+            _ => panic!(r#"Must provide template with #[code = "{{ your_var }}"]"#),
+        }
+    }
+
+    unimplemented!();
 }

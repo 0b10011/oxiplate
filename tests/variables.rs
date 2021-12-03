@@ -1,14 +1,14 @@
 use rustem::Rustem;
 
 #[derive(Rustem)]
-#[template(code = "{} / {}")]
+#[code = "{{ title }} / {{ message }}"]
 struct Data {
     title: &'static str,
     message: &'static str,
 }
 
 #[test]
-fn variable() {
+fn variables() {
     let data = Data {
         title: "Foo Bar",
         message: "Hello world!",

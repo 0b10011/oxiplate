@@ -1,7 +1,7 @@
 use rustem::Rustem;
 
 #[derive(Rustem)]
-#[template(code = "{}")]
+#[code = "{{ message }}"]
 struct Data {
     message: &'static str,
 }
@@ -12,5 +12,5 @@ fn variable() {
         message: "Hello world!",
     };
 
-    assert_eq!(format!("{}", data), "Hello world!");
+    assert_eq!(format!("{}", data), "Foo Bar / Hello world!");
 }
