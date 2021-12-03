@@ -2,61 +2,40 @@
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::parse::{Parse, ParseStream, Result};
 use syn::spanned::Spanned;
-use syn::{parse_macro_input, Expr, Item};
+use syn::{Data, DeriveInput, Fields};
 
-struct Template {}
+#[proc_macro_derive(Rustem, attributes(template))]
+pub fn rustem(input: TokenStream) -> TokenStream {
+    let input = syn::parse(input).unwrap();
+    let DeriveInput { ident, data, .. } = &input;
 
-impl Parse for Template {
-    fn parse(input: ParseStream) -> Result<Self> {
-        Ok(Template {})
-    }
-}
-
-#[proc_macro]
-pub fn template(tokens: TokenStream) -> TokenStream {
-    let Template {} = parse_macro_input!(tokens as Template);
-
-    let expanded = quote! {};
-
-    TokenStream::from(expanded)
-}
-
-struct Rustem {
-    template: Expr,
-    data: Item,
-}
-
-impl Parse for Rustem {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let template: Expr = input.parse()?;
-        let data = input.parse::<Item>()?;
-
-        Ok(Rustem { template, data })
-    }
-}
-
-#[proc_macro]
-pub fn rustem(tokens: TokenStream) -> TokenStream {
-    let Rustem { template, data } = parse_macro_input!(tokens as Rustem);
-
-    let (name, fields) = match data {
-        Item::Struct(ref struct_item) => (&struct_item.ident, &struct_item.fields),
+    let mut field_names = Vec::new();
+    match data {
+        Data::Struct(ref struct_item) => match &struct_item.fields {
+            Fields::Named(fields) => {
+                for field in &fields.named {
+                    match &field.ident {
+                        Some(name) => field_names.push(name),
+                        None => field.span().unwrap().error("Expected a named field").emit(),
+                    }
+                }
+            }
+            _ => (),
+        },
         _ => {
-            data.span().unwrap().error("Expected a struct").emit();
+            input.span().unwrap().error("Expected a struct").emit();
             return TokenStream::new();
         }
     };
 
     let expanded = quote! {
-        #data
-
         use std::fmt;
 
-        impl fmt::Display for #name {
+        impl fmt::Display for #ident {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, "Test")
+                #(write!(f, "{}", self.#field_names)?;)*
+                Ok(())
             }
         }
     };
