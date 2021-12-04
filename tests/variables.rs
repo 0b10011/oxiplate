@@ -1,6 +1,6 @@
-use rustem::Rustem;
+use oxiplate::Oxiplate;
 
-#[derive(Rustem)]
+#[derive(Oxiplate)]
 #[code = "{{ title }} / {{ message }}"]
 struct Data {
     title: &'static str,

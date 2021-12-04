@@ -5,8 +5,8 @@ use quote::quote;
 use syn::spanned::Spanned;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
-#[proc_macro_derive(Rustem, attributes(code))]
-pub fn rustem(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(Oxiplate, attributes(code))]
+pub fn oxiplate(input: TokenStream) -> TokenStream {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
         attrs, ident, data, ..

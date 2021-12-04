@@ -1,5 +1,5 @@
 [package]
-name = "rustem"
+name = "oxiplate"
 version = "0.1.0"
 authors = ["Brandon Frohs <brandon@19.codes>"]
 edition = "2021"
