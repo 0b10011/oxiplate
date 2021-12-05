@@ -9,8 +9,221 @@ collapsed_whitespace_before = _{ collapsed_whitespace ~ &(open ~ collapse_ws_bef
 collapsed_whitespace = { whitespace }
 alpha = { 'a'..'z' | 'A'..'Z' }
 digit = { '0'..'9' }
-ident = @{ alpha ~ (&(alpha | digit) ~ (alpha | digit | "_"))* }
-expression = { ident }
+
+// https://doc.rust-lang.org/reference/keywords.html
+keyword = {
+    "as" | "break" | "const" | "continue" | "crate" | "else"
+    | "enum" | "extern" | "false" | "fn" | "for" | "if" | "impl"
+    | "in" | "let" | "loop" | "match" | "mod" | "move" | "mut"
+    | "pub" | "ref" | "return" | "self" | "Self" | "static" | "struct"
+    | "super" | "trait" | "true" | "type" | "unsafe" | "use" | "where"
+    | "while"
+
+    // 2018
+    | "async" | "await" | "dyn"
+
+    // Reserved
+    | "abstract" | "become" | "box" | "do" | "final" | "macro"
+    | "override" | "priv" | "typeof" | "unsized" | "virtual" | "yield"
+
+    // Reserved 2018
+    | "try"
+}
+
+// https://doc.rust-lang.org/reference/tokens.html
+literal = { character | string | raw_string | number | bool }
+bool = { "true" | "false" }
+character = { "'" ~ !"'" ~ ("\\'" | ANY) ~ "'" }
+string = { "\"" ~ (!"\"" ~ ("\\\"" | ANY)) ~ "\"" }
+raw_string = {
+    "r" ~ PUSH("#"*) ~ "\""
+    ~ (!("\"" ~ PEEK) ~ ANY)*
+    ~ "\"" ~ POP
+}
+decimal = { '0'..'9' ~ ('0'..'9' | "_")* }
+bin_number = { "0b" ~ ('0'..'1' | "_")* ~ '0'..'1' ~ ('0'..'1' | "_")* }
+octal = { "0o" ~ ('0'..'7' | "_")* ~ '0'..'7' ~ ('0'..'7' | "_")* }
+hex_digit = { '0'..'9' | 'a'..'f' | 'A'..'F' }
+hex_number = { "0x" ~ (hex_digit | "_")* ~ hex_digit ~ (hex_digit | "_")* }
+number = {
+    (decimal | bin_number | octal | hex_number)
+    ~ ("u" | "i") ~ ("8" | "16" | "32" | "64" | "128" | "size")
+}
+
+// https://doc.rust-lang.org/reference/tokens.html#punctuation
+punctuation = {
+    "+" | "-" | "*" | "/" | "%" | "^" | "!" | "&" | "|" | "&&" | "||"
+    | "<<" | ">>" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&="
+    | "|=" | "<<=" | ">>=" | "=" | "==" | "!=" | ">" | "<" | ">="
+    | "<=" | "@" | "_" | "." | ".." | "..." | "..=" | "," | ";" | ":"
+    | "::" | "->" | "=>" | "#" | "$" | "?"
+}
+
+ident = @{ "r#"? ~ (alpha | digit | "_")+ }
+
+// https://doc.rust-lang.org/reference/expressions/path-expr.html
+// https://doc.rust-lang.org/reference/paths.html
+path_segment = { ident | "super" | "self" | "crate" | "$crate" }
+path = { "::"? ~ path_segment ~ ("::" ~ path_segment)* }
+
+// https://doc.rust-lang.org/reference/expressions/operator-expr.html
+// WITHOUT AssignmentExpression or CompoundAssignmentExpression
+borrow_expression = { "&"+ ~ "mut"? ~ whitespace ~ expression }
+dereference_expression = { "*" ~ expression }
+error_propagation_expression = { expression ~ "?" }
+negation_expression = { ("-" | "!") ~ expression }
+arithmetic_or_logical_expression = {
+    expression
+    ~ whitespace?
+    ~ ("+" ~ "-" ~ "*" ~ "/" ~ "%" ~ "&" ~ "|" ~ "^" ~ "<<" ~ ">>")
+    ~ whitespace?
+    ~ expression
+}
+comparison_expression = {
+    expression
+    ~ whitespace?
+    ~ ("==" ~ "!=" ~ ">" ~ "<" ~ ">=" ~ "<=")
+    ~ whitespace?
+    ~ expression
+}
+lazy_boolean_expression = {
+    expression
+    ~ whitespace?
+    ~ ("||" ~ "&&")
+    ~ whitespace?
+    ~ expression
+}
+compound_assignment_expression = {
+    expression
+    ~ whitespace
+    ~ ("" ~ "")
+    ~ whitespace
+    ~ expression
+}
+
+type_token = { type_no_bounds | impl_trait_type | trait_object_type }
+trait_object_type = { "dyn"? ~ ws ~ type_param_bounds }
+
+parenthesized_type = { "(" ~ type_token ~ ")" }
+trait_bound = {
+    ("?"? ~ whitespace ~ for_lifetimes? ~ type_path)
+    | ("(" ~ "?"? ~ whitespace ~ for_lifetimes? ~ type_path ~ ")")
+}
+lifetime_bounds = { (lifetime ~ whitespace? ~ "+")* ~ lifetime? }
+lifetime = { "'_" | "'static" | lifetime_or_label }
+for_lifetimes = { "for" ~ whitespace ~ generic_params }
+generic_params = {
+    "<"
+    ~ (
+        (generic_param ~ whitespace? ~ "," ~ whitespace?)*
+        ~ generic_param ~ whitespace? ~ ","?
+    )?
+    ~ ">"
+}
+generic_param = { lifetime_param | type_param | const_param }
+lifetime_param = { lifetime_or_label ~ (whitespace? ~ ":" ~ whitespace? ~ lifetime_bounds)? }
+non_keyword_identifier = { !keyword ~ ident }
+lifetime_or_label = { "'" ~ non_keyword_identifier }
+type_param = { ident ~ (":" ~ type_param_bounds?)? ~ (ws? ~ "=" ~ ws? ~ type_token)? }
+const_param = { "const" ~ ws ~ ident ~ ws ~ type_token}
+type_param_bound = { lifetime | trait_bound }
+type_param_bounds = { type_param_bound ~ ("+" ~ type_param_bound)* ~ "+"? }
+impl_trait_type = { "impl" ~ ws ~ type_param_bounds }
+impl_trait_type_one_bound = { "impl" ~ ws ~ trait_bound }
+type_path = { "::"? ~ type_path_segment ~ ("::" ~ type_path_segment)* }
+type_path_segment = { path_ident_segment ~ "::" ~ (generic_args | type_path_fn)? }
+path_ident_segment = { ident | "super" | "self" | "Self" | "crate" | "$crate" }
+generic_args = {
+    "<"
+    ~ ws?
+    ~ (
+        (generic_arg ~ ws? ~ ",")* ~ ws? ~ generic_arg ~ ws? ~ ","?
+    )?
+    ~ ws?
+    ~ ">"
+}
+generic_arg = { lifetime | type_token | generic_args_const | generic_args_binding }
+generic_args_const = { literal | "-" ~ ws? ~ literal | path_segment }
+generic_args_binding = { ident ~ ws? ~ "=" ~ ws? ~ type_token }
+type_path_fn = {
+    "(" ~ ws? ~ type_path_fn_inputs? ~ ws? ~ ")"
+    ~ (ws? ~ "->" ~ ws? ~ type_token)?
+}
+type_path_fn_inputs = { type_token ~ (ws? ~ "," ~ ws? ~ type_token)* ~ ws? ~ ","? }
+tuple_type = { "(" ~ ws? ~ ((type_token ~ ws? ~ "," ~ ws?)+ ~ type_token?)? ~ ws? ~ ")" }
+never_type = { "!" }
+raw_pointer_type = { "*" ~ ("mut" | "const") ~ ws ~ type_no_bounds }
+reference_type = { "&" ~ ws? ~ lifetime? ~ ws? ~ "mut"? ~ ws? ~ type_no_bounds }
+array_type = { "[" ~ ws? ~ type_token ~ ws? ~ ";" ~ ws? ~ expression ~ ws? ~ "]" }
+slice_type = { "[" ~ ws? ~ type_token ~ ws? ~ "]" }
+inferred_type = { "_" }
+qualified_path_type = { "<" ~ ws? ~ type_token ~ (ws? ~ type_path)? ~ ws? ~ ">" }
+qualified_path_in_type = { qualified_path_type ~ ("::" ~ type_path_segment)+ }
+type_no_bounds = {
+    parenthesized_type | impl_trait_type_one_bound | type_path
+    | tuple_type | never_type | raw_pointer_type | reference_type
+    | array_type | slice_type | inferred_type | qualified_path_in_type
+}
+type_cast_expression = {
+    expression
+    ~ whitespace
+    ~ "as"
+    ~ whitespace
+    ~ type_no_bounds
+}
+
+operator_expression = {
+    borrow_expression | dereference_expression
+    | error_propagation_expression | negation_expression
+    | arithmetic_or_logical_expression | comparison_expression
+    | lazy_boolean_expression | type_cast_expression
+}
+
+// https://doc.rust-lang.org/reference/expressions.html
+expression = {
+    literal | path | operator_expression | grouped_expression
+    | array_expression | await_expression | index_expression
+    | tuple_expression | tuple_indexing_expression | struct_expression
+    | call_expression | method_call_expression | field_expression
+    | range_expression
+}
+grouped_expression = { "(" ~ ws? ~ expression ~ ws? ~ ")" }
+array_expression = { "[" ~ ws? ~ array_elements ~ ws? ~ "]" }
+array_elements = {
+    (expression ~ (ws? ~ "," ~ expression)* ~ ws? ~ ","?)
+    | (expression ~ (ws? ~ ";" ~ expression)*)
+}
+await_expression = { expression ~ ws? ~ ".await" }
+index_expression = { expression ~ ws? ~ "[" ~ ws? ~ expression ~ ws? ~ "]" }
+tuple_expression = { (expression ~ ws? ~ ",")+ ~ ws? ~ expression? }
+tuple_indexing_expression = { expression ~ "." ~ tuple_index }
+tuple_index = { number }
+struct_expression = { struct_expr_struct | struct_expr_tuple | struct_expr_unit }
+struct_expr_struct = { path_in_expression ~ ws? ~ "{" ~ ws? ~ (struct_expr_fields | struct_base)? ~ ws? ~ "}" }
+struct_expr_fields = { struct_expr_field ~ ws? ~ ("," ~ ws? ~ struct_expr_field)* ~ (ws? ~ "," ~ ws ~ struct_base | ws? ~ ","?) }
+struct_expr_field = { ident | ((ident | tuple_index) ~ ws? ~ ":" ~ ws? ~ expression) }
+struct_base = { ".." ~ ws? ~ expression }
+struct_expr_tuple = {
+    path_in_expression ~ ws? ~ "(" ~ ws?
+    ~ (expression ~ ws? ~ ("," ~ ws? ~ expression ~ ws?)* ~ ","? ~ ws?)?
+}
+struct_expr_unit = { path_in_expression }
+path_in_expression = { "::"? ~ path_expr_segment ~ ("::" ~ path_expr_segment)* }
+path_expr_segment = { path_ident_segment ~ ("::" ~ generic_args)? }
+call_expression = { expression ~ "(" ~ ws? ~ call_params? ~ ws? ~ ")" }
+call_params = { expression ~ (ws? ~ "," ~ ws? ~ expression)* ~ ws? ~ ","? }
+method_call_expression = { expression ~ "." ~ path_expr_segment ~ "(" ~ ws? ~ call_params? ~ ws? ~ ")" }
+field_expression = { expression ~ "." ~ ident }
+range_expression = {
+    range_expr | range_from_expr | range_to_expr | range_full_expr
+    | range_inclusive_expr | range_to_inclusive_expr
+}
+range_expr = { expression ~ ws? ~ ".." ~ ws? ~ expression }
+range_from_expr = { expression ~ ws? ~ ".." }
+range_to_expr = { ".." ~ ws? ~ expression }
+range_full_expr = { ".." }
+range_inclusive_expr = { expression ~ ws? ~ "..=" ~ ws? ~ expression }
+range_to_inclusive_expr = { "..=" ~ ws? ~ expression }
 
 open = { open_char ~ type_char }
 open_char = _{ "{" }
@@ -35,9 +248,9 @@ control_open = _{ open_char ~ control_char }
 control_close = _{ control_char ~ close_char }
 control_char = _{ "%" }
 control_start = _{
-	control_open ~ prefix ~ ws?
+	control_open ~ prefix ~ ws
     ~ control_type
-    ~ ws?
+    ~ ws
 	~ (
     	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
     	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
@@ -45,7 +258,7 @@ control_start = _{
 	)
 }
 control_end = {
-	control_open ~ prefix ~ ws? ~ "end" ~ POP ~ ws?
+	control_open ~ prefix ~ ws ~ "end" ~ POP ~ ws
 	~ (
     	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
     	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
