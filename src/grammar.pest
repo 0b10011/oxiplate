@@ -1,0 +1,85 @@
+template = { SOI ~ items ~ EOI }
+items = _{ item ~ items? }
+item = _{ control | output | text | comment | trimmed_whitespace_before | collapsed_whitespace_before }
+text = @{ (!"{" ~ text_ch)+ }
+text_ch = { (!ws ~ ANY) | (ws ~ !(open ~ adjust_ws_before)) }
+trimmed_whitespace_before = _{ ws ~ &(open ~ trim_ws_before) }
+trimmed_whitespace = _{ ws ~ &(open ~ trim_ws_before) }
+collapsed_whitespace_before = _{ collapsed_whitespace ~ &(open ~ collapse_ws_before) }
+collapsed_whitespace = { whitespace }
+alpha = { 'a'..'z' | 'A'..'Z' }
+digit = { '0'..'9' }
+ident = @{ alpha ~ (&(alpha | digit) ~ (alpha | digit | "_"))* }
+expression = { ident }
+
+open = { open_char ~ type_char }
+open_char = _{ "{" }
+close_char = _{ "}" }
+
+type_char = { (output_char | control_char | comment_char) }
+
+output = !{
+	output_open ~ prefix ~ ws ~ expression ~ ws
+	~ (
+    	(trim_ws_after ~ output_close ~ trimmed_whitespace?)
+    	| (collapse_ws_after ~ output_close ~ collapsed_whitespace?)
+    	| output_close
+	)
+}
+output_open = _{ open_char ~ output_char }
+output_close = _{ output_char ~ close_char }
+output_char = _{ ":" }
+
+control = _{ control_start ~ items ~ control_end }
+control_open = _{ open_char ~ control_char }
+control_close = _{ control_char ~ close_char }
+control_char = _{ "%" }
+control_start = _{
+	control_open ~ prefix ~ ws?
+    ~ control_type
+    ~ ws?
+	~ (
+    	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
+    	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
+    	| control_close
+	)
+}
+control_end = {
+	control_open ~ prefix ~ ws? ~ "end" ~ POP ~ ws?
+	~ (
+    	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
+    	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
+    	| control_close
+	)
+}
+control_type = _{ control_for }
+
+control_for = { PUSH("for") ~ ws ~ for_key ~ (ws? ~ "," ~ ws? ~ for_value)? ~ ws ~ "in" ~ ws ~ expression }
+for_key = @{ ident }
+for_value = @{ ident }
+
+comment = _{
+	comment_open ~ prefix ~ comment_text
+	~ (
+    	(trim_ws_after ~ comment_close ~ trimmed_whitespace?)
+    	| (collapse_ws_after ~ comment_close ~ collapsed_whitespace?)
+    	| comment_close
+	)
+}
+comment_open = _{ open_char ~ comment_char }
+comment_close = _{ comment_char ~ close_char }
+comment_text = _{ (!(adjust_ws_after? ~ "#}") ~ ANY)* }
+comment_char = _{ "#" }
+
+prefix = _{ adjust_ws_before? }
+
+adjust_ws_before = _{ trim_ws_before | collapse_ws_before }
+adjust_ws_after = _{ trim_ws_after | collapse_ws_after }
+trim_ws = _{ "-" }
+trim_ws_before = _{ trim_ws }
+trim_ws_after = _{ trim_ws }
+collapse_ws = _{ "_" }
+collapse_ws_before = _{ collapse_ws }
+collapse_ws_after = _{ collapse_ws }
+whitespace = _{ (" " | "\t" | NEWLINE)+ }
+ws = _{ whitespace }
