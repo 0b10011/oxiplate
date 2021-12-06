@@ -1,54 +1,133 @@
 template = { SOI ~ items ~ EOI }
 items = _{ item ~ items? }
-item = _{ control | output | text | comment | trimmed_whitespace_before | collapsed_whitespace_before }
-text = @{ (!"{" ~ text_ch)+ }
-text_ch = { (!ws ~ ANY) | (ws ~ !(open ~ adjust_ws_before)) }
-trimmed_whitespace_before = _{ ws ~ &(open ~ trim_ws_before) }
-trimmed_whitespace = _{ ws ~ &(open ~ trim_ws_before) }
-collapsed_whitespace_before = _{ collapsed_whitespace ~ &(open ~ collapse_ws_before) }
-collapsed_whitespace = { whitespace }
-alpha = { 'a'..'z' | 'A'..'Z' }
-digit = { '0'..'9' }
+item = _{ tag | fixed | trimmed_ws_before | collapsed_ws_before }
 
-// https://doc.rust-lang.org/reference/keywords.html
-keyword = {
-    "as" | "break" | "const" | "continue" | "crate" | "else"
-    | "enum" | "extern" | "false" | "fn" | "for" | "if" | "impl"
-    | "in" | "let" | "loop" | "match" | "mod" | "move" | "mut"
-    | "pub" | "ref" | "return" | "self" | "Self" | "static" | "struct"
-    | "super" | "trait" | "true" | "type" | "unsafe" | "use" | "where"
-    | "while"
+// All tags should start with open_delim.
+// Check writs first since they're most likely to appear.
+tag = { &open_delim ~ (writ | statement | comment) }
 
-    // 2018
-    | "async" | "await" | "dyn"
+fixed = @{ fixed_ch+ }
+fixed_ch = _{ (!ws ~ !tag ~ ANY) | (ws ~ !(open ~ adjust_ws_before)) }
+trimmed_ws_before = _{ ws ~ &(open ~ trim_ws) }
+collapsed_ws_before = _{ collapsed_ws ~ &(open ~ collapse_ws_before) }
 
-    // Reserved
-    | "abstract" | "become" | "box" | "do" | "final" | "macro"
-    | "override" | "priv" | "typeof" | "unsized" | "virtual" | "yield"
+trimmed_ws = _{ ws ~ &(open ~ trim_ws) }
+collapsed_ws = { whitespace }
 
-    // Reserved 2018
-    | "try"
+open = { open_delim ~ type_delim }
+open_delim = _{ "{" }
+close_delim = _{ "}" }
+type_delim = { writ_delim | statement_delim | comment_delim }
+invalid = { ANY }
+
+writ = { writ_open ~ adjust_ws_before? ~ (!writ_close ~ writ_item)+ ~ writ_close? }
+writ_item = _{ ws | expression | invalid }
+writ_open = _{ open_delim ~ writ_delim }
+writ_close = {
+    (trim_ws ~ writ_close_delims ~ trimmed_ws?)
+    | (collapse_ws_after ~ writ_close_delims ~ collapsed_ws?)
+    | writ_close_delims
 }
+writ_close_delims = _{ writ_delim ~ close_delim }
+writ_delim = _{ ":" }
+
+statement = { statement_open ~ adjust_ws_before? ~ (!statement_close ~ statement_item)+ ~ statement_close? }
+statement_item = _{ ws | literal | identifier | punctuation | delimiter | invalid }
+statement_open = _{ open_delim ~ statement_delim }
+statement_close = {
+    (trim_ws ~ statement_close_delims ~ trimmed_ws?)
+    | (collapse_ws_after ~ statement_close_delims ~ collapsed_ws?)
+    | statement_close_delims
+}
+statement_close_delims = _{ statement_delim ~ close_delim }
+statement_delim = _{ "%" }
+
+comment = { comment_open ~ adjust_ws_before? ~ (!comment_close ~ comment_item)+ ~ comment_close? }
+comment_item = _{ ws | expression | invalid }
+comment_open = _{ open_delim ~ comment_delim }
+comment_close = {
+    (trim_ws ~ comment_close_delims ~ trimmed_ws?)
+    | (collapse_ws_after ~ comment_close_delims ~ collapsed_ws?)
+    | comment_close_delims
+}
+comment_close_delims = _{ comment_delim ~ close_delim }
+comment_delim = _{ "#" }
+
+adjust_ws_before = _{ trim_ws | collapse_ws_before }
+adjust_ws_after = _{ trim_ws | collapse_ws_after }
+trim_ws = _{ "-" }
+collapse_ws = _{ "_" }
+collapse_ws_before = _{ collapse_ws }
+collapse_ws_after = _{ collapse_ws }
+whitespace = _{ (" " | "\t" | NEWLINE)+ }
+ws = _{ whitespace }
+
+
+// These items are influenced by rust
+
+expression = _{ literal | identifier | punctuation | delimiter }
 
 // https://doc.rust-lang.org/reference/tokens.html
-literal = { character | string | raw_string | number | bool }
-bool = { "true" | "false" }
-character = { "'" ~ !"'" ~ ("\\'" | ANY) ~ "'" }
-string = { "\"" ~ (!"\"" ~ ("\\\"" | ANY)) ~ "\"" }
+literal = _{ _character | string | raw_string | bool | byte | byte_string | raw_byte_string | number }
+// Optional closing ' so unclosed quotes report error properly
+_character = _{ "'" ~ !"'" ~ character ~ (!"'" ~ invalid)* ~ "'"? }
+character = { ("\\'" | ANY) }
+// Optional closing " so unclosed quotes report error properly
+string = { "\"" ~ (!"\"" ~ ("\\\"" | ANY))* ~ "\""? }
+// Optional closing "### so unclosed quotes report error properly
 raw_string = {
     "r" ~ PUSH("#"*) ~ "\""
     ~ (!("\"" ~ PEEK) ~ ANY)*
-    ~ "\"" ~ POP
+    ~ ("\"" ~ POP)?
+}
+bool = { "true" | "false" }
+ascii = _{ '\u{00}'..'\u{7F}' }
+byte = {
+    "b'"
+    ~ (
+        // any ASCII (i.e. 0x00 to 0x7F), except ', \, \n, \r or \t
+        (!("'" | "\\" | "\n" | "\r" | "\t") ~ ascii)
+        | byte_escape
+    )?
+    ~ (!"'" ~ invalid)*
+    // Optional closing ' so unclosed quotes report error properly
+    ~ "'"?
+}
+byte_string = {
+    "b\""
+    ~ (
+        // any ASCII (i.e 0x00 to 0x7F), except ", \ and IsolatedCR
+        (!("\"" | "\\" | "\n" | "\r" | "\t") ~ ascii)
+        | byte_escape
+        | "\\\n" // string_continue (escaped newline)
+        | (!"\"" ~ invalid)
+    )*
+    // Optional closing " so unclosed quotes report error properly
+    ~ "\""?
+}
+// Optional closing "### so unclosed quotes report error properly
+raw_byte_string = {
+    "r" ~ PUSH("#"*) ~ "\""
+    ~ (!("\"" ~ PEEK) ~ ascii)*
+    ~ ("\"" ~ POP)?
+}
+byte_escape = {
+    "\\x" ~ ('0'..'9' | 'a'..'f' | 'A'..'F'){2}
+    | "\\n" | "\\r" | "\\t" | "\\\\" | "\\0"
+}
+number = {
+    (decimal | bin_number | octal | hex_number)
+    ~ (("u" | "i") ~ ("8" | "16" | "32" | "64" | "128" | "size"))?
 }
 decimal = { '0'..'9' ~ ('0'..'9' | "_")* }
 bin_number = { "0b" ~ ('0'..'1' | "_")* ~ '0'..'1' ~ ('0'..'1' | "_")* }
 octal = { "0o" ~ ('0'..'7' | "_")* ~ '0'..'7' ~ ('0'..'7' | "_")* }
-hex_digit = { '0'..'9' | 'a'..'f' | 'A'..'F' }
 hex_number = { "0x" ~ (hex_digit | "_")* ~ hex_digit ~ (hex_digit | "_")* }
-number = {
-    (decimal | bin_number | octal | hex_number)
-    ~ ("u" | "i") ~ ("8" | "16" | "32" | "64" | "128" | "size")
-}
+hex_digit = { '0'..'9' | 'a'..'f' | 'A'..'F' }
+
+// https://doc.rust-lang.org/reference/identifiers.html
+// Simplified to alpha/numeral for now
+identifier = @{ "r#"? ~ ('a'..'z' | 'A'..'Z' | '0'..'9' | "_")+ }
 
 // https://doc.rust-lang.org/reference/tokens.html#punctuation
 punctuation = {
@@ -59,227 +138,5 @@ punctuation = {
     | "::" | "->" | "=>" | "#" | "$" | "?"
 }
 
-ident = @{ "r#"? ~ (alpha | digit | "_")+ }
-
-// https://doc.rust-lang.org/reference/expressions/path-expr.html
-// https://doc.rust-lang.org/reference/paths.html
-path_segment = { ident | "super" | "self" | "crate" | "$crate" }
-path = { "::"? ~ path_segment ~ ("::" ~ path_segment)* }
-
-// https://doc.rust-lang.org/reference/expressions/operator-expr.html
-// WITHOUT AssignmentExpression or CompoundAssignmentExpression
-borrow_expression = { "&"+ ~ "mut"? ~ whitespace ~ expression }
-dereference_expression = { "*" ~ expression }
-negation_expression = { ("-" | "!") ~ expression }
-compound_assignment_expression = {
-    expression
-    ~ whitespace
-    ~ ("" ~ "")
-    ~ whitespace
-    ~ expression
-}
-
-type_token = { type_no_bounds | impl_trait_type | trait_object_type }
-trait_object_type = { "dyn"? ~ ws ~ type_param_bounds }
-
-parenthesized_type = { "(" ~ type_token ~ ")" }
-trait_bound = {
-    ("?"? ~ whitespace ~ for_lifetimes? ~ type_path)
-    | ("(" ~ "?"? ~ whitespace ~ for_lifetimes? ~ type_path ~ ")")
-}
-lifetime_bounds = { (lifetime ~ whitespace? ~ "+")* ~ lifetime? }
-lifetime = { "'_" | "'static" | lifetime_or_label }
-for_lifetimes = { "for" ~ whitespace ~ generic_params }
-generic_params = {
-    "<"
-    ~ (
-        (generic_param ~ whitespace? ~ "," ~ whitespace?)*
-        ~ generic_param ~ whitespace? ~ ","?
-    )?
-    ~ ">"
-}
-generic_param = { lifetime_param | type_param | const_param }
-lifetime_param = { lifetime_or_label ~ (whitespace? ~ ":" ~ whitespace? ~ lifetime_bounds)? }
-non_keyword_identifier = { !keyword ~ ident }
-lifetime_or_label = { "'" ~ non_keyword_identifier }
-type_param = { ident ~ (":" ~ type_param_bounds?)? ~ (ws? ~ "=" ~ ws? ~ type_token)? }
-const_param = { "const" ~ ws ~ ident ~ ws ~ type_token}
-type_param_bound = { lifetime | trait_bound }
-type_param_bounds = { type_param_bound ~ ("+" ~ type_param_bound)* ~ "+"? }
-impl_trait_type = { "impl" ~ ws ~ type_param_bounds }
-impl_trait_type_one_bound = { "impl" ~ ws ~ trait_bound }
-type_path = { "::"? ~ type_path_segment ~ ("::" ~ type_path_segment)* }
-type_path_segment = { path_ident_segment ~ "::" ~ (generic_args | type_path_fn)? }
-path_ident_segment = { ident | "super" | "self" | "Self" | "crate" | "$crate" }
-generic_args = {
-    "<"
-    ~ ws?
-    ~ (
-        (generic_arg ~ ws? ~ ",")* ~ ws? ~ generic_arg ~ ws? ~ ","?
-    )?
-    ~ ws?
-    ~ ">"
-}
-generic_arg = { lifetime | type_token | generic_args_const | generic_args_binding }
-generic_args_const = { literal | "-" ~ ws? ~ literal | path_segment }
-generic_args_binding = { ident ~ ws? ~ "=" ~ ws? ~ type_token }
-type_path_fn = {
-    "(" ~ ws? ~ type_path_fn_inputs? ~ ws? ~ ")"
-    ~ (ws? ~ "->" ~ ws? ~ type_token)?
-}
-type_path_fn_inputs = { type_token ~ (ws? ~ "," ~ ws? ~ type_token)* ~ ws? ~ ","? }
-tuple_type = { "(" ~ ws? ~ ((type_token ~ ws? ~ "," ~ ws?)+ ~ type_token?)? ~ ws? ~ ")" }
-never_type = { "!" }
-raw_pointer_type = { "*" ~ ("mut" | "const") ~ ws ~ type_no_bounds }
-reference_type = { "&" ~ ws? ~ lifetime? ~ ws? ~ "mut"? ~ ws? ~ type_no_bounds }
-array_type = { "[" ~ ws? ~ type_token ~ ws? ~ ";" ~ ws? ~ expression ~ ws? ~ "]" }
-slice_type = { "[" ~ ws? ~ type_token ~ ws? ~ "]" }
-inferred_type = { "_" }
-qualified_path_type = { "<" ~ ws? ~ type_token ~ (ws? ~ type_path)? ~ ws? ~ ">" }
-qualified_path_in_type = { qualified_path_type ~ ("::" ~ type_path_segment)+ }
-type_no_bounds = {
-    parenthesized_type | impl_trait_type_one_bound | type_path
-    | tuple_type | never_type | raw_pointer_type | reference_type
-    | array_type | slice_type | inferred_type | qualified_path_in_type
-}
-
-operator_expression = {
-    borrow_expression | dereference_expression | negation_expression
-}
-
-// https://doc.rust-lang.org/reference/expressions.html
-expression = {
-    (
-    	path | operator_expression | grouped_expression
-        | array_expression | struct_expression | range_expression
-        | literal
-    )
-    // Avoid infinite loops by using a suffix instead of
-    // `expression ~ whatever_code` in various expression types.
-    ~ expression_suffix?
-}
-expression_suffix = {
-	(ws? ~ ".." ~ "="? ~ ws? ~ expression?) // range_expression
-    | ("." ~ ident) // field_expression
-    | ("." ~ path_expr_segment ~ "(" ~ ws? ~ call_params? ~ ws? ~ ")") // method_call_expression
-    | ("." ~ tuple_index) // tuple_indexing_expression
-    | ("(" ~ ws? ~ call_params? ~ ws? ~ ")") // call_expression
-    | (ws? ~ ("," ~ ws? ~ expression)* ~ ws? ~ ",") // tuple_expression
-    | (ws? ~ "[" ~ ws? ~ expression ~ ws? ~ "]") // index_expression
-    | (ws? ~ ".await") // await_expression
-    | ("?") // error_propagation_expression
-    | (
-        ws?
-        ~ (
-        	// arithmetic_or_logical_expression
-        	"+" | "-" | "*" | "/"
-            | "%" ~ !"}" // Ensure %} closes properly
-            | "&" | "|" | "^" | "<<" | ">>"
-            // comparison_expression
-            | "==" | "!=" | ">" | "<" | ">=" | "<="
-            // lazy_boolean_expression
-            | "||" | "&&"
-        )
-        ~ ws?
-    	~ expression
-    )
-    | (ws ~ "as" ~ ws ~ type_no_bounds) // type_cast_expression
-}
-grouped_expression = { "(" ~ ws? ~ expression ~ ws? ~ ")" }
-array_expression = { "[" ~ ws? ~ array_elements ~ ws? ~ "]" }
-array_elements = {
-    (expression ~ (ws? ~ "," ~ expression)* ~ ws? ~ ","?)
-    | (expression ~ (ws? ~ ";" ~ expression)*)
-}
-tuple_index = { number }
-struct_expression = { struct_expr_struct | struct_expr_tuple | struct_expr_unit }
-struct_expr_struct = { path_in_expression ~ ws? ~ "{" ~ ws? ~ (struct_expr_fields | struct_base)? ~ ws? ~ "}" }
-struct_expr_fields = { struct_expr_field ~ ws? ~ ("," ~ ws? ~ struct_expr_field)* ~ (ws? ~ "," ~ ws ~ struct_base | ws? ~ ","?) }
-struct_expr_field = { ident | ((ident | tuple_index) ~ ws? ~ ":" ~ ws? ~ expression) }
-struct_base = { ".." ~ ws? ~ expression }
-struct_expr_tuple = {
-    path_in_expression ~ ws? ~ "(" ~ ws?
-    ~ (expression ~ ws? ~ ("," ~ ws? ~ expression ~ ws?)* ~ ","? ~ ws?)?
-}
-struct_expr_unit = { path_in_expression }
-path_in_expression = { "::"? ~ path_expr_segment ~ ("::" ~ path_expr_segment)* }
-path_expr_segment = { path_ident_segment ~ ("::" ~ generic_args)? }
-call_params = { expression ~ (ws? ~ "," ~ ws? ~ expression)* ~ ws? ~ ","? }
-range_expression = {
-    range_to_expr | range_full_expr | range_to_inclusive_expr
-}
-range_to_expr = { ".." ~ ws? ~ expression }
-range_full_expr = { ".." }
-range_to_inclusive_expr = { "..=" ~ ws? ~ expression }
-
-open = { open_char ~ type_char }
-open_char = _{ "{" }
-close_char = _{ "}" }
-
-type_char = { (output_char | control_char | comment_char) }
-
-output = !{
-	output_open ~ prefix ~ ws ~ expression ~ ws
-	~ (
-    	(trim_ws_after ~ output_close ~ trimmed_whitespace?)
-    	| (collapse_ws_after ~ output_close ~ collapsed_whitespace?)
-    	| output_close
-	)
-}
-output_open = _{ open_char ~ output_char }
-output_close = _{ output_char ~ close_char }
-output_char = _{ ":" }
-
-control = _{ control_start ~ items ~ control_end }
-control_open = _{ open_char ~ control_char }
-control_close = _{ control_char ~ close_char }
-control_char = _{ "%" }
-control_start = _{
-	control_open ~ prefix ~ ws
-    ~ control_type
-    ~ ws
-	~ (
-    	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
-    	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
-    	| control_close
-	)
-}
-control_end = {
-	control_open ~ prefix ~ ws ~ "end" ~ POP ~ ws
-	~ (
-    	(trim_ws_after ~ control_close ~ trimmed_whitespace?)
-    	| (collapse_ws_after ~ control_close ~ collapsed_whitespace?)
-    	| control_close
-	)
-}
-control_type = _{ control_for }
-
-control_for = { PUSH("for") ~ ws ~ for_key ~ (ws? ~ "," ~ ws? ~ for_value)? ~ ws ~ "in" ~ ws ~ expression }
-for_key = @{ ident }
-for_value = @{ ident }
-
-comment = _{
-	comment_open ~ prefix ~ comment_text
-	~ (
-    	(trim_ws_after ~ comment_close ~ trimmed_whitespace?)
-    	| (collapse_ws_after ~ comment_close ~ collapsed_whitespace?)
-    	| comment_close
-	)
-}
-comment_open = _{ open_char ~ comment_char }
-comment_close = _{ comment_char ~ close_char }
-comment_text = _{ (!(adjust_ws_after? ~ "#}") ~ ANY)* }
-comment_char = _{ "#" }
-
-prefix = _{ adjust_ws_before? }
-
-adjust_ws_before = _{ trim_ws_before | collapse_ws_before }
-adjust_ws_after = _{ trim_ws_after | collapse_ws_after }
-trim_ws = _{ "-" }
-trim_ws_before = _{ trim_ws }
-trim_ws_after = _{ trim_ws }
-collapse_ws = _{ "_" }
-collapse_ws_before = _{ collapse_ws }
-collapse_ws_after = _{ collapse_ws }
-whitespace = _{ (" " | "\t" | NEWLINE)+ }
-ws = _{ whitespace }
+// https://doc.rust-lang.org/reference/tokens.html#delimiters
+delimiter = { "{" | "}" | "[" | "]" | "(" | ")" }
