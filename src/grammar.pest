@@ -1,13 +1,13 @@
 template = { SOI ~ items ~ EOI }
 items = _{ item ~ items? }
-item = _{ tag | fixed | trimmed_ws_before | collapsed_ws_before }
+item = _{ tag | static | trimmed_ws_before | collapsed_ws_before }
 
 // All tags should start with open_delim.
 // Check writs first since they're most likely to appear.
 tag = { &open_delim ~ (writ | statement | comment) }
 
-fixed = @{ fixed_ch+ }
-fixed_ch = _{ (!ws ~ !tag ~ ANY) | (ws ~ !(open ~ adjust_ws_before)) }
+static = @{ static_ch+ }
+static_ch = _{ (!ws ~ !tag ~ ANY) | (ws ~ !(open ~ adjust_ws_before)) }
 trimmed_ws_before = _{ ws ~ &(open ~ trim_ws) }
 collapsed_ws_before = _{ collapsed_ws ~ &(open ~ collapse_ws_before) }
 

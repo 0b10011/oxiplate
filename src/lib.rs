@@ -4,6 +4,7 @@
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
 
+mod parser;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
