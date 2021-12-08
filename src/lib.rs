@@ -18,6 +18,7 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
     } = &input;
 
     let source = get_source(&attrs);
+    let _tokens = parser::parse(&source);
 
     let mut field_names = Vec::new();
     match data {
