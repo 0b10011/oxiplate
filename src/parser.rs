@@ -1,10 +1,12 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while1};
 use nom::character::complete::char;
-use nom::combinator::{eof, opt, peek};
+use nom::combinator::{eof, fail, opt, peek, recognize};
+use nom::error::VerboseError;
 use nom::multi::{many0, many_till};
-use nom::sequence::pair;
-use nom::IResult;
+use nom::sequence::tuple;
+
+type Res<T, U> = nom::IResult<T, U, VerboseError<T>>;
 
 #[derive(Debug, PartialEq)]
 pub struct Template<'a>(Vec<Item<'a>>);
@@ -33,7 +35,7 @@ impl<'a> From<Static<'a>> for Item<'a> {
     }
 }
 
-pub fn parse(input: &str) -> IResult<&str, Template> {
+pub fn parse(input: &str) -> Res<&str, Template> {
     let (input, items) = many0(alt((parse_tag, parse_static)))(input)?;
 
     // Return error if there's any input remaining.
@@ -62,7 +64,7 @@ fn is_whitespace(char: char) -> bool {
     }
 }
 
-fn whitespace(input: &str) -> IResult<&str, &str> {
+fn whitespace(input: &str) -> Res<&str, &str> {
     take_while1(is_whitespace)(input)
 }
 
@@ -73,7 +75,7 @@ pub enum TagOpen {
     Comment,
 }
 
-pub fn tag_open(input: &str) -> IResult<&str, TagOpen> {
+pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
     let (input, output) = alt((
         tag("{{"), // writ
         tag("{%"), // statement
@@ -88,25 +90,25 @@ pub fn tag_open(input: &str) -> IResult<&str, TagOpen> {
     }
 }
 
-fn writ(input: &str) -> IResult<&str, Item> {
+fn writ(input: &str) -> Res<&str, Item> {
     let (input, output) = tag("test")(input)?;
 
     Ok((input, Item::Tag(Tag(output))))
 }
 
-fn statement(input: &str) -> IResult<&str, Item> {
+fn statement(input: &str) -> Res<&str, Item> {
     let (input, output) = tag("test")(input)?;
 
     Ok((input, Item::Tag(Tag(output))))
 }
 
-fn comment(input: &str) -> IResult<&str, Item> {
+fn comment(input: &str) -> Res<&str, Item> {
     let (input, output) = tag("test")(input)?;
 
     Ok((input, Item::Tag(Tag(output))))
 }
 
-fn parse_tag(input: &str) -> IResult<&str, Item> {
+fn parse_tag(input: &str) -> Res<&str, Item> {
     match tag_open(input)? {
         (input, TagOpen::Writ) => writ(input),
         (input, TagOpen::Statement) => statement(input),
@@ -118,25 +120,31 @@ fn is_whitespace_or_brace(char: char) -> bool {
     char == '{' || is_whitespace(char)
 }
 
-pub fn collapse_whitespace_command(input: &str) -> IResult<&str, char> {
+pub fn collapse_whitespace_command(input: &str) -> Res<&str, char> {
     char('_')(input)
 }
 
-pub fn trim_whitespace_command(input: &str) -> IResult<&str, char> {
+pub fn trim_whitespace_command(input: &str) -> Res<&str, char> {
     char('-')(input)
 }
 
-pub fn parse_static(input: &str) -> IResult<&str, Item> {
-    let (input, (output, (whitespace, (open_tag, command)))) = many_till(
+pub fn parse_static(input: &str) -> Res<&str, Item> {
+    let (input, (output, _)) = many_till(
         take_till1(is_whitespace_or_brace),
-        pair(
-            whitespace,
-            peek(pair(
+        peek(alt((
+            recognize(tuple((
+                opt(whitespace),
                 tag_open,
                 opt(alt((collapse_whitespace_command, trim_whitespace_command))),
-            )),
-        ),
+            ))),
+            eof
+        ))),
     )(input)?;
+
+    // Must be checked for many0() call will fail due to infinite loop
+    if output.is_empty() {
+        return fail(input);
+    }
 
     Ok((input, Item::Static(Static(output))))
 }
