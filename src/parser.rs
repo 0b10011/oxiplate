@@ -136,14 +136,18 @@ pub fn trim_whitespace_command(input: &str) -> Res<&str, char> {
 
 pub fn parse_static(input: &str) -> Res<&str, Item> {
     let (input, (output, _)) = many_till(
-        take_till1(is_whitespace_or_brace),
+        alt((
+            take_till1(is_whitespace_or_brace),
+            take_while1(is_whitespace),
+            tag("{"),
+        )),
         peek(alt((
             recognize(tuple((
                 opt(whitespace),
                 tag_open,
                 opt(alt((collapse_whitespace_command, trim_whitespace_command))),
             ))),
-            eof
+            eof,
         ))),
     )(input)?;
 
@@ -172,6 +176,20 @@ fn test_word() {
 fn test_phrase() {
     assert_eq!(
         parse("Some text."),
-        Ok(("", Template(vec![Item::Static(Static(vec!["Some text."]))])))
+        Ok((
+            "",
+            Template(vec![Item::Static(Static(vec!["Some", " ", "text."]))])
+        ))
+    );
+}
+
+#[test]
+fn test_stray_brace() {
+    assert_eq!(
+        parse("Some {text}."),
+        Ok((
+            "",
+            Template(vec![Item::Static(Static(vec!["Some", " ", "{", "text}."]))])
+        ))
     );
 }
