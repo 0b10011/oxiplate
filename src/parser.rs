@@ -1,5 +1,5 @@
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_till1, take_while1};
+use nom::bytes::complete::{tag, take_till1, take_until, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{eof, fail, opt, peek, recognize};
 use nom::error::VerboseError;
@@ -14,16 +14,36 @@ pub struct Template<'a>(Vec<Item<'a>>);
 
 #[derive(Debug, PartialEq)]
 pub enum Item<'a> {
-    Tag(Tag<'a>),
+    Comment,
+    Writ(Writ<'a>),
+    Statement(Statement<'a>),
     Static(Static<'a>),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Tag<'a>(&'a str);
+pub struct Writ<'a>(&'a str);
 
-impl<'a> From<Tag<'a>> for Item<'a> {
-    fn from(tag: Tag<'a>) -> Self {
-        Item::Tag(tag)
+impl<'a> From<Writ<'a>> for Item<'a> {
+    fn from(writ: Writ<'a>) -> Self {
+        Item::Writ(writ)
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Statement<'a>(&'a str);
+
+impl<'a> From<Statement<'a>> for Item<'a> {
+    fn from(statement: Statement<'a>) -> Self {
+        Item::Statement(statement)
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Comment<'a>(&'a str);
+
+impl<'a> From<Comment<'a>> for Item<'a> {
+    fn from(_comment: Comment) -> Self {
+        Item::Comment
     }
 }
 
@@ -92,21 +112,22 @@ pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
 }
 
 fn writ(input: &str) -> Res<&str, Item> {
-    let (input, output) = tag("test")(input)?;
+    let (input, output) = take_until("}}")(input)?;
+    let (input, _) = tag("}}")(input)?;
 
-    Ok((input, Item::Tag(Tag(output))))
+    Ok((input, Item::Writ(Writ(output))))
 }
 
 fn statement(input: &str) -> Res<&str, Item> {
     let (input, output) = tag("test")(input)?;
 
-    Ok((input, Item::Tag(Tag(output))))
+    Ok((input, Item::Writ(Writ(output))))
 }
 
 fn comment(input: &str) -> Res<&str, Item> {
-    let (input, output) = tag("test")(input)?;
+    let (input, _) = take_until("#}")(input)?;
 
-    Ok((input, Item::Tag(Tag(output))))
+    Ok((input, Item::Comment))
 }
 
 fn parse_tag(input: &str) -> Res<&str, Item> {
@@ -191,5 +212,13 @@ fn test_stray_brace() {
             "",
             Template(vec![Item::Static(Static(vec!["Some", " ", "{", "text}."]))])
         ))
+    );
+}
+
+#[test]
+fn test_writ() {
+    assert_eq!(
+        parse("{{greeting}}"),
+        Ok(("", Template(vec![Item::Writ(Writ("greeting")),])))
     );
 }
