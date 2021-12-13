@@ -5,6 +5,7 @@ use nom::combinator::{eof, fail, opt, peek, recognize};
 use nom::error::VerboseError;
 use nom::multi::{many0, many_till};
 use nom::sequence::tuple;
+use nom::Err as SynErr;
 
 type Res<T, U> = nom::IResult<T, U, VerboseError<T>>;
 
@@ -109,10 +110,15 @@ fn comment(input: &str) -> Res<&str, Item> {
 }
 
 fn parse_tag(input: &str) -> Res<&str, Item> {
-    match tag_open(input)? {
+    let tag = match tag_open(input)? {
         (input, TagOpen::Writ) => writ(input),
         (input, TagOpen::Statement) => statement(input),
         (input, TagOpen::Comment) => comment(input),
+    };
+
+    match tag {
+        Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
+        error => error,
     }
 }
 
