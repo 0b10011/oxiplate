@@ -1,10 +1,10 @@
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_till1, take_until, take_while1};
+use nom::bytes::complete::{tag, take_till1, take_until, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{eof, fail, opt, peek, recognize};
 use nom::error::VerboseError;
 use nom::multi::{many0, many_till};
-use nom::sequence::tuple;
+use nom::sequence::{preceded, tuple};
 use nom::Err as SynErr;
 
 type Res<T, U> = nom::IResult<T, U, VerboseError<T>>;
@@ -21,7 +21,7 @@ pub enum Item<'a> {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Writ<'a>(&'a str);
+pub struct Writ<'a>(Expression<'a>);
 
 impl<'a> From<Writ<'a>> for Item<'a> {
     fn from(writ: Writ<'a>) -> Self {
@@ -111,9 +111,28 @@ pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+enum Expression<'a> {
+    Identifier(&'a str),
+}
+
+fn expression(input: &str) -> Res<&str, Expression> {
+    fn identifier(input: &str) -> Res<&str, Expression> {
+        let (input, output) = take_while1(|char| match char {
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => true,
+            _ => false,
+        })(input)?;
+
+        Ok((input, Expression::Identifier(output)))
+    }
+
+    alt((identifier,))(input)
+}
+
 fn writ(input: &str) -> Res<&str, Item> {
-    let (input, output) = take_until("}}")(input)?;
-    let (input, _) = tag("}}")(input)?;
+    let (input, _) = opt(take_while(is_whitespace))(input)?;
+    let (input, output) = expression(input)?;
+    let (input, _) = preceded(opt(take_while(is_whitespace)), tag("}}"))(input)?;
 
     Ok((input, Item::Writ(Writ(output))))
 }
@@ -121,7 +140,7 @@ fn writ(input: &str) -> Res<&str, Item> {
 fn statement(input: &str) -> Res<&str, Item> {
     let (input, output) = tag("test")(input)?;
 
-    Ok((input, Item::Writ(Writ(output))))
+    Ok((input, Item::Statement(Statement(output))))
 }
 
 fn comment(input: &str) -> Res<&str, Item> {
@@ -218,7 +237,10 @@ fn test_stray_brace() {
 #[test]
 fn test_writ() {
     assert_eq!(
-        parse("{{greeting}}"),
-        Ok(("", Template(vec![Item::Writ(Writ("greeting")),])))
+        parse("{{ greeting }}"),
+        Ok((
+            "",
+            Template(vec![Item::Writ(Writ(Expression::Identifier("greeting"))),])
+        ))
     );
 }
