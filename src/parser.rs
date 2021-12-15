@@ -6,11 +6,21 @@ use nom::error::VerboseError;
 use nom::multi::{many0, many_till};
 use nom::sequence::{preceded, tuple};
 use nom::Err as SynErr;
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
 
 type Res<T, U> = nom::IResult<T, U, VerboseError<T>>;
 
 #[derive(Debug, PartialEq)]
 pub struct Template<'a>(Vec<Item<'a>>);
+
+impl ToTokens for Template<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.append_all(TokenStream::from(quote! {
+            println!("Yay?");
+        }));
+    }
+}
 
 #[derive(Debug, PartialEq)]
 pub enum Item<'a> {
@@ -56,8 +66,18 @@ impl<'a> From<Static<'a>> for Item<'a> {
     }
 }
 
-pub fn parse(input: &str) -> Res<&str, Template> {
-    let (input, items) = many0(alt((parse_tag, parse_static)))(input)?;
+pub fn parse<'a>(
+    input: &'a str,
+    variables: &'a Vec<&syn::Ident>,
+) -> Result<Template<'a>, nom::Err<VerboseError<&'a str>>> {
+    match try_parse(input, variables) {
+        Ok((_, template)) => Ok(template),
+        Err(err) => panic!("{:?}", err),
+    }
+}
+
+fn try_parse<'a>(input: &'a str, variables: &'a Vec<&syn::Ident>) -> Res<&'a str, Template<'a>> {
+    let (input, items) = many0(alt((parse_tag(variables), parse_static)))(input)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -149,16 +169,18 @@ fn comment(input: &str) -> Res<&str, Item> {
     Ok((input, Item::Comment))
 }
 
-fn parse_tag(input: &str) -> Res<&str, Item> {
-    let tag = match tag_open(input)? {
-        (input, TagOpen::Writ) => writ(input),
-        (input, TagOpen::Statement) => statement(input),
-        (input, TagOpen::Comment) => comment(input),
-    };
+fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str, Item> {
+    |input| {
+        let tag = match tag_open(input)? {
+            (input, TagOpen::Writ) => writ(input),
+            (input, TagOpen::Statement) => statement(input),
+            (input, TagOpen::Comment) => comment(input),
+        };
 
-    match tag {
-        Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
-        error => error,
+        match tag {
+            Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
+            error => error,
+        }
     }
 }
 
@@ -182,10 +204,12 @@ pub fn parse_static(input: &str) -> Res<&str, Item> {
             tag("{"),
         )),
         peek(alt((
+            recognize(tag_open),
+            // Parse whitespace with tag if trimmed/collapsed
             recognize(tuple((
                 opt(whitespace),
                 tag_open,
-                opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+                alt((collapse_whitespace_command, trim_whitespace_command)),
             ))),
             eof,
         ))),
@@ -201,46 +225,43 @@ pub fn parse_static(input: &str) -> Res<&str, Item> {
 
 #[test]
 fn test_empty() {
-    assert_eq!(parse(""), Ok(("", Template(vec![]))));
+    assert_eq!(parse("", &vec![]), Ok(Template(vec![])));
 }
 
 #[test]
 fn test_word() {
     assert_eq!(
-        parse("Test"),
-        Ok(("", Template(vec![Item::Static(Static(vec!["Test"]))])))
+        parse("Test", &vec![]),
+        Ok(Template(vec![Item::Static(Static(vec!["Test"]))]))
     );
 }
 
 #[test]
 fn test_phrase() {
     assert_eq!(
-        parse("Some text."),
-        Ok((
-            "",
-            Template(vec![Item::Static(Static(vec!["Some", " ", "text."]))])
-        ))
+        parse("Some text.", &vec![]),
+        Ok(Template(vec![Item::Static(Static(vec![
+            "Some", " ", "text."
+        ]))]))
     );
 }
 
 #[test]
 fn test_stray_brace() {
     assert_eq!(
-        parse("Some {text}."),
-        Ok((
-            "",
-            Template(vec![Item::Static(Static(vec!["Some", " ", "{", "text}."]))])
-        ))
+        parse("Some {text}.", &vec![]),
+        Ok(Template(vec![Item::Static(Static(vec![
+            "Some", " ", "{", "text}."
+        ]))]))
     );
 }
 
 #[test]
 fn test_writ() {
     assert_eq!(
-        parse("{{ greeting }}"),
-        Ok((
-            "",
-            Template(vec![Item::Writ(Writ(Expression::Identifier("greeting"))),])
-        ))
+        parse("{{ greeting }}", &vec![]),
+        Ok(Template(vec![Item::Writ(Writ(Expression::Identifier(
+            "greeting"
+        ))),]))
     );
 }

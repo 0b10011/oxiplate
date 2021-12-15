@@ -17,10 +17,7 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
         attrs, ident, data, ..
     } = &input;
 
-    let source = get_source(&attrs);
-    let _tokens = parser::parse(&source);
-
-    let mut field_names = Vec::new();
+    let mut field_names: Vec<&syn::Ident> = Vec::new();
     match data {
         Data::Struct(ref struct_item) => match &struct_item.fields {
             Fields::Named(fields) => {
@@ -39,12 +36,15 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
         }
     };
 
+    let source = get_source(&attrs);
+    let template = parser::parse(&source, &field_names).expect("Could not parse");
+
     let expanded = quote! {
         use std::fmt;
 
         impl fmt::Display for #ident {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                #(write!(f, "{} {}", #source, self.#field_names)?;)*
+                #template
                 Ok(())
             }
         }
