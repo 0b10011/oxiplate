@@ -148,6 +148,32 @@ pub enum TagOpen {
     Comment,
 }
 
+pub fn tag_start(input: &str) -> Res<&str, (Option<Static>, TagOpen)> {
+    if let Ok((input, tag)) = tag_open(input) {
+        return Ok((input, (None, tag)));
+    }
+
+    let (input, (whitespace, open, command)) = tuple((
+        opt(whitespace),
+        tag_open,
+        alt((collapse_whitespace_command, trim_whitespace_command)),
+    ))(input)?;
+
+    let whitespace = match command {
+        '_' => {
+            if whitespace.is_some() {
+                Some(Static(vec![" "]))
+            } else {
+                None
+            }
+        }
+        '-' => None,
+        _ => return fail(input),
+    };
+
+    Ok((input, (whitespace, open)))
+}
+
 pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
     let (input, output) = alt((
         tag("{{"), // writ
@@ -214,15 +240,18 @@ fn comment(input: &str) -> Res<&str, Item> {
 
 fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str, Item> {
     |input| {
-        let tag = match tag_open(input)? {
-            (input, TagOpen::Writ) => writ(input),
-            (input, TagOpen::Statement) => statement(input),
-            (input, TagOpen::Comment) => comment(input),
+        todo!("Either pass this whitespace to writ/statement/comment, or adjust return from this function.");
+        let (input, (whitespace, open)) = tag_start(input)?;
+
+        let tag = match open {
+            TagOpen::Writ => writ(input),
+            TagOpen::Statement => statement(input),
+            TagOpen::Comment => comment(input),
         };
 
         match tag {
             Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
-            error => error,
+            tag => tag,
         }
     }
 }
@@ -246,16 +275,7 @@ pub fn parse_static(input: &str) -> Res<&str, Item> {
             take_while1(is_whitespace),
             tag("{"),
         )),
-        peek(alt((
-            recognize(tag_open),
-            // Parse whitespace with tag if trimmed/collapsed
-            recognize(tuple((
-                opt(whitespace),
-                tag_open,
-                alt((collapse_whitespace_command, trim_whitespace_command)),
-            ))),
-            eof,
-        ))),
+        peek(alt((recognize(tag_start), eof))),
     )(input)?;
 
     // Must be checked for many0() call will fail due to infinite loop
@@ -306,5 +326,27 @@ fn test_writ() {
         Ok(Template(vec![Item::Writ(Writ(Expression::Identifier(
             "greeting"
         ))),]))
+    );
+}
+
+#[test]
+fn test_trimmed_whitespace() {
+    assert_eq!(
+        parse("Hello \t\n {{- greeting }}", &vec![]),
+        Ok(Template(vec![
+            Item::Static(Static(vec!["Hello"])),
+            Item::Writ(Writ(Expression::Identifier("greeting"))),
+        ]))
+    );
+}
+
+#[test]
+fn test_collapsed_whitespace() {
+    assert_eq!(
+        parse("Hello \t\n {{_ greeting }}", &vec![]),
+        Ok(Template(vec![
+            Item::Static(Static(vec!["Hello", " "])),
+            Item::Writ(Writ(Expression::Identifier("greeting"))),
+        ]))
     );
 }
