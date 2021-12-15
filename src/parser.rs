@@ -27,7 +27,7 @@ pub enum Item<'a> {
     Comment,
     Writ(Writ<'a>),
     Statement(Statement<'a>),
-    Static(Static<'a>),
+    Static(Static),
 }
 
 impl ToTokens for Item<'_> {
@@ -83,18 +83,18 @@ impl<'a> From<Comment<'a>> for Item<'a> {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Static<'a>(Vec<&'a str>);
+pub struct Static(String);
 
-impl<'a> From<Static<'a>> for Item<'a> {
-    fn from(r#static: Static<'a>) -> Self {
+impl<'a> From<Static> for Item<'a> {
+    fn from(r#static: Static) -> Self {
         Item::Static(r#static)
     }
 }
 
-impl ToTokens for Static<'_> {
+impl ToTokens for Static {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let text = &self.0;
-        tokens.append_all(quote! {#(write!(f, "{}", #text)?;)*});
+        tokens.append_all(quote! {write!(f, "{}", #text)?;});
     }
 }
 
@@ -109,11 +109,16 @@ pub fn parse<'a>(
 }
 
 fn try_parse<'a>(input: &'a str, variables: &'a Vec<&syn::Ident>) -> Res<&'a str, Template<'a>> {
-    let (input, items) = many0(alt((parse_tag(variables), parse_static)))(input)?;
+    let (input, items_vec) = many0(alt((parse_tag(variables), parse_static)))(input)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
     eof(input)?;
+
+    let mut items = Vec::new();
+    for mut item_vec in items_vec {
+        items.append(&mut item_vec);
+    }
 
     Ok(("", Template(items)))
 }
@@ -162,7 +167,7 @@ pub fn tag_start(input: &str) -> Res<&str, (Option<Static>, TagOpen)> {
     let whitespace = match command {
         '_' => {
             if whitespace.is_some() {
-                Some(Static(vec![" "]))
+                Some(Static(" ".to_owned()))
             } else {
                 None
             }
@@ -238,10 +243,9 @@ fn comment(input: &str) -> Res<&str, Item> {
     Ok((input, Item::Comment))
 }
 
-fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str, Item> {
+fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str, Vec<Item>> {
     |input| {
-        todo!("Either pass this whitespace to writ/statement/comment, or adjust return from this function.");
-        let (input, (whitespace, open)) = tag_start(input)?;
+        let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let tag = match open {
             TagOpen::Writ => writ(input),
@@ -251,7 +255,14 @@ fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str,
 
         match tag {
             Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
-            tag => tag,
+            Ok((input, tag)) => {
+                if let Some(leading_whitespace) = leading_whitespace {
+                    Ok((input, vec![leading_whitespace.into(), tag]))
+                } else {
+                    Ok((input, vec![tag]))
+                }
+            }
+            Err(error) => Err(error),
         }
     }
 }
@@ -268,7 +279,7 @@ pub fn trim_whitespace_command(input: &str) -> Res<&str, char> {
     char('-')(input)
 }
 
-pub fn parse_static(input: &str) -> Res<&str, Item> {
+pub fn parse_static(input: &str) -> Res<&str, Vec<Item>> {
     let (input, (output, _)) = many_till(
         alt((
             take_till1(is_whitespace_or_brace),
@@ -283,7 +294,12 @@ pub fn parse_static(input: &str) -> Res<&str, Item> {
         return fail(input);
     }
 
-    Ok((input, Item::Static(Static(output))))
+    let mut string = "".to_owned();
+    for item in output {
+        string.push_str(&item);
+    }
+
+    Ok((input, vec![Item::Static(Static(string))]))
 }
 
 #[test]
@@ -295,7 +311,7 @@ fn test_empty() {
 fn test_word() {
     assert_eq!(
         parse("Test", &vec![]),
-        Ok(Template(vec![Item::Static(Static(vec!["Test"]))]))
+        Ok(Template(vec![Item::Static(Static("Test".to_owned()))]))
     );
 }
 
@@ -303,9 +319,9 @@ fn test_word() {
 fn test_phrase() {
     assert_eq!(
         parse("Some text.", &vec![]),
-        Ok(Template(vec![Item::Static(Static(vec![
-            "Some", " ", "text."
-        ]))]))
+        Ok(Template(vec![Item::Static(Static(
+            "Some text.".to_owned()
+        ))]))
     );
 }
 
@@ -313,9 +329,9 @@ fn test_phrase() {
 fn test_stray_brace() {
     assert_eq!(
         parse("Some {text}.", &vec![]),
-        Ok(Template(vec![Item::Static(Static(vec![
-            "Some", " ", "{", "text}."
-        ]))]))
+        Ok(Template(vec![Item::Static(Static(
+            "Some {text}.".to_owned()
+        ))]))
     );
 }
 
@@ -334,7 +350,7 @@ fn test_trimmed_whitespace() {
     assert_eq!(
         parse("Hello \t\n {{- greeting }}", &vec![]),
         Ok(Template(vec![
-            Item::Static(Static(vec!["Hello"])),
+            Item::Static(Static("Hello".to_owned())),
             Item::Writ(Writ(Expression::Identifier("greeting"))),
         ]))
     );
@@ -345,7 +361,8 @@ fn test_collapsed_whitespace() {
     assert_eq!(
         parse("Hello \t\n {{_ greeting }}", &vec![]),
         Ok(Template(vec![
-            Item::Static(Static(vec!["Hello", " "])),
+            Item::Static(Static("Hello".to_owned())),
+            Item::Static(Static(" ".to_owned())),
             Item::Writ(Writ(Expression::Identifier("greeting"))),
         ]))
     );
