@@ -16,9 +16,9 @@ pub struct Template<'a>(Vec<Item<'a>>);
 
 impl ToTokens for Template<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append_all(TokenStream::from(quote! {
-            println!("Yay?");
-        }));
+        for item in &self.0 {
+            tokens.append_all(quote! { #item });
+        }
     }
 }
 
@@ -30,6 +30,17 @@ pub enum Item<'a> {
     Static(Static<'a>),
 }
 
+impl ToTokens for Item<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.append_all(match self {
+            Item::Comment => quote! {},
+            Item::Writ(writ) => quote! { #writ },
+            Item::Statement(statement) => quote! { #statement },
+            Item::Static(text) => quote! { #text },
+        });
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Writ<'a>(Expression<'a>);
 
@@ -39,12 +50,26 @@ impl<'a> From<Writ<'a>> for Item<'a> {
     }
 }
 
+impl ToTokens for Writ<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let expression = &self.0;
+        tokens.append_all(quote! { #expression });
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Statement<'a>(&'a str);
 
 impl<'a> From<Statement<'a>> for Item<'a> {
     fn from(statement: Statement<'a>) -> Self {
         Item::Statement(statement)
+    }
+}
+
+impl ToTokens for Statement<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let expression = &self.0;
+        tokens.append_all(quote! {write!(f, "{}", #expression)?;});
     }
 }
 
@@ -63,6 +88,13 @@ pub struct Static<'a>(Vec<&'a str>);
 impl<'a> From<Static<'a>> for Item<'a> {
     fn from(r#static: Static<'a>) -> Self {
         Item::Static(r#static)
+    }
+}
+
+impl ToTokens for Static<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let text = &self.0;
+        tokens.append_all(quote! {#(write!(f, "{}", #text)?;)*});
     }
 }
 
@@ -134,6 +166,17 @@ pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
 #[derive(Debug, PartialEq)]
 enum Expression<'a> {
     Identifier(&'a str),
+}
+
+impl ToTokens for Expression<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.append_all(match self {
+            Expression::Identifier(identifier) => {
+                let identifier = syn::Ident::new(&identifier, proc_macro2::Span::call_site());
+                quote! {write!(f, "{}", self.#identifier)?;}
+            }
+        });
+    }
 }
 
 fn expression(input: &str) -> Res<&str, Expression> {

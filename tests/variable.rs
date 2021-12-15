@@ -12,5 +12,5 @@ fn variable() {
         message: "Hello world!",
     };
 
-    assert_eq!(format!("{}", data), "Foo Bar / Hello world!");
+    assert_eq!(format!("{}", data), "Hello world!");
 }
