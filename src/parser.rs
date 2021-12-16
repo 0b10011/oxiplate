@@ -109,7 +109,11 @@ pub fn parse<'a>(
 }
 
 fn try_parse<'a>(input: &'a str, variables: &'a Vec<&syn::Ident>) -> Res<&'a str, Template<'a>> {
-    let (input, items_vec) = many0(alt((parse_tag(variables), parse_static)))(input)?;
+    let (input, items_vec) = many0(alt((
+        parse_tag(variables),
+        parse_static,
+        adjusted_whitespace,
+    )))(input)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -153,25 +157,35 @@ pub enum TagOpen {
     Comment,
 }
 
+pub fn adjusted_whitespace(input: &str) -> Res<&str, Vec<Item>> {
+    let (input, (_, tag, _)) = tuple((
+        opt(whitespace),
+        alt((tag("{_}"), tag("{-}"))),
+        opt(whitespace),
+    ))(input)?;
+
+    let whitespace = match tag {
+        "{_}" => vec![Static(" ".to_owned()).into()],
+        "{-}" => vec![],
+        _ => return fail(input),
+    };
+
+    Ok((input, whitespace))
+}
+
 pub fn tag_start(input: &str) -> Res<&str, (Option<Static>, TagOpen)> {
     if let Ok((input, tag)) = tag_open(input) {
         return Ok((input, (None, tag)));
     }
 
-    let (input, (whitespace, open, command)) = tuple((
+    let (input, (_, open, command)) = tuple((
         opt(whitespace),
         tag_open,
         alt((collapse_whitespace_command, trim_whitespace_command)),
     ))(input)?;
 
     let whitespace = match command {
-        '_' => {
-            if whitespace.is_some() {
-                Some(Static(" ".to_owned()))
-            } else {
-                None
-            }
-        }
+        '_' => Some(Static(" ".to_owned())),
         '-' => None,
         _ => return fail(input),
     };
@@ -286,7 +300,11 @@ pub fn parse_static(input: &str) -> Res<&str, Vec<Item>> {
             take_while1(is_whitespace),
             tag("{"),
         )),
-        peek(alt((recognize(tag_start), eof))),
+        peek(alt((
+            recognize(tag_start),
+            recognize(adjusted_whitespace),
+            eof,
+        ))),
     )(input)?;
 
     // Must be checked for many0() call will fail due to infinite loop
@@ -348,6 +366,17 @@ fn test_writ() {
 #[test]
 fn test_trimmed_whitespace() {
     assert_eq!(
+        parse("Hello \t\n {-} \t\n world!", &vec![]),
+        Ok(Template(vec![
+            Item::Static(Static("Hello".to_owned())),
+            Item::Static(Static("world!".to_owned())),
+        ]))
+    );
+}
+
+#[test]
+fn test_trimmed_leading_whitespace() {
+    assert_eq!(
         parse("Hello \t\n {{- greeting }}", &vec![]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
@@ -358,6 +387,18 @@ fn test_trimmed_whitespace() {
 
 #[test]
 fn test_collapsed_whitespace() {
+    assert_eq!(
+        parse("Hello \t\n {_} \t\n world!", &vec![]),
+        Ok(Template(vec![
+            Item::Static(Static("Hello".to_owned())),
+            Item::Static(Static(" ".to_owned())),
+            Item::Static(Static("world!".to_owned())),
+        ]))
+    );
+}
+
+#[test]
+fn test_collapsed_leading_whitespace() {
     assert_eq!(
         parse("Hello \t\n {{_ greeting }}", &vec![]),
         Ok(Template(vec![
