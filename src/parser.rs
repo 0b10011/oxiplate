@@ -1,5 +1,5 @@
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_till1, take_until, take_while, take_while1};
+use nom::bytes::complete::{tag, take_till1, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{eof, fail, opt, peek, recognize};
 use nom::error::VerboseError;
@@ -193,6 +193,28 @@ pub fn tag_start(input: &str) -> Res<&str, (Option<Static>, TagOpen)> {
     Ok((input, (whitespace, open)))
 }
 
+pub fn tag_end(tag_close: &str) -> impl Fn(&str) -> Res<&str, Option<Static>> + '_ {
+    move |input| {
+        if let Ok((input, _tag)) = tag::<_, _, VerboseError<_>>(tag_close)(input) {
+            return Ok((input, None));
+        }
+
+        let (input, (command, _, _)) = tuple((
+            alt((collapse_whitespace_command, trim_whitespace_command)),
+            tag(tag_close),
+            opt(whitespace),
+        ))(input)?;
+
+        let whitespace = match command {
+            '_' => Some(Static(" ".to_owned())),
+            '-' => None,
+            _ => return fail(input),
+        };
+
+        Ok((input, whitespace))
+    }
+}
+
 pub fn tag_open(input: &str) -> Res<&str, TagOpen> {
     let (input, output) = alt((
         tag("{{"), // writ
@@ -237,24 +259,35 @@ fn expression(input: &str) -> Res<&str, Expression> {
     alt((identifier,))(input)
 }
 
-fn writ(input: &str) -> Res<&str, Item> {
+fn writ(input: &str) -> Res<&str, (Item, Option<Static>)> {
     let (input, _) = opt(take_while(is_whitespace))(input)?;
     let (input, output) = expression(input)?;
-    let (input, _) = preceded(opt(take_while(is_whitespace)), tag("}}"))(input)?;
+    let (input, trailing_whitespace) =
+        preceded(opt(take_while(is_whitespace)), tag_end("}}"))(input)?;
 
-    Ok((input, Item::Writ(Writ(output))))
+    Ok((input, (Writ(output).into(), trailing_whitespace)))
 }
 
-fn statement(input: &str) -> Res<&str, Item> {
+fn statement(input: &str) -> Res<&str, (Item, Option<Static>)> {
     let (input, output) = tag("test")(input)?;
 
-    Ok((input, Item::Statement(Statement(output))))
+    let whitespace = None;
+
+    Ok((input, (Statement(output).into(), whitespace)))
 }
 
-fn comment(input: &str) -> Res<&str, Item> {
-    let (input, _) = take_until("#}")(input)?;
+fn comment(input: &str) -> Res<&str, (Item, Option<Static>)> {
+    let (input, (_comment, trailing_whitespace)) = many_till(
+        alt((
+            take_till1(|char| char == '-' || char == '_' || char == '#'),
+            tag("-"),
+            tag("_"),
+            tag("#"),
+        )),
+        tag_end("#}"),
+    )(input)?;
 
-    Ok((input, Item::Comment))
+    Ok((input, (Item::Comment, trailing_whitespace)))
 }
 
 fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str, Vec<Item>> {
@@ -269,12 +302,20 @@ fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(&str) -> Res<&str,
 
         match tag {
             Err(SynErr::Error(error)) => Err(SynErr::Failure(error)),
-            Ok((input, tag)) => {
+            Ok((input, (tag, trailing_whitespace))) => {
+                let mut items = vec![];
+
                 if let Some(leading_whitespace) = leading_whitespace {
-                    Ok((input, vec![leading_whitespace.into(), tag]))
-                } else {
-                    Ok((input, vec![tag]))
+                    items.push(leading_whitespace.into());
                 }
+
+                items.push(tag);
+
+                if let Some(trailing_whitespace) = trailing_whitespace {
+                    items.push(trailing_whitespace.into());
+                }
+
+                Ok((input, items))
             }
             Err(error) => Err(error),
         }
@@ -386,6 +427,17 @@ fn test_trimmed_leading_whitespace() {
 }
 
 #[test]
+fn test_trimmed_trailing_whitespace() {
+    assert_eq!(
+        parse("{{ greeting -}} \t\n !", &vec![]),
+        Ok(Template(vec![
+            Item::Writ(Writ(Expression::Identifier("greeting"))),
+            Item::Static(Static("!".to_owned())),
+        ]))
+    );
+}
+
+#[test]
 fn test_collapsed_whitespace() {
     assert_eq!(
         parse("Hello \t\n {_} \t\n world!", &vec![]),
@@ -405,6 +457,31 @@ fn test_collapsed_leading_whitespace() {
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
             Item::Writ(Writ(Expression::Identifier("greeting"))),
+        ]))
+    );
+}
+
+#[test]
+fn test_collapsed_trailing_whitespace_writ() {
+    assert_eq!(
+        parse("{{ greeting _}} \t\n world!", &vec![]),
+        Ok(Template(vec![
+            Item::Writ(Writ(Expression::Identifier("greeting"))),
+            Item::Static(Static(" ".to_owned())),
+            Item::Static(Static("world!".to_owned())),
+        ]))
+    );
+}
+
+#[test]
+fn test_collapsed_trailing_whitespace_comment() {
+    assert_eq!(
+        parse("Hello {#- Some comment _#} \t\n world!", &vec![]),
+        Ok(Template(vec![
+            Item::Static(Static("Hello".to_owned())),
+            Item::Comment,
+            Item::Static(Static(" ".to_owned())),
+            Item::Static(Static("world!".to_owned())),
         ]))
     );
 }
