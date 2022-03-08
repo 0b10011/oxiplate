@@ -14,6 +14,13 @@ use syn::{Attribute, Data, DeriveInput, Fields};
 
 #[proc_macro_derive(Oxiplate, attributes(oxi_code, oxi_path))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
+    match parse(input) {
+        Ok(token_stream) => token_stream,
+        Err(err) => err.to_compile_error().into(),
+    }
+}
+
+fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
         attrs, ident, data, ..
@@ -33,12 +40,11 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
             _ => (),
         },
         _ => {
-            input.span().unwrap().error("Expected a struct").emit();
-            return TokenStream::new();
+            return Err(syn::Error::new(input.span(), "Expected a struct"));
         }
     };
 
-    let source = get_source(&attrs);
+    let source = get_source(&attrs)?;
     let template = parser::parse(&source, &field_names).expect("Could not parse");
 
     let expanded = quote! {
@@ -50,25 +56,26 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
         }
     };
 
-    TokenStream::from(expanded)
+    Ok(TokenStream::from(expanded))
 }
 
-fn get_source(attrs: &Vec<Attribute>) -> String {
+fn get_source(attrs: &Vec<Attribute>) -> Result<String, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxi_path = "/absolute/path/to/template/within/project.txt.oxip"]
 External: #[oxi_path = "./relative/path/to/template/from/current/file.txt.oxip"]
 Internal: #[oxi_code = "{{ your_var }}"]"#;
     for attr in attrs {
         if attr.path.is_ident("oxi_code") {
-            match attr.parse_meta().expect("Unable to parse attribute") {
-                syn::Meta::NameValue(syn::MetaNameValue {
+            return match attr.parse_meta() {
+                Ok(syn::Meta::NameValue(syn::MetaNameValue {
                     lit: syn::Lit::Str(code),
                     ..
-                }) => return code.value(),
-                _ => panic!("{}", invalid_attribute_message),
-            }
+                })) => Ok(code.value()),
+                Err(err) => Err(err),
+                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
+            };
         } else if attr.path.is_ident("oxi_path") {
-            match attr.parse_meta().expect("Unable to parse attribute") {
+            return match attr.parse_meta().expect("Unable to parse attribute") {
                 syn::Meta::NameValue(syn::MetaNameValue {
                     lit: syn::Lit::Str(path),
                     ..
@@ -97,10 +104,10 @@ Internal: #[oxi_code = "{{ your_var }}"]"#;
                         panic!("Path {:?} must start with {:?}", path, base_path);
                     }
 
-                    return fs::read_to_string(path).expect("Could not read file");
+                    Ok(fs::read_to_string(path).expect("Could not read file"))
                 }
-                _ => panic!("{}", invalid_attribute_message),
-            }
+                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
+            };
         }
     }
 
