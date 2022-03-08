@@ -12,6 +12,11 @@ use std::{env, fs};
 use syn::spanned::Spanned;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
+struct Source {
+    code: String,
+    origin: Option<PathBuf>,
+}
+
 #[proc_macro_derive(Oxiplate, attributes(oxi_code, oxi_path))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
@@ -45,7 +50,17 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
 
     let source = get_source(&attrs)?;
-    let template = parser::parse(&source, &field_names).expect("Could not parse");
+    let template = match parser::parse(source.code.as_str().into(), &field_names) {
+        Ok(template) => template,
+        Err(nom::Err::Error(err)) | Err(nom::Err::Failure(err)) => {
+            let origin = match source.origin {
+                Some(origin) => origin,
+                None => "Main file".into(),
+            };
+            panic!("{:?} in {:?}", err, origin);
+        }
+        Err(nom::Err::Incomplete(_)) => panic!("Unexpected incomplete error"),
+    };
 
     let expanded = quote! {
         impl std::fmt::Display for #ident {
@@ -59,7 +74,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     Ok(TokenStream::from(expanded))
 }
 
-fn get_source(attrs: &Vec<Attribute>) -> Result<String, syn::Error> {
+fn get_source(attrs: &Vec<Attribute>) -> Result<Source, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxi_path = "/absolute/path/to/template/within/project.txt.oxip"]
 External: #[oxi_path = "./relative/path/to/template/from/current/file.txt.oxip"]
@@ -70,7 +85,10 @@ Internal: #[oxi_code = "{{ your_var }}"]"#;
                 Ok(syn::Meta::NameValue(syn::MetaNameValue {
                     lit: syn::Lit::Str(code),
                     ..
-                })) => Ok(code.value()),
+                })) => Ok(Source {
+                    code: code.value(),
+                    origin: None,
+                }),
                 Err(err) => Err(err),
                 _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
             };
@@ -104,7 +122,10 @@ Internal: #[oxi_code = "{{ your_var }}"]"#;
                         panic!("Path {:?} must start with {:?}", path, base_path);
                     }
 
-                    Ok(fs::read_to_string(path).expect("Could not read file"))
+                    Ok(Source {
+                        code: fs::read_to_string(&path).expect("Could not read file"),
+                        origin: Some(path),
+                    })
                 }
                 _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
             };
