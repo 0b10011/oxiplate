@@ -6,7 +6,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[path = "/docs/templates/external.html.oxip"]
+#[oxi_path = "/tests/external.html.oxip"]
 struct SomeStruct {
     // Does not need to be `&'static str`,
     // but does need to implement `std::fmt::Display`.
@@ -22,7 +22,7 @@ fn main() {
 
     assert_eq!(
         format!("{}", template),
-        "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
+        "<h1>Oxiplate Example</h1>\r\n<p>Hello world!</p>\r\n"
     );
 }
 ```
@@ -33,7 +33,7 @@ fn main() {
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[code = "<h1>{{ title }}</h1>\n<p>{{ message }}</p>\n"]
+#[oxi_code = "<h1>{{ title }}</h1>\n<p>{{ message }}</p>\n"]
 struct SomeStruct {
     // Does not need to be `&'static str`,
     // but does need to implement `std::fmt::Display`.

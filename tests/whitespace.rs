@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[code = "Hello  \t\n {_} \r\n\t world \n\t {-} \t\n !"]
+#[oxi_code = "Hello  \t\n {_} \r\n\t world \n\t {-} \t\n !"]
 struct Data {}
 
 #[test]
