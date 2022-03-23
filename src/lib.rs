@@ -5,6 +5,8 @@
 #![doc = include_str!("../README.md")]
 
 mod parser;
+mod syntax;
+
 use proc_macro::TokenStream;
 use quote::quote;
 use std::path::PathBuf;

@@ -7,98 +7,10 @@ use nom::multi::{many0, many_till};
 use nom::sequence::{preceded, tuple};
 use nom::Err as SynErr;
 use nom_locate::LocatedSpan;
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use crate::syntax::*;
 
 type Res<T, U> = nom::IResult<LocatedSpan<T>, U, VerboseError<LocatedSpan<T>>>;
 type Span<'a> = LocatedSpan<&'a str>;
-
-#[derive(Debug, PartialEq)]
-pub struct Template<'a>(Vec<Item<'a>>);
-
-impl ToTokens for Template<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        for item in &self.0 {
-            tokens.append_all(quote! { #item });
-        }
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Item<'a> {
-    Comment,
-    Writ(Writ<'a>),
-    Statement(Statement<'a>),
-    Static(Static),
-}
-
-impl ToTokens for Item<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append_all(match self {
-            Item::Comment => quote! {},
-            Item::Writ(writ) => quote! { #writ },
-            Item::Statement(statement) => quote! { #statement },
-            Item::Static(text) => quote! { #text },
-        });
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Writ<'a>(Expression<'a>);
-
-impl<'a> From<Writ<'a>> for Item<'a> {
-    fn from(writ: Writ<'a>) -> Self {
-        Item::Writ(writ)
-    }
-}
-
-impl ToTokens for Writ<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let expression = &self.0;
-        tokens.append_all(quote! { #expression });
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Statement<'a>(&'a str);
-
-impl<'a> From<Statement<'a>> for Item<'a> {
-    fn from(statement: Statement<'a>) -> Self {
-        Item::Statement(statement)
-    }
-}
-
-impl ToTokens for Statement<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let expression = &self.0;
-        tokens.append_all(quote! {write!(f, "{}", #expression)?;});
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Comment<'a>(&'a str);
-
-impl<'a> From<Comment<'a>> for Item<'a> {
-    fn from(_comment: Comment) -> Self {
-        Item::Comment
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Static(String);
-
-impl<'a> From<Static> for Item<'a> {
-    fn from(r#static: Static) -> Self {
-        Item::Static(r#static)
-    }
-}
-
-impl ToTokens for Static {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let text = &self.0;
-        tokens.append_all(quote! {write!(f, "{}", #text)?;});
-    }
-}
 
 pub fn parse<'a>(
     input: Span<'a>,
@@ -229,22 +141,6 @@ pub fn tag_open(input: Span) -> Res<&str, TagOpen> {
         &"{%" => Ok((input, TagOpen::Statement)),
         &"{#" => Ok((input, TagOpen::Comment)),
         _ => panic!("This should never happen"),
-    }
-}
-
-#[derive(Debug, PartialEq)]
-enum Expression<'a> {
-    Identifier(&'a str),
-}
-
-impl ToTokens for Expression<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append_all(match self {
-            Expression::Identifier(identifier) => {
-                let identifier = syn::Ident::new(&identifier, proc_macro2::Span::call_site());
-                quote! {write!(f, "{}", self.#identifier)?;}
-            }
-        });
     }
 }
 
