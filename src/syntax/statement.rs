@@ -1,6 +1,7 @@
+use super::{Item, Res, Span, Static};
+use nom::bytes::complete::tag;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use super::Item;
 
 #[derive(Debug, PartialEq)]
 pub struct Statement<'a>(pub &'a str);
@@ -16,4 +17,12 @@ impl ToTokens for Statement<'_> {
         let expression = &self.0;
         tokens.append_all(quote! {write!(f, "{}", #expression)?;});
     }
+}
+
+pub(super) fn statement(input: Span) -> Res<&str, (Item, Option<Static>)> {
+    let (input, output) = tag("test")(input)?;
+
+    let whitespace = None;
+
+    Ok((input, (Statement(output.fragment()).into(), whitespace)))
 }

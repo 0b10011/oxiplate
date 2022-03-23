@@ -1,3 +1,6 @@
+use super::{Res, Span};
+use nom::branch::alt;
+use nom::bytes::complete::take_while1;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -15,4 +18,17 @@ impl ToTokens for Expression<'_> {
             }
         });
     }
+}
+
+pub(super) fn expression(input: Span) -> Res<&str, Expression> {
+    fn identifier(input: Span) -> Res<&str, Expression> {
+        let (input, output) = take_while1(|char| match char {
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => true,
+            _ => false,
+        })(input)?;
+
+        Ok((input, Expression::Identifier(output.fragment())))
+    }
+
+    alt((identifier,))(input)
 }
