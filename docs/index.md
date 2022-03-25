@@ -1,37 +1,79 @@
-## Welcome to GitHub Pages
+**Oxiplate is experimental and features described here may not yet be implemented, or may be implemented in a different way.**
 
-You can use the [editor on GitHub](https://github.com/0b10011/oxiplate/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+## Template syntax
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The syntax for templates is similar to many other systems, but the terminology may be slightly different.
 
-### Markdown
+A **writ** is an [**expression**](#expressions) wrapped with `{{` and `}}` that will be evaluated and output into the template. For example, `Hello {{ name }}!` may become `Hello Luna!`.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+A [**statement**](#statements) is wrapped with `{%` and `%}` and includes variable assignments and control structures. See the [**statement**](#statements) section for a list of possible statements.
 
-```markdown
-Syntax highlighted code block
+A **comment** is text wrapped with `{#` and `#}` that will be removed from the final template, but can be useful to the template designer(s). For example, `{# None of this text would show up in the final template. #}`.
 
-# Header 1
-## Header 2
-### Header 3
+Whitespace before and after **tags** can be removed or collapsed. See the [whitespace control](#whitespace-control) section for more information.
 
-- Bulleted
-- List
+Anything else in the template is considered **static** and will be left as-is.
 
-1. Numbered
-2. List
+### Expressions
 
-**Bold** and _Italic_ and `Code` text
+#### Extends and block
 
-[Link](url) and ![Image](src)
+```oxip
+{# layout.html.oxip -#}
+
+<!DOCTYPE html>
+<main>{% block content %}{% endblock %}</main>
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+```oxip
+{# your-content.html.oxip -#}
 
-### Jekyll Themes
+{% extends "layout.html.oxip" %}
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/0b10011/oxiplate/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+{% block content %}
+  <h1>Your content</h1>
+  <p>Goes here...</p>
+{% endblock %}
+```
 
-### Support or Contact
+```html
+<!DOCTYPE html>
+<main>
+  <h1>Your content</h1>
+  <p>Goes here...</p>
+</main>
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+#### If/elseif/else
+
+```rust
+struct YourStruct {
+    autofocus: &'static bool,
+    minlength: &'static Option<u64>,
+    maxlength: &'static Option<u64>,
+    id: &'static str,
+}
+```
+
+```oxip
+<input
+  {{_ autofocus ? "autofocus" }}
+  {%_ if let Some(minlength) = minlength %}minlength="{{ attr: minlength }}"{% endif %}
+  {%_ if maxlength.is_some() %}maxlength="{{ attr: maxlength }}"{% endif %}
+```
+
+#### For
+
+```
+<ul>
+  {% for name in names %}
+    <li>{{ name }}
+  {% endfor %}
+</ul>
+```
+
+### Statements
+
+### Whitespace control
+
+Whitespace (spaces, tabs, newlines, etc) that comes before a **tag** can be removed by appending `-` to the open sequence (`{{-`, `{%-`, or `{#-`), or collapsed to a single space (` `) by appending `_` to the open tag (`{{_`, `{%_`, or `{#_`). The same is true for whitespace that comes after, but by prefixing the close sequence with the whitespace control characters (`-}}`, `-%}`, or `-#}` to remove; `_}}`, `_%}`, `_#}` to collapse).
