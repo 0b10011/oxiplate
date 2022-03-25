@@ -1,3 +1,5 @@
+Oxiplate is an *experimental* template system for rust. Use at your own risk.
+
 # Usage
 
 ## External code
