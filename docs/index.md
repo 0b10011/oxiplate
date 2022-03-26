@@ -1,4 +1,6 @@
+---
 title: "Oxiplate: Template language for Rust"
+---
 
 {% raw -%}
 
