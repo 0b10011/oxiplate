@@ -125,7 +125,9 @@ fn test_writ() {
     assert_eq!(
         parse("{{ greeting }}".into(), &vec![]),
         Ok(Template(vec![Item::Writ(super::Writ(
-            super::Expression::Identifier(super::expression::Identifier("greeting".into()))
+            super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
+                super::expression::Identifier("greeting".into())
+            ))
         )),]))
     );
 }
@@ -148,7 +150,9 @@ fn test_trimmed_leading_whitespace() {
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::Identifier("greeting".into())
+                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+                    "greeting".into()
+                ))
             ))),
         ]))
     );
@@ -160,7 +164,9 @@ fn test_trimmed_trailing_whitespace() {
         parse("{{ greeting -}} \t\n !".into(), &vec![]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::Identifier("greeting".into())
+                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+                    "greeting".into()
+                ))
             ))),
             Item::Static(Static("!".to_owned())),
         ]))
@@ -187,7 +193,9 @@ fn test_collapsed_leading_whitespace() {
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::Identifier("greeting".into())
+                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+                    "greeting".into()
+                ))
             ))),
         ]))
     );
@@ -199,7 +207,9 @@ fn test_collapsed_trailing_whitespace_writ() {
         parse("{{ greeting _}} \t\n world!".into(), &vec![]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::Identifier("greeting".into())
+                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+                    "greeting".into()
+                ))
             ))),
             Item::Static(Static(" ".to_owned())),
             Item::Static(Static("world!".to_owned())),
