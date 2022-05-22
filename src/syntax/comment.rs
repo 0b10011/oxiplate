@@ -3,7 +3,7 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1};
 use nom::multi::many_till;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Comment<'a>(&'a str);
 
 impl<'a> From<Comment<'a>> for Item<'a> {

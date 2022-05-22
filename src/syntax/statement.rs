@@ -3,7 +3,7 @@ use nom::bytes::complete::tag;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Statement<'a>(pub &'a str);
 
 impl<'a> From<Statement<'a>> for Item<'a> {

@@ -8,7 +8,7 @@ use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Writ<'a>(pub Expression<'a>);
 
 impl<'a> From<Writ<'a>> for Item<'a> {

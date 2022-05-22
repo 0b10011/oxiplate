@@ -10,7 +10,7 @@ use nom::multi::many_till;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Static(pub String);
 
 impl<'a> From<Static> for Item<'a> {

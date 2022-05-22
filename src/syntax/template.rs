@@ -8,7 +8,7 @@ use nom::sequence::tuple;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Template<'a>(pub Vec<Item<'a>>);
 
 impl ToTokens for Template<'_> {
@@ -21,7 +21,7 @@ impl ToTokens for Template<'_> {
 
 pub fn parse<'a>(
     input: Span<'a>,
-    variables: &'a Vec<&syn::Ident>,
+    variables: &'a [&syn::Ident],
 ) -> Result<Template<'a>, nom::Err<VerboseError<Span<'a>>>> {
     match try_parse(input, variables) {
         Ok((_, template)) => Ok(template),
@@ -29,7 +29,7 @@ pub fn parse<'a>(
     }
 }
 
-fn try_parse<'a>(input: Span<'a>, variables: &'a Vec<&syn::Ident>) -> Res<&'a str, Template<'a>> {
+fn try_parse<'a>(input: Span<'a>, variables: &'a [&syn::Ident]) -> Res<&'a str, Template<'a>> {
     let (input, items_vec) = many0(alt((
         parse_tag(variables),
         parse_static,
@@ -55,9 +55,9 @@ pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
         opt(whitespace),
     ))(input)?;
 
-    let whitespace = match tag.fragment() {
-        &"{_}" => vec![Static(" ".to_owned()).into()],
-        &"{-}" => vec![],
+    let whitespace = match *tag.fragment() {
+        "{_}" => vec![Static(" ".to_owned()).into()],
+        "{-}" => vec![],
         _ => return fail(input),
     };
 
@@ -66,7 +66,7 @@ pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
 
 // https://doc.rust-lang.org/reference/whitespace.html
 pub fn is_whitespace(char: char) -> bool {
-    match char {
+    matches!(char, 
         '\u{0009}' // (horizontal tab, '\t')
         | '\u{000A}' // (line feed, '\n')
         | '\u{000B}' // (vertical tab)
@@ -78,9 +78,7 @@ pub fn is_whitespace(char: char) -> bool {
         | '\u{200F}' // (right-to-left mark)
         | '\u{2028}' // (line separator)
         | '\u{2029}' // (paragraph separator)
-        => true,
-        _ => false,
-    }
+    )
 }
 
 pub fn whitespace(input: Span) -> Res<&str, Span> {
@@ -89,13 +87,13 @@ pub fn whitespace(input: Span) -> Res<&str, Span> {
 
 #[test]
 fn test_empty() {
-    assert_eq!(parse("".into(), &vec![]), Ok(Template(vec![])));
+    assert_eq!(parse("".into(), &[]), Ok(Template(vec![])));
 }
 
 #[test]
 fn test_word() {
     assert_eq!(
-        parse("Test".into(), &vec![]),
+        parse("Test".into(), &[]),
         Ok(Template(vec![Item::Static(Static("Test".to_owned()))]))
     );
 }
@@ -103,7 +101,7 @@ fn test_word() {
 #[test]
 fn test_phrase() {
     assert_eq!(
-        parse("Some text.".into(), &vec![]),
+        parse("Some text.".into(), &[]),
         Ok(Template(vec![Item::Static(Static(
             "Some text.".to_owned()
         ))]))
@@ -113,7 +111,7 @@ fn test_phrase() {
 #[test]
 fn test_stray_brace() {
     assert_eq!(
-        parse("Some {text}.".into(), &vec![]),
+        parse("Some {text}.".into(), &[]),
         Ok(Template(vec![Item::Static(Static(
             "Some {text}.".to_owned()
         ))]))
@@ -123,10 +121,10 @@ fn test_stray_brace() {
 #[test]
 fn test_writ() {
     assert_eq!(
-        parse("{{ greeting }}".into(), &vec![]),
+        parse("{{ greeting }}".into(), &[]),
         Ok(Template(vec![Item::Writ(super::Writ(
             super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
-                super::expression::Identifier("greeting".into())
+                super::expression::Identifier("greeting")
             ))
         )),]))
     );
@@ -135,7 +133,7 @@ fn test_writ() {
 #[test]
 fn test_trimmed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {-} \t\n world!".into(), &vec![]),
+        parse("Hello \t\n {-} \t\n world!".into(), &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static("world!".to_owned())),
@@ -146,12 +144,12 @@ fn test_trimmed_whitespace() {
 #[test]
 fn test_trimmed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{- greeting }}".into(), &vec![]),
+        parse("Hello \t\n {{- greeting }}".into(), &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting".into()
+                    "greeting"
                 ))
             ))),
         ]))
@@ -161,11 +159,11 @@ fn test_trimmed_leading_whitespace() {
 #[test]
 fn test_trimmed_trailing_whitespace() {
     assert_eq!(
-        parse("{{ greeting -}} \t\n !".into(), &vec![]),
+        parse("{{ greeting -}} \t\n !".into(), &[]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting".into()
+                    "greeting"
                 ))
             ))),
             Item::Static(Static("!".to_owned())),
@@ -176,7 +174,7 @@ fn test_trimmed_trailing_whitespace() {
 #[test]
 fn test_collapsed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {_} \t\n world!".into(), &vec![]),
+        parse("Hello \t\n {_} \t\n world!".into(), &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
@@ -188,13 +186,13 @@ fn test_collapsed_whitespace() {
 #[test]
 fn test_collapsed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{_ greeting }}".into(), &vec![]),
+        parse("Hello \t\n {{_ greeting }}".into(), &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting".into()
+                    "greeting"
                 ))
             ))),
         ]))
@@ -204,11 +202,11 @@ fn test_collapsed_leading_whitespace() {
 #[test]
 fn test_collapsed_trailing_whitespace_writ() {
     assert_eq!(
-        parse("{{ greeting _}} \t\n world!".into(), &vec![]),
+        parse("{{ greeting _}} \t\n world!".into(), &[]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting".into()
+                    "greeting"
                 ))
             ))),
             Item::Static(Static(" ".to_owned())),
@@ -220,7 +218,7 @@ fn test_collapsed_trailing_whitespace_writ() {
 #[test]
 fn test_collapsed_trailing_whitespace_comment() {
     assert_eq!(
-        parse("Hello {#- Some comment _#} \t\n world!".into(), &vec![]),
+        parse("Hello {#- Some comment _#} \t\n world!".into(), &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Comment,

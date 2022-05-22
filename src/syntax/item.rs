@@ -12,7 +12,7 @@ use nom::Err as NomErr;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Item<'a> {
     Comment,
     Writ(Writ<'a>),
@@ -38,7 +38,7 @@ pub enum TagOpen {
     Comment,
 }
 
-pub fn parse_tag<'a>(_variables: &'a Vec<&syn::Ident>) -> impl Fn(Span) -> Res<&str, Vec<Item>> {
+pub fn parse_tag(_variables: &'_ [&syn::Ident]) -> impl Fn(Span) -> Res<&str, Vec<Item>> {
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
@@ -119,10 +119,10 @@ pub fn tag_open(input: Span) -> Res<&str, TagOpen> {
         tag("{#"), // comment
     ))(input)?;
 
-    match output.fragment() {
-        &"{{" => Ok((input, TagOpen::Writ)),
-        &"{%" => Ok((input, TagOpen::Statement)),
-        &"{#" => Ok((input, TagOpen::Comment)),
+    match *output.fragment() {
+        "{{" => Ok((input, TagOpen::Writ)),
+        "{%" => Ok((input, TagOpen::Statement)),
+        "{#" => Ok((input, TagOpen::Comment)),
         _ => panic!("This should never happen"),
     }
 }

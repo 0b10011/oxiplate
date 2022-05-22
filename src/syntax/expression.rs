@@ -8,19 +8,31 @@ use nom::sequence::{pair, terminated};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq)]
+// #[derive(Debug, PartialEq)]
+// // https://doc.rust-lang.org/reference/expressions/literal-expr.html
+// enum Literal<'a> {
+//     Char(char),
+//     String(&'a str),
+//     Byte(u8),
+//     ByteString(&'a Vec<u8>),
+//     Integer(i64),
+//     Float(f64),
+//     Boolean(bool),
+// }
+
+#[derive(Debug, PartialEq, Eq)]
 pub struct Identifier<'a>(pub &'a str);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum IdentifierOrFunction<'a> {
     Identifier(Identifier<'a>),
     Function(Identifier<'a>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>),
     FieldAccess(IdentField<'a>),
@@ -31,13 +43,13 @@ impl ToTokens for Expression<'_> {
         tokens.append_all(match self {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
-                    let identifier = syn::Ident::new(&identifier.0, proc_macro2::Span::call_site());
+                    let identifier = syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
                     quote! {
                         write!(f, "{}", self.#identifier)?;
                     }
                 }
                 IdentifierOrFunction::Function(identifier) => {
-                    let identifier = syn::Ident::new(&identifier.0, proc_macro2::Span::call_site());
+                    let identifier = syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
                     quote! {
                         write!(f, "{}", self.#identifier())?;
                     }
@@ -46,19 +58,19 @@ impl ToTokens for Expression<'_> {
             Expression::FieldAccess(identifier) => {
                 let mut parents = Vec::with_capacity(identifier.0.len());
                 for parent in &identifier.0 {
-                    parents.push(syn::Ident::new(&parent.0, proc_macro2::Span::call_site()));
+                    parents.push(syn::Ident::new(parent.0, proc_macro2::Span::call_site()));
                 }
                 match &identifier.1 {
                     IdentifierOrFunction::Identifier(identifier) => {
                         let identifier =
-                            syn::Ident::new(&identifier.0, proc_macro2::Span::call_site());
+                            syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
                         quote! {
                             write!(f, "{}", self.#(#parents.)*#identifier)?;
                         }
                     }
                     IdentifierOrFunction::Function(identifier) => {
                         let identifier =
-                            syn::Ident::new(&identifier.0, proc_macro2::Span::call_site());
+                            syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
                         quote! {
                             write!(f, "{}", self.#(#parents.)*#identifier())?;
                         }
@@ -71,10 +83,7 @@ impl ToTokens for Expression<'_> {
 
 pub(super) fn expression(input: Span) -> Res<&str, Expression> {
     fn field_or_identifier(input: Span) -> Res<&str, Expression> {
-        let ident = take_while1(|char| match char {
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => true,
-            _ => false,
-        });
+        let ident = take_while1(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'));
         let (input, (parsed_parents, (parsed_field, maybe_function))) = pair(
             many0(terminated(&ident, char('.'))),
             pair(&ident, opt(tag("()"))),
