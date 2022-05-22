@@ -89,7 +89,7 @@ pub(super) fn expression(input: Span) -> Res<&str, Expression> {
             pair(&ident, opt(tag("()"))),
         )(input)?;
 
-        let ident = Identifier(parsed_field.fragment());
+        let ident = Identifier(parsed_field);
         let field = if maybe_function.is_some() {
             IdentifierOrFunction::Function(ident)
         } else {
@@ -102,7 +102,7 @@ pub(super) fn expression(input: Span) -> Res<&str, Expression> {
 
         let mut parents = Vec::with_capacity(parsed_parents.len());
         for parent in parsed_parents {
-            parents.push(Identifier(parent.fragment()));
+            parents.push(Identifier(parent));
         }
 
         Ok((input, Expression::FieldAccess(IdentField(parents, field))))

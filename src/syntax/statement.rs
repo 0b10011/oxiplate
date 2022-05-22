@@ -24,5 +24,5 @@ pub(super) fn statement(input: Span) -> Res<&str, (Item, Option<Static>)> {
 
     let whitespace = None;
 
-    Ok((input, (Statement(output.fragment()).into(), whitespace)))
+    Ok((input, (Statement(output).into(), whitespace)))
 }

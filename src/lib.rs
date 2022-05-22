@@ -34,14 +34,16 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
 
     let mut field_names: Vec<&syn::Ident> = Vec::new();
     match data {
-        Data::Struct(ref struct_item) => if let Fields::Named(fields) = &struct_item.fields {
-            for field in &fields.named {
-                match &field.ident {
-                    Some(name) => field_names.push(name),
-                    None => field.span().unwrap().error("Expected a named field").emit(),
+        Data::Struct(ref struct_item) => {
+            if let Fields::Named(fields) = &struct_item.fields {
+                for field in &fields.named {
+                    match &field.ident {
+                        Some(name) => field_names.push(name),
+                        None => field.span().unwrap().error("Expected a named field").emit(),
+                    }
                 }
             }
-        },
+        }
         _ => {
             return Err(syn::Error::new(input.span(), "Expected a struct"));
         }

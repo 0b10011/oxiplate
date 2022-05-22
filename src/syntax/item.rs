@@ -18,6 +18,7 @@ pub enum Item<'a> {
     Writ(Writ<'a>),
     Statement(Statement<'a>),
     Static(Static),
+    CompileError(String),
 }
 
 impl ToTokens for Item<'_> {
@@ -27,6 +28,7 @@ impl ToTokens for Item<'_> {
             Item::Writ(writ) => quote! { #writ },
             Item::Statement(statement) => quote! { #statement },
             Item::Static(text) => quote! { #text },
+            Item::CompileError(text) => quote! { compile_error!(#text); },
         });
     }
 }
@@ -119,7 +121,7 @@ pub fn tag_open(input: Span) -> Res<&str, TagOpen> {
         tag("{#"), // comment
     ))(input)?;
 
-    match *output.fragment() {
+    match output {
         "{{" => Ok((input, TagOpen::Writ)),
         "{%" => Ok((input, TagOpen::Statement)),
         "{#" => Ok((input, TagOpen::Comment)),

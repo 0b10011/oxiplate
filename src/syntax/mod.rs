@@ -8,10 +8,9 @@ mod writ;
 
 use nom::error::VerboseError;
 use nom::IResult;
-use nom_locate::LocatedSpan;
 
-pub(self) type Res<T, U> = IResult<LocatedSpan<T>, U, VerboseError<LocatedSpan<T>>>;
-pub(self) type Span<'a> = LocatedSpan<&'a str>;
+pub(self) type Res<T, U> = IResult<T, U, VerboseError<T>>;
+pub(self) type Span<'a> = &'a str;
 
 pub use comment::Comment;
 pub use expression::Expression;

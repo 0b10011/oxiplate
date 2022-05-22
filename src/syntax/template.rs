@@ -25,7 +25,15 @@ pub fn parse<'a>(
 ) -> Result<Template<'a>, nom::Err<VerboseError<Span<'a>>>> {
     match try_parse(input, variables) {
         Ok((_, template)) => Ok(template),
-        Err(err) => Err(err),
+        Err(err) => match err {
+            nom::Err::Error(err) => Ok(Template(vec![Item::CompileError(
+                nom::error::convert_error(input, err),
+            )])),
+            nom::Err::Failure(err) => Ok(Template(vec![Item::CompileError(
+                nom::error::convert_error(input, err),
+            )])),
+            _ => Err(err),
+        },
     }
 }
 
@@ -55,7 +63,7 @@ pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
         opt(whitespace),
     ))(input)?;
 
-    let whitespace = match *tag.fragment() {
+    let whitespace = match tag {
         "{_}" => vec![Static(" ".to_owned()).into()],
         "{-}" => vec![],
         _ => return fail(input),
@@ -66,7 +74,8 @@ pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
 
 // https://doc.rust-lang.org/reference/whitespace.html
 pub fn is_whitespace(char: char) -> bool {
-    matches!(char, 
+    matches!(
+        char,
         '\u{0009}' // (horizontal tab, '\t')
         | '\u{000A}' // (line feed, '\n')
         | '\u{000B}' // (vertical tab)
