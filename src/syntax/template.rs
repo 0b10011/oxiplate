@@ -1,8 +1,7 @@
-use super::{item::parse_tag, r#static::parse_static, Item, Res, Span, Static};
+use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, Span, Static};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, fail, opt};
-use nom::error::VerboseError;
 use nom::multi::many0;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
@@ -19,21 +18,24 @@ impl ToTokens for Template<'_> {
     }
 }
 
-pub fn parse<'a>(
-    input: Span<'a>,
-    variables: &'a [&syn::Ident],
-) -> Result<Template<'a>, nom::Err<VerboseError<Span<'a>>>> {
+pub(crate) fn parse<'a>(source: &'a Source, variables: &'a [&syn::Ident]) -> Template<'a> {
+    let input = source.code.as_str();
     match try_parse(input, variables) {
-        Ok((_, template)) => Ok(template),
-        Err(err) => match err {
-            nom::Err::Error(err) => Ok(Template(vec![Item::CompileError(
-                nom::error::convert_error(input, err),
-            )])),
-            nom::Err::Failure(err) => Ok(Template(vec![Item::CompileError(
-                nom::error::convert_error(input, err),
-            )])),
-            _ => Err(err),
-        },
+        Ok((_, template)) => template,
+        Err(nom::Err::Error(err)) | Err(nom::Err::Failure(err)) => {
+            let origin = match &source.origin {
+                Some(origin) => format!("Syntax error in {}", origin.display()),
+                None => "Syntax error in inline template".into(),
+            };
+            Template(vec![Item::CompileError(format!(
+                "{}:\n{}",
+                origin,
+                nom::error::convert_error(input, err)
+            ))])
+        }
+        Err(nom::Err::Incomplete(_)) => {
+            unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
+        }
     }
 }
 
@@ -96,107 +98,166 @@ pub fn whitespace(input: Span) -> Res<&str, Span> {
 
 #[test]
 fn test_empty() {
-    assert_eq!(parse("", &[]), Ok(Template(vec![])));
+    assert_eq!(
+        parse(
+            &Source {
+                code: "".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![])
+    );
 }
 
 #[test]
 fn test_word() {
     assert_eq!(
-        parse("Test", &[]),
-        Ok(Template(vec![Item::Static(Static("Test".to_owned()))]))
+        parse(
+            &Source {
+                code: "Test".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![Item::Static(Static("Test".to_owned()))])
     );
 }
 
 #[test]
 fn test_phrase() {
     assert_eq!(
-        parse("Some text.", &[]),
-        Ok(Template(vec![Item::Static(Static(
-            "Some text.".to_owned()
-        ))]))
+        parse(
+            &Source {
+                code: "Some text.".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![Item::Static(Static("Some text.".to_owned()))])
     );
 }
 
 #[test]
 fn test_stray_brace() {
     assert_eq!(
-        parse("Some {text}.", &[]),
-        Ok(Template(vec![Item::Static(Static(
-            "Some {text}.".to_owned()
-        ))]))
+        parse(
+            &Source {
+                code: "Some {text}.".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![Item::Static(Static("Some {text}.".to_owned()))])
     );
 }
 
 #[test]
 fn test_writ() {
     assert_eq!(
-        parse("{{ greeting }}", &[]),
-        Ok(Template(vec![Item::Writ(super::Writ(
+        parse(
+            &Source {
+                code: "{{ greeting }}".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![Item::Writ(super::Writ(
             super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
                 super::expression::Identifier("greeting")
             ))
-        )),]))
+        )),])
     );
 }
 
 #[test]
 fn test_trimmed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {-} \t\n world!", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "Hello \t\n {-} \t\n world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static("world!".to_owned())),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_trimmed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{- greeting }}", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "Hello \t\n {{- greeting }}".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
                     "greeting"
                 ))
             ))),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_trimmed_trailing_whitespace() {
     assert_eq!(
-        parse("{{ greeting -}} \t\n !", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "{{ greeting -}} \t\n !".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
                     "greeting"
                 ))
             ))),
             Item::Static(Static("!".to_owned())),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_collapsed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {_} \t\n world!", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "Hello \t\n {_} \t\n world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
             Item::Static(Static("world!".to_owned())),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_collapsed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{_ greeting }}", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "Hello \t\n {{_ greeting }}".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
@@ -204,15 +265,21 @@ fn test_collapsed_leading_whitespace() {
                     "greeting"
                 ))
             ))),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_collapsed_trailing_whitespace_writ() {
     assert_eq!(
-        parse("{{ greeting _}} \t\n world!", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "{{ greeting _}} \t\n world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
                     "greeting"
@@ -220,19 +287,25 @@ fn test_collapsed_trailing_whitespace_writ() {
             ))),
             Item::Static(Static(" ".to_owned())),
             Item::Static(Static("world!".to_owned())),
-        ]))
+        ])
     );
 }
 
 #[test]
 fn test_collapsed_trailing_whitespace_comment() {
     assert_eq!(
-        parse("Hello {#- Some comment _#} \t\n world!", &[]),
-        Ok(Template(vec![
+        parse(
+            &Source {
+                code: "Hello {#- Some comment _#} \t\n world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Comment,
             Item::Static(Static(" ".to_owned())),
             Item::Static(Static("world!".to_owned())),
-        ]))
+        ])
     );
 }

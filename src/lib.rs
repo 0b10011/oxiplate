@@ -13,7 +13,7 @@ use std::{env, fs};
 use syn::spanned::Spanned;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
-struct Source {
+pub(crate) struct Source {
     code: String,
     origin: Option<PathBuf>,
 }
@@ -50,17 +50,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
 
     let source = get_source(attrs)?;
-    let template = match syntax::parse(source.code.as_str(), &field_names) {
-        Ok(template) => template,
-        Err(nom::Err::Error(err)) | Err(nom::Err::Failure(err)) => {
-            let origin = match source.origin {
-                Some(origin) => origin,
-                None => "Main file".into(),
-            };
-            panic!("{:?} in {:?}", err, origin);
-        }
-        Err(nom::Err::Incomplete(_)) => panic!("Unexpected incomplete error"),
-    };
+    let template = syntax::parse(&source, &field_names);
 
     let expanded = quote! {
         impl std::fmt::Display for #ident {
