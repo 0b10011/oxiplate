@@ -53,7 +53,7 @@ fn try_parse<'a>(input: Span<'a>, variables: &'a [&syn::Ident]) -> Res<&'a str, 
         items.append(&mut item_vec);
     }
 
-    Ok(("".into(), Template(items)))
+    Ok(("", Template(items)))
 }
 
 pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
@@ -96,13 +96,13 @@ pub fn whitespace(input: Span) -> Res<&str, Span> {
 
 #[test]
 fn test_empty() {
-    assert_eq!(parse("".into(), &[]), Ok(Template(vec![])));
+    assert_eq!(parse("", &[]), Ok(Template(vec![])));
 }
 
 #[test]
 fn test_word() {
     assert_eq!(
-        parse("Test".into(), &[]),
+        parse("Test", &[]),
         Ok(Template(vec![Item::Static(Static("Test".to_owned()))]))
     );
 }
@@ -110,7 +110,7 @@ fn test_word() {
 #[test]
 fn test_phrase() {
     assert_eq!(
-        parse("Some text.".into(), &[]),
+        parse("Some text.", &[]),
         Ok(Template(vec![Item::Static(Static(
             "Some text.".to_owned()
         ))]))
@@ -120,7 +120,7 @@ fn test_phrase() {
 #[test]
 fn test_stray_brace() {
     assert_eq!(
-        parse("Some {text}.".into(), &[]),
+        parse("Some {text}.", &[]),
         Ok(Template(vec![Item::Static(Static(
             "Some {text}.".to_owned()
         ))]))
@@ -130,7 +130,7 @@ fn test_stray_brace() {
 #[test]
 fn test_writ() {
     assert_eq!(
-        parse("{{ greeting }}".into(), &[]),
+        parse("{{ greeting }}", &[]),
         Ok(Template(vec![Item::Writ(super::Writ(
             super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
                 super::expression::Identifier("greeting")
@@ -142,7 +142,7 @@ fn test_writ() {
 #[test]
 fn test_trimmed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {-} \t\n world!".into(), &[]),
+        parse("Hello \t\n {-} \t\n world!", &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static("world!".to_owned())),
@@ -153,7 +153,7 @@ fn test_trimmed_whitespace() {
 #[test]
 fn test_trimmed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{- greeting }}".into(), &[]),
+        parse("Hello \t\n {{- greeting }}", &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Writ(super::Writ(super::Expression::Identifier(
@@ -168,7 +168,7 @@ fn test_trimmed_leading_whitespace() {
 #[test]
 fn test_trimmed_trailing_whitespace() {
     assert_eq!(
-        parse("{{ greeting -}} \t\n !".into(), &[]),
+        parse("{{ greeting -}} \t\n !", &[]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
@@ -183,7 +183,7 @@ fn test_trimmed_trailing_whitespace() {
 #[test]
 fn test_collapsed_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {_} \t\n world!".into(), &[]),
+        parse("Hello \t\n {_} \t\n world!", &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
@@ -195,7 +195,7 @@ fn test_collapsed_whitespace() {
 #[test]
 fn test_collapsed_leading_whitespace() {
     assert_eq!(
-        parse("Hello \t\n {{_ greeting }}".into(), &[]),
+        parse("Hello \t\n {{_ greeting }}", &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Static(Static(" ".to_owned())),
@@ -211,7 +211,7 @@ fn test_collapsed_leading_whitespace() {
 #[test]
 fn test_collapsed_trailing_whitespace_writ() {
     assert_eq!(
-        parse("{{ greeting _}} \t\n world!".into(), &[]),
+        parse("{{ greeting _}} \t\n world!", &[]),
         Ok(Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
@@ -227,7 +227,7 @@ fn test_collapsed_trailing_whitespace_writ() {
 #[test]
 fn test_collapsed_trailing_whitespace_comment() {
     assert_eq!(
-        parse("Hello {#- Some comment _#} \t\n world!".into(), &[]),
+        parse("Hello {#- Some comment _#} \t\n world!", &[]),
         Ok(Template(vec![
             Item::Static(Static("Hello".to_owned())),
             Item::Comment,

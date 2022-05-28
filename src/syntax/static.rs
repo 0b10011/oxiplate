@@ -47,7 +47,7 @@ pub fn parse_static(input: Span) -> Res<&str, Vec<Item>> {
 
     let mut string = "".to_owned();
     for item in output {
-        string.push_str(&item);
+        string.push_str(item);
     }
 
     Ok((input, vec![Item::Static(Static(string))]))

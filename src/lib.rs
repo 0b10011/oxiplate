@@ -50,7 +50,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
 
     let source = get_source(attrs)?;
-    let template = match syntax::parse(source.code.as_str().into(), &field_names) {
+    let template = match syntax::parse(source.code.as_str(), &field_names) {
         Ok(template) => template,
         Err(nom::Err::Error(err)) | Err(nom::Err::Failure(err)) => {
             let origin = match source.origin {
