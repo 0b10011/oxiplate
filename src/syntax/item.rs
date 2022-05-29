@@ -5,10 +5,9 @@ use super::{
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
-use nom::combinator::{fail, opt};
+use nom::combinator::{cut, opt};
 use nom::error::VerboseError;
 use nom::sequence::tuple;
-use nom::Err as NomErr;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -44,49 +43,47 @@ pub fn parse_tag(_variables: &'_ [&syn::Ident]) -> impl Fn(Span) -> Res<&str, Ve
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
-        let tag = match open {
-            TagOpen::Writ => writ(input),
-            TagOpen::Statement => statement(input),
-            TagOpen::Comment => comment(input),
+        let parser = match open {
+            TagOpen::Writ => writ,
+            TagOpen::Statement => statement,
+            TagOpen::Comment => comment,
         };
+        let (input, (tag, trailing_whitespace)) = cut(parser)(input)?;
 
-        match tag {
-            Err(NomErr::Error(error)) => Err(NomErr::Failure(error)),
-            Ok((input, (tag, trailing_whitespace))) => {
-                let mut items = vec![];
+        let mut items = vec![];
 
-                if let Some(leading_whitespace) = leading_whitespace {
-                    items.push(leading_whitespace.into());
-                }
-
-                items.push(tag);
-
-                if let Some(trailing_whitespace) = trailing_whitespace {
-                    items.push(trailing_whitespace.into());
-                }
-
-                Ok((input, items))
-            }
-            Err(error) => Err(error),
+        if let Some(leading_whitespace) = leading_whitespace {
+            items.push(leading_whitespace.into());
         }
+
+        items.push(tag);
+
+        if let Some(trailing_whitespace) = trailing_whitespace {
+            items.push(trailing_whitespace.into());
+        }
+
+        Ok((input, items))
     }
 }
 
 pub fn tag_start(input: Span) -> Res<&str, (Option<Static>, TagOpen)> {
-    if let Ok((input, tag)) = tag_open(input) {
-        return Ok((input, (None, tag)));
-    }
-
-    let (input, (_, open, command)) = tuple((
+    let (input, (whitespace, open, command)) = tuple((
+        // Whitespace is optional, but tracked because it could be altered by tag.
         opt(whitespace),
+        // Check if this is actually a tag; if it's not, that's fine, just return early.
         tag_open,
-        alt((collapse_whitespace_command, trim_whitespace_command)),
+        // Whitespace control characters are optional.
+        opt(alt((collapse_whitespace_command, trim_whitespace_command))),
     ))(input)?;
 
     let whitespace = match command {
-        '_' => Some(Static(" ".to_owned())),
-        '-' => None,
-        _ => return fail(input),
+        // Collapse to a single space if there's any leading whitespace.
+        Some('_') => whitespace.map(|_| Static(" ".to_string())),
+        // Remove any leading whitespace.
+        Some('-') => None,
+        Some(_) => unreachable!("Only - or _ should be matched"),
+        // Convert any leading whitespace to `Static()` without adjusting.
+        None => whitespace.map(|whitespace| Static(whitespace.to_string())),
     };
 
     Ok((input, (whitespace, open)))
@@ -98,16 +95,16 @@ pub fn tag_end(tag_close: &str) -> impl Fn(Span) -> Res<&str, Option<Static>> + 
             return Ok((input, None));
         }
 
-        let (input, (command, _, _)) = tuple((
+        let (input, (command, _, whitespace)) = tuple((
             alt((collapse_whitespace_command, trim_whitespace_command)),
             tag(tag_close),
             opt(whitespace),
         ))(input)?;
 
         let whitespace = match command {
-            '_' => Some(Static(" ".to_owned())),
+            '_' => whitespace.map(|_| Static(" ".to_string())),
             '-' => None,
-            _ => return fail(input),
+            _ => unreachable!("Only - or _ should be matched"),
         };
 
         Ok((input, whitespace))

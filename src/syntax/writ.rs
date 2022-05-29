@@ -3,7 +3,6 @@ use super::{
     Static,
 };
 use nom::bytes::complete::take_while;
-use nom::combinator::opt;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -25,10 +24,10 @@ impl ToTokens for Writ<'_> {
 }
 
 pub(super) fn writ(input: Span) -> Res<&str, (Item, Option<Static>)> {
-    let (input, _) = opt(take_while(is_whitespace))(input)?;
+    let (input, _) = take_while(is_whitespace)(input)?;
     let (input, output) = expression(input)?;
     let (input, trailing_whitespace) =
-        preceded(opt(take_while(is_whitespace)), tag_end("}}"))(input)?;
+        preceded(take_while(is_whitespace), tag_end("}}"))(input)?;
 
     Ok((input, (Writ(output).into(), trailing_whitespace)))
 }

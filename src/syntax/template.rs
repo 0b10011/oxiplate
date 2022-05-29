@@ -59,14 +59,18 @@ fn try_parse<'a>(input: Span<'a>, variables: &'a [&syn::Ident]) -> Res<&'a str, 
 }
 
 pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
-    let (input, (_, tag, _)) = tuple((
+    let (input, (leading_whitespace, tag, trailing_whitespace)) = tuple((
         opt(whitespace),
         alt((tag("{_}"), tag("{-}"))),
         opt(whitespace),
     ))(input)?;
 
     let whitespace = match tag {
-        "{_}" => vec![Static(" ".to_owned()).into()],
+        "{_}" => if leading_whitespace.is_some() || trailing_whitespace.is_some() {
+            vec![Static(" ".to_owned()).into()]
+        } else {
+            vec![]
+        },
         "{-}" => vec![],
         _ => return fail(input),
     };
@@ -309,3 +313,43 @@ fn test_collapsed_trailing_whitespace_comment() {
         ])
     );
 }
+
+#[test]
+fn test_collapsed_whitespace_comment_no_whitespace() {
+    assert_eq!(
+        parse(
+            &Source {
+                code: "Hello{#_ Some comment _#}world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
+            Item::Static(Static("Hello".to_owned())),
+            Item::Comment,
+            Item::Static(Static("world!".to_owned())),
+        ])
+    );
+}
+
+// #[test]
+// fn test_collapsed_whitespace_writ_no_whitespace() {
+//     assert_eq!(
+//         parse(
+//             &Source {
+//                 code: "Hello{{_ variable _}}world!".into(),
+//                 origin: None
+//             },
+//             &[]
+//         ),
+//         Template(vec![
+//             Item::Static(Static("Hello".to_owned())),
+//             Item::Writ(super::Writ(super::Expression::Identifier(
+//                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+//                     "variable"
+//                 ))
+//             ))),
+//             Item::Static(Static("world!".to_owned())),
+//         ])
+//     );
+// }
