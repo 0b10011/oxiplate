@@ -332,24 +332,24 @@ fn test_collapsed_whitespace_comment_no_whitespace() {
     );
 }
 
-// #[test]
-// fn test_collapsed_whitespace_writ_no_whitespace() {
-//     assert_eq!(
-//         parse(
-//             &Source {
-//                 code: "Hello{{_ variable _}}world!".into(),
-//                 origin: None
-//             },
-//             &[]
-//         ),
-//         Template(vec![
-//             Item::Static(Static("Hello".to_owned())),
-//             Item::Writ(super::Writ(super::Expression::Identifier(
-//                 super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-//                     "variable"
-//                 ))
-//             ))),
-//             Item::Static(Static("world!".to_owned())),
-//         ])
-//     );
-// }
+#[test]
+fn test_collapsed_whitespace_writ_no_whitespace() {
+    assert_eq!(
+        parse(
+            &Source {
+                code: "Hello{{_ variable _}}world!".into(),
+                origin: None
+            },
+            &[]
+        ),
+        Template(vec![
+            Item::Static(Static("Hello".to_owned())),
+            Item::Writ(super::Writ(super::Expression::Identifier(
+                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
+                    "variable"
+                ))
+            ))),
+            Item::Static(Static("world!".to_owned())),
+        ])
+    );
+}
