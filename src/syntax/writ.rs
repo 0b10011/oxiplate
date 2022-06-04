@@ -19,7 +19,7 @@ impl<'a> From<Writ<'a>> for Item<'a> {
 impl ToTokens for Writ<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let expression = &self.0;
-        tokens.append_all(quote! { #expression });
+        tokens.append_all(quote! { write!(f, "{}", #expression)?; });
     }
 }
 

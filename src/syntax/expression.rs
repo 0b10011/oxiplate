@@ -44,15 +44,11 @@ impl ToTokens for Expression<'_> {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let identifier = syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
-                    quote! {
-                        write!(f, "{}", self.#identifier)?;
-                    }
+                    quote! { self.#identifier }
                 }
                 IdentifierOrFunction::Function(identifier) => {
                     let identifier = syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
-                    quote! {
-                        write!(f, "{}", self.#identifier())?;
-                    }
+                    quote! { self.#identifier() }
                 }
             },
             Expression::FieldAccess(identifier) => {
@@ -64,16 +60,12 @@ impl ToTokens for Expression<'_> {
                     IdentifierOrFunction::Identifier(identifier) => {
                         let identifier =
                             syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
-                        quote! {
-                            write!(f, "{}", self.#(#parents.)*#identifier)?;
-                        }
+                        quote! { self.#(#parents.)*#identifier }
                     }
                     IdentifierOrFunction::Function(identifier) => {
                         let identifier =
                             syn::Ident::new(identifier.0, proc_macro2::Span::call_site());
-                        quote! {
-                            write!(f, "{}", self.#(#parents.)*#identifier())?;
-                        }
+                        quote! { self.#(#parents.)*#identifier() }
                     }
                 }
             }
