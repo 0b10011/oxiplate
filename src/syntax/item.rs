@@ -39,31 +39,29 @@ pub enum TagOpen {
     Comment,
 }
 
-pub fn parse_tag(_variables: &'_ [&syn::Ident]) -> impl Fn(Span) -> Res<&str, Vec<Item>> {
-    |input| {
-        let (input, (leading_whitespace, open)) = tag_start(input)?;
+pub fn parse_tag(input: Span) -> Res<&str, Vec<Item>> {
+    let (input, (leading_whitespace, open)) = tag_start(input)?;
 
-        let parser = match open {
-            TagOpen::Writ => writ,
-            TagOpen::Statement => statement,
-            TagOpen::Comment => comment,
-        };
-        let (input, (tag, trailing_whitespace)) = cut(parser)(input)?;
+    let parser = match open {
+        TagOpen::Writ => writ,
+        TagOpen::Statement => statement,
+        TagOpen::Comment => comment,
+    };
+    let (input, (tag, trailing_whitespace)) = cut(parser)(input)?;
 
-        let mut items = vec![];
+    let mut items = vec![];
 
-        if let Some(leading_whitespace) = leading_whitespace {
-            items.push(leading_whitespace.into());
-        }
-
-        items.push(tag);
-
-        if let Some(trailing_whitespace) = trailing_whitespace {
-            items.push(trailing_whitespace.into());
-        }
-
-        Ok((input, items))
+    if let Some(leading_whitespace) = leading_whitespace {
+        items.push(leading_whitespace.into());
     }
+
+    items.push(tag);
+
+    if let Some(trailing_whitespace) = trailing_whitespace {
+        items.push(trailing_whitespace.into());
+    }
+
+    Ok((input, items))
 }
 
 pub fn tag_start(input: Span) -> Res<&str, (Option<Static>, TagOpen)> {

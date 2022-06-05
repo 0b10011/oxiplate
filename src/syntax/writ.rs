@@ -1,3 +1,4 @@
+use nom::combinator::cut;
 use super::{
     expression::expression, item::tag_end, template::is_whitespace, Expression, Item, Res, Span,
     Static,
@@ -27,7 +28,7 @@ pub(super) fn writ(input: Span) -> Res<&str, (Item, Option<Static>)> {
     let (input, _) = take_while(is_whitespace)(input)?;
     let (input, output) = expression(input)?;
     let (input, trailing_whitespace) =
-        preceded(take_while(is_whitespace), tag_end("}}"))(input)?;
+        preceded(take_while(is_whitespace), cut(tag_end("}}")))(input)?;
 
     Ok((input, (Writ(output).into(), trailing_whitespace)))
 }

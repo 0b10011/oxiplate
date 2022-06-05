@@ -1,8 +1,8 @@
+use nom::multi::many0;
 use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, Span, Static};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
-use nom::combinator::{eof, fail, opt};
-use nom::multi::many0;
+use nom::combinator::{eof, opt};
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -39,12 +39,8 @@ pub(crate) fn parse<'a>(source: &'a Source, variables: &'a [&syn::Ident]) -> Tem
     }
 }
 
-fn try_parse<'a>(input: Span<'a>, variables: &'a [&syn::Ident]) -> Res<&'a str, Template<'a>> {
-    let (input, items_vec) = many0(alt((
-        parse_tag(variables),
-        parse_static,
-        adjusted_whitespace,
-    )))(input)?;
+fn try_parse<'a>(input: Span<'a>, _variables: &'a [&syn::Ident]) -> Res<&'a str, Template<'a>> {
+    let (input, items_vec) = many0(parse_item)(input)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -56,6 +52,14 @@ fn try_parse<'a>(input: Span<'a>, variables: &'a [&syn::Ident]) -> Res<&'a str, 
     }
 
     Ok(("", Template(items)))
+}
+
+pub(crate) fn parse_item(input: Span) -> Res<&str, Vec<Item>> {
+    alt((
+        parse_tag,
+        parse_static,
+        adjusted_whitespace,
+    ))(input)
 }
 
 pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
@@ -72,7 +76,7 @@ pub fn adjusted_whitespace(input: Span) -> Res<&str, Vec<Item>> {
             vec![]
         },
         "{-}" => vec![],
-        _ => return fail(input),
+        _ => unreachable!("Only whitespace control tags should be matched"),
     };
 
     Ok((input, whitespace))
