@@ -1,10 +1,10 @@
-use super::{Res, Span};
+use super::{Res, Span, template::whitespace};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::char;
 use nom::combinator::opt;
 use nom::multi::many0;
-use nom::sequence::{pair, terminated};
+use nom::sequence::{pair, terminated, tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -36,6 +36,8 @@ pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>);
 pub enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>),
     FieldAccess(IdentField<'a>),
+    // Group(Box<Expression<'a>>),
+    Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
 }
 
 impl ToTokens for Expression<'_> {
@@ -69,6 +71,48 @@ impl ToTokens for Expression<'_> {
                     }
                 }
             }
+            Expression::Calc(left, operator, right) => quote!(#left #operator #right),
+        });
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Operator {
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Remainder,
+
+    Equal,
+    NotEqual,
+    GreaterThan,
+    LessThan,
+    GreaterThanOrEqual,
+    LessThanOrEqual,
+
+    Or,
+    And,
+}
+
+impl ToTokens for Operator {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.append_all(match self {
+            Operator::Addition => quote!(+),
+            Operator::Subtraction => quote!(-),
+            Operator::Multiplication => quote!(*),
+            Operator::Division => quote!(/),
+            Operator::Remainder => quote!(%),
+        
+            Operator::Equal => quote!(==),
+            Operator::NotEqual => quote!(!=),
+            Operator::GreaterThan => quote!(>),
+            Operator::LessThan => quote!(<),
+            Operator::GreaterThanOrEqual => quote!(>=),
+            Operator::LessThanOrEqual => quote!(<=),
+        
+            Operator::Or => quote!(||),
+            Operator::And => quote!(&&),
         });
     }
 }
@@ -99,6 +143,51 @@ pub(super) fn expression(input: Span) -> Res<&str, Expression> {
 
         Ok((input, Expression::FieldAccess(IdentField(parents, field))))
     }
+    fn operator(input: Span) -> Res<&str, Operator> {
+        let (input, operator) = alt((
+            tag("+"),
+            tag("-"),
+            tag("*"),
+            tag("/"),
+            tag("%"),
+        
+            tag("=="),
+            tag("!="),
+            tag(">="),
+            tag("<="),
+            tag(">"),
+            tag("<"),
+        
+            tag("||"),
+            tag("&&"),
+        ))(input)?;
 
-    alt((field_or_identifier,))(input)
+        let operator = match operator {
+            "+" => Operator::Addition,
+            "-" => Operator::Subtraction,
+            "*" => Operator::Multiplication,
+            "/" => Operator::Division,
+            "%" => Operator::Remainder,
+        
+            "==" => Operator::Equal,
+            "!=" => Operator::NotEqual,
+            ">" => Operator::GreaterThan,
+            "<" => Operator::LessThan,
+            ">=" => Operator::GreaterThanOrEqual,
+            "<=" => Operator::LessThanOrEqual,
+        
+            "||" => Operator::Or,
+            "&&" => Operator::And,
+
+            _ => unreachable!("All cases should be covered"),
+        };
+
+        Ok((input, operator))
+    }
+    fn calc(input: Span) -> Res<&str, Expression> {
+        let (input, (left, _leading_whitespace, operator, _trailing_whitespace, right)) = tuple((field_or_identifier, opt(whitespace), operator, opt(whitespace), field_or_identifier))(input)?;
+        Ok((input, Expression::Calc(Box::new(left), operator, Box::new(right))))
+    }
+
+    alt((calc, field_or_identifier))(input)
 }
