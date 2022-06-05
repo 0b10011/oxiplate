@@ -59,7 +59,12 @@ pub(super) fn statement(input: Span) -> Res<&str, (Item, Option<Static>)> {
     let (input, _) = take_while(is_whitespace)(input)?;
 
     // Parse statements
-    let (input, mut statement) = cut(alt((parse_if, parse_else, parse_endif)))(input)?;
+    let (input, mut statement) = cut(alt((
+        parse_if,
+        parse_elseif,
+        parse_else,
+        parse_endif
+    )))(input)?;
 
     // Parse the closing tag and any trailing whitespace
     let (mut input, trailing_whitespace) =
@@ -168,6 +173,17 @@ fn parse_if(input: Span) -> Res<&str, Statement> {
     }.into()))
 }
 
+fn parse_elseif(input: Span) -> Res<&str, Statement> {
+    let (input, _) = tag("elseif")(input)?;
+
+    // Consume at least one whitespace.
+    let (input, _) = cut(take_while1(is_whitespace))(input)?;
+
+    let (input, output) = cut(expression)(input)?;
+
+    Ok((input, ElseIf(output).into()))
+}
+
 fn parse_else(input: Span) -> Res<&str, Statement> {
     let (input, _) = tag("else")(input)?;
 
@@ -182,3 +198,9 @@ fn parse_endif(input: Span) -> Res<&str, Statement> {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ElseIf<'a>(Expression<'a>);
+
+impl<'a> From<ElseIf<'a>> for Statement<'a> {
+    fn from(statement: ElseIf<'a>) -> Self {
+        Statement::ElseIf(statement)
+    }
+}
