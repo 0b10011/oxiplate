@@ -56,24 +56,28 @@ fn test_comparisons() {
 
 #[derive(Oxiplate)]
 #[oxi_code = "{-}
-{{ yes }} || {{ yes }} = {{ yes || yes }}
+{{ yes }} || {{ yes }} = {{ yes || yes2 }}
 {{ yes }} || {{ no }} = {{ yes || no }}
 {{ no }} || {{ yes }} = {{ no || yes }}
-{{ no }} || {{ no }} = {{ no || no }}
-{{ yes }} && {{ yes }} = {{ yes && yes }}
+{{ no }} || {{ no }} = {{ no || no2 }}
+{{ yes }} && {{ yes }} = {{ yes && yes2 }}
 {{ yes }} && {{ no }} = {{ yes && no }}
 {{ no }} && {{ yes }} = {{ no && yes }}
-{{ no }} && {{ no }} = {{ no && no }}"]
+{{ no }} && {{ no }} = {{ no && no2 }}"]
 struct OrAnd {
     yes: bool,
+    yes2: bool,
     no: bool,
+    no2: bool,
 }
 
 #[test]
 fn test_or_and() {
     let data = OrAnd {
         yes: true,
+        yes2: true,
         no: false,
+        no2: false,
     };
 
     assert_eq!(
