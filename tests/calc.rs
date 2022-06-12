@@ -14,16 +14,16 @@ struct Math {
 
 #[test]
 fn test_math() {
-    let data = Math {
-        min: 19,
-        max: 89,
-    };
+    let data = Math { min: 19, max: 89 };
 
-    assert_eq!(format!("{}", data), "89 + 19 = 108
+    assert_eq!(
+        format!("{}", data),
+        "89 + 19 = 108
 89 - 19 = 70
 89 * 19 = 1691
 89 / 19 = 4
-89 % 19 = 13");
+89 % 19 = 13"
+    );
 }
 
 #[derive(Oxiplate)]
@@ -41,17 +41,17 @@ struct Comparisons {
 
 #[test]
 fn test_comparisons() {
-    let data = Comparisons {
-        min: 19,
-        max: 89,
-    };
+    let data = Comparisons { min: 19, max: 89 };
 
-    assert_eq!(format!("{}", data), "89 == 19 = false
+    assert_eq!(
+        format!("{}", data),
+        "89 == 19 = false
 89 != 19 = true
 89 > 19 = true
 89 < 19 = false
 89 >= 19 = true
-89 <= 19 = false");
+89 <= 19 = false"
+    );
 }
 
 #[derive(Oxiplate)]
@@ -76,12 +76,15 @@ fn test_or_and() {
         no: false,
     };
 
-    assert_eq!(format!("{}", data), "true || true = true
+    assert_eq!(
+        format!("{}", data),
+        "true || true = true
 true || false = true
 false || true = true
 false || false = false
 true && true = true
 true && false = false
 false && true = false
-false && false = false");
+false && false = false"
+    );
 }

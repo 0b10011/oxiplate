@@ -1,8 +1,9 @@
 use super::{
     item::tag_start,
     template::{adjusted_whitespace, is_whitespace},
-    Item, Res, Span,
+    Item, Res,
 };
+use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
@@ -11,22 +12,22 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Static(pub String);
+pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
-impl<'a> From<Static> for Item<'a> {
-    fn from(r#static: Static) -> Self {
+impl<'a> From<Static<'a>> for Item<'a> {
+    fn from(r#static: Static<'a>) -> Self {
         Item::Static(r#static)
     }
 }
 
-impl ToTokens for Static {
+impl<'a> ToTokens for Static<'a> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let text = &self.0;
         tokens.append_all(quote! {write!(f, "{}", #text)?;});
     }
 }
 
-pub fn parse_static(input: Span) -> Res<&str, Vec<Item>> {
+pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     let (input, (output, _)) = many_till(
         alt((
             take_till1(is_whitespace_or_brace),
@@ -45,12 +46,12 @@ pub fn parse_static(input: Span) -> Res<&str, Vec<Item>> {
         return fail(input);
     }
 
-    let mut string = "".to_owned();
+    let mut source = output.first().unwrap().clone();
     for item in output {
-        string.push_str(item);
+        source.range.end = item.range.end;
     }
 
-    Ok((input, vec![Item::Static(Static(string))]))
+    Ok((input, vec![Item::Static(Static(source.as_str(), source))]))
 }
 
 fn is_whitespace_or_brace(char: char) -> bool {

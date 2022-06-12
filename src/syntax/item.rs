@@ -1,7 +1,8 @@
 use super::{
-    comment::comment, statement::statement, template::whitespace, writ::writ, Res, Span, Statement,
+    comment::comment, statement::statement, template::whitespace, writ::writ, Res, Statement,
     Static, Writ,
 };
+use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
@@ -12,11 +13,11 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Item<'a> {
+pub(crate) enum Item<'a> {
     Comment,
     Writ(Writ<'a>),
     Statement(Statement<'a>),
-    Static(Static),
+    Static(Static<'a>),
     CompileError(String),
 }
 
@@ -39,7 +40,7 @@ pub enum TagOpen {
     Comment,
 }
 
-pub fn parse_tag(input: Span) -> Res<&str, Vec<Item>> {
+pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
     let (input, (leading_whitespace, open)) = tag_start(input)?;
 
     let parser = match open {
@@ -64,7 +65,7 @@ pub fn parse_tag(input: Span) -> Res<&str, Vec<Item>> {
     Ok((input, items))
 }
 
-pub fn tag_start(input: Span) -> Res<&str, (Option<Static>, TagOpen)> {
+pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)> {
     let (input, (whitespace, open, command)) = tuple((
         // Whitespace is optional, but tracked because it could be altered by tag.
         opt(whitespace),
@@ -76,20 +77,22 @@ pub fn tag_start(input: Span) -> Res<&str, (Option<Static>, TagOpen)> {
 
     let whitespace = match command {
         // Collapse to a single space if there's any leading whitespace.
-        Some('_') => whitespace.map(|_| Static(" ".to_string())),
+        Some('_') => whitespace.map(|whitespace| Static(" ", whitespace)),
         // Remove any leading whitespace.
         Some('-') => None,
         Some(_) => unreachable!("Only - or _ should be matched"),
         // Convert any leading whitespace to `Static()` without adjusting.
-        None => whitespace.map(|whitespace| Static(whitespace.to_string())),
+        None => whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace)),
     };
 
     Ok((input, (whitespace, open)))
 }
 
-pub fn tag_end(tag_close: &str) -> impl Fn(Span) -> Res<&str, Option<Static>> + '_ {
+pub(crate) fn tag_end<'a>(
+    tag_close: &'a str,
+) -> impl Fn(Source<'a>) -> Res<Source<'a>, Option<Static<'a>>> + 'a {
     move |input| {
-        if let Ok((input, _tag)) = tag::<_, _, VerboseError<_>>(tag_close)(input) {
+        if let Ok((input, _tag)) = tag::<_, _, VerboseError<_>>(tag_close)(input.clone()) {
             return Ok((input, None));
         }
 
@@ -100,7 +103,7 @@ pub fn tag_end(tag_close: &str) -> impl Fn(Span) -> Res<&str, Option<Static>> + 
         ))(input)?;
 
         let whitespace = match command {
-            '_' => whitespace.map(|_| Static(" ".to_string())),
+            '_' => whitespace.map(|whitespace| Static(" ", whitespace)),
             '-' => None,
             _ => unreachable!("Only - or _ should be matched"),
         };
@@ -109,14 +112,14 @@ pub fn tag_end(tag_close: &str) -> impl Fn(Span) -> Res<&str, Option<Static>> + 
     }
 }
 
-pub fn tag_open(input: Span) -> Res<&str, TagOpen> {
+pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
     let (input, output) = alt((
         tag("{{"), // writ
         tag("{%"), // statement
         tag("{#"), // comment
     ))(input)?;
 
-    match output {
+    match output.as_str() {
         "{{" => Ok((input, TagOpen::Writ)),
         "{%" => Ok((input, TagOpen::Statement)),
         "{#" => Ok((input, TagOpen::Comment)),
@@ -124,10 +127,10 @@ pub fn tag_open(input: Span) -> Res<&str, TagOpen> {
     }
 }
 
-fn collapse_whitespace_command(input: Span) -> Res<&str, char> {
+fn collapse_whitespace_command(input: Source) -> Res<Source, char> {
     char('_')(input)
 }
 
-fn trim_whitespace_command(input: Span) -> Res<&str, char> {
+fn trim_whitespace_command(input: Source) -> Res<Source, char> {
     char('-')(input)
 }

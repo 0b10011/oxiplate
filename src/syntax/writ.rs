@@ -1,15 +1,15 @@
-use nom::combinator::cut;
 use super::{
-    expression::expression, item::tag_end, template::is_whitespace, Expression, Item, Res, Span,
-    Static,
+    expression::expression, item::tag_end, template::is_whitespace, Expression, Item, Res, Static,
 };
+use crate::Source;
 use nom::bytes::complete::take_while;
+use nom::combinator::cut;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Writ<'a>(pub Expression<'a>);
+pub(crate) struct Writ<'a>(pub Expression<'a>);
 
 impl<'a> From<Writ<'a>> for Item<'a> {
     fn from(writ: Writ<'a>) -> Self {
@@ -24,7 +24,7 @@ impl ToTokens for Writ<'_> {
     }
 }
 
-pub(super) fn writ(input: Span) -> Res<&str, (Item, Option<Static>)> {
+pub(super) fn writ(input: Source) -> Res<Source, (Item, Option<Static>)> {
     let (input, _) = take_while(is_whitespace)(input)?;
     let (input, output) = expression(input)?;
     let (input, trailing_whitespace) =

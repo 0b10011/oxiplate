@@ -1,18 +1,19 @@
-use nom::bytes::complete::take_while1;
-use crate::syntax::Expression;
-use nom::combinator::cut;
+use super::{expression::expression, Item, Res, Static};
 use crate::syntax::item::tag_end;
 use crate::syntax::template::{is_whitespace, parse_item};
-use nom::bytes::complete::take_while;
-use nom::sequence::preceded;
+use crate::syntax::Expression;
+use crate::Source;
 use nom::branch::alt;
-use super::{expression::expression, Item, Res, Span, Static};
 use nom::bytes::complete::tag;
+use nom::bytes::complete::take_while;
+use nom::bytes::complete::take_while1;
+use nom::combinator::cut;
+use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Statement<'a> {
+pub(crate) enum Statement<'a> {
     If(If<'a>),
     ElseIf(ElseIf<'a>),
     Else,
@@ -26,7 +27,7 @@ impl<'a> Statement<'a> {
             _ => true,
         }
     }
-    
+
     pub fn add_item(&mut self, item: Item<'a>) {
         match self {
             Statement::If(statement) => statement.add_item(item),
@@ -54,17 +55,13 @@ impl ToTokens for Statement<'_> {
     }
 }
 
-pub(super) fn statement(input: Span) -> Res<&str, (Item, Option<Static>)> {
+pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Static>)> {
     // Ignore any leading inner whitespace
     let (input, _) = take_while(is_whitespace)(input)?;
 
     // Parse statements
-    let (input, mut statement) = cut(alt((
-        parse_if,
-        parse_elseif,
-        parse_else,
-        parse_endif
-    )))(input)?;
+    let (input, mut statement) =
+        cut(alt((parse_if, parse_elseif, parse_else, parse_endif)))(input)?;
 
     // Parse the closing tag and any trailing whitespace
     let (mut input, trailing_whitespace) =
@@ -92,7 +89,7 @@ pub(super) fn statement(input: Span) -> Res<&str, (Item, Option<Static>)> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct If<'a> {
+pub(crate) struct If<'a> {
     pub ifs: Vec<(Expression<'a>, Vec<Item<'a>>)>,
     pub otherwise: Option<Vec<Item<'a>>>,
     pub is_ended: bool,
@@ -131,7 +128,7 @@ impl<'a> If<'a> {
                 if let Some(items) = &mut self.otherwise {
                     items.push(item);
                 } else {
-                   self.ifs.last_mut().unwrap().1.push(item);
+                    self.ifs.last_mut().unwrap().1.push(item);
                 }
             }
         }
@@ -148,7 +145,11 @@ impl ToTokens for If<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut is_elseif = false;
         for (expression, items) in &self.ifs {
-            let if_or_elseif = if !is_elseif { quote! { if } } else { quote! { else if } };
+            let if_or_elseif = if !is_elseif {
+                quote! { if }
+            } else {
+                quote! { else if }
+            };
             is_elseif = true;
             tokens.append_all(quote! { #if_or_elseif #expression { #(#items);* } });
         }
@@ -158,7 +159,7 @@ impl ToTokens for If<'_> {
     }
 }
 
-fn parse_if(input: Span) -> Res<&str, Statement> {
+fn parse_if(input: Source) -> Res<Source, Statement> {
     let (input, _) = tag("if")(input)?;
 
     // Consume at least one whitespace.
@@ -166,14 +167,18 @@ fn parse_if(input: Span) -> Res<&str, Statement> {
 
     let (input, output) = cut(expression)(input)?;
 
-    Ok((input, If {
-        ifs: vec![(output, vec![])],
-        otherwise: None,
-        is_ended: false,
-    }.into()))
+    Ok((
+        input,
+        If {
+            ifs: vec![(output, vec![])],
+            otherwise: None,
+            is_ended: false,
+        }
+        .into(),
+    ))
 }
 
-fn parse_elseif(input: Span) -> Res<&str, Statement> {
+fn parse_elseif(input: Source) -> Res<Source, Statement> {
     let (input, _) = tag("elseif")(input)?;
 
     // Consume at least one whitespace.
@@ -184,13 +189,13 @@ fn parse_elseif(input: Span) -> Res<&str, Statement> {
     Ok((input, ElseIf(output).into()))
 }
 
-fn parse_else(input: Span) -> Res<&str, Statement> {
+fn parse_else(input: Source) -> Res<Source, Statement> {
     let (input, _) = tag("else")(input)?;
 
     Ok((input, Statement::Else))
 }
 
-fn parse_endif(input: Span) -> Res<&str, Statement> {
+fn parse_endif(input: Source) -> Res<Source, Statement> {
     let (input, _) = tag("endif")(input)?;
 
     Ok((input, Statement::EndIf))

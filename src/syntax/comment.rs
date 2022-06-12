@@ -1,4 +1,5 @@
-use super::{item::tag_end, Item, Res, Span, Static};
+use super::{item::tag_end, Item, Res, Static};
+use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1};
 use nom::multi::many_till;
@@ -12,7 +13,7 @@ impl<'a> From<Comment<'a>> for Item<'a> {
     }
 }
 
-pub(super) fn comment(input: Span) -> Res<&str, (Item, Option<Static>)> {
+pub(super) fn comment(input: Source) -> Res<Source, (Item, Option<Static>)> {
     let (input, (_comment, trailing_whitespace)) = many_till(
         alt((
             take_till1(|char| char == '-' || char == '_' || char == '#'),

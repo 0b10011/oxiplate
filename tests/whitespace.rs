@@ -36,9 +36,7 @@ struct WritPreserveSpaceless {
 
 #[test]
 fn writ_preserve_spaceless() {
-    let template = WritPreserveSpaceless {
-        username: "dia",
-    };
+    let template = WritPreserveSpaceless { username: "dia" };
 
     assert_eq!(format!("{}", template), "Hello @dia!");
 }
