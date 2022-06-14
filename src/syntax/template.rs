@@ -18,8 +18,8 @@ impl ToTokens for Template<'_> {
     }
 }
 
-pub(crate) fn parse<'a>(source: Source<'a>, variables: &'a [&syn::Ident]) -> Template<'a> {
-    match try_parse(source.clone(), variables) {
+pub(crate) fn parse<'a>(source: Source<'a>) -> Template<'a> {
+    match try_parse(source.clone()) {
         Ok((_, template)) => template,
         Err(nom::Err::Error(nom::error::VerboseError { errors }))
         | Err(nom::Err::Failure(nom::error::VerboseError { errors })) => {
@@ -46,10 +46,9 @@ pub(crate) fn parse<'a>(source: Source<'a>, variables: &'a [&syn::Ident]) -> Tem
     }
 }
 
-fn try_parse<'a>(
-    source: Source<'a>,
-    _variables: &'a [&syn::Ident],
-) -> Res<Source<'a>, Template<'a>> {
+fn try_parse(
+    source: Source,
+) -> Res<Source, Template> {
     let (input, items_vec) = many0(parse_item)(source)?;
 
     // Return error if there's any input remaining.
@@ -132,7 +131,6 @@ fn test_empty() {
                 original: &original_source,
                 range: Range { start: 0, end: 0 },
             },
-            &[]
         ),
         Template(vec![])
     );
@@ -156,7 +154,6 @@ fn test_word() {
                 original: &original_source,
                 range: Range { start: 0, end: 4 }
             },
-            &[]
         ),
         Template(vec![Item::Static(Static(
             "Test",
@@ -186,7 +183,6 @@ fn test_phrase() {
                 original: &original_source,
                 range: Range { start: 0, end: 10 }
             },
-            &[]
         ),
         Template(vec![Item::Static(Static(
             "Some text.",
@@ -216,7 +212,6 @@ fn test_stray_brace() {
                 original: &original_source,
                 range: Range { start: 0, end: 12 }
             },
-            &[]
         ),
         Template(vec![Item::Static(Static(
             "Some {text}.",
@@ -246,7 +241,6 @@ fn test_writ() {
                 original: &original_source,
                 range: Range { start: 0, end: 14 }
             },
-            &[]
         ),
         Template(vec![Item::Writ(super::Writ(
             super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
@@ -280,7 +274,6 @@ fn test_trimmed_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 22 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -319,7 +312,6 @@ fn test_trimmed_leading_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 24 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -360,7 +352,6 @@ fn test_trimmed_trailing_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 20 },
             },
-            &[]
         ),
         Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
@@ -401,7 +392,6 @@ fn test_collapsed_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 22 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -447,7 +437,6 @@ fn test_collapsed_leading_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 24 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -495,7 +484,6 @@ fn test_collapsed_trailing_whitespace_writ() {
                 original: &original_source,
                 range: Range { start: 0, end: 25 },
             },
-            &[]
         ),
         Template(vec![
             Item::Writ(super::Writ(super::Expression::Identifier(
@@ -543,7 +531,6 @@ fn test_collapsed_trailing_whitespace_comment() {
                 original: &original_source,
                 range: Range { start: 0, end: 36 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -590,7 +577,6 @@ fn test_collapsed_whitespace_comment_no_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 31 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(
@@ -632,7 +618,6 @@ fn test_collapsed_whitespace_writ_no_whitespace() {
                 original: &original_source,
                 range: Range { start: 0, end: 27 },
             },
-            &[]
         ),
         Template(vec![
             Item::Static(Static(

@@ -5,7 +5,7 @@ struct User {
 }
 
 #[derive(Oxiplate)]
-#[oxi_code = "{{ user.name }}"]
+#[oxiplate = "{{ user.name }}"]
 struct Data {
     user: User,
 }

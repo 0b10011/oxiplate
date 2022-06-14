@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxi_code = "{{ message }}"]
+#[oxiplate = "{{ message }}"]
 struct Data {
     message: &'static str,
 }

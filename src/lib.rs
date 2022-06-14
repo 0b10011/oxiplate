@@ -1,4 +1,6 @@
 #![feature(proc_macro_diagnostic)]
+#![feature(proc_macro_expand)]
+
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/Oxiplate/issues/")]
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
@@ -25,7 +27,6 @@ use std::ops::RangeTo;
 use std::path::PathBuf;
 use std::str::CharIndices;
 use std::str::Chars;
-use std::{env, fs};
 use syn::spanned::Spanned;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
@@ -213,7 +214,7 @@ impl<'a> Iterator for Source<'a> {
     }
 }
 
-#[proc_macro_derive(Oxiplate, attributes(oxi_code, oxi_path))]
+#[proc_macro_derive(Oxiplate, attributes(oxiplate))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
         Ok(token_stream) => token_stream,
@@ -252,7 +253,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
             end: source.code.len(),
         },
     };
-    let template = syntax::parse(source, &field_names);
+    let template = syntax::parse(source);
 
     let expanded = quote! {
         impl std::fmt::Display for #ident {
@@ -268,63 +269,40 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
 
 fn get_source(attrs: &Vec<Attribute>) -> Result<SourceOwned, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
-External: #[oxi_path = "/absolute/path/to/template/within/project.txt.oxip"]
-External: #[oxi_path = "./relative/path/to/template/from/current/file.txt.oxip"]
-Internal: #[oxi_code = "{{ your_var }}"]"#;
+External: #[oxiplate = include_str!("./relative/path/to/template/from/current/file.txt.oxip")]
+Internal: #[oxiplate = "{{ your_var }}"]"#;
     for attr in attrs {
-        if attr.path.is_ident("oxi_code") {
-            return match attr.parse_meta() {
-                Ok(syn::Meta::NameValue(syn::MetaNameValue {
-                    lit: syn::Lit::Str(code),
-                    ..
-                })) => Ok(SourceOwned {
-                    code: code.value(),
-                    literal: code.token(),
-                    origin: None,
-                }),
-                Err(err) => Err(err),
-                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
+        if attr.path.is_ident("oxiplate") {
+            // Parse out the `=` and expression to it can be expanded.
+            let parser = |input: syn::parse::ParseStream| {
+                input.parse::<syn::Token![=]>()?;
+                input.parse::<syn::Expr>()
             };
-        } else if attr.path.is_ident("oxi_path") {
-            return match attr.parse_meta().expect("Unable to parse attribute") {
-                syn::Meta::NameValue(syn::MetaNameValue {
-                    lit: syn::Lit::Str(path),
-                    ..
-                }) => {
-                    let base_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-                        .canonicalize()
-                        .expect("Could not canonicalize CARGO_MANIFEST_DIR");
-                    let path = PathBuf::from(path.value());
-                    let path = if path.starts_with("/") {
-                        base_path.join(
-                            path.strip_prefix("/")
-                                .expect("Could not strip leading slash"),
-                        )
-                    } else {
-                        base_path
-                            .join(
-                                PathBuf::from(file!())
-                                    .parent()
-                                    .expect("Could not get parent directory of current file"),
-                            )
-                            .join(path)
-                    };
-                    let path = path.canonicalize().expect("Could not canonicalize");
+            let input = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
 
-                    if !path.starts_with(&base_path) {
-                        panic!("Path {:?} must start with {:?}", path, base_path);
-                    }
+            // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+            let span = input.span();
+            let input = quote::quote_spanned!(span=> #input);
 
-                    let code = fs::read_to_string(&path).expect("Could not read file");
-                    let literal = Literal::string(&code);
-                    Ok(SourceOwned {
-                        code,
-                        literal,
-                        origin: Some(path),
-                    })
-                }
-                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message)),
+            // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
+            let input = proc_macro::TokenStream::from(input);
+
+            // Expand any macros, or fallback to the unexpanded input
+            let input = input.expand_expr().unwrap_or(input);
+
+            // Parse the string and token out of the expanded expression
+            let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
+            let (code, literal) = match syn::parse::Parser::parse(parser, input)? {
+                syn::Lit::Str(code) => (code.value(), code.token()),
+                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
             };
+
+            // Return the source
+            return Ok(SourceOwned {
+                code,
+                literal,
+                origin: None,
+            });
         }
     }
 

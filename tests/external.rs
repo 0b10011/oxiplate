@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxi_path = "/tests/external.html.oxip"]
+#[oxiplate = include_str!("external.html.oxip")]
 struct AbsoluteData {
     title: &'static str,
     message: &'static str,
@@ -32,19 +32,3 @@ fn absolute_2() {
         "<h1>Oxiplate Example #2</h1>\r\n<p>Goodbye world!</p>\r\n"
     );
 }
-
-// Depends on https://github.com/rust-lang/rust/issues/54725
-// #[derive(Oxiplate)]
-// #[oxi_path = "./tests/external.html.oxip"]
-// struct RelativeData {
-//     message: &'static str,
-// }
-
-// #[test]
-// fn relative() {
-//     let data = RelativeData {
-//         message: "Hello world!",
-//     };
-//
-//     assert_eq!(format!("{}", data), "Hello world!\r\n");
-// }

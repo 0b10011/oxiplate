@@ -8,7 +8,7 @@ Oxiplate is an *experimental* template system for rust. Use at your own risk.
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxi_path = "/tests/external.html.oxip"]
+#[oxiplate = include_str!("/tests/external.html.oxip")]
 struct SomeStruct {
     // Does not need to be `&'static str`,
     // but does need to implement `std::fmt::Display`.
@@ -35,7 +35,7 @@ fn main() {
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxi_code = "<h1>{{ title }}</h1>\n<p>{{ message }}</p>\n"]
+#[oxiplate = "<h1>{{ title }}</h1>\n<p>{{ message }}</p>\n"]
 struct SomeStruct {
     // Does not need to be `&'static str`,
     // but does need to implement `std::fmt::Display`.
