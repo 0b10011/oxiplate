@@ -5,20 +5,18 @@ use nom::combinator::{eof, opt};
 use nom::multi::many0;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Template<'a>(pub Vec<Item<'a>>);
 
 impl ToTokens for Template<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        for item in &self.0 {
-            tokens.append_all(quote! { #item });
-        }
+        tokens.append_all(&self.0);
     }
 }
 
-pub(crate) fn parse<'a>(source: Source<'a>) -> Template<'a> {
+pub(crate) fn parse(source: Source) -> Template {
     match try_parse(source.clone()) {
         Ok((_, template)) => template,
         Err(nom::Err::Error(nom::error::VerboseError { errors }))
@@ -119,9 +117,11 @@ fn test_empty() {
 
     let code = "".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -142,9 +142,11 @@ fn test_word() {
 
     let code = "Test".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -171,9 +173,11 @@ fn test_phrase() {
 
     let code = "Some text.".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -200,9 +204,11 @@ fn test_stray_brace() {
 
     let code = "Some {text}.".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -229,9 +235,11 @@ fn test_writ() {
 
     let code = "{{ greeting }}".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -262,9 +270,11 @@ fn test_trimmed_whitespace() {
 
     let code = "Hello \t\n {-} \t\n world!".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -300,9 +310,11 @@ fn test_trimmed_leading_whitespace() {
 
     let code = "Hello \t\n {{- greeting }}".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -340,9 +352,11 @@ fn test_trimmed_trailing_whitespace() {
 
     let code = "{{ greeting -}} \t\n !".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -380,9 +394,11 @@ fn test_collapsed_whitespace() {
 
     let code = "Hello \t\n {_} \t\n world!".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -425,9 +441,11 @@ fn test_collapsed_leading_whitespace() {
 
     let code = "Hello \t\n {{_ greeting }}".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -472,9 +490,11 @@ fn test_collapsed_trailing_whitespace_writ() {
 
     let code = "{{ greeting _}} \t\n world!".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -519,9 +539,11 @@ fn test_collapsed_trailing_whitespace_comment() {
 
     let code = "Hello {#- Some comment _#} \t\n world!".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -565,9 +587,11 @@ fn test_collapsed_whitespace_comment_no_whitespace() {
 
     let code = "Hello{#_ Some comment _#}world!".to_owned();
     let literal = proc_macro2::Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = crate::SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 
@@ -606,9 +630,11 @@ fn test_collapsed_whitespace_writ_no_whitespace() {
 
     let code: String = "Hello{{_ variable _}}world!".into();
     let literal = Literal::string(&code);
+    let span_hygiene = literal.span();
     let original_source = SourceOwned {
         code,
         literal,
+        span_hygiene,
         origin: None,
     };
 

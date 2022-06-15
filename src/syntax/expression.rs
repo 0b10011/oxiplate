@@ -58,16 +58,25 @@ impl ToTokens for Expression<'_> {
             },
             Expression::FieldAccess(identifier) => {
                 let mut parents = Vec::with_capacity(identifier.0.len());
-                for parent in &identifier.0 {
+                let parent_identifiers = &identifier.0;
+                for parent in parent_identifiers {
                     parents.push(syn::Ident::new(parent.0, parent.1.span()));
                 }
                 match &identifier.1 {
                     IdentifierOrFunction::Identifier(identifier) => {
-                        let identifier = syn::Ident::new(identifier.0, identifier.1.span());
+                        let span = identifier.1.span();
+                        for parent in parent_identifiers {
+                            span.join(parent.1.span());
+                        }
+                        let identifier = syn::Ident::new(identifier.0, span);
                         quote! { self.#(#parents.)*#identifier }
                     }
                     IdentifierOrFunction::Function(identifier) => {
-                        let identifier = syn::Ident::new(identifier.0, identifier.1.span());
+                        let span = identifier.1.span();
+                        for parent in parent_identifiers {
+                            span.join(parent.1.span());
+                        }
+                        let identifier = syn::Ident::new(identifier.0, span);
                         quote! { self.#(#parents.)*#identifier() }
                     }
                 }

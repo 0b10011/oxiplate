@@ -34,6 +34,7 @@ use syn::{Attribute, Data, DeriveInput, Fields};
 pub(crate) struct SourceOwned {
     code: String,
     literal: Literal,
+    span_hygiene: Span,
     origin: Option<PathBuf>,
 }
 
@@ -56,6 +57,7 @@ impl<'a> Source<'a> {
                 end: self.range.end + 1,
             })
             .unwrap_or_else(proc_macro2::Span::call_site)
+            .resolved_at(self.original.span_hygiene)
     }
 }
 
@@ -288,7 +290,11 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
             let input = proc_macro::TokenStream::from(input);
 
             // Expand any macros, or fallback to the unexpanded input
-            let input = input.expand_expr().unwrap_or(input);
+            let input = input.expand_expr();
+            if input.is_err() {
+                return Err(syn::Error::new(span, invalid_attribute_message));
+            }
+            let input = input.unwrap();
 
             // Parse the string and token out of the expanded expression
             let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
@@ -301,6 +307,7 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
             return Ok(SourceOwned {
                 code,
                 literal,
+                span_hygiene: span,
                 origin: None,
             });
         }
