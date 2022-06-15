@@ -69,7 +69,7 @@ impl ToTokens for Expression<'_> {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        quote! { self.#(#parents.)*#identifier }
+                        quote_spanned! {span=> self.#(#parents.)*#identifier }
                     }
                     IdentifierOrFunction::Function(identifier) => {
                         let span = identifier.1.span();
@@ -77,7 +77,7 @@ impl ToTokens for Expression<'_> {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        quote! { self.#(#parents.)*#identifier() }
+                        quote_spanned! {span=> self.#(#parents.)*#identifier() }
                     }
                 }
             }
