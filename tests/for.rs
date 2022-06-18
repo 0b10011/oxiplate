@@ -73,3 +73,24 @@ baz
 hello world again :D"
     );
 }
+
+#[derive(Oxiplate)]
+#[oxiplate = "
+{%- for function in &functions -%}
+    {{ function() }}
+{% endfor %}"]
+struct Functions {
+    functions: Vec<fn() -> i32>,
+}
+
+#[test]
+fn test_function_variables() {
+    let data = Functions {
+        functions: vec![
+            || 19,
+            || 89,
+        ],
+    };
+
+    assert_eq!(format!("{}", data), "19\n89\n");
+}

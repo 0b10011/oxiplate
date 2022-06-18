@@ -84,8 +84,7 @@ pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>, bool);
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
-    LocalVariable(Identifier<'a>),
-    Identifier(IdentifierOrFunction<'a>),
+    Identifier(IdentifierOrFunction<'a>, bool),
     FieldAccess(IdentField<'a>),
     // Group(Box<Expression<'a>>),
     Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
@@ -95,21 +94,24 @@ pub(crate) enum Expression<'a> {
 impl ToTokens for Expression<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match self {
-            Expression::LocalVariable(identifier) => {
-                let span = identifier.1.span();
-                let identifier = syn::Ident::new(identifier.0, span);
-                quote_spanned! {span=> #identifier }
-            }
-            Expression::Identifier(identifier) => match &identifier {
+            Expression::Identifier(identifier, is_local) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.1.span();
                     let identifier = syn::Ident::new(identifier.0, span);
-                    quote_spanned! {span=> self.#identifier }
+                    if *is_local {
+                        quote_spanned! {span=> #identifier }
+                    } else {
+                        quote_spanned! {span=> self.#identifier }
+                    }
                 }
                 IdentifierOrFunction::Function(identifier) => {
                     let span = identifier.1.span();
                     let identifier = syn::Ident::new(identifier.0, span);
-                    quote_spanned! {span=> self.#identifier() }
+                    if *is_local {
+                        quote_spanned! {span=> #identifier() }
+                    } else {
+                        quote_spanned! {span=> self.#identifier() }
+                    }
                 }
             },
             Expression::FieldAccess(field) => {
@@ -220,16 +222,15 @@ pub(super) fn expression<'a>(
                     pair(&ident, opt(tag("()"))),
                 )(input)?;
 
+                let ident_str = ident.0;
                 let field = if maybe_function.is_some() {
                     IdentifierOrFunction::Function(ident)
-                } else if local_variables.contains(ident.0) {
-                    return Ok((input, Expression::LocalVariable(ident)));
                 } else {
                     IdentifierOrFunction::Identifier(ident)
                 };
 
                 if parsed_parents.is_empty() {
-                    return Ok((input, Expression::Identifier(field)));
+                    return Ok((input, Expression::Identifier(field, local_variables.contains(ident_str))));
                 }
 
                 let mut parents = Vec::with_capacity(parsed_parents.len());
