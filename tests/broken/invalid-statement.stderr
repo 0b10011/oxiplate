@@ -1,0 +1,5 @@
+error: Expected one of: if, elseif, else, endif
+ --> tests/broken/invalid-statement.rs:4:18
+  |
+4 | #[oxiplate = "{% thisdoesntexist %}"]
+  |                  ^^^^^^^^^^^^^^^^^^

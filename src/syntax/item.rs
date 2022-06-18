@@ -10,15 +10,15 @@ use nom::combinator::{cut, opt};
 use nom::error::VerboseError;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Item<'a> {
     Comment,
     Writ(Writ<'a>),
     Statement(Statement<'a>),
     Static(Static<'a>),
-    CompileError(String),
+    CompileError(String, Source<'a>),
 }
 
 impl ToTokens for Item<'_> {
@@ -28,7 +28,10 @@ impl ToTokens for Item<'_> {
             Item::Writ(writ) => quote! { #writ },
             Item::Statement(statement) => quote! { #statement },
             Item::Static(text) => quote! { #text },
-            Item::CompileError(text) => quote! { compile_error!(#text); },
+            Item::CompileError(text, source) => {
+                let span = source.span();
+                quote_spanned! {span=> compile_error!(#text); }
+            }
         });
     }
 }

@@ -8,12 +8,20 @@ use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
 use nom::bytes::complete::take_while1;
 use nom::combinator::cut;
+use nom::combinator::fail;
+use nom::error::context;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum Statement<'a> {
+#[derive(Debug)]
+pub(crate) struct Statement<'a> {
+    source: Source<'a>,
+    kind: StatementKind<'a>,
+}
+
+#[derive(Debug)]
+pub(crate) enum StatementKind<'a> {
     If(If<'a>),
     ElseIf(ElseIf<'a>),
     Else,
@@ -22,15 +30,15 @@ pub(crate) enum Statement<'a> {
 
 impl<'a> Statement<'a> {
     pub fn is_ended(&self) -> bool {
-        match self {
-            Statement::If(statement) => statement.is_ended,
+        match &self.kind {
+            StatementKind::If(statement) => statement.is_ended,
             _ => true,
         }
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
-        match self {
-            Statement::If(statement) => statement.add_item(item),
+        match &mut self.kind {
+            StatementKind::If(statement) => statement.add_item(item),
             _ => unreachable!(),
         }
     }
@@ -44,12 +52,27 @@ impl<'a> From<Statement<'a>> for Item<'a> {
 
 impl ToTokens for Statement<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Statement::If(statement) => {
+        match &self.kind {
+            StatementKind::If(statement) => {
                 tokens.append_all(quote! { #statement });
             }
-            Statement::ElseIf(_) | Statement::Else | Statement::EndIf => {
-                unreachable!("These should be removed by If statements");
+            StatementKind::ElseIf(_) => {
+                let span = self.source.span();
+                tokens.append_all(
+                    quote_spanned! {span=> compile_error!("Unexpected 'elseif' statement"); },
+                );
+            }
+            StatementKind::Else => {
+                let span = self.source.span();
+                tokens.append_all(
+                    quote_spanned! {span=> compile_error!("Unexpected 'else' statement"); },
+                );
+            }
+            StatementKind::EndIf => {
+                let span = self.source.span();
+                tokens.append_all(
+                    quote_spanned! {span=> compile_error!("Unexpected 'endif' statement"); },
+                );
             }
         }
     }
@@ -60,8 +83,10 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Static>)> {
     let (input, _) = take_while(is_whitespace)(input)?;
 
     // Parse statements
-    let (input, mut statement) =
-        cut(alt((parse_if, parse_elseif, parse_else, parse_endif)))(input)?;
+    let (input, mut statement) = context(
+        "Expected one of: if, elseif, else, endif",
+        cut(alt((parse_if, parse_elseif, parse_else, parse_endif))),
+    )(input)?;
 
     // Parse the closing tag and any trailing whitespace
     let (mut input, trailing_whitespace) =
@@ -69,7 +94,12 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Static>)> {
 
     if !statement.is_ended() {
         loop {
-            let (new_input, items) = parse_item(input)?;
+            let parsed_item = parse_item(input);
+            if parsed_item.is_err() {
+                return context("This statement is never closed.", fail)(statement.source);
+            }
+            let (new_input, items) =
+                parsed_item.expect("Error possibility should have been checked already");
             input = new_input;
             for item in items {
                 if statement.is_ended() {
@@ -88,7 +118,7 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Static>)> {
     Ok((input, (statement.into(), trailing_whitespace)))
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct If<'a> {
     pub ifs: Vec<(Expression<'a>, Vec<Item<'a>>)>,
     pub otherwise: Option<Vec<Item<'a>>>,
@@ -98,7 +128,10 @@ pub(crate) struct If<'a> {
 impl<'a> If<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         match item {
-            Item::Statement(Statement::ElseIf(ElseIf(expression))) => {
+            Item::Statement(Statement {
+                kind: StatementKind::ElseIf(ElseIf(expression)),
+                source: _,
+            }) => {
                 if self.is_ended {
                     todo!();
                 }
@@ -108,7 +141,10 @@ impl<'a> If<'a> {
 
                 self.ifs.push((expression, vec![]));
             }
-            Item::Statement(Statement::Else) => {
+            Item::Statement(Statement {
+                kind: StatementKind::Else,
+                source: _,
+            }) => {
                 if self.is_ended {
                     todo!();
                 }
@@ -118,7 +154,10 @@ impl<'a> If<'a> {
 
                 self.otherwise = Some(vec![]);
             }
-            Item::Statement(Statement::EndIf) => {
+            Item::Statement(Statement {
+                kind: StatementKind::EndIf,
+                source: _,
+            }) => {
                 self.is_ended = true;
             }
             _ => {
@@ -135,9 +174,9 @@ impl<'a> If<'a> {
     }
 }
 
-impl<'a> From<If<'a>> for Statement<'a> {
+impl<'a> From<If<'a>> for StatementKind<'a> {
     fn from(statement: If<'a>) -> Self {
-        Statement::If(statement)
+        StatementKind::If(statement)
     }
 }
 
@@ -160,7 +199,7 @@ impl ToTokens for If<'_> {
 }
 
 fn parse_if(input: Source) -> Res<Source, Statement> {
-    let (input, _) = tag("if")(input)?;
+    let (input, statement_source) = tag("if")(input)?;
 
     // Consume at least one whitespace.
     let (input, _) = cut(take_while1(is_whitespace))(input)?;
@@ -169,43 +208,64 @@ fn parse_if(input: Source) -> Res<Source, Statement> {
 
     Ok((
         input,
-        If {
-            ifs: vec![(output, vec![])],
-            otherwise: None,
-            is_ended: false,
-        }
-        .into(),
+        Statement {
+            kind: If {
+                ifs: vec![(output, vec![])],
+                otherwise: None,
+                is_ended: false,
+            }
+            .into(),
+            source: statement_source,
+        },
     ))
 }
 
 fn parse_elseif(input: Source) -> Res<Source, Statement> {
-    let (input, _) = tag("elseif")(input)?;
+    let (input, statement_source) = tag("elseif")(input)?;
 
     // Consume at least one whitespace.
     let (input, _) = cut(take_while1(is_whitespace))(input)?;
 
     let (input, output) = cut(expression)(input)?;
 
-    Ok((input, ElseIf(output).into()))
+    Ok((
+        input,
+        Statement {
+            kind: ElseIf(output).into(),
+            source: statement_source,
+        },
+    ))
 }
 
 fn parse_else(input: Source) -> Res<Source, Statement> {
-    let (input, _) = tag("else")(input)?;
+    let (input, output) = tag("else")(input)?;
 
-    Ok((input, Statement::Else))
+    Ok((
+        input,
+        Statement {
+            kind: StatementKind::Else,
+            source: output,
+        },
+    ))
 }
 
 fn parse_endif(input: Source) -> Res<Source, Statement> {
-    let (input, _) = tag("endif")(input)?;
+    let (input, output) = tag("endif")(input)?;
 
-    Ok((input, Statement::EndIf))
+    Ok((
+        input,
+        Statement {
+            kind: StatementKind::EndIf,
+            source: output,
+        },
+    ))
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ElseIf<'a>(Expression<'a>);
 
-impl<'a> From<ElseIf<'a>> for Statement<'a> {
+impl<'a> From<ElseIf<'a>> for StatementKind<'a> {
     fn from(statement: ElseIf<'a>) -> Self {
-        Statement::ElseIf(statement)
+        StatementKind::ElseIf(statement)
     }
 }

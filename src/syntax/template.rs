@@ -2,12 +2,14 @@ use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, S
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
+use nom::error::VerboseErrorKind;
 use nom::multi::many0;
 use nom::sequence::tuple;
+use proc_macro2::LineColumn;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct Template<'a>(pub Vec<Item<'a>>);
 
 impl ToTokens for Template<'_> {
@@ -17,26 +19,11 @@ impl ToTokens for Template<'_> {
 }
 
 pub(crate) fn parse(source: Source) -> Template {
-    match try_parse(source.clone()) {
+    match try_parse(source) {
         Ok((_, template)) => template,
         Err(nom::Err::Error(nom::error::VerboseError { errors }))
         | Err(nom::Err::Failure(nom::error::VerboseError { errors })) => {
-            let origin = match &source.original.origin {
-                Some(origin) => format!("Syntax error in {}", origin.display()),
-                None => "Syntax error in inline template".into(),
-            };
-            let mut new_errors = vec![];
-            for (input, error) in errors {
-                new_errors.push((input.as_str(), error));
-            }
-            Template(vec![Item::CompileError(format!(
-                "{}:\n{}",
-                origin,
-                nom::error::convert_error(
-                    source.as_str(),
-                    nom::error::VerboseError { errors: new_errors }
-                )
-            ))])
+            Template(vec![convert_error(errors)])
         }
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
@@ -44,9 +31,52 @@ pub(crate) fn parse(source: Source) -> Template {
     }
 }
 
-fn try_parse(
-    source: Source,
-) -> Res<Source, Template> {
+fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
+    use std::fmt::Write;
+
+    let mut converted_error = String::from("Backtrace:\n");
+    let mut last_source = None;
+
+    for (source, kind) in errors {
+        match kind {
+            VerboseErrorKind::Char(expected_char) => {
+                let LineColumn { line, column } = source.span().start();
+                writeln!(
+                    &mut converted_error,
+                    "[line {}, column {}] Expected '{}', found '{}'",
+                    line,
+                    column,
+                    expected_char,
+                    source.as_str()
+                )
+                .unwrap()
+            }
+            VerboseErrorKind::Context(error) => {
+                return Item::CompileError(error.to_string(), source)
+            }
+            VerboseErrorKind::Nom(nom_error) => {
+                let LineColumn { line, column } = source.span().start();
+                writeln!(
+                    &mut converted_error,
+                    r#"[line {}, column {}] {:?} in "{}""#,
+                    line,
+                    column,
+                    nom_error,
+                    source.as_str()
+                )
+                .unwrap()
+            }
+        }
+        last_source = Some(source);
+    }
+
+    Item::CompileError(
+        converted_error,
+        last_source.expect("There should be at least one source listed in an error"),
+    )
+}
+
+fn try_parse(source: Source) -> Res<Source, Template> {
     let (input, items_vec) = many0(parse_item)(source)?;
 
     // Return error if there's any input remaining.
@@ -109,566 +139,4 @@ pub fn is_whitespace(char: char) -> bool {
 
 pub(crate) fn whitespace(input: Source) -> Res<Source, Source> {
     take_while1(is_whitespace)(input)
-}
-
-#[test]
-fn test_empty() {
-    use std::ops::Range;
-
-    let code = "".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 0 },
-            },
-        ),
-        Template(vec![])
-    );
-}
-
-#[test]
-fn test_word() {
-    use std::ops::Range;
-
-    let code = "Test".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 4 }
-            },
-        ),
-        Template(vec![Item::Static(Static(
-            "Test",
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 4 }
-            }
-        ))])
-    );
-}
-
-#[test]
-fn test_phrase() {
-    use std::ops::Range;
-
-    let code = "Some text.".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 10 }
-            },
-        ),
-        Template(vec![Item::Static(Static(
-            "Some text.",
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 10 }
-            }
-        ))])
-    );
-}
-
-#[test]
-fn test_stray_brace() {
-    use std::ops::Range;
-
-    let code = "Some {text}.".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 12 }
-            },
-        ),
-        Template(vec![Item::Static(Static(
-            "Some {text}.",
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 12 }
-            }
-        ))])
-    );
-}
-
-#[test]
-fn test_writ() {
-    use std::ops::Range;
-
-    let code = "{{ greeting }}".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 14 }
-            },
-        ),
-        Template(vec![Item::Writ(super::Writ(
-            super::Expression::Identifier(super::expression::IdentifierOrFunction::Identifier(
-                super::expression::Identifier(
-                    "greeting",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 3, end: 11 }
-                    }
-                )
-            ))
-        )),])
-    );
-}
-
-#[test]
-fn test_trimmed_whitespace() {
-    use std::ops::Range;
-
-    let code = "Hello \t\n {-} \t\n world!".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 22 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 16, end: 22 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_trimmed_leading_whitespace() {
-    use std::ops::Range;
-
-    let code = "Hello \t\n {{- greeting }}".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 24 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 13, end: 21 },
-                    }
-                ))
-            ))),
-        ])
-    );
-}
-
-#[test]
-fn test_trimmed_trailing_whitespace() {
-    use std::ops::Range;
-
-    let code = "{{ greeting -}} \t\n !".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 20 },
-            },
-        ),
-        Template(vec![
-            Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 3, end: 11 },
-                    }
-                ))
-            ))),
-            Item::Static(Static(
-                "!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 19, end: 20 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_whitespace() {
-    use std::ops::Range;
-
-    let code = "Hello \t\n {_} \t\n world!".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 22 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Static(Static(
-                " ",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 5, end: 9 },
-                }
-            )),
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 16, end: 22 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_leading_whitespace() {
-    use std::ops::Range;
-
-    let code = "Hello \t\n {{_ greeting }}".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 24 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Static(Static(
-                " ",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 5, end: 9 },
-                }
-            )),
-            Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 13, end: 21 },
-                    }
-                ))
-            ))),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_trailing_whitespace_writ() {
-    use std::ops::Range;
-
-    let code = "{{ greeting _}} \t\n world!".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 25 },
-            },
-        ),
-        Template(vec![
-            Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "greeting",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 3, end: 11 },
-                    }
-                ))
-            ))),
-            Item::Static(Static(
-                " ",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 15, end: 19 },
-                }
-            )),
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 19, end: 25 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_trailing_whitespace_comment() {
-    use std::ops::Range;
-
-    let code = "Hello {#- Some comment _#} \t\n world!".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 36 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Comment,
-            Item::Static(Static(
-                " ",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 26, end: 30 },
-                }
-            )),
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 30, end: 36 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_whitespace_comment_no_whitespace() {
-    use std::ops::Range;
-
-    let code = "Hello{#_ Some comment _#}world!".to_owned();
-    let literal = proc_macro2::Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = crate::SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 31 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Comment,
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 25, end: 31 },
-                }
-            )),
-        ])
-    );
-}
-
-#[test]
-fn test_collapsed_whitespace_writ_no_whitespace() {
-    use crate::SourceOwned;
-    use proc_macro2::Literal;
-    use std::ops::Range;
-
-    let code: String = "Hello{{_ variable _}}world!".into();
-    let literal = Literal::string(&code);
-    let span_hygiene = literal.span();
-    let original_source = SourceOwned {
-        code,
-        literal,
-        span_hygiene,
-        origin: None,
-    };
-
-    assert_eq!(
-        parse(
-            Source {
-                original: &original_source,
-                range: Range { start: 0, end: 27 },
-            },
-        ),
-        Template(vec![
-            Item::Static(Static(
-                "Hello",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 0, end: 5 },
-                }
-            )),
-            Item::Writ(super::Writ(super::Expression::Identifier(
-                super::expression::IdentifierOrFunction::Identifier(super::expression::Identifier(
-                    "variable",
-                    Source {
-                        original: &original_source,
-                        range: Range { start: 9, end: 17 },
-                    }
-                ))
-            ))),
-            Item::Static(Static(
-                "world!",
-                Source {
-                    original: &original_source,
-                    range: Range { start: 21, end: 27 },
-                }
-            )),
-        ])
-    );
 }

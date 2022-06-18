@@ -1,6 +1,5 @@
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_expand)]
-
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/Oxiplate/issues/")]
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
@@ -50,11 +49,16 @@ impl<'a> Source<'a> {
     }
 
     pub fn span(&self) -> Span {
+        let mut start = self.range.start;
+        let end = self.range.end;
+        if start == end && start > 1 {
+            start -= 1;
+        }
         self.original
             .literal
             .subspan(Range {
-                start: self.range.start + 1,
-                end: self.range.end + 1,
+                start: start + 1,
+                end: end + 1,
             })
             .unwrap_or_else(proc_macro2::Span::call_site)
             .resolved_at(self.original.span_hygiene)

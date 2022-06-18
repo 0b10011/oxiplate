@@ -4,6 +4,7 @@ use super::{
 use crate::Source;
 use nom::bytes::complete::take_while;
 use nom::combinator::cut;
+use nom::error::context;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -26,9 +27,11 @@ impl ToTokens for Writ<'_> {
 
 pub(super) fn writ(input: Source) -> Res<Source, (Item, Option<Static>)> {
     let (input, _) = take_while(is_whitespace)(input)?;
-    let (input, output) = expression(input)?;
-    let (input, trailing_whitespace) =
-        preceded(take_while(is_whitespace), cut(tag_end("}}")))(input)?;
+    let (input, output) = context("Expected an expression.", cut(expression))(input)?;
+    let (input, trailing_whitespace) = context(
+        "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
+        cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),
+    )(input)?;
 
     Ok((input, (Writ(output).into(), trailing_whitespace)))
 }
