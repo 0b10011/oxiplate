@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::{
     comment::comment, statement::statement, template::whitespace, writ::writ, Res, Statement,
     Static, Writ,
@@ -43,29 +45,32 @@ pub enum TagOpen {
     Comment,
 }
 
-pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, open)) = tag_start(input)?;
+pub(crate) fn parse_tag<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
+    |input| {
+        let (input, (leading_whitespace, open)) = tag_start(input)?;
 
-    let parser = match open {
-        TagOpen::Writ => writ,
-        TagOpen::Statement => statement,
-        TagOpen::Comment => comment,
-    };
-    let (input, (tag, trailing_whitespace)) = cut(parser)(input)?;
+        let (input, (tag, trailing_whitespace)) = match open {
+            TagOpen::Writ => cut(writ(local_variables))(input)?,
+            TagOpen::Statement => cut(statement(local_variables))(input)?,
+            TagOpen::Comment => cut(comment)(input)?,
+        };
 
-    let mut items = vec![];
+        let mut items = vec![];
 
-    if let Some(leading_whitespace) = leading_whitespace {
-        items.push(leading_whitespace.into());
+        if let Some(leading_whitespace) = leading_whitespace {
+            items.push(leading_whitespace.into());
+        }
+
+        items.push(tag);
+
+        if let Some(trailing_whitespace) = trailing_whitespace {
+            items.push(trailing_whitespace.into());
+        }
+
+        Ok((input, items))
     }
-
-    items.push(tag);
-
-    if let Some(trailing_whitespace) = trailing_whitespace {
-        items.push(trailing_whitespace.into());
-    }
-
-    Ok((input, items))
 }
 
 pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)> {

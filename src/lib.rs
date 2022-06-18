@@ -118,6 +118,16 @@ impl<'a> PartialEq<char> for Source<'a> {
     }
 }
 
+impl<'a> Compare<&Source<'a>> for Source<'a> {
+    fn compare(&self, other_source: &Source) -> nom::CompareResult {
+        self.as_str().compare(other_source.as_str())
+    }
+
+    fn compare_no_case(&self, other_source: &Source) -> nom::CompareResult {
+        self.as_str().compare_no_case(other_source.as_str())
+    }
+}
+
 impl<'a> Compare<&str> for Source<'a> {
     fn compare(&self, string: &str) -> nom::CompareResult {
         self.as_str().compare(string)
@@ -200,6 +210,12 @@ impl<'a> InputTake for Source<'a> {
 }
 
 impl<'a> InputLength for Source<'a> {
+    fn input_len(&self) -> usize {
+        self.as_str().input_len()
+    }
+}
+
+impl<'a> InputLength for &Source<'a> {
     fn input_len(&self) -> usize {
         self.as_str().input_len()
     }

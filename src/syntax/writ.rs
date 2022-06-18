@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::{
     expression::expression, item::tag_end, template::is_whitespace, Expression, Item, Res, Static,
 };
@@ -25,13 +27,18 @@ impl ToTokens for Writ<'_> {
     }
 }
 
-pub(super) fn writ(input: Source) -> Res<Source, (Item, Option<Static>)> {
-    let (input, _) = take_while(is_whitespace)(input)?;
-    let (input, output) = context("Expected an expression.", cut(expression))(input)?;
-    let (input, trailing_whitespace) = context(
-        "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
-        cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),
-    )(input)?;
+pub(super) fn writ<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
+    |input| {
+        let (input, _) = take_while(is_whitespace)(input)?;
+        let (input, output) =
+            context("Expected an expression.", cut(expression(local_variables)))(input)?;
+        let (input, trailing_whitespace) = context(
+            "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
+            cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),
+        )(input)?;
 
-    Ok((input, (Writ(output).into(), trailing_whitespace)))
+        Ok((input, (Writ(output).into(), trailing_whitespace)))
+    }
 }
