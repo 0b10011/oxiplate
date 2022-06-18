@@ -80,7 +80,7 @@ pub(crate) enum IdentifierOrFunction<'a> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>);
+pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>, bool);
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
@@ -112,20 +112,24 @@ impl ToTokens for Expression<'_> {
                     quote_spanned! {span=> self.#identifier() }
                 }
             },
-            Expression::FieldAccess(identifier) => {
-                let mut parents = Vec::with_capacity(identifier.0.len());
-                let parent_identifiers = &identifier.0;
+            Expression::FieldAccess(field) => {
+                let mut parents = Vec::with_capacity(field.0.len());
+                let parent_identifiers = &field.0;
                 for parent in parent_identifiers {
                     parents.push(syn::Ident::new(parent.0, parent.1.span()));
                 }
-                match &identifier.1 {
+                match &field.1 {
                     IdentifierOrFunction::Identifier(identifier) => {
                         let span = identifier.1.span();
                         for parent in parent_identifiers {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        quote_spanned! {span=> self.#(#parents.)*#identifier }
+                        if field.2 {
+                            quote_spanned! {span=> #(#parents.)*#identifier }
+                        } else {
+                            quote_spanned! {span=> self.#(#parents.)*#identifier }
+                        }
                     }
                     IdentifierOrFunction::Function(identifier) => {
                         let span = identifier.1.span();
@@ -133,7 +137,11 @@ impl ToTokens for Expression<'_> {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        quote_spanned! {span=> self.#(#parents.)*#identifier() }
+                        if field.2 {
+                            quote_spanned! {span=> #(#parents.)*#identifier() }
+                        } else {
+                            quote_spanned! {span=> self.#(#parents.)*#identifier() }
+                        }
                     }
                 }
             }
@@ -225,11 +233,18 @@ pub(super) fn expression<'a>(
                 }
 
                 let mut parents = Vec::with_capacity(parsed_parents.len());
+                let mut is_local = None;
                 for parent in parsed_parents {
+                    if is_local.is_none() {
+                        is_local = Some(local_variables.contains(parent.0))
+                    }
                     parents.push(parent);
                 }
 
-                Ok((input, Expression::FieldAccess(IdentField(parents, field))))
+                Ok((
+                    input,
+                    Expression::FieldAccess(IdentField(parents, field, is_local.unwrap_or(false))),
+                ))
             }
         }
         fn operator(input: Source) -> Res<Source, Operator> {

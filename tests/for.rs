@@ -20,6 +20,33 @@ fn test_for() {
 
 #[derive(Oxiplate)]
 #[oxiplate = "
+{%- for person in &people -%}
+    {{ person.get_name() }}<br>
+{%- endfor %}"]
+struct Accounts {
+    people: Vec<Person>,
+}
+
+struct Person {
+    name: &'static str,
+}
+impl Person {
+    pub fn get_name(&self) -> &'static str {
+        self.name
+    }
+}
+
+#[test]
+fn test_method_calls() {
+    let data = Accounts {
+        people: vec![Person { name: "Zoe" }, Person { name: "Alice" }],
+    };
+
+    assert_eq!(format!("{}", data), "Zoe<br>Alice<br>");
+}
+
+#[derive(Oxiplate)]
+#[oxiplate = "
 {{- value }}!
 {% for value in &values -%}
     {{ value }}
