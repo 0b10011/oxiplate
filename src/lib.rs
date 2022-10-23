@@ -247,7 +247,7 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
-        attrs, ident, data, ..
+        attrs, ident, data, generics, ..
     } = &input;
 
     let mut field_names: Vec<&syn::Ident> = Vec::new();
@@ -278,7 +278,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     let template = syntax::parse(source);
 
     let expanded = quote! {
-        impl std::fmt::Display for #ident {
+        impl #generics std::fmt::Display for #ident #generics {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 #template
                 Ok(())
