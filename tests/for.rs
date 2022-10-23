@@ -86,10 +86,7 @@ struct Functions {
 #[test]
 fn test_function_variables() {
     let data = Functions {
-        functions: vec![
-            || 19,
-            || 89,
-        ],
+        functions: vec![|| 19, || 89],
     };
 
     assert_eq!(format!("{}", data), "19\n89\n");

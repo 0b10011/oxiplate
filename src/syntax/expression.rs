@@ -230,7 +230,10 @@ pub(super) fn expression<'a>(
                 };
 
                 if parsed_parents.is_empty() {
-                    return Ok((input, Expression::Identifier(field, local_variables.contains(ident_str))));
+                    return Ok((
+                        input,
+                        Expression::Identifier(field, local_variables.contains(ident_str)),
+                    ));
                 }
 
                 let mut parents = Vec::with_capacity(parsed_parents.len());

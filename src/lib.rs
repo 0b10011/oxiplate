@@ -247,7 +247,11 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
-        attrs, ident, data, generics, ..
+        attrs,
+        ident,
+        data,
+        generics,
+        ..
     } = &input;
 
     let mut field_names: Vec<&syn::Ident> = Vec::new();
