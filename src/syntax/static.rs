@@ -4,10 +4,10 @@ use super::{
     Item, Res,
 };
 use crate::Source;
-use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
 use nom::multi::many_till;
+use nom::{branch::alt, bytes::complete::take_while};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -46,12 +46,54 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
         return fail(input);
     }
 
-    let mut source = output.first().unwrap().clone();
-    for item in output {
-        source.range.end = item.range.end;
+    let mut source: Option<Source> = None;
+    let mut leading_whitespace: Option<Source> = None;
+    let mut trailing_whitespace: Option<Source> = None;
+    let mut items = output.into_iter().peekable();
+    while let Some(item) = items.next() {
+        let is_whitespace = take_while(is_whitespace)(item.clone())?.0.as_str().len() == 0;
+
+        // Check if leading whitespace
+        if is_whitespace && source.is_none() {
+            if let Some(leading_whitespace) = &mut leading_whitespace {
+                leading_whitespace.range.end = item.range.end;
+            } else {
+                leading_whitespace = Some(item);
+            }
+            continue;
+        }
+
+        // Check if trailing whitespace
+        if is_whitespace && items.peek().is_none() {
+            trailing_whitespace = Some(item);
+            continue;
+        }
+
+        if let Some(source) = &mut source {
+            source.range.end = item.range.end;
+        } else {
+            source = Some(item);
+        }
     }
 
-    Ok((input, vec![Item::Static(Static(source.as_str(), source))]))
+    let mut items: Vec<Item> = vec![];
+    if let Some(leading_whitespace) = leading_whitespace {
+        items.push(Item::Whitespace(Static(
+            leading_whitespace.as_str(),
+            leading_whitespace,
+        )));
+    }
+    if let Some(source) = source {
+        items.push(Item::Static(Static(source.as_str(), source)));
+    }
+    if let Some(trailing_whitespace) = trailing_whitespace {
+        items.push(Item::Whitespace(Static(
+            trailing_whitespace.as_str(),
+            trailing_whitespace,
+        )));
+    }
+
+    Ok((input, items))
 }
 
 fn is_whitespace_or_brace(char: char) -> bool {

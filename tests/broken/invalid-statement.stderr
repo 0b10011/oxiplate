@@ -1,4 +1,4 @@
-error: Expected one of: if, elseif, else, endif, for, endfor
+error: Expected one of: block, endblock, if, elseif, else, endif, for, endfor
  --> tests/broken/invalid-statement.rs:4:18
   |
 4 | #[oxiplate = "{% thisdoesntexist %}"]

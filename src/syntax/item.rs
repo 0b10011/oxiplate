@@ -20,6 +20,7 @@ pub(crate) enum Item<'a> {
     Writ(Writ<'a>),
     Statement(Statement<'a>),
     Static(Static<'a>),
+    Whitespace(Static<'a>),
     CompileError(String, Source<'a>),
 }
 
@@ -30,6 +31,7 @@ impl ToTokens for Item<'_> {
             Item::Writ(writ) => quote! { #writ },
             Item::Statement(statement) => quote! { #statement },
             Item::Static(text) => quote! { #text },
+            Item::Whitespace(text) => quote! { #text },
             Item::CompileError(text, source) => {
                 let span = source.span();
                 quote_spanned! {span=> compile_error!(#text); }
@@ -60,13 +62,13 @@ pub(crate) fn parse_tag<'a>(
         let mut items = vec![];
 
         if let Some(leading_whitespace) = leading_whitespace {
-            items.push(leading_whitespace.into());
+            items.push(Item::Whitespace(leading_whitespace));
         }
 
         items.push(tag);
 
         if let Some(trailing_whitespace) = trailing_whitespace {
-            items.push(trailing_whitespace.into());
+            items.push(Item::Whitespace(trailing_whitespace));
         }
 
         Ok((input, items))

@@ -9,7 +9,7 @@ use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{pair, terminated, tuple};
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
+use quote::{format_ident, quote, quote_spanned, ToTokens, TokenStreamExt};
 
 // #[derive(Debug, PartialEq)]
 // // https://doc.rust-lang.org/reference/expressions/literal-expr.html
@@ -61,7 +61,7 @@ pub(crate) struct Identifier<'a>(pub &'a str, pub Source<'a>);
 
 impl ToTokens for Identifier<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = self.1.as_str();
+        let ident = format_ident!("{}", self.1.as_str());
         let span = self.1.span();
         tokens.append_all(quote_spanned! {span=> #ident });
     }

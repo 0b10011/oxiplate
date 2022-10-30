@@ -90,6 +90,47 @@ fn try_parse(source: Source) -> Res<Source, Template> {
         items.append(&mut item_vec);
     }
 
+    let mut has_content = false;
+    let mut is_extending = false;
+    for item in &items {
+        match item {
+            Item::Statement(statement) => {
+                match statement.kind {
+                    crate::syntax::statement::StatementKind::Extends(_) => {
+                        if has_content || is_extending {
+                            todo!("Can't extend if already adding content");
+                        }
+
+                        is_extending = true;
+                    }
+                    crate::syntax::statement::StatementKind::Block(_) => {
+                        // While blocks are allowed when extending,
+                        // the extends tag should cause an error if it appears _after_ a block.
+                        has_content = true;
+                    }
+                    _ => {
+                        if is_extending {
+                            todo!("Can't add content if extending");
+                        }
+
+                        has_content = true;
+                    }
+                }
+            }
+            Item::Writ(_) => (),
+            Item::Static(_) => {
+                if is_extending {
+                    todo!("Can't add static content or writs when extending");
+                }
+
+                // Whitespace-only `Static` should be wrapped in `Item::Whitespace()` instead,
+                // so no check needs to be done for whitespace.
+                has_content = true;
+            }
+            Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (), /* These are fine anywhere */
+        }
+    }
+
     Ok((input, Template(items)))
 }
 
@@ -115,9 +156,9 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
     let whitespace = match tag.as_str() {
         "{_}" => {
             if let Some(leading_whitespace) = leading_whitespace {
-                vec![Static(" ", leading_whitespace).into()]
+                vec![Item::Whitespace(Static(" ", leading_whitespace))]
             } else if let Some(trailing_whitespace) = trailing_whitespace {
-                vec![Static(" ", trailing_whitespace).into()]
+                vec![Item::Whitespace(Static(" ", trailing_whitespace))]
             } else {
                 vec![]
             }

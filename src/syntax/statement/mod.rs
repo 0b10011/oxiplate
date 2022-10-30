@@ -1,5 +1,9 @@
 use std::collections::HashSet;
 
+mod extends;
+use extends::Extends;
+mod block;
+use block::Block;
 mod r#for;
 use r#for::For;
 mod r#if;
@@ -21,11 +25,14 @@ use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 #[derive(Debug)]
 pub(crate) struct Statement<'a> {
     source: Source<'a>,
-    kind: StatementKind<'a>,
+    pub(crate) kind: StatementKind<'a>,
 }
 
 #[derive(Debug)]
 pub(crate) enum StatementKind<'a> {
+    Extends(Extends<'a>),
+    Block(Block<'a>),
+    EndBlock,
     If(If<'a>),
     ElseIf(ElseIf<'a>),
     Else,
@@ -37,17 +44,20 @@ pub(crate) enum StatementKind<'a> {
 impl<'a> Statement<'a> {
     pub fn is_ended(&self) -> bool {
         match &self.kind {
+            StatementKind::Extends(_) => true,
+            StatementKind::Block(statement) => statement.is_ended,
             StatementKind::If(statement) => statement.is_ended,
             StatementKind::For(statement) => statement.is_ended,
-            _ => true,
+            _ => true, /* unreachable!("is_ended() should not be called for this kind of statement"), */
         }
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
         match &mut self.kind {
+            StatementKind::Block(statement) => statement.add_item(item),
             StatementKind::If(statement) => statement.add_item(item),
             StatementKind::For(statement) => statement.add_item(item),
-            _ => unreachable!(),
+            _ => unreachable!("add_item() should not be called for this kind of statement"),
         }
     }
 
@@ -68,6 +78,14 @@ impl<'a> From<Statement<'a>> for Item<'a> {
 impl ToTokens for Statement<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match &self.kind {
+            StatementKind::Extends(extends) => quote! { #extends },
+
+            StatementKind::Block(block) => quote! { #block },
+            StatementKind::EndBlock => {
+                let span = self.source.span();
+                quote_spanned! {span=> compile_error!("Unexpected 'endblock' statement"); }
+            }
+
             StatementKind::If(statement) => quote! { #statement },
             StatementKind::ElseIf(_) => {
                 let span = self.source.span();
@@ -100,8 +118,11 @@ pub(super) fn statement<'a>(
 
         // Parse statements
         let (input, mut statement) = context(
-            "Expected one of: if, elseif, else, endif, for, endfor",
+            "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
             cut(alt((
+                extends::parse_extends,
+                block::parse_block,
+                block::parse_endblock,
                 r#if::parse_if(local_variables),
                 r#if::parse_elseif(local_variables),
                 r#if::parse_else,
