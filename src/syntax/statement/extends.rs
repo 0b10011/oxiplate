@@ -1,6 +1,7 @@
 use super::super::expression::keyword;
 use super::super::Res;
 use super::{Statement, StatementKind};
+use crate::syntax::Item;
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::is_whitespace;
 use crate::Source;
@@ -17,6 +18,30 @@ use quote::{quote, ToTokens, TokenStreamExt};
 pub struct Extends<'a> {
     extends_keyword: Keyword<'a>,
     path: Source<'a>,
+    items: Vec<Item<'a>>,
+}
+
+impl<'a> Extends<'a> {
+    pub(crate) fn add_item(&mut self, item: Item<'a>) {
+        match item {
+            // Comments are fine to keep
+            Item::Comment => self.items.push(item),
+
+            // Compile errors must be kept
+            Item::CompileError(_, _) => self.items.push(item),
+
+            // Whitespace should be ignored
+            Item::Whitespace(_) => (),
+
+            // Block statements are allowed, but other statements should fail
+            Item::Statement(Statement { kind: StatementKind::Block(_), ..}) => self.items.push(item),
+            Item::Statement(_) => todo!(),
+
+            // No static text or writs allowed
+            Item::Static(_) => todo!(),
+            Item::Writ(_) => todo!(),
+        }
+    }
 }
 
 impl<'a> From<Extends<'a>> for StatementKind<'a> {
@@ -27,10 +52,11 @@ impl<'a> From<Extends<'a>> for StatementKind<'a> {
 
 impl ToTokens for Extends<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Extends { path, .. } = self;
+        let Extends { path, items, .. } = self;
         let _path = path.as_str();
         tokens.append_all(quote! {
-            content()?;
+            #(#items)*
+            content(f)?;
         });
     }
 }
@@ -54,6 +80,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
             kind: Extends {
                 extends_keyword,
                 path: path.clone(),
+                items: vec![],
             }
             .into(),
             source: path,

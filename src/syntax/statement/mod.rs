@@ -15,7 +15,7 @@ use crate::syntax::template::{is_whitespace, parse_item};
 use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
-use nom::combinator::cut;
+use nom::combinator::{cut};
 use nom::combinator::fail;
 use nom::error::context;
 use nom::sequence::preceded;
@@ -42,9 +42,9 @@ pub(crate) enum StatementKind<'a> {
 }
 
 impl<'a> Statement<'a> {
-    pub fn is_ended(&self) -> bool {
+    pub fn is_ended(&self, is_eof: bool) -> bool {
         match &self.kind {
-            StatementKind::Extends(_) => true,
+            StatementKind::Extends(_) => is_eof,
             StatementKind::Block(statement) => statement.is_ended,
             StatementKind::If(statement) => statement.is_ended,
             StatementKind::For(statement) => statement.is_ended,
@@ -54,6 +54,7 @@ impl<'a> Statement<'a> {
 
     pub fn add_item(&mut self, item: Item<'a>) {
         match &mut self.kind {
+            StatementKind::Extends(statement) => statement.add_item(item),
             StatementKind::Block(statement) => statement.add_item(item),
             StatementKind::If(statement) => statement.add_item(item),
             StatementKind::For(statement) => statement.add_item(item),
@@ -136,7 +137,7 @@ pub(super) fn statement<'a>(
         let (mut input, trailing_whitespace) =
             preceded(take_while(is_whitespace), cut(tag_end("%}")))(input)?;
 
-        if !statement.is_ended() {
+        if !statement.is_ended(input.as_str().len() == 0) {
             // Merge new variables from this statement into the existing local variables
             let mut new_local_variables = statement.get_active_variables();
             for value in local_variables.iter() {
@@ -153,13 +154,13 @@ pub(super) fn statement<'a>(
                     parsed_item.expect("Error possibility should have been checked already");
                 input = new_input;
                 for item in items {
-                    if statement.is_ended() {
+                    if statement.is_ended(false) {
                         todo!("This can happen with tags and trailing whitespace I think");
                     }
 
                     statement.add_item(item);
                 }
-                if statement.is_ended() {
+                if statement.is_ended(input.as_str().len() == 0) {
                     break;
                 }
             }
