@@ -281,8 +281,9 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
     let template = syntax::parse(source);
 
+    let where_clause = &generics.where_clause;
     let expanded = quote! {
-        impl #generics std::fmt::Display for #ident #generics {
+        impl #generics std::fmt::Display for #ident #generics #where_clause {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 #template
                 Ok(())

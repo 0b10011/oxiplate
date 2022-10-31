@@ -49,7 +49,7 @@ impl ToTokens for Block<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Block { name, items, .. } = self;
         tokens.append_all(quote! {
-            let #name = |f: &mut std::fmt::Formatter<'_>| -> Result<(), ::core::fmt::Error> {
+            let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
                 #(#items)*
                 Ok(())
             };

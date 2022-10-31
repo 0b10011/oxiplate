@@ -53,10 +53,21 @@ impl<'a> From<Extends<'a>> for StatementKind<'a> {
 impl ToTokens for Extends<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Extends { path, items, .. } = self;
-        let _path = path.as_str();
+        let path = path.as_str();
         tokens.append_all(quote! {
             #(#items)*
-            content(f)?;
+            #[derive(::oxiplate::Oxiplate)]
+            #[oxiplate = include_str!(#path)]
+            struct Template<F>
+            where
+                F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            {
+                content: F,
+            }
+            let template = Template {
+                content: content,
+            };
+            write!(f, "{}", template)?;
         });
     }
 }
