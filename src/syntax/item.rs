@@ -48,14 +48,15 @@ pub enum TagOpen {
 }
 
 pub(crate) fn parse_tag<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let (input, (tag, trailing_whitespace)) = match open {
-            TagOpen::Writ => cut(writ(local_variables))(input)?,
-            TagOpen::Statement => cut(statement(local_variables))(input)?,
+            TagOpen::Writ => cut(writ(is_extending, local_variables))(input)?,
+            TagOpen::Statement => cut(statement(is_extending, local_variables))(input)?,
             TagOpen::Comment => cut(comment)(input)?,
         };
 

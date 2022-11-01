@@ -79,7 +79,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
 }
 
 fn try_parse(source: Source) -> Res<Source, Template> {
-    let (input, items_vec) = many0(parse_item(&HashSet::new()))(source)?;
+    let (input, items_vec) = many0(parse_item(&source.original.is_extending, &HashSet::new()))(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -135,11 +135,12 @@ fn try_parse(source: Source) -> Res<Source, Template> {
 }
 
 pub(crate) fn parse_item<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         alt((
-            parse_tag(local_variables),
+            parse_tag(is_extending, local_variables),
             parse_static,
             adjusted_whitespace,
         ))(input)

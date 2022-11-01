@@ -16,6 +16,7 @@ use nom::Offset;
 use nom::Slice;
 use nom::UnspecializedInput;
 use proc_macro::TokenStream;
+use proc_macro2::Ident;
 use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
@@ -31,10 +32,12 @@ use syn::{Attribute, Data, DeriveInput, Fields};
 
 #[derive(Debug)]
 pub(crate) struct SourceOwned {
+    ident: Ident,
     code: String,
     literal: Literal,
     span_hygiene: Span,
     origin: Option<PathBuf>,
+    is_extending: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -236,7 +239,7 @@ impl<'a> Iterator for Source<'a> {
     }
 }
 
-#[proc_macro_derive(Oxiplate, attributes(oxiplate))]
+#[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
         Ok(token_stream) => token_stream,
@@ -271,7 +274,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let source = get_source(attrs)?;
+    let source = get_source(ident, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -294,12 +297,13 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     Ok(TokenStream::from(expanded))
 }
 
-fn get_source(attrs: &Vec<Attribute>) -> Result<SourceOwned, syn::Error> {
+fn get_source(ident: &Ident, attrs: &Vec<Attribute>) -> Result<SourceOwned, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxiplate = include_str!("./relative/path/to/template/from/current/file.txt.oxip")]
 Internal: #[oxiplate = "{{ your_var }}"]"#;
     for attr in attrs {
-        if attr.path.is_ident("oxiplate") {
+        let is_extending = attr.path.is_ident("oxiplate_extends");
+        if attr.path.is_ident("oxiplate") || is_extending {
             // Parse out the `=` and expression to it can be expanded.
             let parser = |input: syn::parse::ParseStream| {
                 input.parse::<syn::Token![=]>()?;
@@ -330,10 +334,12 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
 
             // Return the source
             return Ok(SourceOwned {
+                ident: ident.clone(),
                 code,
                 literal,
                 span_hygiene: span,
                 origin: None,
+                is_extending,
             });
         }
     }

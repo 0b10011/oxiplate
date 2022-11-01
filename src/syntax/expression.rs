@@ -80,11 +80,18 @@ pub(crate) enum IdentifierOrFunction<'a> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>, bool);
+pub enum IdentifierScope {
+    Local,
+    Parent,
+    Data,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>, IdentifierScope);
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
-    Identifier(IdentifierOrFunction<'a>, bool),
+    Identifier(IdentifierOrFunction<'a>, IdentifierScope),
     FieldAccess(IdentField<'a>),
     // Group(Box<Expression<'a>>),
     Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
@@ -94,23 +101,23 @@ pub(crate) enum Expression<'a> {
 impl ToTokens for Expression<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match self {
-            Expression::Identifier(identifier, is_local) => match &identifier {
+            Expression::Identifier(identifier, scope) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.1.span();
                     let identifier = syn::Ident::new(identifier.0, span);
-                    if *is_local {
-                        quote_spanned! {span=> #identifier }
-                    } else {
-                        quote_spanned! {span=> self.#identifier }
+                    match scope {
+                        IdentifierScope::Local => quote_spanned! {span=> #identifier },
+                        IdentifierScope::Parent => quote_spanned! {span=> self.#identifier },
+                        IdentifierScope::Data => quote_spanned! {span=> self._data.#identifier },
                     }
                 }
                 IdentifierOrFunction::Function(identifier) => {
                     let span = identifier.1.span();
                     let identifier = syn::Ident::new(identifier.0, span);
-                    if *is_local {
-                        quote_spanned! {span=> #identifier() }
-                    } else {
-                        quote_spanned! {span=> self.#identifier() }
+                    match scope {
+                        IdentifierScope::Local => quote_spanned! {span=> #identifier },
+                        IdentifierScope::Parent => quote_spanned! {span=> self.#identifier },
+                        IdentifierScope::Data => quote_spanned! {span=> self._data.#identifier },
                     }
                 }
             },
@@ -127,10 +134,10 @@ impl ToTokens for Expression<'_> {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        if field.2 {
-                            quote_spanned! {span=> #(#parents.)*#identifier }
-                        } else {
-                            quote_spanned! {span=> self.#(#parents.)*#identifier }
+                        match field.2 {
+                            IdentifierScope::Local => quote_spanned! {span=> #(#parents.)*#identifier },
+                            IdentifierScope::Parent => quote_spanned! {span=> self.#(#parents.)*#identifier },
+                            IdentifierScope::Data => quote_spanned! {span=> self._data.#(#parents.)*#identifier },
                         }
                     }
                     IdentifierOrFunction::Function(identifier) => {
@@ -139,10 +146,10 @@ impl ToTokens for Expression<'_> {
                             span.join(parent.1.span());
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
-                        if field.2 {
-                            quote_spanned! {span=> #(#parents.)*#identifier() }
-                        } else {
-                            quote_spanned! {span=> self.#(#parents.)*#identifier() }
+                        match field.2 {
+                            IdentifierScope::Local => quote_spanned! {span=> #(#parents.)*#identifier() },
+                            IdentifierScope::Parent => quote_spanned! {span=> self.#(#parents.)*#identifier() },
+                            IdentifierScope::Data => quote_spanned! {span=> self._data.#(#parents.)*#identifier() },
                         }
                     }
                 }
@@ -210,10 +217,12 @@ impl ToTokens for PrefixOperator {
 }
 
 pub(super) fn expression<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         fn field_or_identifier<'a>(
+            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
@@ -232,7 +241,16 @@ pub(super) fn expression<'a>(
                 if parsed_parents.is_empty() {
                     return Ok((
                         input,
-                        Expression::Identifier(field, local_variables.contains(ident_str)),
+                        Expression::Identifier(
+                            field,
+                            if local_variables.contains(ident_str) {
+                                IdentifierScope::Local
+                            } else if *is_extending {
+                                IdentifierScope::Data
+                            } else {
+                                IdentifierScope::Parent
+                            }
+                        ),
                     ));
                 }
 
@@ -247,7 +265,17 @@ pub(super) fn expression<'a>(
 
                 Ok((
                     input,
-                    Expression::FieldAccess(IdentField(parents, field, is_local.unwrap_or(false))),
+                    Expression::FieldAccess(IdentField(
+                        parents,
+                        field, 
+                        if is_local.unwrap_or(false) {
+                            IdentifierScope::Local
+                        } else if *is_extending {
+                            IdentifierScope::Data
+                        } else {
+                            IdentifierScope::Parent
+                        }
+                    )),
                 ))
             }
         }
@@ -291,16 +319,17 @@ pub(super) fn expression<'a>(
             Ok((input, operator))
         }
         fn calc<'a>(
+            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
                 let (input, (left, _leading_whitespace, operator, _trailing_whitespace, right)) =
                     tuple((
-                        field_or_identifier(local_variables),
+                        field_or_identifier(is_extending, local_variables),
                         opt(whitespace),
                         operator,
                         opt(whitespace),
-                        field_or_identifier(local_variables),
+                        field_or_identifier(is_extending, local_variables),
                     ))(input)?;
                 Ok((
                     input,
@@ -319,11 +348,12 @@ pub(super) fn expression<'a>(
             Ok((input, operator))
         }
         fn prefixed_expression<'a>(
+            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
                 let (input, (prefix_operator, expression)) =
-                    tuple((prefix_operator, expression(local_variables)))(input)?;
+                    tuple((prefix_operator, expression(is_extending, local_variables)))(input)?;
 
                 Ok((
                     input,
@@ -333,9 +363,9 @@ pub(super) fn expression<'a>(
         }
 
         alt((
-            calc(local_variables),
-            field_or_identifier(local_variables),
-            prefixed_expression(local_variables),
+            calc(is_extending, local_variables),
+            field_or_identifier(is_extending, local_variables),
+            prefixed_expression(is_extending, local_variables),
         ))(input)
     }
 }

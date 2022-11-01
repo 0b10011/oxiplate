@@ -11,11 +11,12 @@ use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
 use nom::sequence::tuple;
-use proc_macro2::TokenStream;
+use proc_macro2::{TokenStream, Ident};
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug)]
 pub struct Extends<'a> {
+    extending: Ident,
     extends_keyword: Keyword<'a>,
     path: Source<'a>,
     items: Vec<Item<'a>>,
@@ -54,17 +55,20 @@ impl ToTokens for Extends<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Extends { path, items, .. } = self;
         let path = path.as_str();
+        let extending = &self.extending;
         tokens.append_all(quote! {
             #(#items)*
             #[derive(::oxiplate::Oxiplate)]
-            #[oxiplate = include_str!(#path)]
-            struct Template<F>
+            #[oxiplate_extends = include_str!(#path)]
+            struct Template<'a, F>
             where
                 F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             {
+                _data: &'a #extending,
                 content: F,
             }
             let template = Template {
+                _data: self,
                 content: content,
             };
             write!(f, "{}", template)?;
@@ -85,10 +89,13 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         context(r#"Expected ""#, tag(r#"""#)),
     )))(input)?;
 
+    let extending = input.original.ident.clone();
+
     Ok((
         input,
         Statement {
             kind: Extends {
+                extending,
                 extends_keyword,
                 path: path.clone(),
                 items: vec![],
