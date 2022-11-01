@@ -115,9 +115,9 @@ impl ToTokens for Expression<'_> {
                     let span = identifier.1.span();
                     let identifier = syn::Ident::new(identifier.0, span);
                     match scope {
-                        IdentifierScope::Local => quote_spanned! {span=> #identifier },
-                        IdentifierScope::Parent => quote_spanned! {span=> self.#identifier },
-                        IdentifierScope::Data => quote_spanned! {span=> self._data.#identifier },
+                        IdentifierScope::Local => quote_spanned! {span=> #identifier() },
+                        IdentifierScope::Parent => quote_spanned! {span=> self.#identifier() },
+                        IdentifierScope::Data => quote_spanned! {span=> self._data.#identifier() },
                     }
                 }
             },
