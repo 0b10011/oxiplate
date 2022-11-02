@@ -20,15 +20,15 @@ fn absolute() {
     );
 }
 
-// #[test]
-// fn absolute_2() {
-//     let data = AbsoluteData {
-//         title: "Oxiplate Example #2",
-//         message: "Goodbye world!",
-//     };
+#[test]
+fn absolute_2() {
+    let data = AbsoluteData {
+        title: "Oxiplate Example #2",
+        message: "Goodbye world!",
+    };
 
-//     assert_eq!(
-//         format!("{}", data),
-//         "<!DOCTYPE html>\r\n<title>Oxiplate Example #2</title>\r\n<h1>Oxiplate Example #2</h1>\r\n<p>Goodbye world!</p>\r\n"
-//     );
-// }
+    assert_eq!(
+        format!("{}", data),
+        "<!DOCTYPE html>\r\n<title>Oxiplate Example #2</title>\r\n<h1>Oxiplate Example #2</h1>\r\n  <p>Goodbye world!</p>\r\n"
+    );
+}
