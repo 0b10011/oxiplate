@@ -20,6 +20,7 @@ pub(crate) enum Item<'a> {
     Writ(Writ<'a>),
     Statement(Statement<'a>),
     Static(Static<'a>),
+    Whitespace(Static<'a>),
     CompileError(String, Source<'a>),
 }
 
@@ -30,6 +31,7 @@ impl ToTokens for Item<'_> {
             Item::Writ(writ) => quote! { #writ },
             Item::Statement(statement) => quote! { #statement },
             Item::Static(text) => quote! { #text },
+            Item::Whitespace(text) => quote! { #text },
             Item::CompileError(text, source) => {
                 let span = source.span();
                 quote_spanned! {span=> compile_error!(#text); }
@@ -46,27 +48,33 @@ pub enum TagOpen {
 }
 
 pub(crate) fn parse_tag<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
+    should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let (input, (tag, trailing_whitespace)) = match open {
-            TagOpen::Writ => cut(writ(local_variables))(input)?,
-            TagOpen::Statement => cut(statement(local_variables))(input)?,
+            TagOpen::Writ => cut(writ(is_extending, local_variables))(input)?,
+            TagOpen::Statement => cut(statement(
+                is_extending,
+                local_variables,
+                should_output_blocks,
+            ))(input)?,
             TagOpen::Comment => cut(comment)(input)?,
         };
 
         let mut items = vec![];
 
         if let Some(leading_whitespace) = leading_whitespace {
-            items.push(leading_whitespace.into());
+            items.push(Item::Whitespace(leading_whitespace));
         }
 
         items.push(tag);
 
         if let Some(trailing_whitespace) = trailing_whitespace {
-            items.push(trailing_whitespace.into());
+            items.push(Item::Whitespace(trailing_whitespace));
         }
 
         Ok((input, items))

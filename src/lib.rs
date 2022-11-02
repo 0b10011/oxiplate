@@ -16,6 +16,7 @@ use nom::Offset;
 use nom::Slice;
 use nom::UnspecializedInput;
 use proc_macro::TokenStream;
+use proc_macro2::Ident;
 use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
@@ -31,10 +32,13 @@ use syn::{Attribute, Data, DeriveInput, Fields};
 
 #[derive(Debug)]
 pub(crate) struct SourceOwned {
+    ident: Ident,
+    blocks: Vec<String>,
     code: String,
     literal: Literal,
     span_hygiene: Span,
     origin: Option<PathBuf>,
+    is_extending: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -236,7 +240,7 @@ impl<'a> Iterator for Source<'a> {
     }
 }
 
-#[proc_macro_derive(Oxiplate, attributes(oxiplate))]
+#[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
         Ok(token_stream) => token_stream,
@@ -271,7 +275,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let source = get_source(attrs)?;
+    let source = get_source(ident, data, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -281,8 +285,9 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
     let template = syntax::parse(source);
 
+    let where_clause = &generics.where_clause;
     let expanded = quote! {
-        impl #generics std::fmt::Display for #ident #generics {
+        impl #generics std::fmt::Display for #ident #generics #where_clause {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 #template
                 Ok(())
@@ -293,12 +298,17 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     Ok(TokenStream::from(expanded))
 }
 
-fn get_source(attrs: &Vec<Attribute>) -> Result<SourceOwned, syn::Error> {
+fn get_source(
+    ident: &Ident,
+    data: &Data,
+    attrs: &Vec<Attribute>,
+) -> Result<SourceOwned, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxiplate = include_str!("./relative/path/to/template/from/current/file.txt.oxip")]
 Internal: #[oxiplate = "{{ your_var }}"]"#;
     for attr in attrs {
-        if attr.path.is_ident("oxiplate") {
+        let is_extending = attr.path.is_ident("oxiplate_extends");
+        if attr.path.is_ident("oxiplate") || is_extending {
             // Parse out the `=` and expression to it can be expanded.
             let parser = |input: syn::parse::ParseStream| {
                 input.parse::<syn::Token![=]>()?;
@@ -327,12 +337,40 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
                 _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
             };
 
+            let mut blocks = vec![];
+            if is_extending {
+                match data {
+                    Data::Struct(ref struct_item) => {
+                        if let Fields::Named(fields) = &struct_item.fields {
+                            for field in &fields.named {
+                                match &field.ident {
+                                    Some(name) => {
+                                        if name.to_string() != "_data"
+                                            && name.to_string() != "_blocks"
+                                        {
+                                            blocks.push(name.to_string());
+                                        }
+                                    }
+                                    None => {
+                                        field.span().unwrap().error("Expected a named field").emit()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    _ => unreachable!("Should have checked this doesn't happen already"),
+                }
+            }
+
             // Return the source
             return Ok(SourceOwned {
+                ident: ident.clone(),
+                blocks,
                 code,
                 literal,
                 span_hygiene: span,
                 origin: None,
+                is_extending,
             });
         }
     }

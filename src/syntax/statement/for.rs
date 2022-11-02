@@ -69,6 +69,7 @@ impl ToTokens for For<'_> {
 }
 
 pub(super) fn parse_for<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
@@ -85,7 +86,7 @@ pub(super) fn parse_for<'a>(
             context("Expected space after 'in'", take_while1(is_whitespace)),
             context(
                 "Expected an expression that is iterable",
-                expression(local_variables),
+                expression(is_extending, local_variables),
             ),
         )))(input)?;
 

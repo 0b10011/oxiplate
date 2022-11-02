@@ -91,6 +91,7 @@ impl ToTokens for If<'_> {
 }
 
 pub(super) fn parse_if<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
     |input| {
@@ -99,7 +100,7 @@ pub(super) fn parse_if<'a>(
         // Consume at least one whitespace.
         let (input, _) = cut(take_while1(is_whitespace))(input)?;
 
-        let (input, output) = cut(expression(local_variables))(input)?;
+        let (input, output) = cut(expression(is_extending, local_variables))(input)?;
 
         Ok((
             input,
@@ -117,6 +118,7 @@ pub(super) fn parse_if<'a>(
 }
 
 pub(super) fn parse_elseif<'a>(
+    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
@@ -125,7 +127,7 @@ pub(super) fn parse_elseif<'a>(
         // Consume at least one whitespace.
         let (input, _) = cut(take_while1(is_whitespace))(input)?;
 
-        let (input, output) = cut(expression(local_variables))(input)?;
+        let (input, output) = cut(expression(is_extending, local_variables))(input)?;
 
         Ok((
             input,
