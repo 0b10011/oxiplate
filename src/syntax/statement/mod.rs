@@ -15,7 +15,7 @@ use crate::syntax::template::{is_whitespace, parse_item};
 use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
-use nom::combinator::{cut};
+use nom::combinator::cut;
 use nom::combinator::fail;
 use nom::error::context;
 use nom::sequence::preceded;
@@ -68,6 +68,13 @@ impl<'a> Statement<'a> {
             _ => HashSet::new(),
         }
     }
+
+    pub fn should_output_blocks(&self) -> bool {
+        match &self.kind {
+            StatementKind::Extends(_) => false,
+            _ => true,
+        }
+    }
 }
 
 impl<'a> From<Statement<'a>> for Item<'a> {
@@ -113,6 +120,7 @@ impl ToTokens for Statement<'_> {
 pub(super) fn statement<'a>(
     is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
+    should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
         // Ignore any leading inner whitespace
@@ -123,7 +131,7 @@ pub(super) fn statement<'a>(
             "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
             cut(alt((
                 extends::parse_extends,
-                block::parse_block,
+                block::parse_block(should_output_blocks),
                 block::parse_endblock,
                 r#if::parse_if(is_extending, local_variables),
                 r#if::parse_elseif(is_extending, local_variables),
@@ -145,9 +153,11 @@ pub(super) fn statement<'a>(
                 new_local_variables.insert(value);
             }
             let local_variables = new_local_variables;
+            let should_output_blocks = statement.should_output_blocks();
 
             loop {
-                let parsed_item = parse_item(is_extending, &local_variables)(input);
+                let parsed_item =
+                    parse_item(is_extending, &local_variables, &should_output_blocks)(input);
                 if parsed_item.is_err() {
                     return context("This statement is never closed.", fail)(statement.source);
                 }

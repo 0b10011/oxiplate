@@ -33,6 +33,7 @@ use syn::{Attribute, Data, DeriveInput, Fields};
 #[derive(Debug)]
 pub(crate) struct SourceOwned {
     ident: Ident,
+    blocks: Vec<String>,
     code: String,
     literal: Literal,
     span_hygiene: Span,
@@ -274,7 +275,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let source = get_source(ident, attrs)?;
+    let source = get_source(ident, data, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -297,7 +298,11 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     Ok(TokenStream::from(expanded))
 }
 
-fn get_source(ident: &Ident, attrs: &Vec<Attribute>) -> Result<SourceOwned, syn::Error> {
+fn get_source(
+    ident: &Ident,
+    data: &Data,
+    attrs: &Vec<Attribute>,
+) -> Result<SourceOwned, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxiplate = include_str!("./relative/path/to/template/from/current/file.txt.oxip")]
 Internal: #[oxiplate = "{{ your_var }}"]"#;
@@ -332,9 +337,35 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
                 _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
             };
 
+            let mut blocks = vec![];
+            if is_extending {
+                match data {
+                    Data::Struct(ref struct_item) => {
+                        if let Fields::Named(fields) = &struct_item.fields {
+                            for field in &fields.named {
+                                match &field.ident {
+                                    Some(name) => {
+                                        if name.to_string() != "_data"
+                                            && name.to_string() != "_blocks"
+                                        {
+                                            blocks.push(name.to_string());
+                                        }
+                                    }
+                                    None => {
+                                        field.span().unwrap().error("Expected a named field").emit()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    _ => unreachable!("Should have checked this doesn't happen already"),
+                }
+            }
+
             // Return the source
             return Ok(SourceOwned {
                 ident: ident.clone(),
+                blocks,
                 code,
                 literal,
                 span_hygiene: span,

@@ -33,8 +33,10 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
-        let (input, output) =
-            context("Expected an expression.", cut(expression(is_extending, local_variables)))(input)?;
+        let (input, output) = context(
+            "Expected an expression.",
+            cut(expression(is_extending, local_variables)),
+        )(input)?;
         let (input, trailing_whitespace) = context(
             "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
             cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),

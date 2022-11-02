@@ -1,9 +1,8 @@
 use super::super::expression::keyword;
 use super::super::Res;
 use super::{Statement, StatementKind};
-use crate::syntax::Item;
-use crate::syntax::expression::Keyword;
 use crate::syntax::template::is_whitespace;
+use crate::syntax::Item;
 use crate::Source;
 use nom::bytes::complete::take_while1;
 use nom::bytes::complete::{escaped, is_not, tag};
@@ -11,20 +10,20 @@ use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
 use nom::sequence::tuple;
-use proc_macro2::{TokenStream, Ident};
+use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug)]
 pub struct Extends<'a> {
     extending: Ident,
-    extends_keyword: Keyword<'a>,
+    blocks: Vec<String>,
     path: Source<'a>,
     items: Vec<Item<'a>>,
 }
 
 impl<'a> Extends<'a> {
-    pub(crate) fn add_item(&mut self, item: Item<'a>) {
-        match item {
+    pub(crate) fn add_item(&mut self, mut item: Item<'a>) {
+        match &mut item {
             // Comments are fine to keep
             Item::Comment => self.items.push(item),
 
@@ -35,7 +34,10 @@ impl<'a> Extends<'a> {
             Item::Whitespace(_) => (),
 
             // Block statements are allowed, but other statements should fail
-            Item::Statement(Statement { kind: StatementKind::Block(_), ..}) => self.items.push(item),
+            Item::Statement(Statement {
+                kind: StatementKind::Block(_),
+                ..
+            }) => self.items.push(item),
             Item::Statement(_) => todo!(),
 
             // No static text or writs allowed
@@ -56,6 +58,23 @@ impl ToTokens for Extends<'_> {
         let Extends { path, items, .. } = self;
         let path = path.as_str();
         let extending = &self.extending;
+        let mut parent_blocks = vec![];
+        let mut blocks = vec![];
+        for item in &self.items {
+            match item {
+                Item::Statement(Statement {
+                    kind: StatementKind::Block(block),
+                    ..
+                }) => {
+                    if self.blocks.contains(&block.name.0.to_string()) {
+                        parent_blocks.push(&block.name);
+                    } else {
+                        blocks.push(&block.name);
+                    }
+                }
+                _ => (),
+            }
+        }
         tokens.append_all(quote! {
             #(#items)*
             #[derive(::oxiplate::Oxiplate)]
@@ -65,11 +84,13 @@ impl ToTokens for Extends<'_> {
                 F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             {
                 _data: &'a #extending,
-                content: F,
+                #(#parent_blocks: F,)*
+                #(#blocks: F,)*
             }
             let template = Template {
                 _data: self,
-                content: content,
+                #(self.#parent_blocks,)*
+                #(#blocks,)*
             };
             write!(f, "{}", template)?;
         });
@@ -77,7 +98,7 @@ impl ToTokens for Extends<'_> {
 }
 
 pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
-    let (input, extends_keyword) = keyword("extends")(input)?;
+    let (input, _extends_keyword) = keyword("extends")(input)?;
 
     let (input, (_, _, path, _)) = cut(tuple((
         context("Expected space after 'extends'", take_while1(is_whitespace)),
@@ -90,13 +111,14 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
     )))(input)?;
 
     let extending = input.original.ident.clone();
+    let blocks = input.original.blocks.clone();
 
     Ok((
         input,
         Statement {
             kind: Extends {
                 extending,
-                extends_keyword,
+                blocks,
                 path: path.clone(),
                 items: vec![],
             }

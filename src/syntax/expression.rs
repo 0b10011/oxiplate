@@ -87,7 +87,11 @@ pub enum IdentifierScope {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IdentField<'a>(Vec<Identifier<'a>>, IdentifierOrFunction<'a>, IdentifierScope);
+pub struct IdentField<'a>(
+    Vec<Identifier<'a>>,
+    IdentifierOrFunction<'a>,
+    IdentifierScope,
+);
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
@@ -135,9 +139,15 @@ impl ToTokens for Expression<'_> {
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
                         match field.2 {
-                            IdentifierScope::Local => quote_spanned! {span=> #(#parents.)*#identifier },
-                            IdentifierScope::Parent => quote_spanned! {span=> self.#(#parents.)*#identifier },
-                            IdentifierScope::Data => quote_spanned! {span=> self._data.#(#parents.)*#identifier },
+                            IdentifierScope::Local => {
+                                quote_spanned! {span=> #(#parents.)*#identifier }
+                            }
+                            IdentifierScope::Parent => {
+                                quote_spanned! {span=> self.#(#parents.)*#identifier }
+                            }
+                            IdentifierScope::Data => {
+                                quote_spanned! {span=> self._data.#(#parents.)*#identifier }
+                            }
                         }
                     }
                     IdentifierOrFunction::Function(identifier) => {
@@ -147,9 +157,15 @@ impl ToTokens for Expression<'_> {
                         }
                         let identifier = syn::Ident::new(identifier.0, span);
                         match field.2 {
-                            IdentifierScope::Local => quote_spanned! {span=> #(#parents.)*#identifier() },
-                            IdentifierScope::Parent => quote_spanned! {span=> self.#(#parents.)*#identifier() },
-                            IdentifierScope::Data => quote_spanned! {span=> self._data.#(#parents.)*#identifier() },
+                            IdentifierScope::Local => {
+                                quote_spanned! {span=> #(#parents.)*#identifier() }
+                            }
+                            IdentifierScope::Parent => {
+                                quote_spanned! {span=> self.#(#parents.)*#identifier() }
+                            }
+                            IdentifierScope::Data => {
+                                quote_spanned! {span=> self._data.#(#parents.)*#identifier() }
+                            }
                         }
                     }
                 }
@@ -249,7 +265,7 @@ pub(super) fn expression<'a>(
                                 IdentifierScope::Data
                             } else {
                                 IdentifierScope::Parent
-                            }
+                            },
                         ),
                     ));
                 }
@@ -267,14 +283,14 @@ pub(super) fn expression<'a>(
                     input,
                     Expression::FieldAccess(IdentField(
                         parents,
-                        field, 
+                        field,
                         if is_local.unwrap_or(false) {
                             IdentifierScope::Local
                         } else if *is_extending {
                             IdentifierScope::Data
                         } else {
                             IdentifierScope::Parent
-                        }
+                        },
                     )),
                 ))
             }
