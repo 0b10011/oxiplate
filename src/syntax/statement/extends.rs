@@ -1,3 +1,5 @@
+use std::fmt;
+
 use super::super::expression::keyword;
 use super::super::Res;
 use super::{Statement, StatementKind};
@@ -12,13 +14,26 @@ use nom::error::context;
 use nom::sequence::tuple;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
+use syn::Generics;
 
-#[derive(Debug)]
 pub struct Extends<'a> {
     extending: Ident,
+    extending_generics: Generics,
     blocks: Vec<String>,
     path: Source<'a>,
     items: Vec<Item<'a>>,
+}
+
+impl<'a> fmt::Debug for Extends<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Extends")
+            .field("extending", &self.extending)
+            // .field("extending_generics", &"UNSUPPORTED_SORRY")
+            .field("blocks", &self.blocks)
+            .field("path", &self.path)
+            .field("items", &self.items)
+            .finish()
+    }
 }
 
 impl<'a> Extends<'a> {
@@ -58,6 +73,7 @@ impl ToTokens for Extends<'_> {
         let Extends { path, items, .. } = self;
         let path = path.as_str();
         let extending = &self.extending;
+        let extending_generics = &self.extending_generics;
         let mut parent_blocks = vec![];
         let mut blocks = vec![];
         for item in &self.items {
@@ -83,7 +99,7 @@ impl ToTokens for Extends<'_> {
             where
                 F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             {
-                _data: &'a #extending,
+                _data: &'a #extending #extending_generics,
                 #(#parent_blocks: F,)*
                 #(#blocks: F,)*
             }
@@ -111,6 +127,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
     )))(input)?;
 
     let extending = input.original.ident.clone();
+    let extending_generics = input.original.generics.clone();
     let blocks = input.original.blocks.clone();
 
     Ok((
@@ -118,6 +135,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         Statement {
             kind: Extends {
                 extending,
+                extending_generics,
                 blocks,
                 path: path.clone(),
                 items: vec![],

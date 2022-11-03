@@ -21,6 +21,7 @@ use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
+use std::fmt;
 use std::ops::Range;
 use std::ops::RangeFrom;
 use std::ops::RangeTo;
@@ -28,17 +29,33 @@ use std::path::PathBuf;
 use std::str::CharIndices;
 use std::str::Chars;
 use syn::spanned::Spanned;
+use syn::Generics;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
-#[derive(Debug)]
 pub(crate) struct SourceOwned {
     ident: Ident,
+    generics: Generics,
     blocks: Vec<String>,
     code: String,
     literal: Literal,
     span_hygiene: Span,
     origin: Option<PathBuf>,
     is_extending: bool,
+}
+
+impl fmt::Debug for SourceOwned {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("SourceOwned")
+            .field("ident", &self.ident)
+            // .field("generics", &"UNSUPPORTED_SORRY")
+            .field("blocks", &self.blocks)
+            .field("code", &self.code)
+            .field("literal", &self.literal)
+            .field("span_hygiene", &self.span_hygiene)
+            .field("origin", &self.origin)
+            .field("is_extending", &self.is_extending)
+            .finish()
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -275,7 +292,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let source = get_source(ident, data, attrs)?;
+    let source = get_source(ident, generics, data, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -300,6 +317,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
 
 fn get_source(
     ident: &Ident,
+    generics: &Generics,
     data: &Data,
     attrs: &Vec<Attribute>,
 ) -> Result<SourceOwned, syn::Error> {
@@ -365,6 +383,7 @@ Internal: #[oxiplate = "{{ your_var }}"]"#;
             // Return the source
             return Ok(SourceOwned {
                 ident: ident.clone(),
+                generics: generics.clone(),
                 blocks,
                 code,
                 literal,

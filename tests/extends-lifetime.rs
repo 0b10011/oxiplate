@@ -2,9 +2,9 @@ use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate = include_str!("extends.html.oxip")]
-struct AbsoluteData {
-    title: &'static str,
-    message: &'static str,
+struct AbsoluteData<'a> {
+    title: &'a str,
+    message: &'a str,
 }
 
 #[test]
@@ -17,18 +17,5 @@ fn absolute() {
     assert_eq!(
         format!("{}", data),
         "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello world!</p>\n"
-    );
-}
-
-#[test]
-fn absolute_2() {
-    let data = AbsoluteData {
-        title: "Oxiplate Example #2",
-        message: "Goodbye world!",
-    };
-
-    assert_eq!(
-        format!("{}", data),
-        "<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  <p>Goodbye world!</p>\n"
     );
 }
