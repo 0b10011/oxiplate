@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "{{ ` }}"]
+#[oxiplate_inline = "{{ ` }}"]
 struct Data {}
 
 fn main() {

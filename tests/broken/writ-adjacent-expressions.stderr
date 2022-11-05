@@ -1,5 +1,5 @@
 error: Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.
- --> tests/broken/writ-adjacent-expressions.rs:4:21
+ --> tests/broken/writ-adjacent-expressions.rs:4:28
   |
-4 | #[oxiplate = "{{ foo bar }}"]
-  |                     ^^^^^^^
+4 | #[oxiplate_inline = "{{ foo bar }}"]
+  |                            ^^^^^^^

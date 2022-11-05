@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "
+#[oxiplate_inline = "
 {%- for value in &values -%}
     {{ value }}<br>
 {%- endfor %}"]
@@ -19,7 +19,7 @@ fn test_for() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "
+#[oxiplate_inline = "
 {%- for person in &people -%}
     {{ person.get_name() }}<br>
 {%- endfor %}"]
@@ -46,7 +46,7 @@ fn test_method_calls() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "
+#[oxiplate_inline = "
 {{- value }}!
 {% for value in &values -%}
     {{ value }}
@@ -75,7 +75,7 @@ hello world again :D"
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "
+#[oxiplate_inline = "
 {%- for function in &functions -%}
     {{ function() }}
 {% endfor %}"]

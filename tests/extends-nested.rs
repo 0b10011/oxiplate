@@ -1,10 +1,10 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "extends.html.oxip"]
-struct AbsoluteData<'a> {
-    title: &'a str,
-    message: &'a str,
+#[oxiplate = "./extends-deep.html.oxip"]
+struct AbsoluteData {
+    title: &'static str,
+    message: &'static str,
 }
 
 #[test]
@@ -16,6 +16,6 @@ fn absolute() {
 
     assert_eq!(
         format!("{}", data),
-        "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello world!</p>\n"
+        "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  <div>Hello world!</div>\n"
     );
 }

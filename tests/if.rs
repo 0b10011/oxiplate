@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "
+#[oxiplate_inline = "
 {%- if do_this -%}
     This then {{ action }} :D
 {%- elseif do_that -%}

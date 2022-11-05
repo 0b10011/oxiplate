@@ -257,7 +257,7 @@ impl<'a> Iterator for Source<'a> {
     }
 }
 
-#[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_extends))]
+#[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
         Ok(token_stream) => token_stream,
@@ -322,21 +322,50 @@ fn get_source(
     attrs: &Vec<Attribute>,
 ) -> Result<SourceOwned, syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
-External: #[oxiplate = include_str!("./relative/path/to/template/from/current/file.txt.oxip")]
-Internal: #[oxiplate = "{{ your_var }}"]"#;
+External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
     for attr in attrs {
+        let is_inline = attr.path.is_ident("oxiplate_inline");
         let is_extending = attr.path.is_ident("oxiplate_extends");
-        if attr.path.is_ident("oxiplate") || is_extending {
-            // Parse out the `=` and expression to it can be expanded.
-            let parser = |input: syn::parse::ParseStream| {
-                input.parse::<syn::Token![=]>()?;
-                input.parse::<syn::Expr>()
-            };
-            let input = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
+        if attr.path.is_ident("oxiplate") || is_inline || is_extending {
+            let (span, input) = if !is_inline && !is_extending {
+                // Parse out the `=` and expression to it can be expanded.
+                let parser = |input: syn::parse::ParseStream| {
+                    input.parse::<syn::Token![=]>()?;
+                    input.parse::<syn::LitStr>()
+                };
+                let path = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
+                let span = path.span();
+                let templates_dir = PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
+                let root = ::std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
 
-            // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-            let span = input.span();
-            let input = quote::quote_spanned!(span=> #input);
+                // Path::join() doesn't play well with absolute paths (for our use case).
+                let templates_dir_root = root.join(templates_dir.clone());
+                if !templates_dir_root.starts_with(root) {
+                    panic!("OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of '/templates'. Provided: {}", templates_dir.display());
+                }
+
+                // Path::join() doesn't play well with absolute paths (for our use case).
+                let full_path = templates_dir_root.join(path.value());
+                if !full_path.starts_with(templates_dir_root) {
+                    panic!("Template path must be a relative path; example 'template.oxip' instead of '/template.oxip'. Provided: {}", path.value());
+                }
+                let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
+
+                // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+                (span, quote::quote_spanned!(span=> include_str!(#path)))
+            } else {
+                // Parse out the `=` and expression to it can be expanded.
+                let parser = |input: syn::parse::ParseStream| {
+                    input.parse::<syn::Token![=]>()?;
+                    input.parse::<syn::Expr>()
+                };
+                let input = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
+
+                // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+                let span = input.span();
+                (span, quote::quote_spanned!(span=> #input))
+            };
 
             // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
             let input = proc_macro::TokenStream::from(input);

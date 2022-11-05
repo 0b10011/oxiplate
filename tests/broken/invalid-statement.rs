@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "{% thisdoesntexist %}"]
+#[oxiplate_inline = "{% thisdoesntexist %}"]
 struct Data {}
 
 fn main() {

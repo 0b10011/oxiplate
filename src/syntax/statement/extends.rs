@@ -17,6 +17,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use syn::Generics;
 
 pub struct Extends<'a> {
+    is_extending: bool,
     extending: Ident,
     extending_generics: Generics,
     blocks: Vec<String>,
@@ -71,43 +72,67 @@ impl<'a> From<Extends<'a>> for StatementKind<'a> {
 impl ToTokens for Extends<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Extends { path, items, .. } = self;
+
         let path = path.as_str();
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"))
+            .join(path);
+        let path = path.to_string_lossy();
+
         let extending = &self.extending;
         let extending_generics = &self.extending_generics;
-        let mut parent_blocks = vec![];
+        // FIXME: Should also include local vars here I think
         let mut blocks = vec![];
         for item in &self.items {
             match item {
                 Item::Statement(Statement {
                     kind: StatementKind::Block(block),
                     ..
-                }) => {
-                    if self.blocks.contains(&block.name.0.to_string()) {
-                        parent_blocks.push(&block.name);
-                    } else {
-                        blocks.push(&block.name);
-                    }
-                }
+                }) => blocks.push(&block.name),
                 _ => (),
             }
         }
+        if self.is_extending {
+            tokens.append_all(quote! {
+                #(#items)*
+                #[derive(::oxiplate::Oxiplate)]
+                #[oxiplate_extends = include_str!(#path)]
+                struct ExtendingTemplate<'a, F>
+                where
+                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                {
+                    _data: &'a DataType,
+                    #(#blocks: &'a F,)*
+                }
+            });
+            tokens.append_all(quote! {
+                let template = ExtendingTemplate {
+                    _data: &self._data,
+                    #(#blocks: &self.#blocks,)*
+                };
+            });
+        } else {
+            tokens.append_all(quote! {
+                #(#items)*
+                #[derive(::oxiplate::Oxiplate)]
+                #[oxiplate_extends = include_str!(#path)]
+                struct Template<'a, F>
+                where
+                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                {
+                    _data: &'a #extending #extending_generics,
+                    #(#blocks: F,)*
+                }
+                type DataType #extending_generics = #extending #extending_generics;
+            });
+            tokens.append_all(quote! {
+                let template = Template {
+                    _data: self,
+                    #(#blocks,)*
+                };
+            });
+        }
         tokens.append_all(quote! {
-            #(#items)*
-            #[derive(::oxiplate::Oxiplate)]
-            #[oxiplate_extends = include_str!(#path)]
-            struct Template<'a, F>
-            where
-                F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-            {
-                _data: &'a #extending #extending_generics,
-                #(#parent_blocks: F,)*
-                #(#blocks: F,)*
-            }
-            let template = Template {
-                _data: self,
-                #(self.#parent_blocks,)*
-                #(#blocks,)*
-            };
             write!(f, "{}", template)?;
         });
     }
@@ -126,6 +151,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         context(r#"Expected ""#, tag(r#"""#)),
     )))(input)?;
 
+    let is_extending = input.original.is_extending;
     let extending = input.original.ident.clone();
     let extending_generics = input.original.generics.clone();
     let blocks = input.original.blocks.clone();
@@ -134,6 +160,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         input,
         Statement {
             kind: Extends {
+                is_extending,
                 extending,
                 extending_generics,
                 blocks,

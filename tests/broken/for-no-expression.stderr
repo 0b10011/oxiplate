@@ -1,5 +1,5 @@
 error: Expected an expression that is iterable
- --> tests/broken/for-no-expression.rs:4:33
+ --> tests/broken/for-no-expression.rs:4:40
   |
-4 | #[oxiplate = "{%- for number in -%}{{ number }} + {{ number_to_add }} = {{ numb + number_to_add }}{% endfor %}"]
-  |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 | #[oxiplate_inline = "{%- for number in -%}{{ number }} + {{ number_to_add }} = {{ numb + number_to_add }}{% endfor %}"]
+  |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

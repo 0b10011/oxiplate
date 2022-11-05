@@ -233,12 +233,10 @@ impl ToTokens for PrefixOperator {
 }
 
 pub(super) fn expression<'a>(
-    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         fn field_or_identifier<'a>(
-            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
@@ -253,6 +251,7 @@ pub(super) fn expression<'a>(
                 } else {
                     IdentifierOrFunction::Identifier(ident)
                 };
+                let is_extending = input.original.is_extending;
 
                 if parsed_parents.is_empty() {
                     return Ok((
@@ -261,7 +260,7 @@ pub(super) fn expression<'a>(
                             field,
                             if local_variables.contains(ident_str) {
                                 IdentifierScope::Local
-                            } else if *is_extending {
+                            } else if is_extending {
                                 IdentifierScope::Data
                             } else {
                                 IdentifierScope::Parent
@@ -286,7 +285,7 @@ pub(super) fn expression<'a>(
                         field,
                         if is_local.unwrap_or(false) {
                             IdentifierScope::Local
-                        } else if *is_extending {
+                        } else if is_extending {
                             IdentifierScope::Data
                         } else {
                             IdentifierScope::Parent
@@ -335,17 +334,16 @@ pub(super) fn expression<'a>(
             Ok((input, operator))
         }
         fn calc<'a>(
-            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
                 let (input, (left, _leading_whitespace, operator, _trailing_whitespace, right)) =
                     tuple((
-                        field_or_identifier(is_extending, local_variables),
+                        field_or_identifier(local_variables),
                         opt(whitespace),
                         operator,
                         opt(whitespace),
-                        field_or_identifier(is_extending, local_variables),
+                        field_or_identifier(local_variables),
                     ))(input)?;
                 Ok((
                     input,
@@ -364,12 +362,11 @@ pub(super) fn expression<'a>(
             Ok((input, operator))
         }
         fn prefixed_expression<'a>(
-            is_extending: &'a bool,
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
                 let (input, (prefix_operator, expression)) =
-                    tuple((prefix_operator, expression(is_extending, local_variables)))(input)?;
+                    tuple((prefix_operator, expression(local_variables)))(input)?;
 
                 Ok((
                     input,
@@ -379,9 +376,9 @@ pub(super) fn expression<'a>(
         }
 
         alt((
-            calc(is_extending, local_variables),
-            field_or_identifier(is_extending, local_variables),
-            prefixed_expression(is_extending, local_variables),
+            calc(local_variables),
+            field_or_identifier(local_variables),
+            prefixed_expression(local_variables),
         ))(input)
     }
 }

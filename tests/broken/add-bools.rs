@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "{{ a + b }}"]
+#[oxiplate_inline = "{{ a + b }}"]
 struct Data {
     a: bool,
     b: bool,

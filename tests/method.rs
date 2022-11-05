@@ -11,7 +11,7 @@ impl User {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "{{ user.display_name() }}"]
+#[oxiplate_inline = "{{ user.display_name() }}"]
 struct Data {
     user: User,
 }

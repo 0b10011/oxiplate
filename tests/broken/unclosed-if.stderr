@@ -1,5 +1,5 @@
 error: This statement is never closed.
- --> tests/broken/unclosed-if.rs:4:19
+ --> tests/broken/unclosed-if.rs:4:26
   |
-4 | #[oxiplate = "{%- if should_do -%}{{ action }}"]
-  |                   ^^
+4 | #[oxiplate_inline = "{%- if should_do -%}{{ action }}"]
+  |                          ^^

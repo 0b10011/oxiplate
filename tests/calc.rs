@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "{-}
+#[oxiplate_inline = "{-}
 {{ max }} + {{ min }} = {{ max + min }}
 {{ max }} - {{ min }} = {{ max - min }}
 {{ max }} * {{ min }} = {{ max * min }}
@@ -27,7 +27,7 @@ fn test_math() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "{-}
+#[oxiplate_inline = "{-}
 {{ max }} == {{ min }} = {{ max == min }}
 {{ max }} != {{ min }} = {{ max != min }}
 {{ max }} > {{ min }} = {{ max > min }}
@@ -55,7 +55,7 @@ fn test_comparisons() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate = "{-}
+#[oxiplate_inline = "{-}
 {{ yes }} || {{ yes }} = {{ yes || yes2 }}
 {{ yes }} || {{ no }} = {{ yes || no }}
 {{ no }} || {{ yes }} = {{ no || yes }}

@@ -118,7 +118,6 @@ impl ToTokens for Statement<'_> {
 }
 
 pub(super) fn statement<'a>(
-    is_extending: &'a bool,
     local_variables: &'a HashSet<&'a str>,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
@@ -133,11 +132,11 @@ pub(super) fn statement<'a>(
                 extends::parse_extends,
                 block::parse_block(should_output_blocks),
                 block::parse_endblock,
-                r#if::parse_if(is_extending, local_variables),
-                r#if::parse_elseif(is_extending, local_variables),
+                r#if::parse_if(local_variables),
+                r#if::parse_elseif(local_variables),
                 r#if::parse_else,
                 r#if::parse_endif,
-                r#for::parse_for(is_extending, local_variables),
+                r#for::parse_for(local_variables),
                 r#for::parse_endfor,
             ))),
         )(input)?;
@@ -156,8 +155,7 @@ pub(super) fn statement<'a>(
             let should_output_blocks = statement.should_output_blocks();
 
             loop {
-                let parsed_item =
-                    parse_item(is_extending, &local_variables, &should_output_blocks)(input);
+                let parsed_item = parse_item(&local_variables, &should_output_blocks)(input);
                 if parsed_item.is_err() {
                     return context("This statement is never closed.", fail)(statement.source);
                 }

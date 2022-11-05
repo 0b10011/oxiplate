@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = "{%- for number in numbers -%}{{ number }} + 1 = {{ number + 1 }}"]
+#[oxiplate_inline = "{%- for number in numbers -%}{{ number }} + 1 = {{ number + 1 }}"]
 struct Data {
     numbers: Vec<i32>,
 }

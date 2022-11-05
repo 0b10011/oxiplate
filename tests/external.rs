@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate = include_str!("external.html.oxip")]
+#[oxiplate = "external.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
     message: &'static str,
