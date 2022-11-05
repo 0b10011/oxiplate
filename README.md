@@ -24,7 +24,7 @@ fn main() {
 
     assert_eq!(
         format!("{}", template),
-        "<h1>Oxiplate Example</h1>\r\n<p>Hello world!</p>\r\n"
+        "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
     );
 }
 ```
