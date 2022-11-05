@@ -12,3 +12,10 @@ fn test_equals_string() {
 
     assert_eq!(format!("{}", data), "bar");
 }
+
+#[test]
+fn test_does_not_equal_string() {
+    let data = Comparison { value: "baz" };
+
+    assert_eq!(format!("{}", data), "");
+}

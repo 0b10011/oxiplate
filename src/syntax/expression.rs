@@ -4,11 +4,11 @@ use super::{template::whitespace, Res};
 use crate::syntax::item::tag_end;
 use crate::Source;
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_while1};
+use nom::bytes::complete::{tag, take_while1, take_while, take};
 use nom::character::complete::char;
 use nom::combinator::{cut, not, opt};
 use nom::error::context;
-use nom::multi::many0;
+use nom::multi::{many0, many_till};
 use nom::sequence::{pair, terminated, tuple};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, quote_spanned, ToTokens, TokenStreamExt};
@@ -99,6 +99,7 @@ pub struct IdentField<'a>(
 pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>, IdentifierScope),
     FieldAccess(IdentField<'a>),
+    String(Source<'a>),
     // Group(Box<Expression<'a>>),
     Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
     Prefixed(PrefixOperator, Box<Expression<'a>>),
@@ -174,6 +175,12 @@ impl ToTokens for Expression<'_> {
             }
             Expression::Calc(left, operator, right) => quote!(#left #operator #right),
             Expression::Prefixed(operator, expression) => quote!(#operator #expression),
+            Expression::String(string) => {
+                let string = ::syn::LitStr::new(string.as_str(), string.span());
+                quote! {
+                    #string
+                }
+            },
         });
     }
 }
@@ -335,6 +342,28 @@ pub(super) fn expression<'a>(
 
             Ok((input, operator))
         }
+        fn string<'a>(
+            input: Source,
+        ) -> Res<Source, Expression> {
+            let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
+
+            let (input, _) = char('"')(input)?;
+
+            let closing = pair(char('"'), tag(opening_hashes.as_str()));
+            let (input, (string, _)) = many_till(take(1u32), closing)(input)?;
+            let (input, _closing_hashes) = tag(opening_hashes.as_str())(input)?;
+
+            let full_string = if let Some(full_string) = string.first() {
+                let mut full_string = full_string.clone();
+                full_string.range.end = string.last().unwrap().range.end;
+                full_string
+            } else {
+                let mut full_string = opening_hashes.clone();
+                full_string.range.start = full_string.range.end;
+                full_string
+            };
+            Ok((input, Expression::String(full_string)))
+        }
         fn calc<'a>(
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
@@ -349,7 +378,7 @@ pub(super) fn expression<'a>(
                         opt(whitespace),
                         context(
                             "Expected field or identifier",
-                            cut(field_or_identifier(local_variables)),
+                            cut(expression(local_variables)),
                         ),
                     ))(input)?;
                 Ok((
@@ -383,6 +412,7 @@ pub(super) fn expression<'a>(
         }
 
         alt((
+            string,
             calc(local_variables),
             field_or_identifier(local_variables),
             prefixed_expression(local_variables),
