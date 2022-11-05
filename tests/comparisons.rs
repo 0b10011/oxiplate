@@ -10,8 +10,5 @@ struct Comparison {
 fn test_equals_string() {
     let data = Comparison { value: "foo" };
 
-    assert_eq!(
-        format!("{}", data),
-        "bar"
-    );
+    assert_eq!(format!("{}", data), "bar");
 }

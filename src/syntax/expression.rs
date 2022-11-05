@@ -1,12 +1,12 @@
 use std::collections::HashSet;
 
 use super::{template::whitespace, Res};
-use crate::Source;
 use crate::syntax::item::tag_end;
+use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::char;
-use nom::combinator::{opt, not, cut};
+use nom::combinator::{cut, not, opt};
 use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::{pair, terminated, tuple};
@@ -343,10 +343,14 @@ pub(super) fn expression<'a>(
                     tuple((
                         field_or_identifier(local_variables),
                         opt(whitespace),
+                        // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
                         not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
                         operator,
                         opt(whitespace),
-                        context("Expected field or identifier", cut(field_or_identifier(local_variables))),
+                        context(
+                            "Expected field or identifier",
+                            cut(field_or_identifier(local_variables)),
+                        ),
                     ))(input)?;
                 Ok((
                     input,
