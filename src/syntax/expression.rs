@@ -2,10 +2,12 @@ use std::collections::HashSet;
 
 use super::{template::whitespace, Res};
 use crate::Source;
+use crate::syntax::item::tag_end;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::char;
-use nom::combinator::opt;
+use nom::combinator::{opt, not, cut};
+use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::{pair, terminated, tuple};
 use proc_macro2::TokenStream;
@@ -337,13 +339,14 @@ pub(super) fn expression<'a>(
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
-                let (input, (left, _leading_whitespace, operator, _trailing_whitespace, right)) =
+                let (input, (left, _leading_whitespace, _, operator, _trailing_whitespace, right)) =
                     tuple((
                         field_or_identifier(local_variables),
                         opt(whitespace),
+                        not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
                         operator,
                         opt(whitespace),
-                        field_or_identifier(local_variables),
+                        context("Expected field or identifier", cut(field_or_identifier(local_variables))),
                     ))(input)?;
                 Ok((
                     input,
