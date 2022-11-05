@@ -74,7 +74,7 @@ impl ToTokens for Extends<'_> {
         let Extends { path, items, .. } = self;
 
         let path = path.as_str();
-        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        let path = ::std::path::PathBuf::from(::std::env::var("CARGO_MANIFEST_DIR").unwrap())
             .join(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"))
             .join(path);
         let path = path.to_string_lossy();

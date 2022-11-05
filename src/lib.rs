@@ -336,8 +336,9 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 };
                 let path = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
                 let span = path.span();
-                let templates_dir = PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
-                let root = ::std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+                let templates_dir =
+                    PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
+                let root = PathBuf::from(::std::env::var("CARGO_MANIFEST_DIR").unwrap());
 
                 // Path::join() doesn't play well with absolute paths (for our use case).
                 let templates_dir_root = root.join(templates_dir.clone());
