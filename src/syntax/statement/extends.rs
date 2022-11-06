@@ -79,13 +79,18 @@ impl ToTokens for Extends<'_> {
 
         let data_type = &self.data_type;
         // FIXME: Should also include local vars here I think
-        let mut blocks = vec![];
+        let mut inherited_blocks = vec![];
+        let mut new_blocks = vec![];
         for item in &self.items {
             match item {
                 Item::Statement(Statement {
                     kind: StatementKind::Block(block),
                     ..
-                }) => blocks.push(&block.name),
+                }) => if self.blocks.contains(&block.name.0.to_string()) {
+                    inherited_blocks.push(&block.name);
+                } else {
+                    new_blocks.push(&block.name);
+                },
                 _ => (),
             }
         }
@@ -99,13 +104,15 @@ impl ToTokens for Extends<'_> {
                     F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
                     _data: &'a #data_type,
-                    #(#blocks: &'a F,)*
+                    #(#inherited_blocks: &'a F,)*
+                    #(#new_blocks: &'a F,)*
                 }
             });
             tokens.append_all(quote! {
                 let template = ExtendingTemplate {
                     _data: &self._data,
-                    #(#blocks: &self.#blocks,)*
+                    #(#inherited_blocks: &self.#inherited_blocks,)*
+                    #(#new_blocks: &#new_blocks,)*
                 };
             });
         } else {
@@ -119,13 +126,15 @@ impl ToTokens for Extends<'_> {
                 {
                     // FIXME: Need to pass #extending and #extending_generics down to next level (type alias doesn't help because generics need to be passed sometimes)
                     _data: &'a #data_type,
-                    #(#blocks: &'a F,)*
+                    #(#inherited_blocks: &'a F,)*
+                    #(#new_blocks: &'a F,)*
                 }
             });
             tokens.append_all(quote! {
                 let template = Template {
                     _data: self,
-                    #(#blocks: &#blocks,)*
+                    #(#inherited_blocks: &#inherited_blocks,)*
+                    #(#new_blocks: &#new_blocks,)*
                 };
             });
         }
