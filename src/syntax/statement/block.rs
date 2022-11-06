@@ -62,11 +62,11 @@ impl ToTokens for Block<'_> {
         } else {
             if self.use_override {
                 tokens.append_all(quote! {
-                    let #name = &self.#name;
+                    let #name = self.#name;
                 });
             } else {
                 tokens.append_all(quote! {
-                    let #name = &|f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
+                    let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
                         #(#items)*
                         Ok(())
                     };

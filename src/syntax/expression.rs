@@ -4,7 +4,7 @@ use super::{template::whitespace, Res};
 use crate::syntax::item::tag_end;
 use crate::Source;
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_while1, take_while, take};
+use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, not, opt};
 use nom::error::context;
@@ -180,7 +180,7 @@ impl ToTokens for Expression<'_> {
                 quote! {
                     #string
                 }
-            },
+            }
         });
     }
 }
@@ -342,9 +342,7 @@ pub(super) fn expression<'a>(
 
             Ok((input, operator))
         }
-        fn string<'a>(
-            input: Source,
-        ) -> Res<Source, Expression> {
+        fn string<'a>(input: Source) -> Res<Source, Expression> {
             let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
 
             let (input, _) = char('"')(input)?;

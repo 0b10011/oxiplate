@@ -16,7 +16,6 @@ use nom::Offset;
 use nom::Slice;
 use nom::UnspecializedInput;
 use proc_macro::TokenStream;
-use proc_macro2::Ident;
 use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
@@ -29,12 +28,11 @@ use std::path::PathBuf;
 use std::str::CharIndices;
 use std::str::Chars;
 use syn::spanned::Spanned;
-use syn::Generics;
+use syn::Type;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
 pub(crate) struct SourceOwned {
-    ident: Ident,
-    generics: Generics,
+    data_type: Type,
     blocks: Vec<String>,
     code: String,
     literal: Literal,
@@ -46,8 +44,7 @@ pub(crate) struct SourceOwned {
 impl fmt::Debug for SourceOwned {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SourceOwned")
-            .field("ident", &self.ident)
-            // .field("generics", &"UNSUPPORTED_SORRY")
+            // .field("ident", &"UNSUPPORTED_SORRY")
             .field("blocks", &self.blocks)
             .field("code", &self.code)
             .field("literal", &self.literal)
@@ -292,7 +289,8 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let source = get_source(ident, generics, data, attrs)?;
+    let data_type = quote! { #ident #generics };
+    let source = get_source(syn::parse2(data_type)?, data, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -316,8 +314,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
 }
 
 fn get_source(
-    ident: &Ident,
-    generics: &Generics,
+    mut data_type: Type,
     data: &Data,
     attrs: &Vec<Attribute>,
 ) -> Result<SourceOwned, syn::Error> {
@@ -393,9 +390,9 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                             for field in &fields.named {
                                 match &field.ident {
                                     Some(name) => {
-                                        if name.to_string() != "_data"
-                                            && name.to_string() != "_blocks"
-                                        {
+                                        if name.to_string() == "_data" {
+                                            data_type = field.ty.clone();
+                                        } else {
                                             blocks.push(name.to_string());
                                         }
                                     }
@@ -412,8 +409,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
 
             // Return the source
             return Ok(SourceOwned {
-                ident: ident.clone(),
-                generics: generics.clone(),
+                data_type,
                 blocks,
                 code,
                 literal,

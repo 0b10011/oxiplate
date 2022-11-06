@@ -12,14 +12,13 @@ use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
 use nom::sequence::tuple;
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::Generics;
+use syn::Type;
 
 pub struct Extends<'a> {
     is_extending: bool,
-    extending: Ident,
-    extending_generics: Generics,
+    data_type: Type,
     blocks: Vec<String>,
     path: Source<'a>,
     items: Vec<Item<'a>>,
@@ -28,8 +27,7 @@ pub struct Extends<'a> {
 impl<'a> fmt::Debug for Extends<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Extends")
-            .field("extending", &self.extending)
-            // .field("extending_generics", &"UNSUPPORTED_SORRY")
+            // .field("data_type", &"UNSUPPORTED_SORRY")
             .field("blocks", &self.blocks)
             .field("path", &self.path)
             .field("items", &self.items)
@@ -79,8 +77,7 @@ impl ToTokens for Extends<'_> {
             .join(path);
         let path = path.to_string_lossy();
 
-        let extending = &self.extending;
-        let extending_generics = &self.extending_generics;
+        let data_type = &self.data_type;
         // FIXME: Should also include local vars here I think
         let mut blocks = vec![];
         for item in &self.items {
@@ -101,7 +98,7 @@ impl ToTokens for Extends<'_> {
                 where
                     F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
-                    _data: &'a DataType,
+                    _data: &'a #data_type,
                     #(#blocks: &'a F,)*
                 }
             });
@@ -120,15 +117,15 @@ impl ToTokens for Extends<'_> {
                 where
                     F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
-                    _data: &'a #extending #extending_generics,
-                    #(#blocks: F,)*
+                    // FIXME: Need to pass #extending and #extending_generics down to next level (type alias doesn't help because generics need to be passed sometimes)
+                    _data: &'a #data_type,
+                    #(#blocks: &'a F,)*
                 }
-                type DataType #extending_generics = #extending #extending_generics;
             });
             tokens.append_all(quote! {
                 let template = Template {
                     _data: self,
-                    #(#blocks,)*
+                    #(#blocks: &#blocks,)*
                 };
             });
         }
@@ -152,8 +149,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
     )))(input)?;
 
     let is_extending = input.original.is_extending;
-    let extending = input.original.ident.clone();
-    let extending_generics = input.original.generics.clone();
+    let data_type = input.original.data_type.clone();
     let blocks = input.original.blocks.clone();
 
     Ok((
@@ -161,8 +157,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         Statement {
             kind: Extends {
                 is_extending,
-                extending,
-                extending_generics,
+                data_type,
                 blocks,
                 path: path.clone(),
                 items: vec![],
