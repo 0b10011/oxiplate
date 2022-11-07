@@ -15,8 +15,7 @@ use crate::syntax::template::{is_whitespace, parse_item};
 use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
-use nom::combinator::cut;
-use nom::combinator::fail;
+use nom::combinator::{cut, fail};
 use nom::error::context;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
@@ -155,6 +154,8 @@ pub(super) fn statement<'a>(
             let should_output_blocks = statement.should_output_blocks();
 
             loop {
+                // Following code snippet handles non-closin errors better
+                // let (new_input, items) = context("This statement is never closed.", cut(parse_item(&local_variables, &should_output_blocks)))(input)?;
                 let parsed_item = parse_item(&local_variables, &should_output_blocks)(input);
                 if parsed_item.is_err() {
                     return context("This statement is never closed.", fail)(statement.source);
