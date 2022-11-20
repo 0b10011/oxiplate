@@ -72,12 +72,115 @@ impl<'a> Source<'a> {
         if start == end && start > 1 {
             start -= 1;
         }
+
+        // Customize the range to map properly to the literal.
+        let mut range = Range {
+            start,
+            end,
+        };
+        let mut is_raw = None;
+        let mut _hash_count = 0;
+        let mut parsing_open = true;
+        let mut parsing_close = false;
+        let mut escaping = false;
+        let mut hex_digits_parsed = None;
+        let mut unicode_chars_parsed = None;
+        let mut pos = None;
+        for char in format!("{}", self.original.literal).chars() {
+            if let Some(value) = pos {
+                pos = Some(value + 1);
+            } else {
+                pos = Some(0);
+            }
+
+            if is_raw.is_none() {
+                is_raw = if char == 'r' {
+                    if range.start >= pos.unwrap() {
+                        range.start += 1;
+                    }
+                    if range.end >= pos.unwrap() {
+                        range.end += 1;
+                    }
+                    Some(true)
+                } else if char == '"' {
+                    if range.start >= pos.unwrap() {
+                        range.start += 1;
+                    }
+                    if range.end >= pos.unwrap() {
+                        range.end += 1;
+                    }
+                    parsing_open = false;
+                    Some(false)
+                } else {
+                    panic!("Expected 'r' or '\"', found: {}", char);
+                };
+            } else if parsing_open {
+                if char == '#' {
+                    if range.start >= pos.unwrap() {
+                        range.start += 1;
+                    }
+                    if range.end >= pos.unwrap() {
+                        range.end += 1;
+                    }
+                    _hash_count += 1;
+                } else if char == '"' {
+                    if range.start >= pos.unwrap() {
+                        range.start += 1;
+                    }
+                    if range.end >= pos.unwrap() {
+                        range.end += 1;
+                    }
+                    parsing_open = false;
+                } else {
+                    panic!("Expected '#' or '\"'; found: {}", char);
+                }
+            } else if !parsing_close {
+                if let Some(count) = hex_digits_parsed {
+                    if count < 2 {
+                        match char {
+                            '0'..='9' | 'A'..='F' => hex_digits_parsed = Some(count + 1),
+                            _ => panic!("Expected [0-9A-F{}]; found: {}", '{', char),
+                        }
+                        continue;
+                    }
+                }
+
+                if unicode_chars_parsed.is_some() {
+                    todo!("Haven't written unicode char parsing yet, sorry :(");
+                } else if is_raw == Some(false) && escaping {
+                    escaping = false;
+                    match char {
+                        // https://doc.rust-lang.org/reference/tokens.html#quote-escapes
+                        // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
+                        '\'' | '"' | 'n' | 'r' | 't' | '\\' | '0' => continue,
+                        // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
+                        'x' => hex_digits_parsed = Some(0),
+                        // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
+                        'u' => unicode_chars_parsed = Some(-1),
+                        _ => panic!("Expected ', \", n, r, t, \\, 0, x, or {}; found: {}", '{', char),
+                    }
+                    continue;
+                }
+
+                match char {
+                    '"' => parsing_close = true,
+                    '\\' => {
+                        if range.start >= pos.unwrap() {
+                            range.start += 1;
+                        }
+                        if range.end >= pos.unwrap() {
+                            range.end += 1;
+                        }
+                        escaping = true;
+                    },
+                    _ => (),
+                }
+            }
+        }
+
         self.original
             .literal
-            .subspan(Range {
-                start: start + 1,
-                end: end + 1,
-            })
+            .subspan(range)
             .unwrap_or_else(proc_macro2::Span::call_site)
             .resolved_at(self.original.span_hygiene)
     }

@@ -1,0 +1,5 @@
+error[E0609]: no field `foo` on type `&Data`
+ --> tests/broken/escaped-rust-string.rs:4:27
+  |
+4 | #[oxiplate_inline = "\"{{ foo }}\""]
+  |                           ^^^ unknown field
