@@ -6,7 +6,7 @@ use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
-use nom::combinator::{cut, not, opt};
+use nom::combinator::{cut, not, opt, peek};
 use nom::error::context;
 use nom::multi::{many0, many_till};
 use nom::sequence::{pair, terminated, tuple};
@@ -70,6 +70,9 @@ impl ToTokens for Identifier<'_> {
 }
 
 pub(super) fn ident(input: Source) -> Res<Source, Identifier> {
+    // Ignore if it starts with a number
+    let (input, _) = peek(take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_')))(input)?;
+    
     let (input, ident) =
         take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))(input)?;
     Ok((input, Identifier(ident.as_str(), ident)))
@@ -100,6 +103,7 @@ pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>, IdentifierScope),
     FieldAccess(IdentField<'a>),
     String(Source<'a>),
+    Number(Source<'a>),
     // Group(Box<Expression<'a>>),
     Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
     Prefixed(PrefixOperator, Box<Expression<'a>>),
@@ -179,6 +183,12 @@ impl ToTokens for Expression<'_> {
                 let string = ::syn::LitStr::new(string.as_str(), string.span());
                 quote! {
                     #string
+                }
+            }
+            Expression::Number(number) => {
+                let number = ::syn::LitInt::new(number.as_str(), number.span());
+                quote! {
+                    #number
                 }
             }
         });
@@ -342,6 +352,13 @@ pub(super) fn expression<'a>(
 
             Ok((input, operator))
         }
+        fn number<'a>(input: Source) -> Res<Source, Expression> {
+            // TODO: Add support for _ separatation
+            // TODO: Add support for other number types? (e.g., 0b10011)
+            // TODO: Fail on numbers like `0123`
+            let (input, number) = take_while1(|char| matches!(char, '0'..='9'))(input)?;
+            Ok((input, Expression::Number(number)))
+        }
         fn string<'a>(input: Source) -> Res<Source, Expression> {
             let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
 
@@ -375,7 +392,7 @@ pub(super) fn expression<'a>(
                         operator,
                         opt(whitespace),
                         context(
-                            "Expected field or identifier",
+                            "Expected an expression",
                             cut(expression(local_variables)),
                         ),
                     ))(input)?;
@@ -411,6 +428,7 @@ pub(super) fn expression<'a>(
 
         alt((
             string,
+            number,
             calc(local_variables),
             field_or_identifier(local_variables),
             prefixed_expression(local_variables),
