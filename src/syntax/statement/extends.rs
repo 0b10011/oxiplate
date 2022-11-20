@@ -86,11 +86,13 @@ impl ToTokens for Extends<'_> {
                 Item::Statement(Statement {
                     kind: StatementKind::Block(block),
                     ..
-                }) => if self.blocks.contains(&block.name.0.to_string()) {
-                    inherited_blocks.push(&block.name);
-                } else {
-                    new_blocks.push(&block.name);
-                },
+                }) => {
+                    if self.blocks.contains(&block.name.0.to_string()) {
+                        inherited_blocks.push(&block.name);
+                    } else {
+                        new_blocks.push(&block.name);
+                    }
+                }
                 _ => (),
             }
         }

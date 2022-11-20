@@ -1,23 +1,84 @@
 use super::super::{expression::expression, Item, Res};
 use super::{Statement, StatementKind};
+use crate::syntax::expression::{ident, Identifier};
 use crate::syntax::template::is_whitespace;
 use crate::syntax::Expression;
 use crate::Source;
-use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while1;
-use nom::combinator::cut;
+use nom::bytes::complete::{tag, take_while};
+use nom::character::complete::char;
+use nom::combinator::{cut, opt};
+use nom::sequence::{preceded, tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::collections::HashSet;
 
 #[derive(Debug)]
+pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
+
+#[derive(Debug)]
+pub(crate) struct Type<'a>(TypeName<'a>, TypeOrIdent<'a>);
+
+impl<'a> Type<'a> {
+    pub fn get_variables(&self) -> HashSet<&'a str> {
+        match self {
+            Type(_, TypeOrIdent::Identifier(ident)) => HashSet::from([ident.0]),
+            Type(_, TypeOrIdent::Type(_)) => todo!(),
+        }
+    }
+
+    pub fn get_ident(&self) -> Option<&Identifier> {
+        match self {
+            Type(_, TypeOrIdent::Identifier(ident)) => Some(ident),
+            Type(_, TypeOrIdent::Type(_)) => todo!(),
+        }
+    }
+}
+
+impl ToTokens for Type<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match &self.1 {
+            TypeOrIdent::Type(_) => todo!(),
+            TypeOrIdent::Identifier(ident) => {
+                let type_name: proc_macro2::TokenStream =
+                    self.0 .0.parse().expect("Should be able to parse type");
+                tokens.append_all(quote! {
+                    #type_name(#ident)
+                });
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum TypeOrIdent<'a> {
+    #[allow(dead_code)]
+    Type(Box<Type<'a>>),
+    Identifier(Identifier<'a>),
+}
+
+#[derive(Debug)]
+pub(crate) enum IfType<'a> {
+    If(Expression<'a>),
+    IfLet(Type<'a>, Option<Expression<'a>>),
+}
+
+#[derive(Debug)]
 pub(crate) struct If<'a> {
-    pub ifs: Vec<(Expression<'a>, Vec<Item<'a>>)>,
+    pub ifs: Vec<(IfType<'a>, Vec<Item<'a>>)>,
     pub otherwise: Option<Vec<Item<'a>>>,
     pub is_ended: bool,
 }
 
 impl<'a> If<'a> {
+    pub fn get_active_variables(&self) -> HashSet<&'a str> {
+        match self.ifs.first() {
+            Some((IfType::If(_), _)) => HashSet::new(),
+            Some((IfType::IfLet(ty, _), _)) => ty.get_variables(),
+            None => unreachable!("If statements should always have at least one if"),
+        }
+    }
+
     pub fn add_item(&mut self, item: Item<'a>) {
         match item {
             Item::Statement(Statement {
@@ -31,7 +92,7 @@ impl<'a> If<'a> {
                     todo!();
                 }
 
-                self.ifs.push((expression, vec![]));
+                self.ifs.push((IfType::If(expression), vec![]));
             }
             Item::Statement(Statement {
                 kind: StatementKind::Else,
@@ -76,17 +137,54 @@ impl ToTokens for If<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut is_elseif = false;
         for (expression, items) in &self.ifs {
-            let if_or_elseif = if !is_elseif {
-                quote! { if }
-            } else {
-                quote! { else if }
-            };
+            match expression {
+                IfType::If(expression) => {
+                    if !is_elseif {
+                        tokens.append_all(quote! { if #expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { else if #expression { #(#items);* } });
+                    }
+                }
+                IfType::IfLet(ty, Some(expression)) => {
+                    if !is_elseif {
+                        tokens.append_all(quote! { if let #ty = #expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { else if let #ty = #expression { #(#items);* } });
+                    }
+                }
+                IfType::IfLet(ty, None) => {
+                    let expression = ty
+                        .get_ident()
+                        .expect("Expressionless if let statements should have an ident available");
+                    if !is_elseif {
+                        tokens.append_all(quote! { if let #ty = #expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { else if let #ty = #expression { #(#items);* } });
+                    }
+                }
+            }
+
             is_elseif = true;
-            tokens.append_all(quote! { #if_or_elseif #expression { #(#items);* } });
         }
         if let Some(items) = &self.otherwise {
             tokens.append_all(quote! { else { #(#items)* } });
         }
+    }
+}
+
+pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
+    let (input, ident) =
+        take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))(input)?;
+    Ok((input, TypeName(ident.as_str(), ident)))
+}
+
+pub(super) fn parse_type<'a>(
+    _local_variables: &'a HashSet<&'a str>,
+) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
+    |input| {
+        let (input, (type_name, _open, identifier, _close)) =
+            cut(tuple((parse_type_name, char('('), ident, char(')'))))(input)?;
+        Ok((input, Type(type_name, TypeOrIdent::Identifier(identifier))))
     }
 }
 
@@ -96,16 +194,38 @@ pub(super) fn parse_if<'a>(
     |input| {
         let (input, statement_source) = tag("if")(input)?;
 
-        // Consume at least one whitespace.
-        let (input, _) = cut(take_while1(is_whitespace))(input)?;
+        let ws1 = take_while1(is_whitespace);
+        let ws0 = take_while(is_whitespace);
 
-        let (input, output) = cut(expression(local_variables))(input)?;
+        // Consume at least one whitespace.
+        let (input, _) = cut(&ws1)(input)?;
+
+        let (input, r#let) = cut(opt(tuple((tag("let"), &ws1))))(input)?;
+        let (input, if_type) = if r#let.is_some() {
+            let (input, ty) = cut(parse_type(local_variables))(input)?;
+            let (input, expression) = if ty.get_variables().len() == 1 {
+                cut(opt(preceded(
+                    &ws0,
+                    preceded(char('='), preceded(&ws0, expression(local_variables))),
+                )))(input)?
+            } else {
+                let (input, expression) = cut(preceded(
+                    &ws0,
+                    preceded(char('='), preceded(&ws0, expression(local_variables))),
+                ))(input)?;
+                (input, Some(expression))
+            };
+            (input, IfType::IfLet(ty, expression))
+        } else {
+            let (input, output) = cut(expression(local_variables))(input)?;
+            (input, IfType::If(output))
+        };
 
         Ok((
             input,
             Statement {
                 kind: If {
-                    ifs: vec![(output, vec![])],
+                    ifs: vec![(if_type, vec![])],
                     otherwise: None,
                     is_ended: false,
                 }
@@ -163,6 +283,12 @@ pub(super) fn parse_endif(input: Source) -> Res<Source, Statement> {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ElseIf<'a>(Expression<'a>);
+
+impl<'a> ElseIf<'a> {
+    pub fn get_active_variables(&self) -> HashSet<&'a str> {
+        HashSet::new()
+    }
+}
 
 impl<'a> From<ElseIf<'a>> for StatementKind<'a> {
     fn from(statement: ElseIf<'a>) -> Self {

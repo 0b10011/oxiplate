@@ -5,10 +5,10 @@ use super::{
     expression::expression, item::tag_end, template::is_whitespace, Expression, Item, Res, Static,
 };
 use crate::Source;
-use nom::{bytes::complete::take_while, character::complete::char, combinator::opt};
 use nom::combinator::{cut, fail};
 use nom::error::{context, VerboseError};
 use nom::sequence::{preceded, tuple};
+use nom::{bytes::complete::take_while, character::complete::char, combinator::opt};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -86,7 +86,8 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
-        let (input, escaper_info) = opt(tuple((ident, char(':'), take_while(is_whitespace))))(input)?;
+        let (input, escaper_info) =
+            opt(tuple((ident, char(':'), take_while(is_whitespace))))(input)?;
         let escaper = if let Some((escaper, _colon, _whitespace)) = escaper_info {
             HtmlEscaper::build(escaper)?
         } else {

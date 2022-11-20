@@ -64,6 +64,8 @@ impl<'a> Statement<'a> {
     pub fn get_active_variables(&self) -> HashSet<&'a str> {
         match &self.kind {
             StatementKind::For(statement) => statement.get_active_variables(),
+            StatementKind::If(statement) => statement.get_active_variables(),
+            StatementKind::ElseIf(statement) => statement.get_active_variables(),
             _ => HashSet::new(),
         }
     }
