@@ -136,8 +136,10 @@ impl<'a> Source<'a> {
                 if let Some(count) = hex_digits_parsed {
                     if count < 2 {
                         match char {
-                            '0'..='9' | 'A'..='F' => hex_digits_parsed = Some(count + 1),
-                            _ => panic!("Expected [0-9A-F{}]; found: {}", '{', char),
+                            '0'..='9' | 'a'..='f' | 'A'..='F' => {
+                                hex_digits_parsed = Some(count + 1)
+                            }
+                            _ => panic!("Expected [0-9a-f{}]; found: {}", '{', char),
                         }
                         continue;
                     }
@@ -156,29 +158,32 @@ impl<'a> Source<'a> {
                             unicode_chars_parsed = Some(count + 1);
                             continue;
                         }
-                        (0..=3, '0'..='9') => {
+                        (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                             unicode_chars_parsed = Some(count + 1);
                             unicode_code = format!("{}{}", unicode_code, char);
                             continue;
                         }
                         (1..=4, '}') => {
-                            unicode_chars_parsed = None;
                             let code =
                                 u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
                             let char = char::from_u32(code).expect("Should be a unicode char");
                             let byte_count = char.to_string().as_bytes().len();
-                            if range.start - unicode_code.len() - 2 >= pos.unwrap() {
+                            if range.start >= pos.unwrap() {
                                 range.start -= byte_count - 1;
                             }
-                            if range.end - unicode_code.len() - 2 >= pos.unwrap() {
+                            if range.end >= pos.unwrap() {
                                 range.end -= byte_count - 1;
                             }
+                            unicode_chars_parsed = None;
                             unicode_code = "".to_string();
                             continue;
                         }
                         (-1, _) => panic!("Expected {}; found {}", '{', char),
-                        (0, _) => panic!("Expected a digit (0-9)]; found {}", char),
-                        (1..=3, _) => panic!("Expected a digit (0-9) or {}]; found {}", '{', char),
+                        (0, _) => panic!("Expected a hex character (0-9a-f)]; found {}", char),
+                        (1..=3, _) => panic!(
+                            "Expected a hex character (0-9a-f) or {}]; found {}",
+                            '{', char
+                        ),
                         (4, _) => panic!("Expected {}; found {}", '}', char),
                         (_, _) => unreachable!(
                             "All possible cases should be covered; found {} with count {}",
