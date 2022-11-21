@@ -71,10 +71,13 @@ impl ToTokens for Identifier<'_> {
 
 pub(super) fn ident(input: Source) -> Res<Source, Identifier> {
     // Ignore if it starts with a number
-    let (input, _) = peek(take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_')))(input)?;
-    
-    let (input, ident) =
-        take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))(input)?;
+    let (input, _) = peek(take_while1(
+        |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'),
+    ))(input)?;
+
+    let (input, ident) = cut(take_while1(
+        |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'),
+    ))(input)?;
     Ok((input, Identifier(ident.as_str(), ident)))
 }
 
@@ -391,10 +394,7 @@ pub(super) fn expression<'a>(
                         not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
                         operator,
                         opt(whitespace),
-                        context(
-                            "Expected an expression",
-                            cut(expression(local_variables)),
-                        ),
+                        context("Expected an expression", cut(expression(local_variables))),
                     ))(input)?;
                 Ok((
                     input,

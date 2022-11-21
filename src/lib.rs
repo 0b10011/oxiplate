@@ -74,10 +74,7 @@ impl<'a> Source<'a> {
         }
 
         // Customize the range to map properly to the literal.
-        let mut range = Range {
-            start,
-            end,
-        };
+        let mut range = Range { start, end };
         let mut is_raw = None;
         let mut _hash_count = 0;
         let mut parsing_open = true;
@@ -85,6 +82,7 @@ impl<'a> Source<'a> {
         let mut escaping = false;
         let mut hex_digits_parsed = None;
         let mut unicode_chars_parsed = None;
+        let mut unicode_code = "".to_string();
         let mut pos = None;
         for char in format!("{}", self.original.literal).chars() {
             if let Some(value) = pos {
@@ -145,8 +143,48 @@ impl<'a> Source<'a> {
                     }
                 }
 
-                if unicode_chars_parsed.is_some() {
-                    todo!("Haven't written unicode char parsing yet, sorry :(");
+                if let Some(count) = unicode_chars_parsed {
+                    if range.start >= pos.unwrap() {
+                        range.start += 1;
+                    }
+                    if range.end >= pos.unwrap() {
+                        range.end += 1;
+                    }
+
+                    match (count, char) {
+                        (-1, '{') => {
+                            unicode_chars_parsed = Some(count + 1);
+                            continue;
+                        }
+                        (0..=3, '0'..='9') => {
+                            unicode_chars_parsed = Some(count + 1);
+                            unicode_code = format!("{}{}", unicode_code, char);
+                            continue;
+                        }
+                        (1..=4, '}') => {
+                            unicode_chars_parsed = None;
+                            let code =
+                                u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
+                            let char = char::from_u32(code).expect("Should be a unicode char");
+                            let byte_count = char.to_string().as_bytes().len();
+                            if range.start - unicode_code.len() - 2 >= pos.unwrap() {
+                                range.start -= byte_count - 1;
+                            }
+                            if range.end - unicode_code.len() - 2 >= pos.unwrap() {
+                                range.end -= byte_count - 1;
+                            }
+                            unicode_code = "".to_string();
+                            continue;
+                        }
+                        (-1, _) => panic!("Expected {}; found {}", '{', char),
+                        (0, _) => panic!("Expected a digit (0-9)]; found {}", char),
+                        (1..=3, _) => panic!("Expected a digit (0-9) or {}]; found {}", '{', char),
+                        (4, _) => panic!("Expected {}; found {}", '}', char),
+                        (_, _) => unreachable!(
+                            "All possible cases should be covered; found {} with count {}",
+                            char, count
+                        ),
+                    }
                 } else if is_raw == Some(false) && escaping {
                     escaping = false;
                     match char {
@@ -157,7 +195,10 @@ impl<'a> Source<'a> {
                         'x' => hex_digits_parsed = Some(0),
                         // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
                         'u' => unicode_chars_parsed = Some(-1),
-                        _ => panic!("Expected ', \", n, r, t, \\, 0, x, or {}; found: {}", '{', char),
+                        _ => panic!(
+                            "Expected ', \", n, r, t, \\, 0, x, or {}; found: {}",
+                            '{', char
+                        ),
                     }
                     continue;
                 }
@@ -172,7 +213,7 @@ impl<'a> Source<'a> {
                             range.end += 1;
                         }
                         escaping = true;
-                    },
+                    }
                     _ => (),
                 }
             }
