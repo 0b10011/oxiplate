@@ -147,9 +147,9 @@ impl ToTokens for If<'_> {
                 }
                 IfType::IfLet(ty, Some(expression)) => {
                     if !is_elseif {
-                        tokens.append_all(quote! { if let #ty = #expression { #(#items);* } });
+                        tokens.append_all(quote! { if let #ty = &#expression { #(#items);* } });
                     } else {
-                        tokens.append_all(quote! { else if let #ty = #expression { #(#items);* } });
+                        tokens.append_all(quote! { else if let #ty = &#expression { #(#items);* } });
                     }
                 }
                 IfType::IfLet(ty, None) => {
