@@ -143,10 +143,16 @@ pub(super) fn statement<'a>(
         )(input)?;
 
         // Parse the closing tag and any trailing whitespace
-        let (mut input, trailing_whitespace) =
+        let (mut input, mut trailing_whitespace) =
             preceded(take_while(is_whitespace), cut(tag_end("%}")))(input)?;
 
         if !statement.is_ended(input.as_str().len() == 0) {
+            // Append trailing whitespace
+            if let Some(trailing_whitespace) = trailing_whitespace {
+                statement.add_item(trailing_whitespace.into());
+            }
+            trailing_whitespace = None;
+
             // Merge new variables from this statement into the existing local variables
             let mut new_local_variables = statement.get_active_variables();
             for value in local_variables.iter() {
@@ -167,7 +173,10 @@ pub(super) fn statement<'a>(
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {
-                        todo!("This can happen with tags and trailing whitespace I think");
+                        if let Item::Whitespace(whitespace) = item {
+                            trailing_whitespace = Some(whitespace);
+                            continue;
+                        }
                     }
 
                     statement.add_item(item);
