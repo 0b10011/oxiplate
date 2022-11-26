@@ -133,7 +133,10 @@ pub(super) fn statement<'a>(
                 extends::parse_extends,
                 block::parse_block(should_output_blocks),
                 block::parse_endblock,
-                r#if::parse_if(local_variables),
+                context(
+                    "Could not parse if statement",
+                    r#if::parse_if(local_variables),
+                ),
                 r#if::parse_elseif(local_variables),
                 r#if::parse_else,
                 r#if::parse_endif,

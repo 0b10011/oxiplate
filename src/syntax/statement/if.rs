@@ -8,6 +8,8 @@ use nom::bytes::complete::take_while1;
 use nom::bytes::complete::{tag, take_while};
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
+use nom::error::context;
+use nom::multi::many0;
 use nom::sequence::{preceded, tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -17,31 +19,47 @@ use std::collections::HashSet;
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
 
 #[derive(Debug)]
-pub(crate) struct Type<'a>(TypeName<'a>, TypeOrIdent<'a>);
+pub(crate) struct Type<'a>(
+    Vec<(TypeName<'a>, Source<'a>)>,
+    TypeName<'a>,
+    TypeOrIdent<'a>,
+);
 
 impl<'a> Type<'a> {
     pub fn get_variables(&self) -> HashSet<&'a str> {
         match self {
-            Type(_, TypeOrIdent::Identifier(ident)) => HashSet::from([ident.0]),
-            Type(_, TypeOrIdent::Type(_)) => todo!(),
+            Type(_, _, TypeOrIdent::Identifier(ident)) => HashSet::from([ident.0]),
+            Type(_, _, TypeOrIdent::Type(_)) => todo!(),
         }
     }
 
     pub fn get_ident(&self) -> Option<&Identifier> {
         match self {
-            Type(_, TypeOrIdent::Identifier(ident)) => Some(ident),
-            Type(_, TypeOrIdent::Type(_)) => todo!(),
+            Type(_, _, TypeOrIdent::Identifier(ident)) => Some(ident),
+            Type(_, _, TypeOrIdent::Type(_)) => todo!(),
         }
     }
 }
 
 impl ToTokens for Type<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        match &self.1 {
+        match &self.2 {
             TypeOrIdent::Type(_) => todo!(),
             TypeOrIdent::Identifier(ident) => {
+                for (type_name, separator) in &self.0 {
+                    let type_name: proc_macro2::TokenStream =
+                        type_name.0.parse().expect("Should be able to parse type");
+                    let separator: proc_macro2::TokenStream = separator
+                        .as_str()
+                        .parse()
+                        .expect("Should be able to parse type");
+                    tokens.append_all(quote! {
+                        #type_name #separator
+                    });
+                }
+
                 let type_name: proc_macro2::TokenStream =
-                    self.0 .0.parse().expect("Should be able to parse type");
+                    self.1 .0.parse().expect("Should be able to parse type");
                 tokens.append_all(quote! {
                     #type_name(#ident)
                 });
@@ -149,7 +167,8 @@ impl ToTokens for If<'_> {
                     if !is_elseif {
                         tokens.append_all(quote! { if let #ty = &#expression { #(#items);* } });
                     } else {
-                        tokens.append_all(quote! { else if let #ty = &#expression { #(#items);* } });
+                        tokens
+                            .append_all(quote! { else if let #ty = &#expression { #(#items);* } });
                     }
                 }
                 IfType::IfLet(ty, None) => {
@@ -182,9 +201,21 @@ pub(super) fn parse_type<'a>(
     _local_variables: &'a HashSet<&'a str>,
 ) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
     |input| {
-        let (input, (type_name, _open, identifier, _close)) =
-            cut(tuple((parse_type_name, char('('), ident, char(')'))))(input)?;
-        Ok((input, Type(type_name, TypeOrIdent::Identifier(identifier))))
+        let (input, (path_segments, type_name, _open, identifier, _close)) = cut(tuple((
+            many0(tuple((parse_type_name, tag("::")))),
+            parse_type_name,
+            char('('),
+            ident,
+            char(')'),
+        )))(input)?;
+        Ok((
+            input,
+            Type(
+                path_segments,
+                type_name,
+                TypeOrIdent::Identifier(identifier),
+            ),
+        ))
     }
 }
 
@@ -198,21 +229,42 @@ pub(super) fn parse_if<'a>(
         let ws0 = take_while(is_whitespace);
 
         // Consume at least one whitespace.
-        let (input, _) = cut(&ws1)(input)?;
+        let (input, _) = ws1(input)?;
 
         let (input, r#let) = cut(opt(tuple((tag("let"), &ws1))))(input)?;
         let (input, if_type) = if r#let.is_some() {
-            let (input, ty) = cut(parse_type(local_variables))(input)?;
+            let (input, ty) = context(
+                r#"Expected a type after "let""#,
+                cut(parse_type(local_variables)),
+            )(input)?;
             let (input, expression) = if ty.get_variables().len() == 1 {
-                cut(opt(preceded(
+                opt(preceded(
                     &ws0,
-                    preceded(char('='), preceded(&ws0, expression(local_variables))),
-                )))(input)?
+                    preceded(
+                        char('='),
+                        preceded(
+                            &ws0,
+                            context(
+                                "Expected an expression after `=`",
+                                cut(expression(local_variables)),
+                            ),
+                        ),
+                    ),
+                ))(input)?
             } else {
-                let (input, expression) = cut(preceded(
+                let (input, expression) = preceded(
                     &ws0,
-                    preceded(char('='), preceded(&ws0, expression(local_variables))),
-                ))(input)?;
+                    preceded(
+                        context("Expected `=`", cut(char('='))),
+                        preceded(
+                            &ws0,
+                            context(
+                                "Expected an expression after `=`",
+                                cut(expression(local_variables)),
+                            ),
+                        ),
+                    ),
+                )(input)?;
                 (input, Some(expression))
             };
             (input, IfType::IfLet(ty, expression))
