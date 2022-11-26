@@ -65,7 +65,6 @@ impl<'a> Statement<'a> {
         match &self.kind {
             StatementKind::For(statement) => statement.get_active_variables(),
             StatementKind::If(statement) => statement.get_active_variables(),
-            StatementKind::ElseIf(statement) => statement.get_active_variables(),
             _ => HashSet::new(),
         }
     }
@@ -119,7 +118,7 @@ impl ToTokens for Statement<'_> {
 }
 
 pub(super) fn statement<'a>(
-    local_variables: &'a HashSet<&'a str>,
+    outer_local_variables: &'a HashSet<&'a str>,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
@@ -133,14 +132,11 @@ pub(super) fn statement<'a>(
                 extends::parse_extends,
                 block::parse_block(should_output_blocks),
                 block::parse_endblock,
-                context(
-                    "Could not parse if statement",
-                    r#if::parse_if(local_variables),
-                ),
-                r#if::parse_elseif(local_variables),
+                r#if::parse_if(outer_local_variables),
+                r#if::parse_elseif(outer_local_variables),
                 r#if::parse_else,
                 r#if::parse_endif,
-                r#for::parse_for(local_variables),
+                r#for::parse_for(outer_local_variables),
                 r#for::parse_endfor,
             ))),
         )(input)?;
@@ -157,22 +153,16 @@ pub(super) fn statement<'a>(
             trailing_whitespace = None;
 
             // Merge new variables from this statement into the existing local variables
-            let mut new_local_variables = statement.get_active_variables();
-            for value in local_variables.iter() {
-                new_local_variables.insert(value);
-            }
-            let local_variables = new_local_variables;
             let should_output_blocks = statement.should_output_blocks();
 
             loop {
-                // Following code snippet handles non-closin errors better
-                // let (new_input, items) = context("This statement is never closed.", cut(parse_item(&local_variables, &should_output_blocks)))(input)?;
-                let parsed_item = parse_item(&local_variables, &should_output_blocks)(input);
-                if parsed_item.is_err() {
-                    return context("This statement is never closed.", fail)(statement.source);
+                let mut local_variables = statement.get_active_variables();
+                for value in outer_local_variables.iter() {
+                    local_variables.insert(value);
                 }
+
                 let (new_input, items) =
-                    parsed_item.expect("Error possibility should have been checked already");
+                    parse_item(&local_variables, &should_output_blocks)(input)?;
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {
@@ -184,11 +174,16 @@ pub(super) fn statement<'a>(
 
                     statement.add_item(item);
                 }
-                if statement.is_ended(input.as_str().len() == 0) {
+
+                let is_eof = input.as_str().len() == 0;
+                if statement.is_ended(is_eof) {
                     break;
+                } else if is_eof {
+                    return context("Statement is never closed (unexpected end of file)", fail)(
+                        input,
+                    );
                 }
             }
-            drop(local_variables);
         }
 
         // Return the statement and trailing whitespace

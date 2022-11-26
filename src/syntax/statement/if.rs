@@ -15,10 +15,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::collections::HashSet;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Type<'a>(
     Vec<(TypeName<'a>, Source<'a>)>,
     TypeName<'a>,
@@ -29,14 +29,14 @@ impl<'a> Type<'a> {
     pub fn get_variables(&self) -> HashSet<&'a str> {
         match self {
             Type(_, _, TypeOrIdent::Identifier(ident)) => HashSet::from([ident.0]),
-            Type(_, _, TypeOrIdent::Type(_)) => todo!(),
+            Type(_, _, TypeOrIdent::Type(ty)) => ty.get_variables(),
         }
     }
 
     pub fn get_ident(&self) -> Option<&Identifier> {
         match self {
             Type(_, _, TypeOrIdent::Identifier(ident)) => Some(ident),
-            Type(_, _, TypeOrIdent::Type(_)) => todo!(),
+            Type(_, _, TypeOrIdent::Type(ty)) => ty.get_ident(),
         }
     }
 }
@@ -68,14 +68,14 @@ impl ToTokens for Type<'_> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum TypeOrIdent<'a> {
     #[allow(dead_code)]
     Type(Box<Type<'a>>),
     Identifier(Identifier<'a>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
     If(Expression<'a>),
     IfLet(Type<'a>, Option<Expression<'a>>),
@@ -90,7 +90,7 @@ pub(crate) struct If<'a> {
 
 impl<'a> If<'a> {
     pub fn get_active_variables(&self) -> HashSet<&'a str> {
-        match self.ifs.first() {
+        match self.ifs.last() {
             Some((IfType::If(_), _)) => HashSet::new(),
             Some((IfType::IfLet(ty, _), _)) => ty.get_variables(),
             None => unreachable!("If statements should always have at least one if"),
@@ -100,7 +100,7 @@ impl<'a> If<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         match item {
             Item::Statement(Statement {
-                kind: StatementKind::ElseIf(ElseIf(expression)),
+                kind: StatementKind::ElseIf(ElseIf(if_type)),
                 source: _,
             }) => {
                 if self.is_ended {
@@ -110,7 +110,7 @@ impl<'a> If<'a> {
                     todo!();
                 }
 
-                self.ifs.push((IfType::If(expression), vec![]));
+                self.ifs.push((if_type, vec![]));
             }
             Item::Statement(Statement {
                 kind: StatementKind::Else,
@@ -225,6 +225,27 @@ pub(super) fn parse_if<'a>(
     |input| {
         let (input, statement_source) = tag("if")(input)?;
 
+        let (input, if_type) = parse_if_generic(local_variables)(input)?;
+
+        Ok((
+            input,
+            Statement {
+                kind: If {
+                    ifs: vec![(if_type, vec![])],
+                    otherwise: None,
+                    is_ended: false,
+                }
+                .into(),
+                source: statement_source,
+            },
+        ))
+    }
+}
+
+fn parse_if_generic<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl FnMut(Source) -> Res<Source, IfType> + 'a {
+    |input| {
         let ws1 = take_while1(is_whitespace);
         let ws0 = take_while(is_whitespace);
 
@@ -232,7 +253,8 @@ pub(super) fn parse_if<'a>(
         let (input, _) = ws1(input)?;
 
         let (input, r#let) = cut(opt(tuple((tag("let"), &ws1))))(input)?;
-        let (input, if_type) = if r#let.is_some() {
+
+        if r#let.is_some() {
             let (input, ty) = context(
                 r#"Expected a type after "let""#,
                 cut(parse_type(local_variables)),
@@ -267,24 +289,11 @@ pub(super) fn parse_if<'a>(
                 )(input)?;
                 (input, Some(expression))
             };
-            (input, IfType::IfLet(ty, expression))
+            Ok((input, IfType::IfLet(ty, expression)))
         } else {
             let (input, output) = cut(expression(local_variables))(input)?;
-            (input, IfType::If(output))
-        };
-
-        Ok((
-            input,
-            Statement {
-                kind: If {
-                    ifs: vec![(if_type, vec![])],
-                    otherwise: None,
-                    is_ended: false,
-                }
-                .into(),
-                source: statement_source,
-            },
-        ))
+            Ok((input, IfType::If(output)))
+        }
     }
 }
 
@@ -294,15 +303,12 @@ pub(super) fn parse_elseif<'a>(
     |input| {
         let (input, statement_source) = tag("elseif")(input)?;
 
-        // Consume at least one whitespace.
-        let (input, _) = cut(take_while1(is_whitespace))(input)?;
-
-        let (input, output) = cut(expression(local_variables))(input)?;
+        let (input, if_type) = parse_if_generic(local_variables)(input)?;
 
         Ok((
             input,
             Statement {
-                kind: ElseIf(output).into(),
+                kind: ElseIf(if_type).into(),
                 source: statement_source,
             },
         ))
@@ -334,13 +340,7 @@ pub(super) fn parse_endif(input: Source) -> Res<Source, Statement> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct ElseIf<'a>(Expression<'a>);
-
-impl<'a> ElseIf<'a> {
-    pub fn get_active_variables(&self) -> HashSet<&'a str> {
-        HashSet::new()
-    }
-}
+pub struct ElseIf<'a>(IfType<'a>);
 
 impl<'a> From<ElseIf<'a>> for StatementKind<'a> {
     fn from(statement: ElseIf<'a>) -> Self {

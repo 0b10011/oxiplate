@@ -9,8 +9,8 @@ use oxiplate::Oxiplate;
         Found {{ count }} cats!
     {%- endif -%}
 {%- else -%}
-    {%- if let Some(name) = name -%}
-        No cats named {{ name }} found :(
+    {%- if let Some(missing_name) = name -%}
+        No cats named {{ missing_name }} found :(
     {%- else -%}
         No cats found :(
     {%- endif -%}

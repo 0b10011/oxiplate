@@ -1,5 +1,5 @@
-error: This statement is never closed.
- --> tests/broken/for-unclosed.rs:4:26
+error: Statement is never closed (unexpected end of file)
+ --> tests/broken/for-unclosed.rs:4:85
   |
 4 | #[oxiplate_inline = "{%- for number in numbers -%}{{ number }} + 1 = {{ number + 1 }}"]
-  |                          ^^^
+  |                                                                                     ^
