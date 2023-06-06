@@ -108,7 +108,7 @@ pub(crate) enum Expression<'a> {
     String(Source<'a>),
     Number(Source<'a>),
     // Group(Box<Expression<'a>>),
-    Calc(Box<Expression<'a>>, Operator, Box<Expression<'a>>),
+    Calc(Box<Expression<'a>>, Operator<'a>, Box<Expression<'a>>),
     Prefixed(PrefixOperator, Box<Expression<'a>>),
 }
 
@@ -199,42 +199,81 @@ impl ToTokens for Expression<'_> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Operator {
-    Addition,
-    Subtraction,
-    Multiplication,
-    Division,
-    Remainder,
+pub(crate) enum Operator<'a> {
+    Addition(Source<'a>),
+    Subtraction(Source<'a>),
+    Multiplication(Source<'a>),
+    Division(Source<'a>),
+    Remainder(Source<'a>),
 
-    Equal,
-    NotEqual,
-    GreaterThan,
-    LessThan,
-    GreaterThanOrEqual,
-    LessThanOrEqual,
+    Equal(Source<'a>),
+    NotEqual(Source<'a>),
+    GreaterThan(Source<'a>),
+    LessThan(Source<'a>),
+    GreaterThanOrEqual(Source<'a>),
+    LessThanOrEqual(Source<'a>),
 
-    Or,
-    And,
+    Or(Source<'a>),
+    And(Source<'a>),
 }
 
-impl ToTokens for Operator {
+impl<'a> ToTokens for Operator<'a> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match self {
-            Operator::Addition => quote!(+),
-            Operator::Subtraction => quote!(-),
-            Operator::Multiplication => quote!(*),
-            Operator::Division => quote!(/),
-            Operator::Remainder => quote!(%),
+            Operator::Addition(source) => {
+                let span = source.span();
+                quote_spanned!(span=> +)
+            }
+            Operator::Subtraction(source) => {
+                let span = source.span();
+                quote_spanned!(span=> -)
+            }
+            Operator::Multiplication(source) => {
+                let span = source.span();
+                quote_spanned!(span=> *)
+            }
+            Operator::Division(source) => {
+                let span = source.span();
+                quote_spanned!(span=> /)
+            }
+            Operator::Remainder(source) => {
+                let span = source.span();
+                quote_spanned!(span=> %)
+            }
 
-            Operator::Equal => quote!(==),
-            Operator::NotEqual => quote!(!=),
-            Operator::GreaterThan => quote!(>),
-            Operator::LessThan => quote!(<),
-            Operator::GreaterThanOrEqual => quote!(>=),
-            Operator::LessThanOrEqual => quote!(<=),
+            Operator::Equal(source) => {
+                let span = source.span();
+                quote_spanned!(span=> ==)
+            }
+            Operator::NotEqual(source) => {
+                let span = source.span();
+                quote_spanned!(span=> !=)
+            }
+            Operator::GreaterThan(source) => {
+                let span = source.span();
+                quote_spanned!(span=> >)
+            }
+            Operator::LessThan(source) => {
+                let span = source.span();
+                quote_spanned!(span=> <)
+            }
+            Operator::GreaterThanOrEqual(source) => {
+                let span = source.span();
+                quote_spanned!(span=> >=)
+            }
+            Operator::LessThanOrEqual(source) => {
+                let span = source.span();
+                quote_spanned!(span=> <=)
+            }
 
-            Operator::Or => quote!(||),
-            Operator::And => quote!(&&),
+            Operator::Or(source) => {
+                let span = source.span();
+                quote_spanned!(span=> ||)
+            }
+            Operator::And(source) => {
+                let span = source.span();
+                quote_spanned!(span=> &&)
+            }
         });
     }
 }
@@ -334,21 +373,21 @@ pub(super) fn expression<'a>(
             ))(input)?;
 
             let operator = match operator.as_str() {
-                "+" => Operator::Addition,
-                "-" => Operator::Subtraction,
-                "*" => Operator::Multiplication,
-                "/" => Operator::Division,
-                "%" => Operator::Remainder,
+                "+" => Operator::Addition(operator),
+                "-" => Operator::Subtraction(operator),
+                "*" => Operator::Multiplication(operator),
+                "/" => Operator::Division(operator),
+                "%" => Operator::Remainder(operator),
 
-                "==" => Operator::Equal,
-                "!=" => Operator::NotEqual,
-                ">" => Operator::GreaterThan,
-                "<" => Operator::LessThan,
-                ">=" => Operator::GreaterThanOrEqual,
-                "<=" => Operator::LessThanOrEqual,
+                "==" => Operator::Equal(operator),
+                "!=" => Operator::NotEqual(operator),
+                ">" => Operator::GreaterThan(operator),
+                "<" => Operator::LessThan(operator),
+                ">=" => Operator::GreaterThanOrEqual(operator),
+                "<=" => Operator::LessThanOrEqual(operator),
 
-                "||" => Operator::Or,
-                "&&" => Operator::And,
+                "||" => Operator::Or(operator),
+                "&&" => Operator::And(operator),
 
                 _ => unreachable!("All cases should be covered"),
             };

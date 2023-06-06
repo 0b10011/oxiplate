@@ -1,11 +1,7 @@
 error[E0369]: cannot add `bool` to `bool`
- --> tests/broken/add-bools.rs:3:10
+ --> tests/broken/add-bools.rs:4:27
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
 4 | #[oxiplate_inline = "{{ a + b }}"]
-  |                         -   - bool
+  |                         - ^ - bool
   |                         |
   |                         bool
-  |
-  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
