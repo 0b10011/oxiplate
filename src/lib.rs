@@ -28,6 +28,10 @@ use std::path::PathBuf;
 use std::str::CharIndices;
 use std::str::Chars;
 use syn::spanned::Spanned;
+use syn::Expr;
+use syn::ExprLit;
+use syn::Lit;
+use syn::MetaNameValue;
 use syn::Type;
 use syn::{Attribute, Data, DeriveInput, Fields};
 
@@ -471,17 +475,20 @@ fn get_source(
 External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
 Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
     for attr in attrs {
-        let is_inline = attr.path.is_ident("oxiplate_inline");
-        let is_extending = attr.path.is_ident("oxiplate_extends");
-        if attr.path.is_ident("oxiplate") || is_inline || is_extending {
+        let is_inline = attr.path().is_ident("oxiplate_inline");
+        let is_extending = attr.path().is_ident("oxiplate_extends");
+        if attr.path().is_ident("oxiplate") || is_inline || is_extending {
             let (span, input) = if !is_inline && !is_extending {
-                // Parse out the `=` and expression to it can be expanded.
-                let parser = |input: syn::parse::ParseStream| {
-                    input.parse::<syn::Token![=]>()?;
-                    input.parse::<syn::LitStr>()
+                let syn::Meta::NameValue(MetaNameValue {
+                    path: _, 
+                    eq_token: _, 
+                    value: Expr::Lit(ExprLit { 
+                        attrs: _, 
+                        lit: Lit::Str(path)
+                    }) 
+                }) = attr.meta.clone() else {
+                    todo!("need to handle when non-name-value data is provided");
                 };
-                let path = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
-                let span = path.span();
                 let templates_dir =
                     PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
                 let root = PathBuf::from(::std::env::var("CARGO_MANIFEST_DIR").unwrap());
@@ -497,18 +504,19 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 if !full_path.starts_with(templates_dir_root) {
                     panic!("Template path must be a relative path; example 'template.oxip' instead of '/template.oxip'. Provided: {}", path.value());
                 }
+                let span = path.span();
                 let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
 
                 // Change the `syn::Expr` into a `proc_macro2::TokenStream`
                 (span, quote::quote_spanned!(span=> include_str!(#path)))
             } else {
-                // Parse out the `=` and expression to it can be expanded.
-                let parser = |input: syn::parse::ParseStream| {
-                    input.parse::<syn::Token![=]>()?;
-                    input.parse::<syn::Expr>()
+                let syn::Meta::NameValue(MetaNameValue {
+                    path: _, 
+                    eq_token: _, 
+                    value: input
+                }) = attr.meta.clone() else {
+                    todo!("need to handle when non-name-value data is provided");
                 };
-                let input = syn::parse::Parser::parse2(parser, attr.tokens.clone())?;
-
                 // Change the `syn::Expr` into a `proc_macro2::TokenStream`
                 let span = input.span();
                 (span, quote::quote_spanned!(span=> #input))

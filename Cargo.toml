@@ -12,5 +12,5 @@ proc-macro = true
 nom = "7.1"
 proc-macro2 = { version = "1.0", features = ["nightly", "span-locations"] }
 quote = "1.0"
-syn = { version = "1.0", features = ["full"] }
+syn = { version = "2.0", features = ["full"] }
 trybuild = "1.0.63"
