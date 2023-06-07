@@ -480,12 +480,12 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
         if attr.path().is_ident("oxiplate") || is_inline || is_extending {
             let (span, input) = if !is_inline && !is_extending {
                 let syn::Meta::NameValue(MetaNameValue {
-                    path: _, 
-                    eq_token: _, 
-                    value: Expr::Lit(ExprLit { 
-                        attrs: _, 
+                    path: _,
+                    eq_token: _,
+                    value: Expr::Lit(ExprLit {
+                        attrs: _,
                         lit: Lit::Str(path)
-                    }) 
+                    })
                 }) = attr.meta.clone() else {
                     todo!("need to handle when non-name-value data is provided");
                 };
@@ -511,8 +511,8 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 (span, quote::quote_spanned!(span=> include_str!(#path)))
             } else {
                 let syn::Meta::NameValue(MetaNameValue {
-                    path: _, 
-                    eq_token: _, 
+                    path: _,
+                    eq_token: _,
                     value: input
                 }) = attr.meta.clone() else {
                     todo!("need to handle when non-name-value data is provided");
