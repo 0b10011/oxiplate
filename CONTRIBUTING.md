@@ -15,9 +15,10 @@ Looking to use Oxiplate in your own project? Head on over to the [readme](./READ
 - `/target/` will be created when you build the project for the first time; this is where the binaries and intermediate build files live
 - [`/tests/`](./tests/) contains all of the tests to ensure Oxiplate continues to work as expected
 - [`/tests/broken/`](./tests/broken/) contains tests specific to failures and the associated error messages
+- [`/tests/expansion/`](./tests/expansion/) verifies macro expansion for all base tests.
 
 ## Testing
 
-`cargo test` will run all tests. For more complicated failures, `cargo expand --test if` can be used to output the generated rust code for the `if` tests (replace `if` with the name of the test to expand).
+`cargo test` will run all but expansion tests. To include expansion tests, use `cargo test -- --ignored`. For more complicated failures, `cargo expand --test if` can be used to output the generated rust code for the `if` tests (replace `if` with the name of the test to expand).
 
-There are two main categories of tests: features and failures. Feature tests ensure the core features (e.g., if statements and whitespace control) work as expected. Failure tests use `trybuild` (via [`broken.rs`](./broken.rs)) to ensure the error messages for broken builds are friendly to humans and actually help with debugging.
+There are three main categories of tests: features, failures, and expansions. Feature tests ensure the core features (e.g., if statements and whitespace control) work as expected. Failure tests use `trybuild` (via [`broken.rs`](./tests/broken.rs)) to ensure the error messages for broken builds are friendly to humans and actually help with debugging. And expansion tests use `cargo expand` (via [`expansion.rs`](./tests/expansion.rs)) to verify feature test expansion is happening as expected.
