@@ -35,7 +35,10 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(adjusted_whitespace())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(adjusted_whitespace()),
+    ),
 };
 fn adjusted_whitespace() {
     let template = AdjustedWhitespace {};
@@ -112,7 +115,10 @@ pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(writ_whitespace_control())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(writ_whitespace_control()),
+    ),
 };
 fn writ_whitespace_control() {
     let template = WritWhitespaceControl {
@@ -178,7 +184,10 @@ pub const writ_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(writ_preserve_spaceless())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(writ_preserve_spaceless()),
+    ),
 };
 fn writ_preserve_spaceless() {
     let template = WritPreserveSpaceless {
@@ -234,7 +243,10 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(comment_whitespace_control())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(comment_whitespace_control()),
+    ),
 };
 fn comment_whitespace_control() {
     let template = CommentWhitespaceControl {};
@@ -285,7 +297,10 @@ pub const comment_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn 
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(comment_preserve_spaceless())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(comment_preserve_spaceless()),
+    ),
 };
 fn comment_preserve_spaceless() {
     let template = CommentPreserveSpaceless {};
@@ -310,7 +325,7 @@ fn comment_preserve_spaceless() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(

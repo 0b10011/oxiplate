@@ -34,7 +34,10 @@ pub const test_equals_string: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_equals_string())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_equals_string()),
+    ),
 };
 fn test_equals_string() {
     let data = Comparison { value: "foo" };
@@ -76,7 +79,10 @@ pub const test_does_not_equal_string: test::TestDescAndFn = test::TestDescAndFn 
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_does_not_equal_string())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_does_not_equal_string()),
+    ),
 };
 fn test_does_not_equal_string() {
     let data = Comparison { value: "baz" };
@@ -101,7 +107,7 @@ fn test_does_not_equal_string() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_does_not_equal_string, &test_equals_string])

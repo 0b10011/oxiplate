@@ -34,7 +34,7 @@ pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_5u8())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5u8())),
 };
 fn test_5u8() {
     let data = Comparison { value: 5u8 };
@@ -76,7 +76,7 @@ pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_5())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5())),
 };
 fn test_5() {
     let data = Comparison { value: 5 };
@@ -118,7 +118,7 @@ pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_4u8())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4u8())),
 };
 fn test_4u8() {
     let data = Comparison { value: 4u8 };
@@ -160,7 +160,7 @@ pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_4())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4())),
 };
 fn test_4() {
     let data = Comparison { value: 4 };
@@ -185,7 +185,7 @@ fn test_4() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_4, &test_4u8, &test_5, &test_5u8])

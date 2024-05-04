@@ -44,7 +44,7 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(field())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
 };
 fn field() {
     let name = "Liv";
@@ -71,7 +71,7 @@ fn field() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&field])

@@ -221,7 +221,7 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_math())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_math())),
 };
 fn test_math() {
     let data = Math { min: 19, max: 89 };
@@ -504,7 +504,10 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_comparisons())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_comparisons()),
+    ),
 };
 fn test_comparisons() {
     let data = Comparisons { min: 19, max: 89 };
@@ -866,7 +869,10 @@ pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_or_and())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_or_and()),
+    ),
 };
 fn test_or_and() {
     let data = OrAnd {
@@ -903,7 +909,7 @@ false && false = false",
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_comparisons, &test_math, &test_or_and])

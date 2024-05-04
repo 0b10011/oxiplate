@@ -48,6 +48,7 @@ fn expansion() -> Result<(), Box<dyn Error>> {
                     "expansion of {} ... mismatched",
                     test_name
                 )?;
+                std::fs::write(expansion_path, actual_expansion.as_bytes())?;
                 mismatched += 1;
             } else {
                 writeln!(std::io::stdout(), "expansion of {} ... ok", test_name)?;

@@ -63,7 +63,7 @@ impl ToTokens for For<'_> {
             items,
             ..
         } = self;
-        let ident = syn::Ident::new(ident.1.as_str(), ident.1.span());
+        let ident = syn::Ident::new(ident.0, ident.1.span());
         tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #(#items)* } });
     }
 }

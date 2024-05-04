@@ -63,7 +63,7 @@ pub(crate) struct Identifier<'a>(pub &'a str, pub Source<'a>);
 
 impl ToTokens for Identifier<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.1.as_str());
+        let ident = format_ident!("{}", self.0);
         let span = self.1.span();
         tokens.append_all(quote_spanned! {span=> #ident });
     }

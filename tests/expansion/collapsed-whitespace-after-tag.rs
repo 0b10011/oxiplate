@@ -36,7 +36,10 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(adjusted_whitespace())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(adjusted_whitespace()),
+    ),
 };
 fn adjusted_whitespace() {
     let template = Data { value: true };
@@ -61,7 +64,7 @@ fn adjusted_whitespace() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&adjusted_whitespace])

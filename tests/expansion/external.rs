@@ -56,7 +56,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(absolute())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
 };
 fn absolute() {
     let data = AbsoluteData {
@@ -101,7 +101,10 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(absolute_2())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(absolute_2()),
+    ),
 };
 fn absolute_2() {
     let data = AbsoluteData {
@@ -129,7 +132,7 @@ fn absolute_2() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&absolute, &absolute_2])

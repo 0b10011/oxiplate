@@ -79,6 +79,16 @@ impl<'a> Source<'a> {
 
         // Customize the range to map properly to the literal.
         let mut range = Range { start, end };
+
+        if self.original.origin.is_some() {
+            return self
+                .original
+                .literal
+                .subspan(range)
+                .unwrap_or_else(proc_macro2::Span::call_site)
+                .resolved_at(self.original.span_hygiene);
+        }
+
         let mut is_raw = None;
         let mut _hash_count = 0;
         let mut parsing_open = true;

@@ -21,14 +21,14 @@ pub const broken: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(broken())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(broken())),
 };
 fn broken() {
     let tests = trybuild::TestCases::new();
     tests.compile_fail("tests/broken/*.rs");
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&broken])

@@ -47,7 +47,7 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_for())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_for())),
 };
 fn test_for() {
     let data = Data {
@@ -127,7 +127,10 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_method_calls())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_method_calls()),
+    ),
 };
 fn test_method_calls() {
     let data = Accounts {
@@ -226,7 +229,10 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_shadow_variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_shadow_variable()),
+    ),
 };
 fn test_shadow_variable() {
     let data = ShadowVariable {
@@ -303,7 +309,10 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_function_variables())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_function_variables()),
+    ),
 };
 fn test_function_variables() {
     let data = Functions {
@@ -330,7 +339,7 @@ fn test_function_variables() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(

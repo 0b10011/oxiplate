@@ -69,7 +69,7 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_if())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
 };
 fn test_if() {
     let data = Data {
@@ -115,7 +115,10 @@ pub const test_else_if: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_else_if())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_else_if()),
+    ),
 };
 fn test_else_if() {
     let data = Data {
@@ -144,7 +147,7 @@ fn test_else_if() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_else_if, &test_if])

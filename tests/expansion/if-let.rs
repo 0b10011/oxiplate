@@ -110,7 +110,10 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_count())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_count()),
+    ),
 };
 fn test_count() {
     let data = Data {
@@ -155,7 +158,10 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_count_name())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_count_name()),
+    ),
 };
 fn test_count_name() {
     let data = Data {
@@ -200,7 +206,7 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_name())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_name())),
 };
 fn test_name() {
     let data = Data {
@@ -245,7 +251,7 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(test_none())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_none())),
 };
 fn test_none() {
     let data = Data {
@@ -273,7 +279,7 @@ fn test_none() {
     };
 }
 #[rustc_main]
-#[no_coverage]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_count, &test_count_name, &test_name, &test_none])
