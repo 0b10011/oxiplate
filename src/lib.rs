@@ -488,7 +488,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
         let is_inline = attr.path().is_ident("oxiplate_inline");
         let is_extending = attr.path().is_ident("oxiplate_extends");
         if attr.path().is_ident("oxiplate") || is_inline || is_extending {
-            let (span, input) = if !is_inline && !is_extending {
+            let (span, input, origin) = if !is_inline && !is_extending {
                 let syn::Meta::NameValue(MetaNameValue {
                     path: _,
                     eq_token: _,
@@ -503,7 +503,11 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 };
                 let templates_dir =
                     PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
-                let root = PathBuf::from(::std::env::var("CARGO_MANIFEST_DIR").unwrap());
+                let root = PathBuf::from(
+                    ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
+                        .or(::std::env::var("CARGO_MANIFEST_DIR"))
+                        .unwrap(),
+                );
 
                 // Path::join() doesn't play well with absolute paths (for our use case).
                 let templates_dir_root = root.join(templates_dir.clone());
@@ -520,7 +524,11 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
 
                 // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-                (span, quote::quote_spanned!(span=> include_str!(#path)))
+                (
+                    span,
+                    quote::quote_spanned!(span=> include_str!(#path)),
+                    Some(full_path),
+                )
             } else {
                 let syn::Meta::NameValue(MetaNameValue {
                     path: _,
@@ -532,7 +540,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 };
                 // Change the `syn::Expr` into a `proc_macro2::TokenStream`
                 let span = input.span();
-                (span, quote::quote_spanned!(span=> #input))
+                (span, quote::quote_spanned!(span=> #input), None)
             };
 
             // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
@@ -584,7 +592,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 code,
                 literal,
                 span_hygiene: span,
-                origin: None,
+                origin,
                 is_extending,
             });
         }
