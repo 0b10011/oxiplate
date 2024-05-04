@@ -66,7 +66,9 @@ fn expansion() -> Result<(), Box<dyn Error>> {
 }
 
 fn file_changed(expansion_path: &PathBuf, entry: &DirEntry) -> Result<bool, Box<dyn Error>> {
-    let Ok(expansion_file) = fs::File::open(expansion_path) else { return Ok(true) };
+    let Ok(expansion_file) = fs::File::open(expansion_path) else {
+        return Ok(true);
+    };
     let expansion_metadata = expansion_file.metadata()?;
     let entry_metadata = entry.metadata()?;
     if expansion_metadata.modified()? < entry_metadata.modified()? {

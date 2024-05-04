@@ -482,11 +482,13 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 let syn::Meta::NameValue(MetaNameValue {
                     path: _,
                     eq_token: _,
-                    value: Expr::Lit(ExprLit {
-                        attrs: _,
-                        lit: Lit::Str(path)
-                    })
-                }) = attr.meta.clone() else {
+                    value:
+                        Expr::Lit(ExprLit {
+                            attrs: _,
+                            lit: Lit::Str(path),
+                        }),
+                }) = attr.meta.clone()
+                else {
                     todo!("need to handle when non-name-value data is provided");
                 };
                 let templates_dir =
@@ -513,8 +515,9 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                 let syn::Meta::NameValue(MetaNameValue {
                     path: _,
                     eq_token: _,
-                    value: input
-                }) = attr.meta.clone() else {
+                    value: input,
+                }) = attr.meta.clone()
+                else {
                     todo!("need to handle when non-name-value data is provided");
                 };
                 // Change the `syn::Expr` into a `proc_macro2::TokenStream`
