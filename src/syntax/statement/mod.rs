@@ -70,10 +70,7 @@ impl<'a> Statement<'a> {
     }
 
     pub fn should_output_blocks(&self) -> bool {
-        match &self.kind {
-            StatementKind::Extends(_) => false,
-            _ => true,
-        }
+        !matches!(&self.kind, StatementKind::Extends(_))
     }
 }
 
@@ -145,7 +142,7 @@ pub(super) fn statement<'a>(
         let (mut input, mut trailing_whitespace) =
             preceded(take_while(is_whitespace), cut(tag_end("%}")))(input)?;
 
-        if !statement.is_ended(input.as_str().len() == 0) {
+        if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
             if let Some(trailing_whitespace) = trailing_whitespace {
                 statement.add_item(trailing_whitespace.into());
@@ -175,7 +172,7 @@ pub(super) fn statement<'a>(
                     statement.add_item(item);
                 }
 
-                let is_eof = input.as_str().len() == 0;
+                let is_eof = input.as_str().is_empty();
                 if statement.is_ended(is_eof) {
                     break;
                 } else if is_eof {

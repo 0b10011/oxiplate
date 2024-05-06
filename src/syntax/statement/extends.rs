@@ -86,18 +86,16 @@ impl ToTokens for Extends<'_> {
         let mut inherited_blocks = vec![];
         let mut new_blocks = vec![];
         for item in &self.items {
-            match item {
-                Item::Statement(Statement {
-                    kind: StatementKind::Block(block),
-                    ..
-                }) => {
-                    if self.blocks.contains(&block.name.0.to_string()) {
-                        inherited_blocks.push(&block.name);
-                    } else {
-                        new_blocks.push(&block.name);
-                    }
+            if let Item::Statement(Statement {
+                kind: StatementKind::Block(block),
+                ..
+            }) = item
+            {
+                if self.blocks.contains(&block.name.0.to_string()) {
+                    inherited_blocks.push(&block.name);
+                } else {
+                    new_blocks.push(&block.name);
                 }
-                _ => (),
             }
         }
         if self.is_extending {

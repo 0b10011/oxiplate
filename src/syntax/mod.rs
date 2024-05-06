@@ -9,11 +9,11 @@ mod writ;
 use nom::error::VerboseError;
 use nom::IResult;
 
-pub(self) type Res<T, U> = IResult<T, U, VerboseError<T>>;
+type Res<T, U> = IResult<T, U, VerboseError<T>>;
 
-pub(self) use expression::Expression;
-pub(self) use item::Item;
-pub(self) use r#static::Static;
-pub(self) use statement::Statement;
+use expression::Expression;
+use item::Item;
+use r#static::Static;
+use statement::Statement;
 pub(crate) use template::parse;
-pub(self) use writ::Writ;
+use writ::Writ;

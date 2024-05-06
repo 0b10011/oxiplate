@@ -568,7 +568,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                             for field in &fields.named {
                                 match &field.ident {
                                     Some(name) => {
-                                        if name.to_string() == "_data" {
+                                        if *name == "_data" {
                                             data_type = field.ty.clone();
                                         } else {
                                             blocks.push(name.to_string());

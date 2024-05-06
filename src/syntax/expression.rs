@@ -394,14 +394,14 @@ pub(super) fn expression<'a>(
 
             Ok((input, operator))
         }
-        fn number<'a>(input: Source) -> Res<Source, Expression> {
+        fn number(input: Source) -> Res<Source, Expression> {
             // TODO: Add support for _ separatation
             // TODO: Add support for other number types? (e.g., 0b10011)
             // TODO: Fail on numbers like `0123`
-            let (input, number) = take_while1(|char| matches!(char, '0'..='9'))(input)?;
+            let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
             Ok((input, Expression::Number(number)))
         }
-        fn string<'a>(input: Source) -> Res<Source, Expression> {
+        fn string(input: Source) -> Res<Source, Expression> {
             let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
 
             let (input, _) = char('"')(input)?;

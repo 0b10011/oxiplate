@@ -51,7 +51,10 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     let mut trailing_whitespace: Option<Source> = None;
     let mut items = output.into_iter().peekable();
     while let Some(item) = items.next() {
-        let is_whitespace = take_while(is_whitespace)(item.clone())?.0.as_str().len() == 0;
+        let is_whitespace = take_while(is_whitespace)(item.clone())?
+            .0
+            .as_str()
+            .is_empty();
 
         // Check if leading whitespace
         if is_whitespace && source.is_none() {

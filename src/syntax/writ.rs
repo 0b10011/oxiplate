@@ -27,8 +27,9 @@ impl ToTokens for Writ<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 enum HtmlEscaper {
+    #[default]
     Text,
     Attr,
     Comment,
@@ -73,11 +74,6 @@ impl HtmlEscaper {
             },
             HtmlEscaper::Raw => quote! { write!(f, "{}", #expression)?; },
         });
-    }
-}
-impl Default for HtmlEscaper {
-    fn default() -> Self {
-        HtmlEscaper::Text
     }
 }
 

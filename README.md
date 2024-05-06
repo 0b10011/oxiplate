@@ -16,17 +16,15 @@ struct SomeStruct {
     message: &'static str,
 }
 
-fn main() {
-    let template = SomeStruct {
-        title: "Oxiplate Example",
-        message: "Hello world!",
-    };
+let template = SomeStruct {
+    title: "Oxiplate Example",
+    message: "Hello world!",
+};
 
-    assert_eq!(
-        format!("{}", template),
-        "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
-    );
-}
+assert_eq!(
+    format!("{}", template),
+    "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
+);
 ```
 
 ## Inline code
@@ -43,15 +41,13 @@ struct SomeStruct {
     message: &'static str,
 }
 
-fn main() {
-    let template = SomeStruct {
-        title: "Oxiplate Example",
-        message: "Hello world!",
-    };
+let template = SomeStruct {
+    title: "Oxiplate Example",
+    message: "Hello world!",
+};
 
-    assert_eq!(
-        format!("{}", template),
-        "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
-    );
-}
+assert_eq!(
+    format!("{}", template),
+    "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
+);
 ```

@@ -59,26 +59,24 @@ impl ToTokens for Block<'_> {
                     #(#items)*
                 });
             }
+        } else if self.use_override {
+            tokens.append_all(quote! {
+                let #name = self.#name;
+            });
         } else {
-            if self.use_override {
-                tokens.append_all(quote! {
-                    let #name = self.#name;
-                });
-            } else {
-                tokens.append_all(quote! {
-                    let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                        #(#items)*
-                        Ok(())
-                    };
-                });
-            }
+            tokens.append_all(quote! {
+                let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
+                    #(#items)*
+                    Ok(())
+                };
+            });
         }
     }
 }
 
-pub(super) fn parse_block<'a>(
-    should_output_blocks: &'a bool,
-) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
+pub(super) fn parse_block(
+    should_output_blocks: &bool,
+) -> impl FnMut(Source) -> Res<Source, Statement> + '_ {
     |input| {
         let (input, block_keyword) = keyword("block")(input)?;
 
