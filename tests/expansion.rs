@@ -1,8 +1,8 @@
 use std::io::Write;
 use std::{
     error::Error,
-    fs::{self, DirEntry},
-    path::{Path, PathBuf},
+    fs::{self},
+    path::Path,
     process::{Command, Output},
 };
 

@@ -13,7 +13,7 @@ struct Data<'a> {
 #[test]
 fn field() {
     let name = "Liv";
-    let user = User { name: &name };
+    let user = User { name };
     let data = Data { user: &user };
 
     assert_eq!(format!("{}", data), "Liv");
