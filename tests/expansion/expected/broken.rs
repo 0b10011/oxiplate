@@ -23,7 +23,6 @@ pub const broken: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(broken())),
 };
-
 fn broken() {
     std::env::set_var(
         "CARGO_MANIFEST_DIR_OVERRIDE",

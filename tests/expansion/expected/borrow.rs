@@ -48,7 +48,7 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn field() {
     let name = "Liv";
-    let user = User { name: &name };
+    let user = User { name };
     let data = Data { user: &user };
     match (
         &{

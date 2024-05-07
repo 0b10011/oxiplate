@@ -1,2 +1,3 @@
 [alias]
-dev = "watch -x build -x fmt -x clippy -x test"
+dev = "watch -x build -x fmt -x clippy -x test -x expansion-tests"
+expansion-tests = "test --test expansion -- --ignored"
