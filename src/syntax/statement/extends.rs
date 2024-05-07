@@ -37,6 +37,7 @@ impl<'a> fmt::Debug for Extends<'a> {
 
 impl<'a> Extends<'a> {
     pub(crate) fn add_item(&mut self, mut item: Item<'a>) {
+        #[allow(clippy::match_same_arms)]
         match &mut item {
             // Comments are fine to keep
             Item::Comment => self.items.push(item),

@@ -118,7 +118,7 @@ pub(super) fn statement<'a>(
     outer_local_variables: &'a HashSet<&'a str>,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
-    |input| {
+    move |input| {
         // Ignore any leading inner whitespace
         let (input, _) = take_while(is_whitespace)(input)?;
 
@@ -154,7 +154,7 @@ pub(super) fn statement<'a>(
 
             loop {
                 let mut local_variables = statement.get_active_variables();
-                for value in outer_local_variables.iter() {
+                for value in outer_local_variables {
                     local_variables.insert(value);
                 }
 

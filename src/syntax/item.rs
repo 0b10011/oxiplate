@@ -31,7 +31,7 @@ impl ToTokens for Item<'_> {
             Item::Writ(writ) => quote! { #writ },
             Item::Statement(statement) => quote! { #statement },
             Item::Static(text) => quote! { #text },
-            Item::Whitespace(text) => quote! { #text },
+            Item::Whitespace(whitespace) => quote! { #whitespace },
             Item::CompileError(text, source) => {
                 let span = source.span();
                 quote_spanned! {span=> compile_error!(#text); }

@@ -15,6 +15,7 @@ use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct For<'a> {
+    #[allow(clippy::struct_field_names)]
     for_keyword: Keyword<'a>,
     ident: Identifier<'a>,
     in_keyword: Keyword<'a>,

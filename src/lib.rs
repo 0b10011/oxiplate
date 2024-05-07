@@ -4,6 +4,16 @@
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
+// Clippy groups
+#![warn(clippy::cargo, clippy::pedantic)]
+// Clippy rules
+#![allow(
+    // rustfmt doesn't format `assert!()` :(
+    clippy::manual_assert,
+
+    // i don't have time to fix these right now
+    clippy::too_many_lines,
+)]
 
 mod syntax;
 
@@ -55,7 +65,7 @@ impl fmt::Debug for SourceOwned {
             .field("span_hygiene", &self.span_hygiene)
             .field("origin", &self.origin)
             .field("is_extending", &self.is_extending)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -96,7 +106,7 @@ impl<'a> Source<'a> {
         let mut escaping = false;
         let mut hex_digits_parsed = None;
         let mut unicode_chars_parsed = None;
-        let mut unicode_code = "".to_string();
+        let mut unicode_code = String::new();
         let mut pos = None;
         for char in format!("{}", self.original.literal).chars() {
             if let Some(value) = pos {
@@ -124,7 +134,7 @@ impl<'a> Source<'a> {
                     parsing_open = false;
                     Some(false)
                 } else {
-                    panic!("Expected 'r' or '\"', found: {}", char);
+                    panic!("Expected 'r' or '\"', found: {char}");
                 };
             } else if parsing_open {
                 if char == '#' {
@@ -144,16 +154,16 @@ impl<'a> Source<'a> {
                     }
                     parsing_open = false;
                 } else {
-                    panic!("Expected '#' or '\"'; found: {}", char);
+                    panic!("Expected '#' or '\"'; found: {char}");
                 }
             } else if !parsing_close {
                 if let Some(count) = hex_digits_parsed {
                     if count < 2 {
                         match char {
                             '0'..='9' | 'a'..='f' | 'A'..='F' => {
-                                hex_digits_parsed = Some(count + 1)
+                                hex_digits_parsed = Some(count + 1);
                             }
-                            _ => panic!("Expected [0-9a-f{}]; found: {}", '{', char),
+                            _ => panic!("Expected [0-9a-f{}]; found: {char}", '{'),
                         }
                         continue;
                     }
@@ -174,7 +184,7 @@ impl<'a> Source<'a> {
                         }
                         (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                             unicode_chars_parsed = Some(count + 1);
-                            unicode_code = format!("{}{}", unicode_code, char);
+                            unicode_code = format!("{unicode_code}{char}");
                             continue;
                         }
                         (1..=4, '}') => {
@@ -189,16 +199,16 @@ impl<'a> Source<'a> {
                                 range.end -= byte_count - 1;
                             }
                             unicode_chars_parsed = None;
-                            unicode_code = "".to_string();
+                            unicode_code = String::new();
                             continue;
                         }
-                        (-1, _) => panic!("Expected {}; found {}", '{', char),
-                        (0, _) => panic!("Expected a hex character (0-9a-f)]; found {}", char),
+                        (-1, _) => panic!("Expected {}; found {char}", '{'),
+                        (0, _) => panic!("Expected a hex character (0-9a-f)]; found {char}"),
                         (1..=3, _) => panic!(
-                            "Expected a hex character (0-9a-f) or {}]; found {}",
-                            '{', char
+                            "Expected a hex character (0-9a-f) or {}]; found {char}",
+                            '{'
                         ),
-                        (4, _) => panic!("Expected {}; found {}", '}', char),
+                        (4, _) => panic!("Expected {}; found {char}", '}'),
                         (_, _) => unreachable!(
                             "All possible cases should be covered; found {} with count {}",
                             char, count
@@ -575,7 +585,11 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
                                         }
                                     }
                                     None => {
-                                        field.span().unwrap().error("Expected a named field").emit()
+                                        field
+                                            .span()
+                                            .unwrap()
+                                            .error("Expected a named field")
+                                            .emit();
                                     }
                                 }
                             }

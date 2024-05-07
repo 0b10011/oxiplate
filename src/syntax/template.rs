@@ -23,10 +23,10 @@ impl ToTokens for Template<'_> {
 pub(crate) fn parse(source: Source) -> Template {
     match try_parse(source) {
         Ok((_, template)) => template,
-        Err(nom::Err::Error(nom::error::VerboseError { errors }))
-        | Err(nom::Err::Failure(nom::error::VerboseError { errors })) => {
-            Template(vec![convert_error(errors)])
-        }
+        Err(
+            nom::Err::Error(nom::error::VerboseError { errors })
+            | nom::Err::Failure(nom::error::VerboseError { errors }),
+        ) => Template(vec![convert_error(errors)]),
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
         }
@@ -51,7 +51,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
                     expected_char,
                     source.as_str()
                 )
-                .unwrap()
+                .unwrap();
             }
             VerboseErrorKind::Context(error) => {
                 return Item::CompileError(error.to_string(), source)
@@ -66,7 +66,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
                     nom_error,
                     source.as_str()
                 )
-                .unwrap()
+                .unwrap();
             }
         }
         last_source = Some(source);
@@ -117,6 +117,7 @@ fn try_parse(source: Source) -> Res<Source, Template> {
                     }
                 }
             }
+            #[allow(clippy::match_same_arms)]
             Item::Writ(_) => (),
             Item::Static(_) => {
                 if is_extending {
@@ -127,7 +128,8 @@ fn try_parse(source: Source) -> Res<Source, Template> {
                 // so no check needs to be done for whitespace.
                 has_content = true;
             }
-            Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (), /* These are fine anywhere */
+            // These are fine anywhere
+            Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (),
         }
     }
 

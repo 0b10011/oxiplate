@@ -157,28 +157,28 @@ impl ToTokens for If<'_> {
         for (expression, items) in &self.ifs {
             match expression {
                 IfType::If(expression) => {
-                    if !is_elseif {
-                        tokens.append_all(quote! { if #expression { #(#items);* } });
-                    } else {
+                    if is_elseif {
                         tokens.append_all(quote! { else if #expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { if #expression { #(#items);* } });
                     }
                 }
                 IfType::IfLet(ty, Some(expression)) => {
-                    if !is_elseif {
-                        tokens.append_all(quote! { if let #ty = &#expression { #(#items);* } });
-                    } else {
+                    if is_elseif {
                         tokens
                             .append_all(quote! { else if let #ty = &#expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { if let #ty = &#expression { #(#items);* } });
                     }
                 }
                 IfType::IfLet(ty, None) => {
                     let expression = ty
                         .get_ident()
                         .expect("Expressionless if let statements should have an ident available");
-                    if !is_elseif {
-                        tokens.append_all(quote! { if let #ty = #expression { #(#items);* } });
-                    } else {
+                    if is_elseif {
                         tokens.append_all(quote! { else if let #ty = #expression { #(#items);* } });
+                    } else {
+                        tokens.append_all(quote! { if let #ty = #expression { #(#items);* } });
                     }
                 }
             }
@@ -339,6 +339,7 @@ pub(super) fn parse_endif(input: Source) -> Res<Source, Statement> {
     ))
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, PartialEq, Eq)]
 pub struct ElseIf<'a>(IfType<'a>);
 

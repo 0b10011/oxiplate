@@ -334,7 +334,7 @@ pub(super) fn expression<'a>(
                 let mut is_local = None;
                 for parent in parsed_parents {
                     if is_local.is_none() {
-                        is_local = Some(local_variables.contains(parent.0))
+                        is_local = Some(local_variables.contains(parent.0));
                     }
                     parents.push(parent);
                 }
@@ -425,7 +425,7 @@ pub(super) fn expression<'a>(
             local_variables: &'a HashSet<&'a str>,
         ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
             |input| {
-                let (input, (left, _leading_whitespace, _, operator, _trailing_whitespace, right)) =
+                let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
                     tuple((
                         field_or_identifier(local_variables),
                         opt(whitespace),
