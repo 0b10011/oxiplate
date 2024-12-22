@@ -297,174 +297,6 @@ pub(super) fn expression<'a>(
     local_variables: &'a HashSet<&'a str>,
 ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
-        fn field_or_identifier<'a>(
-            local_variables: &'a HashSet<&'a str>,
-        ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-            |input| {
-                let (input, (parsed_parents, (ident, maybe_function))) = pair(
-                    many0(terminated(&ident, char('.'))),
-                    pair(&ident, opt(tag("()"))),
-                )(input)?;
-
-                let ident_str = ident.0;
-                let field = if maybe_function.is_some() {
-                    IdentifierOrFunction::Function(ident)
-                } else {
-                    IdentifierOrFunction::Identifier(ident)
-                };
-                let is_extending = input.original.is_extending;
-
-                if parsed_parents.is_empty() {
-                    return Ok((
-                        input,
-                        Expression::Identifier(
-                            field,
-                            if local_variables.contains(ident_str) {
-                                IdentifierScope::Local
-                            } else if is_extending {
-                                IdentifierScope::Data
-                            } else {
-                                IdentifierScope::Parent
-                            },
-                        ),
-                    ));
-                }
-
-                let mut parents = Vec::with_capacity(parsed_parents.len());
-                let mut is_local = None;
-                for parent in parsed_parents {
-                    if is_local.is_none() {
-                        is_local = Some(local_variables.contains(parent.0));
-                    }
-                    parents.push(parent);
-                }
-
-                Ok((
-                    input,
-                    Expression::FieldAccess(IdentField(
-                        parents,
-                        field,
-                        if is_local.unwrap_or(false) {
-                            IdentifierScope::Local
-                        } else if is_extending {
-                            IdentifierScope::Data
-                        } else {
-                            IdentifierScope::Parent
-                        },
-                    )),
-                ))
-            }
-        }
-        fn operator(input: Source) -> Res<Source, Operator> {
-            let (input, operator) = alt((
-                tag("+"),
-                tag("-"),
-                tag("*"),
-                tag("/"),
-                tag("%"),
-                tag("=="),
-                tag("!="),
-                tag(">="),
-                tag("<="),
-                tag(">"),
-                tag("<"),
-                tag("||"),
-                tag("&&"),
-            ))(input)?;
-
-            let operator = match operator.as_str() {
-                "+" => Operator::Addition(operator),
-                "-" => Operator::Subtraction(operator),
-                "*" => Operator::Multiplication(operator),
-                "/" => Operator::Division(operator),
-                "%" => Operator::Remainder(operator),
-
-                "==" => Operator::Equal(operator),
-                "!=" => Operator::NotEqual(operator),
-                ">" => Operator::GreaterThan(operator),
-                "<" => Operator::LessThan(operator),
-                ">=" => Operator::GreaterThanOrEqual(operator),
-                "<=" => Operator::LessThanOrEqual(operator),
-
-                "||" => Operator::Or(operator),
-                "&&" => Operator::And(operator),
-
-                _ => unreachable!("All cases should be covered"),
-            };
-
-            Ok((input, operator))
-        }
-        fn number(input: Source) -> Res<Source, Expression> {
-            // TODO: Add support for _ separatation
-            // TODO: Add support for other number types? (e.g., 0b10011)
-            // TODO: Fail on numbers like `0123`
-            let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
-            Ok((input, Expression::Number(number)))
-        }
-        fn string(input: Source) -> Res<Source, Expression> {
-            let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
-
-            let (input, _) = char('"')(input)?;
-
-            let closing = pair(char('"'), tag(opening_hashes.as_str()));
-            let (input, (string, _)) = many_till(take(1u32), closing)(input)?;
-            let (input, _closing_hashes) = tag(opening_hashes.as_str())(input)?;
-
-            let full_string = if let Some(full_string) = string.first() {
-                let mut full_string = full_string.clone();
-                full_string.range.end = string.last().unwrap().range.end;
-                full_string
-            } else {
-                let mut full_string = opening_hashes.clone();
-                full_string.range.start = full_string.range.end;
-                full_string
-            };
-            Ok((input, Expression::String(full_string)))
-        }
-        fn calc<'a>(
-            local_variables: &'a HashSet<&'a str>,
-        ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-            |input| {
-                let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
-                    tuple((
-                        field_or_identifier(local_variables),
-                        opt(whitespace),
-                        // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
-                        not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
-                        operator,
-                        opt(whitespace),
-                        context("Expected an expression", cut(expression(local_variables))),
-                    ))(input)?;
-                Ok((
-                    input,
-                    Expression::Calc(Box::new(left), operator, Box::new(right)),
-                ))
-            }
-        }
-        fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
-            let (input, operator) = alt((tag("&"), tag("*")))(input)?;
-            let operator = match operator.as_str() {
-                "&" => PrefixOperator::Borrow,
-                "*" => PrefixOperator::Dereference,
-                _ => unreachable!("All cases should be covered"),
-            };
-
-            Ok((input, operator))
-        }
-        fn prefixed_expression<'a>(
-            local_variables: &'a HashSet<&'a str>,
-        ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-            |input| {
-                let (input, (prefix_operator, expression)) =
-                    tuple((prefix_operator, expression(local_variables)))(input)?;
-
-                Ok((
-                    input,
-                    Expression::Prefixed(prefix_operator, Box::new(expression)),
-                ))
-            }
-        }
-
         alt((
             string,
             number,
@@ -472,5 +304,173 @@ pub(super) fn expression<'a>(
             field_or_identifier(local_variables),
             prefixed_expression(local_variables),
         ))(input)
+    }
+}
+
+fn field_or_identifier<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+    |input| {
+        let (input, (parsed_parents, (ident, maybe_function))) = pair(
+            many0(terminated(&ident, char('.'))),
+            pair(&ident, opt(tag("()"))),
+        )(input)?;
+
+        let ident_str = ident.0;
+        let field = if maybe_function.is_some() {
+            IdentifierOrFunction::Function(ident)
+        } else {
+            IdentifierOrFunction::Identifier(ident)
+        };
+        let is_extending = input.original.is_extending;
+
+        if parsed_parents.is_empty() {
+            return Ok((
+                input,
+                Expression::Identifier(
+                    field,
+                    if local_variables.contains(ident_str) {
+                        IdentifierScope::Local
+                    } else if is_extending {
+                        IdentifierScope::Data
+                    } else {
+                        IdentifierScope::Parent
+                    },
+                ),
+            ));
+        }
+
+        let mut parents = Vec::with_capacity(parsed_parents.len());
+        let mut is_local = None;
+        for parent in parsed_parents {
+            if is_local.is_none() {
+                is_local = Some(local_variables.contains(parent.0));
+            }
+            parents.push(parent);
+        }
+
+        Ok((
+            input,
+            Expression::FieldAccess(IdentField(
+                parents,
+                field,
+                if is_local.unwrap_or(false) {
+                    IdentifierScope::Local
+                } else if is_extending {
+                    IdentifierScope::Data
+                } else {
+                    IdentifierScope::Parent
+                },
+            )),
+        ))
+    }
+}
+fn operator(input: Source) -> Res<Source, Operator> {
+    let (input, operator) = alt((
+        tag("+"),
+        tag("-"),
+        tag("*"),
+        tag("/"),
+        tag("%"),
+        tag("=="),
+        tag("!="),
+        tag(">="),
+        tag("<="),
+        tag(">"),
+        tag("<"),
+        tag("||"),
+        tag("&&"),
+    ))(input)?;
+
+    let operator = match operator.as_str() {
+        "+" => Operator::Addition(operator),
+        "-" => Operator::Subtraction(operator),
+        "*" => Operator::Multiplication(operator),
+        "/" => Operator::Division(operator),
+        "%" => Operator::Remainder(operator),
+
+        "==" => Operator::Equal(operator),
+        "!=" => Operator::NotEqual(operator),
+        ">" => Operator::GreaterThan(operator),
+        "<" => Operator::LessThan(operator),
+        ">=" => Operator::GreaterThanOrEqual(operator),
+        "<=" => Operator::LessThanOrEqual(operator),
+
+        "||" => Operator::Or(operator),
+        "&&" => Operator::And(operator),
+
+        _ => unreachable!("All cases should be covered"),
+    };
+
+    Ok((input, operator))
+}
+fn number(input: Source) -> Res<Source, Expression> {
+    // TODO: Add support for _ separatation
+    // TODO: Add support for other number types? (e.g., 0b10011)
+    // TODO: Fail on numbers like `0123`
+    let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
+    Ok((input, Expression::Number(number)))
+}
+fn string(input: Source) -> Res<Source, Expression> {
+    let (input, opening_hashes) = take_while(|c| c == '#')(input)?;
+
+    let (input, _) = char('"')(input)?;
+
+    let closing = pair(char('"'), tag(opening_hashes.as_str()));
+    let (input, (string, _)) = many_till(take(1u32), closing)(input)?;
+    let (input, _closing_hashes) = tag(opening_hashes.as_str())(input)?;
+
+    let full_string = if let Some(full_string) = string.first() {
+        let mut full_string = full_string.clone();
+        full_string.range.end = string.last().unwrap().range.end;
+        full_string
+    } else {
+        let mut full_string = opening_hashes.clone();
+        full_string.range.start = full_string.range.end;
+        full_string
+    };
+    Ok((input, Expression::String(full_string)))
+}
+fn calc<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+    |input| {
+        let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
+            tuple((
+                field_or_identifier(local_variables),
+                opt(whitespace),
+                // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
+                not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
+                operator,
+                opt(whitespace),
+                context("Expected an expression", cut(expression(local_variables))),
+            ))(input)?;
+        Ok((
+            input,
+            Expression::Calc(Box::new(left), operator, Box::new(right)),
+        ))
+    }
+}
+fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
+    let (input, operator) = alt((tag("&"), tag("*")))(input)?;
+    let operator = match operator.as_str() {
+        "&" => PrefixOperator::Borrow,
+        "*" => PrefixOperator::Dereference,
+        _ => unreachable!("All cases should be covered"),
+    };
+
+    Ok((input, operator))
+}
+fn prefixed_expression<'a>(
+    local_variables: &'a HashSet<&'a str>,
+) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+    |input| {
+        let (input, (prefix_operator, expression)) =
+            tuple((prefix_operator, expression(local_variables)))(input)?;
+
+        Ok((
+            input,
+            Expression::Prefixed(prefix_operator, Box::new(expression)),
+        ))
     }
 }
