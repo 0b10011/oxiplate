@@ -6,7 +6,7 @@ error[E0277]: cannot add `bool` to `u8`
   |
   = help: the trait `Add<bool>` is not implemented for `u8`
   = help: the following other types implement trait `Add<Rhs>`:
-            <&'a u8 as Add<u8>>
-            <&u8 as Add<&u8>>
-            <u8 as Add<&u8>>
-            <u8 as Add>
+            `&'a u8` implements `Add<u8>`
+            `&u8` implements `Add<&u8>`
+            `u8` implements `Add<&u8>`
+            `u8` implements `Add`

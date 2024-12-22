@@ -20,6 +20,7 @@ impl std::fmt::Display for AdjustedWhitespace {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "adjusted_whitespace"]
+#[doc(hidden)]
 pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("adjusted_whitespace"),
@@ -43,10 +44,10 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
 fn adjusted_whitespace() {
     let template = AdjustedWhitespace {};
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"Hello world!",
     ) {
         (left_val, right_val) => {
@@ -73,24 +74,30 @@ impl std::fmt::Display for WritWhitespaceControl {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                .username)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.username)); res }).chars()
+                .map(| character | match character { '&' => ::alloc::__export::must_use({
+                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "("))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.name));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.name)); res }).chars()
+                .map(| character | match character { '&' => ::alloc::__export::must_use({
+                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", ")!"))?;
@@ -100,6 +107,7 @@ impl std::fmt::Display for WritWhitespaceControl {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "writ_whitespace_control"]
+#[doc(hidden)]
 pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("writ_whitespace_control"),
@@ -126,10 +134,10 @@ fn writ_whitespace_control() {
         name: "Diana",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"Hello dia (Diana)!",
     ) {
         (left_val, right_val) => {
@@ -154,12 +162,15 @@ impl std::fmt::Display for WritPreserveSpaceless {
         f.write_fmt(format_args!("{0}", "Hello @"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                .username)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.username)); res }).chars()
+                .map(| character | match character { '&' => ::alloc::__export::must_use({
+                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "!"))?;
@@ -169,6 +180,7 @@ impl std::fmt::Display for WritPreserveSpaceless {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "writ_preserve_spaceless"]
+#[doc(hidden)]
 pub const writ_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("writ_preserve_spaceless"),
@@ -194,10 +206,10 @@ fn writ_preserve_spaceless() {
         username: "dia",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"Hello @dia!",
     ) {
         (left_val, right_val) => {
@@ -228,6 +240,7 @@ impl std::fmt::Display for CommentWhitespaceControl {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "comment_whitespace_control"]
+#[doc(hidden)]
 pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("comment_whitespace_control"),
@@ -251,10 +264,10 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
 fn comment_whitespace_control() {
     let template = CommentWhitespaceControl {};
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"Hello  ()!",
     ) {
         (left_val, right_val) => {
@@ -282,6 +295,7 @@ impl std::fmt::Display for CommentPreserveSpaceless {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "comment_preserve_spaceless"]
+#[doc(hidden)]
 pub const comment_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("comment_preserve_spaceless"),
@@ -305,10 +319,10 @@ pub const comment_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn 
 fn comment_preserve_spaceless() {
     let template = CommentPreserveSpaceless {};
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"Hello @!",
     ) {
         (left_val, right_val) => {
@@ -326,6 +340,7 @@ fn comment_preserve_spaceless() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(

@@ -15,12 +15,16 @@ impl<'a> std::fmt::Display for Data<'a> {
             f.write_fmt(format_args!("{0}", "<p>"))?;
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                    message)); res } .chars().map(| character | match character { '&' =>
-                    { let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' =>
-                    { let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => {
-                    let res = ::alloc::fmt::format(format_args!("{0}", character)); res }
-                    }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", message)); res }).chars()
+                    .map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", "</p>"))?;
@@ -32,6 +36,7 @@ impl<'a> std::fmt::Display for Data<'a> {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "variable"]
+#[doc(hidden)]
 pub const variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("variable"),
@@ -60,10 +65,10 @@ fn variable() {
         ),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &r#"
 <p>Hello world!</p>
 <p>&amp;reg;&lt;/p>&lt;script>alert('hey');&lt;/script>&lt;p>&amp;#153;</p>
@@ -84,6 +89,7 @@ fn variable() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&variable])

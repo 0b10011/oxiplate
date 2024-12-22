@@ -30,12 +30,16 @@ impl std::fmt::Display for Data {
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(
                     format_args!(
-                        "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                        count)); res } .chars().map(| character | match character { '&'
-                        => { let res = ::alloc::fmt::format(format_args!("&amp;")); res }
-                        '<' => { let res = ::alloc::fmt::format(format_args!("&lt;"));
-                        res } _ => { let res = ::alloc::fmt::format(format_args!("{0}",
-                        character)); res } }).collect::< String > ()
+                        "{0}", ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", count)); res }).chars()
+                        .map(| character | match character { '&' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                        .collect::< String > ()
                     ),
                 )?;
                 f.write_fmt(format_args!("{0}", " "))?;
@@ -43,12 +47,16 @@ impl std::fmt::Display for Data {
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(
                     format_args!(
-                        "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                        name)); res } .chars().map(| character | match character { '&' =>
-                        { let res = ::alloc::fmt::format(format_args!("&amp;")); res }
-                        '<' => { let res = ::alloc::fmt::format(format_args!("&lt;"));
-                        res } _ => { let res = ::alloc::fmt::format(format_args!("{0}",
-                        character)); res } }).collect::< String > ()
+                        "{0}", ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", name)); res }).chars()
+                        .map(| character | match character { '&' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                        .collect::< String > ()
                     ),
                 )?;
                 f.write_fmt(format_args!("{0}", "!"))?;
@@ -57,12 +65,16 @@ impl std::fmt::Display for Data {
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(
                     format_args!(
-                        "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                        count)); res } .chars().map(| character | match character { '&'
-                        => { let res = ::alloc::fmt::format(format_args!("&amp;")); res }
-                        '<' => { let res = ::alloc::fmt::format(format_args!("&lt;"));
-                        res } _ => { let res = ::alloc::fmt::format(format_args!("{0}",
-                        character)); res } }).collect::< String > ()
+                        "{0}", ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", count)); res }).chars()
+                        .map(| character | match character { '&' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                        .collect::< String > ()
                     ),
                 )?;
                 f.write_fmt(format_args!("{0}", " "))?;
@@ -74,12 +86,15 @@ impl std::fmt::Display for Data {
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(
                     format_args!(
-                        "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                        missing_name)); res } .chars().map(| character | match character
-                        { '&' => { let res = ::alloc::fmt::format(format_args!("&amp;"));
-                        res } '<' => { let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res
-                        = ::alloc::fmt::format(format_args!("{0}", character)); res } })
+                        "{0}", ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", missing_name)); res })
+                        .chars().map(| character | match character { '&' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
                         .collect::< String > ()
                     ),
                 )?;
@@ -95,6 +110,7 @@ impl std::fmt::Display for Data {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_count"]
+#[doc(hidden)]
 pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_count"),
@@ -121,10 +137,10 @@ fn test_count() {
         name: None,
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"Found 5 cats!",
     ) {
         (left_val, right_val) => {
@@ -143,6 +159,7 @@ fn test_count() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_count_name"]
+#[doc(hidden)]
 pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_count_name"),
@@ -169,10 +186,10 @@ fn test_count_name() {
         name: Some(String::from("Sam")),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"Found 5 cats named Sam!",
     ) {
         (left_val, right_val) => {
@@ -191,6 +208,7 @@ fn test_count_name() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_name"]
+#[doc(hidden)]
 pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_name"),
@@ -214,10 +232,10 @@ fn test_name() {
         name: Some(String::from("Sam")),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"No cats named Sam found :(",
     ) {
         (left_val, right_val) => {
@@ -236,6 +254,7 @@ fn test_name() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_none"]
+#[doc(hidden)]
 pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_none"),
@@ -259,10 +278,10 @@ fn test_none() {
         name: None,
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"No cats found :(",
     ) {
         (left_val, right_val) => {
@@ -280,6 +299,7 @@ fn test_none() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_count, &test_count_name, &test_name, &test_none])

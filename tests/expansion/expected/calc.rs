@@ -18,12 +18,15 @@ impl std::fmt::Display for Math {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -31,12 +34,15 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -44,23 +50,30 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max +
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max + self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -68,12 +81,15 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -81,23 +97,30 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max -
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max - self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -105,12 +128,15 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -118,23 +144,30 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max *
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max * self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -142,12 +175,15 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -155,23 +191,30 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max /
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max / self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -179,12 +222,15 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -192,12 +238,16 @@ impl std::fmt::Display for Math {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max %
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max % self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         Ok(())
@@ -206,6 +256,7 @@ impl std::fmt::Display for Math {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_math"]
+#[doc(hidden)]
 pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_math"),
@@ -226,10 +277,10 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
 fn test_math() {
     let data = Math { min: 19, max: 89 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"89 + 19 = 108
 89 - 19 = 70
 89 * 19 = 1691
@@ -264,12 +315,15 @@ impl std::fmt::Display for Comparisons {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -277,12 +331,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -290,23 +347,30 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max ==
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max == self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -314,12 +378,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -327,23 +394,30 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max !=
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max != self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -351,12 +425,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -364,23 +441,30 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max >
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max > self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -388,12 +472,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -401,23 +488,30 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max <
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max < self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -425,12 +519,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -438,23 +535,30 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max >=
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max >= self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -462,12 +566,15 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.min));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -475,12 +582,16 @@ impl std::fmt::Display for Comparisons {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.max <=
-                self.min)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.max <= self.min)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         Ok(())
@@ -489,6 +600,7 @@ impl std::fmt::Display for Comparisons {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_comparisons"]
+#[doc(hidden)]
 pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_comparisons"),
@@ -512,10 +624,10 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
 fn test_comparisons() {
     let data = Comparisons { min: 19, max: 89 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"89 == 19 = false
 89 != 19 = true
 89 > 19 = true
@@ -555,12 +667,15 @@ impl std::fmt::Display for OrAnd {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -568,12 +683,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -581,23 +699,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes ||
-                self.yes2)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes || self.yes2)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -605,12 +730,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -618,23 +746,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes ||
-                self.no)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes || self.no)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -642,12 +777,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -655,23 +793,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no ||
-                self.yes)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no || self.yes)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -679,12 +824,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -692,23 +840,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no ||
-                self.no2)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no || self.no2)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -716,12 +871,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -729,23 +887,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes &&
-                self.yes2)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes && self.yes2)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -753,12 +918,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -766,23 +934,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes &&
-                self.no)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes && self.no)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -790,12 +965,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.yes));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -803,23 +981,30 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no &&
-                self.yes)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no && self.yes)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -827,12 +1012,15 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
+                character | match character { '&' => ::alloc::__export::must_use({ let
+                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -840,12 +1028,16 @@ impl std::fmt::Display for OrAnd {
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.no &&
-                self.no2)); res } .chars().map(| character | match character { '&' => {
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let
-                res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.no && self.no2)); res })
+                .chars().map(| character | match character { '&' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         Ok(())
@@ -854,6 +1046,7 @@ impl std::fmt::Display for OrAnd {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_or_and"]
+#[doc(hidden)]
 pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_or_and"),
@@ -882,10 +1075,10 @@ fn test_or_and() {
         no2: false,
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"true || true = true
 true || false = true
 false || true = true
@@ -910,6 +1103,7 @@ false && false = false",
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_comparisons, &test_math, &test_or_and])

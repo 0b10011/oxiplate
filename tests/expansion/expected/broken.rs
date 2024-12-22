@@ -6,6 +6,7 @@ extern crate std;
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "broken"]
+#[doc(hidden)]
 pub const broken: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("broken"),
@@ -33,6 +34,7 @@ fn broken() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&broken])

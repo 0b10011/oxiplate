@@ -21,6 +21,7 @@ impl std::fmt::Display for Data {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "adjusted_whitespace"]
+#[doc(hidden)]
 pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("adjusted_whitespace"),
@@ -44,10 +45,10 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
 fn adjusted_whitespace() {
     let template = Data { value: true };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
-        },
+        }),
         &"foo ",
     ) {
         (left_val, right_val) => {
@@ -65,6 +66,7 @@ fn adjusted_whitespace() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&adjusted_whitespace])

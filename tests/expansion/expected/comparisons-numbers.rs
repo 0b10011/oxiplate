@@ -19,6 +19,7 @@ impl std::fmt::Display for Comparison {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_5u8"]
+#[doc(hidden)]
 pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_5u8"),
@@ -39,10 +40,10 @@ pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
 fn test_5u8() {
     let data = Comparison { value: 5u8 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"bar",
     ) {
         (left_val, right_val) => {
@@ -61,6 +62,7 @@ fn test_5u8() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_5"]
+#[doc(hidden)]
 pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_5"),
@@ -81,10 +83,10 @@ pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
 fn test_5() {
     let data = Comparison { value: 5 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"bar",
     ) {
         (left_val, right_val) => {
@@ -103,6 +105,7 @@ fn test_5() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_4u8"]
+#[doc(hidden)]
 pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_4u8"),
@@ -123,10 +126,10 @@ pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
 fn test_4u8() {
     let data = Comparison { value: 4u8 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"",
     ) {
         (left_val, right_val) => {
@@ -145,6 +148,7 @@ fn test_4u8() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_4"]
+#[doc(hidden)]
 pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_4"),
@@ -165,10 +169,10 @@ pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
 fn test_4() {
     let data = Comparison { value: 4 };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"",
     ) {
         (left_val, right_val) => {
@@ -186,6 +190,7 @@ fn test_4() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_4, &test_4u8, &test_5, &test_5u8])

@@ -15,23 +15,31 @@ impl std::fmt::Display for AbsoluteData {
             f.write_fmt(format_args!("{0}", "<h1>"))?;
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                    .title)); res } .chars().map(| character | match character { '&' => {
-                    let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' => {
-                    let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => {
-                    let res = ::alloc::fmt::format(format_args!("{0}", character)); res }
-                    }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", self.title)); res }).chars()
+                    .map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", "</h1>\n  <p>"))?;
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                    .message)); res } .chars().map(| character | match character { '&' =>
-                    { let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' =>
-                    { let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => {
-                    let res = ::alloc::fmt::format(format_args!("{0}", character)); res }
-                    }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", self.message)); res })
+                    .chars().map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", "</p>"))?;
@@ -53,12 +61,15 @@ impl std::fmt::Display for AbsoluteData {
                 f.write_fmt(format_args!("{0}", "<!DOCTYPE html>\n<title>"))?;
                 f.write_fmt(
                     format_args!(
-                        "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                        ._data.title)); res } .chars().map(| character | match character
-                        { '&' => { let res = ::alloc::fmt::format(format_args!("&amp;"));
-                        res } '<' => { let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res
-                        = ::alloc::fmt::format(format_args!("{0}", character)); res } })
+                        "{0}", ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", self._data.title)); res
+                        }).chars().map(| character | match character { '&' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                        ::alloc::__export::must_use({ let res =
+                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
                         .collect::< String > ()
                     ),
                 )?;
@@ -80,6 +91,7 @@ impl std::fmt::Display for AbsoluteData {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "absolute"]
+#[doc(hidden)]
 pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute"),
@@ -103,10 +115,10 @@ fn absolute() {
         message: "Hello world!",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {
@@ -125,6 +137,7 @@ fn absolute() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "absolute_2"]
+#[doc(hidden)]
 pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute_2"),
@@ -151,10 +164,10 @@ fn absolute_2() {
         message: "Goodbye world!",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  <p>Goodbye world!</p>\n",
     ) {
         (left_val, right_val) => {
@@ -172,6 +185,7 @@ fn absolute_2() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&absolute, &absolute_2])

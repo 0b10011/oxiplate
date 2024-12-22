@@ -19,12 +19,16 @@ impl std::fmt::Display for Data {
             f.write_fmt(format_args!("{0}", " "))?;
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self
-                    .action)); res } .chars().map(| character | match character { '&' =>
-                    { let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<' =>
-                    { let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ => {
-                    let res = ::alloc::fmt::format(format_args!("{0}", character)); res }
-                    }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", self.action)); res })
+                    .chars().map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", " "))?;
@@ -36,6 +40,7 @@ impl std::fmt::Display for Data {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_if"]
+#[doc(hidden)]
 pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_if"),
@@ -59,10 +64,10 @@ fn test_if() {
         action: "do something",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"This then do something :D",
     ) {
         (left_val, right_val) => {
@@ -80,6 +85,7 @@ fn test_if() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&test_if])

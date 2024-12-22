@@ -16,11 +16,15 @@ impl std::fmt::Display for Data {
         for value in &self.values {
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", value));
-                    res } .chars().map(| character | match character { '&' => { let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res } })
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", value)); res }).chars()
+                    .map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
                     .collect::< String > ()
                 ),
             )?;
@@ -32,6 +36,7 @@ impl std::fmt::Display for Data {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_for"]
+#[doc(hidden)]
 pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_for"),
@@ -57,10 +62,10 @@ fn test_for() {
         ),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"foo<br>bar<br>baz<br>",
     ) {
         (left_val, right_val) => {
@@ -88,12 +93,16 @@ impl std::fmt::Display for Accounts {
         for person in &self.people {
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", person
-                    .get_name())); res } .chars().map(| character | match character { '&'
-                    => { let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<'
-                    => { let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ =>
-                    { let res = ::alloc::fmt::format(format_args!("{0}", character)); res
-                    } }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", person.get_name())); res })
+                    .chars().map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", "<br>"))?;
@@ -112,6 +121,7 @@ impl Person {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_method_calls"]
+#[doc(hidden)]
 pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_method_calls"),
@@ -140,10 +150,10 @@ fn test_method_calls() {
         ),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"Zoe<br>Alice<br>",
     ) {
         (left_val, right_val) => {
@@ -173,12 +183,15 @@ impl std::fmt::Display for ShadowVariable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.value));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.value)); res }).chars()
+                .map(| character | match character { '&' => ::alloc::__export::must_use({
+                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", "!"))?;
@@ -186,11 +199,15 @@ impl std::fmt::Display for ShadowVariable {
         for value in &self.values {
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", value));
-                    res } .chars().map(| character | match character { '&' => { let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res } })
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", value)); res }).chars()
+                    .map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
                     .collect::< String > ()
                 ),
             )?;
@@ -198,12 +215,15 @@ impl std::fmt::Display for ShadowVariable {
         }
         f.write_fmt(
             format_args!(
-                "{0}", { let res = ::alloc::fmt::format(format_args!("{0}", self.value));
-                res } .chars().map(| character | match character { '&' => { let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res } '<' => { let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res } _ => { let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res } }).collect::<
-                String > ()
+                "{0}", ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", self.value)); res }).chars()
+                .map(| character | match character { '&' => ::alloc::__export::must_use({
+                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                ::alloc::__export::must_use({ let res =
+                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                .collect::< String > ()
             ),
         )?;
         f.write_fmt(format_args!("{0}", " "))?;
@@ -214,6 +234,7 @@ impl std::fmt::Display for ShadowVariable {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_shadow_variable"]
+#[doc(hidden)]
 pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_shadow_variable"),
@@ -243,10 +264,10 @@ fn test_shadow_variable() {
         value: "hello world",
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"hello world!
 foo
 bar
@@ -278,12 +299,16 @@ impl std::fmt::Display for Functions {
         for function in &self.functions {
             f.write_fmt(
                 format_args!(
-                    "{0}", { let res = ::alloc::fmt::format(format_args!("{0}",
-                    function())); res } .chars().map(| character | match character { '&'
-                    => { let res = ::alloc::fmt::format(format_args!("&amp;")); res } '<'
-                    => { let res = ::alloc::fmt::format(format_args!("&lt;")); res } _ =>
-                    { let res = ::alloc::fmt::format(format_args!("{0}", character)); res
-                    } }).collect::< String > ()
+                    "{0}", ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", function())); res }).chars()
+                    .map(| character | match character { '&' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
+                    ::alloc::__export::must_use({ let res =
+                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
+                    .collect::< String > ()
                 ),
             )?;
             f.write_fmt(format_args!("{0}", "\n"))?;
@@ -294,6 +319,7 @@ impl std::fmt::Display for Functions {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "test_function_variables"]
+#[doc(hidden)]
 pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_function_variables"),
@@ -319,10 +345,10 @@ fn test_function_variables() {
         functions: <[_]>::into_vec(#[rustc_box] ::alloc::boxed::Box::new([|| 19, || 89])),
     };
     match (
-        &{
+        &::alloc::__export::must_use({
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
-        },
+        }),
         &"19\n89\n",
     ) {
         (left_val, right_val) => {
@@ -340,6 +366,7 @@ fn test_function_variables() {
 }
 #[rustc_main]
 #[coverage(off)]
+#[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(
