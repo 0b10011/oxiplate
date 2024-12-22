@@ -24,7 +24,7 @@ pub struct Extends<'a> {
     items: Vec<Item<'a>>,
 }
 
-impl<'a> fmt::Debug for Extends<'a> {
+impl fmt::Debug for Extends<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Extends")
             // .field("data_type", &"UNSUPPORTED_SORRY")

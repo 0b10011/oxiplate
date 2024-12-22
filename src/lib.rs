@@ -191,7 +191,7 @@ impl<'a> Source<'a> {
                             let code =
                                 u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
                             let char = char::from_u32(code).expect("Should be a unicode char");
-                            let byte_count = char.to_string().as_bytes().len();
+                            let byte_count = char.to_string().len();
                             if range.start >= pos.unwrap() {
                                 range.start -= byte_count - 1;
                             }
@@ -256,7 +256,7 @@ impl<'a> Source<'a> {
     }
 }
 
-impl<'a> Slice<RangeFrom<usize>> for Source<'a> {
+impl Slice<RangeFrom<usize>> for Source<'_> {
     fn slice(&self, new_range: RangeFrom<usize>) -> Self {
         Source {
             original: self.original,
@@ -268,7 +268,7 @@ impl<'a> Slice<RangeFrom<usize>> for Source<'a> {
     }
 }
 
-impl<'a> Slice<RangeTo<usize>> for Source<'a> {
+impl Slice<RangeTo<usize>> for Source<'_> {
     fn slice(&self, new_range: RangeTo<usize>) -> Self {
         Source {
             original: self.original,
@@ -280,7 +280,7 @@ impl<'a> Slice<RangeTo<usize>> for Source<'a> {
     }
 }
 
-impl<'a> ToTokens for Source<'a> {
+impl ToTokens for Source<'_> {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         use quote::TokenStreamExt;
         let text = self.as_str();
@@ -301,9 +301,9 @@ impl<'a> PartialEq<Source<'a>> for Source<'a> {
     }
 }
 
-impl<'a> Eq for Source<'a> {}
+impl Eq for Source<'_> {}
 
-impl<'a> PartialEq<char> for Source<'a> {
+impl PartialEq<char> for Source<'_> {
     fn eq(&self, char: &char) -> bool {
         self.as_str().len() == 1 && char == &self.as_str().chars().next().unwrap()
     }
@@ -319,7 +319,7 @@ impl<'a> Compare<&Source<'a>> for Source<'a> {
     }
 }
 
-impl<'a> Compare<&str> for Source<'a> {
+impl Compare<&str> for Source<'_> {
     fn compare(&self, string: &str) -> nom::CompareResult {
         self.as_str().compare(string)
     }
@@ -357,7 +357,7 @@ impl<'a> InputIter for Source<'a> {
     }
 }
 
-impl<'a> InputTake for Source<'a> {
+impl InputTake for Source<'_> {
     #[inline]
     fn take(&self, count: usize) -> Self {
         let end = self.range.start + count;
@@ -400,25 +400,25 @@ impl<'a> InputTake for Source<'a> {
     }
 }
 
-impl<'a> InputLength for Source<'a> {
+impl InputLength for Source<'_> {
     fn input_len(&self) -> usize {
         self.as_str().input_len()
     }
 }
 
-impl<'a> InputLength for &Source<'a> {
+impl InputLength for &Source<'_> {
     fn input_len(&self) -> usize {
         self.as_str().input_len()
     }
 }
 
-impl<'a> Offset for Source<'a> {
+impl Offset for Source<'_> {
     fn offset(&self, offset: &Self) -> usize {
         self.as_str().offset(offset.as_str())
     }
 }
 
-impl<'a> UnspecializedInput for Source<'a> {}
+impl UnspecializedInput for Source<'_> {}
 
 impl<'a> Iterator for Source<'a> {
     type Item = Source<'a>;

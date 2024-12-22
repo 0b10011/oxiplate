@@ -217,7 +217,7 @@ pub(crate) enum Operator<'a> {
     And(Source<'a>),
 }
 
-impl<'a> ToTokens for Operator<'a> {
+impl ToTokens for Operator<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match self {
             Operator::Addition(source) => {

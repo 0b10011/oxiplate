@@ -20,7 +20,7 @@ impl<'a> From<Static<'a>> for Item<'a> {
     }
 }
 
-impl<'a> ToTokens for Static<'a> {
+impl ToTokens for Static<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let text = &self.0;
         tokens.append_all(quote! {write!(f, "{}", #text)?;});
