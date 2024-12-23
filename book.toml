@@ -1,0 +1,20 @@
+[book]
+authors = ["Brandon Frohs"]
+language = "en"
+multilingual = false
+src = "book"
+title = "Oxiplate Documentation"
+
+[rust]
+edition = "2021"
+
+[build]
+build-dir = "book-output"
+
+[output.html]
+git-repository-url = "https://github.com/0b10011/oxiplate"
+edit-url-template = "https://github.com/0b10011/oxiplate/edit/main/{path}"
+site-url = "/oxiplate/"
+
+[output.html.playground]
+runnable = false
