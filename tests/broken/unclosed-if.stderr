@@ -1,4 +1,4 @@
-error: Statement is never closed (unexpected end of file)
+error: "if" statement is never closed (unexpected end of template)
  --> tests/broken/unclosed-if.rs:4:53
   |
 4 | #[oxiplate_inline = "{%- if should_do -%}{{ action }}"]

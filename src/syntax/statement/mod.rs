@@ -176,9 +176,29 @@ pub(super) fn statement<'a>(
                 if statement.is_ended(is_eof) {
                     break;
                 } else if is_eof {
-                    return context("Statement is never closed (unexpected end of file)", fail)(
-                        input,
-                    );
+                    macro_rules! context_message {
+                        ($lit:literal) => {
+                            concat!(
+                                r#"""#,
+                                $lit,
+                                r#"" statement is never closed (unexpected end of template)"#
+                            )
+                        };
+                    }
+                    let context_message = match statement.kind {
+                        StatementKind::Block(_) => context_message!("block"),
+                        StatementKind::If(_) => context_message!("if"),
+                        StatementKind::For(_) => context_message!("for"),
+                        StatementKind::Extends(_)
+                        | StatementKind::EndBlock
+                        | StatementKind::ElseIf(_)
+                        | StatementKind::Else
+                        | StatementKind::EndIf
+                        | StatementKind::EndFor => unreachable!(
+                            "These blocks should never fail to be closed because of EOF"
+                        ),
+                    };
+                    return context(context_message, fail)(input);
                 }
             }
         }
