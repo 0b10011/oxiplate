@@ -10,9 +10,6 @@
 #![allow(
     // rustfmt doesn't format `assert!()` :(
     clippy::manual_assert,
-
-    // i don't have time to fix these right now
-    clippy::too_many_lines,
 )]
 
 mod syntax;
@@ -31,6 +28,7 @@ use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
 use std::fmt;
+use std::iter::Enumerate;
 use std::ops::Range;
 use std::ops::RangeFrom;
 use std::ops::RangeTo;
@@ -99,160 +97,145 @@ impl<'a> Source<'a> {
                 .resolved_at(self.original.span_hygiene);
         }
 
-        let mut is_raw = None;
-        let mut _hash_count = 0;
-        let mut parsing_open = true;
-        let mut parsing_close = false;
-        let mut escaping = false;
-        let mut hex_digits_parsed = None;
-        let mut unicode_chars_parsed = None;
-        let mut unicode_code = String::new();
-        let mut pos = None;
-        for char in format!("{}", self.original.literal).chars() {
-            if let Some(value) = pos {
-                pos = Some(value + 1);
-            } else {
-                pos = Some(0);
-            }
+        let literal = format!("{}", self.original.literal);
+        let mut chars = literal.chars().enumerate();
 
-            if is_raw.is_none() {
-                is_raw = if char == 'r' {
-                    if range.start >= pos.unwrap() {
-                        range.start += 1;
-                    }
-                    if range.end >= pos.unwrap() {
-                        range.end += 1;
-                    }
-                    Some(true)
-                } else if char == '"' {
-                    if range.start >= pos.unwrap() {
-                        range.start += 1;
-                    }
-                    if range.end >= pos.unwrap() {
-                        range.end += 1;
-                    }
-                    parsing_open = false;
-                    Some(false)
-                } else {
-                    panic!("Expected 'r' or '\"', found: {char}");
-                };
-            } else if parsing_open {
-                if char == '#' {
-                    if range.start >= pos.unwrap() {
-                        range.start += 1;
-                    }
-                    if range.end >= pos.unwrap() {
-                        range.end += 1;
-                    }
-                    _hash_count += 1;
-                } else if char == '"' {
-                    if range.start >= pos.unwrap() {
-                        range.start += 1;
-                    }
-                    if range.end >= pos.unwrap() {
-                        range.end += 1;
-                    }
-                    parsing_open = false;
-                } else {
-                    panic!("Expected '#' or '\"'; found: {char}");
-                }
-            } else if !parsing_close {
-                if let Some(count) = hex_digits_parsed {
-                    if count < 2 {
-                        match char {
-                            '0'..='9' | 'a'..='f' | 'A'..='F' => {
-                                hex_digits_parsed = Some(count + 1);
-                            }
-                            _ => panic!("Expected [0-9a-f{}]; found: {char}", '{'),
-                        }
-                        continue;
-                    }
-                }
-
-                if let Some(count) = unicode_chars_parsed {
-                    if range.start >= pos.unwrap() {
-                        range.start += 1;
-                    }
-                    if range.end >= pos.unwrap() {
-                        range.end += 1;
-                    }
-
-                    match (count, char) {
-                        (-1, '{') => {
-                            unicode_chars_parsed = Some(count + 1);
-                            continue;
-                        }
-                        (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
-                            unicode_chars_parsed = Some(count + 1);
-                            unicode_code = format!("{unicode_code}{char}");
-                            continue;
-                        }
-                        (1..=4, '}') => {
-                            let code =
-                                u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
-                            let char = char::from_u32(code).expect("Should be a unicode char");
-                            let byte_count = char.to_string().len();
-                            if range.start >= pos.unwrap() {
-                                range.start -= byte_count - 1;
-                            }
-                            if range.end >= pos.unwrap() {
-                                range.end -= byte_count - 1;
-                            }
-                            unicode_chars_parsed = None;
-                            unicode_code = String::new();
-                            continue;
-                        }
-                        (-1, _) => panic!("Expected {}; found {char}", '{'),
-                        (0, _) => panic!("Expected a hex character (0-9a-f)]; found {char}"),
-                        (1..=3, _) => panic!(
-                            "Expected a hex character (0-9a-f) or {}]; found {char}",
-                            '{'
-                        ),
-                        (4, _) => panic!("Expected {}; found {char}", '}'),
-                        (_, _) => unreachable!(
-                            "All possible cases should be covered; found {} with count {}",
-                            char, count
-                        ),
-                    }
-                } else if is_raw == Some(false) && escaping {
-                    escaping = false;
-                    match char {
-                        // https://doc.rust-lang.org/reference/tokens.html#quote-escapes
-                        // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
-                        '\'' | '"' | 'n' | 'r' | 't' | '\\' | '0' => continue,
-                        // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
-                        'x' => hex_digits_parsed = Some(0),
-                        // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
-                        'u' => unicode_chars_parsed = Some(-1),
-                        _ => panic!(
-                            "Expected ', \", n, r, t, \\, 0, x, or {}; found: {}",
-                            '{', char
-                        ),
-                    }
-                    continue;
-                }
-
-                match char {
-                    '"' => parsing_close = true,
-                    '\\' => {
-                        if range.start >= pos.unwrap() {
-                            range.start += 1;
-                        }
-                        if range.end >= pos.unwrap() {
-                            range.end += 1;
-                        }
-                        escaping = true;
-                    }
-                    _ => (),
-                }
-            }
-        }
+        let hash_count = Self::parse_open(&mut chars, &mut range);
+        Self::parse_interior(&mut chars, &mut range, hash_count);
 
         self.original
             .literal
             .subspan(range)
             .unwrap_or_else(proc_macro2::Span::call_site)
             .resolved_at(self.original.span_hygiene)
+    }
+
+    fn update_range(range: &mut Range<usize>, pos: usize) {
+        if range.start >= pos {
+            range.start += 1;
+        }
+        if range.end >= pos {
+            range.end += 1;
+        }
+    }
+
+    fn parse_open(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) -> Option<usize> {
+        let (pos, char) = chars.next().expect("Unexpected end of string");
+        match char {
+            'r' => (),
+            '"' => {
+                Self::update_range(range, pos);
+                return None;
+            }
+            _ => panic!("Expected 'r' or '\"', found: {char}"),
+        }
+
+        Self::update_range(range, pos);
+
+        let mut hash_count = 0;
+        for (pos, char) in chars.by_ref() {
+            match char {
+                '#' => hash_count += 1,
+                '"' => {
+                    Self::update_range(range, pos);
+                    break;
+                }
+                _ => panic!("Expected '#' or '\"'; found: {char}"),
+            }
+            Self::update_range(range, pos);
+        }
+
+        Some(hash_count)
+    }
+
+    fn parse_ascii_escape(chars: &mut Enumerate<Chars<'_>>) {
+        // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
+        // Up to 0x7F
+        match chars.next().expect("Unexpected end of string") {
+            (_pos, '0'..='7') => (),
+            (_pos, char) => panic!("Expected [0-7]; found: {char}"),
+        }
+        match chars.next().expect("Unexpected end of string") {
+            (_pos, '0'..='9' | 'a'..='f' | 'A'..='F') => (),
+            (_pos, char) => panic!("Expected [0-9a-f]; found: {char}"),
+        }
+    }
+
+    fn parse_unicode_escape(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) {
+        let mut unicode_chars_parsed = -1;
+        let mut unicode_code = String::new();
+        loop {
+            let (pos, char) = chars.next().expect("Unexpected end of string");
+            Self::update_range(range, pos);
+            match (unicode_chars_parsed, char) {
+                (-1, '{') => {
+                    unicode_chars_parsed += 1;
+                    continue;
+                }
+                (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
+                    unicode_chars_parsed += 1;
+                    unicode_code = format!("{unicode_code}{char}");
+                    continue;
+                }
+                (1..=4, '}') => {
+                    let code = u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
+                    let char = char::from_u32(code).expect("Should be a unicode char");
+                    let byte_count = char.to_string().len();
+                    if range.start >= pos {
+                        range.start -= byte_count - 1;
+                    }
+                    if range.end >= pos {
+                        range.end -= byte_count - 1;
+                    }
+                    return;
+                }
+                (-1, _) => panic!("Expected {}; found {char}", '{'),
+                (0, _) => panic!("Expected a hex character (0-9a-f)]; found {char}"),
+                (1..=3, _) => panic!(
+                    "Expected a hex character (0-9a-f) or {}]; found {char}",
+                    '{'
+                ),
+                (4, _) => panic!("Expected {}; found {char}", '}'),
+                (_, _) => unreachable!(
+                    "All possible cases should be covered; found {} with count {}",
+                    char, unicode_chars_parsed
+                ),
+            }
+        }
+    }
+
+    fn parse_escape(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) {
+        let (_pos, char) = chars.next().expect("Unexpected end of string");
+        match char {
+            // https://doc.rust-lang.org/reference/tokens.html#quote-escapes
+            // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
+            '\'' | '"' | 'n' | 'r' | 't' | '\\' | '0' => (),
+            // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
+            'x' => Self::parse_ascii_escape(chars),
+            // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
+            'u' => Self::parse_unicode_escape(chars, range),
+            _ => panic!(
+                "Expected ', \", n, r, t, \\, 0, x, or {}; found: {}",
+                '{', char
+            ),
+        }
+    }
+
+    fn parse_interior(
+        chars: &mut Enumerate<Chars<'_>>,
+        range: &mut Range<usize>,
+        hash_count: Option<usize>,
+    ) {
+        while let Some((pos, char)) = chars.next() {
+            match (char, hash_count) {
+                ('"', _) => return,
+                ('\\', None) => {
+                    Self::update_range(range, pos);
+                    Self::parse_escape(chars, range);
+                }
+                _ => (),
+            }
+        }
     }
 }
 
@@ -463,7 +446,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
 
     let data_type = quote! { #ident #generics };
-    let source = get_source(syn::parse2(data_type)?, data, attrs)?;
+    let source = parse_attributes(syn::parse2(data_type)?, data, attrs)?;
     let source = Source {
         original: &source,
         range: Range {
@@ -486,8 +469,8 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     Ok(TokenStream::from(expanded))
 }
 
-fn get_source(
-    mut data_type: Type,
+fn parse_attributes(
+    data_type: Type,
     data: &Data,
     attrs: &Vec<Attribute>,
 ) -> Result<SourceOwned, syn::Error> {
@@ -498,119 +481,139 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
         let is_inline = attr.path().is_ident("oxiplate_inline");
         let is_extending = attr.path().is_ident("oxiplate_extends");
         if attr.path().is_ident("oxiplate") || is_inline || is_extending {
-            let (span, input, origin) = if !is_inline && !is_extending {
-                let syn::Meta::NameValue(MetaNameValue {
-                    path: _,
-                    eq_token: _,
-                    value:
-                        Expr::Lit(ExprLit {
-                            attrs: _,
-                            lit: Lit::Str(path),
-                        }),
-                }) = attr.meta.clone()
-                else {
-                    todo!("need to handle when non-name-value data is provided");
-                };
-                let templates_dir =
-                    PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
-                let root = PathBuf::from(
-                    ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
-                        .or(::std::env::var("CARGO_MANIFEST_DIR"))
-                        .unwrap(),
-                );
-
-                // Path::join() doesn't play well with absolute paths (for our use case).
-                let templates_dir_root = root.join(templates_dir.clone());
-                if !templates_dir_root.starts_with(root) {
-                    panic!("OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of '/templates'. Provided: {}", templates_dir.display());
-                }
-
-                // Path::join() doesn't play well with absolute paths (for our use case).
-                let full_path = templates_dir_root.join(path.value());
-                if !full_path.starts_with(templates_dir_root) {
-                    panic!("Template path must be a relative path; example 'template.oxip' instead of '/template.oxip'. Provided: {}", path.value());
-                }
-                let span = path.span();
-                let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
-
-                // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-                (
-                    span,
-                    quote::quote_spanned!(span=> include_str!(#path)),
-                    Some(full_path),
-                )
-            } else {
-                let syn::Meta::NameValue(MetaNameValue {
-                    path: _,
-                    eq_token: _,
-                    value: input,
-                }) = attr.meta.clone()
-                else {
-                    todo!("need to handle when non-name-value data is provided");
-                };
-                // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-                let span = input.span();
-                (span, quote::quote_spanned!(span=> #input), None)
-            };
-
-            // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
-            let input = proc_macro::TokenStream::from(input);
-
-            // Expand any macros, or fallback to the unexpanded input
-            let input = input.expand_expr();
-            if input.is_err() {
-                return Err(syn::Error::new(span, invalid_attribute_message));
-            }
-            let input = input.unwrap();
-
-            // Parse the string and token out of the expanded expression
-            let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
-            let (code, literal) = match syn::parse::Parser::parse(parser, input)? {
-                syn::Lit::Str(code) => (code.value(), code.token()),
-                _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
-            };
-
-            let mut blocks = vec![];
-            if is_extending {
-                match data {
-                    Data::Struct(ref struct_item) => {
-                        if let Fields::Named(fields) = &struct_item.fields {
-                            for field in &fields.named {
-                                match &field.ident {
-                                    Some(name) => {
-                                        if *name == "_data" {
-                                            data_type = field.ty.clone();
-                                        } else {
-                                            blocks.push(name.to_string());
-                                        }
-                                    }
-                                    None => {
-                                        field
-                                            .span()
-                                            .unwrap()
-                                            .error("Expected a named field")
-                                            .emit();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    _ => unreachable!("Should have checked this doesn't happen already"),
-                }
-            }
-
-            // Return the source
-            return Ok(SourceOwned {
+            return parse_attribute(
                 data_type,
-                blocks,
-                code,
-                literal,
-                span_hygiene: span,
-                origin,
+                data,
+                attr,
+                is_inline,
                 is_extending,
-            });
+                invalid_attribute_message,
+            );
         }
     }
 
     unimplemented!();
+}
+
+fn parse_attribute(
+    mut data_type: Type,
+    data: &Data,
+    attr: &Attribute,
+    is_inline: bool,
+    is_extending: bool,
+    invalid_attribute_message: &str,
+) -> Result<SourceOwned, syn::Error> {
+    let (span, input, origin) = parse_source_tokens(attr, is_inline, is_extending);
+
+    // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
+    let input = proc_macro::TokenStream::from(input);
+
+    // Expand any macros, or fallback to the unexpanded input
+    let input = input.expand_expr();
+    if input.is_err() {
+        return Err(syn::Error::new(span, invalid_attribute_message));
+    }
+    let input = input.unwrap();
+
+    // Parse the string and token out of the expanded expression
+    let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
+    let (code, literal) = match syn::parse::Parser::parse(parser, input)? {
+        syn::Lit::Str(code) => (code.value(), code.token()),
+        _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
+    };
+
+    let mut blocks = vec![];
+    if is_extending {
+        match data {
+            Data::Struct(ref struct_item) => {
+                if let Fields::Named(fields) = &struct_item.fields {
+                    for field in &fields.named {
+                        match &field.ident {
+                            Some(name) => {
+                                if *name == "_data" {
+                                    data_type = field.ty.clone();
+                                } else {
+                                    blocks.push(name.to_string());
+                                }
+                            }
+                            None => {
+                                field.span().unwrap().error("Expected a named field").emit();
+                            }
+                        }
+                    }
+                }
+            }
+            _ => unreachable!("Should have checked this doesn't happen already"),
+        }
+    }
+
+    // Return the source
+    Ok(SourceOwned {
+        data_type,
+        blocks,
+        code,
+        literal,
+        span_hygiene: span,
+        origin,
+        is_extending,
+    })
+}
+
+fn parse_source_tokens(
+    attr: &Attribute,
+    is_inline: bool,
+    is_extending: bool,
+) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
+    if is_inline || is_extending {
+        let syn::Meta::NameValue(MetaNameValue {
+            path: _,
+            eq_token: _,
+            value: input,
+        }) = attr.meta.clone()
+        else {
+            todo!("need to handle when non-name-value data is provided");
+        };
+        // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+        let span = input.span();
+        return (span, quote::quote_spanned!(span=> #input), None);
+    }
+
+    let syn::Meta::NameValue(MetaNameValue {
+        path: _,
+        eq_token: _,
+        value: Expr::Lit(ExprLit {
+            attrs: _,
+            lit: Lit::Str(path),
+        }),
+    }) = attr.meta.clone()
+    else {
+        todo!("need to handle when non-name-value data is provided");
+    };
+    let templates_dir = PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
+    let root = PathBuf::from(
+        ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
+            .or(::std::env::var("CARGO_MANIFEST_DIR"))
+            .unwrap(),
+    );
+
+    // Path::join() doesn't play well with absolute paths (for our use case).
+    let templates_dir_root = root.join(templates_dir.clone());
+    if !templates_dir_root.starts_with(root) {
+        panic!("OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of '/templates'. Provided: {}", templates_dir.display());
+    }
+
+    // Path::join() doesn't play well with absolute paths (for our use case).
+    let full_path = templates_dir_root.join(path.value());
+    if !full_path.starts_with(templates_dir_root) {
+        panic!("Template path must be a relative path; example 'template.oxip' instead of '/template.oxip'. Provided: {}", path.value());
+    }
+    let span = path.span();
+    let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
+
+    // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+    (
+        span,
+        quote::quote_spanned!(span=> include_str!(#path)),
+        Some(full_path),
+    )
 }
