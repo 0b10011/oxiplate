@@ -1,9 +1,13 @@
 [package]
 name = "oxiplate"
+description = "Compile-time template engine with a focus on escaping and whitespace control."
 version = "0.1.0"
 authors = ["Brandon Frohs <brandon@19.codes>"]
+repository = "https://github.com/0b10011/oxiplate"
+categories = ["template-engine"]
+keywords = ["escaping", "whitespace control", "compile-time"]
+license = "MIT"
 edition = "2021"
-publish = false
 
 [lib]
 proc-macro = true
