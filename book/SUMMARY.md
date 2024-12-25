@@ -4,7 +4,7 @@
 
 # User guide
 
-- [Getting started]()
+- [Getting started](getting-started.md)
 
 # Syntax
 
