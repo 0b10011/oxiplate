@@ -8,11 +8,11 @@
 
 # Syntax
 
-- [Writs]()
+- [Writs](writs.md)
 - [Statements]()
     - [extends/block](statements/extends.md)
     - [if/else](statements/if-else.md)
     - [for](statements/for.md)
 - [Comments]()
 - [Whitespace control](whitespace-control.md)
-- [Expressions]()
+- [Expressions](expressions.md)
