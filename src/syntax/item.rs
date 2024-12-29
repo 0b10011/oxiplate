@@ -1,10 +1,8 @@
-use std::collections::HashSet;
-
 use super::{
     comment::comment, statement::statement, template::whitespace, writ::writ, Res, Statement,
     Static, Writ,
 };
-use crate::Source;
+use crate::{Source, State};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
@@ -48,15 +46,15 @@ pub enum TagOpen {
 }
 
 pub(crate) fn parse_tag<'a>(
-    local_variables: &'a HashSet<&'a str>,
+    state: &'a State,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let (input, (tag, trailing_whitespace)) = match open {
-            TagOpen::Writ => cut(writ(local_variables))(input)?,
-            TagOpen::Statement => cut(statement(local_variables, should_output_blocks))(input)?,
+            TagOpen::Writ => cut(writ(state))(input)?,
+            TagOpen::Statement => cut(statement(state, should_output_blocks))(input)?,
             TagOpen::Comment => cut(comment)(input)?,
         };
 

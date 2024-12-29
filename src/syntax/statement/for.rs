@@ -1,6 +1,6 @@
 use super::super::expression::{ident, keyword, Identifier, Keyword};
 use super::super::{expression::expression, Item, Res};
-use super::{Statement, StatementKind};
+use super::{State, Statement, StatementKind};
 use crate::syntax::template::is_whitespace;
 use crate::syntax::Expression;
 use crate::Source;
@@ -69,9 +69,7 @@ impl ToTokens for For<'_> {
     }
 }
 
-pub(super) fn parse_for<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
+pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
         let (input, for_keyword) = keyword("for")(input)?;
 
@@ -84,10 +82,7 @@ pub(super) fn parse_for<'a>(
             ),
             context("Expected 'in'", keyword("in")),
             context("Expected space after 'in'", take_while1(is_whitespace)),
-            context(
-                "Expected an expression that is iterable",
-                expression(local_variables),
-            ),
+            context("Expected an expression that is iterable", expression(state)),
         )))(input)?;
 
         let source = for_keyword.0.clone();

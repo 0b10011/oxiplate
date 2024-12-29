@@ -1,5 +1,5 @@
 use super::super::{expression::expression, Item, Res};
-use super::{Statement, StatementKind};
+use super::{State, Statement, StatementKind};
 use crate::syntax::expression::{ident, Identifier};
 use crate::syntax::template::is_whitespace;
 use crate::syntax::Expression;
@@ -197,9 +197,7 @@ pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
     Ok((input, TypeName(ident.as_str(), ident)))
 }
 
-pub(super) fn parse_type<'a>(
-    _local_variables: &'a HashSet<&'a str>,
-) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
+pub(super) fn parse_type<'a>(_state: &'a State) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
     |input| {
         let (input, (path_segments, type_name, _open, identifier, _close)) = cut(tuple((
             many0(tuple((parse_type_name, tag("::")))),
@@ -219,13 +217,11 @@ pub(super) fn parse_type<'a>(
     }
 }
 
-pub(super) fn parse_if<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
+pub(super) fn parse_if<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
     |input| {
         let (input, statement_source) = tag("if")(input)?;
 
-        let (input, if_type) = parse_if_generic(local_variables)(input)?;
+        let (input, if_type) = parse_if_generic(state)(input)?;
 
         Ok((
             input,
@@ -242,9 +238,7 @@ pub(super) fn parse_if<'a>(
     }
 }
 
-fn parse_if_generic<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl FnMut(Source) -> Res<Source, IfType> + 'a {
+fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, IfType> + 'a {
     |input| {
         let ws1 = take_while1(is_whitespace);
         let ws0 = take_while(is_whitespace);
@@ -255,10 +249,8 @@ fn parse_if_generic<'a>(
         let (input, r#let) = cut(opt(tuple((tag("let"), &ws1))))(input)?;
 
         if r#let.is_some() {
-            let (input, ty) = context(
-                r#"Expected a type after "let""#,
-                cut(parse_type(local_variables)),
-            )(input)?;
+            let (input, ty) =
+                context(r#"Expected a type after "let""#, cut(parse_type(state)))(input)?;
             let (input, expression) = if ty.get_variables().len() == 1 {
                 opt(preceded(
                     &ws0,
@@ -266,10 +258,7 @@ fn parse_if_generic<'a>(
                         char('='),
                         preceded(
                             &ws0,
-                            context(
-                                "Expected an expression after `=`",
-                                cut(expression(local_variables)),
-                            ),
+                            context("Expected an expression after `=`", cut(expression(state))),
                         ),
                     ),
                 ))(input)?
@@ -280,10 +269,7 @@ fn parse_if_generic<'a>(
                         context("Expected `=`", cut(char('='))),
                         preceded(
                             &ws0,
-                            context(
-                                "Expected an expression after `=`",
-                                cut(expression(local_variables)),
-                            ),
+                            context("Expected an expression after `=`", cut(expression(state))),
                         ),
                     ),
                 )(input)?;
@@ -291,19 +277,17 @@ fn parse_if_generic<'a>(
             };
             Ok((input, IfType::IfLet(ty, expression)))
         } else {
-            let (input, output) = cut(expression(local_variables))(input)?;
+            let (input, output) = cut(expression(state))(input)?;
             Ok((input, IfType::If(output)))
         }
     }
 }
 
-pub(super) fn parse_elseif<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
+pub(super) fn parse_elseif<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
         let (input, statement_source) = tag("elseif")(input)?;
 
-        let (input, if_type) = parse_if_generic(local_variables)(input)?;
+        let (input, if_type) = parse_if_generic(state)(input)?;
 
         Ok((
             input,

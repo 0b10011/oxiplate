@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use crate::State;
+
 use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, Static};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
@@ -79,7 +81,10 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
 }
 
 fn try_parse(source: Source) -> Res<Source, Template> {
-    let (input, items_vec) = many0(parse_item(&HashSet::new(), &true))(source)?;
+    let state = State {
+        local_variables: &HashSet::new(),
+    };
+    let (input, items_vec) = many0(parse_item(&state, &true))(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -137,12 +142,12 @@ fn try_parse(source: Source) -> Res<Source, Template> {
 }
 
 pub(crate) fn parse_item<'a>(
-    local_variables: &'a HashSet<&'a str>,
+    state: &'a State,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         alt((
-            parse_tag(local_variables, should_output_blocks),
+            parse_tag(state, should_output_blocks),
             parse_static,
             adjusted_whitespace,
         ))(input)

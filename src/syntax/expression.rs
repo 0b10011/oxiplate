@@ -1,8 +1,6 @@
-use std::collections::HashSet;
-
 use super::{template::whitespace, Res};
 use crate::syntax::item::tag_end;
-use crate::Source;
+use crate::{Source, State};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
@@ -293,23 +291,19 @@ impl ToTokens for PrefixOperator {
     }
 }
 
-pub(super) fn expression<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+pub(super) fn expression<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         alt((
             string,
             number,
-            calc(local_variables),
-            field_or_identifier(local_variables),
-            prefixed_expression(local_variables),
+            calc(state),
+            field_or_identifier(state),
+            prefixed_expression(state),
         ))(input)
     }
 }
 
-fn field_or_identifier<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn field_or_identifier<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         let (input, (parsed_parents, (ident, maybe_function))) = pair(
             many0(terminated(&ident, char('.'))),
@@ -329,7 +323,7 @@ fn field_or_identifier<'a>(
                 input,
                 Expression::Identifier(
                     field,
-                    if local_variables.contains(ident_str) {
+                    if state.local_variables.contains(ident_str) {
                         IdentifierScope::Local
                     } else if is_extending {
                         IdentifierScope::Data
@@ -344,7 +338,7 @@ fn field_or_identifier<'a>(
         let mut is_local = None;
         for parent in parsed_parents {
             if is_local.is_none() {
-                is_local = Some(local_variables.contains(parent.0));
+                is_local = Some(state.local_variables.contains(parent.0));
             }
             parents.push(parent);
         }
@@ -431,19 +425,17 @@ fn string(input: Source) -> Res<Source, Expression> {
     };
     Ok((input, Expression::String(full_string)))
 }
-fn calc<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn calc<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
             tuple((
-                field_or_identifier(local_variables),
+                field_or_identifier(state),
                 opt(whitespace),
                 // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
                 not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
                 operator,
                 opt(whitespace),
-                context("Expected an expression", cut(expression(local_variables))),
+                context("Expected an expression", cut(expression(state))),
             ))(input)?;
         Ok((
             input,
@@ -461,12 +453,10 @@ fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
 
     Ok((input, operator))
 }
-fn prefixed_expression<'a>(
-    local_variables: &'a HashSet<&'a str>,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn prefixed_expression<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
         let (input, (prefix_operator, expression)) =
-            tuple((prefix_operator, expression(local_variables)))(input)?;
+            tuple((prefix_operator, expression(state)))(input)?;
 
         Ok((
             input,

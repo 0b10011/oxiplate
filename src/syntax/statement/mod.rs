@@ -12,7 +12,7 @@ use r#if::{ElseIf, If};
 use super::{Item, Res, Static};
 use crate::syntax::item::tag_end;
 use crate::syntax::template::{is_whitespace, parse_item};
-use crate::Source;
+use crate::{Source, State};
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::combinator::{cut, fail};
@@ -115,7 +115,7 @@ impl ToTokens for Statement<'_> {
 }
 
 pub(super) fn statement<'a>(
-    outer_local_variables: &'a HashSet<&'a str>,
+    state: &'a State,
     should_output_blocks: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     move |input| {
@@ -129,11 +129,11 @@ pub(super) fn statement<'a>(
                 extends::parse_extends,
                 block::parse_block(should_output_blocks),
                 block::parse_endblock,
-                r#if::parse_if(outer_local_variables),
-                r#if::parse_elseif(outer_local_variables),
+                r#if::parse_if(state),
+                r#if::parse_elseif(state),
                 r#if::parse_else,
                 r#if::parse_endif,
-                r#for::parse_for(outer_local_variables),
+                r#for::parse_for(state),
                 r#for::parse_endfor,
             ))),
         )(input)?;
@@ -154,12 +154,14 @@ pub(super) fn statement<'a>(
 
             loop {
                 let mut local_variables = statement.get_active_variables();
-                for value in outer_local_variables {
+                for value in state.local_variables {
                     local_variables.insert(value);
                 }
+                let state = State {
+                    local_variables: &local_variables,
+                };
 
-                let (new_input, items) =
-                    parse_item(&local_variables, &should_output_blocks)(input)?;
+                let (new_input, items) = parse_item(&state, &should_output_blocks)(input)?;
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {

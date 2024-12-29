@@ -27,6 +27,7 @@ use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
+use std::collections::HashSet;
 use std::fmt;
 use std::iter::Enumerate;
 use std::ops::Range;
@@ -65,6 +66,10 @@ impl fmt::Debug for SourceOwned {
             .field("is_extending", &self.is_extending)
             .finish_non_exhaustive()
     }
+}
+
+pub(crate) struct State<'a> {
+    local_variables: &'a HashSet<&'a str>,
 }
 
 #[derive(Clone, Debug)]
