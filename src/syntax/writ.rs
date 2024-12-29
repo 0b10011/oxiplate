@@ -11,7 +11,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Writ<'a>(pub Expression<'a>, HtmlEscaper);
+pub(crate) struct Writ<'a>(pub Expression<'a>, Escaper);
 
 impl<'a> From<Writ<'a>> for Item<'a> {
     fn from(writ: Writ<'a>) -> Self {
@@ -25,22 +25,24 @@ impl ToTokens for Writ<'_> {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
-enum HtmlEscaper {
-    #[default]
+#[derive(Debug, PartialEq, Eq)]
+enum Escaper {
     Text,
     Attr,
     Comment,
     Raw,
 }
 
-impl HtmlEscaper {
-    pub fn build(ident: Identifier) -> Result<HtmlEscaper, nom::Err<VerboseError<Source>>> {
+impl Escaper {
+    pub fn build<'a, 'b>(
+        _state: &'b State<'b>,
+        ident: Identifier<'a>,
+    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
         match ident.0 {
-            "text" => Ok(HtmlEscaper::Text),
-            "attr" => Ok(HtmlEscaper::Attr),
-            "comment" => Ok(HtmlEscaper::Comment),
-            "raw" => Ok(HtmlEscaper::Raw),
+            "text" => Ok(Escaper::Text),
+            "attr" => Ok(Escaper::Attr),
+            "comment" => Ok(Escaper::Comment),
+            "raw" => Ok(Escaper::Raw),
             _ => {
                 context("Invalid escaper", fail::<_, (), _>)(ident.1)?;
                 unreachable!("fail() should always bail early");
@@ -48,16 +50,20 @@ impl HtmlEscaper {
         }
     }
 
+    pub fn default(_state: &State) -> Escaper {
+        Escaper::Text
+    }
+
     pub fn escape(&self, expression: &Expression, tokens: &mut TokenStream) {
         tokens.append_all(match self {
-            HtmlEscaper::Text => quote! {
+            Escaper::Text => quote! {
                 write!(f, "{}", format!("{}", #expression).chars().map(|character| match character {
                     '&' => format!("&amp;"),
                     '<' => format!("&lt;"),
                     _ => format!("{}", character),
                 }).collect::<String>())?;
             },
-            HtmlEscaper::Attr => quote! {
+            Escaper::Attr => quote! {
                 write!(f, "{}", format!("{}", #expression).chars().map(|character| match character {
                     '&' => format!("&amp;"),
                     '<' => format!("&lt;"),
@@ -66,26 +72,26 @@ impl HtmlEscaper {
                     _ => format!("{}", character),
                 }).collect::<String>())?;
             },
-            HtmlEscaper::Comment => quote! {
+            Escaper::Comment => quote! {
                 // Replace `hyphen-minus` with visually similar `minus`.
                 write!(f, "{}", format!("{}", #expression).replace("-->", "−−>"))?;
             },
-            HtmlEscaper::Raw => quote! { write!(f, "{}", #expression)?; },
+            Escaper::Raw => quote! { write!(f, "{}", #expression)?; },
         });
     }
 }
 
 pub(super) fn writ<'a>(
-    state: &'a State,
+    state: &'a State<'a>,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
         let (input, escaper_info) =
             opt(tuple((ident, char(':'), take_while(is_whitespace))))(input)?;
         let escaper = if let Some((escaper, _colon, _whitespace)) = escaper_info {
-            HtmlEscaper::build(escaper)?
+            Escaper::build(state, escaper)?
         } else {
-            HtmlEscaper::default()
+            Escaper::default(state)
         };
         let (input, output) = context("Expected an expression.", cut(expression(state)))(input)?;
         let (input, trailing_whitespace) = context(
