@@ -5,13 +5,23 @@ use super::{
 use crate::{Source, State};
 use nom::combinator::{cut, fail};
 use nom::error::{context, VerboseError};
-use nom::sequence::{preceded, tuple};
+use nom::sequence::{preceded, terminated, tuple};
 use nom::{bytes::complete::take_while, character::complete::char, combinator::opt};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+use std::fmt::Debug;
+use syn::Path;
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Writ<'a>(pub Expression<'a>, Escaper);
+pub(crate) struct Writ<'a>(pub Expression<'a>, Option<Path>);
+
+impl Debug for Writ<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Writ")
+            .field(&self.0)
+            .field(&"escaper path is skipped")
+            .finish()
+    }
+}
 
 impl<'a> From<Writ<'a>> for Item<'a> {
     fn from(writ: Writ<'a>) -> Self {
@@ -21,63 +31,66 @@ impl<'a> From<Writ<'a>> for Item<'a> {
 
 impl ToTokens for Writ<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.1.escape(&self.0, tokens);
+        let text = &self.0;
+
+        if self.1.is_none() {
+            return tokens.append_all(quote! {
+                write!(f, "{}", #text)?;
+            });
+        }
+
+        let escaper_function = &self.1;
+
+        tokens.append_all(quote! {
+            write!(f, "{}", #escaper_function(#text))?;
+        });
     }
 }
 
 #[derive(Debug, PartialEq, Eq)]
-enum Escaper {
-    Text,
-    Attr,
-    Comment,
-    Raw,
-}
+struct Escaper;
 
 impl Escaper {
     pub fn build<'a, 'b>(
-        _state: &'b State<'b>,
-        ident: Identifier<'a>,
-    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
-        match ident.0 {
-            "text" => Ok(Escaper::Text),
-            "attr" => Ok(Escaper::Attr),
-            "comment" => Ok(Escaper::Comment),
-            "raw" => Ok(Escaper::Raw),
-            _ => {
-                context("Invalid escaper", fail::<_, (), _>)(ident.1)?;
-                unreachable!("fail() should always bail early");
+        state: &'b State<'b>,
+        group: Option<Identifier<'a>>,
+        escaper: Identifier<'a>,
+    ) -> Result<Option<Path>, nom::Err<VerboseError<Source<'a>>>> {
+        let group = if let Some(group) = group {
+            Some((group.0, group.1))
+        } else if let Some(default_group) = &state.config.default_escaper_group {
+            Some((default_group.as_str(), escaper.1.clone()))
+        } else {
+            None
+        };
+        let Some(group) = group else {
+            if escaper.0 == "raw" {
+                return Ok(None);
+            }
+
+            context(
+                r#"No default escaper group defined and the specified escaper is not "raw""#,
+                fail::<_, (), _>,
+            )(escaper.1.clone())?;
+            unreachable!("fail() should always bail early");
+        };
+
+        let Some(group) = state.config.escaper_groups.get(group.0) else {
+            context("Invalid escaper set specified", fail::<_, (), _>)(group.1.clone())?;
+            unreachable!("fail() should always bail early");
+        };
+        if let Some(escaper_str) = group.escapers.get(escaper.0) {
+            if let Ok(escaper) = syn::parse_str(escaper_str) {
+                return Ok(Some(escaper));
             }
         }
+
+        context("Invalid escaper specified", fail::<_, (), _>)(escaper.1)?;
+        unreachable!("fail() should always bail early");
     }
 
-    pub fn default(_state: &State) -> Escaper {
-        Escaper::Text
-    }
-
-    pub fn escape(&self, expression: &Expression, tokens: &mut TokenStream) {
-        tokens.append_all(match self {
-            Escaper::Text => quote! {
-                write!(f, "{}", format!("{}", #expression).chars().map(|character| match character {
-                    '&' => format!("&amp;"),
-                    '<' => format!("&lt;"),
-                    _ => format!("{}", character),
-                }).collect::<String>())?;
-            },
-            Escaper::Attr => quote! {
-                write!(f, "{}", format!("{}", #expression).chars().map(|character| match character {
-                    '&' => format!("&amp;"),
-                    '<' => format!("&lt;"),
-                    '"' => format!("&#34;"),
-                    '\'' => format!("&#39;"),
-                    _ => format!("{}", character),
-                }).collect::<String>())?;
-            },
-            Escaper::Comment => quote! {
-                // Replace `hyphen-minus` with visually similar `minus`.
-                write!(f, "{}", format!("{}", #expression).replace("-->", "−−>"))?;
-            },
-            Escaper::Raw => quote! { write!(f, "{}", #expression)?; },
-        });
+    pub fn default(_state: &State) -> Option<Path> {
+        None
     }
 }
 
@@ -86,10 +99,14 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
-        let (input, escaper_info) =
-            opt(tuple((ident, char(':'), take_while(is_whitespace))))(input)?;
-        let escaper = if let Some((escaper, _colon, _whitespace)) = escaper_info {
-            Escaper::build(state, escaper)?
+        let (input, escaper_info) = opt(tuple((
+            opt(terminated(ident, char('.'))),
+            ident,
+            char(':'),
+            take_while(is_whitespace),
+        )))(input)?;
+        let escaper = if let Some((escaper_group, escaper, _colon, _whitespace)) = escaper_info {
+            Escaper::build(state, escaper_group, escaper)?
         } else {
             Escaper::default(state)
         };

@@ -159,6 +159,7 @@ pub(super) fn statement<'a>(
                 }
                 let state = State {
                     local_variables: &local_variables,
+                    config: state.config,
                 };
 
                 let (new_input, items) = parse_item(&state, &should_output_blocks)(input)?;

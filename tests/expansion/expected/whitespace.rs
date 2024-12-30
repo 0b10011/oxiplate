@@ -72,34 +72,10 @@ impl std::fmt::Display for WritWhitespaceControl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!("{0}", "Hello"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.username)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.username))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "("))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.name)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.name))?;
         f.write_fmt(format_args!("{0}", ")!"))?;
         Ok(())
     }
@@ -160,19 +136,7 @@ struct WritPreserveSpaceless {
 impl std::fmt::Display for WritPreserveSpaceless {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!("{0}", "Hello @"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.username)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.username))?;
         f.write_fmt(format_args!("{0}", "!"))?;
         Ok(())
     }

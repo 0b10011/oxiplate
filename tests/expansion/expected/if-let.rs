@@ -28,55 +28,16 @@ impl std::fmt::Display for Data {
             if let Some(name) = &self.name {
                 f.write_fmt(format_args!("{0}", "Found"))?;
                 f.write_fmt(format_args!("{0}", " "))?;
-                f.write_fmt(
-                    format_args!(
-                        "{0}", ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", count)); res }).chars()
-                        .map(| character | match character { '&' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                        .collect::< String > ()
-                    ),
-                )?;
+                f.write_fmt(format_args!("{0}", count))?;
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(format_args!("{0}", "cats named"))?;
                 f.write_fmt(format_args!("{0}", " "))?;
-                f.write_fmt(
-                    format_args!(
-                        "{0}", ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", name)); res }).chars()
-                        .map(| character | match character { '&' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                        .collect::< String > ()
-                    ),
-                )?;
+                f.write_fmt(format_args!("{0}", name))?;
                 f.write_fmt(format_args!("{0}", "!"))?;
             } else {
                 f.write_fmt(format_args!("{0}", "Found"))?;
                 f.write_fmt(format_args!("{0}", " "))?;
-                f.write_fmt(
-                    format_args!(
-                        "{0}", ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", count)); res }).chars()
-                        .map(| character | match character { '&' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                        .collect::< String > ()
-                    ),
-                )?;
+                f.write_fmt(format_args!("{0}", count))?;
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(format_args!("{0}", "cats!"))?;
             }
@@ -84,20 +45,7 @@ impl std::fmt::Display for Data {
             if let Some(missing_name) = &self.name {
                 f.write_fmt(format_args!("{0}", "No cats named"))?;
                 f.write_fmt(format_args!("{0}", " "))?;
-                f.write_fmt(
-                    format_args!(
-                        "{0}", ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", missing_name)); res })
-                        .chars().map(| character | match character { '&' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                        ::alloc::__export::must_use({ let res =
-                        ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                        .collect::< String > ()
-                    ),
-                )?;
+                f.write_fmt(format_args!("{0}", missing_name))?;
                 f.write_fmt(format_args!("{0}", " "))?;
                 f.write_fmt(format_args!("{0}", "found :("))?;
             } else {

@@ -12,33 +12,9 @@ struct AbsoluteData {
 impl std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!("{0}", "<h1>"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.title)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.title))?;
         f.write_fmt(format_args!("{0}", "</h1>\n<p>"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.message)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.message))?;
         f.write_fmt(format_args!("{0}", "</p>"))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         Ok(())

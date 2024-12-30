@@ -27,12 +27,17 @@ use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
+use serde::Deserialize;
+use std::collections::HashMap;
 use std::collections::HashSet;
+use std::env;
 use std::fmt;
+use std::fs;
 use std::iter::Enumerate;
 use std::ops::Range;
 use std::ops::RangeFrom;
 use std::ops::RangeTo;
+use std::path;
 use std::path::PathBuf;
 use std::str::CharIndices;
 use std::str::Chars;
@@ -70,6 +75,22 @@ impl fmt::Debug for SourceOwned {
 
 pub(crate) struct State<'a> {
     local_variables: &'a HashSet<&'a str>,
+    config: &'a Config,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct EscaperGroup {
+    escapers: HashMap<String, String>,
+}
+
+#[derive(Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct Config {
+    #[serde(default)]
+    default_escaper_group: Option<String>,
+    #[serde(default)]
+    escaper_groups: HashMap<String, EscaperGroup>,
 }
 
 #[derive(Clone, Debug)]
@@ -451,6 +472,21 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
     };
 
     let data_type = quote! { #ident #generics };
+    let config_path =
+        path::Path::new(&env::current_dir().expect("Failed to get current directory"))
+            .join("oxiplate.toml");
+    let config: Config = if let Ok(toml) = fs::read_to_string(config_path.clone()) {
+        toml::from_str(&toml).expect("Failed to parse oxiplate.toml")
+    } else {
+        Config {
+            default_escaper_group: None,
+            escaper_groups: HashMap::new(),
+        }
+    };
+    let state = State {
+        local_variables: &HashSet::new(),
+        config: &config,
+    };
     let source = parse_attributes(syn::parse2(data_type)?, data, attrs)?;
     let source = Source {
         original: &source,
@@ -459,7 +495,7 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
             end: source.code.len(),
         },
     };
-    let template = syntax::parse(source);
+    let template = syntax::parse(&state, source);
 
     let where_clause = &generics.where_clause;
     let expanded = quote! {

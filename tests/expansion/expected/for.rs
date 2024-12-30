@@ -14,20 +14,7 @@ struct Data {
 impl std::fmt::Display for Data {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for value in &self.values {
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", value)); res }).chars()
-                    .map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", value))?;
             f.write_fmt(format_args!("{0}", "<br>"))?;
         }
         Ok(())
@@ -91,20 +78,7 @@ struct Accounts {
 impl std::fmt::Display for Accounts {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for person in &self.people {
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", person.get_name())); res })
-                    .chars().map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", person.get_name()))?;
             f.write_fmt(format_args!("{0}", "<br>"))?;
         }
         Ok(())
@@ -181,51 +155,14 @@ struct ShadowVariable {
 }
 impl std::fmt::Display for ShadowVariable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.value)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.value))?;
         f.write_fmt(format_args!("{0}", "!"))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
         for value in &self.values {
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", value)); res }).chars()
-                    .map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", value))?;
             f.write_fmt(format_args!("{0}", "\n"))?;
         }
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.value)); res }).chars()
-                .map(| character | match character { '&' => ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.value))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "again :D"))?;
         Ok(())
@@ -297,20 +234,7 @@ struct Functions {
 impl std::fmt::Display for Functions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for function in &self.functions {
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", function())); res }).chars()
-                    .map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", function()))?;
             f.write_fmt(format_args!("{0}", "\n"))?;
         }
         Ok(())

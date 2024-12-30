@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::State;
 
 use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, Static};
@@ -22,8 +20,8 @@ impl ToTokens for Template<'_> {
     }
 }
 
-pub(crate) fn parse(source: Source) -> Template {
-    match try_parse(source) {
+pub(crate) fn parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Template<'a> {
+    match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
             nom::Err::Error(nom::error::VerboseError { errors })
@@ -80,11 +78,8 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
     )
 }
 
-fn try_parse(source: Source) -> Res<Source, Template> {
-    let state = State {
-        local_variables: &HashSet::new(),
-    };
-    let (input, items_vec) = many0(parse_item(&state, &true))(source)?;
+fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Template<'a>> {
+    let (input, items_vec) = many0(parse_item(state, &true))(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.

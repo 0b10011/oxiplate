@@ -22,58 +22,19 @@ impl std::fmt::Display for Data {
         if self.do_this {
             f.write_fmt(format_args!("{0}", "This then"))?;
             f.write_fmt(format_args!("{0}", " "))?;
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", self.action)); res })
-                    .chars().map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", self.action))?;
             f.write_fmt(format_args!("{0}", " "))?;
             f.write_fmt(format_args!("{0}", ":D"))?;
         } else if self.do_that {
             f.write_fmt(format_args!("{0}", "That then"))?;
             f.write_fmt(format_args!("{0}", " "))?;
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", self.action)); res })
-                    .chars().map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", self.action))?;
             f.write_fmt(format_args!("{0}", " "))?;
             f.write_fmt(format_args!("{0}", ":D"))?;
         } else {
             f.write_fmt(format_args!("{0}", "Can't"))?;
             f.write_fmt(format_args!("{0}", " "))?;
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", self.action)); res })
-                    .chars().map(| character | match character { '&' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", self.action))?;
             f.write_fmt(format_args!("{0}", " "))?;
             f.write_fmt(format_args!("{0}", ":("))?;
         }

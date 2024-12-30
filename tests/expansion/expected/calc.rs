@@ -16,240 +16,55 @@ struct Math {
 }
 impl std::fmt::Display for Math {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "+"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max + self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max + self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "-"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max - self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max - self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "*"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max * self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max * self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "/"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max / self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max / self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "%"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max % self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max % self.min))?;
         Ok(())
     }
 }
@@ -313,287 +128,65 @@ struct Comparisons {
 }
 impl std::fmt::Display for Comparisons {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "=="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max == self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max == self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "!="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max != self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max != self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", ">"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max > self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max > self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "<"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max < self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max < self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", ">="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max >= self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max >= self.min))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "<="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.min)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.min))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.max <= self.min)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.max <= self.min))?;
         Ok(())
     }
 }
@@ -665,381 +258,85 @@ struct OrAnd {
 }
 impl std::fmt::Display for OrAnd {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "||"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes || self.yes2)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes || self.yes2))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "||"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes || self.no)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes || self.no))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "||"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no || self.yes)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no || self.yes))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "||"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no || self.no2)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no || self.no2))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "&&"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes && self.yes2)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes && self.yes2))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "&&"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes && self.no)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes && self.no))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "&&"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.yes)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.yes))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no && self.yes)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no && self.yes))?;
         f.write_fmt(format_args!("{0}", "\n"))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "&&"))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no)); res }).chars().map(|
-                character | match character { '&' => ::alloc::__export::must_use({ let
-                res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no))?;
         f.write_fmt(format_args!("{0}", " "))?;
         f.write_fmt(format_args!("{0}", "="))?;
         f.write_fmt(format_args!("{0}", " "))?;
-        f.write_fmt(
-            format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.no && self.no2)); res })
-                .chars().map(| character | match character { '&' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                .collect::< String > ()
-            ),
-        )?;
+        f.write_fmt(format_args!("{0}", self.no && self.no2))?;
         Ok(())
     }
 }

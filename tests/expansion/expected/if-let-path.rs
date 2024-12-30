@@ -18,19 +18,7 @@ struct Data {
 impl std::fmt::Display for Data {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Type::Text(text) = &self.ty {
-            f.write_fmt(
-                format_args!(
-                    "{0}", ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", text)); res }).chars().map(|
-                    character | match character { '&' => ::alloc::__export::must_use({
-                    let res = ::alloc::fmt::format(format_args!("&amp;")); res }), '<' =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("&lt;")); res }), _ =>
-                    ::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", character)); res }), })
-                    .collect::< String > ()
-                ),
-            )?;
+            f.write_fmt(format_args!("{0}", text))?;
         }
         Ok(())
     }
