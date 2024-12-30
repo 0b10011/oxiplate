@@ -76,7 +76,7 @@ impl Escaper {
         };
 
         let Some(group) = state.config.escaper_groups.get(group.0) else {
-            context("Invalid escaper set specified", fail::<_, (), _>)(group.1.clone())?;
+            context("Invalid escaper group specified", fail::<_, (), _>)(group.1.clone())?;
             unreachable!("fail() should always bail early");
         };
         if let Some(escaper_str) = group.escapers.get(escaper.0) {
