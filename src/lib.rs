@@ -81,7 +81,7 @@ pub(crate) struct State<'a> {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct EscaperGroup {
-    escapers: HashMap<String, String>,
+    escaper: String,
 }
 
 #[derive(Deserialize, Default)]

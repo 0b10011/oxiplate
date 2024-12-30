@@ -10,7 +10,8 @@ use nom::{bytes::complete::take_while, character::complete::char, combinator::op
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::fmt::Debug;
-use syn::Path;
+use syn::token::PathSep;
+use syn::{Path, PathSegment};
 
 pub(crate) struct Writ<'a>(pub Expression<'a>, Option<Path>);
 
@@ -39,10 +40,10 @@ impl ToTokens for Writ<'_> {
             });
         }
 
-        let escaper_function = &self.1;
+        let escaper = &self.1;
 
         tokens.append_all(quote! {
-            write!(f, "{}", #escaper_function(#text))?;
+            write!(f, "{}", ::oxiplate::escape(#escaper, #text))?;
         });
     }
 }
@@ -79,9 +80,31 @@ impl Escaper {
             context("Invalid escaper group specified", fail::<_, (), _>)(group.1.clone())?;
             unreachable!("fail() should always bail early");
         };
-        if let Some(escaper_str) = group.escapers.get(escaper.0) {
-            if let Ok(escaper) = syn::parse_str(escaper_str) {
-                return Ok(Some(escaper));
+
+        // Strip underscores and capitalize first character at the beginning and after underscores.
+        // That is, `hello_world` becomes `HelloWorld`.
+        let mut escaper_variant = String::with_capacity(escaper.0.len());
+        let mut capitalize_next = true;
+        for char in escaper.0.chars() {
+            match (capitalize_next, char) {
+                (_, '_') => capitalize_next = true,
+                (true, _) => {
+                    escaper_variant.push(char.to_ascii_uppercase());
+                    capitalize_next = false;
+                }
+                (_, _) => escaper_variant.push(char),
+            }
+        }
+        if let Ok(escaper) = syn::parse_str::<PathSegment>(&escaper_variant) {
+            if let Ok(group) = syn::parse_str::<Path>(&group.escaper) {
+                if let Ok(sep) = syn::parse_str::<PathSep>("::") {
+                    let path = syn::parse2::<Path>(quote! {
+                        #group #sep #escaper
+                    });
+                    if let Ok(path) = path {
+                        return Ok(Some(path));
+                    }
+                }
             }
         }
 
