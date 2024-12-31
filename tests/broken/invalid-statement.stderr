@@ -1,5 +1,0 @@
-error: Expected one of: block, endblock, if, elseif, else, endif, for, endfor
- --> tests/broken/invalid-statement.rs:4:25
-  |
-4 | #[oxiplate_inline = "{% thisdoesntexist %}"]
-  |                         ^^^^^^^^^^^^^^^^^^

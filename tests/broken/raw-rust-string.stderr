@@ -1,7 +1,0 @@
-error: Backtrace:
-       [line 4, column 36] Expected '-', found '== 3 %}'
-       [line 4, column 36] Alt in "== 3 %}"
- --> tests/broken/raw-rust-string.rs:4:37
-  |
-4 | #[oxiplate_inline = r##"{% if "foo" == 3 %}"##]
-  |                                     ^^^^^^^

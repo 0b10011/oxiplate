@@ -1,5 +1,0 @@
-error: Unexpected 'else' statement
- --> tests/broken/stray-else.rs:4:38
-  |
-4 | #[oxiplate_inline = "{{ action }}{%- else -%}"]
-  |                                      ^^^^

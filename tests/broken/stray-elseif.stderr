@@ -1,5 +1,0 @@
-error: Unexpected 'elseif' statement
- --> tests/broken/stray-elseif.rs:4:26
-  |
-4 | #[oxiplate_inline = "{%- elseif should_do -%}{{ action }}"]
-  |                          ^^^^^^
