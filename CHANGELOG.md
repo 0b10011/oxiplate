@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5](https://github.com/0b10011/oxiplate/compare/v0.1.4...v0.1.5) - 2024-12-31
+
+### Added
+
+- add support for custom escapers and move macro to `oxiplate-derive` crate
+
+### Fixed
+
+- use correct name for escaper group in message
+
+### Other
+
+- use an enum for escapers to reduce boilerplate
+
 ## [0.1.4](https://github.com/0b10011/oxiplate/compare/v0.1.3...v0.1.4) - 2024-12-30
 
 ### Other
