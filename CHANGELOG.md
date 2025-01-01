@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.5...oxiplate-v0.1.6) - 2025-01-01
+
+### Added
+
+- add an escaper for markdown
+
+### Other
+
+- extend `cargo dev` to build docs as well
+- fix path in example
+- add more tests and refactor a bit
+
 ## [0.1.5](https://github.com/0b10011/oxiplate/compare/v0.1.4...v0.1.5) - 2024-12-31
 
 ### Added
