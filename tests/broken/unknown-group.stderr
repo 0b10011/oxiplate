@@ -1,0 +1,7 @@
+error[E0599]: no variant or associated item named `Textt` found for enum `HtmlEscaper` in the current scope
+ --> tests/broken/unknown-group.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^ variant or associated item not found in `HtmlEscaper`
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

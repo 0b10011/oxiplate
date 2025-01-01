@@ -1,0 +1,8 @@
+[package]
+name = "html"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate = { path = "../../../" }

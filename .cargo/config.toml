@@ -1,3 +1,18 @@
 [alias]
-dev = "watch -x build -x fmt -x clippy -x test -x expansion-tests"
-expansion-tests = "test --test expansion -- --ignored"
+dev = [
+    "watch",
+
+    "-x",
+    "fmt",
+
+    "-x",
+    "clippy",
+
+    # Test main package first
+    "-x",
+    "test",
+
+    # Then test the subcrates
+    "-x",
+    "test --exclude oxiplate --workspace",
+]

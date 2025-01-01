@@ -16,10 +16,10 @@ fn variable() {
     };
 
     assert_eq!(
-        format!("{data}"),
-        r"
+        format!("{}", data),
+        r#"
 <p>Hello world!</p>
 <p>&amp;reg;&lt;/p>&lt;script>alert('hey');&lt;/script>&lt;p>&amp;#153;</p>
-"
+"#
     );
 }
