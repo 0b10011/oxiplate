@@ -75,6 +75,7 @@
 //! ```
 
 pub mod html;
+pub mod markdown;
 
 use std::borrow::Cow;
 
