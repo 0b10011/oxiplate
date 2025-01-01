@@ -15,4 +15,7 @@ dev = [
     # Then test the subcrates
     "-x",
     "test --exclude oxiplate --workspace",
+
+    "-x",
+    "doc",
 ]
