@@ -1,0 +1,8 @@
+[[package]]
+name = "oxiplate"
+changelog_include = ["oxiplate_derive"]
+version_group = "oxiplate"
+
+[[package]]
+name = "oxiplate_derive"
+version_group = "oxiplate"
