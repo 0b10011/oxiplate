@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.6...oxiplate-v0.1.8) - 2025-01-06
+
+Merged the macro back in from https://github.com/0b10011/oxiplate-derive/commit/7c965e47dc0714a2e10b9bd8d4f488c101224fff
+
+### Added
+
+- added support for rust keywords as identifiers and cleaned up code along the way
+- improved error message for missing `if` expression
+- shortened source range for errors that don't provide a span
+- building the write format with the templates themselves to reduce the number of arguments needed
+- calling `write_str()` instead of `write_fmt()` for a single static token
+- combined sequential static text and whitespace into a single concat
+- combined sequential static text, whitespace, and writs into a single write call
+
+### Fixed
+
+- improved span information for field/method access
+- use correct module for `escape()`
+- pass escaper by reference to match expectation in the main crate
+
+### Other
+
+- try using package-specific versions instead
+- bring back separate changelog for the macro and fix versions
+- move the derive macro back to the main repo
+- rewrite readme to add badges and point to book/docs
+- `cargo clippy` changes
+- Fix newlines
+- Move templates to their own directory and support nesting
+- Fix hygiene
+- Initial attempt to use `include_str!()` to fetch files
+- Add message about code being experimental
+- Add support for templates stored in separate files
+- Add basic documentation
+- remove some unused code
+- prevent clippy test output from changing based on whether build is required
+- check if spans work with clippy
+- dependency updates
+- fixed repository link
+- changed expansion tests to fail when the expected output for a test is missing
+- build the path to `oxiplate.toml` from the env instead to help with testing
+
+
 ## [0.1.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.5...oxiplate-v0.1.6) - 2025-01-01
 
 ### Added
