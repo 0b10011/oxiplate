@@ -6,16 +6,15 @@ dev = [
     "fmt",
 
     "-x",
-    "clippy",
+    "clippy --all-targets",
 
-    # Test main package first
     "-x",
     "test",
 
-    # Then test the subcrates
     "-x",
-    "test --exclude oxiplate --workspace",
+    "expansion-tests",
 
     "-x",
-    "doc",
+    "doc --lib",
 ]
+expansion-tests = "test --test expansion -- --ignored"

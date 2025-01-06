@@ -1,0 +1,5 @@
+error: "for" statement is never closed (unexpected end of template)
+ --> tests/broken/for-unclosed.rs:4:86
+  |
+4 | #[oxiplate_inline = "{%- for number in numbers -%}{{ number }} + 1 = {{ number + 1 }}"]
+  |                                                                                      ^

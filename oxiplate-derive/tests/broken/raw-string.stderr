@@ -1,0 +1,5 @@
+error: String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening.
+ --> tests/broken/raw-string.rs:5:8
+  |
+5 | {{- ##"hello world"# -}}
+  |        ^

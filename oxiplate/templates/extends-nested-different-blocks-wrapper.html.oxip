@@ -1,0 +1,6 @@
+{% extends "extends-nested-different-blocks-layout.html.oxip" %}
+{% block body -%}
+  <main>
+    {%- block content -%}{%- endblock -%}
+  </main>
+{%- endblock %}

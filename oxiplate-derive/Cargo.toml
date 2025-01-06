@@ -1,0 +1,29 @@
+[package]
+name = "oxiplate-derive"
+description.workspace = true
+version.workspace = true
+authors.workspace = true
+homepage.workspace = true
+readme.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+nom = "7.1"
+proc-macro2 = { version = "1.0.92", features = ["nightly", "span-locations"] }
+quote = "1.0.37"
+serde = { version = "1.0.217", features = ["derive", "serde_derive"] }
+syn = { version = "2.0.91", features = ["full"] }
+toml = "0.8.19"
+
+[dev-dependencies]
+trybuild = "1.0.101"

@@ -1,0 +1,9 @@
+[package]
+name = "clippy-tests"
+edition = "2021"
+
+[dependencies]
+oxiplate-derive = { path = "../../" }
+
+[workspace]
+# This cannot be part of the main workspace because the package fails to build intentionally

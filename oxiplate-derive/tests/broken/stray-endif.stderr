@@ -1,0 +1,5 @@
+error: Unexpected 'endif' statement
+ --> tests/broken/stray-endif.rs:4:38
+  |
+4 | #[oxiplate_inline = "{{ action }}{%- endif -%}"]
+  |                                      ^^^^^

@@ -1,0 +1,7 @@
+<DOCTYPE html>
+<head>
+  <title>{{ title }}</title>
+</head>
+<body>
+  {%- block body -%}{%- endblock -%}
+</body>

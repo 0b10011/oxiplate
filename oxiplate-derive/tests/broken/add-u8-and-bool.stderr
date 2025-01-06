@@ -1,0 +1,12 @@
+error[E0277]: cannot add `bool` to `u8`
+ --> tests/broken/add-u8-and-bool.rs:4:27
+  |
+4 | #[oxiplate_inline = "{{ a + b }}"]
+  |                           ^ no implementation for `u8 + bool`
+  |
+  = help: the trait `Add<bool>` is not implemented for `u8`
+  = help: the following other types implement trait `Add<Rhs>`:
+            `&u8` implements `Add<u8>`
+            `&u8` implements `Add`
+            `u8` implements `Add<&u8>`
+            `u8` implements `Add`

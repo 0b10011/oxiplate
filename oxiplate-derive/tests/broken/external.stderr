@@ -1,0 +1,7 @@
+error[E0609]: no field `message` on type `&Data`
+ --> templates/external.html.oxip
+  |
+  | <p>{{ message }}</p>
+  |       ^^^^^^^ unknown field
+  |
+  = note: available field is: `title`
