@@ -1,8 +1,13 @@
+[workspace]
+release = false
+
 [[package]]
 name = "oxiplate"
+release = true
 changelog_include = ["oxiplate-derive"]
 version_group = "oxiplate"
 
 [[package]]
 name = "oxiplate-derive"
+release = true
 version_group = "oxiplate"
