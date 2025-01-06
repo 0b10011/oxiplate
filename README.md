@@ -1,53 +1,27 @@
-Oxiplate is an *experimental* template system for rust. Use at your own risk.
+# Oxiplate 
 
-# Usage
+[![Latest Version]][crate] [![Repository][]][repo] [![Docs Build Status]][docs] [![MIT License]][license] [![Open Issues]][issues]
 
-## External code
+[Latest Version]: https://img.shields.io/crates/v/oxiplate
+[crate]: https://crates.io/crates/oxiplate
+[Repository]: https://img.shields.io/github/commits-since/0b10011/oxiplate/latest?label=unreleased+commits
+[repo]: https://github.com/0b10011/oxiplate
+[Docs Build Status]: https://img.shields.io/docsrs/oxiplate
+[docs]: https://docs.rs/oxiplate/latest/oxiplate/
+[MIT License]: https://img.shields.io/github/license/0b10011/oxiplate
+[license]: https://github.com/0b10011/oxiplate/blob/main/LICENSE
+[Open Issues]: https://img.shields.io/github/issues-raw/0b10011/oxiplate
+[issues]: https://github.com/0b10011/oxiplate/issues
 
-```rust
-use oxiplate::Oxiplate;
+Oxiplate is an *experimental* compile-time template system for Rust with a focus on escaping and whitespace control. Use at your own risk.
 
-#[derive(Oxiplate)]
-#[oxiplate = "external.html.oxip"]
-struct SomeStruct {
-    // Does not need to be `&'static str`,
-    // but does need to implement `std::fmt::Display`.
-    title: &'static str,
-    message: &'static str,
-}
+## Using Oxiplate in your project
 
-let template = SomeStruct {
-    title: "Oxiplate Example",
-    message: "Hello world!",
-};
+- [Oxiplate overview](https://0b10011.io/oxiplate/)
+- [Getting started guide](https://0b10011.io/oxiplate/getting-started.html)
+- [Release notes](https://github.com/0b10011/oxiplate/releases)
+- [API docs](https://docs.rs/oxiplate)
 
-assert_eq!(
-    format!("{}", template),
-    "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
-);
-```
+## Hacking on Oxiplate
 
-## Inline code
-
-```rust
-use oxiplate::Oxiplate;
-
-#[derive(Oxiplate)]
-#[oxiplate_inline = "<h1>{{ title }}</h1>\n<p>{{ message }}</p>\n"]
-struct SomeStruct {
-    // Does not need to be `&'static str`,
-    // but does need to implement `std::fmt::Display`.
-    title: &'static str,
-    message: &'static str,
-}
-
-let template = SomeStruct {
-    title: "Oxiplate Example",
-    message: "Hello world!",
-};
-
-assert_eq!(
-    format!("{}", template),
-    "<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n"
-);
-```
+- [How to contribute](https://github.com/0b10011/oxiplate/blob/main/CONTRIBUTING.md)
