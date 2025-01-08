@@ -10,6 +10,7 @@ mod state;
 mod syntax;
 
 use proc_macro::TokenStream;
+use proc_macro2::Literal;
 use proc_macro2::Span;
 use quote::quote;
 pub(crate) use source::Source;
@@ -119,18 +120,36 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
         config: &config,
     };
 
-    // Build the source to parse.
-    let data_type = quote! { #ident #generics };
-    let source = parse_attributes(syn::parse2(data_type)?, data, attrs)?;
+    // Parse the template type and code literal.
+    let (attr, template_type) = parse_template_type(attrs);
+    let (span, input, origin) = parse_source_tokens(attr, &template_type);
+    let (code, literal) = parse_code_literal(&input.into(), span, attr)?;
+
+    // Parse the fields and adjust the data type if needed.
+    let data_type = syn::parse2(quote! { #ident #generics })?;
+    let (data_type, _fields, blocks) =
+        parse_fields(data_type, data, template_type == TemplateType::Extends);
+
+    // Build the source.
+    let owned_source = SourceOwned {
+        data_type,
+        blocks,
+        code,
+        literal,
+        span_hygiene: span,
+        origin,
+        is_extending: template_type == TemplateType::Extends,
+    };
     let source = Source {
-        original: &source,
+        original: &owned_source,
         range: Range {
             start: 0,
-            end: source.code.len(),
+            end: owned_source.code.len(),
         },
     };
 
     // Build the `::std::fmt::Display` implementation for the struct.
+    // (This is where the template is actually parsed.)
     let template = syntax::parse(&state, source);
     let where_clause = &generics.where_clause;
     let expanded = quote! {
@@ -145,44 +164,41 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
     Ok(TokenStream::from(expanded))
 }
 
-fn parse_attributes(
-    data_type: Type,
-    data: &Data,
-    attrs: &Vec<Attribute>,
-) -> Result<SourceOwned, syn::Error> {
-    let invalid_attribute_message = r#"Must provide either an external or internal template:
-External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
+#[derive(PartialEq, Eq)]
+enum TemplateType {
+    Path,
+    Inline,
+    Extends,
+}
+
+/// Parse the attributes to figure out what type of template this struct references.
+fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
     for attr in attrs {
-        let is_inline = attr.path().is_ident("oxiplate_inline");
-        let is_extending = attr.path().is_ident("oxiplate_extends");
-        if attr.path().is_ident("oxiplate") || is_inline || is_extending {
-            return parse_attribute(
-                data_type,
-                data,
-                attr,
-                is_inline,
-                is_extending,
-                invalid_attribute_message,
-            );
-        }
+        let path = attr.path();
+        let template_type = if path.is_ident("oxiplate_inline") {
+            TemplateType::Inline
+        } else if path.is_ident("oxiplate_extends") {
+            TemplateType::Extends
+        } else if path.is_ident("oxiplate") {
+            TemplateType::Path
+        } else {
+            continue;
+        };
+
+        return (attr, template_type);
     }
 
     unimplemented!();
 }
 
-fn parse_attribute(
-    data_type: Type,
-    data: &Data,
+fn parse_code_literal(
+    input: &TokenStream,
+    span: Span,
     attr: &Attribute,
-    is_inline: bool,
-    is_extending: bool,
-    invalid_attribute_message: &str,
-) -> Result<SourceOwned, syn::Error> {
-    let (span, input, origin) = parse_source_tokens(attr, is_inline, is_extending);
-
-    // Change the `proc_macro2::TokenStream` to a `proc_macro::TokenStream`
-    let input = proc_macro::TokenStream::from(input);
+) -> Result<(String, Literal), syn::Error> {
+    let invalid_attribute_message = r#"Must provide either an external or internal template:
+External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
 
     // Expand any macros, or fallback to the unexpanded input
     let input = input.expand_expr();
@@ -193,44 +209,44 @@ fn parse_attribute(
 
     // Parse the string and token out of the expanded expression
     let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
-    let (code, literal) = match syn::parse::Parser::parse(parser, input)? {
-        syn::Lit::Str(code) => (code.value(), code.token()),
+    match syn::parse::Parser::parse(parser, input)? {
+        syn::Lit::Str(code) => Ok((code.value(), code.token())),
         _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
-    };
-
-    let (data_type, _fields, blocks) = parse_fields(data_type, data, is_extending);
-
-    // Return the source
-    Ok(SourceOwned {
-        data_type,
-        blocks,
-        code,
-        literal,
-        span_hygiene: span,
-        origin,
-        is_extending,
-    })
+    }
 }
 
 fn parse_source_tokens(
     attr: &Attribute,
-    is_inline: bool,
-    is_extending: bool,
+    template_type: &TemplateType,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
-    if is_inline || is_extending {
-        let syn::Meta::NameValue(MetaNameValue {
-            path: _,
-            eq_token: _,
-            value: input,
-        }) = attr.meta.clone()
-        else {
-            todo!("need to handle when non-name-value data is provided");
-        };
-        // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-        let span = input.span();
-        return (span, quote::quote_spanned!(span=> #input), None);
+    match template_type {
+        TemplateType::Inline | TemplateType::Extends => {
+            parse_source_tokens_for_inline_or_extends(attr)
+        }
+        TemplateType::Path => parse_source_tokens_for_path(attr),
     }
+}
 
+fn parse_source_tokens_for_inline_or_extends(
+    attr: &Attribute,
+) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
+    let syn::Meta::NameValue(MetaNameValue {
+        path: _,
+        eq_token: _,
+        value: input,
+    }) = attr.meta.clone()
+    else {
+        todo!("need to handle when non-name-value data is provided");
+    };
+
+    // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+    let span = input.span();
+    (span, quote::quote_spanned!(span=> #input), None)
+}
+
+fn parse_source_tokens_for_path(
+    attr: &Attribute,
+) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     let syn::Meta::NameValue(MetaNameValue {
         path: _,
         eq_token: _,
