@@ -9,24 +9,20 @@ mod source;
 mod state;
 mod syntax;
 
-use proc_macro::TokenStream;
-use proc_macro2::Literal;
-use proc_macro2::Span;
-use quote::quote;
-pub(crate) use source::Source;
-use source::SourceOwned;
-use state::build_config;
-pub(crate) use state::State;
 use std::collections::HashSet;
 use std::ops::Range;
 use std::path::PathBuf;
+
+use proc_macro::TokenStream;
+use proc_macro2::{Literal, Span};
+use quote::quote;
 use syn::spanned::Spanned;
-use syn::Expr;
-use syn::ExprLit;
-use syn::Lit;
-use syn::MetaNameValue;
-use syn::Type;
-use syn::{Attribute, Data, DeriveInput, Fields};
+use syn::{Attribute, Data, DeriveInput, Expr, ExprLit, Fields, Lit, MetaNameValue, Type};
+
+pub(crate) use self::source::Source;
+use self::source::SourceOwned;
+use self::state::build_config;
+pub(crate) use self::state::State;
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///

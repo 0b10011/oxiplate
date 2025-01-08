@@ -1,10 +1,5 @@
 use std::ops::RangeTo;
 
-use super::{
-    comment::comment, statement::statement, template::whitespace, writ::writ, Res, Statement,
-    Static, Writ,
-};
-use crate::{Source, State};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
@@ -14,6 +9,13 @@ use nom::sequence::tuple;
 use nom::Slice as _;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
+
+use super::comment::comment;
+use super::statement::statement;
+use super::template::whitespace;
+use super::writ::writ;
+use super::{Res, Statement, Static, Writ};
+use crate::{Source, State};
 
 pub(super) enum ItemToken {
     StaticText(TokenStream),

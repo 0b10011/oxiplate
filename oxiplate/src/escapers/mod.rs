@@ -9,8 +9,9 @@
 //! they will be automatically converted to `PascalCase` when converted to an enum variant.
 //!
 //! ```rust
-//! use oxiplate::escapers::Escaper;
 //! use std::borrow::Cow;
+//!
+//! use oxiplate::escapers::Escaper;
 //!
 //! pub enum YourEscaper {
 //! #   #[allow(dead_code)]

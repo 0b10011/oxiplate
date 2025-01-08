@@ -1,18 +1,12 @@
 use std::collections::HashSet;
 
-mod extends;
-use extends::Extends;
 mod block;
-use block::Block;
+mod extends;
 mod r#for;
-use r#for::For;
 mod r#if;
-use r#if::{ElseIf, If};
 
-use super::{Item, Res, Static};
-use crate::syntax::item::tag_end;
-use crate::syntax::template::{is_whitespace, parse_item};
-use crate::{Source, State};
+use block::Block;
+use extends::Extends;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::combinator::{cut, fail};
@@ -20,6 +14,13 @@ use nom::error::context;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
+
+use self::r#for::For;
+use self::r#if::{ElseIf, If};
+use super::{Item, Res, Static};
+use crate::syntax::item::tag_end;
+use crate::syntax::template::{is_whitespace, parse_item};
+use crate::{Source, State};
 
 #[derive(Debug)]
 pub(crate) struct Statement<'a> {

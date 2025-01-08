@@ -1,13 +1,6 @@
 use std::fmt;
 
-use super::super::expression::keyword;
-use super::super::Res;
-use super::{Statement, StatementKind};
-use crate::syntax::template::{is_whitespace, Template};
-use crate::syntax::Item;
-use crate::Source;
-use nom::bytes::complete::take_while1;
-use nom::bytes::complete::{escaped, is_not, tag};
+use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
@@ -15,6 +8,13 @@ use nom::sequence::tuple;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::Type;
+
+use super::super::expression::keyword;
+use super::super::Res;
+use super::{Statement, StatementKind};
+use crate::syntax::template::{is_whitespace, Template};
+use crate::syntax::Item;
+use crate::Source;
 
 pub struct Extends<'a> {
     is_extending: bool,

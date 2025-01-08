@@ -1,8 +1,10 @@
-use super::{item::tag_end, Item, Res, Static};
-use crate::Source;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1};
 use nom::multi::many_till;
+
+use super::item::tag_end;
+use super::{Item, Res, Static};
+use crate::Source;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Comment<'a>(&'a str);

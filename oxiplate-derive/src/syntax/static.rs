@@ -1,15 +1,14 @@
-use super::{
-    item::tag_start,
-    template::{adjusted_whitespace, is_whitespace},
-    Item, Res,
-};
-use crate::Source;
-use nom::bytes::complete::{tag, take_till1, take_while1};
+use nom::branch::alt;
+use nom::bytes::complete::{tag, take_till1, take_while, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
 use nom::multi::many_till;
-use nom::{branch::alt, bytes::complete::take_while};
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
+
+use super::item::tag_start;
+use super::template::{adjusted_whitespace, is_whitespace};
+use super::{Item, Res};
+use crate::Source;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);

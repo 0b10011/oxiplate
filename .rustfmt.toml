@@ -1,1 +1,13 @@
+combine_control_expr = false
 format_code_in_doc_comments = true
+format_macro_matchers = true
+format_macro_bodies = true
+
+# FIXME: This should be true, but it currently breaks the attribute parser.
+format_strings = false
+
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"
+imports_layout = "Mixed"
+normalize_comments = true
+reorder_modules = true

@@ -3,8 +3,11 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+use std::error::Error;
+use std::fs;
 use std::io::Write;
-use std::{error::Error, fs::self, path::Path, process::{Command, Output}};
+use std::path::Path;
+use std::process::{Command, Output};
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "expansion"]
@@ -15,9 +18,9 @@ pub const expansion: test::TestDescAndFn = test::TestDescAndFn {
         ignore: true,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\expansion.rs",
-        start_line: 11usize,
+        start_line: 9usize,
         start_col: 4usize,
-        end_line: 11usize,
+        end_line: 9usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

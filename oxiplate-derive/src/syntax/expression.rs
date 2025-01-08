@@ -1,6 +1,3 @@
-use super::{template::whitespace, Res};
-use crate::syntax::item::tag_end;
-use crate::{Source, State};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
@@ -11,6 +8,11 @@ use nom::sequence::{pair, tuple};
 use proc_macro2::{Group, TokenStream};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::token::Dot;
+
+use super::template::whitespace;
+use super::Res;
+use crate::syntax::item::tag_end;
+use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Keyword<'a>(pub Source<'a>);
@@ -314,7 +316,7 @@ pub enum PrefixOperator<'a> {
 impl ToTokens for PrefixOperator<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         macro_rules! op {
-            ($source: ident, $op: tt) => {{
+            ($source:ident, $op:tt) => {{
                 let span = $source.span();
                 quote_spanned! {span=> $op }
             }};

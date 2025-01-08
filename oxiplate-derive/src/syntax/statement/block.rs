@@ -1,15 +1,15 @@
-use super::super::expression::{ident, keyword, Identifier};
-use super::super::{Item, Res};
-use super::{Statement, StatementKind};
-use crate::syntax::template::{is_whitespace, Template};
-use crate::Source;
-use nom::bytes::complete::tag;
-use nom::bytes::complete::take_while1;
+use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+
+use super::super::expression::{ident, keyword, Identifier};
+use super::super::{Item, Res};
+use super::{Statement, StatementKind};
+use crate::syntax::template::{is_whitespace, Template};
+use crate::Source;
 
 #[derive(Debug)]
 pub struct Block<'a> {

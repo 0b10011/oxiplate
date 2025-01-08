@@ -1,9 +1,8 @@
-use serde::Deserialize;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::env;
-use std::fs;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
+use std::{env, fs};
+
+use serde::Deserialize;
 
 pub(crate) fn build_config() -> Config {
     let root = PathBuf::from(

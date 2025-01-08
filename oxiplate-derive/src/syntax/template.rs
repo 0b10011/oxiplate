@@ -1,16 +1,17 @@
-use crate::State;
-
-use super::item::ItemToken;
-use super::{super::Source, item::parse_tag, r#static::parse_static, Item, Res, Static};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
 use nom::error::VerboseErrorKind;
 use nom::multi::many0;
 use nom::sequence::tuple;
-use proc_macro2::LineColumn;
-use proc_macro2::TokenStream;
+use proc_macro2::{LineColumn, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
+
+use super::super::Source;
+use super::item::{parse_tag, ItemToken};
+use super::r#static::parse_static;
+use super::{Item, Res, Static};
+use crate::State;
 
 #[derive(Debug)]
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);

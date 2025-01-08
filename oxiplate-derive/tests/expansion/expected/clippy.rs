@@ -3,8 +3,11 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+use std::error::Error;
+use std::fs;
 use std::io::Write;
-use std::{error::Error, fs::self, path::Path, process::{Command, Output}};
+use std::path::Path;
+use std::process::{Command, Output};
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker = "clippy"]
@@ -15,9 +18,9 @@ pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\clippy.rs",
-        start_line: 10usize,
+        start_line: 8usize,
         start_col: 4usize,
-        end_line: 10usize,
+        end_line: 8usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,

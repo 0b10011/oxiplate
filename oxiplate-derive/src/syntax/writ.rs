@@ -1,15 +1,20 @@
-use super::expression::{ident, ExpressionAccess, Identifier};
-use super::{expression::expression, item::tag_end, template::is_whitespace, Item, Res, Static};
-use crate::{Source, State};
-use nom::combinator::{cut, fail};
+use std::fmt::Debug;
+
+use nom::bytes::complete::take_while;
+use nom::character::complete::char;
+use nom::combinator::{cut, fail, opt};
 use nom::error::{context, VerboseError};
 use nom::sequence::{preceded, terminated, tuple};
-use nom::{bytes::complete::take_while, character::complete::char, combinator::opt};
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::fmt::Debug;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
+
+use super::expression::{expression, ident, ExpressionAccess, Identifier};
+use super::item::tag_end;
+use super::template::is_whitespace;
+use super::{Item, Res, Static};
+use crate::{Source, State};
 
 pub(crate) struct Writ<'a>(pub ExpressionAccess<'a>, Option<Path>);
 

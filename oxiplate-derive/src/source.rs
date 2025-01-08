@@ -1,21 +1,11 @@
-use nom::Compare;
-use nom::InputIter;
-use nom::InputLength;
-use nom::InputTake;
-use nom::Needed;
-use nom::Offset;
-use nom::Slice;
-use nom::UnspecializedInput;
-use proc_macro2::Literal;
-use proc_macro2::Span;
 use std::fmt;
 use std::iter::Enumerate;
-use std::ops::Range;
-use std::ops::RangeFrom;
-use std::ops::RangeTo;
+use std::ops::{Range, RangeFrom, RangeTo};
 use std::path::PathBuf;
-use std::str::CharIndices;
-use std::str::Chars;
+use std::str::{CharIndices, Chars};
+
+use nom::{Compare, InputIter, InputLength, InputTake, Needed, Offset, Slice, UnspecializedInput};
+use proc_macro2::{Literal, Span};
 use syn::Type;
 
 pub(crate) struct SourceOwned {

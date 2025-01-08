@@ -1,10 +1,6 @@
-use super::super::{expression::expression, Item, Res};
-use super::{State, Statement, StatementKind};
-use crate::syntax::expression::{ident, ExpressionAccess, Identifier};
-use crate::syntax::template::{is_whitespace, Template};
-use crate::Source;
-use nom::bytes::complete::take_while1;
-use nom::bytes::complete::{tag, take_while};
+use std::collections::HashSet;
+
+use nom::bytes::complete::{tag, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
@@ -12,7 +8,13 @@ use nom::multi::many0;
 use nom::sequence::{preceded, tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use std::collections::HashSet;
+
+use super::super::expression::expression;
+use super::super::{Item, Res};
+use super::{State, Statement, StatementKind};
+use crate::syntax::expression::{ident, ExpressionAccess, Identifier};
+use crate::syntax::template::{is_whitespace, Template};
+use crate::Source;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);

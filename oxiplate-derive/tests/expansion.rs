@@ -1,10 +1,8 @@
+use std::error::Error;
+use std::fs;
 use std::io::Write;
-use std::{
-    error::Error,
-    fs::{self},
-    path::Path,
-    process::{Command, Output},
-};
+use std::path::Path;
+use std::process::{Command, Output};
 
 #[test]
 #[ignore]
