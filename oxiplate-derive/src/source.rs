@@ -1,5 +1,5 @@
 use std::fmt;
-use std::iter::Enumerate;
+use std::iter::{Enumerate, Peekable};
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::path::PathBuf;
 use std::str::{CharIndices, Chars};
@@ -7,6 +7,8 @@ use std::str::{CharIndices, Chars};
 use nom::{Compare, InputIter, InputLength, InputTake, Needed, Offset, Slice, UnspecializedInput};
 use proc_macro2::{Literal, Span};
 use syn::Type;
+
+type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 
 pub(crate) struct SourceOwned {
     pub(crate) data_type: Type,
@@ -63,7 +65,7 @@ impl<'a> Source<'a> {
         }
 
         let literal = format!("{}", self.original.literal);
-        let mut chars = literal.chars().enumerate();
+        let mut chars: CharIterator = literal.chars().enumerate().peekable();
 
         let hash_count = Self::parse_open(&mut chars, &mut range);
         Self::parse_interior(&mut chars, &mut range, hash_count);
@@ -84,7 +86,7 @@ impl<'a> Source<'a> {
         }
     }
 
-    fn parse_open(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) -> Option<usize> {
+    fn parse_open(chars: &mut CharIterator<'_>, range: &mut Range<usize>) -> Option<usize> {
         let (pos, char) = chars.next().expect("Unexpected end of string");
         match char {
             'r' => (),
@@ -113,20 +115,20 @@ impl<'a> Source<'a> {
         Some(hash_count)
     }
 
-    fn parse_ascii_escape(chars: &mut Enumerate<Chars<'_>>) {
+    fn parse_7_bit_character_code(chars: &mut CharIterator<'_>, range: &mut Range<usize>) {
         // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
         // Up to 0x7F
         match chars.next().expect("Unexpected end of string") {
-            (_pos, '0'..='7') => (),
+            (pos, '0'..='7') => Self::update_range(range, pos),
             (_pos, char) => panic!("Expected [0-7]; found: {char}"),
         }
         match chars.next().expect("Unexpected end of string") {
-            (_pos, '0'..='9' | 'a'..='f' | 'A'..='F') => (),
+            (pos, '0'..='9' | 'a'..='f' | 'A'..='F') => Self::update_range(range, pos),
             (_pos, char) => panic!("Expected [0-9a-f]; found: {char}"),
         }
     }
 
-    fn parse_unicode_escape(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) {
+    fn parse_unicode_escape(chars: &mut CharIterator<'_>, range: &mut Range<usize>) {
         let mut unicode_chars_parsed = -1;
         let mut unicode_code = String::new();
         loop {
@@ -169,25 +171,39 @@ impl<'a> Source<'a> {
         }
     }
 
-    fn parse_escape(chars: &mut Enumerate<Chars<'_>>, range: &mut Range<usize>) {
-        let (_pos, char) = chars.next().expect("Unexpected end of string");
+    fn parse_string_continuation(chars: &mut CharIterator, range: &mut Range<usize>) {
+        while let Some((_pos, char)) = chars.peek() {
+            match char {
+                '\u{0009}' | '\u{000A}' | '\u{000D}' | '\u{0020}' => {
+                    let (pos, _char) = chars.next().unwrap();
+                    Self::update_range(range, pos);
+                }
+                _ => return,
+            }
+        }
+    }
+
+    fn parse_escape(chars: &mut CharIterator<'_>, range: &mut Range<usize>) {
+        let (pos, char) = chars.next().expect("Unexpected end of string");
         match char {
             // https://doc.rust-lang.org/reference/tokens.html#quote-escapes
             // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
             '\'' | '"' | 'n' | 'r' | 't' | '\\' | '0' => (),
             // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
-            'x' => Self::parse_ascii_escape(chars),
+            'x' => Self::parse_7_bit_character_code(chars, range),
             // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
             'u' => Self::parse_unicode_escape(chars, range),
-            _ => panic!(
-                "Expected ', \", n, r, t, \\, 0, x, or {}; found: {}",
-                '{', char
-            ),
+            // https://doc.rust-lang.org/reference/expressions/literal-expr.html#string-continuation-escapes
+            '\n' => {
+                Self::update_range(range, pos);
+                Self::parse_string_continuation(chars, range);
+            }
+            _ => panic!(r#"Expected ', ", n, r, t, \, 0, x, u, or \n; found: {char}"#),
         }
     }
 
     fn parse_interior(
-        chars: &mut Enumerate<Chars<'_>>,
+        chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
         hash_count: Option<usize>,
     ) {

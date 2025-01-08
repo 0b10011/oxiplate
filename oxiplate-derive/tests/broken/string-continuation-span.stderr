@@ -1,0 +1,5 @@
+error: Expected an expression.
+ --> tests/broken/string-continuation-span.rs:5:7
+  |
+5 |     {{"]
+  |       ^
