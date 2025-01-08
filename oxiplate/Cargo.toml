@@ -15,7 +15,7 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-oxiplate-derive = { version = "0.1.3", path = "../oxiplate-derive" }
+oxiplate-derive = { version = "0.1.9", path = "../oxiplate-derive" }
 
 [dev-dependencies]
 trybuild = "1.0.101"
