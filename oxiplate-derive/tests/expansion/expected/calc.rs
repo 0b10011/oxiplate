@@ -9,7 +9,10 @@ use oxiplate_derive::Oxiplate;
 {{ max }} - {{ min }} = {{ max - min }}
 {{ max }} * {{ min }} = {{ max * min }}
 {{ max }} / {{ min }} = {{ max / min }}
-{{ max }} % {{ min }} = {{ max % min }}"]
+{{ max }} % {{ min }} = {{ max % min }}
+{{ min }} + {{ min }} * {{ max }} = {{ min + min * max }}
+{{ max }} + {{ max }} / {{ min }} = {{ max + max / min }}
+{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"]
 struct Math {
     min: i16,
     max: i16,
@@ -18,10 +21,13 @@ impl ::std::fmt::Display for Math {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0} + {1} = {2}\n{3} - {4} = {5}\n{6} * {7} = {8}\n{9} / {10} = {11}\n{12} % {13} = {14}",
+                "{0} + {1} = {2}\n{3} - {4} = {5}\n{6} * {7} = {8}\n{9} / {10} = {11}\n{12} % {13} = {14}\n{15} + {16} * {17} = {18}\n{19} + {20} / {21} = {22}\n{23} - {24} % {25} = {26}",
                 self.max, self.min, self.max + self.min, self.max, self.min, self.max -
                 self.min, self.max, self.min, self.max * self.min, self.max, self.min,
-                self.max / self.min, self.max, self.min, self.max % self.min
+                self.max / self.min, self.max, self.min, self.max % self.min, self.min,
+                self.min, self.max, self.min + self.min * self.max, self.max, self.max,
+                self.min, self.max + self.max / self.min, self.max, self.min, self.min,
+                self.max - self.min % self.min
             ),
         )?;
         Ok(())
@@ -37,9 +43,9 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\calc.rs",
-        start_line: 16usize,
+        start_line: 19usize,
         start_col: 4usize,
-        end_line: 16usize,
+        end_line: 19usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -59,7 +65,10 @@ fn test_math() {
 89 - 19 = 70
 89 * 19 = 1691
 89 / 19 = 4
-89 % 19 = 13",
+89 % 19 = 13
+19 + 19 * 89 = 1710
+89 + 89 / 19 = 93
+89 - 19 % 19 = 89",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -109,9 +118,9 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\calc.rs",
-        start_line: 43usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 43usize,
+        end_line: 49usize,
         end_col: 20usize,
         compile_fail: false,
         no_run: false,
@@ -158,7 +167,10 @@ fn test_comparisons() {
 {{ yes }} && {{ yes }} = {{ yes && yes2 }}
 {{ yes }} && {{ no }} = {{ yes && no }}
 {{ no }} && {{ yes }} = {{ no && yes }}
-{{ no }} && {{ no }} = {{ no && no2 }}"]
+{{ no }} && {{ no }} = {{ no && no2 }}
+{{ yes }} || {{ no }} && {{ no }} = {{ yes || no && no2 }}
+{{ no }} || {{ yes }} && {{ no }} = {{ no || yes && no2 }}
+{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"]
 #[allow(clippy::struct_excessive_bools)]
 struct OrAnd {
     yes: bool,
@@ -170,12 +182,15 @@ impl ::std::fmt::Display for OrAnd {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0} || {1} = {2}\n{3} || {4} = {5}\n{6} || {7} = {8}\n{9} || {10} = {11}\n{12} && {13} = {14}\n{15} && {16} = {17}\n{18} && {19} = {20}\n{21} && {22} = {23}",
+                "{0} || {1} = {2}\n{3} || {4} = {5}\n{6} || {7} = {8}\n{9} || {10} = {11}\n{12} && {13} = {14}\n{15} && {16} = {17}\n{18} && {19} = {20}\n{21} && {22} = {23}\n{24} || {25} && {26} = {27}\n{28} || {29} && {30} = {31}\n{32} || {33} && {34} = {35}",
                 self.yes, self.yes, self.yes || self.yes2, self.yes, self.no, self.yes ||
                 self.no, self.no, self.yes, self.no || self.yes, self.no, self.no, self
                 .no || self.no2, self.yes, self.yes, self.yes && self.yes2, self.yes,
                 self.no, self.yes && self.no, self.no, self.yes, self.no && self.yes,
-                self.no, self.no, self.no && self.no2
+                self.no, self.no, self.no && self.no2, self.yes, self.no, self.no, self
+                .yes || self.no && self.no2, self.no, self.yes, self.no, self.no || self
+                .yes && self.no2, self.no, self.yes, self.yes, self.no || self.yes &&
+                self.yes2
             ),
         )?;
         Ok(())
@@ -191,9 +206,9 @@ pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\calc.rs",
-        start_line: 76usize,
+        start_line: 85usize,
         start_col: 4usize,
-        end_line: 76usize,
+        end_line: 85usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
@@ -224,7 +239,10 @@ false || false = false
 true && true = true
 true && false = false
 false && true = false
-false && false = false",
+false && false = false
+true || false && false = true
+false || true && false = false
+false || true && true = true",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
