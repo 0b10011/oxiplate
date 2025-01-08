@@ -6,7 +6,10 @@ use oxiplate_derive::Oxiplate;
 {{ max }} - {{ min }} = {{ max - min }}
 {{ max }} * {{ min }} = {{ max * min }}
 {{ max }} / {{ min }} = {{ max / min }}
-{{ max }} % {{ min }} = {{ max % min }}"]
+{{ max }} % {{ min }} = {{ max % min }}
+{{ min }} + {{ min }} * {{ max }} = {{ min + min * max }}
+{{ max }} + {{ max }} / {{ min }} = {{ max + max / min }}
+{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"]
 struct Math {
     min: i16,
     max: i16,
@@ -22,7 +25,10 @@ fn test_math() {
 89 - 19 = 70
 89 * 19 = 1691
 89 / 19 = 4
-89 % 19 = 13"
+89 % 19 = 13
+19 + 19 * 89 = 1710
+89 + 89 / 19 = 93
+89 - 19 % 19 = 89"
     );
 }
 
