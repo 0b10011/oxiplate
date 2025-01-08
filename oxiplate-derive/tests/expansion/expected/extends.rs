@@ -9,8 +9,8 @@ struct AbsoluteData {
     title: &'static str,
     message: &'static str,
 }
-impl std::fmt::Display for AbsoluteData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for AbsoluteData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
             f.write_fmt(
                 format_args!("<h1>{0}</h1>\n  <p>{1}</p>", self.title, self.message),
@@ -25,11 +25,11 @@ impl std::fmt::Display for AbsoluteData {
             _data: &'a AbsoluteData,
             content: &'a F,
         }
-        impl<'a, F> std::fmt::Display for Template<'a, F>
+        impl<'a, F> ::std::fmt::Display for Template<'a, F>
         where
             F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
         {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
                         "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title

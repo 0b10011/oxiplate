@@ -9,8 +9,8 @@ struct Data {
     title: &'static str,
     message: &'static str,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("{0} / {1}", self.title, self.message))?;
         Ok(())
     }

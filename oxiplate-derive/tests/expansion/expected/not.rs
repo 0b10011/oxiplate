@@ -11,8 +11,8 @@ use oxiplate_derive::Oxiplate;
 struct Not {
     foo: bool,
 }
-impl std::fmt::Display for Not {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Not {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if !self.foo {
             f.write_str("Yay")?;
         }

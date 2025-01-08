@@ -11,8 +11,8 @@ struct User {
 struct Data {
     user: User,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("{0}", self.user.name))?;
         Ok(())
     }

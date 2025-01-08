@@ -6,8 +6,8 @@ extern crate std;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline = "Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !"]
 struct AdjustedWhitespace {}
-impl std::fmt::Display for AdjustedWhitespace {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for AdjustedWhitespace {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_str("Hello world!")?;
         Ok(())
     }
@@ -63,8 +63,8 @@ struct WritWhitespaceControl {
     username: &'static str,
     name: &'static str,
 }
-impl std::fmt::Display for WritWhitespaceControl {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for WritWhitespaceControl {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("Hello {0} ({1})!", self.username, self.name))?;
         Ok(())
     }
@@ -122,8 +122,8 @@ fn writ_whitespace_control() {
 struct WritPreserveSpaceless {
     username: &'static str,
 }
-impl std::fmt::Display for WritPreserveSpaceless {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for WritPreserveSpaceless {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("Hello @{0}!", self.username))?;
         Ok(())
     }
@@ -178,8 +178,8 @@ fn writ_preserve_spaceless() {
 }
 #[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t {#- Hey another comment -#}  \t\t  \r\n\t )!"]
 struct CommentWhitespaceControl {}
-impl std::fmt::Display for CommentWhitespaceControl {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for CommentWhitespaceControl {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_str("Hello  ()!")?;
         Ok(())
     }
@@ -232,8 +232,8 @@ fn comment_whitespace_control() {
 }
 #[oxiplate_inline = "Hello @{#_ Comment! _#}!"]
 struct CommentPreserveSpaceless {}
-impl std::fmt::Display for CommentPreserveSpaceless {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for CommentPreserveSpaceless {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_str("Hello @!")?;
         Ok(())
     }

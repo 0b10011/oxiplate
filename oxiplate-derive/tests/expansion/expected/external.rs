@@ -9,8 +9,8 @@ struct AbsoluteData {
     title: &'static str,
     message: &'static str,
 }
-impl std::fmt::Display for AbsoluteData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for AbsoluteData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!("<h1>{0}</h1>\n<p>{1}</p>\n", self.title, self.message),
         )?;

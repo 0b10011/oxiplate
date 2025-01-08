@@ -18,8 +18,8 @@ struct Data {
     check: bool,
     ty: Type,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if self.check {
             f.write_str("bar")?;
         } else if let Type::Text(text) = &self.ty {

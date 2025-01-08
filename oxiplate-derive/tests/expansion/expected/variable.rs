@@ -8,8 +8,8 @@ use oxiplate_derive::Oxiplate;
 struct Data {
     message: &'static str,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("{0}", self.message))?;
         Ok(())
     }

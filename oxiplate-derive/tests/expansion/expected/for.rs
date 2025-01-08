@@ -11,8 +11,8 @@ use oxiplate_derive::Oxiplate;
 struct Data {
     values: Vec<&'static str>,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         for value in &self.values {
             f.write_fmt(format_args!("{0}<br>", value))?;
         }
@@ -74,8 +74,8 @@ fn test_for() {
 struct Accounts {
     people: Vec<Person>,
 }
-impl std::fmt::Display for Accounts {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Accounts {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         for person in &self.people {
             f.write_fmt(format_args!("{0}<br>", person.get_name()))?;
         }
@@ -151,8 +151,8 @@ struct ShadowVariable {
     values: Vec<&'static str>,
     value: &'static str,
 }
-impl std::fmt::Display for ShadowVariable {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for ShadowVariable {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(format_args!("{0}!\n", self.value))?;
         for value in &self.values {
             f.write_fmt(format_args!("{0}\n", value))?;
@@ -224,8 +224,8 @@ hello world again :D",
 struct Functions {
     functions: Vec<fn() -> i32>,
 }
-impl std::fmt::Display for Functions {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Functions {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         for function in &self.functions {
             f.write_fmt(format_args!("{0}\n", function()))?;
         }

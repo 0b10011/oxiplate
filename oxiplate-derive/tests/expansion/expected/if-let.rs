@@ -22,8 +22,8 @@ struct Data {
     cats_count: Option<u8>,
     name: Option<String>,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if let Some(count) = &self.cats_count {
             if let Some(name) = &self.name {
                 f.write_fmt(format_args!("Found {0} cats named {1}!", count, name))?;

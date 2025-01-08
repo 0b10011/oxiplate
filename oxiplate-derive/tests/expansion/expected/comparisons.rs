@@ -8,8 +8,8 @@ use oxiplate_derive::Oxiplate;
 struct Comparison {
     value: &'static str,
 }
-impl std::fmt::Display for Comparison {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Comparison {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if self.value == "foo" {
             f.write_str("bar")?;
         }

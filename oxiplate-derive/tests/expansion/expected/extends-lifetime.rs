@@ -9,8 +9,8 @@ struct AbsoluteData<'a> {
     title: &'a str,
     message: &'a str,
 }
-impl<'a> std::fmt::Display for AbsoluteData<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
             f.write_fmt(
                 format_args!("<h2>{0}</h2>\n  <div>{1}</div>", self.title, self.message),
@@ -25,11 +25,11 @@ impl<'a> std::fmt::Display for AbsoluteData<'a> {
             _data: &'a AbsoluteData<'a>,
             content: &'a F,
         }
-        impl<'a, F> std::fmt::Display for Template<'a, F>
+        impl<'a, F> ::std::fmt::Display for Template<'a, F>
         where
             F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
         {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 let content = self.content;
                 #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
                 struct ExtendingTemplate<'a, F>
@@ -39,11 +39,14 @@ impl<'a> std::fmt::Display for AbsoluteData<'a> {
                     _data: &'a &'a AbsoluteData<'a>,
                     content: &'a F,
                 }
-                impl<'a, F> std::fmt::Display for ExtendingTemplate<'a, F>
+                impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
                 where
                     F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
-                    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn fmt(
+                        &self,
+                        f: &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result {
                         f.write_fmt(
                             format_args!(
                                 "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title

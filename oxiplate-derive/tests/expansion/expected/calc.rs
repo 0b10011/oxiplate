@@ -14,8 +14,8 @@ struct Math {
     min: i16,
     max: i16,
 }
-impl std::fmt::Display for Math {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Math {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
                 "{0} + {1} = {2}\n{3} - {4} = {5}\n{6} * {7} = {8}\n{9} / {10} = {11}\n{12} % {13} = {14}",
@@ -85,8 +85,8 @@ struct Comparisons {
     min: i16,
     max: i16,
 }
-impl std::fmt::Display for Comparisons {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Comparisons {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
                 "{0} == {1} = {2}\n{3} != {4} = {5}\n{6} > {7} = {8}\n{9} < {10} = {11}\n{12} >= {13} = {14}\n{15} <= {16} = {17}",
@@ -166,8 +166,8 @@ struct OrAnd {
     no: bool,
     no2: bool,
 }
-impl std::fmt::Display for OrAnd {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for OrAnd {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
                 "{0} || {1} = {2}\n{3} || {4} = {5}\n{6} || {7} = {8}\n{9} || {10} = {11}\n{12} && {13} = {14}\n{15} && {16} = {17}\n{18} && {19} = {20}\n{21} && {22} = {23}",

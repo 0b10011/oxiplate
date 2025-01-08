@@ -9,8 +9,8 @@ use oxiplate_derive::Oxiplate;
 struct Data {
     value: bool,
 }
-impl std::fmt::Display for Data {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ::std::fmt::Display for Data {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if self.value {
             f.write_str("foo")?;
         }
