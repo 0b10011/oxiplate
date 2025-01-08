@@ -6,18 +6,17 @@
 #![doc = include_str!("../README.md")]
 
 mod source;
+mod state;
 mod syntax;
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
-use serde::Deserialize;
 pub(crate) use source::Source;
 use source::SourceOwned;
-use std::collections::HashMap;
+use state::build_config;
+pub(crate) use state::State;
 use std::collections::HashSet;
-use std::env;
-use std::fs;
 use std::ops::Range;
 use std::path::PathBuf;
 use syn::spanned::Spanned;
@@ -27,26 +26,6 @@ use syn::Lit;
 use syn::MetaNameValue;
 use syn::Type;
 use syn::{Attribute, Data, DeriveInput, Fields};
-
-pub(crate) struct State<'a> {
-    local_variables: &'a HashSet<&'a str>,
-    config: &'a Config,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct EscaperGroup {
-    escaper: String,
-}
-
-#[derive(Deserialize, Default)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct Config {
-    #[serde(default)]
-    default_escaper_group: Option<String>,
-    #[serde(default)]
-    escaper_groups: HashMap<String, EscaperGroup>,
-}
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -106,13 +85,16 @@ pub(crate) struct Config {
 /// ```
 #[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
-    match parse(input) {
+    match parse_template_and_data(input) {
         Ok(token_stream) => token_stream,
         Err(err) => err.to_compile_error().into(),
     }
 }
 
-fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
+/// Parses the template information from the attributes
+/// and data information from the associated struct.
+/// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
+fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
         attrs,
@@ -122,42 +104,23 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
         ..
     } = &input;
 
-    let mut field_names: Vec<&syn::Ident> = Vec::new();
+    // Ensure the data is a struct
     match data {
-        Data::Struct(ref struct_item) => {
-            if let Fields::Named(fields) = &struct_item.fields {
-                for field in &fields.named {
-                    match &field.ident {
-                        Some(name) => field_names.push(name),
-                        None => field.span().unwrap().error("Expected a named field").emit(),
-                    }
-                }
-            }
-        }
+        Data::Struct(ref _struct_item) => (),
         _ => {
             return Err(syn::Error::new(input.span(), "Expected a struct"));
         }
-    };
+    }
 
-    let data_type = quote! { #ident #generics };
-    let root = PathBuf::from(
-        env::var("CARGO_MANIFEST_DIR_OVERRIDE")
-            .or(env::var("CARGO_MANIFEST_DIR"))
-            .unwrap(),
-    );
-    let config_path = root.join("oxiplate.toml");
-    let config: Config = if let Ok(toml) = fs::read_to_string(config_path.clone()) {
-        toml::from_str(&toml).expect("Failed to parse oxiplate.toml")
-    } else {
-        Config {
-            default_escaper_group: None,
-            escaper_groups: HashMap::new(),
-        }
-    };
+    // Build the shared state from the `oxiplate.toml` file.
+    let config = build_config();
     let state = State {
         local_variables: &HashSet::new(),
         config: &config,
     };
+
+    // Build the source to parse.
+    let data_type = quote! { #ident #generics };
     let source = parse_attributes(syn::parse2(data_type)?, data, attrs)?;
     let source = Source {
         original: &source,
@@ -166,8 +129,9 @@ fn parse(input: TokenStream) -> Result<TokenStream, syn::Error> {
             end: source.code.len(),
         },
     };
-    let template = syntax::parse(&state, source);
 
+    // Build the `::std::fmt::Display` implementation for the struct.
+    let template = syntax::parse(&state, source);
     let where_clause = &generics.where_clause;
     let expanded = quote! {
         impl #generics ::std::fmt::Display for #ident #generics #where_clause {
@@ -208,7 +172,7 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
 }
 
 fn parse_attribute(
-    mut data_type: Type,
+    data_type: Type,
     data: &Data,
     attr: &Attribute,
     is_inline: bool,
@@ -234,30 +198,7 @@ fn parse_attribute(
         _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
     };
 
-    let mut blocks = vec![];
-    if is_extending {
-        match data {
-            Data::Struct(ref struct_item) => {
-                if let Fields::Named(fields) = &struct_item.fields {
-                    for field in &fields.named {
-                        match &field.ident {
-                            Some(name) => {
-                                if *name == "_data" {
-                                    data_type = field.ty.clone();
-                                } else {
-                                    blocks.push(name.to_string());
-                                }
-                            }
-                            None => {
-                                field.span().unwrap().error("Expected a named field").emit();
-                            }
-                        }
-                    }
-                }
-            }
-            _ => unreachable!("Should have checked this doesn't happen already"),
-        }
-    }
+    let (data_type, _fields, blocks) = parse_fields(data_type, data, is_extending);
 
     // Return the source
     Ok(SourceOwned {
@@ -328,4 +269,46 @@ fn parse_source_tokens(
         quote::quote_spanned!(span=> include_str!(#path)),
         Some(full_path),
     )
+}
+
+fn parse_fields(
+    mut data_type: Type,
+    data: &Data,
+    is_extending: bool,
+) -> (
+    syn::Type,
+    std::vec::Vec<&proc_macro2::Ident>,
+    std::vec::Vec<std::string::String>,
+) {
+    let mut field_names: Vec<&syn::Ident> = Vec::new();
+    let mut blocks: Vec<String> = vec![];
+
+    match data {
+        Data::Struct(ref struct_item) => match &struct_item.fields {
+            // A named struct like `Data { title: &'static str }`.
+            Fields::Named(fields) => {
+                for field in &fields.named {
+                    match &field.ident {
+                        Some(name) => {
+                            if !is_extending {
+                                field_names.push(name);
+                            } else if *name == "_data" {
+                                data_type = field.ty.clone();
+                            } else {
+                                blocks.push(name.to_string());
+                            }
+                        }
+                        None => unreachable!("Named fields should always have a name."),
+                    }
+                }
+            }
+
+            // While there aren't any accessible fields,
+            // it could still be useful to have a template set up as one of these.
+            Fields::Unnamed(_) | Fields::Unit => (),
+        },
+        _ => unreachable!("Data should have already been verified to be a struct"),
+    }
+
+    (data_type, field_names, blocks)
 }
