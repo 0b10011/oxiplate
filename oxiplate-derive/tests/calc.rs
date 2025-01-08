@@ -63,7 +63,10 @@ fn test_comparisons() {
 {{ yes }} && {{ yes }} = {{ yes && yes2 }}
 {{ yes }} && {{ no }} = {{ yes && no }}
 {{ no }} && {{ yes }} = {{ no && yes }}
-{{ no }} && {{ no }} = {{ no && no2 }}"]
+{{ no }} && {{ no }} = {{ no && no2 }}
+{{ yes }} || {{ no }} && {{ no }} = {{ yes || no && no2 }}
+{{ no }} || {{ yes }} && {{ no }} = {{ no || yes && no2 }}
+{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"]
 #[allow(clippy::struct_excessive_bools)]
 struct OrAnd {
     yes: bool,
@@ -90,6 +93,9 @@ false || false = false
 true && true = true
 true && false = false
 false && true = false
-false && false = false"
+false && false = false
+true || false && false = true
+false || true && false = false
+false || true && true = true"
     );
 }
