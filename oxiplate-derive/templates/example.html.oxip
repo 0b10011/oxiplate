@@ -1,0 +1,4 @@
+<!DOCTYPE html>
+<title>{{ title }} - {{ site_name }}</title>
+<h1>{{ title }}</h1>
+<p>{{ message }}</p>

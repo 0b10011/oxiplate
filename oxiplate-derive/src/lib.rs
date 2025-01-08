@@ -48,6 +48,62 @@ pub(crate) struct Config {
     escaper_groups: HashMap<String, EscaperGroup>,
 }
 
+/// Derives the `::std::fmt::Display` implementation for a template's struct.
+///
+/// # Usage
+///
+/// See the [getting started docs](https://0b10011.io/oxiplate/getting-started.html) for more information.
+///
+/// ```
+/// # use oxiplate_derive::Oxiplate;
+/// #[derive(Oxiplate)]
+/// #[oxiplate = "example.html.oxip"]
+/// struct Homepage {
+///     // ...
+/// #    site_name: &'static str,
+/// #    title: &'static str,
+/// #    message: &'static str,
+/// }
+///
+/// fn main() {
+///     let homepage = Homepage {
+///         // ...
+/// #        site_name: "Oxiplate Documentation",
+/// #        title: "Derive Macro Description",
+/// #        message: "Hello world!",
+///     };
+///     print!("{}", homepage);
+/// }
+/// ```
+///
+/// or:
+///
+/// ```
+/// # use oxiplate_derive::Oxiplate;
+/// #[derive(Oxiplate)]
+/// #[oxiplate_inline = "{-}
+/// <!DOCTYPE html>
+/// <title>{{ title }} - {{ site_name }}</title>
+/// <h1>{{ title }}</h1>
+/// <p>{{ message }}</p>
+/// "]
+/// struct Homepage {
+///     // ...
+/// #    site_name: &'static str,
+/// #    title: &'static str,
+/// #    message: &'static str,
+/// }
+///
+/// fn main() {
+///     let homepage = Homepage {
+///         // ...
+/// #        site_name: "Oxiplate Documentation",
+/// #        title: "Derive Macro Description",
+/// #        message: "Hello world!",
+///     };
+///     print!("{}", homepage);
+/// }
+/// ```
 #[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     match parse(input) {
