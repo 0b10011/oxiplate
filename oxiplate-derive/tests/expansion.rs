@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::error::Error;
 use std::fs;
 use std::io::Write;
@@ -9,16 +10,20 @@ use std::process::{Command, Output};
 fn expansion() -> Result<(), Box<dyn Error>> {
     let expected_destination = Path::new("tests/expansion/expected/");
     let actual_destination = Path::new("tests/expansion/actual/");
+    clear_directory_except_gitignore(actual_destination)?;
     let mut mismatched = 0;
+    let mut expected_paths = HashSet::new();
     for entry in fs::read_dir("tests")? {
         let entry = entry?;
         let expected_expansion_path = expected_destination.join(entry.file_name());
         let actual_expansion_path = actual_destination.join(entry.file_name());
 
         // Skip non-files (directories)
-        if !entry.file_type()?.is_file() || entry.path().to_str() == Some(file!()) {
+        if !entry.file_type()?.is_file() || entry.file_name().to_str() == Some("expansion.rs") {
             continue;
         }
+
+        expected_paths.insert(expected_expansion_path.to_string_lossy().into_owned());
 
         let test_name_path = entry.path().with_extension("");
         let test_name = test_name_path
@@ -75,8 +80,43 @@ fn expansion() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    // Check if there are any leftover files from deleted test files.
+    for entry in fs::read_dir(expected_destination)? {
+        let entry = entry?;
+
+        // Skip non-files (directories) and expected paths
+        if !entry.file_type()?.is_file()
+            || expected_paths.contains(&entry.path().to_string_lossy().to_string())
+        {
+            continue;
+        }
+
+        mismatched += 1;
+        writeln!(
+            std::io::stdout(),
+            "found expected/{}, but no associated test exists or expansion is intentionally \
+             ignored for it; delete it?",
+            entry.file_name().to_string_lossy()
+        )?;
+    }
+
     if mismatched > 0 {
         Err("One or more expansions test results were mismatched or missing")?;
+    }
+
+    Ok(())
+}
+
+fn clear_directory_except_gitignore(actual_destination: &Path) -> Result<(), Box<dyn Error>> {
+    for entry in fs::read_dir(actual_destination)? {
+        let entry = entry?;
+
+        // Skip non-files (directories) and the `.gitignore`
+        if !entry.file_type()?.is_file() || entry.file_name() == ".gitignore" {
+            continue;
+        }
+
+        fs::remove_file(entry.path())?;
     }
 
     Ok(())
