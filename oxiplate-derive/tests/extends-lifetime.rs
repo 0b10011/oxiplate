@@ -16,6 +16,7 @@ fn absolute() {
 
     assert_eq!(
         format!("{data}"),
-        "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  <div>Hello world!</div>\n"
+        "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
+         <div>Hello world!</div>\n"
     );
 }

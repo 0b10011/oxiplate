@@ -110,7 +110,9 @@ fn absolute() {
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
         }),
-        &"<DOCTYPE html>\n<head>\n  <title>Oxiplate Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello world!</p></main></body>\n",
+        &"<DOCTYPE html>\n<head>\n  <title>Oxiplate \
+         Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello \
+         world!</p></main></body>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

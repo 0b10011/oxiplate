@@ -12,7 +12,8 @@ fn adjusted_whitespace() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name -}}  \t\t  \r\n\t )!"]
+#[oxiplate_inline = "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name \
+                     -}}  \t\t  \r\n\t )!"]
 struct WritWhitespaceControl {
     username: &'static str,
     name: &'static str,
@@ -42,7 +43,8 @@ fn writ_preserve_spaceless() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t {#- Hey another comment -#}  \t\t  \r\n\t )!"]
+#[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t \
+                     {#- Hey another comment -#}  \t\t  \r\n\t )!"]
 struct CommentWhitespaceControl {}
 
 #[test]

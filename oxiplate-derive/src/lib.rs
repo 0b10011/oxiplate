@@ -264,13 +264,21 @@ fn parse_source_tokens_for_path(
     // Path::join() doesn't play well with absolute paths (for our use case).
     let templates_dir_root = root.join(templates_dir.clone());
     if !templates_dir_root.starts_with(root) {
-        panic!("OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of '/templates'. Provided: {}", templates_dir.display());
+        panic!(
+            "OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of \
+             '/templates'. Provided: {}",
+            templates_dir.display()
+        );
     }
 
     // Path::join() doesn't play well with absolute paths (for our use case).
     let full_path = templates_dir_root.join(path.value());
     if !full_path.starts_with(templates_dir_root) {
-        panic!("Template path must be a relative path; example 'template.oxip' instead of '/template.oxip'. Provided: {}", path.value());
+        panic!(
+            "Template path must be a relative path; example 'template.oxip' instead of \
+             '/template.oxip'. Provided: {}",
+            path.value()
+        );
     }
     let span = path.span();
     let path = syn::LitStr::new(&full_path.to_string_lossy(), span);

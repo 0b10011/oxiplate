@@ -79,7 +79,8 @@ fn absolute() {
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
         }),
-        &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello world!</p>\n",
+        &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
+         world!</p>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -104,9 +105,9 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\extends.rs",
-        start_line: 24usize,
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 24usize,
+        end_line: 25usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -128,7 +129,8 @@ fn absolute_2() {
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
         }),
-        &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  <p>Goodbye world!</p>\n",
+        &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  \
+         <p>Goodbye world!</p>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

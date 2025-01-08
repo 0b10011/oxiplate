@@ -99,7 +99,8 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             mismatched += 1;
             writeln!(
                 std::io::stdout(),
-                "expansion of {test_name} ... tests/clippy/expected/{test_name}.rs.stderr is missing"
+                "expansion of {test_name} ... tests/clippy/expected/{test_name}.rs.stderr is \
+                 missing"
             )?;
         }
     }

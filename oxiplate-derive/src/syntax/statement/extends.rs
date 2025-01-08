@@ -53,11 +53,18 @@ impl<'a> Extends<'a> {
                 kind: StatementKind::Block(_),
                 ..
             }) => self.template.0.push(item),
-            Item::Statement(_) => unimplemented!("Statements are not allowed here. Only comments, whitespace, and blocks are allowed."),
+            Item::Statement(_) => unimplemented!(
+                "Statements are not allowed here. Only comments, whitespace, and blocks are \
+                 allowed."
+            ),
 
             // No static text or writs allowed
-            Item::Static(_) => unimplemented!("Text is not allowed here. Only comments, whitespace, and blocks are allowed."),
-            Item::Writ(_) => unimplemented!("Writs are not allowed here. Only comments, whitespace, and blocks are allowed."),
+            Item::Static(_) => unimplemented!(
+                "Text is not allowed here. Only comments, whitespace, and blocks are allowed."
+            ),
+            Item::Writ(_) => unimplemented!(
+                "Writs are not allowed here. Only comments, whitespace, and blocks are allowed."
+            ),
         }
     }
 }
