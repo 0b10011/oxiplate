@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.8...oxiplate-derive-v0.1.9) - 2025-01-08
+
+### Fixed
+
+- building templates when `std` is overridden
+
+### Other
+
+- add additional rustfmt rules and reformat
+- cleaned up the attribute/struct parsing code even more
+- split out state, add some documentation, and clean up parsing code a bit
+- update expected calc expansion
+- cover more complicated calculations
+- cover more complicated cases of `||` and `&&` checks
+- add docs for the derive macro
+- moved `Source` and `SourceOwned` into its own module
+- synchronize versions
+
 ## [0.1.8](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.7...oxiplate-derive-v0.1.8) - 2025-01-06
 
 ### Other
