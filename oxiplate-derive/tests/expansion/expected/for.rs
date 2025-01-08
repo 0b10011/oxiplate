@@ -42,10 +42,7 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_for() {
     let data = Data {
-        values: <[_]>::into_vec(
-            #[rustc_box]
-            ::alloc::boxed::Box::new(["foo", "bar", "baz"]),
-        ),
+        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar", "baz"])),
     };
     match (
         &::alloc::__export::must_use({
@@ -117,8 +114,7 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
 fn test_method_calls() {
     let data = Accounts {
         people: <[_]>::into_vec(
-            #[rustc_box]
-            ::alloc::boxed::Box::new([Person { name: "Zoe" }, Person { name: "Alice" }]),
+            ::alloc::boxed::box_new([Person { name: "Zoe" }, Person { name: "Alice" }]),
         ),
     };
     match (
@@ -187,10 +183,7 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_shadow_variable() {
     let data = ShadowVariable {
-        values: <[_]>::into_vec(
-            #[rustc_box]
-            ::alloc::boxed::Box::new(["foo", "bar", "baz"]),
-        ),
+        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar", "baz"])),
         value: "hello world",
     };
     match (
@@ -258,7 +251,7 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_function_variables() {
     let data = Functions {
-        functions: <[_]>::into_vec(#[rustc_box] ::alloc::boxed::Box::new([|| 19, || 89])),
+        functions: <[_]>::into_vec(::alloc::boxed::box_new([|| 19, || 89])),
     };
     match (
         &::alloc::__export::must_use({
