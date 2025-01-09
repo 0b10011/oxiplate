@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.9...oxiplate-v0.1.10) - 2025-01-09
+
+### Added
+
+- combine static strings in concats into the format string for smaller templates
+- concat operator (~)
+
+### Fixed
+
+- string continuation escapes and spans after escape sequences
+
+### Other
+
+- merge variable tests into a single file
+- clear `/actual/` each run, error for leftover files, and fix the check against `expansion.rs`
+- turn on `format_strings` and reformat
+- updated expected expansion after rust update
+
 ## [0.1.9](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.8...oxiplate-v0.1.9) - 2025-01-08
 
 ### Fixed

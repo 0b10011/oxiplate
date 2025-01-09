@@ -68,7 +68,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -76,7 +76,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "nom",
  "proc-macro2",
