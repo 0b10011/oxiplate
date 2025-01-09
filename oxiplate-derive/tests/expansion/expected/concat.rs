@@ -14,12 +14,8 @@ impl ::std::fmt::Display for User {
         f.write_fmt(
             format_args!(
                 "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}{1}", self.name,
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}{1}", " (",
-                ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}{1}", self.company, ")")); res
-                }))); res }))); res })
+                ::alloc::fmt::format(format_args!("{0} ({1})", self.name, self.company));
+                res })
             ),
         )?;
         Ok(())

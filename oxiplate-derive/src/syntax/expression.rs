@@ -3,7 +3,7 @@ use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, fail, not, opt, peek};
 use nom::error::context;
-use nom::multi::{many0, many_till};
+use nom::multi::{many0, many1, many_till};
 use nom::sequence::{pair, tuple};
 use proc_macro2::{Group, TokenStream};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
@@ -153,11 +153,7 @@ pub(crate) enum Expression<'a> {
     Number(Source<'a>),
     Bool(bool, Source<'a>),
     // Group(Box<Expression<'a>>),
-    Concat(
-        Box<ExpressionAccess<'a>>,
-        Source<'a>,
-        Box<ExpressionAccess<'a>>,
-    ),
+    Concat(Vec<ExpressionAccess<'a>>, Source<'a>),
     Calc(
         Box<ExpressionAccess<'a>>,
         Operator<'a>,
@@ -196,9 +192,39 @@ impl ToTokens for Expression<'_> {
                     }
                 }
             },
-            Expression::Concat(left, source, right) => {
-                let span = source.span();
-                quote_spanned! {span=> format!("{}{}", #left, #right) }
+            Expression::Concat(expressions, concat_operator) => {
+                let span = concat_operator.span();
+
+                let mut format_tokens = vec![];
+                let mut argument_tokens = vec![];
+                for expression in expressions {
+                    match expression {
+                        ExpressionAccess {
+                            expression: Expression::String(string),
+                            fields,
+                        } if fields.is_empty() => {
+                            let string = syn::LitStr::new(string.as_str(), string.span());
+                            format_tokens.push(quote_spanned! {span=> #string });
+                        }
+                        _ => {
+                            format_tokens.push(quote_spanned! {span=> "{}" });
+                            argument_tokens.push(quote!(#expression));
+                        }
+                    }
+                }
+
+                if argument_tokens.is_empty() {
+                    return;
+                }
+
+                let format_concat_tokens = quote! { concat!(#(#format_tokens),*) };
+                format_tokens.clear();
+
+                if argument_tokens.is_empty() {
+                    format_concat_tokens
+                } else {
+                    quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) }
+                }
             }
             Expression::Calc(left, operator, right) => quote!(#left #operator #right),
             Expression::Prefixed(operator, expression) => quote!(#operator #expression),
@@ -340,13 +366,14 @@ impl ToTokens for PrefixOperator<'_> {
 
 pub(super) fn expression<'a>(
     state: &'a State,
-    allow_recursion: bool,
+    allow_calc: bool,
+    allow_concat: bool,
 ) -> impl Fn(Source) -> Res<Source, ExpressionAccess> + 'a {
     move |input| {
         let (input, (expression, fields)) = pair(
             alt((
-                concat(state, allow_recursion),
-                calc(state, allow_recursion),
+                concat(state, allow_concat),
+                calc(state, allow_calc),
                 string,
                 number,
                 bool,
@@ -485,44 +512,59 @@ fn string(input: Source) -> Res<Source, Expression> {
 }
 fn concat<'a>(
     state: &'a State,
-    allow_recursion: bool,
+    allow_concat: bool,
 ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
-        if !allow_recursion {
+        if !allow_concat {
             return fail(input);
         }
-        let (input, (left, _leading_whitespace, tilde, _trailing_whitespace, right)) =
-            tuple((
-                expression(state, false),
+        let (input, (left, concats)) = tuple((
+            expression(state, false, false),
+            many1(tuple((
                 opt(whitespace),
                 tag("~"),
                 opt(whitespace),
-                context("Expected an expression", cut(expression(state, true))),
-            ))(input)?;
+                context(
+                    "Expected an expression",
+                    cut(expression(state, true, false)),
+                ),
+            ))),
+        ))(input)?;
+        let mut expressions = vec![left];
+        let mut tilde_operator = None;
+        for (_leading_whitespace, tilde, _trailing_whitespace, expression) in concats {
+            if tilde_operator.is_none() {
+                tilde_operator = Some(tilde);
+            }
+            expressions.push(expression);
+        }
         Ok((
             input,
-            Expression::Concat(Box::new(left), tilde, Box::new(right)),
+            Expression::Concat(
+                expressions,
+                tilde_operator.expect("Tilde should be guaranteed here"),
+            ),
         ))
     }
 }
 
-fn calc<'a>(
-    state: &'a State,
-    allow_recursion: bool,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn calc<'a>(state: &'a State, allow_calc: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
-        if !allow_recursion {
+        if !allow_calc {
             return fail(input);
         }
         let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
             tuple((
-                expression(state, false),
+                expression(state, false, false),
                 opt(whitespace),
                 // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
                 not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
                 operator,
                 opt(whitespace),
-                context("Expected an expression", cut(expression(state, true))),
+                context(
+                    "Expected an expression",
+                    cut(expression(state, true, false)),
+                ),
             ))(input)?;
         Ok((
             input,
@@ -547,7 +589,7 @@ fn prefixed_expression<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, E
             prefix_operator,
             context(
                 "Expected an expression after prefix operator",
-                cut(expression(state, true)),
+                cut(expression(state, true, true)),
             ),
         ))(input)?;
 

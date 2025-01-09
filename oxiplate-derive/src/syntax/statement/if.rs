@@ -260,7 +260,7 @@ fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, I
                             &ws0,
                             context(
                                 "Expected an expression after `=`",
-                                cut(expression(state, true)),
+                                cut(expression(state, true, true)),
                             ),
                         ),
                     ),
@@ -274,7 +274,7 @@ fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, I
                             &ws0,
                             context(
                                 "Expected an expression after `=`",
-                                cut(expression(state, true)),
+                                cut(expression(state, true, true)),
                             ),
                         ),
                     ),
@@ -285,7 +285,7 @@ fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, I
         } else {
             let (input, output) = context(
                 "Expected an expression after `if`",
-                cut(expression(state, true)),
+                cut(expression(state, true, true)),
             )(input)?;
             Ok((input, IfType::If(output)))
         }

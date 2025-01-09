@@ -84,7 +84,7 @@ pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, 
             context("Expected space after 'in'", take_while1(is_whitespace)),
             context(
                 "Expected an expression that is iterable",
-                expression(state, true),
+                expression(state, true, true),
             ),
         )))(input)?;
 

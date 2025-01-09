@@ -132,8 +132,10 @@ pub(super) fn writ<'a>(
         } else {
             Escaper::default(state)
         };
-        let (input, output) =
-            context("Expected an expression.", cut(expression(state, true)))(input)?;
+        let (input, output) = context(
+            "Expected an expression.",
+            cut(expression(state, true, true)),
+        )(input)?;
         let (input, trailing_whitespace) = context(
             "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
             cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),
