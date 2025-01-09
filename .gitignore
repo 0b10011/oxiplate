@@ -1,2 +1,3 @@
 target
 /book-output
+**/Cargo.lock
