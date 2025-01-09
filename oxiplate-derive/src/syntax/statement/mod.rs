@@ -140,8 +140,10 @@ pub(super) fn statement<'a>(
         )(input)?;
 
         // Parse the closing tag and any trailing whitespace
-        let (mut input, mut trailing_whitespace) =
-            preceded(take_while(is_whitespace), cut(tag_end("%}")))(input)?;
+        let (mut input, mut trailing_whitespace) = preceded(
+            take_while(is_whitespace),
+            context(r#""%}" expected"#, cut(tag_end("%}"))),
+        )(input)?;
 
         if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
@@ -158,12 +160,45 @@ pub(super) fn statement<'a>(
                 for value in state.local_variables {
                     local_variables.insert(value);
                 }
+
+                {
+                    let is_eof = input.as_str().is_empty();
+                    if is_eof {
+                        macro_rules! context_message {
+                            ($lit:literal) => {
+                                concat!(
+                                    r#"""#,
+                                    $lit,
+                                    r#"" statement is never closed (unexpected end of template)"#
+                                )
+                            };
+                        }
+                        let context_message = match statement.kind {
+                            StatementKind::Block(_) => context_message!("block"),
+                            StatementKind::If(_) => context_message!("if"),
+                            StatementKind::For(_) => context_message!("for"),
+                            StatementKind::Extends(_)
+                            | StatementKind::EndBlock
+                            | StatementKind::ElseIf(_)
+                            | StatementKind::Else
+                            | StatementKind::EndIf
+                            | StatementKind::EndFor => unreachable!(
+                                "These blocks should never fail to be closed because of EOF"
+                            ),
+                        };
+                        return context(context_message, fail)(input);
+                    }
+                }
+
                 let state = State {
                     local_variables: &local_variables,
                     config: state.config,
                 };
 
-                let (new_input, items) = parse_item(&state, &should_output_blocks)(input)?;
+                let (new_input, items) = context(
+                    "Failed to parse contents of statement",
+                    cut(parse_item(&state, &should_output_blocks)),
+                )(input)?;
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {
@@ -179,30 +214,6 @@ pub(super) fn statement<'a>(
                 let is_eof = input.as_str().is_empty();
                 if statement.is_ended(is_eof) {
                     break;
-                } else if is_eof {
-                    macro_rules! context_message {
-                        ($lit:literal) => {
-                            concat!(
-                                r#"""#,
-                                $lit,
-                                r#"" statement is never closed (unexpected end of template)"#
-                            )
-                        };
-                    }
-                    let context_message = match statement.kind {
-                        StatementKind::Block(_) => context_message!("block"),
-                        StatementKind::If(_) => context_message!("if"),
-                        StatementKind::For(_) => context_message!("for"),
-                        StatementKind::Extends(_)
-                        | StatementKind::EndBlock
-                        | StatementKind::ElseIf(_)
-                        | StatementKind::Else
-                        | StatementKind::EndIf
-                        | StatementKind::EndFor => unreachable!(
-                            "These blocks should never fail to be closed because of EOF"
-                        ),
-                    };
-                    return context(context_message, fail)(input);
                 }
             }
         }

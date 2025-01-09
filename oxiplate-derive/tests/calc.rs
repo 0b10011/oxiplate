@@ -2,6 +2,7 @@ use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate_inline = "{-}
+1 + 2 = {{ 1 + 2 }}
 {{ max }} + {{ min }} = {{ max + min }}
 {{ max }} - {{ min }} = {{ max - min }}
 {{ max }} * {{ min }} = {{ max * min }}
@@ -21,7 +22,8 @@ fn test_math() {
 
     assert_eq!(
         format!("{data}"),
-        "89 + 19 = 108
+        "1 + 2 = 3
+89 + 19 = 108
 89 - 19 = 70
 89 * 19 = 1691
 89 / 19 = 4

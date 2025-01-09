@@ -153,6 +153,11 @@ pub(crate) enum Expression<'a> {
     Number(Source<'a>),
     Bool(bool, Source<'a>),
     // Group(Box<Expression<'a>>),
+    Concat(
+        Box<ExpressionAccess<'a>>,
+        Source<'a>,
+        Box<ExpressionAccess<'a>>,
+    ),
     Calc(
         Box<ExpressionAccess<'a>>,
         Operator<'a>,
@@ -191,6 +196,10 @@ impl ToTokens for Expression<'_> {
                     }
                 }
             },
+            Expression::Concat(left, source, right) => {
+                let span = source.span();
+                quote_spanned! {span=> format!("{}{}", #left, #right) }
+            }
             Expression::Calc(left, operator, right) => quote!(#left #operator #right),
             Expression::Prefixed(operator, expression) => quote!(#operator #expression),
             Expression::String(string) => {
@@ -331,15 +340,16 @@ impl ToTokens for PrefixOperator<'_> {
 
 pub(super) fn expression<'a>(
     state: &'a State,
-    allow_calc: bool,
+    allow_recursion: bool,
 ) -> impl Fn(Source) -> Res<Source, ExpressionAccess> + 'a {
     move |input| {
         let (input, (expression, fields)) = pair(
             alt((
+                concat(state, allow_recursion),
+                calc(state, allow_recursion),
                 string,
                 number,
                 bool,
-                calc(state, allow_calc),
                 identifier(state),
                 prefixed_expression(state),
             )),
@@ -473,9 +483,35 @@ fn string(input: Source) -> Res<Source, Expression> {
     };
     Ok((input, Expression::String(full_string)))
 }
-fn calc<'a>(state: &'a State, allow_calc: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn concat<'a>(
+    state: &'a State,
+    allow_recursion: bool,
+) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
-        if !allow_calc {
+        if !allow_recursion {
+            return fail(input);
+        }
+        let (input, (left, _leading_whitespace, tilde, _trailing_whitespace, right)) =
+            tuple((
+                expression(state, false),
+                opt(whitespace),
+                tag("~"),
+                opt(whitespace),
+                context("Expected an expression", cut(expression(state, true))),
+            ))(input)?;
+        Ok((
+            input,
+            Expression::Concat(Box::new(left), tilde, Box::new(right)),
+        ))
+    }
+}
+
+fn calc<'a>(
+    state: &'a State,
+    allow_recursion: bool,
+) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+    move |input| {
+        if !allow_recursion {
             return fail(input);
         }
         let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
