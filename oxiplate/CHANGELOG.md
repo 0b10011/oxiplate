@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.10...oxiplate-v0.1.11) - 2025-01-10
+
+### Added
+
+- include the parent contents in an overridden block
+- support for `{% else %}` in for loops
+
+### Other
+
+- update Cargo.lock dependencies
+- remove `Cargo.lock` for the macro and ensure another doesn't get committed
+- conditionally compile expansion tests to make it clear they will fail on old rustc versions
+
 ## [0.1.10](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.9...oxiplate-v0.1.10) - 2025-01-09
 
 ### Added
