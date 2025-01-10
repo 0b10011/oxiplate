@@ -1,3 +1,7 @@
 target
 /book-output
+
+# Ignore the cargo lockfile in subdirectories,
+# but not the main one.
 **/Cargo.lock
+!/Cargo.lock
