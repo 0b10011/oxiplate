@@ -91,3 +91,21 @@ fn test_function_variables() {
 
     assert_eq!(format!("{data}"), "19\n89\n");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline = "
+{%- for value in &values -%}
+    {{ value }}<br>
+{%- else -%}
+    No values :(
+{%- endfor %}"]
+struct ForElse {
+    values: Vec<&'static str>,
+}
+
+#[test]
+fn test_for_else() {
+    let data = ForElse { values: vec![] };
+
+    assert_eq!(format!("{data}"), "No values :(");
+}

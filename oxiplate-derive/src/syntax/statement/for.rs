@@ -22,6 +22,7 @@ pub struct For<'a> {
     in_keyword: Keyword<'a>,
     expression: ExpressionAccess<'a>,
     template: Template<'a>,
+    otherwise: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
 
@@ -33,13 +34,34 @@ impl<'a> For<'a> {
 
         match item {
             Item::Statement(Statement {
+                kind: StatementKind::Else,
+                ..
+            }) => {
+                if self.is_ended {
+                    todo!();
+                }
+                if self.otherwise.is_some() {
+                    todo!();
+                }
+
+                self.otherwise = Some(Template(vec![]));
+            }
+            Item::Statement(Statement {
                 kind: StatementKind::EndFor,
                 ..
             }) => {
+                if self.is_ended {
+                    todo!();
+                }
+
                 self.is_ended = true;
             }
             _ => {
-                self.template.0.push(item);
+                if let Some(otherwise) = &mut self.otherwise {
+                    otherwise.0.push(item);
+                } else {
+                    self.template.0.push(item);
+                }
             }
         }
     }
@@ -63,9 +85,26 @@ impl ToTokens for For<'_> {
             in_keyword,
             expression,
             template,
-            ..
+            otherwise,
+            is_ended: _,
         } = self;
-        tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
+
+        if otherwise.is_none() {
+            tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
+        } else {
+            tokens.append_all(quote! {
+                {
+                    let mut loop_ran = false;
+                    #for_keyword #ident #in_keyword #expression {
+                        loop_ran = true;
+                        #template
+                    }
+                    if !loop_ran {
+                        #otherwise
+                    }
+                }
+            });
+        }
     }
 }
 
@@ -99,6 +138,7 @@ pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, 
                     in_keyword,
                     expression,
                     template: Template(vec![]),
+                    otherwise: None,
                     is_ended: false,
                 }
                 .into(),
