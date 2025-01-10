@@ -68,14 +68,14 @@ pub enum TagOpen {
 
 pub(crate) fn parse_tag<'a>(
     state: &'a State,
-    should_output_blocks: &'a bool,
+    is_extending: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let (input, (tag, trailing_whitespace)) = match open {
             TagOpen::Writ => cut(writ(state))(input)?,
-            TagOpen::Statement => cut(statement(state, should_output_blocks))(input)?,
+            TagOpen::Statement => cut(statement(state, is_extending))(input)?,
             TagOpen::Comment => cut(comment)(input)?,
         };
 

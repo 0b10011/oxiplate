@@ -11,7 +11,10 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
+        let content = |
+            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            f: &mut ::std::fmt::Formatter<'_>,
+        | -> ::std::fmt::Result {
             f.write_fmt(
                 format_args!("<h1>{0}</h1>\n  <p>{1}</p>", self.title, self.message),
             )?;
@@ -20,33 +23,53 @@ impl ::std::fmt::Display for AbsoluteData {
         #[oxiplate_extends = "{% extends \"extends-nested-different-blocks-layout.html.oxip\" %}\n{% block body -%}\n  <main>\n    {%- block content -%}{%- endblock -%}\n  </main>\n{%- endblock %}"]
         struct Template<'a, F>
         where
-            F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            F: Fn(
+                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                &mut ::std::fmt::Formatter<'_>,
+            ) -> ::std::fmt::Result,
         {
             _data: &'a AbsoluteData,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
         where
-            F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            F: Fn(
+                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                &mut ::std::fmt::Formatter<'_>,
+            ) -> ::std::fmt::Result,
         {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                let body = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
+                let body = |
+                    callback: fn(
+                        f: &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result,
+                    f: &mut ::std::fmt::Formatter<'_>,
+                | -> ::std::fmt::Result {
                     f.write_str("<main>")?;
-                    (self.content)(f)?;
+                    let content = |
+                        f: &mut ::std::fmt::Formatter<'_>,
+                    | -> ::std::fmt::Result { Ok(()) };
+                    (self.content)(content, f)?;
                     f.write_str("</main>")?;
                     Ok(())
                 };
                 #[oxiplate_extends = "<DOCTYPE html>\n<head>\n  <title>{{ title }}</title>\n</head>\n<body>\n  {%- block body -%}{%- endblock -%}\n</body>\n"]
                 struct ExtendingTemplate<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(
+                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                        &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result,
                 {
                     _data: &'a &'a AbsoluteData,
                     body: &'a F,
                 }
                 impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(
+                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                        &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result,
                 {
                     fn fmt(
                         &self,
@@ -58,7 +81,10 @@ impl ::std::fmt::Display for AbsoluteData {
                                 self._data.title
                             ),
                         )?;
-                        (self.body)(f)?;
+                        let body = |
+                            f: &mut ::std::fmt::Formatter<'_>,
+                        | -> ::std::fmt::Result { Ok(()) };
+                        (self.body)(body, f)?;
                         f.write_str("</body>\n")?;
                         Ok(())
                     }

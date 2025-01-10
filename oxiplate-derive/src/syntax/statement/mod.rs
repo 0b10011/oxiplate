@@ -32,6 +32,7 @@ pub(crate) struct Statement<'a> {
 pub(crate) enum StatementKind<'a> {
     Extends(Extends<'a>),
     Block(Block<'a>),
+    Parent,
     EndBlock,
     If(If<'a>),
     ElseIf(ElseIf<'a>),
@@ -70,8 +71,8 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub fn should_output_blocks(&self) -> bool {
-        !matches!(&self.kind, StatementKind::Extends(_))
+    pub fn is_extending(&self) -> bool {
+        matches!(&self.kind, StatementKind::Extends(_))
     }
 }
 
@@ -87,6 +88,10 @@ impl ToTokens for Statement<'_> {
             StatementKind::Extends(extends) => quote! { #extends },
 
             StatementKind::Block(block) => quote! { #block },
+            StatementKind::Parent => {
+                let span = self.source.span();
+                quote_spanned! {span=> compile_error!("Unexpected 'parent' statement"); }
+            }
             StatementKind::EndBlock => {
                 let span = self.source.span();
                 quote_spanned! {span=> compile_error!("Unexpected 'endblock' statement"); }
@@ -117,7 +122,7 @@ impl ToTokens for Statement<'_> {
 
 pub(super) fn statement<'a>(
     state: &'a State,
-    should_output_blocks: &'a bool,
+    is_extending: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
     move |input| {
         // Ignore any leading inner whitespace
@@ -128,7 +133,8 @@ pub(super) fn statement<'a>(
             "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
             cut(alt((
                 extends::parse_extends,
-                block::parse_block(should_output_blocks),
+                block::parse_block(is_extending),
+                block::parse_parent,
                 block::parse_endblock,
                 r#if::parse_if(state),
                 r#if::parse_elseif(state),
@@ -153,7 +159,7 @@ pub(super) fn statement<'a>(
             trailing_whitespace = None;
 
             // Merge new variables from this statement into the existing local variables
-            let should_output_blocks = statement.should_output_blocks();
+            let is_extending = statement.is_extending();
 
             loop {
                 let mut local_variables = statement.get_active_variables();
@@ -178,6 +184,7 @@ pub(super) fn statement<'a>(
                             StatementKind::If(_) => context_message!("if"),
                             StatementKind::For(_) => context_message!("for"),
                             StatementKind::Extends(_)
+                            | StatementKind::Parent
                             | StatementKind::EndBlock
                             | StatementKind::ElseIf(_)
                             | StatementKind::Else
@@ -197,7 +204,7 @@ pub(super) fn statement<'a>(
 
                 let (new_input, items) = context(
                     "Failed to parse contents of statement",
-                    cut(parse_item(&state, &should_output_blocks)),
+                    cut(parse_item(&state, &is_extending)),
                 )(input)?;
                 input = new_input;
                 for item in items {

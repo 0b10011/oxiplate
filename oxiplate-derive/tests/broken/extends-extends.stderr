@@ -1,0 +1,14 @@
+error: Only block statements are allowed here, along with comments and whitespace.
+ --> tests/broken/extends-extends.rs:4:77
+  |
+4 | #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}{% extends "extends-wrapper.html.oxip" %}"#]
+  |                                                                             ^
+
+error[E0392]: type parameter `F` is never used
+ --> tests/broken/extends-extends.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^ unused type parameter
+  |
+  = help: consider removing `F`, referring to it in a field, or using a marker such as `PhantomData`
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

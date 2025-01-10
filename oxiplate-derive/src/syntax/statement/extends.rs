@@ -53,10 +53,11 @@ impl<'a> Extends<'a> {
                 kind: StatementKind::Block(_),
                 ..
             }) => self.template.0.push(item),
-            Item::Statement(_) => unimplemented!(
-                "Statements are not allowed here. Only comments, whitespace, and blocks are \
-                 allowed."
-            ),
+            Item::Statement(statement) => self.template.0.push(Item::CompileError(
+                "Only block statements are allowed here, along with comments and whitespace."
+                    .to_owned(),
+                statement.source.clone(),
+            )),
 
             // No static text or writs allowed
             Item::Static(_) => unimplemented!(
@@ -113,7 +114,7 @@ impl ToTokens for Extends<'_> {
                 #[oxiplate_extends = include_str!(#path)]
                 struct ExtendingTemplate<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
                     _data: &'a #data_type,
                     #(#inherited_blocks: &'a F,)*
@@ -133,7 +134,7 @@ impl ToTokens for Extends<'_> {
                 #[oxiplate_extends = include_str!(#path)]
                 struct Template<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
                     // FIXME: Need to pass #extending and #extending_generics down to next level (type alias doesn't help because generics need to be passed sometimes)
                     _data: &'a #data_type,

@@ -11,7 +11,10 @@ struct AbsoluteData<'a> {
 }
 impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
+        let content = |
+            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            f: &mut ::std::fmt::Formatter<'_>,
+        | -> ::std::fmt::Result {
             f.write_fmt(
                 format_args!("<h2>{0}</h2>\n  <div>{1}</div>", self.title, self.message),
             )?;
@@ -20,28 +23,40 @@ impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
         #[oxiplate_extends = "{% extends \"extends-wrapper.html.oxip\" %}\n\n{% block content -%}\n    Some test content.\n{%- endblock %}\n"]
         struct Template<'a, F>
         where
-            F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            F: Fn(
+                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                &mut ::std::fmt::Formatter<'_>,
+            ) -> ::std::fmt::Result,
         {
             _data: &'a AbsoluteData<'a>,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
         where
-            F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+            F: Fn(
+                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                &mut ::std::fmt::Formatter<'_>,
+            ) -> ::std::fmt::Result,
         {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 let content = self.content;
                 #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
                 struct ExtendingTemplate<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(
+                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                        &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result,
                 {
                     _data: &'a &'a AbsoluteData<'a>,
                     content: &'a F,
                 }
                 impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
                 where
-                    F: Fn(&mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                    F: Fn(
+                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                        &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result,
                 {
                     fn fmt(
                         &self,
@@ -52,7 +67,13 @@ impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
                                 "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
                             ),
                         )?;
-                        (self.content)(f)?;
+                        let content = |
+                            f: &mut ::std::fmt::Formatter<'_>,
+                        | -> ::std::fmt::Result {
+                            f.write_str("test")?;
+                            Ok(())
+                        };
+                        (self.content)(content, f)?;
                         f.write_str("\n")?;
                         Ok(())
                     }

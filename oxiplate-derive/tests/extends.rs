@@ -34,3 +34,75 @@ fn absolute_2() {
          <p>Goodbye world!</p>\n"
     );
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+{% block(prefix) content -%}
+    <p>{{ message }}</p>
+{%- endblock %}
+"#]
+struct Prefix {
+    title: &'static str,
+    message: &'static str,
+}
+
+#[test]
+fn prefix() {
+    let data = Prefix {
+        title: "Prefixed block",
+        message: "Hello world!",
+    };
+
+    assert_eq!(
+        format!("{data}"),
+        "<!DOCTYPE html>\n<title>Prefixed block</title>\n<p>Hello world!</p>test\n"
+    );
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+{% block(replace) content -%}
+    <p>{{ message }}</p>
+{%- endblock %}
+"#]
+struct Replace {
+    title: &'static str,
+    message: &'static str,
+}
+
+#[test]
+fn replace() {
+    let data = Replace {
+        title: "Replaced block",
+        message: "Hello world!",
+    };
+
+    assert_eq!(
+        format!("{data}"),
+        "<!DOCTYPE html>\n<title>Replaced block</title>\n<p>Hello world!</p>\n"
+    );
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+{% block(suffix) content -%}
+    <p>{{ message }}</p>
+{%- endblock %}
+"#]
+struct Suffix {
+    title: &'static str,
+    message: &'static str,
+}
+
+#[test]
+fn suffix() {
+    let data = Suffix {
+        title: "Suffixed block",
+        message: "Hello world!",
+    };
+
+    assert_eq!(
+        format!("{data}"),
+        "<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n"
+    );
+}

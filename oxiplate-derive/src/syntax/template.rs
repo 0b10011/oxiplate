@@ -126,7 +126,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
 }
 
 fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Template<'a>> {
-    let (input, items_vec) = many0(parse_item(state, &true))(source)?;
+    let (input, items_vec) = many0(parse_item(state, &false))(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -185,11 +185,11 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
 
 pub(crate) fn parse_item<'a>(
     state: &'a State,
-    should_output_blocks: &'a bool,
+    is_extending: &'a bool,
 ) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
     |input| {
         alt((
-            parse_tag(state, should_output_blocks),
+            parse_tag(state, is_extending),
             parse_static,
             adjusted_whitespace,
         ))(input)
