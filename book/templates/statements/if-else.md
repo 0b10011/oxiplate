@@ -1,4 +1,4 @@
-# if/else
+# Branching with `if`, `else if`, and `else`
 
 ```rust
 #[derive(Oxiplate)]

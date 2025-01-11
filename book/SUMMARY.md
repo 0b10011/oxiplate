@@ -2,17 +2,19 @@
 
 [Introduction](README.md)
 
-# User guide
+# Setting up the rust project
 
 - [Getting started](getting-started.md)
 
-# Syntax
+# Building templates
 
-- [Writs](writs.md)
-- [Statements]()
-    - [extends/block](statements/extends.md)
-    - [if/else](statements/if-else.md)
-    - [for](statements/for.md)
-- [Comments]()
-- [Whitespace control](whitespace-control.md)
-- [Expressions](expressions.md)
+- [Template introduction](templates/README.md)
+- [Tags](templates/tags.md)
+- [Whitespace control](templates/whitespace-control.md)
+- [Writs](templates/writs/README.md)
+    - [Escaping](templates/writs/escaping.md)
+- [Statements](templates/statements/README.md)
+    - [extends / block](templates/statements/extends.md)
+    - [if / else if / else](templates/statements/if-else.md)
+    - [for / else](templates/statements/for.md)
+- [Expressions](templates/expressions.md)

@@ -18,3 +18,11 @@ site-url = "/oxiplate/"
 
 [output.html.playground]
 runnable = false
+
+[output.html.redirect]
+"/writs.html" = "/templates/writs/index.html"
+"/statements/extends.html" = "/templates/statements/extends.html"
+"/statements/if-else.html" = "/templates/statements/if-else.html"
+"/statements/for.html" = "/templates/statements/for.html"
+"/whitespace-control.html" = "/templates/whitespace-control.html"
+"/expressions.html" = "/templates/expressions.html"

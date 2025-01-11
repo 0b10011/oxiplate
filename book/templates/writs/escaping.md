@@ -1,8 +1,4 @@
-# Writs
-
-A **writ** is an [**expression**](expressions.md) wrapped with `{{` and `}}` that will be evaluated and output into the template. For example, `Hello {{ name }}!` may become `Hello Luna!`.
-
-## Escaping
+# Escaping
 
 HTML escaping is on by default, so if a user provides this as their name in the example above:
 
@@ -32,23 +28,23 @@ And if you want to be explicit, `{{ name }}` and `{{ text: name }}` are equivale
 
 ### Escaping for other formats
 
+Using Oxiplate to build TOML, JSON, XML, RTF, or _[insert format here]_ files?
+
+You can switch the default escaper for all of your files:
+
+```toml
+# /oxiplate.toml
+default_escaper_group = "html"
+```
+
+Or switch it just for the document you're in:
+
 ```rust
 unimplemented!("Syntax not yet implemented and subject to change!")
 ```
 
-Using Oxiplate to build JSON, YAML, XML, RTF, or _[insert format here]_ files?
-
-You can switch the default escaper for all of your files:
-
-```oxip.yaml
-# /oxiplate.yml
-default_escaper: json
-```
-
-Or switch it for the document you're in:
-
 ```oxip.json
-{% default_escaper json %}
+{% default_escaper_group json %}
 {
     "name": "{{ name }}",
     "age": {{ number: age }},

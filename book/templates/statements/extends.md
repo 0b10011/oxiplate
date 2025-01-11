@@ -1,4 +1,4 @@
-# Extending templates
+# Extending templates with `extends` and `block`
 
 Start with a template that contains one or more blocks:
 
