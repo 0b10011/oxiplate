@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.12...oxiplate-derive-v0.2.0) - 2025-01-13
+
+### Added
+
+- [**breaking**] prevent whitespace replace characters when there's no matching whitespace to replace
+
+### Other
+
+- simplify whitespace adjustment checks in end tags
+
 ## [0.1.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.11...oxiplate-derive-v0.1.12) - 2025-01-13
 
 ### Added
