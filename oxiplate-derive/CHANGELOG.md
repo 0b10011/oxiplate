@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.11...oxiplate-derive-v0.1.12) - 2025-01-13
+
+### Added
+
+- fail to compile if adjacent tags with only whitespace between explicitly specify different whitespace adjustment characters
+- only pass braces in as arguments instead of entire strings that contain them
+
+### Other
+
+- add more text to the format injection text to better show changes with normal text
+- reduce item count for static text with whitespace
+
 ## [0.1.11](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.1.10...oxiplate-derive-v0.1.11) - 2025-01-10
 
 ### Added
