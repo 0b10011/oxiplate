@@ -120,7 +120,7 @@ pub(crate) fn tag_end<'a>(
         }
 
         let (input, (command, _close_tag, whitespace, adjacent_open_tag)) = tuple((
-            opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+            alt((collapse_whitespace_command, trim_whitespace_command)),
             tag(tag_close),
             opt(whitespace),
             // The group in the `peek()` should match the checks in `tag_start()` after the whitespace check.
@@ -132,9 +132,7 @@ pub(crate) fn tag_end<'a>(
 
         if let Some((_open_tag, next_command)) = adjacent_open_tag {
             match (&command, &next_command) {
-                (Some(command), Some(next_command))
-                    if command.as_str() != next_command.as_str() =>
-                {
+                (command, Some(next_command)) if command.as_str() != next_command.as_str() => {
                     let mut source = command.clone();
                     source.range.end = next_command.range.end;
                     return Ok((
@@ -149,14 +147,10 @@ pub(crate) fn tag_end<'a>(
             }
         }
 
-        let whitespace = if let Some(command) = command {
-            match command.as_str() {
-                "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
-                "-" => None,
-                _ => unreachable!("Only - or _ should be matched"),
-            }
-        } else {
-            whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace))
+        let whitespace = match command.as_str() {
+            "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
+            "-" => None,
+            _ => unreachable!("Only - or _ should be matched"),
         };
 
         Ok((input, whitespace.map(Item::Whitespace)))
