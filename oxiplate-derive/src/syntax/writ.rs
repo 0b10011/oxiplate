@@ -28,7 +28,7 @@ impl Writ<'_> {
 
         let escaper = &self.1;
 
-        quote! { ::oxiplate::escapers::escape(&#escaper, #text) }
+        quote! { ::oxiplate::escapers::escape(&#escaper, &format!("{}", #text)) }
     }
 }
 
@@ -56,18 +56,15 @@ impl Escaper {
         group: Option<Identifier<'a>>,
         escaper: Identifier<'a>,
     ) -> Result<Option<Path>, nom::Err<VerboseError<Source<'a>>>> {
-        let group = if let Some(group) = group {
-            Some((group.ident, group.source))
-        } else if let Some(default_group) = &state.config.default_escaper_group {
-            Some((default_group.as_str(), escaper.source.clone()))
-        } else {
-            None
-        };
-        let Some(group) = group else {
-            if escaper.ident == "raw" {
-                return Ok(None);
-            }
+        if escaper.ident == "raw" {
+            return Ok(None);
+        }
 
+        let group = if let Some(group) = group {
+            (group.ident, group.source)
+        } else if let Some(default_group) = &state.config.default_escaper_group {
+            (default_group.as_str(), escaper.source.clone())
+        } else {
             context(
                 r#"No default escaper group defined and the specified escaper is not "raw""#,
                 fail::<_, (), _>,
@@ -112,6 +109,7 @@ impl Escaper {
     }
 
     pub fn default(_state: &State) -> Option<Path> {
+        // FIXME This should select the default escaper from the default escaper group
         None
     }
 }
