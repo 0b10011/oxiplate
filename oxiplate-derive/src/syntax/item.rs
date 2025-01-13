@@ -75,7 +75,7 @@ pub(crate) fn parse_tag<'a>(
         let mut items = vec![];
 
         if let Some(leading_whitespace) = leading_whitespace {
-            items.push(Item::Whitespace(leading_whitespace));
+            items.push(leading_whitespace);
         }
 
         items.push(tag);
@@ -88,7 +88,7 @@ pub(crate) fn parse_tag<'a>(
     }
 }
 
-pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)> {
+pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen)> {
     let (input, (whitespace, open, command)) = tuple((
         // Whitespace is optional, but tracked because it could be altered by tag.
         opt(whitespace),
@@ -100,7 +100,34 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)>
 
     let whitespace = if let Some(command) = command {
         match command.as_str() {
-            "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
+            "_" => {
+                if whitespace
+                    .as_ref()
+                    .is_none_or(|whitespace| whitespace.as_str().is_empty())
+                {
+                    let mut source = match &open {
+                        TagOpen::Writ(source)
+                        | TagOpen::Statement(source)
+                        | TagOpen::Comment(source) => source.clone(),
+                    };
+                    source.range.end = command.range.end;
+                    return Ok((
+                        input,
+                        (
+                            Some(Item::CompileError(
+                                "Whitespace replace character `_` used after non-whitespace. \
+                                 Either add whitespace or change how whitespace is handled before \
+                                 this tag."
+                                    .to_owned(),
+                                source,
+                            )),
+                            open,
+                        ),
+                    ));
+                }
+
+                whitespace.map(|whitespace| Static(" ", whitespace))
+            }
             "-" => None,
             _ => unreachable!("Only - or _ should be matched"),
         }
@@ -108,7 +135,7 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)>
         whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace))
     };
 
-    Ok((input, (whitespace, open)))
+    Ok((input, (whitespace.map(Item::Whitespace), open)))
 }
 
 pub(crate) fn tag_end<'a>(
@@ -119,18 +146,25 @@ pub(crate) fn tag_end<'a>(
             return Ok((input, None));
         }
 
-        let (input, (command, _close_tag, whitespace, adjacent_open_tag)) = tuple((
-            alt((collapse_whitespace_command, trim_whitespace_command)),
-            tag(tag_close),
-            opt(whitespace),
-            // The group in the `peek()` should match the checks in `tag_start()` after the whitespace check.
-            peek(opt(pair(
-                tag_open,
-                opt(alt((collapse_whitespace_command, trim_whitespace_command))),
-            ))),
-        ))(input)?;
+        let (input, (command, close_tag, (matched_whitespace, adjacent_open_tag))) =
+            tuple((
+                alt((collapse_whitespace_command, trim_whitespace_command)),
+                tag(tag_close),
+                peek(pair(
+                    opt(whitespace),
+                    // The group below should match the checks in `tag_start()` after the whitespace check.
+                    opt(pair(
+                        tag_open,
+                        opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+                    )),
+                )),
+            ))(input)?;
 
+        let mut next_command_is_set = false;
         if let Some((_open_tag, next_command)) = adjacent_open_tag {
+            if next_command.is_some() {
+                next_command_is_set = true;
+            }
             match (&command, &next_command) {
                 (command, Some(next_command)) if command.as_str() != next_command.as_str() => {
                     let mut source = command.clone();
@@ -147,13 +181,38 @@ pub(crate) fn tag_end<'a>(
             }
         }
 
-        let whitespace = match command.as_str() {
-            "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
-            "-" => None,
+        let (input, matched_whitespace) = match command.as_str() {
+            "_" => {
+                if matched_whitespace.is_none_or(|whitespace| whitespace.as_str().is_empty()) {
+                    let mut source = command.clone();
+                    source.range.end = close_tag.range.end;
+                    return Ok((
+                        input,
+                        Some(Item::CompileError(
+                            "Whitespace replace character `_` used before non-whitespace. Either \
+                             add whitespace or change how whitespace is handled after this tag."
+                                .to_owned(),
+                            source,
+                        )),
+                    ));
+                } else if next_command_is_set {
+                    (input, None)
+                } else {
+                    let (input, matched_whitespace) = opt(whitespace)(input)?;
+                    (
+                        input,
+                        matched_whitespace.map(|whitespace| Static(" ", whitespace)),
+                    )
+                }
+            }
+            "-" => {
+                let (input, _matched_whitespace) = opt(whitespace)(input)?;
+                (input, None)
+            }
             _ => unreachable!("Only - or _ should be matched"),
         };
 
-        Ok((input, whitespace.map(Item::Whitespace)))
+        Ok((input, matched_whitespace.map(Item::Whitespace)))
     }
 }
 

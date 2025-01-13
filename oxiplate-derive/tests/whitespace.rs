@@ -30,19 +30,6 @@ fn writ_whitespace_control() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello @{{_ username _}}!"]
-struct WritPreserveSpaceless {
-    username: &'static str,
-}
-
-#[test]
-fn writ_preserve_spaceless() {
-    let template = WritPreserveSpaceless { username: "dia" };
-
-    assert_eq!(format!("{template}"), "Hello @dia!");
-}
-
-#[derive(Oxiplate)]
 #[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t \
                      {#- Hey another comment -#}  \t\t  \r\n\t )!"]
 struct CommentWhitespaceControl {}
@@ -53,17 +40,6 @@ fn comment_whitespace_control() {
 
     // It might be cool if this collapsed to a single space, but :shrug:.
     assert_eq!(format!("{template}"), "Hello  ()!");
-}
-
-#[derive(Oxiplate)]
-#[oxiplate_inline = "Hello @{#_ Comment! _#}!"]
-struct CommentPreserveSpaceless {}
-
-#[test]
-fn comment_preserve_spaceless() {
-    let template = CommentPreserveSpaceless {};
-
-    assert_eq!(format!("{template}"), "Hello @!");
 }
 
 #[derive(Oxiplate)]

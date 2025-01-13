@@ -119,64 +119,6 @@ fn writ_whitespace_control() {
         }
     };
 }
-#[oxiplate_inline = "Hello @{{_ username _}}!"]
-struct WritPreserveSpaceless {
-    username: &'static str,
-}
-impl ::std::fmt::Display for WritPreserveSpaceless {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("Hello @{0}!", self.username))?;
-        Ok(())
-    }
-}
-extern crate test;
-#[cfg(test)]
-#[rustc_test_marker = "writ_preserve_spaceless"]
-#[doc(hidden)]
-pub const writ_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn {
-    desc: test::TestDesc {
-        name: test::StaticTestName("writ_preserve_spaceless"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\whitespace.rs",
-        start_line: 39usize,
-        start_col: 4usize,
-        end_line: 39usize,
-        end_col: 27usize,
-        compile_fail: false,
-        no_run: false,
-        should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
-    },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(writ_preserve_spaceless()),
-    ),
-};
-fn writ_preserve_spaceless() {
-    let template = WritPreserveSpaceless {
-        username: "dia",
-    };
-    match (
-        &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
-        }),
-        &"Hello @dia!",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
-            }
-        }
-    };
-}
 #[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t \
                      {#- Hey another comment -#}  \t\t  \r\n\t )!"]
 struct CommentWhitespaceControl {}
@@ -196,9 +138,9 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\whitespace.rs",
-        start_line: 51usize,
+        start_line: 38usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 38usize,
         end_col: 30usize,
         compile_fail: false,
         no_run: false,
@@ -218,60 +160,6 @@ fn comment_whitespace_control() {
             res
         }),
         &"Hello  ()!",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
-            }
-        }
-    };
-}
-#[oxiplate_inline = "Hello @{#_ Comment! _#}!"]
-struct CommentPreserveSpaceless {}
-impl ::std::fmt::Display for CommentPreserveSpaceless {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("Hello @!")?;
-        Ok(())
-    }
-}
-extern crate test;
-#[cfg(test)]
-#[rustc_test_marker = "comment_preserve_spaceless"]
-#[doc(hidden)]
-pub const comment_preserve_spaceless: test::TestDescAndFn = test::TestDescAndFn {
-    desc: test::TestDesc {
-        name: test::StaticTestName("comment_preserve_spaceless"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\whitespace.rs",
-        start_line: 63usize,
-        start_col: 4usize,
-        end_line: 63usize,
-        end_col: 30usize,
-        compile_fail: false,
-        no_run: false,
-        should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
-    },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(comment_preserve_spaceless()),
-    ),
-};
-fn comment_preserve_spaceless() {
-    let template = CommentPreserveSpaceless {};
-    match (
-        &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
-        }),
-        &"Hello @!",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -318,9 +206,9 @@ pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive\\tests\\whitespace.rs",
-        start_line: 82usize,
+        start_line: 58usize,
         start_col: 4usize,
-        end_line: 82usize,
+        end_line: 58usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -371,9 +259,7 @@ pub fn main() -> () {
         &[
             &adjacent_tags,
             &adjusted_whitespace,
-            &comment_preserve_spaceless,
             &comment_whitespace_control,
-            &writ_preserve_spaceless,
             &writ_whitespace_control,
         ],
     )
