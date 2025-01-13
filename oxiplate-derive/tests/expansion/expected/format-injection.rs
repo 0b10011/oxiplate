@@ -4,11 +4,16 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "{}"]
+#[oxiplate_inline = "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"]
 struct Data {}
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0}", "{}"))?;
+        f.write_fmt(
+            format_args!(
+                "{0}",
+                "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"
+            ),
+        )?;
         Ok(())
     }
 }
@@ -44,7 +49,7 @@ fn format_injection() {
             let res = ::alloc::fmt::format(format_args!("{0}", template));
             res
         }),
-        &"{}",
+        &"Braces ({ and }) are formatting characters in Rust and must be escaped. {}",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
