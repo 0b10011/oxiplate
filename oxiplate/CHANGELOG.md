@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.0...oxiplate-v0.2.1) - 2025-01-13
+
+### Fixed
+
+- raw escaping when default escaper is set and escaping non-string slices
+
 ## [0.2.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.1.12...oxiplate-v0.2.0) - 2025-01-13
 
 ### Added
