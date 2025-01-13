@@ -286,6 +286,82 @@ fn comment_preserve_spaceless() {
         }
     };
 }
+#[oxiplate_inline = r#"
+{{ "leave" }}  {{ "leave" }}
+{{ "leave" }}  {{- "remove" }}
+{{ "leave" }}  {{_ "replace" }}
+{{ "remove" -}}  {{ "leave" }}
+{{ "remove" -}}  {{- "remove" }}
+{{ "replace" _}}  {{ "leave" }}
+{{ "replace" _}}  {{_ "replace" }}
+"#]
+struct AdjacentTags {}
+impl ::std::fmt::Display for AdjacentTags {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        f.write_fmt(
+            format_args!(
+                "\n{0}  {1}\n{2}{3}\n{4} {5}\n{6}{7}\n{8}{9}\n{10} {11}\n{12} {13}\n",
+                "leave", "leave", "leave", "remove", "leave", "replace", "remove",
+                "leave", "remove", "remove", "replace", "leave", "replace", "replace"
+            ),
+        )?;
+        Ok(())
+    }
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker = "adjacent_tags"]
+#[doc(hidden)]
+pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("adjacent_tags"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive\\tests\\whitespace.rs",
+        start_line: 82usize,
+        start_col: 4usize,
+        end_line: 82usize,
+        end_col: 17usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(adjacent_tags()),
+    ),
+};
+fn adjacent_tags() {
+    let template = AdjacentTags {};
+    match (
+        &::alloc::__export::must_use({
+            let res = ::alloc::fmt::format(format_args!("{0}", template));
+            res
+        }),
+        &"
+leave  leave
+leaveremove
+leave replace
+removeleave
+removeremove
+replace leave
+replace replace
+",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
@@ -293,6 +369,7 @@ pub fn main() -> () {
     extern crate test;
     test::test_main_static(
         &[
+            &adjacent_tags,
             &adjusted_whitespace,
             &comment_preserve_spaceless,
             &comment_whitespace_control,

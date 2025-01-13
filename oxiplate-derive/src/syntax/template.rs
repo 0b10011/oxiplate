@@ -1,9 +1,12 @@
+use std::ops::RangeTo;
+
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
 use nom::error::VerboseErrorKind;
 use nom::multi::many0;
 use nom::sequence::tuple;
+use nom::Slice as _;
 use proc_macro2::{LineColumn, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -101,7 +104,8 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
                 .unwrap();
             }
             VerboseErrorKind::Context(error) => {
-                return Item::CompileError(error.to_string(), source)
+                let source = source.slice(RangeTo { end: 1 });
+                return Item::CompileError(error.to_string(), source);
             }
             VerboseErrorKind::Nom(nom_error) => {
                 let LineColumn { line, column } = source.span().start();

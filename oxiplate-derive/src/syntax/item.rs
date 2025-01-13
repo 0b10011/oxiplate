@@ -1,12 +1,8 @@
-use std::ops::RangeTo;
-
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::char;
-use nom::combinator::{cut, opt};
+use nom::combinator::{cut, opt, peek};
 use nom::error::VerboseError;
-use nom::sequence::tuple;
-use nom::Slice as _;
+use nom::sequence::{pair, tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
@@ -49,7 +45,7 @@ impl Item<'_> {
             },
             Item::Whitespace(whitespace) => ItemToken::StaticText(whitespace.to_token()),
             Item::CompileError(text, source) => {
-                let span = source.slice(RangeTo { end: 1 }).span();
+                let span = source.span();
                 ItemToken::Statement(quote_spanned! {span=> compile_error!(#text); })
             }
         }
@@ -57,10 +53,10 @@ impl Item<'_> {
 }
 
 #[derive(Debug)]
-pub enum TagOpen {
-    Writ,
-    Statement,
-    Comment,
+pub enum TagOpen<'a> {
+    Writ(Source<'a>),
+    Statement(Source<'a>),
+    Comment(Source<'a>),
 }
 
 pub(crate) fn parse_tag<'a>(
@@ -71,9 +67,9 @@ pub(crate) fn parse_tag<'a>(
         let (input, (leading_whitespace, open)) = tag_start(input)?;
 
         let (input, (tag, trailing_whitespace)) = match open {
-            TagOpen::Writ => cut(writ(state))(input)?,
-            TagOpen::Statement => cut(statement(state, is_extending))(input)?,
-            TagOpen::Comment => cut(comment)(input)?,
+            TagOpen::Writ(_source) => cut(writ(state))(input)?,
+            TagOpen::Statement(_source) => cut(statement(state, is_extending))(input)?,
+            TagOpen::Comment(_source) => cut(comment)(input)?,
         };
 
         let mut items = vec![];
@@ -85,7 +81,7 @@ pub(crate) fn parse_tag<'a>(
         items.push(tag);
 
         if let Some(trailing_whitespace) = trailing_whitespace {
-            items.push(Item::Whitespace(trailing_whitespace));
+            items.push(trailing_whitespace);
         }
 
         Ok((input, items))
@@ -102,14 +98,14 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)>
         opt(alt((collapse_whitespace_command, trim_whitespace_command))),
     ))(input)?;
 
-    let whitespace = match command {
-        // Collapse to a single space if there's any leading whitespace.
-        Some('_') => whitespace.map(|whitespace| Static(" ", whitespace)),
-        // Remove any leading whitespace.
-        Some('-') => None,
-        Some(_) => unreachable!("Only - or _ should be matched"),
-        // Convert any leading whitespace to `Static()` without adjusting.
-        None => whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace)),
+    let whitespace = if let Some(command) = command {
+        match command.as_str() {
+            "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
+            "-" => None,
+            _ => unreachable!("Only - or _ should be matched"),
+        }
+    } else {
+        whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace))
     };
 
     Ok((input, (whitespace, open)))
@@ -117,25 +113,53 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Static>, TagOpen)>
 
 pub(crate) fn tag_end<'a>(
     tag_close: &'static str,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, Option<Static<'a>>> + 'a {
+) -> impl Fn(Source<'a>) -> Res<Source<'a>, Option<Item<'a>>> + 'a {
     move |input| {
         if let Ok((input, _tag)) = tag::<_, _, VerboseError<_>>(tag_close)(input.clone()) {
             return Ok((input, None));
         }
 
-        let (input, (command, _, whitespace)) = tuple((
-            alt((collapse_whitespace_command, trim_whitespace_command)),
+        let (input, (command, _close_tag, whitespace, adjacent_open_tag)) = tuple((
+            opt(alt((collapse_whitespace_command, trim_whitespace_command))),
             tag(tag_close),
             opt(whitespace),
+            // The group in the `peek()` should match the checks in `tag_start()` after the whitespace check.
+            peek(opt(pair(
+                tag_open,
+                opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+            ))),
         ))(input)?;
 
-        let whitespace = match command {
-            '_' => whitespace.map(|whitespace| Static(" ", whitespace)),
-            '-' => None,
-            _ => unreachable!("Only - or _ should be matched"),
+        if let Some((_open_tag, next_command)) = adjacent_open_tag {
+            match (&command, &next_command) {
+                (Some(command), Some(next_command))
+                    if command.as_str() != next_command.as_str() =>
+                {
+                    let mut source = command.clone();
+                    source.range.end = next_command.range.end;
+                    return Ok((
+                        input,
+                        Some(Item::CompileError(
+                            "Mismatched whitespace adjustment characters".to_owned(),
+                            source,
+                        )),
+                    ));
+                }
+                (_, _) => (),
+            }
+        }
+
+        let whitespace = if let Some(command) = command {
+            match command.as_str() {
+                "_" => whitespace.map(|whitespace| Static(" ", whitespace)),
+                "-" => None,
+                _ => unreachable!("Only - or _ should be matched"),
+            }
+        } else {
+            whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace))
         };
 
-        Ok((input, whitespace))
+        Ok((input, whitespace.map(Item::Whitespace)))
     }
 }
 
@@ -147,17 +171,17 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
     ))(input)?;
 
     match output.as_str() {
-        "{{" => Ok((input, TagOpen::Writ)),
-        "{%" => Ok((input, TagOpen::Statement)),
-        "{#" => Ok((input, TagOpen::Comment)),
+        "{{" => Ok((input, TagOpen::Writ(output))),
+        "{%" => Ok((input, TagOpen::Statement(output))),
+        "{#" => Ok((input, TagOpen::Comment(output))),
         _ => panic!("This should never happen"),
     }
 }
 
-fn collapse_whitespace_command(input: Source) -> Res<Source, char> {
-    char('_')(input)
+fn collapse_whitespace_command(input: Source) -> Res<Source, Source> {
+    tag("_")(input)
 }
 
-fn trim_whitespace_command(input: Source) -> Res<Source, char> {
-    char('-')(input)
+fn trim_whitespace_command(input: Source) -> Res<Source, Source> {
+    tag("-")(input)
 }

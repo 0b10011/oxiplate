@@ -65,3 +65,33 @@ fn comment_preserve_spaceless() {
 
     assert_eq!(format!("{template}"), "Hello @!");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline = r#"
+{{ "leave" }}  {{ "leave" }}
+{{ "leave" }}  {{- "remove" }}
+{{ "leave" }}  {{_ "replace" }}
+{{ "remove" -}}  {{ "leave" }}
+{{ "remove" -}}  {{- "remove" }}
+{{ "replace" _}}  {{ "leave" }}
+{{ "replace" _}}  {{_ "replace" }}
+"#]
+struct AdjacentTags {}
+
+#[test]
+fn adjacent_tags() {
+    let template = AdjacentTags {};
+
+    assert_eq!(
+        format!("{template}"),
+        "
+leave  leave
+leaveremove
+leave replace
+removeleave
+removeremove
+replace leave
+replace replace
+"
+    );
+}

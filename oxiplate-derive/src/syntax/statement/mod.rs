@@ -18,7 +18,7 @@ use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use self::r#for::For;
 use self::r#if::{ElseIf, If};
 use super::r#static::StaticType;
-use super::{Item, Res, Static};
+use super::{Item, Res};
 use crate::syntax::item::tag_end;
 use crate::syntax::template::{is_whitespace, parse_item};
 use crate::{Source, State};
@@ -124,7 +124,7 @@ impl ToTokens for Statement<'_> {
 pub(super) fn statement<'a>(
     state: &'a State,
     is_extending: &'a bool,
-) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
+) -> impl Fn(Source) -> Res<Source, (Item, Option<Item>)> + 'a {
     move |input| {
         // Ignore any leading inner whitespace
         let (input, _) = take_while(is_whitespace)(input)?;
@@ -155,7 +155,7 @@ pub(super) fn statement<'a>(
         if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
             if let Some(trailing_whitespace) = trailing_whitespace {
-                statement.add_item(Item::Static(trailing_whitespace, StaticType::Whitespace));
+                statement.add_item(trailing_whitespace);
             }
             trailing_whitespace = None;
 
@@ -210,9 +210,12 @@ pub(super) fn statement<'a>(
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {
-                        if let Item::Whitespace(whitespace) = item {
-                            trailing_whitespace = Some(whitespace);
-                            continue;
+                        match item {
+                            Item::Whitespace(_) | Item::CompileError(_, _) => {
+                                trailing_whitespace = Some(item);
+                                continue;
+                            }
+                            _ => (),
                         }
                     }
 

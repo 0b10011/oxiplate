@@ -13,7 +13,7 @@ use syn::{Path, PathSegment};
 use super::expression::{expression, ident, ExpressionAccess, Identifier};
 use super::item::tag_end;
 use super::template::is_whitespace;
-use super::{Item, Res, Static};
+use super::{Item, Res};
 use crate::{Source, State};
 
 pub(crate) struct Writ<'a>(pub ExpressionAccess<'a>, Option<Path>);
@@ -118,7 +118,7 @@ impl Escaper {
 
 pub(super) fn writ<'a>(
     state: &'a State<'a>,
-) -> impl Fn(Source) -> Res<Source, (Item, Option<Static>)> + 'a {
+) -> impl Fn(Source) -> Res<Source, (Item, Option<Item>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
         let (input, escaper_info) = opt(tuple((

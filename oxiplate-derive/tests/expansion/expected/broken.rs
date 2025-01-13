@@ -30,7 +30,7 @@ fn broken() {
         std::env::var("CARGO_MANIFEST_DIR").unwrap(),
     );
     let tests = trybuild::TestCases::new();
-    tests.compile_fail("tests/broken/*.rs");
+    tests.compile_fail("tests/broken/**/*.rs");
 }
 #[rustc_main]
 #[coverage(off)]

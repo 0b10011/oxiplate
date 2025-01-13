@@ -1,0 +1,5 @@
+error: Mismatched whitespace adjustment characters
+ --> tests/broken/adjacent-tags-whitespace/replace-remove.rs:4:31
+  |
+4 | #[oxiplate_inline = r#"{{ "a" _}} {{- "b" }}"#]
+  |                               ^^^^^^^
