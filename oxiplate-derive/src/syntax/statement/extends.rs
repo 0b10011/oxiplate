@@ -11,7 +11,7 @@ use syn::Type;
 
 use super::super::expression::keyword;
 use super::super::Res;
-use super::{Statement, StatementKind};
+use super::{Statement, StatementKind, StaticType};
 use crate::syntax::template::{is_whitespace, Template};
 use crate::syntax::Item;
 use crate::Source;
@@ -60,8 +60,8 @@ impl<'a> Extends<'a> {
             )),
 
             // No static text or writs allowed
-            Item::Static(_, whitespace_only) => {
-                if !*whitespace_only {
+            Item::Static(_, static_type) => {
+                if static_type != &StaticType::Whitespace {
                     unimplemented!(
                         "Text is not allowed here. Only comments, whitespace, and blocks are \
                          allowed."

@@ -9,7 +9,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 
 use super::super::Source;
 use super::item::{parse_tag, ItemToken};
-use super::r#static::parse_static;
+use super::r#static::{parse_static, StaticType};
 use super::{Item, Res, Static};
 use crate::State;
 
@@ -166,12 +166,12 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
             }
             #[allow(clippy::match_same_arms)]
             Item::Writ(_) => (),
-            Item::Static(_, whitespace_only) => {
+            Item::Static(_, static_type) => {
                 if is_extending {
                     todo!("Can't add static content or writs when extending");
                 }
 
-                has_content = !whitespace_only;
+                has_content = static_type == &StaticType::Whitespace;
             }
             // These are fine anywhere
             Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (),

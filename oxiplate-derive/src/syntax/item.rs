@@ -11,6 +11,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::comment::comment;
+use super::r#static::StaticType;
 use super::statement::statement;
 use super::template::whitespace;
 use super::writ::writ;
@@ -31,7 +32,7 @@ pub(crate) enum Item<'a> {
     Statement(Statement<'a>),
 
     /// Static text, with a boolean for whether the text is only whitespace.
-    Static(Static<'a>, bool),
+    Static(Static<'a>, StaticType),
     Whitespace(Static<'a>),
     CompileError(String, Source<'a>),
 }
@@ -42,16 +43,10 @@ impl Item<'_> {
             Item::Comment => ItemToken::Comment,
             Item::Writ(writ) => ItemToken::DynamicText(writ.to_token()),
             Item::Statement(statement) => ItemToken::Statement(quote! { #statement }),
-            Item::Static(text, _whitespace_only) => {
-                // `{` and `}` are handled specially when formatting the text,
-                // so any string that contains them needs to be treated as dynamic
-                // to ensure it doesn't break string formatting.
-                if text.0.contains(['{', '}']) {
-                    ItemToken::DynamicText(text.to_token())
-                } else {
-                    ItemToken::StaticText(text.to_token())
-                }
-            }
+            Item::Static(text, static_type) => match static_type {
+                StaticType::Brace => ItemToken::DynamicText(text.to_token()),
+                StaticType::Whitespace | StaticType::Text => ItemToken::StaticText(text.to_token()),
+            },
             Item::Whitespace(whitespace) => ItemToken::StaticText(whitespace.to_token()),
             Item::CompileError(text, source) => {
                 let span = source.slice(RangeTo { end: 1 }).span();

@@ -10,8 +10,8 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}",
-                "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"
+                "Braces ({0} and {1}) are formatting characters in Rust and must be escaped. {2}{3}",
+                "{", "}", "{", "}"
             ),
         )?;
         Ok(())

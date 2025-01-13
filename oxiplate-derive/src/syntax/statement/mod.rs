@@ -17,6 +17,7 @@ use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 
 use self::r#for::For;
 use self::r#if::{ElseIf, If};
+use super::r#static::StaticType;
 use super::{Item, Res, Static};
 use crate::syntax::item::tag_end;
 use crate::syntax::template::{is_whitespace, parse_item};
@@ -154,7 +155,7 @@ pub(super) fn statement<'a>(
         if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
             if let Some(trailing_whitespace) = trailing_whitespace {
-                statement.add_item(Item::Static(trailing_whitespace, true));
+                statement.add_item(Item::Static(trailing_whitespace, StaticType::Whitespace));
             }
             trailing_whitespace = None;
 
