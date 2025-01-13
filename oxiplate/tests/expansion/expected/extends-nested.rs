@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate = "./extends-nested-different-blocks.html.oxip"]
+#[oxiplate = "./extends-deep.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
     message: &'static str,
@@ -16,11 +16,11 @@ impl ::std::fmt::Display for AbsoluteData {
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
             f.write_fmt(
-                format_args!("<h1>{0}</h1>\n  <p>{1}</p>", self.title, self.message),
+                format_args!("<h2>{0}</h2>\n  <div>{1}</div>", self.title, self.message),
             )?;
             Ok(())
         };
-        #[oxiplate_extends = "{% extends \"extends-nested-different-blocks-layout.html.oxip\" %}\n{% block body -%}\n  <main>\n    {%- block content -%}{%- endblock -%}\n  </main>\n{%- endblock %}"]
+        #[oxiplate_extends = "{% extends \"extends-wrapper.html.oxip\" %}\n\n{% block content -%}\n    Some test content.\n{%- endblock %}\n"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -39,21 +39,8 @@ impl ::std::fmt::Display for AbsoluteData {
             ) -> ::std::fmt::Result,
         {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                let body = |
-                    callback: fn(
-                        f: &mut ::std::fmt::Formatter<'_>,
-                    ) -> ::std::fmt::Result,
-                    f: &mut ::std::fmt::Formatter<'_>,
-                | -> ::std::fmt::Result {
-                    f.write_str("<main>")?;
-                    let content = |
-                        f: &mut ::std::fmt::Formatter<'_>,
-                    | -> ::std::fmt::Result { Ok(()) };
-                    (self.content)(content, f)?;
-                    f.write_str("</main>")?;
-                    Ok(())
-                };
-                #[oxiplate_extends = "<DOCTYPE html>\n<head>\n  <title>{{ title }}</title>\n</head>\n<body>\n  {%- block body -%}{%- endblock -%}\n</body>\n"]
+                let content = self.content;
+                #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
                 struct ExtendingTemplate<'a, F>
                 where
                     F: Fn(
@@ -62,7 +49,7 @@ impl ::std::fmt::Display for AbsoluteData {
                     ) -> ::std::fmt::Result,
                 {
                     _data: &'a &'a AbsoluteData,
-                    body: &'a F,
+                    content: &'a F,
                 }
                 impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
                 where
@@ -77,21 +64,23 @@ impl ::std::fmt::Display for AbsoluteData {
                     ) -> ::std::fmt::Result {
                         f.write_fmt(
                             format_args!(
-                                "<DOCTYPE html>\n<head>\n  <title>{0}</title>\n</head>\n<body>",
-                                self._data.title
+                                "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
                             ),
                         )?;
-                        let body = |
+                        let content = |
                             f: &mut ::std::fmt::Formatter<'_>,
-                        | -> ::std::fmt::Result { Ok(()) };
-                        (self.body)(body, f)?;
-                        f.write_str("</body>\n")?;
+                        | -> ::std::fmt::Result {
+                            f.write_str("test")?;
+                            Ok(())
+                        };
+                        (self.content)(content, f)?;
+                        f.write_str("\n")?;
                         Ok(())
                     }
                 }
                 let template = ExtendingTemplate {
                     _data: &self._data,
-                    body: &body,
+                    content: &self.content,
                 };
                 f.write_fmt(format_args!("{0}", template))?;
                 Ok(())
@@ -114,7 +103,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\extends-nested-different-blocks.rs",
+        source_file: "oxiplate\\tests\\extends-nested.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
@@ -136,9 +125,8 @@ fn absolute() {
             let res = ::alloc::fmt::format(format_args!("{0}", data));
             res
         }),
-        &"<DOCTYPE html>\n<head>\n  <title>Oxiplate \
-         Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello \
-         world!</p></main></body>\n",
+        &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
+         <div>Hello world!</div>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

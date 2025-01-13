@@ -115,7 +115,7 @@ impl ToTokens for Extends<'_> {
         if self.is_extending {
             tokens.append_all(quote! {
                 #template
-                #[derive(::oxiplate_derive::Oxiplate)]
+                #[derive(::oxiplate::Oxiplate)]
                 #[oxiplate_extends = include_str!(#path)]
                 struct ExtendingTemplate<'a, F>
                 where
@@ -135,7 +135,7 @@ impl ToTokens for Extends<'_> {
         } else {
             tokens.append_all(quote! {
                 #template
-                #[derive(::oxiplate_derive::Oxiplate)]
+                #[derive(::oxiplate::Oxiplate)]
                 #[oxiplate_extends = include_str!(#path)]
                 struct Template<'a, F>
                 where

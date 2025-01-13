@@ -71,6 +71,7 @@ name = "oxiplate"
 version = "0.2.1"
 dependencies = [
  "oxiplate-derive",
+ "rustversion",
  "trybuild",
 ]
 

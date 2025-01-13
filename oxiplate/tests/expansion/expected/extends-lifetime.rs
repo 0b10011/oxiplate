@@ -103,7 +103,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\extends-lifetime.rs",
+        source_file: "oxiplate\\tests\\extends-lifetime.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
