@@ -166,14 +166,12 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
             }
             #[allow(clippy::match_same_arms)]
             Item::Writ(_) => (),
-            Item::Static(_) => {
+            Item::Static(_, whitespace_only) => {
                 if is_extending {
                     todo!("Can't add static content or writs when extending");
                 }
 
-                // Whitespace-only `Static` should be wrapped in `Item::Whitespace()` instead,
-                // so no check needs to be done for whitespace.
-                has_content = true;
+                has_content = !whitespace_only;
             }
             // These are fine anywhere
             Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (),

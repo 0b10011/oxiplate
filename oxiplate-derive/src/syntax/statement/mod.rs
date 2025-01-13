@@ -154,7 +154,7 @@ pub(super) fn statement<'a>(
         if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
             if let Some(trailing_whitespace) = trailing_whitespace {
-                statement.add_item(trailing_whitespace.into());
+                statement.add_item(Item::Static(trailing_whitespace, true));
             }
             trailing_whitespace = None;
 

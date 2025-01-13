@@ -29,7 +29,9 @@ pub(crate) enum Item<'a> {
     Comment,
     Writ(Writ<'a>),
     Statement(Statement<'a>),
-    Static(Static<'a>),
+
+    /// Static text, with a boolean for whether the text is only whitespace.
+    Static(Static<'a>, bool),
     Whitespace(Static<'a>),
     CompileError(String, Source<'a>),
 }
@@ -40,7 +42,7 @@ impl Item<'_> {
             Item::Comment => ItemToken::Comment,
             Item::Writ(writ) => ItemToken::DynamicText(writ.to_token()),
             Item::Statement(statement) => ItemToken::Statement(quote! { #statement }),
-            Item::Static(text) => {
+            Item::Static(text, _whitespace_only) => {
                 // `{` and `}` are handled specially when formatting the text,
                 // so any string that contains them needs to be treated as dynamic
                 // to ensure it doesn't break string formatting.

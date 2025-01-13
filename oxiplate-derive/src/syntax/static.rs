@@ -21,12 +21,6 @@ impl Static<'_> {
     }
 }
 
-impl<'a> From<Static<'a>> for Item<'a> {
-    fn from(r#static: Static<'a>) -> Self {
-        Item::Static(r#static)
-    }
-}
-
 pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     let (input, (output, _)) = many_till(
         alt((
@@ -47,29 +41,15 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     }
 
     let mut source: Option<Source> = None;
-    let mut leading_whitespace: Option<Source> = None;
-    let mut trailing_whitespace: Option<Source> = None;
-    let mut items = output.into_iter().peekable();
-    while let Some(item) = items.next() {
+    let mut whitespace_only = true;
+    for item in output {
         let is_whitespace = take_while(is_whitespace)(item.clone())?
             .0
             .as_str()
             .is_empty();
 
-        // Check if leading whitespace
-        if is_whitespace && source.is_none() {
-            if let Some(leading_whitespace) = &mut leading_whitespace {
-                leading_whitespace.range.end = item.range.end;
-            } else {
-                leading_whitespace = Some(item);
-            }
-            continue;
-        }
-
-        // Check if trailing whitespace
-        if is_whitespace && items.peek().is_none() {
-            trailing_whitespace = Some(item);
-            continue;
+        if !is_whitespace {
+            whitespace_only = false;
         }
 
         if let Some(source) = &mut source {
@@ -80,20 +60,11 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     }
 
     let mut items: Vec<Item> = vec![];
-    if let Some(leading_whitespace) = leading_whitespace {
-        items.push(Item::Whitespace(Static(
-            leading_whitespace.as_str(),
-            leading_whitespace,
-        )));
-    }
     if let Some(source) = source {
-        items.push(Item::Static(Static(source.as_str(), source)));
-    }
-    if let Some(trailing_whitespace) = trailing_whitespace {
-        items.push(Item::Whitespace(Static(
-            trailing_whitespace.as_str(),
-            trailing_whitespace,
-        )));
+        items.push(Item::Static(
+            Static(source.as_str(), source),
+            whitespace_only,
+        ));
     }
 
     Ok((input, items))

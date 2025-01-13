@@ -60,9 +60,14 @@ impl<'a> Extends<'a> {
             )),
 
             // No static text or writs allowed
-            Item::Static(_) => unimplemented!(
-                "Text is not allowed here. Only comments, whitespace, and blocks are allowed."
-            ),
+            Item::Static(_, whitespace_only) => {
+                if !*whitespace_only {
+                    unimplemented!(
+                        "Text is not allowed here. Only comments, whitespace, and blocks are \
+                         allowed."
+                    )
+                }
+            }
             Item::Writ(_) => unimplemented!(
                 "Writs are not allowed here. Only comments, whitespace, and blocks are allowed."
             ),
