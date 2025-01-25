@@ -137,12 +137,10 @@ impl<'a> Source<'a> {
             match (unicode_chars_parsed, char) {
                 (-1, '{') => {
                     unicode_chars_parsed += 1;
-                    continue;
                 }
                 (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                     unicode_chars_parsed += 1;
                     unicode_code = format!("{unicode_code}{char}");
-                    continue;
                 }
                 (1..=4, '}') => {
                     let code = u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
