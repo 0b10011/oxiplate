@@ -13,5 +13,5 @@ fn broken() {
     tests.pass("tests/broken-verify/with-group.rs");
 
     // The actual tests are in the `broken` directory next to this file
-    tests.compile_fail("tests/broken/*.rs");
+    tests.compile_fail("tests/broken/**/*.rs");
 }
