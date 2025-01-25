@@ -1,0 +1,3 @@
+{% extends "extends-wrapper-crlf.html.oxip" %}
+{% block content -%}
+{%- endblock %}
