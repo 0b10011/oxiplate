@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.2...oxiplate-v0.2.3) - 2025-01-25
+
+### Fixed
+
+- more accurate spans on parent templates
+
+### Other
+
+- support for subdirectories in oxiplate broken tests
+- clippy fixes
+
 ## [0.2.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.1...oxiplate-v0.2.2) - 2025-01-14
 
 ### Fixed
