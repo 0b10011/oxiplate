@@ -216,10 +216,8 @@ fn parse_source_tokens(
     template_type: &TemplateType,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     match template_type {
-        TemplateType::Inline | TemplateType::Extends => {
-            parse_source_tokens_for_inline_or_extends(attr)
-        }
-        TemplateType::Path => parse_source_tokens_for_path(attr),
+        TemplateType::Inline => parse_source_tokens_for_inline_or_extends(attr),
+        TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr),
     }
 }
 
@@ -312,7 +310,7 @@ fn parse_fields(
                         Some(name) => {
                             if !is_extending {
                                 field_names.push(name);
-                            } else if *name == "_data" {
+                            } else if *name == "oxiplate_extends_data" {
                                 data_type = field.ty.clone();
                             } else {
                                 blocks.push(name.to_string());

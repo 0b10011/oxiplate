@@ -20,7 +20,7 @@ impl ::std::fmt::Display for AbsoluteData {
             )?;
             Ok(())
         };
-        #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
+        #[oxiplate_extends = "extends-wrapper.html.oxip"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -28,7 +28,7 @@ impl ::std::fmt::Display for AbsoluteData {
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
-            _data: &'a AbsoluteData,
+            oxiplate_extends_data: &'a AbsoluteData,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
@@ -41,7 +41,8 @@ impl ::std::fmt::Display for AbsoluteData {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
+                        .oxiplate_extends_data.title
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -54,7 +55,7 @@ impl ::std::fmt::Display for AbsoluteData {
             }
         }
         let template = Template {
-            _data: self,
+            oxiplate_extends_data: self,
             content: &content,
         };
         f.write_fmt(format_args!("{0}", template))?;
@@ -177,7 +178,7 @@ impl ::std::fmt::Display for Prefix {
             callback(f)?;
             Ok(())
         };
-        #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
+        #[oxiplate_extends = "extends-wrapper.html.oxip"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -185,7 +186,7 @@ impl ::std::fmt::Display for Prefix {
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
-            _data: &'a Prefix,
+            oxiplate_extends_data: &'a Prefix,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
@@ -198,7 +199,8 @@ impl ::std::fmt::Display for Prefix {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
+                        .oxiplate_extends_data.title
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -211,7 +213,7 @@ impl ::std::fmt::Display for Prefix {
             }
         }
         let template = Template {
-            _data: self,
+            oxiplate_extends_data: self,
             content: &content,
         };
         f.write_fmt(format_args!("{0}", template))?;
@@ -282,7 +284,7 @@ impl ::std::fmt::Display for Replace {
             f.write_fmt(format_args!("<p>{0}</p>", self.message))?;
             Ok(())
         };
-        #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
+        #[oxiplate_extends = "extends-wrapper.html.oxip"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -290,7 +292,7 @@ impl ::std::fmt::Display for Replace {
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
-            _data: &'a Replace,
+            oxiplate_extends_data: &'a Replace,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
@@ -303,7 +305,8 @@ impl ::std::fmt::Display for Replace {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
+                        .oxiplate_extends_data.title
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -316,7 +319,7 @@ impl ::std::fmt::Display for Replace {
             }
         }
         let template = Template {
-            _data: self,
+            oxiplate_extends_data: self,
             content: &content,
         };
         f.write_fmt(format_args!("{0}", template))?;
@@ -388,7 +391,7 @@ impl ::std::fmt::Display for Suffix {
             f.write_fmt(format_args!("<p>{0}</p>", self.message))?;
             Ok(())
         };
-        #[oxiplate_extends = "<!DOCTYPE html>\n<title>{{ title }}</title>\n{% block content -%}test{%- endblock %}\n"]
+        #[oxiplate_extends = "extends-wrapper.html.oxip"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -396,7 +399,7 @@ impl ::std::fmt::Display for Suffix {
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
-            _data: &'a Suffix,
+            oxiplate_extends_data: &'a Suffix,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
@@ -409,7 +412,8 @@ impl ::std::fmt::Display for Suffix {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self._data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
+                        .oxiplate_extends_data.title
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -422,7 +426,7 @@ impl ::std::fmt::Display for Suffix {
             }
         }
         let template = Template {
-            _data: self,
+            oxiplate_extends_data: self,
             content: &content,
         };
         f.write_fmt(format_args!("{0}", template))?;

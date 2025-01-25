@@ -55,6 +55,7 @@ impl<'a> Source<'a> {
         // Customize the range to map properly to the literal.
         let mut range = Range { start, end };
 
+        // Uses the span from the included file.
         if self.original.origin.is_some() {
             return self
                 .original

@@ -33,7 +33,7 @@ fn broken() {
     }
     let tests = trybuild::TestCases::new();
     tests.pass("tests/broken-verify/with-group.rs");
-    tests.compile_fail("tests/broken/*.rs");
+    tests.compile_fail("tests/broken/**/*.rs");
 }
 #[rustc_main]
 #[coverage(off)]

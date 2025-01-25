@@ -20,7 +20,7 @@ impl ::std::fmt::Display for AbsoluteData {
             )?;
             Ok(())
         };
-        #[oxiplate_extends = "{% extends \"extends-nested-different-blocks-layout.html.oxip\" %}\n{% block body -%}\n  <main>\n    {%- block content -%}{%- endblock -%}\n  </main>\n{%- endblock %}"]
+        #[oxiplate_extends = "extends-nested-different-blocks-wrapper.html.oxip"]
         struct Template<'a, F>
         where
             F: Fn(
@@ -28,7 +28,7 @@ impl ::std::fmt::Display for AbsoluteData {
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
-            _data: &'a AbsoluteData,
+            oxiplate_extends_data: &'a AbsoluteData,
             content: &'a F,
         }
         impl<'a, F> ::std::fmt::Display for Template<'a, F>
@@ -53,7 +53,7 @@ impl ::std::fmt::Display for AbsoluteData {
                     f.write_str("</main>")?;
                     Ok(())
                 };
-                #[oxiplate_extends = "<DOCTYPE html>\n<head>\n  <title>{{ title }}</title>\n</head>\n<body>\n  {%- block body -%}{%- endblock -%}\n</body>\n"]
+                #[oxiplate_extends = "extends-nested-different-blocks-layout.html.oxip"]
                 struct ExtendingTemplate<'a, F>
                 where
                     F: Fn(
@@ -61,7 +61,7 @@ impl ::std::fmt::Display for AbsoluteData {
                         &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result,
                 {
-                    _data: &'a &'a AbsoluteData,
+                    oxiplate_extends_data: &'a &'a AbsoluteData,
                     body: &'a F,
                 }
                 impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
@@ -78,7 +78,7 @@ impl ::std::fmt::Display for AbsoluteData {
                         f.write_fmt(
                             format_args!(
                                 "<DOCTYPE html>\n<head>\n  <title>{0}</title>\n</head>\n<body>",
-                                self._data.title
+                                self.oxiplate_extends_data.title
                             ),
                         )?;
                         let body = |
@@ -90,7 +90,7 @@ impl ::std::fmt::Display for AbsoluteData {
                     }
                 }
                 let template = ExtendingTemplate {
-                    _data: &self._data,
+                    oxiplate_extends_data: &self.oxiplate_extends_data,
                     body: &body,
                 };
                 f.write_fmt(format_args!("{0}", template))?;
@@ -98,7 +98,7 @@ impl ::std::fmt::Display for AbsoluteData {
             }
         }
         let template = Template {
-            _data: self,
+            oxiplate_extends_data: self,
             content: &content,
         };
         f.write_fmt(format_args!("{0}", template))?;

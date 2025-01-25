@@ -6,7 +6,7 @@ use nom::combinator::cut;
 use nom::error::context;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::Type;
 
 use super::super::expression::keyword;
@@ -85,15 +85,8 @@ impl ToTokens for Extends<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Extends { path, template, .. } = self;
 
+        let span = path.span();
         let path = path.as_str();
-        let path = ::std::path::PathBuf::from(
-            ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
-                .or(::std::env::var("CARGO_MANIFEST_DIR"))
-                .unwrap(),
-        )
-        .join(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"))
-        .join(path);
-        let path = path.to_string_lossy();
 
         let data_type = &self.data_type;
         // FIXME: Should also include local vars here I think
@@ -113,42 +106,42 @@ impl ToTokens for Extends<'_> {
             }
         }
         if self.is_extending {
-            tokens.append_all(quote! {
+            tokens.append_all(quote_spanned! {span=>
                 #template
                 #[derive(::oxiplate::Oxiplate)]
-                #[oxiplate_extends = include_str!(#path)]
+                #[oxiplate_extends = #path]
                 struct ExtendingTemplate<'a, F>
                 where
                     F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
-                    _data: &'a #data_type,
+                    oxiplate_extends_data: &'a #data_type,
                     #(#inherited_blocks: &'a F,)*
                     #(#new_blocks: &'a F,)*
                 }
 
                 let template = ExtendingTemplate {
-                    _data: &self._data,
+                    oxiplate_extends_data: &self.oxiplate_extends_data,
                     #(#inherited_blocks: &self.#inherited_blocks,)*
                     #(#new_blocks: &#new_blocks,)*
                 };
             });
         } else {
-            tokens.append_all(quote! {
+            tokens.append_all(quote_spanned! {span=>
                 #template
                 #[derive(::oxiplate::Oxiplate)]
-                #[oxiplate_extends = include_str!(#path)]
+                #[oxiplate_extends = #path]
                 struct Template<'a, F>
                 where
                     F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 {
                     // FIXME: Need to pass #extending and #extending_generics down to next level (type alias doesn't help because generics need to be passed sometimes)
-                    _data: &'a #data_type,
+                    oxiplate_extends_data: &'a #data_type,
                     #(#inherited_blocks: &'a F,)*
                     #(#new_blocks: &'a F,)*
                 }
 
                 let template = Template {
-                    _data: self,
+                    oxiplate_extends_data: self,
                     #(#inherited_blocks: &#inherited_blocks,)*
                     #(#new_blocks: &#new_blocks,)*
                 };
@@ -161,7 +154,7 @@ impl ToTokens for Extends<'_> {
 }
 
 pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
-    let (input, _extends_keyword) = keyword("extends")(input)?;
+    let (input, extends_keyword) = keyword("extends")(input)?;
 
     let (input, (_, _, path, _)) = cut(tuple((
         context("Expected space after 'extends'", take_while1(is_whitespace)),
@@ -177,6 +170,8 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
     let data_type = input.original.data_type.clone();
     let blocks = input.original.blocks.clone();
 
+    let source = extends_keyword.0;
+
     Ok((
         input,
         Statement {
@@ -188,7 +183,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
                 template: Template(vec![]),
             }
             .into(),
-            source: path,
+            source,
         },
     ))
 }

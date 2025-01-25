@@ -171,7 +171,9 @@ impl ToTokens for Expression<'_> {
                     match scope {
                         IdentifierScope::Local => quote_spanned! {span=> #identifier },
                         IdentifierScope::Parent => quote_spanned! {span=> self.#identifier },
-                        IdentifierScope::Data => quote_spanned! {span=> self._data.#identifier },
+                        IdentifierScope::Data => {
+                            quote_spanned! {span=> self.oxiplate_extends_data.#identifier }
+                        }
                     }
                 }
                 IdentifierOrFunction::Function(identifier, parens) => {
@@ -187,7 +189,7 @@ impl ToTokens for Expression<'_> {
                             quote_spanned! {span=> self.#identifier #parens }
                         }
                         IdentifierScope::Data => {
-                            quote_spanned! {span=> self._data.#identifier #parens }
+                            quote_spanned! {span=> self.oxiplate_extends_data.#identifier #parens }
                         }
                     }
                 }
