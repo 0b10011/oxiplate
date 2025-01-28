@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.2.3...oxiplate-derive-v0.2.4) - 2025-01-28
+
+### Fixed
+
+- support for multiple blocks in the same file
+
 ## [0.2.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.2.2...oxiplate-derive-v0.2.3) - 2025-01-25
 
 ### Fixed
