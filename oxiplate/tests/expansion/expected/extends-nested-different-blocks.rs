@@ -21,19 +21,20 @@ impl ::std::fmt::Display for AbsoluteData {
             Ok(())
         };
         #[oxiplate_extends = "extends-nested-different-blocks-wrapper.html.oxip"]
-        struct Template<'a, F>
+        struct Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
+            #[allow(dead_code)]
             oxiplate_extends_data: &'a AbsoluteData,
-            content: &'a F,
+            content: &'a Block1,
         }
-        impl<'a, F> ::std::fmt::Display for Template<'a, F>
+        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
@@ -54,19 +55,20 @@ impl ::std::fmt::Display for AbsoluteData {
                     Ok(())
                 };
                 #[oxiplate_extends = "extends-nested-different-blocks-layout.html.oxip"]
-                struct ExtendingTemplate<'a, F>
+                struct ExtendingTemplate<'a, Block1>
                 where
-                    F: Fn(
+                    Block1: Fn(
                         fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                         &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result,
                 {
+                    #[allow(dead_code)]
                     oxiplate_extends_data: &'a &'a AbsoluteData,
-                    body: &'a F,
+                    body: &'a Block1,
                 }
-                impl<'a, F> ::std::fmt::Display for ExtendingTemplate<'a, F>
+                impl<'a, Block1> ::std::fmt::Display for ExtendingTemplate<'a, Block1>
                 where
-                    F: Fn(
+                    Block1: Fn(
                         fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                         &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result,

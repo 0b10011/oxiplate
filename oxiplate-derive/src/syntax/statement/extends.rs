@@ -7,7 +7,7 @@ use nom::error::context;
 use nom::sequence::tuple;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
-use syn::Type;
+use syn::{GenericArgument, Ident, Type};
 
 use super::super::expression::keyword;
 use super::super::Res;
@@ -90,18 +90,39 @@ impl ToTokens for Extends<'_> {
 
         let data_type = &self.data_type;
         // FIXME: Should also include local vars here I think
-        let mut inherited_blocks = vec![];
-        let mut new_blocks = vec![];
+        let mut block_generics = vec![];
+        let mut block_constraints = vec![];
+        let mut block_definitions = vec![];
+        let mut block_values = vec![];
+        let mut generic_name_i = 0;
         for item in &self.template.0 {
             if let Item::Statement(Statement {
                 kind: StatementKind::Block(block),
                 ..
             }) = item
             {
+                // Build generic name and bounds
+                generic_name_i += 1;
+                let generic_name = Ident::new(&format!("Block{generic_name_i}"), span);
+                let constraint: GenericArgument = syn::parse_quote_spanned!(span=>
+                    #generic_name: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result
+                );
+                let block_name = &block.name;
+
+                block_definitions.push(quote_spanned! {span=>
+                    #block_name: &'a #generic_name
+                });
+                block_generics.push(generic_name);
+                block_constraints.push(constraint);
+
                 if self.blocks.contains(&block.name.ident.to_string()) {
-                    inherited_blocks.push(&block.name);
+                    block_values.push(quote_spanned! {span=>
+                        #block_name: &self.#block_name
+                    });
                 } else {
-                    new_blocks.push(&block.name);
+                    block_values.push(quote_spanned! {span=>
+                        #block_name: &#block_name
+                    });
                 }
             }
         }
@@ -110,19 +131,17 @@ impl ToTokens for Extends<'_> {
                 #template
                 #[derive(::oxiplate::Oxiplate)]
                 #[oxiplate_extends = #path]
-                struct ExtendingTemplate<'a, F>
-                where
-                    F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                struct ExtendingTemplate<'a, #(#block_generics),*>
+                where #(#block_constraints),*
                 {
+                    #[allow(dead_code)]
                     oxiplate_extends_data: &'a #data_type,
-                    #(#inherited_blocks: &'a F,)*
-                    #(#new_blocks: &'a F,)*
+                    #(#block_definitions,)*
                 }
 
                 let template = ExtendingTemplate {
                     oxiplate_extends_data: &self.oxiplate_extends_data,
-                    #(#inherited_blocks: &self.#inherited_blocks,)*
-                    #(#new_blocks: &#new_blocks,)*
+                    #(#block_values,)*
                 };
             });
         } else {
@@ -130,20 +149,17 @@ impl ToTokens for Extends<'_> {
                 #template
                 #[derive(::oxiplate::Oxiplate)]
                 #[oxiplate_extends = #path]
-                struct Template<'a, F>
-                where
-                    F: Fn(fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result, &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
+                struct Template<'a, #(#block_generics),*>
+                where #(#block_constraints),*
                 {
-                    // FIXME: Need to pass #extending and #extending_generics down to next level (type alias doesn't help because generics need to be passed sometimes)
+                    #[allow(dead_code)]
                     oxiplate_extends_data: &'a #data_type,
-                    #(#inherited_blocks: &'a F,)*
-                    #(#new_blocks: &'a F,)*
+                    #(#block_definitions,)*
                 }
 
                 let template = Template {
                     oxiplate_extends_data: self,
-                    #(#inherited_blocks: &#inherited_blocks,)*
-                    #(#new_blocks: &#new_blocks,)*
+                    #(#block_values,)*
                 };
             });
         }

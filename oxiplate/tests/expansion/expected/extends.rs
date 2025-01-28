@@ -21,19 +21,20 @@ impl ::std::fmt::Display for AbsoluteData {
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
-        struct Template<'a, F>
+        struct Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
+            #[allow(dead_code)]
             oxiplate_extends_data: &'a AbsoluteData,
-            content: &'a F,
+            content: &'a Block1,
         }
-        impl<'a, F> ::std::fmt::Display for Template<'a, F>
+        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
@@ -179,19 +180,20 @@ impl ::std::fmt::Display for Prefix {
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
-        struct Template<'a, F>
+        struct Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
+            #[allow(dead_code)]
             oxiplate_extends_data: &'a Prefix,
-            content: &'a F,
+            content: &'a Block1,
         }
-        impl<'a, F> ::std::fmt::Display for Template<'a, F>
+        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
@@ -285,19 +287,20 @@ impl ::std::fmt::Display for Replace {
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
-        struct Template<'a, F>
+        struct Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
+            #[allow(dead_code)]
             oxiplate_extends_data: &'a Replace,
-            content: &'a F,
+            content: &'a Block1,
         }
-        impl<'a, F> ::std::fmt::Display for Template<'a, F>
+        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
@@ -392,19 +395,20 @@ impl ::std::fmt::Display for Suffix {
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
-        struct Template<'a, F>
+        struct Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,
         {
+            #[allow(dead_code)]
             oxiplate_extends_data: &'a Suffix,
-            content: &'a F,
+            content: &'a Block1,
         }
-        impl<'a, F> ::std::fmt::Display for Template<'a, F>
+        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
-            F: Fn(
+            Block1: Fn(
                 fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
                 &mut ::std::fmt::Formatter<'_>,
             ) -> ::std::fmt::Result,

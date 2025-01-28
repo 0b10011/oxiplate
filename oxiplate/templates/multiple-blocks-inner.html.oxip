@@ -1,0 +1,5 @@
+{% extends "multiple-blocks.html.oxip" %}
+
+{% block header %}header{% endblock %}
+{% block main %}main{% endblock %}
+{% block footer %}footer{% endblock %}
