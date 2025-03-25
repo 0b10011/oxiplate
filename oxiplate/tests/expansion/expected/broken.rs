@@ -12,7 +12,7 @@ pub const broken: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("broken"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\broken.rs",
+        source_file: "oxiplate/tests/broken.rs",
         start_line: 2usize,
         start_col: 4usize,
         end_line: 2usize,

@@ -51,28 +51,66 @@ impl<'a> ::std::fmt::Display for Types<'a> {
         f.write_fmt(
             format_args!(
                 "\n{0}\n{1}\n{2}\n{3}\n{4}\n{5}\n\n{6}\n{7}\n{8}\n{9}\n{10}\n{11}\n\n{12}\n{13}\n{14}\n{15}\n{16}\n{17}\n",
-                self.slice, self.string, self.integer, self.float, self.display, self
-                .fn_string,
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.slice)); res })),
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.string)); res })),
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.integer)); res })),
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.float)); res })),
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.display)); res })),
-                ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0}", self.fn_string)); res })), self
-                .slice, self.string, self.integer, self.float, self.display, self
-                .fn_string
+                self.slice,
+                self.string,
+                self.integer,
+                self.float,
+                self.display,
+                self.fn_string,
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(format_args!("{0}", self.slice));
+                        res
+                    }),
+                ),
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(format_args!("{0}", self.string));
+                        res
+                    }),
+                ),
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(
+                            format_args!("{0}", self.integer),
+                        );
+                        res
+                    }),
+                ),
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(format_args!("{0}", self.float));
+                        res
+                    }),
+                ),
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(
+                            format_args!("{0}", self.display),
+                        );
+                        res
+                    }),
+                ),
+                ::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::html::HtmlEscaper::Text,
+                    &::alloc::__export::must_use({
+                        let res = ::alloc::fmt::format(
+                            format_args!("{0}", self.fn_string),
+                        );
+                        res
+                    }),
+                ),
+                self.slice,
+                self.string,
+                self.integer,
+                self.float,
+                self.display,
+                self.fn_string,
             ),
         )?;
         Ok(())
@@ -87,7 +125,7 @@ pub const types: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("types"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\escaping.rs",
+        source_file: "oxiplate/tests/escaping.rs",
         start_line: 52usize,
         start_col: 4usize,
         end_line: 52usize,

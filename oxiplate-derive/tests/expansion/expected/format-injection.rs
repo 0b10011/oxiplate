@@ -11,7 +11,10 @@ impl ::std::fmt::Display for Data {
         f.write_fmt(
             format_args!(
                 "Braces ({0} and {1}) are formatting characters in Rust and must be escaped. {2}{3}",
-                "{", "}", "{", "}"
+                "{",
+                "}",
+                "{",
+                "}",
             ),
         )?;
         Ok(())
@@ -26,7 +29,7 @@ pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("format_injection"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\format-injection.rs",
+        source_file: "oxiplate-derive/tests/format-injection.rs",
         start_line: 9usize,
         start_col: 4usize,
         end_line: 9usize,

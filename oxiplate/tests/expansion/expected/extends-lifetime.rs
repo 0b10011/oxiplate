@@ -66,8 +66,8 @@ impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
                     ) -> ::std::fmt::Result {
                         f.write_fmt(
                             format_args!(
-                                "<!DOCTYPE html>\n<title>{0}</title>\n", self
-                                .oxiplate_extends_data.title
+                                "<!DOCTYPE html>\n<title>{0}</title>\n",
+                                self.oxiplate_extends_data.title,
                             ),
                         )?;
                         let content = |
@@ -106,7 +106,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends-lifetime.rs",
+        source_file: "oxiplate/tests/extends-lifetime.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,

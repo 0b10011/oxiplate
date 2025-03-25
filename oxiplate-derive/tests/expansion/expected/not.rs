@@ -28,7 +28,7 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("test_if"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\not.rs",
+        source_file: "oxiplate-derive/tests/not.rs",
         start_line: 13usize,
         start_col: 4usize,
         end_line: 13usize,

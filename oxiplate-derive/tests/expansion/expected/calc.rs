@@ -23,12 +23,34 @@ impl ::std::fmt::Display for Math {
         f.write_fmt(
             format_args!(
                 "1 + 2 = {0}\n{1} + {2} = {3}\n{4} - {5} = {6}\n{7} * {8} = {9}\n{10} / {11} = {12}\n{13} % {14} = {15}\n{16} + {17} * {18} = {19}\n{20} + {21} / {22} = {23}\n{24} - {25} % {26} = {27}",
-                1 + 2, self.max, self.min, self.max + self.min, self.max, self.min, self
-                .max - self.min, self.max, self.min, self.max * self.min, self.max, self
-                .min, self.max / self.min, self.max, self.min, self.max % self.min, self
-                .min, self.min, self.max, self.min + self.min * self.max, self.max, self
-                .max, self.min, self.max + self.max / self.min, self.max, self.min, self
-                .min, self.max - self.min % self.min
+                1 + 2,
+                self.max,
+                self.min,
+                self.max + self.min,
+                self.max,
+                self.min,
+                self.max - self.min,
+                self.max,
+                self.min,
+                self.max * self.min,
+                self.max,
+                self.min,
+                self.max / self.min,
+                self.max,
+                self.min,
+                self.max % self.min,
+                self.min,
+                self.min,
+                self.max,
+                self.min + self.min * self.max,
+                self.max,
+                self.max,
+                self.min,
+                self.max + self.max / self.min,
+                self.max,
+                self.min,
+                self.min,
+                self.max - self.min % self.min,
             ),
         )?;
         Ok(())
@@ -43,7 +65,7 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("test_math"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\calc.rs",
+        source_file: "oxiplate-derive/tests/calc.rs",
         start_line: 20usize,
         start_col: 4usize,
         end_line: 20usize,
@@ -101,10 +123,24 @@ impl ::std::fmt::Display for Comparisons {
         f.write_fmt(
             format_args!(
                 "{0} == {1} = {2}\n{3} != {4} = {5}\n{6} > {7} = {8}\n{9} < {10} = {11}\n{12} >= {13} = {14}\n{15} <= {16} = {17}",
-                self.max, self.min, self.max == self.min, self.max, self.min, self.max !=
-                self.min, self.max, self.min, self.max > self.min, self.max, self.min,
-                self.max < self.min, self.max, self.min, self.max >= self.min, self.max,
-                self.min, self.max <= self.min
+                self.max,
+                self.min,
+                self.max == self.min,
+                self.max,
+                self.min,
+                self.max != self.min,
+                self.max,
+                self.min,
+                self.max > self.min,
+                self.max,
+                self.min,
+                self.max < self.min,
+                self.max,
+                self.min,
+                self.max >= self.min,
+                self.max,
+                self.min,
+                self.max <= self.min,
             ),
         )?;
         Ok(())
@@ -119,7 +155,7 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("test_comparisons"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\calc.rs",
+        source_file: "oxiplate-derive/tests/calc.rs",
         start_line: 51usize,
         start_col: 4usize,
         end_line: 51usize,
@@ -185,14 +221,42 @@ impl ::std::fmt::Display for OrAnd {
         f.write_fmt(
             format_args!(
                 "{0} || {1} = {2}\n{3} || {4} = {5}\n{6} || {7} = {8}\n{9} || {10} = {11}\n{12} && {13} = {14}\n{15} && {16} = {17}\n{18} && {19} = {20}\n{21} && {22} = {23}\n{24} || {25} && {26} = {27}\n{28} || {29} && {30} = {31}\n{32} || {33} && {34} = {35}",
-                self.yes, self.yes, self.yes || self.yes2, self.yes, self.no, self.yes ||
-                self.no, self.no, self.yes, self.no || self.yes, self.no, self.no, self
-                .no || self.no2, self.yes, self.yes, self.yes && self.yes2, self.yes,
-                self.no, self.yes && self.no, self.no, self.yes, self.no && self.yes,
-                self.no, self.no, self.no && self.no2, self.yes, self.no, self.no, self
-                .yes || self.no && self.no2, self.no, self.yes, self.no, self.no || self
-                .yes && self.no2, self.no, self.yes, self.yes, self.no || self.yes &&
-                self.yes2
+                self.yes,
+                self.yes,
+                self.yes || self.yes2,
+                self.yes,
+                self.no,
+                self.yes || self.no,
+                self.no,
+                self.yes,
+                self.no || self.yes,
+                self.no,
+                self.no,
+                self.no || self.no2,
+                self.yes,
+                self.yes,
+                self.yes && self.yes2,
+                self.yes,
+                self.no,
+                self.yes && self.no,
+                self.no,
+                self.yes,
+                self.no && self.yes,
+                self.no,
+                self.no,
+                self.no && self.no2,
+                self.yes,
+                self.no,
+                self.no,
+                self.yes || self.no && self.no2,
+                self.no,
+                self.yes,
+                self.no,
+                self.no || self.yes && self.no2,
+                self.no,
+                self.yes,
+                self.yes,
+                self.no || self.yes && self.yes2,
             ),
         )?;
         Ok(())
@@ -207,7 +271,7 @@ pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("test_or_and"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\calc.rs",
+        source_file: "oxiplate-derive/tests/calc.rs",
         start_line: 87usize,
         start_col: 4usize,
         end_line: 87usize,

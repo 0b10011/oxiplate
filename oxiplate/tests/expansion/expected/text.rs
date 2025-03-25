@@ -14,9 +14,13 @@ impl<'a> ::std::fmt::Display for Data<'a> {
             f.write_fmt(
                 format_args!(
                     "\n<p>{0}</p>",
-                    ::oxiplate::escapers::escape(&::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({ let res =
-                    ::alloc::fmt::format(format_args!("{0}", message)); res }))
+                    ::oxiplate::escapers::escape(
+                        &::oxiplate::escapers::html::HtmlEscaper::Text,
+                        &::alloc::__export::must_use({
+                            let res = ::alloc::fmt::format(format_args!("{0}", message));
+                            res
+                        }),
+                    ),
                 ),
             )?;
         }
@@ -33,7 +37,7 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("variable"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\text.rs",
+        source_file: "oxiplate/tests/text.rs",
         start_line: 10usize,
         start_col: 4usize,
         end_line: 10usize,

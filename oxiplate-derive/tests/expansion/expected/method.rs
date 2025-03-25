@@ -37,7 +37,7 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("field"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\method.rs",
+        source_file: "oxiplate-derive/tests/method.rs",
         start_line: 20usize,
         start_col: 4usize,
         end_line: 20usize,

@@ -106,7 +106,7 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("multiple_blocks"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\multiple-blocks.rs",
+        source_file: "oxiplate/tests/multiple-blocks.rs",
         start_line: 8usize,
         start_col: 4usize,
         end_line: 8usize,

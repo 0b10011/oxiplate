@@ -32,7 +32,7 @@ pub const test: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("test"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\if-let-path.rs",
+        source_file: "oxiplate-derive/tests/if-let-path.rs",
         start_line: 18usize,
         start_col: 4usize,
         end_line: 18usize,

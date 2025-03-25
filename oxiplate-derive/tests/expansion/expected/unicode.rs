@@ -23,7 +23,7 @@ pub const external_unicode: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("external_unicode"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\unicode.rs",
+        source_file: "oxiplate-derive/tests/unicode.rs",
         start_line: 10usize,
         start_col: 4usize,
         end_line: 10usize,

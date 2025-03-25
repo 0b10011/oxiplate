@@ -13,9 +13,13 @@ impl ::std::fmt::Display for User {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.write_fmt(
             format_args!(
-                "{0}", ::alloc::__export::must_use({ let res =
-                ::alloc::fmt::format(format_args!("{0} ({1})", self.name, self.company));
-                res })
+                "{0}",
+                ::alloc::__export::must_use({
+                    let res = ::alloc::fmt::format(
+                        format_args!("{0} ({1})", self.name, self.company),
+                    );
+                    res
+                }),
             ),
         )?;
         Ok(())
@@ -30,7 +34,7 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("variable"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\concat.rs",
+        source_file: "oxiplate-derive/tests/concat.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,

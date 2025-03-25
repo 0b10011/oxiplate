@@ -17,7 +17,7 @@ pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("clippy"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive\\tests\\clippy.rs",
+        source_file: "oxiplate-derive/tests/clippy.rs",
         start_line: 8usize,
         start_col: 4usize,
         end_line: 8usize,
@@ -39,7 +39,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                 let res = ::alloc::fmt::format(
                     format_args!(
                         "Failed to build clippy tests. STDERR: {0}",
-                        String::from_utf8_lossy(& stderr)
+                        String::from_utf8_lossy(&stderr),
                     ),
                 );
                 res
@@ -70,7 +70,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                 }),
             );
         if !entry.file_type()?.is_file()
-            || entry.path().to_str() == Some("oxiplate-derive\\tests\\clippy.rs")
+            || entry.path().to_str() == Some("oxiplate-derive/tests/clippy.rs")
         {
             continue;
         }
@@ -94,7 +94,8 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                     let res = ::alloc::fmt::format(
                         format_args!(
                             "Clippy passed for \'{0}\' when it shouldn\'t have. STDOUT: {1}",
-                            test_name, String::from_utf8_lossy(& stdout)
+                            test_name,
+                            String::from_utf8_lossy(&stdout),
                         ),
                     );
                     res
@@ -130,7 +131,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                     .output()?;
                 std::io::stdout()
                     .write_fmt(
-                        format_args!("\n{0}\n", String::from_utf8_lossy(& stdout)),
+                        format_args!("\n{0}\n", String::from_utf8_lossy(&stdout)),
                     )?;
             }
         } else {
@@ -140,7 +141,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                 .write_fmt(
                     format_args!(
                         "expansion of {0} ... tests/clippy/expected/{0}.rs.stderr is missing\n",
-                        test_name
+                        test_name,
                     ),
                 )?;
         }

@@ -2,7 +2,7 @@ error[E0609]: no field `title` on type `&'a AbsoluteData`
  --> templates/extends-wrapper-crlf.html.oxip
   |
   | <title>{{ title }}</title>
-  |            ^^^^^ unknown field
+  |           ^^^^^ unknown field
   |
  ::: tests/broken/extends/extends-crlf.rs:3:10
   |

@@ -42,8 +42,8 @@ impl ::std::fmt::Display for AbsoluteData {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
-                        .oxiplate_extends_data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n",
+                        self.oxiplate_extends_data.title,
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -72,7 +72,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends.rs",
+        source_file: "oxiplate/tests/extends.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
@@ -119,7 +119,7 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute_2"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends.rs",
+        source_file: "oxiplate/tests/extends.rs",
         start_line: 25usize,
         start_col: 4usize,
         end_line: 25usize,
@@ -201,8 +201,8 @@ impl ::std::fmt::Display for Prefix {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
-                        .oxiplate_extends_data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n",
+                        self.oxiplate_extends_data.title,
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -231,7 +231,7 @@ pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("prefix"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends.rs",
+        source_file: "oxiplate/tests/extends.rs",
         start_line: 50usize,
         start_col: 4usize,
         end_line: 50usize,
@@ -308,8 +308,8 @@ impl ::std::fmt::Display for Replace {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
-                        .oxiplate_extends_data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n",
+                        self.oxiplate_extends_data.title,
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -338,7 +338,7 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("replace"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends.rs",
+        source_file: "oxiplate/tests/extends.rs",
         start_line: 74usize,
         start_col: 4usize,
         end_line: 74usize,
@@ -416,8 +416,8 @@ impl ::std::fmt::Display for Suffix {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 f.write_fmt(
                     format_args!(
-                        "<!DOCTYPE html>\n<title>{0}</title>\n", self
-                        .oxiplate_extends_data.title
+                        "<!DOCTYPE html>\n<title>{0}</title>\n",
+                        self.oxiplate_extends_data.title,
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -446,7 +446,7 @@ pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("suffix"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends.rs",
+        source_file: "oxiplate/tests/extends.rs",
         start_line: 98usize,
         start_col: 4usize,
         end_line: 98usize,

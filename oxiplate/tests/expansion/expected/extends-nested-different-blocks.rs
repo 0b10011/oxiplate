@@ -80,7 +80,7 @@ impl ::std::fmt::Display for AbsoluteData {
                         f.write_fmt(
                             format_args!(
                                 "<DOCTYPE html>\n<head>\n  <title>{0}</title>\n</head>\n<body>",
-                                self.oxiplate_extends_data.title
+                                self.oxiplate_extends_data.title,
                             ),
                         )?;
                         let body = |
@@ -116,7 +116,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate\\tests\\extends-nested-different-blocks.rs",
+        source_file: "oxiplate/tests/extends-nested-different-blocks.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
