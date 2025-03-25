@@ -216,12 +216,12 @@ fn parse_source_tokens(
     template_type: &TemplateType,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     match template_type {
-        TemplateType::Inline => parse_source_tokens_for_inline_or_extends(attr),
+        TemplateType::Inline => parse_source_tokens_for_inline(attr),
         TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr),
     }
 }
 
-fn parse_source_tokens_for_inline_or_extends(
+fn parse_source_tokens_for_inline(
     attr: &Attribute,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     let syn::Meta::NameValue(MetaNameValue {
