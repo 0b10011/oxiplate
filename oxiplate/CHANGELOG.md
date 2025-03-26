@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.4...oxiplate-v0.2.5) - 2025-03-26
+
+### Fixed
+
+- update name of function to match reality
+
+### Other
+
+- windows -> linux and rust upgrade test output changes
+- add some missing docs
+
 ## [0.2.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.3...oxiplate-v0.2.4) - 2025-01-28
 
 ### Fixed
