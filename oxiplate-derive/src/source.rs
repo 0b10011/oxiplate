@@ -10,13 +10,28 @@ use syn::Type;
 
 type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 
+/// Source of a single template.
+/// Does not contain the source of parent/children templates.
 pub(crate) struct SourceOwned {
+    /// Type of data passed to extended templates.
     pub(crate) data_type: Type,
+
+    /// List of names of all blocks in this template and childen templates.
     pub(crate) blocks: Vec<String>,
+
+    /// The template code.
     pub(crate) code: String,
+
+    /// The template code's literal.
     pub(crate) literal: Literal,
+
+    /// The template code's span.
     pub(crate) span_hygiene: Span,
+
+    /// The file path for external templates.
     pub(crate) origin: Option<PathBuf>,
+
+    /// Whether this is extending another template.
     pub(crate) is_extending: bool,
 }
 
@@ -34,6 +49,7 @@ impl fmt::Debug for SourceOwned {
     }
 }
 
+/// A clonable range within a template.
 #[derive(Clone, Debug)]
 pub(crate) struct Source<'a> {
     pub(crate) original: &'a SourceOwned,

@@ -21,15 +21,26 @@ pub(super) enum ItemToken {
     Statement(TokenStream),
 }
 
+/// One piece of a template.
 #[derive(Debug)]
 pub(crate) enum Item<'a> {
+    /// A private comment that should be discarded from the final output.
     Comment,
+
+    /// An expression that should be evaluated and output.
     Writ(Writ<'a>),
+
+    /// A statement that should be evaluated.
     Statement(Statement<'a>),
 
-    /// Static text, with a boolean for whether the text is only whitespace.
+    /// Static text that should be output as-is,
+    /// except whitespace that may not be in some contexts.
     Static(Static<'a>, StaticType),
+
+    /// Whitespace that could be collapsed or removed.
     Whitespace(Static<'a>),
+
+    /// A template error encountered during compliation.
     CompileError(String, Source<'a>),
 }
 

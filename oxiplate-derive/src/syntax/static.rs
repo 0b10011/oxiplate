@@ -21,12 +21,16 @@ impl Static<'_> {
     }
 }
 
+/// Type of static text.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticType {
     /// A `{` or `}`.
+    /// Tracked separately because these are treated specially in formatted strings.
     Brace,
 
     /// One or more whitespace characters.
+    /// Tracked separately to allow for it
+    /// to appear in the top level when extending templates.
     Whitespace,
 
     /// Plain text that may contain whitespace, but does _not_ contain braces.
