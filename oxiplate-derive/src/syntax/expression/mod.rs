@@ -1,9 +1,8 @@
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take, take_while, take_while1};
-use nom::character::complete::char;
+use nom::bytes::complete::tag;
 use nom::combinator::{cut, fail, not, opt};
 use nom::error::context;
-use nom::multi::{many0, many1, many_till};
+use nom::multi::{many0, many1};
 use nom::sequence::{pair, tuple};
 use proc_macro2::{Group, TokenStream};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
@@ -17,9 +16,11 @@ use crate::{Source, State};
 
 mod ident;
 mod keyword;
+mod literal;
 
 pub(super) use self::ident::{ident, identifier, Identifier};
 pub(super) use self::keyword::{keyword, Keyword};
+use self::literal::{bool, number, string};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Field<'a> {
@@ -333,44 +334,6 @@ fn operator(input: Source) -> Res<Source, Operator> {
     Ok((input, operator))
 }
 
-/// Parses a bool value: `true` or `false`
-fn bool(input: Source) -> Res<Source, Expression> {
-    let (input, source) = alt((tag("true"), tag("false")))(input)?;
-    let bool = match source.as_str() {
-        "true" => true,
-        "false" => false,
-        _ => unreachable!("All cases should be covered"),
-    };
-
-    Ok((input, Expression::Bool(bool, source)))
-}
-
-fn number(input: Source) -> Res<Source, Expression> {
-    let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
-    Ok((input, Expression::Number(number)))
-}
-fn string(input: Source) -> Res<Source, Expression> {
-    let (input, (opening_hashes, _opening_quote)) =
-        pair(take_while(|c| c == '#'), char('"'))(input)?;
-
-    let closing = pair(char('"'), tag(opening_hashes.as_str()));
-    let (input, (string, _)) = context(
-        r#"String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening."#,
-        cut(many_till(take(1u32), closing)),
-    )(input)?;
-    let (input, _closing_hashes) = tag(opening_hashes.as_str())(input)?;
-
-    let full_string = if let Some(full_string) = string.first() {
-        let mut full_string = full_string.clone();
-        full_string.range.end = string.last().unwrap().range.end;
-        full_string
-    } else {
-        let mut full_string = opening_hashes.clone();
-        full_string.range.start = full_string.range.end;
-        full_string
-    };
-    Ok((input, Expression::String(full_string)))
-}
 fn concat<'a>(
     state: &'a State,
     allow_concat: bool,
