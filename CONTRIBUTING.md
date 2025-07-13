@@ -5,12 +5,15 @@ Looking to use Oxiplate in your own project? Head on over to the [readme](./READ
 ## Initial setup
 
 1. [Install Rust](https://www.rust-lang.org/tools/install)
-2. [Fork this repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo) and clone it to your machine
-3. Run `cargo test` in the root directory of the project to download [the dependencies](./Cargo.toml) and run [the tests](./tests/)
+2. Install `mdbook` with `cargo install mdbook`
+3. [Fork this repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo) and clone it to your machine
+4. Run `cargo test` in the root directory of the project to download [the dependencies](./Cargo.toml) and run [the tests](./tests/)
 
 ## General development
 
 `cargo dev` will watch the files for changes and run various lint tools and tests automatically.
+
+`mdbook serve --open` will run a local webserver and open the book in your default browser.
 
 ## File organization
 
