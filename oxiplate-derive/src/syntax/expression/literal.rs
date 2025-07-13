@@ -21,7 +21,26 @@ pub(super) fn bool(input: Source) -> Res<Source, Expression> {
     Ok((input, Expression::Bool(bool, source)))
 }
 
+/// Parse a number.
+/// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
 pub(super) fn number(input: Source) -> Res<Source, Expression> {
+    alt((binary, decimal))(input)
+}
+
+/// Parse binary literals with a `0b` prefix.
+/// Will fail if there's not at least one 1 or 0 following the prefix.
+/// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
+fn binary(input: Source) -> Res<Source, Expression> {
+    let (input, number) = pair(
+        tag("0b"),
+        cut(take_while1(|char: char| char == '0' || char == '1')),
+    )(input)?;
+    Ok((input, Expression::Number(number.0.merge(&number.1))))
+}
+
+/// Parse decimal literals.
+/// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
+fn decimal(input: Source) -> Res<Source, Expression> {
     let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
     Ok((input, Expression::Number(number)))
 }

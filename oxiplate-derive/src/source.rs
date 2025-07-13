@@ -94,6 +94,20 @@ impl<'a> Source<'a> {
             .resolved_at(self.original.span_hygiene)
     }
 
+    pub fn merge(self, source_to_merge: &Source) -> Self {
+        if self.range.end != source_to_merge.range.start {
+            panic!("Expected end of own range to match start of next range");
+        }
+
+        let mut range = self.range;
+        range.end = source_to_merge.range.end;
+
+        Source {
+            original: self.original,
+            range,
+        }
+    }
+
     fn update_range(range: &mut Range<usize>, pos: usize) {
         if range.start >= pos {
             range.start += 1;
