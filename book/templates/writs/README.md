@@ -30,6 +30,8 @@ No matter how complicated:
 CASPER (sloths and stuff, inc.)
 ```
 
+Expressions will be explained in more detail in a later chapter.
+
 ## Escaping
 
 Eventually you'll likely want to [escape user-provided text](escaping.md) for safe usage within a markup language. Set a default escaper group and manually specify the escaper anywhere the default escaper for the group won't work:
