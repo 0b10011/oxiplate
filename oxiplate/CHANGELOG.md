@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.5...oxiplate-v0.2.6) - 2025-07-13
+
+### Added
+
+- add support for binary literals (closes #19)
+
+### Other
+
+- split literal-related code into separate mod
+- split ident-related code into separate mod
+- split keyword-related code into separate mod
+- move expression mod into a folder in prep for splitting
+- remove some TODOs that now have issues
+
 ## [0.2.5](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.4...oxiplate-v0.2.5) - 2025-03-26
 
 ### Fixed
