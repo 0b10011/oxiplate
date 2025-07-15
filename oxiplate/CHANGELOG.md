@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.6...oxiplate-v0.2.7) - 2025-07-15
+
+### Other
+
+- update tests for latest rust nightly version
+- upgrade to nom 8
+- update `toml` to latest
+
 ## [0.2.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.5...oxiplate-v0.2.6) - 2025-07-13
 
 ### Added
