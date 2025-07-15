@@ -117,7 +117,9 @@ pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
 /// <!-- {{ comment: user_text }} -->
 /// ```
 ///
-/// Replaces `-`, `<`, and `>` with visually similar characters that aren't parsed specially.
+/// Replaces `-`, `!`, `<`, and `>` with visually similar characters that aren't parsed specially
+/// when specific patterns of those characters that are disallowed are found.
+///
 /// Per <https://html.spec.whatwg.org/#comments>:
 /// > Optionally, text, with the additional restriction
 /// > that the text must not start with the string `>`,
@@ -125,20 +127,44 @@ pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
 /// > nor contain the strings `<!--`, `-->`, or `--!>`,
 /// > nor end with the string `<!-`.
 ///
-/// The shortest encodings for each were selected,
-/// rather than a specific encoding style,
-/// to reduce the length of the final template.
+/// XML 1.0 also does not allow two consecutive hyphens in a comment.
+/// Per <https://www.w3.org/TR/REC-xml/#sec-comments>:
+/// > For compatibility,
+/// > the string " -- " (double-hyphen) MUST NOT occur within comments.
 #[inline]
 #[must_use]
 pub fn escape_comment_text(value: &'_ str) -> Cow<'_, str> {
-    if !value.contains(['-', '<', '>']) {
+    if true
+
+        // Cannot start with `>` for HTML
+        && !value.starts_with('>')
+
+        // Cannot start with `->` for HTML
+        // Cannot start with `-` to avoid double hyphens for XML 1.0
+        && !value.starts_with('-')
+
+        // Cannot contain `<!--`, `-->` or `--!>` for HTML
+        // Cannot contain `--` to avoid double hyphens for XML 1.0
+        && !value.contains("--")
+
+        // Cannot end with `<!-` for HTML
+        && !value.ends_with("<!-")
+
+        // Cannot end with `-` to double hyphens for XML 1.0
+        && !value.ends_with('-')
+    {
         return Cow::Borrowed(value);
     }
 
+    // If any disallowed substrings are found,
+    // replace all of the characters that could have been involved
+    // to ensure all offenders are replaced
+    // and to possibly speed up replacement.
     value
         .chars()
         .map(|character| match character {
             '-' => '−'.to_string(),
+            '!' => 'ǃ'.to_string(),
             '<' => '‹'.to_string(),
             '>' => '›'.to_string(),
             _ => character.to_string(),
