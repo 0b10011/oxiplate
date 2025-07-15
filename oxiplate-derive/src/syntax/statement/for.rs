@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
-use nom::sequence::tuple;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -110,9 +110,9 @@ impl ToTokens for For<'_> {
 
 pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
-        let (input, for_keyword) = keyword("for")(input)?;
+        let (input, for_keyword) = keyword("for").parse(input)?;
 
-        let (input, (_, ident, _, in_keyword, _, expression)) = cut(tuple((
+        let (input, (_, ident, _, in_keyword, _, expression)) = cut((
             context("Expected space after 'for'", take_while1(is_whitespace)),
             context("Expected an identifier", ident),
             context(
@@ -125,7 +125,8 @@ pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, 
                 "Expected an expression that is iterable",
                 expression(state, true, true),
             ),
-        )))(input)?;
+        ))
+        .parse(input)?;
 
         let source = for_keyword.0.clone();
 
@@ -149,7 +150,7 @@ pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, 
 }
 
 pub(super) fn parse_endfor(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endfor")(input)?;
+    let (input, output) = tag("endfor").parse(input)?;
 
     Ok((
         input,

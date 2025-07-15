@@ -3,7 +3,8 @@ use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
-use nom::sequence::{delimited, tuple};
+use nom::sequence::delimited;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -172,7 +173,8 @@ pub(super) fn parse_block(
                     tag("surround"),
                 )),
                 char(')'),
-            ))(input)?;
+            ))
+            .parse(input)?;
             let position = position
                 .map(|position| -> Position {
                     match position.as_str() {
@@ -189,10 +191,11 @@ pub(super) fn parse_block(
             (input, Position::Source)
         };
 
-        let (input, (_, name)) = cut(tuple((
+        let (input, (_, name)) = cut((
             context("Expected space after 'block'", take_while1(is_whitespace)),
             context("Expected an identifier", ident),
-        )))(input)?;
+        ))
+        .parse(input)?;
 
         let source = block_keyword.0.clone();
         let use_override = input.original.blocks.contains(&name.ident.to_string());
@@ -216,7 +219,7 @@ pub(super) fn parse_block(
 }
 
 pub(super) fn parse_parent(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("parent")(input)?;
+    let (input, output) = tag("parent").parse(input)?;
 
     Ok((
         input,
@@ -228,7 +231,7 @@ pub(super) fn parse_parent(input: Source) -> Res<Source, Statement> {
 }
 
 pub(super) fn parse_endblock(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endblock")(input)?;
+    let (input, output) = tag("endblock").parse(input)?;
 
     Ok((
         input,

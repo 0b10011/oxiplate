@@ -5,13 +5,14 @@ use nom::combinator::cut;
 use nom::error::context;
 use nom::multi::many_till;
 use nom::sequence::pair;
+use nom::Parser as _;
 
 use super::{Expression, Res};
 use crate::Source;
 
 /// Parses a bool value: `true` or `false`
 pub(super) fn bool(input: Source) -> Res<Source, Expression> {
-    let (input, source) = alt((tag("true"), tag("false")))(input)?;
+    let (input, source) = alt((tag("true"), tag("false"))).parse(input)?;
     let bool = match source.as_str() {
         "true" => true,
         "false" => false,
@@ -24,7 +25,7 @@ pub(super) fn bool(input: Source) -> Res<Source, Expression> {
 /// Parse a number.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
 pub(super) fn number(input: Source) -> Res<Source, Expression> {
-    alt((binary, decimal))(input)
+    alt((binary, decimal)).parse(input)
 }
 
 /// Parse binary literals with a `0b` prefix.
@@ -34,27 +35,28 @@ fn binary(input: Source) -> Res<Source, Expression> {
     let (input, number) = pair(
         tag("0b"),
         cut(take_while1(|char: char| char == '0' || char == '1')),
-    )(input)?;
+    )
+    .parse(input)?;
     Ok((input, Expression::Number(number.0.merge(&number.1))))
 }
 
 /// Parse decimal literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn decimal(input: Source) -> Res<Source, Expression> {
-    let (input, number) = take_while1(|char: char| char.is_ascii_digit())(input)?;
+    let (input, number) = take_while1(|char: char| char.is_ascii_digit()).parse(input)?;
     Ok((input, Expression::Number(number)))
 }
 
 pub(super) fn string(input: Source) -> Res<Source, Expression> {
     let (input, (opening_hashes, _opening_quote)) =
-        pair(take_while(|c| c == '#'), char('"'))(input)?;
+        pair(take_while(|c| c == '#'), char('"')).parse(input)?;
 
     let closing = pair(char('"'), tag(opening_hashes.as_str()));
     let (input, (string, _)) = context(
         r#"String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening."#,
         cut(many_till(take(1u32), closing)),
-    )(input)?;
-    let (input, _closing_hashes) = tag(opening_hashes.as_str())(input)?;
+    ).parse(input)?;
+    let (input, _closing_hashes) = tag(opening_hashes.as_str()).parse(input)?;
 
     let full_string = if let Some(full_string) = string.first() {
         let mut full_string = full_string.clone();

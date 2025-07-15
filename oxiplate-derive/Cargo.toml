@@ -18,7 +18,8 @@ workspace = true
 proc-macro = true
 
 [dependencies]
-nom = "7.1"
+nom = "8.0.0"
+nom-language = "0.1.0"
 proc-macro2 = { version = "1.0.92", features = ["nightly", "span-locations"] }
 quote = "1.0.37"
 serde = { version = "1.0.217", features = ["derive", "serde_derive"] }

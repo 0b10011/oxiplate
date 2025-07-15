@@ -1,5 +1,5 @@
 error: Expected an expression.
- --> tests/broken/ascii-escape-span.rs:4:31
+ --> tests/broken/ascii-escape-span.rs:4:30
   |
 4 | #[oxiplate_inline = "hello\n{{"]
-  |                               ^
+  |                              ^

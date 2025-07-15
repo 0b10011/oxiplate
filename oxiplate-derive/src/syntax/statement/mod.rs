@@ -12,6 +12,7 @@ use nom::bytes::complete::take_while;
 use nom::combinator::{cut, fail};
 use nom::error::context;
 use nom::sequence::preceded;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 
@@ -127,7 +128,7 @@ pub(super) fn statement<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Item>)> + 'a {
     move |input| {
         // Ignore any leading inner whitespace
-        let (input, _) = take_while(is_whitespace)(input)?;
+        let (input, _) = take_while(is_whitespace).parse(input)?;
 
         // Parse statements
         let (input, mut statement) = context(
@@ -144,13 +145,15 @@ pub(super) fn statement<'a>(
                 r#for::parse_for(state),
                 r#for::parse_endfor,
             ))),
-        )(input)?;
+        )
+        .parse(input)?;
 
         // Parse the closing tag and any trailing whitespace
         let (mut input, mut trailing_whitespace) = preceded(
             take_while(is_whitespace),
             context(r#""%}" expected"#, cut(tag_end("%}"))),
-        )(input)?;
+        )
+        .parse(input)?;
 
         if !statement.is_ended(input.as_str().is_empty()) {
             // Append trailing whitespace
@@ -194,7 +197,7 @@ pub(super) fn statement<'a>(
                                 "These blocks should never fail to be closed because of EOF"
                             ),
                         };
-                        return context(context_message, fail)(input);
+                        return context(context_message, fail()).parse(input);
                     }
                 }
 
@@ -206,7 +209,8 @@ pub(super) fn statement<'a>(
                 let (new_input, items) = context(
                     "Failed to parse contents of statement",
                     cut(parse_item(&state, &is_extending)),
-                )(input)?;
+                )
+                .parse(input)?;
                 input = new_input;
                 for item in items {
                     if statement.is_ended(false) {

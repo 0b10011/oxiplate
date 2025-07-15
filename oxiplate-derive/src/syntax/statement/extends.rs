@@ -4,7 +4,7 @@ use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
-use nom::sequence::tuple;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::{GenericArgument, Ident, Type};
@@ -170,9 +170,9 @@ impl ToTokens for Extends<'_> {
 }
 
 pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
-    let (input, extends_keyword) = keyword("extends")(input)?;
+    let (input, extends_keyword) = keyword("extends").parse(input)?;
 
-    let (input, (_, _, path, _)) = cut(tuple((
+    let (input, (_, _, path, _)) = cut((
         context("Expected space after 'extends'", take_while1(is_whitespace)),
         context(r#"Expected ""#, tag(r#"""#)),
         context(
@@ -180,7 +180,8 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
             escaped(is_not(r#"""#), '\\', one_of(r#"""#)),
         ),
         context(r#"Expected ""#, tag(r#"""#)),
-    )))(input)?;
+    ))
+    .parse(input)?;
 
     let is_extending = input.original.is_extending;
     let data_type = input.original.data_type.clone();

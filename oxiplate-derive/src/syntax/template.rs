@@ -1,12 +1,9 @@
-use std::ops::RangeTo;
-
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
-use nom::error::VerboseErrorKind;
 use nom::multi::many0;
-use nom::sequence::tuple;
-use nom::Slice as _;
+use nom::{Input, Parser as _};
+use nom_language::error::{VerboseError, VerboseErrorKind};
 use proc_macro2::{LineColumn, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -74,8 +71,7 @@ pub(crate) fn parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Template<'a
     match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
-            nom::Err::Error(nom::error::VerboseError { errors })
-            | nom::Err::Failure(nom::error::VerboseError { errors }),
+            nom::Err::Error(VerboseError { errors }) | nom::Err::Failure(VerboseError { errors }),
         ) => Template(vec![convert_error(errors)]),
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
@@ -104,7 +100,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
                 .unwrap();
             }
             VerboseErrorKind::Context(error) => {
-                let source = source.slice(RangeTo { end: 1 });
+                let source = <Source as Input>::take_from(&source, 0);
                 return Item::CompileError(error.to_string(), source);
             }
             VerboseErrorKind::Nom(nom_error) => {
@@ -130,7 +126,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
 }
 
 fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Template<'a>> {
-    let (input, items_vec) = many0(parse_item(state, &false))(source)?;
+    let (input, items_vec) = many0(parse_item(state, &false)).parse(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -194,16 +190,18 @@ pub(crate) fn parse_item<'a>(
             parse_tag(state, is_extending),
             parse_static,
             adjusted_whitespace,
-        ))(input)
+        ))
+        .parse(input)
     }
 }
 
 pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, tag, trailing_whitespace)) = tuple((
+    let (input, (leading_whitespace, tag, trailing_whitespace)) = (
         opt(whitespace),
         alt((tag("{_}"), tag("{-}"))),
         opt(whitespace),
-    ))(input)?;
+    )
+        .parse(input)?;
 
     let whitespace = match tag.as_str() {
         "{_}" => {
@@ -241,5 +239,5 @@ pub fn is_whitespace(char: char) -> bool {
 }
 
 pub(crate) fn whitespace(input: Source) -> Res<Source, Source> {
-    take_while1(is_whitespace)(input)
+    take_while1(is_whitespace).parse(input)
 }

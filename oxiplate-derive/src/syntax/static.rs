@@ -2,6 +2,7 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
 use nom::multi::many_till;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
@@ -53,11 +54,12 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
             recognize(adjusted_whitespace),
             eof,
         ))),
-    )(input)?;
+    )
+    .parse(input)?;
 
     // Must be checked for many0() call will fail due to infinite loop
     if output.is_empty() {
-        return fail(input);
+        return fail().parse(input);
     }
 
     let mut items: Vec<Item> = vec![];
@@ -82,7 +84,8 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
             continue;
         }
 
-        let is_whitespace = take_while(is_whitespace)(item.clone())?
+        let is_whitespace = take_while(is_whitespace)
+            .parse(item.clone())?
             .0
             .as_str()
             .is_empty();

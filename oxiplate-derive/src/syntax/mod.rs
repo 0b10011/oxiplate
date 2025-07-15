@@ -6,8 +6,8 @@ mod r#static;
 mod template;
 mod writ;
 
-use nom::error::VerboseError;
 use nom::IResult;
+use nom_language::error::VerboseError;
 
 type Res<T, U> = IResult<T, U, VerboseError<T>>;
 

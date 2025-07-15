@@ -1,6 +1,7 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1};
 use nom::multi::many_till;
+use nom::Parser as _;
 
 use super::item::tag_end;
 use super::{Item, Res};
@@ -24,7 +25,8 @@ pub(super) fn comment(input: Source) -> Res<Source, (Item, Option<Item>)> {
             tag("#"),
         )),
         tag_end("#}"),
-    )(input)?;
+    )
+    .parse(input)?;
 
     Ok((input, (Item::Comment, trailing_whitespace)))
 }

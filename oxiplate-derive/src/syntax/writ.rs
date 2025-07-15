@@ -3,8 +3,10 @@ use std::fmt::Debug;
 use nom::bytes::complete::take_while;
 use nom::character::complete::char;
 use nom::combinator::{cut, fail, opt};
-use nom::error::{context, VerboseError};
-use nom::sequence::{preceded, terminated, tuple};
+use nom::error::context;
+use nom::sequence::{preceded, terminated};
+use nom::Parser as _;
+use nom_language::error::VerboseError;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::token::PathSep;
@@ -67,13 +69,15 @@ impl Escaper {
         } else {
             context(
                 r#"No default escaper group defined and the specified escaper is not "raw""#,
-                fail::<_, (), _>,
-            )(escaper.source.clone())?;
+                fail::<_, (), _>(),
+            )
+            .parse(escaper.source.clone())?;
             unreachable!("fail() should always bail early");
         };
 
         let Some(group) = state.config.escaper_groups.get(group.0) else {
-            context("Invalid escaper group specified", fail::<_, (), _>)(group.1.clone())?;
+            context("Invalid escaper group specified", fail::<_, (), _>())
+                .parse(group.1.clone())?;
             unreachable!("fail() should always bail early");
         };
 
@@ -104,7 +108,7 @@ impl Escaper {
             }
         }
 
-        context("Invalid escaper specified", fail::<_, (), _>)(escaper.source)?;
+        context("Invalid escaper specified", fail::<_, (), _>()).parse(escaper.source)?;
         unreachable!("fail() should always bail early");
     }
 
@@ -119,12 +123,13 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Item>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
-        let (input, escaper_info) = opt(tuple((
+        let (input, escaper_info) = opt((
             opt(terminated(ident, char('.'))),
             ident,
             char(':'),
             take_while(is_whitespace),
-        )))(input)?;
+        ))
+        .parse(input)?;
         let escaper = if let Some((escaper_group, escaper, _colon, _whitespace)) = escaper_info {
             Escaper::build(state, escaper_group, escaper)?
         } else {
@@ -133,11 +138,13 @@ pub(super) fn writ<'a>(
         let (input, output) = context(
             "Expected an expression.",
             cut(expression(state, true, true)),
-        )(input)?;
+        )
+        .parse(input)?;
         let (input, trailing_whitespace) = context(
             "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
             cut(preceded(take_while(is_whitespace), cut(tag_end("}}")))),
-        )(input)?;
+        )
+        .parse(input)?;
 
         Ok((input, (Writ(output, escaper).into(), trailing_whitespace)))
     }

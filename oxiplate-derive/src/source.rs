@@ -1,10 +1,10 @@
 use std::fmt;
 use std::iter::{Enumerate, Peekable};
-use std::ops::{Range, RangeFrom, RangeTo};
+use std::ops::Range;
 use std::path::PathBuf;
 use std::str::{CharIndices, Chars};
 
-use nom::{Compare, InputIter, InputLength, InputTake, Needed, Offset, Slice, UnspecializedInput};
+use nom::{Compare, Input, Needed, Offset};
 use proc_macro2::{Literal, Span};
 use syn::Type;
 
@@ -249,27 +249,85 @@ impl<'a> Source<'a> {
     }
 }
 
-impl Slice<RangeFrom<usize>> for Source<'_> {
-    fn slice(&self, new_range: RangeFrom<usize>) -> Self {
-        Source {
-            original: self.original,
-            range: Range {
-                start: self.range.start + new_range.start,
-                end: self.range.end,
-            },
-        }
-    }
-}
+impl<'a> Input for Source<'a> {
+    type Item = char;
+    type Iter = Chars<'a>;
+    type IterIndices = CharIndices<'a>;
 
-impl Slice<RangeTo<usize>> for Source<'_> {
-    fn slice(&self, new_range: RangeTo<usize>) -> Self {
+    fn input_len(&self) -> usize {
+        self.as_str().input_len()
+    }
+
+    fn take(&self, index: usize) -> Self {
+        let end = self.range.start + index;
+        if end > self.range.end {
+            panic!("End greater than end of string");
+        }
         Source {
             original: self.original,
             range: Range {
                 start: self.range.start,
-                end: self.range.start + new_range.end,
+                end,
             },
         }
+    }
+
+    fn take_from(&self, index: usize) -> Self {
+        let start = self.range.start + index;
+        if start > self.range.end {
+            panic!("Start greater than end of string");
+        }
+
+        Source {
+            original: self.original,
+            range: Range {
+                start,
+                end: self.range.end,
+            },
+        }
+    }
+
+    fn take_split(&self, index: usize) -> (Self, Self) {
+        let split_point = self.range.start + index;
+        if split_point > self.range.end {
+            panic!("Split point greater than end of string");
+        }
+
+        (
+            Source {
+                original: self.original,
+                range: Range {
+                    start: split_point,
+                    end: self.range.end,
+                },
+            },
+            Source {
+                original: self.original,
+                range: Range {
+                    start: self.range.start,
+                    end: split_point,
+                },
+            },
+        )
+    }
+
+    fn position<P>(&self, predicate: P) -> Option<usize>
+    where
+        P: Fn(Self::Item) -> bool,
+    {
+        self.as_str().position(predicate)
+    }
+
+    fn iter_elements(&self) -> Self::Iter {
+        self.as_str().iter_elements()
+    }
+
+    fn iter_indices(&self) -> Self::IterIndices {
+        self.as_str().iter_indices()
+    }
+
+    fn slice_index(&self, count: usize) -> Result<usize, Needed> {
+        self.as_str().slice_index(count)
     }
 }
 
@@ -309,96 +367,11 @@ impl Compare<&str> for Source<'_> {
     }
 }
 
-impl<'a> InputIter for Source<'a> {
-    type Item = char;
-    type Iter = CharIndices<'a>;
-    type IterElem = Chars<'a>;
-
-    #[inline]
-    fn iter_indices(&self) -> Self::Iter {
-        self.as_str().iter_indices()
-    }
-
-    #[inline]
-    fn iter_elements(&self) -> Self::IterElem {
-        self.as_str().iter_elements()
-    }
-
-    fn position<P>(&self, predicate: P) -> Option<usize>
-    where
-        P: Fn(Self::Item) -> bool,
-    {
-        self.as_str().position(predicate)
-    }
-
-    #[inline]
-    fn slice_index(&self, count: usize) -> Result<usize, Needed> {
-        self.as_str().slice_index(count)
-    }
-}
-
-impl InputTake for Source<'_> {
-    #[inline]
-    fn take(&self, count: usize) -> Self {
-        let end = self.range.start + count;
-        if end > self.range.end {
-            panic!("End greater than end of string");
-        }
-        Source {
-            original: self.original,
-            range: Range {
-                start: self.range.start,
-                end,
-            },
-        }
-    }
-
-    // return byte index
-    #[inline]
-    fn take_split(&self, count: usize) -> (Self, Self) {
-        let end = self.range.start + count;
-        if end > self.range.end {
-            panic!("End greater than end of string");
-        }
-
-        (
-            Source {
-                original: self.original,
-                range: Range {
-                    start: end,
-                    end: self.range.end,
-                },
-            },
-            Source {
-                original: self.original,
-                range: Range {
-                    start: self.range.start,
-                    end,
-                },
-            },
-        )
-    }
-}
-
-impl InputLength for Source<'_> {
-    fn input_len(&self) -> usize {
-        self.as_str().input_len()
-    }
-}
-
-impl InputLength for &Source<'_> {
-    fn input_len(&self) -> usize {
-        self.as_str().input_len()
-    }
-}
-
 impl Offset for Source<'_> {
     fn offset(&self, offset: &Self) -> usize {
         self.as_str().offset(offset.as_str())
     }
 }
-
-impl UnspecializedInput for Source<'_> {}
 
 impl<'a> Iterator for Source<'a> {
     type Item = Source<'a>;

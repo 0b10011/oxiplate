@@ -1,6 +1,7 @@
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{cut, opt, peek};
 use nom::sequence::pair;
+use nom::Parser as _;
 use proc_macro2::{Group, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -9,7 +10,7 @@ use crate::{Source, State};
 
 pub(crate) fn identifier<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
-        let (input, (ident, parens)) = pair(&ident, opt(tag("()")))(input)?;
+        let (input, (ident, parens)) = pair(&ident, opt(tag("()"))).parse(input)?;
 
         let ident_str = ident.ident;
         let field = if let Some(parens) = parens {
@@ -68,11 +69,13 @@ pub(crate) fn ident(input: Source) -> Res<Source, Identifier> {
     // Ignore if it starts with a number
     let (input, _) = peek(take_while1(
         |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'),
-    ))(input)?;
+    ))
+    .parse(input)?;
 
     let (input, ident) = cut(take_while1(
         |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'),
-    ))(input)?;
+    ))
+    .parse(input)?;
     Ok((
         input,
         Identifier {

@@ -2,4 +2,4 @@ error: Expected an expression.
  --> tests/broken/writ-without-expression.rs:4:25
   |
 4 | #[oxiplate_inline = "{{ ` }}"]
-  |                         ^
+  |                         ^^^^

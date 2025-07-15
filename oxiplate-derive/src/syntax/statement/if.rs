@@ -5,7 +5,8 @@ use nom::character::complete::char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::multi::many0;
-use nom::sequence::{preceded, tuple};
+use nom::sequence::preceded;
+use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
@@ -193,19 +194,21 @@ impl ToTokens for If<'_> {
 
 pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
     let (input, ident) =
-        take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))(input)?;
+        take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
+            .parse(input)?;
     Ok((input, TypeName(ident.as_str(), ident)))
 }
 
 pub(super) fn parse_type<'a>(_state: &'a State) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
     |input| {
-        let (input, (path_segments, type_name, _open, identifier, _close)) = cut(tuple((
-            many0(tuple((parse_type_name, tag("::")))),
+        let (input, (path_segments, type_name, _open, identifier, _close)) = cut((
+            many0((parse_type_name, tag("::"))),
             parse_type_name,
             char('('),
             ident,
             char(')'),
-        )))(input)?;
+        ))
+        .parse(input)?;
         Ok((
             input,
             Type(
@@ -240,45 +243,44 @@ pub(super) fn parse_if<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source
 
 fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, IfType> + 'a {
     |input| {
-        let ws1 = take_while1(is_whitespace);
-        let ws0 = take_while(is_whitespace);
-
         // Consume at least one whitespace.
-        let (input, _) = ws1(input)?;
+        let (input, _) = take_while1(is_whitespace).parse(input)?;
 
-        let (input, r#let) = cut(opt(tuple((tag("let"), &ws1))))(input)?;
+        let (input, r#let) = cut(opt((tag("let"), take_while1(is_whitespace)))).parse(input)?;
 
         if r#let.is_some() {
             let (input, ty) =
-                context(r#"Expected a type after "let""#, cut(parse_type(state)))(input)?;
+                context(r#"Expected a type after "let""#, cut(parse_type(state))).parse(input)?;
             let (input, expression) = if ty.get_variables().len() == 1 {
                 opt(preceded(
-                    &ws0,
+                    take_while(is_whitespace),
                     preceded(
                         char('='),
                         preceded(
-                            &ws0,
+                            take_while(is_whitespace),
                             context(
                                 "Expected an expression after `=`",
                                 cut(expression(state, true, true)),
                             ),
                         ),
                     ),
-                ))(input)?
+                ))
+                .parse(input)?
             } else {
                 let (input, expression) = preceded(
-                    &ws0,
+                    take_while(is_whitespace),
                     preceded(
                         context("Expected `=`", cut(char('='))),
                         preceded(
-                            &ws0,
+                            take_while(is_whitespace),
                             context(
                                 "Expected an expression after `=`",
                                 cut(expression(state, true, true)),
                             ),
                         ),
                     ),
-                )(input)?;
+                )
+                .parse(input)?;
                 (input, Some(expression))
             };
             Ok((input, IfType::IfLet(ty, expression)))
@@ -286,7 +288,8 @@ fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, I
             let (input, output) = context(
                 "Expected an expression after `if`",
                 cut(expression(state, true, true)),
-            )(input)?;
+            )
+            .parse(input)?;
             Ok((input, IfType::If(output)))
         }
     }
@@ -294,7 +297,7 @@ fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, I
 
 pub(super) fn parse_elseif<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
     |input| {
-        let (input, statement_source) = tag("elseif")(input)?;
+        let (input, statement_source) = tag("elseif").parse(input)?;
 
         let (input, if_type) = parse_if_generic(state)(input)?;
 
@@ -309,7 +312,7 @@ pub(super) fn parse_elseif<'a>(state: &'a State) -> impl Fn(Source) -> Res<Sourc
 }
 
 pub(super) fn parse_else(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("else")(input)?;
+    let (input, output) = tag("else").parse(input)?;
 
     Ok((
         input,
@@ -321,7 +324,7 @@ pub(super) fn parse_else(input: Source) -> Res<Source, Statement> {
 }
 
 pub(super) fn parse_endif(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endif")(input)?;
+    let (input, output) = tag("endif").parse(input)?;
 
     Ok((
         input,

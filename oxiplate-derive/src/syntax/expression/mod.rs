@@ -3,7 +3,8 @@ use nom::bytes::complete::tag;
 use nom::combinator::{cut, fail, not, opt};
 use nom::error::context;
 use nom::multi::{many0, many1};
-use nom::sequence::{pair, tuple};
+use nom::sequence::pair;
+use nom::Parser as _;
 use proc_macro2::{Group, TokenStream};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::token::Dot;
@@ -275,7 +276,8 @@ pub(super) fn expression<'a>(
                 prefixed_expression(state),
             )),
             many0(field()),
-        )(input)?;
+        )
+        .parse(input)?;
 
         Ok((input, ExpressionAccess { expression, fields }))
     }
@@ -283,7 +285,7 @@ pub(super) fn expression<'a>(
 
 fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
     |input| {
-        let (input, (dot, ident, parens)) = tuple((tag("."), &ident, opt(tag("()"))))(input)?;
+        let (input, (dot, ident, parens)) = (tag("."), &ident, opt(tag("()"))).parse(input)?;
 
         let ident_or_fn = if let Some(parens) = parens {
             IdentifierOrFunction::Function(ident, parens)
@@ -309,7 +311,8 @@ fn operator(input: Source) -> Res<Source, Operator> {
         tag("<"),
         tag("||"),
         tag("&&"),
-    ))(input)?;
+    ))
+    .parse(input)?;
 
     let operator = match operator.as_str() {
         "+" => Operator::Addition(operator),
@@ -340,11 +343,11 @@ fn concat<'a>(
 ) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
         if !allow_concat {
-            return fail(input);
+            return fail().parse(input);
         }
-        let (input, (left, concats)) = tuple((
+        let (input, (left, concats)) = (
             expression(state, false, false),
-            many1(tuple((
+            many1((
                 opt(whitespace),
                 tag("~"),
                 opt(whitespace),
@@ -352,8 +355,9 @@ fn concat<'a>(
                     "Expected an expression",
                     cut(expression(state, true, false)),
                 ),
-            ))),
-        ))(input)?;
+            )),
+        )
+            .parse(input)?;
         let mut expressions = vec![left];
         let mut tilde_operator = None;
         for (_leading_whitespace, tilde, _trailing_whitespace, expression) in concats {
@@ -375,21 +379,21 @@ fn concat<'a>(
 fn calc<'a>(state: &'a State, allow_calc: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
         if !allow_calc {
-            return fail(input);
+            return fail().parse(input);
         }
-        let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) =
-            tuple((
-                expression(state, false, false),
-                opt(whitespace),
-                // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
-                not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
-                operator,
-                opt(whitespace),
-                context(
-                    "Expected an expression",
-                    cut(expression(state, true, false)),
-                ),
-            ))(input)?;
+        let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) = (
+            expression(state, false, false),
+            opt(whitespace),
+            // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
+            not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
+            operator,
+            opt(whitespace),
+            context(
+                "Expected an expression",
+                cut(expression(state, true, false)),
+            ),
+        )
+            .parse(input)?;
         Ok((
             input,
             Expression::Calc(Box::new(left), operator, Box::new(right)),
@@ -397,7 +401,7 @@ fn calc<'a>(state: &'a State, allow_calc: bool) -> impl Fn(Source) -> Res<Source
     }
 }
 fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
-    let (input, operator) = alt((tag("&"), tag("*"), tag("!")))(input)?;
+    let (input, operator) = alt((tag("&"), tag("*"), tag("!"))).parse(input)?;
     let operator = match operator.as_str() {
         "&" => PrefixOperator::Borrow(operator),
         "*" => PrefixOperator::Dereference(operator),
@@ -409,13 +413,14 @@ fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
 }
 fn prefixed_expression<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     |input| {
-        let (input, (prefix_operator, expression)) = tuple((
+        let (input, (prefix_operator, expression)) = (
             prefix_operator,
             context(
                 "Expected an expression after prefix operator",
                 cut(expression(state, true, true)),
             ),
-        ))(input)?;
+        )
+            .parse(input)?;
 
         Ok((
             input,
