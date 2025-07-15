@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.7...oxiplate-v0.2.8) - 2025-07-15
+
+### Added
+
+- only replace comment characters in escaped comments in HTML when disallowed patterns are present
+
+### Fixed
+
+- get rid of warning about simplifying comparison
+
+### Other
+
+- add more information about the main focuses to the READMEs
+
 ## [0.2.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.6...oxiplate-v0.2.7) - 2025-07-15
 
 ### Other
