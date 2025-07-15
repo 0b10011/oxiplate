@@ -134,10 +134,9 @@ pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
 #[inline]
 #[must_use]
 pub fn escape_comment_text(value: &'_ str) -> Cow<'_, str> {
-    if true
-
-        // Cannot start with `>` for HTML
-        && !value.starts_with('>')
+    if
+    // Cannot start with `>` for HTML
+    !value.starts_with('>')
 
         // Cannot start with `->` for HTML
         // Cannot start with `-` to avoid double hyphens for XML 1.0
