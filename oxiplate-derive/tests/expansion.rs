@@ -1,14 +1,14 @@
 use std::error::Error;
 
 #[test]
-#[ignore]
+#[ignore = "Expansion tests are expensive and should be run separately."]
 fn expansion() -> Result<(), Box<dyn Error>> {
     // Call the conditionally compiled expansion test.
     // Modules are used to avoid dead code warnings.
     test::expansion()
 }
 
-#[rustversion::before(2025-01-07)]
+#[rustversion::before(2025-07-14)]
 mod test {
     pub(super) fn expansion() -> Result<(), Box<dyn super::Error>> {
         unimplemented!(
@@ -18,7 +18,7 @@ mod test {
     }
 }
 
-#[rustversion::since(2025-01-07)]
+#[rustversion::since(2025-07-14)]
 mod test {
     use std::collections::HashSet;
     use std::fs;

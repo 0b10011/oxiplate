@@ -53,7 +53,7 @@ impl super::Escaper for HtmlEscaper {
 /// to reduce the length of the final template.
 #[inline]
 #[must_use]
-pub fn escape_text(value: &str) -> Cow<str> {
+pub fn escape_text(value: &'_ str) -> Cow<'_, str> {
     if !value.contains(['&', '<']) {
         return Cow::Borrowed(value);
     }
@@ -94,7 +94,7 @@ pub fn escape_text(value: &str) -> Cow<str> {
 /// to reduce the length of the final template.
 #[inline]
 #[must_use]
-pub fn escape_attribute_quoted_value(value: &str) -> Cow<str> {
+pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
     if !value.contains(['&', '<', '"', '\'']) {
         return Cow::Borrowed(value);
     }
@@ -130,7 +130,7 @@ pub fn escape_attribute_quoted_value(value: &str) -> Cow<str> {
 /// to reduce the length of the final template.
 #[inline]
 #[must_use]
-pub fn escape_comment_text(value: &str) -> Cow<str> {
+pub fn escape_comment_text(value: &'_ str) -> Cow<'_, str> {
     if !value.contains(['-', '<', '>']) {
         return Cow::Borrowed(value);
     }

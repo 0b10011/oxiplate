@@ -16,7 +16,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "overridden_std"]
 #[doc(hidden)]
 pub const overridden_std: test::TestDescAndFn = test::TestDescAndFn {

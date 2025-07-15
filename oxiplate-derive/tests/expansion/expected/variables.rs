@@ -15,7 +15,6 @@ impl ::std::fmt::Display for Variable {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "variable"]
 #[doc(hidden)]
 pub const variable: test::TestDescAndFn = test::TestDescAndFn {
@@ -41,8 +40,7 @@ fn variable() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Hello world!",
     ) {
@@ -71,7 +69,6 @@ impl ::std::fmt::Display for Variables {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "variables"]
 #[doc(hidden)]
 pub const variables: test::TestDescAndFn = test::TestDescAndFn {
@@ -98,8 +95,7 @@ fn variables() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Foo Bar / Hello world!",
     ) {

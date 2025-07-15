@@ -13,7 +13,6 @@ impl ::std::fmt::Display for AdjustedWhitespace {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "adjusted_whitespace"]
 #[doc(hidden)]
 pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
@@ -40,8 +39,7 @@ fn adjusted_whitespace() {
     let template = AdjustedWhitespace {};
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"Hello world!",
     ) {
@@ -71,7 +69,6 @@ impl ::std::fmt::Display for WritWhitespaceControl {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "writ_whitespace_control"]
 #[doc(hidden)]
 pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
@@ -101,8 +98,7 @@ fn writ_whitespace_control() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"Hello dia (Diana)!",
     ) {
@@ -129,7 +125,6 @@ impl ::std::fmt::Display for CommentWhitespaceControl {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "comment_whitespace_control"]
 #[doc(hidden)]
 pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
@@ -156,8 +151,7 @@ fn comment_whitespace_control() {
     let template = CommentWhitespaceControl {};
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"Hello  ()!",
     ) {
@@ -209,7 +203,6 @@ impl ::std::fmt::Display for AdjacentTags {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "adjacent_tags"]
 #[doc(hidden)]
 pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
@@ -236,8 +229,7 @@ fn adjacent_tags() {
     let template = AdjacentTags {};
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"
 leave  leave

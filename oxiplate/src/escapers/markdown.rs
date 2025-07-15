@@ -45,7 +45,7 @@ impl super::Escaper for MarkdownEscaper {
 /// [Unicode whitespace characters]: https://spec.commonmark.org/0.31.2/#unicode-whitespace-character
 #[inline]
 #[must_use]
-pub fn escape_unformatted_text(value: &str) -> Cow<str> {
+pub fn escape_unformatted_text(value: &'_ str) -> Cow<'_, str> {
     let mut string = String::with_capacity(value.len());
     let mut start_of_string = true;
     let mut needs_whitespace = false;

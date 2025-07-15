@@ -21,7 +21,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "format_injection"]
 #[doc(hidden)]
 pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
@@ -49,8 +48,7 @@ fn format_injection() {
     let template = Data {};
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"Braces ({ and }) are formatting characters in Rust and must be escaped. {}",
     ) {

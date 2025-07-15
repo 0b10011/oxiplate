@@ -35,7 +35,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "field"]
 #[doc(hidden)]
 pub const field: test::TestDescAndFn = test::TestDescAndFn {
@@ -59,8 +58,7 @@ fn field() {
     let data = Data;
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"
 19

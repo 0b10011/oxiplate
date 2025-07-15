@@ -35,7 +35,7 @@ impl<'a> Type<'a> {
         }
     }
 
-    pub fn get_ident(&self) -> Option<&Identifier> {
+    pub fn get_ident(&'_ self) -> Option<&'_ Identifier<'_>> {
         match self {
             Type(_, _, TypeOrIdent::Identifier(ident)) => Some(ident),
             Type(_, _, TypeOrIdent::Type(ty)) => ty.get_ident(),

@@ -9,7 +9,6 @@ use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Output};
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "clippy"]
 #[doc(hidden)]
 pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
@@ -36,13 +35,12 @@ fn clippy() -> Result<(), Box<dyn Error>> {
     if !status.success() {
         Err(
             ::alloc::__export::must_use({
-                let res = ::alloc::fmt::format(
+                ::alloc::fmt::format(
                     format_args!(
                         "Failed to build clippy tests. STDERR: {0}",
                         String::from_utf8_lossy(&stderr),
                     ),
-                );
-                res
+                )
             }),
         )?;
     }
@@ -54,19 +52,17 @@ fn clippy() -> Result<(), Box<dyn Error>> {
         let expected_output_path = expected_destination
             .join(
                 ::alloc::__export::must_use({
-                    let res = ::alloc::fmt::format(
+                    ::alloc::fmt::format(
                         format_args!("{0}.stderr", entry.file_name().to_string_lossy()),
-                    );
-                    res
+                    )
                 }),
             );
         let actual_output_path = actual_destination
             .join(
                 ::alloc::__export::must_use({
-                    let res = ::alloc::fmt::format(
+                    ::alloc::fmt::format(
                         format_args!("{0}.stderr", entry.file_name().to_string_lossy()),
-                    );
-                    res
+                    )
                 }),
             );
         if !entry.file_type()?.is_file()
@@ -91,14 +87,13 @@ fn clippy() -> Result<(), Box<dyn Error>> {
         if status.success() {
             Err(
                 ::alloc::__export::must_use({
-                    let res = ::alloc::fmt::format(
+                    ::alloc::fmt::format(
                         format_args!(
                             "Clippy passed for \'{0}\' when it shouldn\'t have. STDOUT: {1}",
                             test_name,
                             String::from_utf8_lossy(&stdout),
                         ),
-                    );
-                    res
+                    )
                 }),
             )?;
         }

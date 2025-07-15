@@ -114,10 +114,3 @@ pub enum IdentifierScope {
     Parent,
     Data,
 }
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct IdentField<'a> {
-    parents: Vec<Identifier<'a>>,
-    ident_or_function: IdentifierOrFunction<'a>,
-    scope: IdentifierScope,
-}

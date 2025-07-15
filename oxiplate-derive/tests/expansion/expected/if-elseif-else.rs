@@ -30,7 +30,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_if"]
 #[doc(hidden)]
 pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
@@ -58,8 +57,7 @@ fn test_if() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"This then do something :D",
     ) {
@@ -77,7 +75,6 @@ fn test_if() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_else_if"]
 #[doc(hidden)]
 pub const test_else_if: test::TestDescAndFn = test::TestDescAndFn {
@@ -108,8 +105,7 @@ fn test_else_if() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"That then do something :D",
     ) {
@@ -127,7 +123,6 @@ fn test_else_if() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_else"]
 #[doc(hidden)]
 pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
@@ -155,8 +150,7 @@ fn test_else() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Can't do something :(",
     ) {

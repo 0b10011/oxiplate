@@ -20,7 +20,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_for"]
 #[doc(hidden)]
 pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
@@ -46,8 +45,7 @@ fn test_for() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"foo<br>bar<br>baz<br>",
     ) {
@@ -88,7 +86,6 @@ impl Person {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_method_calls"]
 #[doc(hidden)]
 pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
@@ -119,8 +116,7 @@ fn test_method_calls() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Zoe<br>Alice<br>",
     ) {
@@ -158,7 +154,6 @@ impl ::std::fmt::Display for ShadowVariable {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_shadow_variable"]
 #[doc(hidden)]
 pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
@@ -188,8 +183,7 @@ fn test_shadow_variable() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"hello world!
 foo
@@ -226,7 +220,6 @@ impl ::std::fmt::Display for Functions {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_function_variables"]
 #[doc(hidden)]
 pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
@@ -255,8 +248,7 @@ fn test_function_variables() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"19\n89\n",
     ) {
@@ -298,7 +290,6 @@ impl ::std::fmt::Display for ForElse {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_for_else"]
 #[doc(hidden)]
 pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
@@ -327,8 +318,7 @@ fn test_for_else() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"No values :(",
     ) {

@@ -57,7 +57,6 @@ impl ::std::fmt::Display for Math {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_math"]
 #[doc(hidden)]
 pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
@@ -81,8 +80,7 @@ fn test_math() {
     let data = Math { min: 19, max: 89 };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"1 + 2 = 3
 89 + 19 = 108
@@ -147,7 +145,6 @@ impl ::std::fmt::Display for Comparisons {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_comparisons"]
 #[doc(hidden)]
 pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
@@ -174,8 +171,7 @@ fn test_comparisons() {
     let data = Comparisons { min: 19, max: 89 };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"89 == 19 = false
 89 != 19 = true
@@ -263,7 +259,6 @@ impl ::std::fmt::Display for OrAnd {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_or_and"]
 #[doc(hidden)]
 pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
@@ -295,8 +290,7 @@ fn test_or_and() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"true || true = true
 true || false = true

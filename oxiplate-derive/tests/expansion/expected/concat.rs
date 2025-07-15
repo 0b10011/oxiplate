@@ -15,10 +15,9 @@ impl ::std::fmt::Display for User {
             format_args!(
                 "{0}",
                 ::alloc::__export::must_use({
-                    let res = ::alloc::fmt::format(
+                    ::alloc::fmt::format(
                         format_args!("{0} ({1})", self.name, self.company),
-                    );
-                    res
+                    )
                 }),
             ),
         )?;
@@ -26,7 +25,6 @@ impl ::std::fmt::Display for User {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "variable"]
 #[doc(hidden)]
 pub const variable: test::TestDescAndFn = test::TestDescAndFn {
@@ -53,8 +51,7 @@ fn variable() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Xavier (XYZ Company)",
     ) {

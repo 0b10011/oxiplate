@@ -18,7 +18,6 @@ impl ::std::fmt::Display for AbsoluteData {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "absolute"]
 #[doc(hidden)]
 pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
@@ -45,8 +44,7 @@ fn absolute() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n",
     ) {
@@ -64,7 +62,6 @@ fn absolute() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "absolute_2"]
 #[doc(hidden)]
 pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
@@ -94,8 +91,7 @@ fn absolute_2() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<h1>Oxiplate Example #2</h1>\n<p>Goodbye world!</p>\n",
     ) {

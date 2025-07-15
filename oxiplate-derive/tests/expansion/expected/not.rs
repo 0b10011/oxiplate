@@ -20,7 +20,6 @@ impl ::std::fmt::Display for Not {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_if"]
 #[doc(hidden)]
 pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
@@ -43,10 +42,7 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
 fn test_if() {
     let not = Not { foo: false };
     match (
-        &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", not));
-            res
-        }),
+        &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
         &"Yay",
     ) {
         (left_val, right_val) => {
@@ -63,10 +59,7 @@ fn test_if() {
     };
     let not = Not { foo: true };
     match (
-        &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", not));
-            res
-        }),
+        &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
         &"",
     ) {
         (left_val, right_val) => {

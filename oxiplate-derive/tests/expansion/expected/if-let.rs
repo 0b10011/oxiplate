@@ -41,7 +41,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_count"]
 #[doc(hidden)]
 pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
@@ -71,8 +70,7 @@ fn test_count() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Found 5 cats!",
     ) {
@@ -90,7 +88,6 @@ fn test_count() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_count_name"]
 #[doc(hidden)]
 pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
@@ -120,8 +117,7 @@ fn test_count_name() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Found 5 cats named Sam!",
     ) {
@@ -139,7 +135,6 @@ fn test_count_name() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_name"]
 #[doc(hidden)]
 pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
@@ -166,8 +161,7 @@ fn test_name() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"No cats named Sam found :(",
     ) {
@@ -185,7 +179,6 @@ fn test_name() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_none"]
 #[doc(hidden)]
 pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
@@ -212,8 +205,7 @@ fn test_none() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"No cats found :(",
     ) {

@@ -14,7 +14,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "external_unicode"]
 #[doc(hidden)]
 pub const external_unicode: test::TestDescAndFn = test::TestDescAndFn {
@@ -41,8 +40,7 @@ fn external_unicode() {
     let template = Data {};
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", template));
-            res
+            ::alloc::fmt::format(format_args!("{0}", template))
         }),
         &"hello world",
     ) {

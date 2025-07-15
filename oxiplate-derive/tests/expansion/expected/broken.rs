@@ -4,7 +4,6 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "broken"]
 #[doc(hidden)]
 pub const broken: test::TestDescAndFn = test::TestDescAndFn {

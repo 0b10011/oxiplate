@@ -21,7 +21,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_if"]
 #[doc(hidden)]
 pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
@@ -48,8 +47,7 @@ fn test_if() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"This then do something :D",
     ) {

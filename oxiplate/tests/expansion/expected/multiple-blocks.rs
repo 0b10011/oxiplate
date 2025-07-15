@@ -98,7 +98,6 @@ impl ::std::fmt::Display for Data {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "multiple_blocks"]
 #[doc(hidden)]
 pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
@@ -125,8 +124,7 @@ fn multiple_blocks() {
     let data = Data;
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\n<footer>footer</footer>",
     ) {

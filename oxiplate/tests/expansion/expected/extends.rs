@@ -64,7 +64,6 @@ impl ::std::fmt::Display for AbsoluteData {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "absolute"]
 #[doc(hidden)]
 pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
@@ -91,8 +90,7 @@ fn absolute() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
          world!</p>\n",
@@ -111,7 +109,6 @@ fn absolute() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "absolute_2"]
 #[doc(hidden)]
 pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
@@ -141,8 +138,7 @@ fn absolute_2() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  \
          <p>Goodbye world!</p>\n",
@@ -223,7 +219,6 @@ impl ::std::fmt::Display for Prefix {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "prefix"]
 #[doc(hidden)]
 pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
@@ -250,8 +245,7 @@ fn prefix() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<title>Prefixed block</title>\n<p>Hello world!</p>test\n",
     ) {
@@ -330,7 +324,6 @@ impl ::std::fmt::Display for Replace {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "replace"]
 #[doc(hidden)]
 pub const replace: test::TestDescAndFn = test::TestDescAndFn {
@@ -357,8 +350,7 @@ fn replace() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<title>Replaced block</title>\n<p>Hello world!</p>\n",
     ) {
@@ -438,7 +430,6 @@ impl ::std::fmt::Display for Suffix {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "suffix"]
 #[doc(hidden)]
 pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
@@ -465,8 +456,7 @@ fn suffix() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n",
     ) {

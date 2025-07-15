@@ -13,6 +13,7 @@
 //!
 //! use oxiplate::escapers::Escaper;
 //!
+//! # #[allow(dead_code)]
 //! pub enum YourEscaper {
 //! #   #[allow(dead_code)]
 //!     Foo,
@@ -29,8 +30,9 @@
 //!     }
 //! }
 //!
+//! # #[allow(dead_code)]
 //! #[must_use]
-//! fn escape_foo(value: &str) -> Cow<str> {
+//! fn escape_foo(value: &'_ str) -> Cow<'_, str> {
 //!     if !value.contains("foo") {
 //!         return Cow::Borrowed(value);
 //!     }
@@ -38,8 +40,9 @@
 //!     value.replace("foo", "f00").into()
 //! }
 //!
+//! # #[allow(dead_code)]
 //! #[must_use]
-//! fn bar_escaper(value: &str) -> Cow<str> {
+//! fn bar_escaper(value: &'_ str) -> Cow<'_, str> {
 //!     if !value.contains("bar") {
 //!         return Cow::Borrowed(value);
 //!     }

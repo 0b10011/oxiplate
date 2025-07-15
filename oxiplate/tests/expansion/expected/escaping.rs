@@ -60,49 +60,37 @@ impl<'a> ::std::fmt::Display for Types<'a> {
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(format_args!("{0}", self.slice));
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.slice))
                     }),
                 ),
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(format_args!("{0}", self.string));
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.string))
                     }),
                 ),
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(
-                            format_args!("{0}", self.integer),
-                        );
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.integer))
                     }),
                 ),
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(format_args!("{0}", self.float));
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.float))
                     }),
                 ),
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(
-                            format_args!("{0}", self.display),
-                        );
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.display))
                     }),
                 ),
                 ::oxiplate::escapers::escape(
                     &::oxiplate::escapers::html::HtmlEscaper::Text,
                     &::alloc::__export::must_use({
-                        let res = ::alloc::fmt::format(
-                            format_args!("{0}", self.fn_string),
-                        );
-                        res
+                        ::alloc::fmt::format(format_args!("{0}", self.fn_string))
                     }),
                 ),
                 self.slice,
@@ -117,7 +105,6 @@ impl<'a> ::std::fmt::Display for Types<'a> {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "types"]
 #[doc(hidden)]
 pub const types: test::TestDescAndFn = test::TestDescAndFn {
@@ -148,8 +135,7 @@ fn types() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &r"
 Hello world

@@ -17,7 +17,6 @@ impl ::std::fmt::Display for Comparison {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_equals_string"]
 #[doc(hidden)]
 pub const test_equals_string: test::TestDescAndFn = test::TestDescAndFn {
@@ -44,8 +43,7 @@ fn test_equals_string() {
     let data = Comparison { value: "foo" };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"bar",
     ) {
@@ -63,7 +61,6 @@ fn test_equals_string() {
     };
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "test_does_not_equal_string"]
 #[doc(hidden)]
 pub const test_does_not_equal_string: test::TestDescAndFn = test::TestDescAndFn {
@@ -90,8 +87,7 @@ fn test_does_not_equal_string() {
     let data = Comparison { value: "baz" };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"",
     ) {

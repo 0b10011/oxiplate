@@ -13,5 +13,5 @@ struct Data {
 
 fn main() {
     let data = Data { foo: false };
-    print!("{}", data);
+    print!("{data}");
 }

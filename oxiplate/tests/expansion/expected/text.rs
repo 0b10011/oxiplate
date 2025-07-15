@@ -17,8 +17,7 @@ impl<'a> ::std::fmt::Display for Data<'a> {
                     ::oxiplate::escapers::escape(
                         &::oxiplate::escapers::html::HtmlEscaper::Text,
                         &::alloc::__export::must_use({
-                            let res = ::alloc::fmt::format(format_args!("{0}", message));
-                            res
+                            ::alloc::fmt::format(format_args!("{0}", message))
                         }),
                     ),
                 ),
@@ -29,7 +28,6 @@ impl<'a> ::std::fmt::Display for Data<'a> {
     }
 }
 extern crate test;
-#[cfg(test)]
 #[rustc_test_marker = "variable"]
 #[doc(hidden)]
 pub const variable: test::TestDescAndFn = test::TestDescAndFn {
@@ -60,8 +58,7 @@ fn variable() {
     };
     match (
         &::alloc::__export::must_use({
-            let res = ::alloc::fmt::format(format_args!("{0}", data));
-            res
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &r"
 <p>Hello world!</p>
