@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.8...oxiplate-v0.3.0) - 2025-07-16
+
+### Added
+
+- [**breaking**] escape by default and require an escaper to be specified in the project
+
+### Other
+
+- fix links in released crate
+- use correct error message
+
 ## [0.2.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.2.7...oxiplate-v0.2.8) - 2025-07-15
 
 ### Added
