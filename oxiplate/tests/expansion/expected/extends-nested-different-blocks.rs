@@ -16,7 +16,21 @@ impl ::std::fmt::Display for AbsoluteData {
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
             f.write_fmt(
-                format_args!("<h1>{0}</h1>\n  <p>{1}</p>", self.title, self.message),
+                format_args!(
+                    "<h1>{0}</h1>\n  <p>{1}</p>",
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.title))
+                        }),
+                    ),
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.message))
+                        }),
+                    ),
+                ),
             )?;
             Ok(())
         };
@@ -80,7 +94,14 @@ impl ::std::fmt::Display for AbsoluteData {
                         f.write_fmt(
                             format_args!(
                                 "<DOCTYPE html>\n<head>\n  <title>{0}</title>\n</head>\n<body>",
-                                self.oxiplate_extends_data.title,
+                                ::oxiplate::escapers::escape(
+                                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                                    &::alloc::__export::must_use({
+                                        ::alloc::fmt::format(
+                                            format_args!("{0}", self.oxiplate_extends_data.title),
+                                        )
+                                    }),
+                                ),
                             ),
                         )?;
                         let body = |

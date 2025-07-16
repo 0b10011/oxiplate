@@ -18,19 +18,21 @@ use super::template::is_whitespace;
 use super::{Item, Res};
 use crate::{Source, State};
 
-pub(crate) struct Writ<'a>(pub ExpressionAccess<'a>, Option<Path>);
+pub(crate) struct Writ<'a>(pub ExpressionAccess<'a>, Escaper);
 
 impl Writ<'_> {
     pub(crate) fn to_token(&self) -> TokenStream {
         let text = &self.0;
 
-        if self.1.is_none() {
-            return quote! { #text };
+        match &self.1 {
+            Escaper::Specified(escaper) => {
+                quote! { ::oxiplate::escapers::escape(&#escaper, &format!("{}", #text)) }
+            }
+            Escaper::Default(escaper) => {
+                quote! { ::oxiplate::escapers::escape(&<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT, &format!("{}", #text)) }
+            }
+            Escaper::None => quote! { #text },
         }
-
-        let escaper = &self.1;
-
-        quote! { ::oxiplate::escapers::escape(&#escaper, &format!("{}", #text)) }
     }
 }
 
@@ -49,17 +51,20 @@ impl<'a> From<Writ<'a>> for Item<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct Escaper;
+enum Escaper {
+    Specified(Path),
+    Default(Path),
+    None,
+}
 
 impl Escaper {
     pub fn build<'a, 'b>(
         state: &'b State<'b>,
         group: Option<Identifier<'a>>,
         escaper: Identifier<'a>,
-    ) -> Result<Option<Path>, nom::Err<VerboseError<Source<'a>>>> {
+    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
         if escaper.ident == "raw" {
-            return Ok(None);
+            return Ok(Escaper::None);
         }
 
         let group = if let Some(group) = group {
@@ -102,7 +107,7 @@ impl Escaper {
                         #group #sep #escaper
                     });
                     if let Ok(path) = path {
-                        return Ok(Some(path));
+                        return Ok(Escaper::Specified(path));
                     }
                 }
             }
@@ -112,9 +117,39 @@ impl Escaper {
         unreachable!("fail() should always bail early");
     }
 
-    pub fn default(_state: &State) -> Option<Path> {
-        // FIXME This should select the default escaper from the default escaper group
-        None
+    pub fn default<'a>(
+        state: &State,
+        input: &Source<'a>,
+    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
+        let Some(default_group) = &state.config.default_escaper_group else {
+            context(
+                r#"No default escaper group defined and no escaper was specified. If escaping is not wanted in ANY files, set `default_escaper_group = "raw"` in `/oxiplate.toml`. If escaping is not wanted just in this one instance, prefix the writ with `raw:`."#,
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+            unreachable!("fail() should always bail early");
+        };
+
+        if default_group == "raw" {
+            return Ok(Escaper::None);
+        }
+
+        let Some(default_group) = state.config.escaper_groups.get(default_group) else {
+            context(
+                "Invalid default escaper group specified",
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+            unreachable!("fail() should always bail early");
+        };
+
+        let Ok(group) = syn::parse_str::<Path>(&default_group.escaper) else {
+            context("Unparseable default escaper group path", fail::<_, (), _>())
+                .parse(input.clone())?;
+            unreachable!("fail() should always bail early");
+        };
+
+        Ok(Escaper::Default(group))
     }
 }
 
@@ -123,6 +158,7 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(Source) -> Res<Source, (Item, Option<Item>)> + 'a {
     |input| {
         let (input, _) = take_while(is_whitespace)(input)?;
+
         let (input, escaper_info) = opt((
             opt(terminated(ident, char('.'))),
             ident,
@@ -133,8 +169,9 @@ pub(super) fn writ<'a>(
         let escaper = if let Some((escaper_group, escaper, _colon, _whitespace)) = escaper_info {
             Escaper::build(state, escaper_group, escaper)?
         } else {
-            Escaper::default(state)
+            Escaper::default(state, &input)?
         };
+
         let (input, output) = context(
             "Expected an expression.",
             cut(expression(state, true, true)),

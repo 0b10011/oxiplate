@@ -16,7 +16,21 @@ impl ::std::fmt::Display for AbsoluteData {
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
             f.write_fmt(
-                format_args!("<h1>{0}</h1>\n  <p>{1}</p>", self.title, self.message),
+                format_args!(
+                    "<h1>{0}</h1>\n  <p>{1}</p>",
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.title))
+                        }),
+                    ),
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.message))
+                        }),
+                    ),
+                ),
             )?;
             Ok(())
         };
@@ -43,7 +57,14 @@ impl ::std::fmt::Display for AbsoluteData {
                 f.write_fmt(
                     format_args!(
                         "<!DOCTYPE html>\n<title>{0}</title>\n",
-                        self.oxiplate_extends_data.title,
+                        ::oxiplate::escapers::escape(
+                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                            &::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!("{0}", self.oxiplate_extends_data.title),
+                                )
+                            }),
+                        ),
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -171,7 +192,17 @@ impl ::std::fmt::Display for Prefix {
             callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
-            f.write_fmt(format_args!("<p>{0}</p>", self.message))?;
+            f.write_fmt(
+                format_args!(
+                    "<p>{0}</p>",
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.message))
+                        }),
+                    ),
+                ),
+            )?;
             callback(f)?;
             Ok(())
         };
@@ -198,7 +229,14 @@ impl ::std::fmt::Display for Prefix {
                 f.write_fmt(
                     format_args!(
                         "<!DOCTYPE html>\n<title>{0}</title>\n",
-                        self.oxiplate_extends_data.title,
+                        ::oxiplate::escapers::escape(
+                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                            &::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!("{0}", self.oxiplate_extends_data.title),
+                                )
+                            }),
+                        ),
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -277,7 +315,17 @@ impl ::std::fmt::Display for Replace {
             callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
-            f.write_fmt(format_args!("<p>{0}</p>", self.message))?;
+            f.write_fmt(
+                format_args!(
+                    "<p>{0}</p>",
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.message))
+                        }),
+                    ),
+                ),
+            )?;
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
@@ -303,7 +351,14 @@ impl ::std::fmt::Display for Replace {
                 f.write_fmt(
                     format_args!(
                         "<!DOCTYPE html>\n<title>{0}</title>\n",
-                        self.oxiplate_extends_data.title,
+                        ::oxiplate::escapers::escape(
+                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                            &::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!("{0}", self.oxiplate_extends_data.title),
+                                )
+                            }),
+                        ),
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
@@ -383,7 +438,17 @@ impl ::std::fmt::Display for Suffix {
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
             callback(f)?;
-            f.write_fmt(format_args!("<p>{0}</p>", self.message))?;
+            f.write_fmt(
+                format_args!(
+                    "<p>{0}</p>",
+                    ::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", self.message))
+                        }),
+                    ),
+                ),
+            )?;
             Ok(())
         };
         #[oxiplate_extends = "extends-wrapper.html.oxip"]
@@ -409,7 +474,14 @@ impl ::std::fmt::Display for Suffix {
                 f.write_fmt(
                     format_args!(
                         "<!DOCTYPE html>\n<title>{0}</title>\n",
-                        self.oxiplate_extends_data.title,
+                        ::oxiplate::escapers::escape(
+                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                            &::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!("{0}", self.oxiplate_extends_data.title),
+                                )
+                            }),
+                        ),
                     ),
                 )?;
                 let content = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {

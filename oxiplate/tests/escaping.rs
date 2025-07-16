@@ -6,18 +6,19 @@ struct HelloWorld;
 
 impl HelloWorld {
     fn hello() -> String {
-        String::from("Hello world")
+        String::from("Hello world &lt;<script><!--")
     }
 }
 
 impl Display for HelloWorld {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("Hello world")
+        f.write_str("Hello world &lt;<script><!--")
     }
 }
 
 #[derive(Oxiplate)]
 #[oxiplate_inline = "
+# default:
 {{ slice }}
 {{ string }}
 {{ integer }}
@@ -25,6 +26,7 @@ impl Display for HelloWorld {
 {{ display }}
 {{ fn_string }}
 
+# text:
 {{ text: slice }}
 {{ text: string }}
 {{ text: integer }}
@@ -32,6 +34,15 @@ impl Display for HelloWorld {
 {{ text: display }}
 {{ text: fn_string }}
 
+# comment:
+{{ comment: slice }}
+{{ comment: string }}
+{{ comment: integer }}
+{{ comment: float }}
+{{ comment: display }}
+{{ comment: fn_string }}
+
+# raw:
 {{ raw: slice }}
 {{ raw: string }}
 {{ raw: integer }}
@@ -51,8 +62,8 @@ struct Types<'a> {
 #[test]
 fn types() {
     let data = Types {
-        slice: "Hello world",
-        string: String::from("Hello world"),
+        slice: "Hello world &lt;<script><!--",
+        string: String::from("Hello world &lt;<script><!--"),
         integer: 19,
         float: 19.89,
         display: HelloWorld,
@@ -62,26 +73,37 @@ fn types() {
     assert_eq!(
         format!("{data}"),
         r"
-Hello world
-Hello world
+# default:
+Hello world &amp;lt;&lt;script>&lt;!--
+Hello world &amp;lt;&lt;script>&lt;!--
 19
 19.89
-Hello world
-Hello world
+Hello world &amp;lt;&lt;script>&lt;!--
+Hello world &amp;lt;&lt;script>&lt;!--
 
-Hello world
-Hello world
+# text:
+Hello world &amp;lt;&lt;script>&lt;!--
+Hello world &amp;lt;&lt;script>&lt;!--
 19
 19.89
-Hello world
-Hello world
+Hello world &amp;lt;&lt;script>&lt;!--
+Hello world &amp;lt;&lt;script>&lt;!--
 
-Hello world
-Hello world
+# comment:
+Hello world &lt;‹script›‹ǃ−−
+Hello world &lt;‹script›‹ǃ−−
 19
 19.89
-Hello world
-Hello world
+Hello world &lt;‹script›‹ǃ−−
+Hello world &lt;‹script›‹ǃ−−
+
+# raw:
+Hello world &lt;<script><!--
+Hello world &lt;<script><!--
+19
+19.89
+Hello world &lt;<script><!--
+Hello world &lt;<script><!--
 "
     );
 }

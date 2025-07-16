@@ -22,6 +22,8 @@
 //! }
 //!
 //! impl Escaper for YourEscaper {
+//!     const DEFAULT: Self = Self::Foo;
+//!
 //!     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
 //!         match self {
 //!             Self::Foo => escape_foo(value),
@@ -85,6 +87,9 @@ use std::borrow::Cow;
 
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {
+    /// The default escaper for this escaper group.
+    const DEFAULT: Self;
+
     /// Function that escapes text based on the selected variant.
     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str>;
 }

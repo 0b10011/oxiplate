@@ -1,0 +1,6 @@
+# The macro by itself (`oxiplate_derive`) doesn't support escaping.
+# This is only for tests directed at the macro.
+# The main library (`oxiplate`) supported and tests escaping.
+# Libraries and binaries using Oxiplate will specify their own default escaper,
+# possibly even "raw" for plain text use cases.
+default_escaper_group = "raw"

@@ -19,6 +19,8 @@ pub enum MarkdownEscaper {
 }
 
 impl super::Escaper for MarkdownEscaper {
+    const DEFAULT: Self = Self::Text;
+
     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
         match self {
             Self::Text => escape_unformatted_text(value),
