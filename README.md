@@ -56,12 +56,16 @@ print!("{hello_world}");
 
 ```text
 error[E0609]: no field `messages` on type `&HelloWorld`
- --> templates/external.html.oxip
+ --> /templates/external.html.oxip:2:7
   |
-  | <p>{{ messages }}</p>
+2 | <p>{{ messages }}</p>
   |       ^^^^^^^^ unknown field
   |
-  = note: available field is: `message`
+help: a field with a similar name exists
+  |
+2 - <p>{{ messages }}</p>
+2 + <p>{{ message }}</p>
+  |
 ```
 
 Check out the broken tests directory of 
