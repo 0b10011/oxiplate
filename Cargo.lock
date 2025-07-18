@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "oxiplate-derive",
  "rustversion",
@@ -79,7 +79,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "nom",
  "nom-language",
