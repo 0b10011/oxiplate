@@ -52,30 +52,29 @@ You can choose to replace the contents of the parent block with a block with the
   </main>
 ```
 
-For the same effect, you can be explicit with `extends(replace)`:
+For the same effect, you can be explicit with `block(replace)`:
 
 ```diff
   {# your-content.html.oxip -#}
 
-- {% extends "layout.html.oxip" %}
-+ {% extends(replace) "layout.html.oxip" %}
+  {% extends "layout.html.oxip" %}
 
-  {% block content %}
+- {% block content %}
++ {% block(replace) content %}
     <p>Replaced content.</p>
   {% endblock %}
 ```
 
 ## Prefix parent contents
 
-To prefix the contents of the parent, you can use `extends(prefix)`:
+To prefix the contents of the parent, you can use `block(prefix)`:
 
 ```diff
   {# your-content.html.oxip -#}
 
-- {% extends "layout.html.oxip" %}
-+ {% extends(prefix) "layout.html.oxip" %}
-+
-+ {% block content %}
+  {% extends "layout.html.oxip" %}
+
++ {% block(prefix) content %}
 +   <p>Prefix.</p>
 + {% endblock %}
 ```
@@ -90,15 +89,14 @@ To prefix the contents of the parent, you can use `extends(prefix)`:
 
 ## Suffix parent contents
 
-To suffix the contents of the parent, you can use `extends(suffix)`:
+To suffix the contents of the parent, you can use `block(suffix)`:
 
 ```diff
   {# your-content.html.oxip -#}
 
-- {% extends "layout.html.oxip" %}
-+ {% extends(suffix) "layout.html.oxip" %}
+  {% extends "layout.html.oxip" %}
 +
-+ {% block content %}
++ {% block(suffix) content %}
 +   <p>Suffix.</p>
 + {% endblock %}
 ```
@@ -113,15 +111,14 @@ To suffix the contents of the parent, you can use `extends(suffix)`:
 
 ## Surround parent contents
 
-To surround the contents of the parent, you can use `extends(surround)` and `{% parent %}`:
+To surround the contents of the parent, you can use `block(surround)` and `{% parent %}`:
 
 ```diff
   {# your-content.html.oxip -#}
 
-- {% extends "layout.html.oxip" %}
-+ {% extends(surround) "layout.html.oxip" %}
-+
-+ {% block content %}
+  {% extends "layout.html.oxip" %}+
+
++ {% block(surround) content %}
 +   <p>Prefix.</p>
 + {% parent %}
 +   <p>Suffix.</p>
