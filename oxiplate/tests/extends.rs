@@ -37,8 +37,9 @@ fn absolute_2() {
 
 #[derive(Oxiplate)]
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(prefix) content -%}
+{% block content -%}
     <p>{{ message }}</p>
+    {%- parent %}
 {%- endblock %}
 "#]
 struct Prefix {
@@ -61,7 +62,7 @@ fn prefix() {
 
 #[derive(Oxiplate)]
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(replace) content -%}
+{% block content -%}
     <p>{{ message }}</p>
 {%- endblock %}
 "#]
@@ -85,7 +86,8 @@ fn replace() {
 
 #[derive(Oxiplate)]
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(suffix) content -%}
+{% block content -%}
+    {% parent -%}
     <p>{{ message }}</p>
 {%- endblock %}
 "#]

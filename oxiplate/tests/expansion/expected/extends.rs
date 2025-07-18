@@ -178,8 +178,9 @@ fn absolute_2() {
     };
 }
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(prefix) content -%}
+{% block content -%}
     <p>{{ message }}</p>
+    {%- parent %}
 {%- endblock %}
 "#]
 struct Prefix {
@@ -265,9 +266,9 @@ pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/extends.rs",
-        start_line: 50usize,
+        start_line: 51usize,
         start_col: 4usize,
-        end_line: 50usize,
+        end_line: 51usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -301,7 +302,7 @@ fn prefix() {
     };
 }
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(replace) content -%}
+{% block content -%}
     <p>{{ message }}</p>
 {%- endblock %}
 "#]
@@ -387,9 +388,9 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/extends.rs",
-        start_line: 74usize,
+        start_line: 75usize,
         start_col: 4usize,
-        end_line: 74usize,
+        end_line: 75usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -423,7 +424,8 @@ fn replace() {
     };
 }
 #[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
-{% block(suffix) content -%}
+{% block content -%}
+    {% parent -%}
     <p>{{ message }}</p>
 {%- endblock %}
 "#]
@@ -510,9 +512,9 @@ pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/extends.rs",
-        start_line: 98usize,
+        start_line: 100usize,
         start_col: 4usize,
-        end_line: 98usize,
+        end_line: 100usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,

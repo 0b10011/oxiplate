@@ -1,9 +1,6 @@
-use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
-use nom::character::complete::char;
-use nom::combinator::{cut, opt};
+use nom::combinator::cut;
 use nom::error::context;
-use nom::sequence::delimited;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -14,25 +11,17 @@ use super::{Statement, StatementKind};
 use crate::syntax::template::{is_whitespace, Template};
 use crate::Source;
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Position {
     /// The highest level of block that is automatically applied.
+    /// Will be used if not overridden.
     /// Cannot be selected by a template with `{% block(source) ... %}`.
     Source,
 
-    /// New content appears before the parent's content.
-    Prefix,
-
-    /// New content replaces the parent's content.
-    #[default]
-    Replace,
-
-    /// New content appears after the parent's content.
-    Suffix,
-
-    /// New content appears before and after the parent's content.
-    /// The boundary is specified with `{% parent %}`
-    Surround,
+    /// Overridden content.
+    /// The parent's content will be placed where the `{% parent %}` tag appears,
+    /// otherwise the source content will be completely replaced.
+    Override,
 }
 
 #[derive(Debug)]
@@ -40,8 +29,8 @@ pub struct Block<'a> {
     pub(super) name: Identifier<'a>,
     position: Position,
     pub(super) use_override: bool,
-    template: Template<'a>,
-    surround_suffix: Option<Template<'a>>,
+    prefix: Template<'a>,
+    suffix: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
 
@@ -52,20 +41,18 @@ impl<'a> Block<'a> {
         }
 
         match self.position {
-            Position::Source | Position::Prefix | Position::Replace | Position::Suffix => {
-                match item {
-                    Item::Statement(Statement {
-                        kind: StatementKind::EndBlock,
-                        ..
-                    }) => {
-                        self.is_ended = true;
-                    }
-                    _ => {
-                        self.template.0.push(item);
-                    }
+            Position::Source => match item {
+                Item::Statement(Statement {
+                    kind: StatementKind::EndBlock,
+                    ..
+                }) => {
+                    self.is_ended = true;
                 }
-            }
-            Position::Surround => match item {
+                _ => {
+                    self.prefix.0.push(item);
+                }
+            },
+            Position::Override => match item {
                 Item::Statement(Statement {
                     kind: StatementKind::EndBlock,
                     ..
@@ -76,13 +63,13 @@ impl<'a> Block<'a> {
                     kind: StatementKind::Parent,
                     ..
                 }) => {
-                    self.surround_suffix = Some(Template(vec![]));
+                    self.suffix = Some(Template(vec![]));
                 }
                 _ => {
-                    if let Some(template) = &mut self.surround_suffix {
+                    if let Some(template) = &mut self.suffix {
                         template.0.push(item);
                     } else {
-                        self.template.0.push(item);
+                        self.prefix.0.push(item);
                     }
                 }
             },
@@ -100,8 +87,8 @@ impl ToTokens for Block<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Block {
             name,
-            template,
-            surround_suffix,
+            prefix,
+            suffix,
             ..
         } = self;
         if self.position == Position::Source {
@@ -109,14 +96,14 @@ impl ToTokens for Block<'_> {
                 // FIXME: It'd be better if the position information was passed around in the macro instead.
                 tokens.append_all(quote! {
                     let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                        #template
+                        #prefix
                         Ok(())
                     };
                     (self.#name)(#name, f)?;
                 });
             } else {
                 tokens.append_all(quote! {
-                    #template
+                    #prefix
                 });
             }
         } else if self.use_override {
@@ -124,24 +111,16 @@ impl ToTokens for Block<'_> {
                 let #name = self.#name;
             });
         } else {
-            let output = match self.position {
-                Position::Source => unreachable!("Source should have already been handled"),
-                Position::Prefix => quote! {
-                    #template
+            let output = if suffix.is_none() {
+                quote! {
+                    #prefix
+                }
+            } else {
+                quote! {
+                    #prefix
                     callback(f)?;
-                },
-                Position::Replace => quote! {
-                    #template
-                },
-                Position::Suffix => quote! {
-                    callback(f)?;
-                    #template
-                },
-                Position::Surround => quote! {
-                    #template
-                    callback(f)?;
-                    #surround_suffix
-                },
+                    #suffix
+                }
             };
 
             tokens.append_all(quote! {
@@ -163,32 +142,10 @@ pub(super) fn parse_block(
     |input| {
         let (input, block_keyword) = keyword("block")(input)?;
 
-        let (input, position) = if *is_extending {
-            let (input, position) = opt(delimited(
-                char('('),
-                alt((
-                    tag("prefix"),
-                    tag("replace"),
-                    tag("suffix"),
-                    tag("surround"),
-                )),
-                char(')'),
-            ))
-            .parse(input)?;
-            let position = position
-                .map(|position| -> Position {
-                    match position.as_str() {
-                        "prefix" => Position::Prefix,
-                        "replace" => Position::Replace,
-                        "suffix" => Position::Suffix,
-                        "surround" => Position::Surround,
-                        _ => unreachable!("All parsed cases should have been covered"),
-                    }
-                })
-                .unwrap_or_default();
-            (input, position)
+        let position = if *is_extending {
+            Position::Override
         } else {
-            (input, Position::Source)
+            Position::Source
         };
 
         let (input, (_, name)) = cut((
@@ -207,8 +164,8 @@ pub(super) fn parse_block(
                     name,
                     position,
                     use_override,
-                    template: Template(vec![]),
-                    surround_suffix: None,
+                    prefix: Template(vec![]),
+                    suffix: None,
                     is_ended: false,
                 }
                 .into(),

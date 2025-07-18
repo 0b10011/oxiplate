@@ -30,9 +30,10 @@ This is essentially the same as using `layout.html.oxip` directly:
 </main>
 ```
 
-## Replace parent contents
+## Adding to or replacing block content
 
-You can choose to replace the contents of the parent block with a block with the same name:
+Anything you add to a block of the same name in a child template
+will replace the content of the parent block:
 
 ```diff
   {# your-content.html.oxip -#}
@@ -52,66 +53,7 @@ You can choose to replace the contents of the parent block with a block with the
   </main>
 ```
 
-For the same effect, you can be explicit with `block(replace)`:
-
-```diff
-  {# your-content.html.oxip -#}
-
-  {% extends "layout.html.oxip" %}
-
-- {% block content %}
-+ {% block(replace) content %}
-    <p>Replaced content.</p>
-  {% endblock %}
-```
-
-## Prefix parent contents
-
-To prefix the contents of the parent, you can use `block(prefix)`:
-
-```diff
-  {# your-content.html.oxip -#}
-
-  {% extends "layout.html.oxip" %}
-
-+ {% block(prefix) content %}
-+   <p>Prefix.</p>
-+ {% endblock %}
-```
-
-```diff
-  <!DOCTYPE html>
-  <main>
-+   <p>Prefix.</p>
-    <p>Parent content.</p>
-  </main>
-```
-
-## Suffix parent contents
-
-To suffix the contents of the parent, you can use `block(suffix)`:
-
-```diff
-  {# your-content.html.oxip -#}
-
-  {% extends "layout.html.oxip" %}
-+
-+ {% block(suffix) content %}
-+   <p>Suffix.</p>
-+ {% endblock %}
-```
-
-```diff
-  <!DOCTYPE html>
-  <main>
-    <p>Parent content.</p>
-+   <p>Suffix.</p>
-  </main>
-```
-
-## Surround parent contents
-
-To surround the contents of the parent, you can use `block(surround)` and `{% parent %}`:
+The parent's content can be kept by using the `{% parent %}` tag in the block:
 
 ```diff
   {# your-content.html.oxip -#}
@@ -120,7 +62,7 @@ To surround the contents of the parent, you can use `block(surround)` and `{% pa
 
 + {% block(surround) content %}
 +   <p>Prefix.</p>
-+ {% parent %}
++   {% parent %}
 +   <p>Suffix.</p>
 + {% endblock %}
 ```
