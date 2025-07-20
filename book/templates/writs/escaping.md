@@ -38,6 +38,18 @@ default_escaper_group = "html"
 
 Or switch it just for the document you're in:
 
+<div class="warning">
+
+`default_escaper_group` is not yet implemented ([#39](https://github.com/0b10011/oxiplate/issues/39)).
+
+</div>
+
+<div class="warning">
+
+JSON escaping is not yet implemented ([#38](https://github.com/0b10011/oxiplate/issues/38)).
+
+</div>
+
 ```rust:
 unimplemented!("Syntax not yet implemented and subject to change!")
 ```
