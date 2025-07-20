@@ -18,7 +18,7 @@ Hello Luna!
 
 [Statements](statements/index.md) are wrapped with `{%` and `%}` and include variable assignments and control structures:
 
-```oxip
+```html.oxip
 {% if user.is_some() %}<a href="/account/">Account</a>{% endif %}
 ```
 

@@ -14,7 +14,7 @@ print!("{}", YourStruct {
 });
 ```
 
-```oxip
+```html.oxip
 <p>
     {%- if count < 0 -%}
         {{ count }} is negative

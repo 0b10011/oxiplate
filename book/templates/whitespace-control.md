@@ -22,7 +22,7 @@ There are also a couple short tags available for controlling whitespace elsewher
 
 For example:
 
-```oxip
+```html.oxip
 <p>{-}
     Hello {_}
     world! {-}

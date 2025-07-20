@@ -40,7 +40,7 @@ Eventually you'll likely want to [escape user-provided text](escaping.md) for sa
 escaper_groups.html.escaper = "::oxiplate::escapers::HtmlEscaper"
 ```
 
-```oxip
+```html.oxip
 <a href="/{{ attr: user.username }}" title="Visit {{ attr: user.name }}'s profile">
     {{ user.name }}
 </a>

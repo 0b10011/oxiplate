@@ -14,13 +14,13 @@ Hello &lt;script>alert('oh no');&lt;/script>!
 
 You can use a different escape method whenever you want, like for HTML attributes:
 
-```oxip.html
+```html.oxip
 <a href="/{{ attr: handle }}" title="{{ attr: name }}">{{ name }}</a>
 ```
 
 If you need to skip escaping, you can do that:
 
-```oxip.html
+```html.oxip
 <aside>{{ raw: your_html }}</aside>
 ```
 
@@ -32,18 +32,17 @@ Using Oxiplate to build TOML, JSON, XML, RTF, or _[insert format here]_ files?
 
 You can switch the default escaper for all of your files:
 
-```toml
-# /oxiplate.toml
+```toml:/oxiplate.toml
 default_escaper_group = "html"
 ```
 
 Or switch it just for the document you're in:
 
-```rust
+```rust:
 unimplemented!("Syntax not yet implemented and subject to change!")
 ```
 
-```oxip.json
+```json.oxip
 {% default_escaper_group json %}
 {
     "name": "{{ name }}",

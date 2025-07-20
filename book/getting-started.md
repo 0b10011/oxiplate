@@ -8,9 +8,7 @@ cargo add oxiplate
 
 Create a couple templates in the `/template` directory:
 
-```html
-<!-- /template/layout.html.oxip -->
-
+```html:/template/layout.html.oxip
 <!DOCTYPE html>
 <html>
     <head>
@@ -27,9 +25,7 @@ Create a couple templates in the `/template` directory:
 </html>
 ```
 
-```html
-<!-- /template/index.html.oxip -->
-
+```html:/template/index.html.oxip
 {% extends "layout.html.oxip" %}
 
 {% block content %}
@@ -40,9 +36,7 @@ Create a couple templates in the `/template` directory:
 
 Build the template and output it:
 
-```rust
-// /src/main.rs
-
+```rust:/src/main.rs
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]

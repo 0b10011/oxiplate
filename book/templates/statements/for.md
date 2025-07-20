@@ -1,6 +1,6 @@
 # Iterating with `for` and `else`
 
-```oxip
+```html.oxip
 <ul>
   {% for name in names %}
     <li>{{ name }}

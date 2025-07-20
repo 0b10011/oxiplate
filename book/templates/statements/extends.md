@@ -2,9 +2,7 @@
 
 Start with a template that contains one or more blocks:
 
-```oxip
-{# layout.html.oxip -#}
-
+```html.oxip:layout.html.oxip
 <!DOCTYPE html>
 <main>
 {%- block content %}
@@ -15,9 +13,7 @@ Start with a template that contains one or more blocks:
 
 Then create a template to extend it:
 
-```oxip
-{# your-content.html.oxip -#}
-
+```html.oxip:your-content.html.oxip
 {% extends "layout.html.oxip" %}
 ```
 
@@ -35,9 +31,7 @@ This is essentially the same as using `layout.html.oxip` directly:
 Anything you add to a block of the same name in a child template
 will replace the content of the parent block:
 
-```diff
-  {# your-content.html.oxip -#}
-
+```diff:your-content.html.oxip
   {% extends "layout.html.oxip" %}
 
 + {% block content %}
@@ -55,9 +49,7 @@ will replace the content of the parent block:
 
 The parent's content can be kept by using the `{% parent %}` tag in the block:
 
-```diff
-  {# your-content.html.oxip -#}
-
+```diff:your-content.html.oxip
   {% extends "layout.html.oxip" %}+
 
 + {% block(surround) content %}

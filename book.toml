@@ -26,3 +26,5 @@ runnable = false
 "/statements/for.html" = "../templates/statements/for.html"
 "/whitespace-control.html" = "./templates/whitespace-control.html"
 "/expressions.html" = "./templates/expressions.html"
+
+[preprocessor.codename]

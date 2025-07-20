@@ -32,7 +32,7 @@ Position information is tracked across files and passed onto Rust.
 This results in debuggable error messages
 even when issues are caught by Rust instead of Oxiplate.
 
-```oxip
+```html.oxip
 <h1>{{ title }}</h1>
 <p>{{ messages }}</p>
 ```
@@ -81,7 +81,7 @@ and always runs last to ensure the output is always safe.
 Creating templates in a language not supported by Oxiplate?
 You can add your own escapers!
 
-```oxip
+```html.oxip
 <!-- Profile link for {{ comment: name }} -->
 <a href="{{ attr: url }}">{{ text: name }}</a>
 ```
@@ -116,7 +116,7 @@ Read the full [escaping chapter](https://0b10011.io/oxiplate/templates/writs/esc
 Oxiplate supports removing trailing/leading/surrounding whitespace,
 or even collapsing it down to a single space.
 
-```oxip
+```html.oxip
 {# Say hi and bye -#}
 <a href="#">{-}
     Hello {{ name -}}
