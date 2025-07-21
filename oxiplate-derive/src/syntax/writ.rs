@@ -8,7 +8,8 @@ use nom::sequence::{preceded, terminated};
 use nom::Parser as _;
 use nom_language::error::VerboseError;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, quote_spanned};
+use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
@@ -80,7 +81,7 @@ impl Escaper {
             unreachable!("fail() should always bail early");
         };
 
-        let Some(group) = state.config.escaper_groups.get(group.0) else {
+        let Some(escaper_group) = state.config.escaper_groups.get(group.0) else {
             context("Invalid escaper group specified", fail::<_, (), _>())
                 .parse(group.1.clone())?;
             unreachable!("fail() should always bail early");
@@ -100,10 +101,15 @@ impl Escaper {
                 (_, _) => escaper_variant.push(char),
             }
         }
-        if let Ok(escaper) = syn::parse_str::<PathSegment>(&escaper_variant) {
-            if let Ok(group) = syn::parse_str::<Path>(&group.escaper) {
-                if let Ok(sep) = syn::parse_str::<PathSep>("::") {
-                    let path = syn::parse2::<Path>(quote! {
+        if let Ok(escaper) =
+            syn::LitStr::new(&escaper_variant, escaper.span()).parse::<PathSegment>()
+        {
+            if let Ok(group) =
+                syn::LitStr::new(&escaper_group.escaper, group.1.span()).parse::<Path>()
+            {
+                if let Ok(sep) = syn::LitStr::new("::", escaper.span()).parse::<PathSep>() {
+                    let span = escaper.span();
+                    let path = syn::parse2::<Path>(quote_spanned! {span=>
                         #group #sep #escaper
                     });
                     if let Ok(path) = path {
@@ -143,7 +149,8 @@ impl Escaper {
             unreachable!("fail() should always bail early");
         };
 
-        let Ok(group) = syn::parse_str::<Path>(&default_group.escaper) else {
+        let Ok(group) = syn::LitStr::new(&default_group.escaper, input.span()).parse::<Path>()
+        else {
             context("Unparseable default escaper group path", fail::<_, (), _>())
                 .parse(input.clone())?;
             unreachable!("fail() should always bail early");
