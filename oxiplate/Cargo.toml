@@ -15,8 +15,14 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-oxiplate-derive = { version = "0.4.0", path = "../oxiplate-derive" }
+oxiplate-derive = { version = "0.4.0", path = "../oxiplate-derive", default-features = false }
 
 [dev-dependencies]
 rustversion = "1.0.19"
 trybuild = "1.0.101"
+
+[features]
+default = ["config"]
+
+# Makes it possible to configure Oxiplate via `/oxiplate.toml`.
+config = ["oxiplate-derive/config"]

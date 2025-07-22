@@ -73,6 +73,14 @@ impl Escaper {
         } else if let Some(default_group) = &state.config.default_escaper_group {
             (default_group.as_str(), escaper.source.clone())
         } else {
+            #[cfg(not(feature = "config"))]
+            context(
+                r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined."#,
+                fail::<_, (), _>(),
+            )
+            .parse(escaper.source.clone())?;
+
+            #[cfg(feature = "config")]
             context(
                 r#"No default escaper group defined and the specified escaper is not "raw""#,
                 fail::<_, (), _>(),
@@ -128,11 +136,20 @@ impl Escaper {
         input: &Source<'a>,
     ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
         let Some(default_group) = &state.config.default_escaper_group else {
+            #[cfg(not(feature = "config"))]
+            context(
+                r#"No escaper is specified, but the "config" feature is also turned off so no default escaper group could be defined."#,
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+
+            #[cfg(feature = "config")]
             context(
                 r#"No default escaper group defined and no escaper was specified. If escaping is not wanted in ANY files, set `default_escaper_group = "raw"` in `/oxiplate.toml`. If escaping is not wanted just in this one instance, prefix the writ with `raw:`."#,
                 fail::<_, (), _>(),
             )
             .parse(input.clone())?;
+
             unreachable!("fail() should always bail early");
         };
 
@@ -142,7 +159,8 @@ impl Escaper {
 
         let Some(default_group) = state.config.escaper_groups.get(default_group) else {
             context(
-                "Invalid default escaper group specified",
+                "Invalid default escaper group specified. Make sure the escaper name in the \
+                 template matches the name set in `/oxiplate.toml`.",
                 fail::<_, (), _>(),
             )
             .parse(input.clone())?;
@@ -151,8 +169,11 @@ impl Escaper {
 
         let Ok(group) = syn::LitStr::new(&default_group.escaper, input.span()).parse::<Path>()
         else {
-            context("Unparseable default escaper group path", fail::<_, (), _>())
-                .parse(input.clone())?;
+            context(
+                r#"Unparseable default escaper group path. Make sure the escaper path is correct in \
+                 `/oxiplate.toml`. It should look something like `escaper = "::oxiplate::escapers::html::HtmlEscaper"`."#,
+                fail::<_, (), _>(),
+            )                .parse(input.clone())?;
             unreachable!("fail() should always bail early");
         };
 
@@ -173,6 +194,7 @@ pub(super) fn writ<'a>(
             take_while(is_whitespace),
         ))
         .parse(input)?;
+
         let escaper = if let Some((escaper_group, escaper, _colon, _whitespace)) = escaper_info {
             Escaper::build(state, escaper_group, escaper)?
         } else {

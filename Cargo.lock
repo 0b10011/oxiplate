@@ -85,6 +85,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-config-with-feature-turned-off"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-default-html"
 version = "0.0.0"
 dependencies = [
@@ -94,6 +102,14 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-default-json"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-test-escaper-without-config"
 version = "0.0.0"
 dependencies = [
  "oxiplate",

@@ -110,7 +110,7 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
     }
 
     // Build the shared state from the `oxiplate.toml` file.
-    let config = build_config();
+    let config = build_config(&input)?;
     let state = State {
         local_variables: &HashSet::new(),
         config: &config,

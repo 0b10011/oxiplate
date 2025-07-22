@@ -1,0 +1,8 @@
+[package]
+name = "oxiplate-test-escaper-without-config"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate = { path = "../../../", default-features = false }

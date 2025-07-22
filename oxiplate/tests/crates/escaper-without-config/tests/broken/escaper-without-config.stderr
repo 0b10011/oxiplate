@@ -1,0 +1,5 @@
+error: An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined.
+ --> tests/broken/escaper-without-config.rs:4:25
+  |
+4 | #[oxiplate_inline = "{{ text: message }}"]
+  |                         ^^^^
