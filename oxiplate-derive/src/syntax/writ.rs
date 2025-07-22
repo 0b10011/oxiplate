@@ -82,7 +82,7 @@ impl Escaper {
 
             #[cfg(feature = "config")]
             context(
-                r#"No default escaper group defined and the specified escaper is not "raw""#,
+                r#"No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `default_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
                 fail::<_, (), _>(),
             )
             .parse(escaper.source.clone())?;

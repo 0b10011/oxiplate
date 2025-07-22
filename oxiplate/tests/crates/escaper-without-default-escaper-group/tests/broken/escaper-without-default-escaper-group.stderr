@@ -1,0 +1,5 @@
+error: No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `default_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature.
+ --> tests/broken/escaper-without-default-escaper-group.rs:4:25
+  |
+4 | #[oxiplate_inline = "{{ text: message }}"]
+  |                         ^^^^

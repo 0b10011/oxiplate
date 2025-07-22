@@ -32,4 +32,9 @@ trybuild = "1.0.101"
 
 [features]
 default = ["config"]
+
+# Feature only meant to be turned on by the `oxiplate` package.
+built-in-escapers = []
+
+# Makes it possible to configure Oxiplate via `/oxiplate.toml`.
 config = ["dep:serde", "dep:toml"]
