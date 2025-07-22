@@ -1,5 +1,5 @@
 [package]
-name = "html"
+name = "oxiplate-test-default-html"
 edition = "2021"
 publish = false
 
