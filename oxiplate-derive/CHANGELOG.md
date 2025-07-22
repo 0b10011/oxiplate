@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.4.0...oxiplate-derive-v0.4.1) - 2025-07-22
+
+### Added
+
+- automatically register built-in escapers and set the default escaper to `html`
+- put the custom config file behind a feature flag to make the library usable without serde
+- point to the escaper name in the error when it can't be matched to a variant on the escaper group's enum
+
+### Other
+
+- improve highlighting of code block filenames
+
 ## [0.4.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.3.0...oxiplate-derive-v0.4.0) - 2025-07-18
 
 ### Added
