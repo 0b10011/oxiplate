@@ -93,6 +93,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-default-json"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"

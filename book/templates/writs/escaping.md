@@ -1,5 +1,26 @@
 # Escaping
 
+Escaping values ensures user-generated content
+can be safely used within trusted markup
+without causing unintended side-effects.
+
+In Oxiplate,
+escapers are infallible;
+they must always successfully output a safe string
+for inclusion in the provided context.
+Sometimes this means all unacceptable character sequences will be escaped,
+while other times it could mean they are replaced or removed entirely.
+This makes escapers improper for contexts
+where doing so could change the correctness of the output,
+like a JSON object value
+where `raw` output in conjuction with known valid output is better.
+
+## An example
+
+```html.oxip
+Hello {{ name }}!
+```
+
 HTML escaping is on by default, so if a user provides this as their name in the example above:
 
 ```html
@@ -28,7 +49,7 @@ And if you want to be explicit, `{{ name }}` and `{{ text: name }}` are equivale
 
 ### Escaping for other formats
 
-Using Oxiplate to build TOML, JSON, XML, RTF, or _[insert format here]_ files?
+Using Oxiplate to build XML, RTF, TOML, JSON, or _[insert format here]_ files?
 
 You can switch the default escaper for all of your files:
 
@@ -44,20 +65,9 @@ Or switch it just for the document you're in:
 
 </div>
 
-<div class="warning">
-
-JSON escaping is not yet implemented ([#38](https://github.com/0b10011/oxiplate/issues/38)).
-
-</div>
-
-```rust:
-unimplemented!("Syntax not yet implemented and subject to change!")
-```
-
 ```json.oxip
 {% default_escaper_group json %}
 {
-    "name": "{{ name }}",
-    "age": {{ number: age }},
+    "greeting": "Hello {{ name }}!",
 }
 ```

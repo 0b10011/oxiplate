@@ -1,0 +1,4 @@
+default_escaper_group = "json"
+
+[escaper_groups.json]
+escaper = "::oxiplate::escapers::json::JsonEscaper"
