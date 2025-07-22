@@ -5,7 +5,7 @@
 //!
 //! ```toml
 //! [escaper_groups.html]
-//! escaper = "::oxiplate::escapers::HtmlEscaper"
+//! escaper = "::oxiplate::escapers::html::HtmlEscaper"
 //! ```
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.

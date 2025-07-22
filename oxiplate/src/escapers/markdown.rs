@@ -4,7 +4,7 @@
 //! add the following to `/oxiplate.toml`:
 //!
 //! ```toml
-//! escaper_groups.md.escaper = "::oxiplate::escapers::MarkdownEscaper"
+//! escaper_groups.md.escaper = "::oxiplate::escapers::markdown::MarkdownEscaper"
 //! ```
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
