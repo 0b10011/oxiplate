@@ -96,10 +96,20 @@ pub(crate) struct State<'a> {
 #[cfg_attr(feature = "config", derive(Deserialize))]
 #[cfg_attr(feature = "config", serde(deny_unknown_fields))]
 pub(crate) struct Config {
+    /// The escaper group to use when none is specified.
     #[cfg_attr(feature = "config", serde(default))]
     pub(crate) default_escaper_group: Option<String>,
+
+    /// List of valid escaper groups,
+    /// with the key being the name that is used in templates
+    /// and the value being a path to the enum.
     #[cfg_attr(feature = "config", serde(default))]
     pub(crate) escaper_groups: HashMap<String, EscaperGroup>,
+
+    /// Whether to require escapers to be explicitly specified,
+    /// or to fallback to the default escaper of a group.
+    #[cfg_attr(feature = "config", serde(default))]
+    pub(crate) require_specifying_escaper: bool,
 }
 
 #[cfg(feature = "built-in-escapers")]
@@ -108,6 +118,7 @@ impl Default for Config {
         Self {
             default_escaper_group: Some("html".to_string()),
             escaper_groups: HashMap::new(),
+            require_specifying_escaper: false,
         }
     }
 }

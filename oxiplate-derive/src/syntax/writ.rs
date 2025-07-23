@@ -135,6 +135,14 @@ impl Escaper {
         state: &State,
         input: &Source<'a>,
     ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
+        if state.config.require_specifying_escaper {
+            context(
+                r"Escapers must be specified on all writs due to `require_specifying_escaper` config setting being set to `true` in `/oxiplate.toml`.",
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+        }
+
         let Some(default_group) = &state.config.default_escaper_group else {
             #[cfg(not(feature = "config"))]
             context(

@@ -71,3 +71,12 @@ Or switch it just for the document you're in:
     "greeting": "Hello {{ name }}!",
 }
 ```
+
+### Require specifying the escaper
+
+Oxiplate can be configured to require all writs to specify which escaper to use,
+rather than falling back to the default escaper for the current escaper group:
+
+```toml:/oxiplate.toml
+require_specifying_escaper = true
+```
