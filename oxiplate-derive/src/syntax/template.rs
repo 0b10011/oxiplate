@@ -18,51 +18,46 @@ pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
 impl Template<'_> {
     #[inline]
-    fn write_tokens(
-        format_tokens: &mut Vec<TokenStream>,
-        argument_tokens: &mut Vec<TokenStream>,
-        tokens: &mut TokenStream,
-    ) {
-        if format_tokens.is_empty() && argument_tokens.is_empty() {
+    fn write_tokens(str_tokens: &mut Vec<TokenStream>, tokens: &mut TokenStream) {
+        if str_tokens.is_empty() {
             return;
         }
 
-        let format_concat_tokens = quote! { concat!(#(#format_tokens),*) };
-        format_tokens.clear();
+        let concat_tokens = quote! { concat!(#(#str_tokens),*) };
+        str_tokens.clear();
 
-        if argument_tokens.is_empty() {
-            tokens.append_all(quote! { f.write_str(#format_concat_tokens)?; });
-            return;
-        }
-
-        tokens.append_all(quote! {
-            write!(f, #format_concat_tokens, #(#argument_tokens),*)?;
-        });
-        argument_tokens.clear();
+        tokens.append_all(quote! { f.write_str(#concat_tokens)?; });
     }
 }
 
 impl ToTokens for Template<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let mut format_tokens = vec![];
-        let mut argument_tokens = vec![];
+        let mut str_tokens = vec![];
         for item in &self.0 {
             match item.to_token() {
                 ItemToken::Comment => (),
-                ItemToken::StaticText(token_stream) => format_tokens.push(token_stream),
+                ItemToken::StaticText(token_stream) => {
+                    str_tokens.push(token_stream);
+                }
                 ItemToken::DynamicText(token_stream) => {
-                    format_tokens.push(quote!("{}"));
-                    argument_tokens.push(token_stream);
+                    // Write out static text
+                    if !str_tokens.is_empty() {
+                        Self::write_tokens(&mut str_tokens, tokens);
+                    }
+
+                    tokens.append_all(quote! {
+                        f.write_str(&#token_stream)?;
+                    });
                 }
                 ItemToken::Statement(token_stream) => {
-                    Self::write_tokens(&mut format_tokens, &mut argument_tokens, tokens);
+                    Self::write_tokens(&mut str_tokens, tokens);
                     tokens.append_all(token_stream);
                 }
             }
         }
 
-        if !argument_tokens.is_empty() || !format_tokens.is_empty() {
-            Self::write_tokens(&mut format_tokens, &mut argument_tokens, tokens);
+        if !str_tokens.is_empty() {
+            Self::write_tokens(&mut str_tokens, tokens);
         }
     }
 }

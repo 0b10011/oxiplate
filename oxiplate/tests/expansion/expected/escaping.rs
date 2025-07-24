@@ -61,125 +61,145 @@ struct Types<'a> {
 }
 impl<'a> ::std::fmt::Display for Types<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "\n# default:\n{0}\n{1}\n{2}\n{3}\n{4}\n{5}\n\n# text:\n{6}\n{7}\n{8}\n{9}\n{10}\n{11}\n\n# comment:\n{12}\n{13}\n{14}\n{15}\n{16}\n{17}\n\n# raw:\n{18}\n{19}\n{20}\n{21}\n{22}\n{23}\n",
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.slice))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.string))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.integer))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.float))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.display))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.fn_string))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.slice))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.string))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.integer))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.float))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.display))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Text,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.fn_string))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.slice))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.string))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.integer))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.float))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.display))
-                    }),
-                ),
-                ::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::html::HtmlEscaper::Comment,
-                    &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", self.fn_string))
-                    }),
-                ),
-                self.slice,
-                self.string,
-                self.integer,
-                self.float,
-                self.display,
-                self.fn_string,
+        f.write_str("\n# default:\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.slice),
             ),
         )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.string),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.integer),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.float),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.display),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &::std::string::ToString::to_string(&self.fn_string),
+            ),
+        )?;
+        f.write_str("\n\n# text:\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.slice),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.string),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.integer),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.float),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.display),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Text,
+                &::std::string::ToString::to_string(&self.fn_string),
+            ),
+        )?;
+        f.write_str("\n\n# comment:\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.slice),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.string),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.integer),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.float),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.display),
+            ),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(
+            &::oxiplate::escapers::escape(
+                &::oxiplate::escapers::html::HtmlEscaper::Comment,
+                &::std::string::ToString::to_string(&self.fn_string),
+            ),
+        )?;
+        f.write_str("\n\n# raw:\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.slice))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.string))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.integer))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.float))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.display))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.fn_string))?;
+        f.write_str("\n")?;
         Ok(())
     }
 }

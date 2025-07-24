@@ -28,13 +28,21 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if let Some(count) = &self.cats_count {
             if let Some(name) = &self.name {
-                f.write_fmt(format_args!("Found {0} cats named {1}!", count, name))?;
+                f.write_str("Found ")?;
+                f.write_str(&::std::string::ToString::to_string(&count))?;
+                f.write_str(" cats named ")?;
+                f.write_str(&::std::string::ToString::to_string(&name))?;
+                f.write_str("!")?;
             } else {
-                f.write_fmt(format_args!("Found {0} cats!", count))?;
+                f.write_str("Found ")?;
+                f.write_str(&::std::string::ToString::to_string(&count))?;
+                f.write_str(" cats!")?;
             }
         } else {
             if let Some(missing_name) = &self.name {
-                f.write_fmt(format_args!("No cats named {0} found :(", missing_name))?;
+                f.write_str("No cats named ")?;
+                f.write_str(&::std::string::ToString::to_string(&missing_name))?;
+                f.write_str(" found :(")?;
             } else {
                 f.write_str("No cats found :(")?;
             }

@@ -18,10 +18,11 @@ struct Data {
 }
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        if !self.r#ref.is_empty() {
-            f.write_fmt(format_args!("Referee: {0}", self.r#ref))?;
+        if (!self.r#ref.is_empty()) {
+            f.write_str("Referee: ")?;
+            f.write_str(&::std::string::ToString::to_string(&self.r#ref))?;
         } else {
-            f.write_fmt(format_args!("{0}", self.r#else))?;
+            f.write_str(&::std::string::ToString::to_string(&self.r#else))?;
         }
         Ok(())
     }

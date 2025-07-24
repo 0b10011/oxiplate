@@ -11,10 +11,9 @@ struct User {
 }
 impl ::std::fmt::Display for User {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0}",
-                ::alloc::__export::must_use({
+        f.write_str(
+            &::std::string::ToString::to_string(
+                &::alloc::__export::must_use({
                     ::alloc::fmt::format(
                         format_args!("{0} ({1})", self.name, self.company),
                     )

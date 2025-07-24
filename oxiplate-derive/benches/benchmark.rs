@@ -1,6 +1,6 @@
 use std::hint::black_box;
-use criterion::{criterion_group, criterion_main, Criterion};
 
+use criterion::{criterion_group, criterion_main, Criterion};
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
@@ -8,7 +8,7 @@ use oxiplate_derive::Oxiplate;
 struct Static;
 
 fn static_text() -> String {
-    format!("{}", Static)
+    Static.to_string()
 }
 
 #[derive(Oxiplate)]
@@ -19,10 +19,7 @@ struct Data<'a> {
 }
 
 fn variables(title: &str, message: &str) -> String {
-    format!("{}", Data {
-        title,
-        message,
-    })
+    Data { title, message }.to_string()
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
@@ -31,12 +28,14 @@ fn criterion_benchmark(c: &mut Criterion) {
     // precision and counteract the resulting noise.
     fast_group.sample_size(10_000);
 
-    fast_group.bench_function("static", |b| b.iter(|| static_text()));
+    fast_group.bench_function("static", |b| b.iter(static_text));
 
-    fast_group.bench_function("variables", |b| b.iter(|| variables(black_box("hello"), black_box("world"))));
+    fast_group.bench_function("variables", |b| {
+        b.iter(|| variables(black_box("hello"), black_box("world")));
+    });
 }
 
-criterion_group!{
+criterion_group! {
     name = benches;
     config = Criterion::default();
     targets = criterion_benchmark

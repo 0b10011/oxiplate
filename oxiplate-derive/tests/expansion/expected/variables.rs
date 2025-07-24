@@ -10,7 +10,7 @@ struct Variable {
 }
 impl ::std::fmt::Display for Variable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0}", self.message))?;
+        f.write_str(&::std::string::ToString::to_string(&self.message))?;
         Ok(())
     }
 }
@@ -64,7 +64,9 @@ struct Variables {
 }
 impl ::std::fmt::Display for Variables {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0} / {1}", self.title, self.message))?;
+        f.write_str(&::std::string::ToString::to_string(&self.title))?;
+        f.write_str(" / ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.message))?;
         Ok(())
     }
 }

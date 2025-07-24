@@ -66,7 +66,11 @@ struct WritWhitespaceControl {
 }
 impl ::std::fmt::Display for WritWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("Hello {0} ({1})!", self.username, self.name))?;
+        f.write_str("Hello ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.username))?;
+        f.write_str(" (")?;
+        f.write_str(&::std::string::ToString::to_string(&self.name))?;
+        f.write_str(")!")?;
         Ok(())
     }
 }
@@ -186,25 +190,32 @@ fn comment_whitespace_control() {
 struct AdjacentTags {}
 impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "\n{0}  {1}\n{2}{3}\n{4} {5}\n{6}{7}\n{8}{9}\n{10} {11}\n{12} {13}\n",
-                "leave",
-                "leave",
-                "leave",
-                "remove",
-                "leave",
-                "replace",
-                "remove",
-                "leave",
-                "remove",
-                "remove",
-                "replace",
-                "leave",
-                "replace",
-                "replace",
-            ),
-        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str("  ")?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str(" ")?;
+        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+        f.write_str(" ")?;
+        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+        f.write_str(" ")?;
+        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+        f.write_str("\n")?;
         Ok(())
     }
 }

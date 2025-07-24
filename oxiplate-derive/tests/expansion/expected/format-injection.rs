@@ -10,15 +10,13 @@ use oxiplate_derive::Oxiplate;
 struct Data {}
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "Braces ({0} and {1}) are formatting characters in Rust and must be escaped. {2}{3}",
-                "{",
-                "}",
-                "{",
-                "}",
-            ),
-        )?;
+        f.write_str("Braces (")?;
+        f.write_str(&"{")?;
+        f.write_str(" and ")?;
+        f.write_str(&"}")?;
+        f.write_str(") are formatting characters in Rust and must be escaped. ")?;
+        f.write_str(&"{")?;
+        f.write_str(&"}")?;
         Ok(())
     }
 }

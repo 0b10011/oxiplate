@@ -22,38 +22,67 @@ struct Math {
 }
 impl ::std::fmt::Display for Math {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "1 + 2 = {0}\n{1} + {2} = {3}\n{4} - {5} = {6}\n{7} * {8} = {9}\n{10} / {11} = {12}\n{13} % {14} = {15}\n{16} + {17} * {18} = {19}\n{20} + {21} / {22} = {23}\n{24} - {25} % {26} = {27}",
-                1 + 2,
-                self.max,
-                self.min,
-                self.max + self.min,
-                self.max,
-                self.min,
-                self.max - self.min,
-                self.max,
-                self.min,
-                self.max * self.min,
-                self.max,
-                self.min,
-                self.max / self.min,
-                self.max,
-                self.min,
-                self.max % self.min,
-                self.min,
-                self.min,
-                self.max,
-                self.min + self.min * self.max,
-                self.max,
-                self.max,
-                self.min,
-                self.max + self.max / self.min,
-                self.max,
-                self.min,
-                self.min,
-                self.max - self.min % self.min,
-            ),
+        f.write_str("1 + 2 = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(1 + 2)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" + ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max + self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" - ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max - self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" * ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max * self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" / ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max / self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" % ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max % self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" + ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" * ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.min + (self.min * self.max))),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" + ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" / ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.max + (self.max / self.min))),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" - ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" % ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.max - (self.min % self.min))),
         )?;
         Ok(())
     }
@@ -122,29 +151,41 @@ struct Comparisons {
 }
 impl ::std::fmt::Display for Comparisons {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0} == {1} = {2}\n{3} != {4} = {5}\n{6} > {7} = {8}\n{9} < {10} = {11}\n{12} >= {13} = {14}\n{15} <= {16} = {17}",
-                self.max,
-                self.min,
-                self.max == self.min,
-                self.max,
-                self.min,
-                self.max != self.min,
-                self.max,
-                self.min,
-                self.max > self.min,
-                self.max,
-                self.min,
-                self.max < self.min,
-                self.max,
-                self.min,
-                self.max >= self.min,
-                self.max,
-                self.min,
-                self.max <= self.min,
-            ),
-        )?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" == ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max == self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" != ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max != self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" > ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max > self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" < ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max < self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" >= ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max >= self.min)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.max))?;
+        f.write_str(" <= ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.min))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.max <= self.min)))?;
         Ok(())
     }
 }
@@ -220,46 +261,82 @@ struct OrAnd {
 }
 impl ::std::fmt::Display for OrAnd {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "{0} || {1} = {2}\n{3} || {4} = {5}\n{6} || {7} = {8}\n{9} || {10} = {11}\n{12} && {13} = {14}\n{15} && {16} = {17}\n{18} && {19} = {20}\n{21} && {22} = {23}\n{24} || {25} && {26} = {27}\n{28} || {29} && {30} = {31}\n{32} || {33} && {34} = {35}",
-                self.yes,
-                self.yes,
-                self.yes || self.yes2,
-                self.yes,
-                self.no,
-                self.yes || self.no,
-                self.no,
-                self.yes,
-                self.no || self.yes,
-                self.no,
-                self.no,
-                self.no || self.no2,
-                self.yes,
-                self.yes,
-                self.yes && self.yes2,
-                self.yes,
-                self.no,
-                self.yes && self.no,
-                self.no,
-                self.yes,
-                self.no && self.yes,
-                self.no,
-                self.no,
-                self.no && self.no2,
-                self.yes,
-                self.no,
-                self.no,
-                self.yes || self.no && self.no2,
-                self.no,
-                self.yes,
-                self.no,
-                self.no || self.yes && self.no2,
-                self.no,
-                self.yes,
-                self.yes,
-                self.no || self.yes && self.yes2,
-            ),
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.yes || self.yes2)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.yes || self.no)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.no || self.yes)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.no || self.no2)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.yes && self.yes2)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.yes && self.no)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.no && self.yes)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(&::std::string::ToString::to_string(&(self.no && self.no2)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.yes || (self.no && self.no2))),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.no || (self.yes && self.no2))),
+        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&self.no))?;
+        f.write_str(" || ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" && ")?;
+        f.write_str(&::std::string::ToString::to_string(&self.yes))?;
+        f.write_str(" = ")?;
+        f.write_str(
+            &::std::string::ToString::to_string(&(self.no || (self.yes && self.yes2))),
         )?;
         Ok(())
     }

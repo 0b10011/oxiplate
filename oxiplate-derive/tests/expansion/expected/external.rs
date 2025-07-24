@@ -11,9 +11,11 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!("<h1>{0}</h1>\n<p>{1}</p>\n", self.title, self.message),
-        )?;
+        f.write_str("<h1>")?;
+        f.write_str(&::std::string::ToString::to_string(&self.title))?;
+        f.write_str("</h1>\n<p>")?;
+        f.write_str(&::std::string::ToString::to_string(&self.message))?;
+        f.write_str("</p>\n")?;
         Ok(())
     }
 }

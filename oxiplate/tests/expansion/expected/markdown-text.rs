@@ -12,18 +12,15 @@ struct Data<'a> {
 }
 impl<'a> ::std::fmt::Display for Data<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        for message in &self.messages {
-            f.write_fmt(
-                format_args!(
-                    "\n{0}\n",
-                    ::oxiplate::escapers::escape(
-                        &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
-                        &::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("{0}", message))
-                        }),
-                    ),
+        for message in (&self.messages) {
+            f.write_str("\n")?;
+            f.write_str(
+                &::oxiplate::escapers::escape(
+                    &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
+                    &::std::string::ToString::to_string(&message),
                 ),
             )?;
+            f.write_str("\n")?;
         }
         Ok(())
     }

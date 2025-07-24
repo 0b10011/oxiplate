@@ -10,7 +10,7 @@ struct Comparison {
 }
 impl ::std::fmt::Display for Comparison {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        if self.value == 5 {
+        if (self.value == 5) {
             f.write_str("bar")?;
         }
         Ok(())

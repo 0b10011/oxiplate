@@ -121,8 +121,8 @@ impl ToTokens for Expression<'_> {
                     quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) }
                 }
             }
-            Expression::Calc(left, operator, right) => quote!(#left #operator #right),
-            Expression::Prefixed(operator, expression) => quote!(#operator #expression),
+            Expression::Calc(left, operator, right) => quote!((#left #operator #right)),
+            Expression::Prefixed(operator, expression) => quote!((#operator #expression)),
             Expression::String(string) => {
                 let string = ::syn::LitStr::new(string.as_str(), string.span());
                 quote! {

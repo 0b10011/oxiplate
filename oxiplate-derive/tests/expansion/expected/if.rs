@@ -15,7 +15,9 @@ struct Data {
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         if self.do_this {
-            f.write_fmt(format_args!("This then {0} :D", self.action))?;
+            f.write_str("This then ")?;
+            f.write_str(&::std::string::ToString::to_string(&self.action))?;
+            f.write_str(" :D")?;
         }
         Ok(())
     }

@@ -19,20 +19,24 @@ use oxiplate_derive::Oxiplate;
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(
-            format_args!(
-                "\n{0}\n{1}\n{2}\n{3}\n{4}\n{5}\n{6}\n{7}\n{8}",
-                19,
-                10 + 9,
-                0,
-                000,
-                0b10011,
-                0b0,
-                0b0000,
-                0b10011 + 19,
-                19 + 0b10011,
-            ),
-        )?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&19))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&(10 + 9)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&0))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&000))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&0b10011))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&0b0))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&0b0000))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&(0b10011 + 19)))?;
+        f.write_str("\n")?;
+        f.write_str(&::std::string::ToString::to_string(&(19 + 0b10011)))?;
         Ok(())
     }
 }
@@ -90,7 +94,7 @@ fn field() {
 struct DecimalNumberSeparators;
 impl ::std::fmt::Display for DecimalNumberSeparators {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0}", 1_234_567))?;
+        f.write_str(&::std::string::ToString::to_string(&1_234_567))?;
         Ok(())
     }
 }
@@ -141,7 +145,7 @@ fn decimal_number_separators() {
 struct BinaryNumberSeparators;
 impl ::std::fmt::Display for BinaryNumberSeparators {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0}", 0b0001_0011))?;
+        f.write_str(&::std::string::ToString::to_string(&0b0001_0011))?;
         Ok(())
     }
 }

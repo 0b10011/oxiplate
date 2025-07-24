@@ -21,7 +21,7 @@ struct Data {
 }
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("{0}", self.user.display_name()))?;
+        f.write_str(&::std::string::ToString::to_string(&self.user.display_name()))?;
         Ok(())
     }
 }

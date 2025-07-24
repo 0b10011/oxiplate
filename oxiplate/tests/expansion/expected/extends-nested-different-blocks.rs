@@ -15,23 +15,21 @@ impl ::std::fmt::Display for AbsoluteData {
             callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
             f: &mut ::std::fmt::Formatter<'_>,
         | -> ::std::fmt::Result {
-            f.write_fmt(
-                format_args!(
-                    "<h1>{0}</h1>\n  <p>{1}</p>",
-                    ::oxiplate::escapers::escape(
-                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("{0}", self.title))
-                        }),
-                    ),
-                    ::oxiplate::escapers::escape(
-                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("{0}", self.message))
-                        }),
-                    ),
+            f.write_str("<h1>")?;
+            f.write_str(
+                &::oxiplate::escapers::escape(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                    &::std::string::ToString::to_string(&self.title),
                 ),
             )?;
+            f.write_str("</h1>\n  <p>")?;
+            f.write_str(
+                &::oxiplate::escapers::escape(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                    &::std::string::ToString::to_string(&self.message),
+                ),
+            )?;
+            f.write_str("</p>")?;
             Ok(())
         };
         #[oxiplate_extends = "extends-nested-different-blocks-wrapper.html.oxip"]
@@ -91,19 +89,16 @@ impl ::std::fmt::Display for AbsoluteData {
                         &self,
                         f: &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result {
-                        f.write_fmt(
-                            format_args!(
-                                "<DOCTYPE html>\n<head>\n  <title>{0}</title>\n</head>\n<body>",
-                                ::oxiplate::escapers::escape(
-                                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                                    &::alloc::__export::must_use({
-                                        ::alloc::fmt::format(
-                                            format_args!("{0}", self.oxiplate_extends_data.title),
-                                        )
-                                    }),
+                        f.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
+                        f.write_str(
+                            &::oxiplate::escapers::escape(
+                                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                                &::std::string::ToString::to_string(
+                                    &self.oxiplate_extends_data.title,
                                 ),
                             ),
                         )?;
+                        f.write_str("</title>\n</head>\n<body>")?;
                         let body = |
                             f: &mut ::std::fmt::Formatter<'_>,
                         | -> ::std::fmt::Result { Ok(()) };

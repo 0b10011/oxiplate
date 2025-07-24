@@ -81,7 +81,7 @@ impl<'a> Source<'a> {
                 .resolved_at(self.original.span_hygiene);
         }
 
-        let literal = format!("{}", self.original.literal);
+        let literal = self.original.literal.to_string();
         let mut chars: CharIterator = literal.chars().enumerate().peekable();
 
         let hash_count = Self::parse_open(&mut chars, &mut range);
@@ -171,7 +171,7 @@ impl<'a> Source<'a> {
                 }
                 (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                     unicode_chars_parsed += 1;
-                    unicode_code = format!("{unicode_code}{char}");
+                    unicode_code.push_str(&char.to_string());
                 }
                 (1..=4, '}') => {
                     let code = u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");
