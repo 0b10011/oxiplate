@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.4.1...oxiplate-v0.5.0) - 2025-07-24
+
+### Added
+
+- [**breaking**] infer escaper from file extension or extension hint
+- make it possible to require specifying escapers on all writs (fixes #33)
+
 ## [0.4.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.4.0...oxiplate-v0.4.1) - 2025-07-22
 
 ### Added
