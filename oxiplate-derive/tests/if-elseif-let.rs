@@ -1,13 +1,15 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r"
+#[oxiplate_inline(
+    r"
 {%- if check -%}
 bar
 {%- elseif let Some(text) = ty -%}
 {{ text }}
 {%- endif -%}
-"]
+"
+)]
 struct Data {
     check: bool,
     ty: Option<&'static str>,

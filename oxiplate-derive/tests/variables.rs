@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{{ message }}"]
+#[oxiplate_inline("{{ message }}")]
 struct Variable {
     message: &'static str,
 }
@@ -16,7 +16,7 @@ fn variable() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{{ title }} / {{ message }}"]
+#[oxiplate_inline("{{ title }} / {{ message }}")]
 struct Variables {
     title: &'static str,
     message: &'static str,

@@ -3,10 +3,10 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline("
 {%- if foo == false -%}
     No foo
-{%- endif %}"]
+{%- endif %}")]
 struct Data {
     foo: bool,
 }

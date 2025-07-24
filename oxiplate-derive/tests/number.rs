@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {{ 19 }}
 {{ 10 + 9 }}
 {{ 0 }}
@@ -10,7 +11,8 @@ use oxiplate_derive::Oxiplate;
 {{ 0b0 }}
 {{ 0b0000 }}
 {{ 0b10011 + 19 }}
-{{ 19 + 0b10011 }}"]
+{{ 19 + 0b10011 }}"
+)]
 struct Data;
 
 #[test]

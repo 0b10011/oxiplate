@@ -7,7 +7,7 @@ use oxiplate_derive::Oxiplate;
 struct User<'a> {
     name: &'a str,
 }
-#[oxiplate_inline = "{{ user.name }}"]
+#[oxiplate_inline("{{ user.name }}")]
 struct Data<'a> {
     user: &'a User<'a>,
 }

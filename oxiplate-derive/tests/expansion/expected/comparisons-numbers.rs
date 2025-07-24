@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = r"{% if value == 5 %}bar{% endif %}"]
+#[oxiplate_inline(r"{% if value == 5 %}bar{% endif %}")]
 struct Comparison {
     value: u8,
 }

@@ -68,7 +68,7 @@
 //! #[derive(Oxiplate)]
 //! // Because the TOML isn't included in this,
 //! // `your_group` isn't available and the example doesn't compile.
-//! #[oxiplate_inline = "{{ your_group.foo: value_to_escape }}"]
+//! #[oxiplate_inline(html: "{{ your_group.foo: value_to_escape }}")]
 //! struct Data<'a> {
 //!     value_to_escape: &'a str,
 //! }

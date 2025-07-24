@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{{ text: message }}"]
+#[oxiplate_inline(html: "{{ text: message }}")]
 struct Data<'a> {
     message: &'a str,
 }

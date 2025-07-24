@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r##"{% if "foo" == 3 %}"##]
+#[oxiplate_inline(r##"{% if "foo" == 3 %}"##)]
 struct Data {}
 
 fn main() {

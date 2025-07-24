@@ -1,10 +1,12 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if do_this -%}
     This then {{ action }} :D
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     do_this: bool,
     action: &'static str,

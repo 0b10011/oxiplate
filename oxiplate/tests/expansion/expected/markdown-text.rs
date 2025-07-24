@@ -4,7 +4,9 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate::Oxiplate;
-#[oxiplate_inline = "{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"]
+#[oxiplate_inline(
+    html:"{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"
+)]
 struct Data<'a> {
     messages: Vec<&'a str>,
 }

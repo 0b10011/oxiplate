@@ -1,5 +1,5 @@
 error: Escapers must be specified on all writs due to `require_specifying_escaper` config setting being set to `true` in `/oxiplate.toml`.
- --> tests/broken/require-specifying-escaper.rs:4:25
+ --> tests/broken/require-specifying-escaper.rs:4:29
   |
-4 | #[oxiplate_inline = "{{ message }}"]
-  |                         ^^^^^^^^^^
+4 | #[oxiplate_inline(html: "{{ message }}")]
+  |                             ^^^^^^^^^^

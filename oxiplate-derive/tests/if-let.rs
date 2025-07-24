@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if let Some(count) = cats_count -%}
     {%- if let Some(name) = name -%}
         Found {{ count }} cats named {{ name }}!
@@ -14,7 +15,8 @@ use oxiplate_derive::Oxiplate;
     {%- else -%}
         No cats found :(
     {%- endif -%}
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     cats_count: Option<u8>,
     name: Option<String>,

@@ -5,7 +5,7 @@ use std::prelude::rust_2021::*;
 extern crate std;
 use oxiplate_derive::Oxiplate;
 mod std {}
-#[oxiplate_inline = "{{ foo }}"]
+#[oxiplate_inline("{{ foo }}")]
 struct Data {
     foo: &'static str,
 }

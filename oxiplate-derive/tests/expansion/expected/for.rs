@@ -4,10 +4,10 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "
+#[oxiplate_inline("
 {%- for value in &values -%}
     {{ value }}<br>
-{%- endfor %}"]
+{%- endfor %}")]
 struct Data {
     values: Vec<&'static str>,
 }
@@ -28,9 +28,9 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 13usize,
+        start_line: 15usize,
         start_col: 4usize,
-        end_line: 13usize,
+        end_line: 15usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -62,10 +62,12 @@ fn test_for() {
         }
     };
 }
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for person in &people -%}
     {{ person.get_name() }}<br>
-{%- endfor %}"]
+{%- endfor %}"
+)]
 struct Accounts {
     people: Vec<Person>,
 }
@@ -94,9 +96,9 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 40usize,
+        start_line: 44usize,
         start_col: 4usize,
-        end_line: 40usize,
+        end_line: 44usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
@@ -133,12 +135,14 @@ fn test_method_calls() {
         }
     };
 }
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {{- value }}!
 {% for value in &values -%}
     {{ value }}
 {% endfor -%}
-{{ value }} again :D"]
+{{ value }} again :D"
+)]
 struct ShadowVariable {
     values: Vec<&'static str>,
     value: &'static str,
@@ -162,9 +166,9 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 61usize,
+        start_line: 67usize,
         start_col: 4usize,
-        end_line: 61usize,
+        end_line: 67usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
@@ -204,10 +208,12 @@ hello world again :D",
         }
     };
 }
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for function in &functions -%}
     {{ function() }}
-{% endfor %}"]
+{% endfor %}"
+)]
 struct Functions {
     functions: Vec<fn() -> i32>,
 }
@@ -228,9 +234,9 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 87usize,
+        start_line: 95usize,
         start_col: 4usize,
-        end_line: 87usize,
+        end_line: 95usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -265,12 +271,14 @@ fn test_function_variables() {
         }
     };
 }
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for value in &values -%}
     {{ value }}<br>
 {%- else -%}
     No values :(
-{%- endfor %}"]
+{%- endfor %}"
+)]
 struct ForElse {
     values: Vec<&'static str>,
 }
@@ -298,9 +306,9 @@ pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 107usize,
+        start_line: 117usize,
         start_col: 4usize,
-        end_line: 107usize,
+        end_line: 117usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,

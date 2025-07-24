@@ -1,10 +1,12 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for value in &values -%}
     {{ value }}<br>
-{%- endfor %}"]
+{%- endfor %}"
+)]
 struct Data {
     values: Vec<&'static str>,
 }
@@ -19,10 +21,12 @@ fn test_for() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for person in &people -%}
     {{ person.get_name() }}<br>
-{%- endfor %}"]
+{%- endfor %}"
+)]
 struct Accounts {
     people: Vec<Person>,
 }
@@ -46,12 +50,14 @@ fn test_method_calls() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {{- value }}!
 {% for value in &values -%}
     {{ value }}
 {% endfor -%}
-{{ value }} again :D"]
+{{ value }} again :D"
+)]
 struct ShadowVariable {
     values: Vec<&'static str>,
     value: &'static str,
@@ -75,10 +81,12 @@ hello world again :D"
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for function in &functions -%}
     {{ function() }}
-{% endfor %}"]
+{% endfor %}"
+)]
 struct Functions {
     functions: Vec<fn() -> i32>,
 }
@@ -93,12 +101,14 @@ fn test_function_variables() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- for value in &values -%}
     {{ value }}<br>
 {%- else -%}
     No values :(
-{%- endfor %}"]
+{%- endfor %}"
+)]
 struct ForElse {
     values: Vec<&'static str>,
 }

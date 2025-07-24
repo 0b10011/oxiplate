@@ -1,5 +1,5 @@
 error: Expected 'in'
- --> tests/broken/for-no-ident.rs:4:33
+ --> tests/broken/for-no-ident.rs:4:31
   |
-4 | #[oxiplate_inline = "{%- for in numbers -%}No ident present{% endfor %}"]
-  |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 | #[oxiplate_inline("{%- for in numbers -%}No ident present{% endfor %}")]
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

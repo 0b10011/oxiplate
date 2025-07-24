@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !"]
+#[oxiplate_inline("Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 
 #[test]
@@ -12,8 +12,10 @@ fn adjusted_whitespace() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name \
-                     -}}  \t\t  \r\n\t )!"]
+#[oxiplate_inline(
+    "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name -}}  \t\t  \
+     \r\n\t )!"
+)]
 struct WritWhitespaceControl {
     username: &'static str,
     name: &'static str,
@@ -30,8 +32,10 @@ fn writ_whitespace_control() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t \
-                     {#- Hey another comment -#}  \t\t  \r\n\t )!"]
+#[oxiplate_inline(
+    "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t {#- Hey another \
+     comment -#}  \t\t  \r\n\t )!"
+)]
 struct CommentWhitespaceControl {}
 
 #[test]
@@ -43,7 +47,8 @@ fn comment_whitespace_control() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r#"
+#[oxiplate_inline(
+    r#"
 {{ "leave" }}  {{ "leave" }}
 {{ "leave" }}  {{- "remove" }}
 {{ "leave" }}  {{_ "replace" }}
@@ -51,7 +56,8 @@ fn comment_whitespace_control() {
 {{ "remove" -}}  {{- "remove" }}
 {{ "replace" _}}  {{ "leave" }}
 {{ "replace" _}}  {{_ "replace" }}
-"#]
+"#
+)]
 struct AdjacentTags {}
 
 #[test]

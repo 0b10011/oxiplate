@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{% for message in &messages %}\n<p>{{ textt: message }}</p>{% endfor %}\n"]
+#[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ textt: message }}</p>{% endfor %}\n")]
 struct Data<'a> {
     messages: Vec<&'a str>,
 }

@@ -3,5 +3,5 @@ error: String is opened but never closed. The string ending must be a double quo
   |
 5 |   {{- ##"hello world"# -}}
   |  ________^
-6 | |  "#####]
+6 | |  "#####)]
   | |_^

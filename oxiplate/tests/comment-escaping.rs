@@ -1,7 +1,7 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "<!--{{ comment: comment }}-->"]
+#[oxiplate_inline(html: "<!--{{ comment: comment }}-->")]
 struct Data<'a> {
     comment: &'a str,
 }

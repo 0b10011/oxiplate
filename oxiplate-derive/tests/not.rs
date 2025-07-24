@@ -1,10 +1,12 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if !foo -%}
     Yay
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Not {
     foo: bool,
 }

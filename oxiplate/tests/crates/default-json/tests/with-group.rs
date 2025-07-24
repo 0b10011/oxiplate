@@ -1,9 +1,9 @@
 use oxiplate::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r#"{
+#[oxiplate_inline(html: r#"{
     "foo": "Hello {{ name }}!"
-}"#]
+}"#)]
 struct Data<'a> {
     name: &'a str,
 }

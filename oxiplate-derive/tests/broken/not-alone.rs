@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r##"{% if ! %}"##]
+#[oxiplate_inline(r##"{% if ! %}"##)]
 struct NotAlone {}
 
 fn main() {

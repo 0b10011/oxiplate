@@ -177,12 +177,14 @@ fn absolute_2() {
         }
     };
 }
-#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+#[oxiplate_inline(
+    html:r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     <p>{{ message }}</p>
     {%- parent %}
 {%- endblock %}
-"#]
+"#
+)]
 struct Prefix {
     title: &'static str,
     message: &'static str,
@@ -301,11 +303,13 @@ fn prefix() {
         }
     };
 }
-#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+#[oxiplate_inline(
+    html:r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     <p>{{ message }}</p>
 {%- endblock %}
-"#]
+"#
+)]
 struct Replace {
     title: &'static str,
     message: &'static str,
@@ -423,12 +427,14 @@ fn replace() {
         }
     };
 }
-#[oxiplate_inline = r#"{% extends "extends-wrapper.html.oxip" %}
+#[oxiplate_inline(
+    html:r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     {% parent -%}
     <p>{{ message }}</p>
 {%- endblock %}
-"#]
+"#
+)]
 struct Suffix {
     title: &'static str,
     message: &'static str,

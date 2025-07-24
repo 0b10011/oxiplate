@@ -1,7 +1,7 @@
 error: `/oxiplate.toml` exists, but the "config" feature is turned off. Either delete/rename `/oxiplate.toml`, or turn the "config" feature on.
  --> tests/broken/feature-turned-off.rs:4:1
   |
-4 | / #[oxiplate_inline = "{{ message }}"]
+4 | / #[oxiplate_inline(html: "{{ message }}")]
 5 | | struct Data<'a> {
 6 | |     message: &'a str,
 7 | | }

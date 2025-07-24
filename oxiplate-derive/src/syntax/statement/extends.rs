@@ -126,10 +126,16 @@ impl ToTokens for Extends<'_> {
                 }
             }
         }
+
+        #[cfg(feature = "oxiplate")]
+        let oxiplate = quote_spanned! {span=> ::oxiplate::Oxiplate };
+        #[cfg(not(feature = "oxiplate"))]
+        let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
+
         if self.is_extending {
             tokens.append_all(quote_spanned! {span=>
                 #template
-                #[derive(::oxiplate::Oxiplate)]
+                #[derive(#oxiplate)]
                 #[oxiplate_extends = #path]
                 struct ExtendingTemplate<'a, #(#block_generics),*>
                 where #(#block_constraints),*
@@ -147,7 +153,7 @@ impl ToTokens for Extends<'_> {
         } else {
             tokens.append_all(quote_spanned! {span=>
                 #template
-                #[derive(::oxiplate::Oxiplate)]
+                #[derive(#oxiplate)]
                 #[oxiplate_extends = #path]
                 struct Template<'a, #(#block_generics),*>
                 where #(#block_constraints),*

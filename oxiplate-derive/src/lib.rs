@@ -16,8 +16,13 @@ use std::path::PathBuf;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::quote;
+use syn::parse::Parse;
 use syn::spanned::Spanned;
-use syn::{Attribute, Data, DeriveInput, Expr, ExprLit, Fields, Lit, MetaNameValue, Type};
+use syn::token::Colon;
+use syn::{
+    Attribute, Data, DeriveInput, Expr, ExprLit, Fields, Ident, Lit, LitStr, MetaList,
+    MetaNameValue, Type,
+};
 
 pub(crate) use self::source::Source;
 use self::source::SourceOwned;
@@ -57,12 +62,14 @@ pub(crate) use self::state::State;
 /// ```
 /// # use oxiplate_derive::Oxiplate;
 /// #[derive(Oxiplate)]
-/// #[oxiplate_inline = "{-}
+/// #[oxiplate_inline(
+///     "{-}
 /// <!DOCTYPE html>
 /// <title>{{ title }} - {{ site_name }}</title>
 /// <h1>{{ title }}</h1>
 /// <p>{{ message }}</p>
-/// "]
+/// "
+/// )]
 /// struct Homepage {
 ///     // ...
 /// #    site_name: &'static str,
@@ -111,15 +118,16 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
 
     // Build the shared state from the `oxiplate.toml` file.
     let config = build_config(&input)?;
-    let state = State {
+    let mut state = State {
         local_variables: &HashSet::new(),
+        inferred_escaper_group: None,
         config: &config,
     };
 
     // Parse the template type and code literal.
     let (attr, template_type) = parse_template_type(attrs);
-    let (span, input, origin) = parse_source_tokens(attr, &template_type);
-    let (code, literal) = parse_code_literal(&input.into(), span, attr)?;
+    let (span, input, origin) = parse_source_tokens(attr, &template_type, &mut state);
+    let (code, literal) = parse_code_literal(&input.into(), span)?;
 
     // Parse the fields and adjust the data type if needed.
     let data_type = syn::parse2(quote! { #ident #generics })?;
@@ -184,17 +192,13 @@ fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
         return (attr, template_type);
     }
 
-    unimplemented!();
+    unimplemented!("Must specify an attribute");
 }
 
-fn parse_code_literal(
-    input: &TokenStream,
-    span: Span,
-    attr: &Attribute,
-) -> Result<(String, Literal), syn::Error> {
+fn parse_code_literal(input: &TokenStream, span: Span) -> Result<(String, Literal), syn::Error> {
     let invalid_attribute_message = r#"Must provide either an external or internal template:
 External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#;
 
     // Expand any macros, or fallback to the unexpanded input
     let input = input.expand_expr();
@@ -204,42 +208,129 @@ Internal: #[oxiplate_inline = "{{ your_var }}"]"#;
     let input = input.unwrap();
 
     // Parse the string and token out of the expanded expression
-    let parser = |input: syn::parse::ParseStream| input.parse::<syn::Lit>();
-    match syn::parse::Parser::parse(parser, input)? {
-        syn::Lit::Str(code) => Ok((code.value(), code.token())),
-        _ => Err(syn::Error::new(attr.span(), invalid_attribute_message))?,
-    }
+    let parser = |input: syn::parse::ParseStream| input.parse::<LitStr>();
+    let code = syn::parse::Parser::parse(parser, input)?;
+    Ok((code.value(), code.token()))
 }
 
 fn parse_source_tokens(
     attr: &Attribute,
     template_type: &TemplateType,
+    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     match template_type {
-        TemplateType::Inline => parse_source_tokens_for_inline(attr),
-        TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr),
+        TemplateType::Inline => parse_source_tokens_for_inline(attr, state),
+        TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr, state),
+    }
+}
+
+/// An inline template, with or without escaper information.
+enum Template {
+    WithEscaper(TemplateWithEscaper),
+    WithoutEscaper(TemplateWithoutEscaper),
+}
+
+impl Parse for Template {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let lookahead = input.lookahead1();
+        if lookahead.peek(Ident) {
+            input.parse().map(Template::WithEscaper)
+        } else {
+            input.parse().map(Template::WithoutEscaper)
+        }
+    }
+}
+
+/// An inline template with escaper information.
+struct TemplateWithEscaper {
+    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    escaper: Ident,
+    #[allow(dead_code)]
+    colon: Colon,
+    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    template: Expr,
+}
+
+impl Parse for TemplateWithEscaper {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Ok(TemplateWithEscaper {
+            escaper: input.parse()?,
+            colon: input.parse()?,
+            template: input.parse()?,
+        })
+    }
+}
+
+/// An inline template without escaper information.
+struct TemplateWithoutEscaper {
+    template: Expr,
+}
+
+impl Parse for TemplateWithoutEscaper {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Ok(TemplateWithoutEscaper {
+            template: input.parse()?,
+        })
     }
 }
 
 fn parse_source_tokens_for_inline(
     attr: &Attribute,
+    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
-    let syn::Meta::NameValue(MetaNameValue {
-        path: _,
-        eq_token: _,
-        value: input,
-    }) = attr.meta.clone()
-    else {
-        todo!("need to handle when non-name-value data is provided");
-    };
-
-    // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-    let span = input.span();
-    (span, quote::quote_spanned!(span=> #input), None)
+    match attr.meta.clone() {
+        syn::Meta::Path(_path) => unimplemented!(
+            r#"Must provide either an external or internal template:
+External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
+        ),
+        syn::Meta::List(MetaList {
+            path: _,
+            delimiter: _,
+            tokens,
+        }) => match syn::parse2::<Template>(tokens) {
+            #[cfg(not(feature = "oxiplate"))]
+            Ok(Template::WithEscaper(_template)) => unimplemented!(
+                "Escaping requires the `oxiplate` library, but you appear to be using \
+                 `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the \
+                 dependencies should fix this issue, although you may need to turn off some \
+                 default features if you want it to work the same way."
+            ),
+            #[cfg(feature = "oxiplate")]
+            Ok(Template::WithEscaper(TemplateWithEscaper {
+                escaper,
+                colon: _,
+                template,
+            })) => {
+                let span = template.span();
+                if state.config.infer_escaper_group_from_file_extension {
+                    if let Some(escaper) = state.config.escaper_groups.get(&escaper.to_string()) {
+                        state.inferred_escaper_group = Some(escaper);
+                    }
+                }
+                (span, quote::quote_spanned!(span=> #template), None)
+            }
+            Ok(Template::WithoutEscaper(TemplateWithoutEscaper { template })) => {
+                let span = template.span();
+                (span, quote::quote_spanned!(span=> #template), None)
+            }
+            Err(_) => unimplemented!(
+                r#"Must provide either an external or internal template:
+External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
+            ),
+        },
+        syn::Meta::NameValue(_) => unimplemented!(
+            r#"Inline templates must be defined with the following syntax:
+With an escaper group: #[oxiplate_inline(html: "{{ your_var }}"]
+Without an escaper group: #[oxiplate_inline("{{ your_var }}")]"#
+        ),
+    }
 }
 
 fn parse_source_tokens_for_path(
     attr: &Attribute,
+    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
     let syn::Meta::NameValue(MetaNameValue {
         path: _,
@@ -280,6 +371,32 @@ fn parse_source_tokens_for_path(
     }
     let span = path.span();
     let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
+
+    // Infer the escaper from the template's file extension.
+    // Only works when using `oxiplate` rather than `oxiplate-derive` directly.
+    #[cfg(feature = "oxiplate")]
+    if state.config.infer_escaper_group_from_file_extension {
+        // Get the template's file extension,
+        // but ignore `.oxip`.
+        let path_value = path.value();
+        let mut extensions = path_value.split('.');
+        let mut extension = extensions.next_back();
+        if extension == Some("oxip") {
+            extension = extensions.next_back();
+        }
+
+        // `raw` is a special keyword that should be ignored.
+        if extension == Some("raw") {
+            extension = None;
+        }
+
+        // Set the inferred escaper group if the extension mapped to one.
+        if let Some(extension) = extension {
+            if let Some(escaper) = state.config.escaper_groups.get(extension) {
+                state.inferred_escaper_group = Some(escaper);
+            }
+        }
+    }
 
     // Change the `syn::Expr` into a `proc_macro2::TokenStream`
     (

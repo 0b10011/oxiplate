@@ -16,7 +16,8 @@ impl Display for HelloWorld {
         f.write_str("Hello world &lt;<script><!--")
     }
 }
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    html:"
 # default:
 {{ slice }}
 {{ string }}
@@ -48,7 +49,8 @@ impl Display for HelloWorld {
 {{ raw: float }}
 {{ raw: display }}
 {{ raw: fn_string }}
-"]
+"
+)]
 struct Types<'a> {
     slice: &'a str,
     string: String,

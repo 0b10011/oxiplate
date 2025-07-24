@@ -4,7 +4,8 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 1 + 2 = {{ 1 + 2 }}
 {{ max }} + {{ min }} = {{ max + min }}
 {{ max }} - {{ min }} = {{ max - min }}
@@ -13,7 +14,8 @@ use oxiplate_derive::Oxiplate;
 {{ max }} % {{ min }} = {{ max % min }}
 {{ min }} + {{ min }} * {{ max }} = {{ min + min * max }}
 {{ max }} + {{ max }} / {{ min }} = {{ max + max / min }}
-{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"]
+{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"
+)]
 struct Math {
     min: i16,
     max: i16,
@@ -65,9 +67,9 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/calc.rs",
-        start_line: 20usize,
+        start_line: 22usize,
         start_col: 4usize,
-        end_line: 20usize,
+        end_line: 22usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -105,13 +107,15 @@ fn test_math() {
         }
     };
 }
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 {{ max }} == {{ min }} = {{ max == min }}
 {{ max }} != {{ min }} = {{ max != min }}
 {{ max }} > {{ min }} = {{ max > min }}
 {{ max }} < {{ min }} = {{ max < min }}
 {{ max }} >= {{ min }} = {{ max >= min }}
-{{ max }} <= {{ min }} = {{ max <= min }}"]
+{{ max }} <= {{ min }} = {{ max <= min }}"
+)]
 struct Comparisons {
     min: i16,
     max: i16,
@@ -153,9 +157,9 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/calc.rs",
-        start_line: 51usize,
+        start_line: 55usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 55usize,
         end_col: 20usize,
         compile_fail: false,
         no_run: false,
@@ -193,7 +197,8 @@ fn test_comparisons() {
         }
     };
 }
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 {{ yes }} || {{ yes }} = {{ yes || yes2 }}
 {{ yes }} || {{ no }} = {{ yes || no }}
 {{ no }} || {{ yes }} = {{ no || yes }}
@@ -204,7 +209,8 @@ fn test_comparisons() {
 {{ no }} && {{ no }} = {{ no && no2 }}
 {{ yes }} || {{ no }} && {{ no }} = {{ yes || no && no2 }}
 {{ no }} || {{ yes }} && {{ no }} = {{ no || yes && no2 }}
-{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"]
+{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"
+)]
 #[allow(clippy::struct_excessive_bools)]
 struct OrAnd {
     yes: bool,
@@ -267,9 +273,9 @@ pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/calc.rs",
-        start_line: 87usize,
+        start_line: 93usize,
         start_col: 4usize,
-        end_line: 87usize,
+        end_line: 93usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,

@@ -4,7 +4,8 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {{ 19 }}
 {{ 10 + 9 }}
 {{ 0 }}
@@ -13,7 +14,8 @@ use oxiplate_derive::Oxiplate;
 {{ 0b0 }}
 {{ 0b0000 }}
 {{ 0b10011 + 19 }}
-{{ 19 + 0b10011 }}"]
+{{ 19 + 0b10011 }}"
+)]
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -43,9 +45,9 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/number.rs",
-        start_line: 17usize,
+        start_line: 19usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 19usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,

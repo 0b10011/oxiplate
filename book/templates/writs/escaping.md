@@ -21,7 +21,8 @@ where `raw` output in conjuction with known valid output is better.
 Hello {{ name }}!
 ```
 
-HTML escaping is on by default, so if a user provides this as their name in the example above:
+HTML escaping is on by default for `.html` and `.html.oxip` files,
+so if a user provides this as their name in the example above:
 
 ```html
 <script>alert('oh no');</script>
@@ -47,17 +48,18 @@ If you need to skip escaping, you can do that:
 
 And if you want to be explicit, `{{ name }}` and `{{ text: name }}` are equivalent.
 
-### Escaping for other formats
+### Escaping templates without matching file extensions
 
-Using Oxiplate to build XML, RTF, TOML, JSON, or _[insert format here]_ files?
+Using Oxiplate to build inline templates,
+or templates that don't use file extensions that cleanly match up with escapers?
 
-You can switch the default escaper for all of your files:
+You can switch the fallback escaper for all of your templates:
 
 ```toml:/oxiplate.toml
-default_escaper_group = "html"
+fallback_escaper_group = "html"
 ```
 
-Or switch it just for the document you're in:
+Or switch it for the template you're in:
 
 <div class="warning">
 

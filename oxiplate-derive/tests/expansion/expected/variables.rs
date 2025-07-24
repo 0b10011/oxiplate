@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "{{ message }}"]
+#[oxiplate_inline("{{ message }}")]
 struct Variable {
     message: &'static str,
 }
@@ -57,7 +57,7 @@ fn variable() {
         }
     };
 }
-#[oxiplate_inline = "{{ title }} / {{ message }}"]
+#[oxiplate_inline("{{ title }} / {{ message }}")]
 struct Variables {
     title: &'static str,
     message: &'static str,

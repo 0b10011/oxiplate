@@ -1,5 +1,5 @@
 error: Expected an expression.
- --> tests/broken/unicode-escape-span.rs:4:36
+ --> tests/broken/unicode-escape-span.rs:4:34
   |
-4 | #[oxiplate_inline = "hello\u{7FFF}{{"]
-  |                                    ^
+4 | #[oxiplate_inline("hello\u{7FFF}{{")]
+  |                                  ^

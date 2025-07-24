@@ -1,5 +1,5 @@
 error: Invalid escaper group specified
- --> tests/broken/wrong-group.rs:4:60
+ --> tests/broken/wrong-group.rs:4:64
   |
-4 | #[oxiplate_inline = "{% for message in &messages %}\n<p>{{ hhtml.text: message }}</p>{% endfor %}\n"]
-  |                                                            ^^^^^
+4 | #[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ hhtml.text: message }}</p>{% endfor %}\n")]
+  |                                                                ^^^^^

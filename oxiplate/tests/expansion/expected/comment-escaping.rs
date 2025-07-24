@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate::Oxiplate;
-#[oxiplate_inline = "<!--{{ comment: comment }}-->"]
+#[oxiplate_inline(html:"<!--{{ comment: comment }}-->")]
 struct Data<'a> {
     comment: &'a str,
 }

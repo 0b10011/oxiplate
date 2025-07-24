@@ -4,7 +4,8 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if let Some(count) = cats_count -%}
     {%- if let Some(name) = name -%}
         Found {{ count }} cats named {{ name }}!
@@ -17,7 +18,8 @@ use oxiplate_derive::Oxiplate;
     {%- else -%}
         No cats found :(
     {%- endif -%}
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     cats_count: Option<u8>,
     name: Option<String>,
@@ -49,9 +51,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 24usize,
+        start_line: 26usize,
         start_col: 4usize,
-        end_line: 24usize,
+        end_line: 26usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -96,9 +98,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 34usize,
+        start_line: 36usize,
         start_col: 4usize,
-        end_line: 34usize,
+        end_line: 36usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -143,9 +145,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 44usize,
+        start_line: 46usize,
         start_col: 4usize,
-        end_line: 44usize,
+        end_line: 46usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -187,9 +189,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 54usize,
+        start_line: 56usize,
         start_col: 4usize,
-        end_line: 54usize,
+        end_line: 56usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

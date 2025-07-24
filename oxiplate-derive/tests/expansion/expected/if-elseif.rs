@@ -4,12 +4,14 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if do_this -%}
     This then {{ action }} :D
 {%- elseif do_that -%}
     That then {{ action }} :D
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     do_this: bool,
     do_that: bool,
@@ -34,9 +36,9 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif.rs",
-        start_line: 17usize,
+        start_line: 19usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 19usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -79,9 +81,9 @@ pub const test_else_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif.rs",
-        start_line: 28usize,
+        start_line: 30usize,
         start_col: 4usize,
-        end_line: 28usize,
+        end_line: 30usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,

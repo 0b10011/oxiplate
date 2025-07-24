@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{{ action }}{%- endif -%}"]
+#[oxiplate_inline("{{ action }}{%- endif -%}")]
 struct Data {
     action: &'static str,
 }

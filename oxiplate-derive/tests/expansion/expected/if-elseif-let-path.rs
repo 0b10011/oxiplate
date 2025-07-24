@@ -7,13 +7,15 @@ use oxiplate_derive::Oxiplate;
 enum Type {
     Text(&'static str),
 }
-#[oxiplate_inline = r"
+#[oxiplate_inline(
+    r"
 {%- if check -%}
 bar
 {%- elseif let Type::Text(text) = ty -%}
 {{ text }}
 {%- endif -%}
-"]
+"
+)]
 struct Data {
     check: bool,
     ty: Type,
@@ -37,9 +39,9 @@ pub const test: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-let-path.rs",
-        start_line: 21usize,
+        start_line: 23usize,
         start_col: 4usize,
-        end_line: 21usize,
+        end_line: 23usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,

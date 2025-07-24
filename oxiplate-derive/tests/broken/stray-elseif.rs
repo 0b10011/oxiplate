@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{%- elseif should_do -%}{{ action }}"]
+#[oxiplate_inline("{%- elseif should_do -%}{{ action }}")]
 struct Data {
     should_do: bool,
     action: &'static str,

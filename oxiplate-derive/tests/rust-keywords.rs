@@ -1,12 +1,14 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if !ref.is_empty() -%}
     Referee: {{ ref }}
 {%- else -%}
     {{ else }}
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     r#ref: &'static str,
     r#else: &'static str,

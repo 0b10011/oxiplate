@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = r#"{{ name ~ " (" ~ company ~ ")" }}"#]
+#[oxiplate_inline(r#"{{ name ~ " (" ~ company ~ ")" }}"#)]
 struct User {
     name: &'static str,
     company: &'static str,

@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 1 + 2 = {{ 1 + 2 }}
 {{ max }} + {{ min }} = {{ max + min }}
 {{ max }} - {{ min }} = {{ max - min }}
@@ -10,7 +11,8 @@ use oxiplate_derive::Oxiplate;
 {{ max }} % {{ min }} = {{ max % min }}
 {{ min }} + {{ min }} * {{ max }} = {{ min + min * max }}
 {{ max }} + {{ max }} / {{ min }} = {{ max + max / min }}
-{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"]
+{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"
+)]
 struct Math {
     min: i16,
     max: i16,
@@ -35,13 +37,15 @@ fn test_math() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 {{ max }} == {{ min }} = {{ max == min }}
 {{ max }} != {{ min }} = {{ max != min }}
 {{ max }} > {{ min }} = {{ max > min }}
 {{ max }} < {{ min }} = {{ max < min }}
 {{ max }} >= {{ min }} = {{ max >= min }}
-{{ max }} <= {{ min }} = {{ max <= min }}"]
+{{ max }} <= {{ min }} = {{ max <= min }}"
+)]
 struct Comparisons {
     min: i16,
     max: i16,
@@ -63,7 +67,8 @@ fn test_comparisons() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "{-}
+#[oxiplate_inline(
+    "{-}
 {{ yes }} || {{ yes }} = {{ yes || yes2 }}
 {{ yes }} || {{ no }} = {{ yes || no }}
 {{ no }} || {{ yes }} = {{ no || yes }}
@@ -74,7 +79,8 @@ fn test_comparisons() {
 {{ no }} && {{ no }} = {{ no && no2 }}
 {{ yes }} || {{ no }} && {{ no }} = {{ yes || no && no2 }}
 {{ no }} || {{ yes }} && {{ no }} = {{ no || yes && no2 }}
-{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"]
+{{ no }} || {{ yes }} && {{ yes }} = {{ no || yes && yes2 }}"
+)]
 #[allow(clippy::struct_excessive_bools)]
 struct OrAnd {
     yes: bool,

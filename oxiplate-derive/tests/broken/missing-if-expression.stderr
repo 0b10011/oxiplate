@@ -1,5 +1,5 @@
 error: Expected an expression after `if`
- --> tests/broken/missing-if-expression.rs:4:28
+ --> tests/broken/missing-if-expression.rs:4:26
   |
-4 | #[oxiplate_inline = "{% if %}"]
-  |                            ^^
+4 | #[oxiplate_inline("{% if %}")]
+  |                          ^^

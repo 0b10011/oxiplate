@@ -4,7 +4,9 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"]
+#[oxiplate_inline(
+    "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"
+)]
 struct Data {}
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {

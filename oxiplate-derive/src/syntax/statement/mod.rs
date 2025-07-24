@@ -204,6 +204,7 @@ pub(super) fn statement<'a>(
                 let state = State {
                     local_variables: &local_variables,
                     config: state.config,
+                    inferred_escaper_group: state.inferred_escaper_group,
                 };
 
                 let (new_input, items) = context(

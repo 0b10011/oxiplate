@@ -5,13 +5,15 @@ enum Type {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r"
+#[oxiplate_inline(
+    r"
 {%- if check -%}
 bar
 {%- elseif let Type::Text(text) = ty -%}
 {{ text }}
 {%- endif -%}
-"]
+"
+)]
 struct Data {
     check: bool,
     ty: Type,

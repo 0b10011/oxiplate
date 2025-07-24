@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !"]
+#[oxiplate_inline("Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 impl ::std::fmt::Display for AdjustedWhitespace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -56,8 +56,10 @@ fn adjusted_whitespace() {
         }
     };
 }
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name \
-                     -}}  \t\t  \r\n\t )!"]
+#[oxiplate_inline(
+    "Hello  \t\t  \r\n\t {{_ username _}}  \t\t  \r\n\t (  \t\t  \r\n\t {{- name -}}  \t\t  \
+     \r\n\t )!"
+)]
 struct WritWhitespaceControl {
     username: &'static str,
     name: &'static str,
@@ -77,9 +79,9 @@ pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 23usize,
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 23usize,
+        end_line: 25usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -115,8 +117,10 @@ fn writ_whitespace_control() {
         }
     };
 }
-#[oxiplate_inline = "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t \
-                     {#- Hey another comment -#}  \t\t  \r\n\t )!"]
+#[oxiplate_inline(
+    "Hello  \t\t  \r\n\t {#_ Some cool comment _#}  \t\t  \r\n\t (  \t\t  \r\n\t {#- Hey another \
+     comment -#}  \t\t  \r\n\t )!"
+)]
 struct CommentWhitespaceControl {}
 impl ::std::fmt::Display for CommentWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -133,9 +137,9 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 38usize,
+        start_line: 42usize,
         start_col: 4usize,
-        end_line: 38usize,
+        end_line: 42usize,
         end_col: 30usize,
         compile_fail: false,
         no_run: false,
@@ -168,7 +172,8 @@ fn comment_whitespace_control() {
         }
     };
 }
-#[oxiplate_inline = r#"
+#[oxiplate_inline(
+    r#"
 {{ "leave" }}  {{ "leave" }}
 {{ "leave" }}  {{- "remove" }}
 {{ "leave" }}  {{_ "replace" }}
@@ -176,7 +181,8 @@ fn comment_whitespace_control() {
 {{ "remove" -}}  {{- "remove" }}
 {{ "replace" _}}  {{ "leave" }}
 {{ "replace" _}}  {{_ "replace" }}
-"#]
+"#
+)]
 struct AdjacentTags {}
 impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -211,9 +217,9 @@ pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 58usize,
+        start_line: 64usize,
         start_col: 4usize,
-        end_line: 58usize,
+        end_line: 64usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,

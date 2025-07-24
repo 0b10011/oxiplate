@@ -1,8 +1,10 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "\
-    hello world"]
+#[oxiplate_inline(
+    "\
+    hello world"
+)]
 struct Data {}
 
 #[test]

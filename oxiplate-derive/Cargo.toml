@@ -33,8 +33,14 @@ trybuild = "1.0.101"
 [features]
 default = ["config"]
 
-# Feature only meant to be turned on by the `oxiplate` package.
+# Turns on some built-in escapers in the `oxiplate` package.
+# Requires the use of `oxiplate` rather than `oxiplate-derive` directly.
 built-in-escapers = []
 
 # Makes it possible to configure Oxiplate via `/oxiplate.toml`.
 config = ["dep:serde", "dep:toml"]
+
+# Feature only meant to be turned on by the `oxiplate` package.
+# Tells `oxiplate-derive` that the `oxiplate` library is present
+# and allows for some additional functionality like escaping.
+oxiplate = []

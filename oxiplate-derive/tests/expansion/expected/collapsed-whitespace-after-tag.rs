@@ -4,8 +4,8 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = r"{% if value %}foo{% endif _%}
-"]
+#[oxiplate_inline(r"{% if value %}foo{% endif _%}
+")]
 struct Data {
     value: bool,
 }
@@ -27,9 +27,9 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/collapsed-whitespace-after-tag.rs",
-        start_line: 11usize,
+        start_line: 13usize,
         start_col: 4usize,
-        end_line: 11usize,
+        end_line: 13usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,

@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r#"{% if value == "foo" %}bar{% endif %}"#]
+#[oxiplate_inline(r#"{% if value == "foo" %}bar{% endif %}"#)]
 struct Comparison {
     value: &'static str,
 }

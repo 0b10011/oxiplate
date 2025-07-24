@@ -4,14 +4,16 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline = "
+#[oxiplate_inline(
+    "
 {%- if do_this -%}
     This then {{ action }} :D
 {%- elseif do_that -%}
     That then {{ action }} :D
 {%- else -%}
     Can't {{ action }} :(
-{%- endif %}"]
+{%- endif %}"
+)]
 struct Data {
     do_this: bool,
     do_that: bool,
@@ -38,9 +40,9 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 19usize,
+        start_line: 21usize,
         start_col: 4usize,
-        end_line: 19usize,
+        end_line: 21usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -83,9 +85,9 @@ pub const test_else_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 30usize,
+        start_line: 32usize,
         start_col: 4usize,
-        end_line: 30usize,
+        end_line: 32usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -131,9 +133,9 @@ pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 41usize,
+        start_line: 43usize,
         start_col: 4usize,
-        end_line: 41usize,
+        end_line: 43usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

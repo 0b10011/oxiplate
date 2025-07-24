@@ -3,10 +3,10 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = "
+#[oxiplate_inline("
 {%- if foo.is_empty() == false -%}
     No foo
-{%- endif %}"]
+{%- endif %}")]
 struct Data {
     foo: &'static str,
 }

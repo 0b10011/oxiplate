@@ -1,5 +1,5 @@
 error: Expected an expression.
- --> tests/broken/7-bit-character-code-span.rs:4:32
+ --> tests/broken/7-bit-character-code-span.rs:4:30
   |
-4 | #[oxiplate_inline = "hello\x41{{"]
-  |                                ^
+4 | #[oxiplate_inline("hello\x41{{")]
+  |                              ^

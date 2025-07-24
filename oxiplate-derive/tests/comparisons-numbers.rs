@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline = r"{% if value == 5 %}bar{% endif %}"]
+#[oxiplate_inline(r"{% if value == 5 %}bar{% endif %}")]
 struct Comparison {
     value: u8,
 }
