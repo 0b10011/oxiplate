@@ -29,6 +29,7 @@ toml = {version = "0.9.2", optional = true}
 [dev-dependencies]
 rustversion = "1.0.19"
 trybuild = "1.0.101"
+criterion = { version = "0.6.0", features = ["html_reports"] }
 
 [features]
 default = ["config"]
@@ -44,3 +45,7 @@ config = ["dep:serde", "dep:toml"]
 # Tells `oxiplate-derive` that the `oxiplate` library is present
 # and allows for some additional functionality like escaping.
 oxiplate = []
+
+[[bench]]
+name = "benchmark"
+harness = false

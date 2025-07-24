@@ -6,6 +6,7 @@ Looking to use Oxiplate in your own project? Head on over to the [readme](./READ
 
 1. [Install Rust](https://www.rust-lang.org/tools/install)
 2. Install `mdbook` and filename preprocessor with `cargo install mdbook mdbook-codename`
+3. Install [`gnuplot`](http://www.gnuplot.info/) for benchmark charts via something like `apt install gnuplot`
 3. [Fork this repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo) and clone it to your machine
 4. Run `cargo test` in the root directory of the project to download [the dependencies](./Cargo.toml) and run [the tests](./tests/)
 
