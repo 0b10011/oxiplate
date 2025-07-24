@@ -33,3 +33,21 @@ fn field() {
 38"
     );
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline("{{ 1_234_567 }}")]
+struct DecimalNumberSeparators;
+
+#[test]
+fn decimal_number_separators() {
+    assert_eq!(format!("{DecimalNumberSeparators}"), "1234567");
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline("{{ 0b0001_0011 }}")]
+struct BinaryNumberSeparators;
+
+#[test]
+fn binary_number_separators() {
+    assert_eq!(format!("{BinaryNumberSeparators}"), "19");
+}

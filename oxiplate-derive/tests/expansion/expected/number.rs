@@ -86,10 +86,114 @@ fn field() {
         }
     };
 }
+#[oxiplate_inline("{{ 1_234_567 }}")]
+struct DecimalNumberSeparators;
+impl ::std::fmt::Display for DecimalNumberSeparators {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        f.write_fmt(format_args!("{0}", 1_234_567))?;
+        Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "decimal_number_separators"]
+#[doc(hidden)]
+pub const decimal_number_separators: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("decimal_number_separators"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/number.rs",
+        start_line: 42usize,
+        start_col: 4usize,
+        end_line: 42usize,
+        end_col: 29usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(decimal_number_separators()),
+    ),
+};
+fn decimal_number_separators() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", DecimalNumberSeparators))
+        }),
+        &"1234567",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
+#[oxiplate_inline("{{ 0b0001_0011 }}")]
+struct BinaryNumberSeparators;
+impl ::std::fmt::Display for BinaryNumberSeparators {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        f.write_fmt(format_args!("{0}", 0b0001_0011))?;
+        Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "binary_number_separators"]
+#[doc(hidden)]
+pub const binary_number_separators: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("binary_number_separators"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/number.rs",
+        start_line: 51usize,
+        start_col: 4usize,
+        end_line: 51usize,
+        end_col: 28usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(binary_number_separators()),
+    ),
+};
+fn binary_number_separators() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", BinaryNumberSeparators))
+        }),
+        &"19",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&field])
+    test::test_main_static(
+        &[&binary_number_separators, &decimal_number_separators, &field],
+    )
 }

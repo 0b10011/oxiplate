@@ -34,17 +34,36 @@ pub(super) fn number(input: Source) -> Res<Source, Expression> {
 fn binary(input: Source) -> Res<Source, Expression> {
     let (input, number) = pair(
         tag("0b"),
-        cut(take_while1(|char: char| char == '0' || char == '1')),
+        cut((
+            take_while(|char: char| char == '_'),
+            take_while1(|char: char| char == '0' || char == '1'),
+            take_while(|char: char| char == '0' || char == '1' || char == '_'),
+        )),
     )
     .parse(input)?;
-    Ok((input, Expression::Number(number.0.merge(&number.1))))
+    Ok((
+        input,
+        Expression::Number(
+            number
+                .0
+                .merge(&number.1 .0.merge(&number.1 .1).merge(&number.1 .2)),
+        ),
+    ))
 }
 
 /// Parse decimal literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn decimal(input: Source) -> Res<Source, Expression> {
-    let (input, number) = take_while1(|char: char| char.is_ascii_digit()).parse(input)?;
-    Ok((input, Expression::Number(number)))
+    let (input, number) = (
+        take_while(|char: char| char == '_'),
+        take_while1(|char: char| char.is_ascii_digit()),
+        take_while(|char: char| char.is_ascii_digit() || char == '_'),
+    )
+        .parse(input)?;
+    Ok((
+        input,
+        Expression::Number(number.0.merge(&number.1).merge(&number.2)),
+    ))
 }
 
 pub(super) fn string(input: Source) -> Res<Source, Expression> {
