@@ -14,12 +14,18 @@ struct Data {
 }
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        if self.do_this {
-            f.write_str("This then ")?;
-            f.write_str(&::std::string::ToString::to_string(&self.action))?;
-            f.write_str(" :D")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            if self.do_this {
+                f.write_str("This then ")?;
+                f.write_str(&::std::string::ToString::to_string(&self.action))?;
+                f.write_str(" :D")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

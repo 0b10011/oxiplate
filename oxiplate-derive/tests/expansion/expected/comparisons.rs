@@ -10,10 +10,16 @@ struct Comparison {
 }
 impl ::std::fmt::Display for Comparison {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        if (self.value == "foo") {
-            f.write_str("bar")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            if (self.value == "foo") {
+                f.write_str("bar")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

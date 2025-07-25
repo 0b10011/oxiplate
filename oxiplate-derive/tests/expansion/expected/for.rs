@@ -13,11 +13,17 @@ struct Data {
 }
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        for value in (&self.values) {
-            f.write_str(&::std::string::ToString::to_string(&value))?;
-            f.write_str("<br>")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            for value in (&self.values) {
+                f.write_str(&::std::string::ToString::to_string(&value))?;
+                f.write_str("<br>")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -74,11 +80,17 @@ struct Accounts {
 }
 impl ::std::fmt::Display for Accounts {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        for person in (&self.people) {
-            f.write_str(&::std::string::ToString::to_string(&person.get_name()))?;
-            f.write_str("<br>")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            for person in (&self.people) {
+                f.write_str(&::std::string::ToString::to_string(&person.get_name()))?;
+                f.write_str("<br>")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 struct Person {
@@ -151,15 +163,21 @@ struct ShadowVariable {
 }
 impl ::std::fmt::Display for ShadowVariable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(&::std::string::ToString::to_string(&self.value))?;
-        f.write_str("!\n")?;
-        for value in (&self.values) {
-            f.write_str(&::std::string::ToString::to_string(&value))?;
-            f.write_str("\n")?;
-        }
-        f.write_str(&::std::string::ToString::to_string(&self.value))?;
-        f.write_str(" again :D")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&self.value))?;
+            f.write_str("!\n")?;
+            for value in (&self.values) {
+                f.write_str(&::std::string::ToString::to_string(&value))?;
+                f.write_str("\n")?;
+            }
+            f.write_str(&::std::string::ToString::to_string(&self.value))?;
+            f.write_str(" again :D")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -224,11 +242,17 @@ struct Functions {
 }
 impl ::std::fmt::Display for Functions {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        for function in (&self.functions) {
-            f.write_str(&::std::string::ToString::to_string(&function()))?;
-            f.write_str("\n")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            for function in (&self.functions) {
+                f.write_str(&::std::string::ToString::to_string(&function()))?;
+                f.write_str("\n")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -290,18 +314,24 @@ struct ForElse {
 }
 impl ::std::fmt::Display for ForElse {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        {
-            let mut loop_ran = false;
-            for value in (&self.values) {
-                loop_ran = true;
-                f.write_str(&::std::string::ToString::to_string(&value))?;
-                f.write_str("<br>")?;
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            {
+                let mut loop_ran = false;
+                for value in (&self.values) {
+                    loop_ran = true;
+                    f.write_str(&::std::string::ToString::to_string(&value))?;
+                    f.write_str("<br>")?;
+                }
+                if !loop_ran {
+                    f.write_str("No values :(")?;
+                }
             }
-            if !loop_ran {
-                f.write_str("No values :(")?;
-            }
-        }
-        Ok(())
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

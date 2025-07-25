@@ -8,8 +8,14 @@ use oxiplate_derive::Oxiplate;
 struct AdjustedWhitespace {}
 impl ::std::fmt::Display for AdjustedWhitespace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("Hello world!")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("Hello world!")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -66,12 +72,18 @@ struct WritWhitespaceControl {
 }
 impl ::std::fmt::Display for WritWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("Hello ")?;
-        f.write_str(&::std::string::ToString::to_string(&self.username))?;
-        f.write_str(" (")?;
-        f.write_str(&::std::string::ToString::to_string(&self.name))?;
-        f.write_str(")!")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("Hello ")?;
+            f.write_str(&::std::string::ToString::to_string(&self.username))?;
+            f.write_str(" (")?;
+            f.write_str(&::std::string::ToString::to_string(&self.name))?;
+            f.write_str(")!")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -128,8 +140,14 @@ fn writ_whitespace_control() {
 struct CommentWhitespaceControl {}
 impl ::std::fmt::Display for CommentWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("Hello  ()!")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("Hello  ()!")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -190,33 +208,39 @@ fn comment_whitespace_control() {
 struct AdjacentTags {}
 impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str("  ")?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str(" ")?;
-        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
-        f.write_str(&::std::string::ToString::to_string(&"remove"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
-        f.write_str(" ")?;
-        f.write_str(&::std::string::ToString::to_string(&"leave"))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
-        f.write_str(" ")?;
-        f.write_str(&::std::string::ToString::to_string(&"replace"))?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str("  ")?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+            f.write_str(&::std::string::ToString::to_string(&"remove"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&"leave"))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&"replace"))?;
+            f.write_str("\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

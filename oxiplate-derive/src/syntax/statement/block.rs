@@ -95,11 +95,14 @@ impl ToTokens for Block<'_> {
             if self.use_override {
                 // FIXME: It'd be better if the position information was passed around in the macro instead.
                 tokens.append_all(quote! {
-                    let #name = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                        #prefix
-                        Ok(())
-                    };
-                    (self.#name)(#name, f)?;
+                    {
+                        use ::std::fmt::Write;
+                        let #name = |f: &mut dyn Write| -> ::std::fmt::Result {
+                            #prefix
+                            Ok(())
+                        };
+                        (self.#name)(#name, f)?;
+                    }
                 });
             } else {
                 tokens.append_all(quote! {
@@ -124,12 +127,15 @@ impl ToTokens for Block<'_> {
             };
 
             tokens.append_all(quote! {
-                let #name = |
-                    callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                    f: &mut ::std::fmt::Formatter<'_>
-                | -> ::std::fmt::Result {
-                    #output
-                    Ok(())
+                let #name = {
+                    use ::std::fmt::Write;
+                    |
+                        callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                        f: &mut dyn Write
+                    | -> ::std::fmt::Result {
+                        #output
+                        Ok(())
+                    }
                 };
             });
         }

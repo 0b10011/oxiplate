@@ -10,6 +10,12 @@ struct Data<'a> {
 }
 impl<'a> ::std::fmt::Display for Data<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::oxiplate::Render::render(self, f)
+    }
+}
+impl<'a> ::oxiplate::Render for Data<'a> {
+    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+        use ::std::fmt::Write;
         f.write_str("<!--")?;
         f.write_str(
             &::oxiplate::escapers::escape(

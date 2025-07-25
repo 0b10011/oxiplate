@@ -124,6 +124,10 @@ pub(crate) struct Config {
     #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
     #[cfg_attr(feature = "config", serde(default))]
     pub(crate) infer_escaper_group_from_file_extension: bool,
+
+    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(feature = "config", serde(default))]
+    pub(crate) optimized_renderer: bool,
 }
 
 impl Default for Config {
@@ -133,6 +137,7 @@ impl Default for Config {
             escaper_groups: HashMap::new(),
             require_specifying_escaper: false,
             infer_escaper_group_from_file_extension: true,
+            optimized_renderer: true,
         }
     }
 }

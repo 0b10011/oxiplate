@@ -10,14 +10,20 @@ use oxiplate_derive::Oxiplate;
 struct Data {}
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("Braces (")?;
-        f.write_str(&"{")?;
-        f.write_str(" and ")?;
-        f.write_str(&"}")?;
-        f.write_str(") are formatting characters in Rust and must be escaped. ")?;
-        f.write_str(&"{")?;
-        f.write_str(&"}")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("Braces (")?;
+            f.write_str(&"{")?;
+            f.write_str(" and ")?;
+            f.write_str(&"}")?;
+            f.write_str(") are formatting characters in Rust and must be escaped. ")?;
+            f.write_str(&"{")?;
+            f.write_str(&"}")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

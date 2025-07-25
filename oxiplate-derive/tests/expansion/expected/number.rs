@@ -19,25 +19,31 @@ use oxiplate_derive::Oxiplate;
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&19))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&(10 + 9)))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&0))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&000))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&0b10011))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&0b0))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&0b0000))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&(0b10011 + 19)))?;
-        f.write_str("\n")?;
-        f.write_str(&::std::string::ToString::to_string(&(19 + 0b10011)))?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&19))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&(10 + 9)))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&0))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&000))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&0b10011))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&0b0))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&0b0000))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&(0b10011 + 19)))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&(19 + 0b10011)))?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -94,8 +100,14 @@ fn field() {
 struct DecimalNumberSeparators;
 impl ::std::fmt::Display for DecimalNumberSeparators {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(&::std::string::ToString::to_string(&1_234_567))?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&1_234_567))?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -145,8 +157,14 @@ fn decimal_number_separators() {
 struct BinaryNumberSeparators;
 impl ::std::fmt::Display for BinaryNumberSeparators {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(&::std::string::ToString::to_string(&0b0001_0011))?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&0b0001_0011))?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

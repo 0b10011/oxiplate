@@ -11,12 +11,18 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str("<h1>")?;
-        f.write_str(&::std::string::ToString::to_string(&self.title))?;
-        f.write_str("</h1>\n<p>")?;
-        f.write_str(&::std::string::ToString::to_string(&self.message))?;
-        f.write_str("</p>\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str("<h1>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</h1>\n<p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

@@ -11,33 +11,42 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let content = |
-            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-            f: &mut ::std::fmt::Formatter<'_>,
-        | -> ::std::fmt::Result {
-            f.write_str("<h2>")?;
-            f.write_str(
-                &::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::std::string::ToString::to_string(&self.title),
-                ),
-            )?;
-            f.write_str("</h2>\n  <div>")?;
-            f.write_str(
-                &::oxiplate::escapers::escape(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::std::string::ToString::to_string(&self.message),
-                ),
-            )?;
-            f.write_str("</div>")?;
-            Ok(())
+        ::oxiplate::Render::render(self, f)
+    }
+}
+impl ::oxiplate::Render for AbsoluteData {
+    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+        use ::std::fmt::Write;
+        let content = {
+            use ::std::fmt::Write;
+            |
+                callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                f: &mut dyn Write,
+            | -> ::std::fmt::Result {
+                f.write_str("<h2>")?;
+                f.write_str(
+                    &::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::std::string::ToString::to_string(&self.title),
+                    ),
+                )?;
+                f.write_str("</h2>\n  <div>")?;
+                f.write_str(
+                    &::oxiplate::escapers::escape(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::std::string::ToString::to_string(&self.message),
+                    ),
+                )?;
+                f.write_str("</div>")?;
+                Ok(())
+            }
         };
         #[oxiplate_extends = "extends-inner-wrapper.html.oxip"]
         struct Template<'a, Block1>
         where
             Block1: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
             #[allow(dead_code)]
@@ -47,18 +56,30 @@ impl ::std::fmt::Display for AbsoluteData {
         impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
         where
             Block1: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                ::oxiplate::Render::render(self, f)
+            }
+        }
+        impl<'a, Block1> ::oxiplate::Render for Template<'a, Block1>
+        where
+            Block1: Fn(
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
+            ) -> ::std::fmt::Result,
+        {
+            fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+                use ::std::fmt::Write;
                 let content = self.content;
                 #[oxiplate_extends = "extends-wrapper.html.oxip"]
                 struct ExtendingTemplate<'a, Block1>
                 where
                     Block1: Fn(
-                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                        &mut ::std::fmt::Formatter<'_>,
+                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                        &mut dyn Write,
                     ) -> ::std::fmt::Result,
                 {
                     #[allow(dead_code)]
@@ -68,14 +89,29 @@ impl ::std::fmt::Display for AbsoluteData {
                 impl<'a, Block1> ::std::fmt::Display for ExtendingTemplate<'a, Block1>
                 where
                     Block1: Fn(
-                        fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                        &mut ::std::fmt::Formatter<'_>,
+                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                        &mut dyn Write,
                     ) -> ::std::fmt::Result,
                 {
                     fn fmt(
                         &self,
                         f: &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result {
+                        ::oxiplate::Render::render(self, f)
+                    }
+                }
+                impl<'a, Block1> ::oxiplate::Render for ExtendingTemplate<'a, Block1>
+                where
+                    Block1: Fn(
+                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                        &mut dyn Write,
+                    ) -> ::std::fmt::Result,
+                {
+                    fn render<W: ::std::fmt::Write>(
+                        &self,
+                        f: &mut W,
+                    ) -> ::std::fmt::Result {
+                        use ::std::fmt::Write;
                         f.write_str("<!DOCTYPE html>\n<title>")?;
                         f.write_str(
                             &::oxiplate::escapers::escape(
@@ -86,13 +122,14 @@ impl ::std::fmt::Display for AbsoluteData {
                             ),
                         )?;
                         f.write_str("</title>\n")?;
-                        let content = |
-                            f: &mut ::std::fmt::Formatter<'_>,
-                        | -> ::std::fmt::Result {
-                            f.write_str("test")?;
-                            Ok(())
-                        };
-                        (self.content)(content, f)?;
+                        {
+                            use ::std::fmt::Write;
+                            let content = |f: &mut dyn Write| -> ::std::fmt::Result {
+                                f.write_str("test")?;
+                                Ok(())
+                            };
+                            (self.content)(content, f)?;
+                        }
                         f.write_str("\n")?;
                         Ok(())
                     }

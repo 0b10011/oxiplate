@@ -10,8 +10,14 @@ struct Variable {
 }
 impl ::std::fmt::Display for Variable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(&::std::string::ToString::to_string(&self.message))?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -64,10 +70,16 @@ struct Variables {
 }
 impl ::std::fmt::Display for Variables {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(&::std::string::ToString::to_string(&self.title))?;
-        f.write_str(" / ")?;
-        f.write_str(&::std::string::ToString::to_string(&self.message))?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(" / ")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

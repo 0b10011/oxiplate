@@ -156,11 +156,35 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
     // (This is where the template is actually parsed.)
     let template = syntax::parse(&state, source);
     let where_clause = &generics.where_clause;
-    let expanded = quote! {
-        impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                #template
-                Ok(())
+    let expanded = if state.config.optimized_renderer {
+        quote! {
+            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    ::oxiplate::Render::render(self, f)
+                }
+            }
+            impl #generics ::oxiplate::Render for #ident #generics #where_clause {
+                #[inline]
+                fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+                    use ::std::fmt::Write;
+                    #template
+                    Ok(())
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    let string = {
+                        use ::std::fmt::Write;
+                        let mut string = String::new();
+                        let f = &mut string;
+                        #template
+                        string
+                    };
+                    f.write_str(&string)
+                }
             }
         }
     };

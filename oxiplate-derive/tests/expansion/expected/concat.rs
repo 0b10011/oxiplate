@@ -11,16 +11,22 @@ struct User {
 }
 impl ::std::fmt::Display for User {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_str(
-            &::std::string::ToString::to_string(
-                &::alloc::__export::must_use({
-                    ::alloc::fmt::format(
-                        format_args!("{0} ({1})", self.name, self.company),
-                    )
-                }),
-            ),
-        )?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &::alloc::__export::must_use({
+                        ::alloc::fmt::format(
+                            format_args!("{0} ({1})", self.name, self.company),
+                        )
+                    }),
+                ),
+            )?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;

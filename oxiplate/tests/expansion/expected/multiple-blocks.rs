@@ -8,41 +8,56 @@ use oxiplate_derive::Oxiplate;
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let header = |
-            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-            f: &mut ::std::fmt::Formatter<'_>,
-        | -> ::std::fmt::Result {
-            f.write_str("header")?;
-            Ok(())
+        ::oxiplate::Render::render(self, f)
+    }
+}
+impl ::oxiplate::Render for Data {
+    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+        use ::std::fmt::Write;
+        let header = {
+            use ::std::fmt::Write;
+            |
+                callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                f: &mut dyn Write,
+            | -> ::std::fmt::Result {
+                f.write_str("header")?;
+                Ok(())
+            }
         };
-        let main = |
-            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-            f: &mut ::std::fmt::Formatter<'_>,
-        | -> ::std::fmt::Result {
-            f.write_str("main")?;
-            Ok(())
+        let main = {
+            use ::std::fmt::Write;
+            |
+                callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                f: &mut dyn Write,
+            | -> ::std::fmt::Result {
+                f.write_str("main")?;
+                Ok(())
+            }
         };
-        let footer = |
-            callback: fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-            f: &mut ::std::fmt::Formatter<'_>,
-        | -> ::std::fmt::Result {
-            f.write_str("footer")?;
-            Ok(())
+        let footer = {
+            use ::std::fmt::Write;
+            |
+                callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                f: &mut dyn Write,
+            | -> ::std::fmt::Result {
+                f.write_str("footer")?;
+                Ok(())
+            }
         };
         #[oxiplate_extends = "multiple-blocks.html.oxip"]
         struct Template<'a, Block1, Block2, Block3>
         where
             Block1: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
             Block2: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
             Block3: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
             #[allow(dead_code)]
@@ -55,34 +70,58 @@ impl ::std::fmt::Display for Data {
         for Template<'a, Block1, Block2, Block3>
         where
             Block1: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
             Block2: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
             Block3: Fn(
-                fn(f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result,
-                &mut ::std::fmt::Formatter<'_>,
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                ::oxiplate::Render::render(self, f)
+            }
+        }
+        impl<'a, Block1, Block2, Block3> ::oxiplate::Render
+        for Template<'a, Block1, Block2, Block3>
+        where
+            Block1: Fn(
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
+            ) -> ::std::fmt::Result,
+            Block2: Fn(
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
+            ) -> ::std::fmt::Result,
+            Block3: Fn(
+                fn(f: &mut dyn Write) -> ::std::fmt::Result,
+                &mut dyn Write,
+            ) -> ::std::fmt::Result,
+        {
+            fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+                use ::std::fmt::Write;
                 f.write_str("<!DOCTYPE html>\n<header>")?;
-                let header = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                    Ok(())
-                };
-                (self.header)(header, f)?;
+                {
+                    use ::std::fmt::Write;
+                    let header = |f: &mut dyn Write| -> ::std::fmt::Result { Ok(()) };
+                    (self.header)(header, f)?;
+                }
                 f.write_str("</header>\n<main>")?;
-                let main = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                    Ok(())
-                };
-                (self.main)(main, f)?;
+                {
+                    use ::std::fmt::Write;
+                    let main = |f: &mut dyn Write| -> ::std::fmt::Result { Ok(()) };
+                    (self.main)(main, f)?;
+                }
                 f.write_str("</main>\n<footer>")?;
-                let footer = |f: &mut ::std::fmt::Formatter<'_>| -> ::std::fmt::Result {
-                    Ok(())
-                };
-                (self.footer)(footer, f)?;
+                {
+                    use ::std::fmt::Write;
+                    let footer = |f: &mut dyn Write| -> ::std::fmt::Result { Ok(()) };
+                    (self.footer)(footer, f)?;
+                }
                 f.write_str("</footer>")?;
                 Ok(())
             }

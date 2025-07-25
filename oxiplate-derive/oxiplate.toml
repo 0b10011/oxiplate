@@ -13,3 +13,7 @@ fallback_escaper_group = "raw"
 # the `oxiplate` feature is turned on
 # resulting in inferrence happening.
 infer_escaper_group_from_file_extension = false
+
+# The macro by itself doesn't have the trait available 
+# for this to be implemented.
+optimized_renderer = false

@@ -171,7 +171,7 @@ impl<'a> Source<'a> {
                 }
                 (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                     unicode_chars_parsed += 1;
-                    unicode_code.push_str(&char.to_string());
+                    unicode_code.push(char);
                 }
                 (1..=4, '}') => {
                     let code = u32::from_str_radix(&unicode_code, 16).expect("Should be a u32");

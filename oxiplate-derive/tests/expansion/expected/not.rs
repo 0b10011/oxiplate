@@ -13,10 +13,16 @@ struct Not {
 }
 impl ::std::fmt::Display for Not {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        if (!self.foo) {
-            f.write_str("Yay")?;
-        }
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::new();
+            let f = &mut string;
+            if (!self.foo) {
+                f.write_str("Yay")?;
+            }
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
