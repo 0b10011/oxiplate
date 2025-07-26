@@ -1,7 +1,10 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("Braces ({ and }) are formatting characters in Rust and must be escaped. {}")]
+#[oxiplate_inline(
+    "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting \
+     strings. {}"
+)]
 struct Data {}
 
 /// Ensure `{}` in a template doesn't break formatting.
@@ -11,6 +14,7 @@ fn format_injection() {
 
     assert_eq!(
         format!("{template}"),
-        "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"
+        "Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
+         formatting strings. {}"
     );
 }

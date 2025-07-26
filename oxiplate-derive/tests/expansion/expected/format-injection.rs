@@ -5,7 +5,8 @@ use std::prelude::rust_2021::*;
 extern crate std;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
-    "Braces ({ and }) are formatting characters in Rust and must be escaped. {}"
+    "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting \
+     strings. {}"
 )]
 struct Data {}
 impl ::std::fmt::Display for Data {
@@ -14,13 +15,9 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::new();
             let f = &mut string;
-            f.write_str("Braces (")?;
-            f.write_str("{")?;
-            f.write_str(" and ")?;
-            f.write_str("}")?;
-            f.write_str(") are formatting characters in Rust and must be escaped. ")?;
-            f.write_str("{")?;
-            f.write_str("}")?;
+            f.write_str(
+                "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
+            )?;
             string
         };
         f.write_str(&string)
@@ -35,9 +32,9 @@ pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/format-injection.rs",
-        start_line: 9usize,
+        start_line: 12usize,
         start_col: 4usize,
-        end_line: 9usize,
+        end_line: 12usize,
         end_col: 20usize,
         compile_fail: false,
         no_run: false,
@@ -56,7 +53,8 @@ fn format_injection() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", template))
         }),
-        &"Braces ({ and }) are formatting characters in Rust and must be escaped. {}",
+        &"Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
+         formatting strings. {}",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

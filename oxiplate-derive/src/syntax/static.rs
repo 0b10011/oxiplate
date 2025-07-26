@@ -25,29 +25,23 @@ impl Static<'_> {
 /// Type of static text.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticType {
-    /// A `{` or `}`.
-    /// Tracked separately because these are treated specially in formatted strings.
-    Brace,
-
     /// One or more whitespace characters.
     /// Tracked separately to allow for it
     /// to appear in the top level when extending templates.
     Whitespace,
 
-    /// Plain text that may contain whitespace, but does _not_ contain braces.
+    /// Plain text that may contain whitespace.
     Text,
 }
 
 pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     let (input, (output, _)) = many_till(
         alt((
-            take_till1(is_whitespace_or_brace),
+            take_till1(is_whitespace_or_opening_brace),
             take_while1(is_whitespace),
-            // The opening brace is used for tags in Oxiplate,
-            // but both braces have a special meaning in formatted strings,
-            // so they need to be split out into their own items.
+            // The opening brace needs to be matched separately
+            // to avoid skipping over tags (writs, statements, and comments).
             tag("{"),
-            tag("}"),
         )),
         peek(alt((
             recognize(tag_start),
@@ -66,7 +60,7 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     let mut source: Option<Source> = None;
     let mut whitespace_only = true;
     for item in output {
-        if item.range.len() == 1 && (item.as_str() == "{" || item.as_str() == "}") {
+        if item.range.len() == 1 && item.as_str() == "{" {
             if let Some(source_value) = source {
                 items.push(Item::Static(
                     Static(source_value.as_str(), source_value),
@@ -80,7 +74,7 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
                 whitespace_only = true;
             }
 
-            items.push(Item::Static(Static(item.as_str(), item), StaticType::Brace));
+            items.push(Item::Static(Static(item.as_str(), item), StaticType::Text));
             continue;
         }
 
@@ -115,6 +109,6 @@ pub(crate) fn parse_static(input: Source) -> Res<Source, Vec<Item>> {
     Ok((input, items))
 }
 
-fn is_whitespace_or_brace(char: char) -> bool {
-    char == '{' || char == '}' || is_whitespace(char)
+fn is_whitespace_or_opening_brace(char: char) -> bool {
+    char == '{' || is_whitespace(char)
 }
