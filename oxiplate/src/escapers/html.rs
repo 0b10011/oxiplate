@@ -105,7 +105,7 @@ pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
 /// If escaped string cannot be written to the writer.
 #[inline]
 pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains(['&', '<', '"', '\'']) {
+    if !value.contains(['&', '"', '\'']) {
         return f.write_str(value);
     }
 
