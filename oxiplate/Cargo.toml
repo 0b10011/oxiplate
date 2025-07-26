@@ -15,7 +15,7 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-oxiplate-derive = { version = "0.5.0", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
+oxiplate-derive = { version = "0.5.1", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
 
 [dev-dependencies]
 rustversion = "1.0.19"

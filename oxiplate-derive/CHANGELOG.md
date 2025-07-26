@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.5.0...oxiplate-derive-v0.5.1) - 2025-07-26
+
+### Added
+
+- underscore separator support in numbers (closes #18)
+
+### Other
+
+- add an optimized render function
+- use `write_str` instead of `write_fmt` whenever possible
+- add basic benchmarking
+
 ## [0.5.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.4.1...oxiplate-derive-v0.5.0) - 2025-07-24
 
 ### Added
