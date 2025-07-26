@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.5.1...oxiplate-v0.6.0) - 2025-07-26
+
+### Other
+
+- remove `<` from reserved characters in html attributes
+- [**breaking**] pass writer into escaper to avoid extra allocations
+- inline escape function for ~10% gains on html
+- write braces with rest of static text
+
 ## [0.5.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.5.0...oxiplate-v0.5.1) - 2025-07-26
 
 ### Added

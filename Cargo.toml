@@ -4,7 +4,7 @@ members = ["oxiplate", "oxiplate-derive", "oxiplate/tests/crates/*"]
 
 [workspace.package]
 description = "Compile-time template engine with a focus on escaping and whitespace control."
-version = "0.5.1"
+version = "0.6.0"
 authors = ["Brandon Frohs <brandon@19.codes>"]
 homepage = "https://0b10011.io/oxiplate"
 readme = "README.md"

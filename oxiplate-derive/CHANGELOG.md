@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.5.1...oxiplate-derive-v0.6.0) - 2025-07-26
+
+### Other
+
+- write braces with rest of static text
+- [**breaking**] pass writer into escaper to avoid extra allocations
+
 ## [0.5.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.5.0...oxiplate-derive-v0.5.1) - 2025-07-26
 
 ### Added
