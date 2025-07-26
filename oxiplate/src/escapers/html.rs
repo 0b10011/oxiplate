@@ -30,6 +30,7 @@ pub enum HtmlEscaper {
 impl super::Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::Text;
 
+    #[inline]
     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
         match self {
             Self::Text => escape_text(value),

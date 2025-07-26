@@ -23,6 +23,7 @@ pub enum JsonEscaper {
 impl super::Escaper for JsonEscaper {
     const DEFAULT: Self = Self::Substring;
 
+    #[inline]
     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
         match self {
             Self::Substring => escape_substring(value),
