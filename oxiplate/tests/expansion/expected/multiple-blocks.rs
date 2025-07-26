@@ -12,6 +12,7 @@ impl ::std::fmt::Display for Data {
     }
 }
 impl ::oxiplate::Render for Data {
+    #[inline]
     fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         let header = {
@@ -102,6 +103,7 @@ impl ::oxiplate::Render for Data {
                 &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
+            #[inline]
             fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
                 use ::std::fmt::Write;
                 f.write_str("<!DOCTYPE html>\n<header>")?;

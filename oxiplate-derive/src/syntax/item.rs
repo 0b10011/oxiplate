@@ -52,7 +52,10 @@ impl Item<'_> {
             Item::Writ(writ) => ItemToken::DynamicText(writ.to_token()),
             Item::Statement(statement) => ItemToken::Statement(quote! { #statement }),
             Item::Static(text, static_type) => match static_type {
-                StaticType::Brace => ItemToken::DynamicText(text.to_token()),
+                StaticType::Brace => {
+                    let text = text.to_token();
+                    ItemToken::DynamicText(quote! { f.write_str(#text)?; })
+                }
                 StaticType::Whitespace | StaticType::Text => ItemToken::StaticText(text.to_token()),
             },
             Item::Whitespace(whitespace) => ItemToken::StaticText(whitespace.to_token()),

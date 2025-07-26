@@ -46,7 +46,7 @@ impl ToTokens for Template<'_> {
                     }
 
                     tokens.append_all(quote! {
-                        f.write_str(&#token_stream)?;
+                        #token_stream;
                     });
                 }
                 ItemToken::Statement(token_stream) => {

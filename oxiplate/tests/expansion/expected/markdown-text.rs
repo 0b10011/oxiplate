@@ -16,15 +16,15 @@ impl<'a> ::std::fmt::Display for Data<'a> {
     }
 }
 impl<'a> ::oxiplate::Render for Data<'a> {
+    #[inline]
     fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         for message in (&self.messages) {
             f.write_str("\n")?;
-            f.write_str(
-                &::oxiplate::escapers::escape(
-                    &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
-                    &::std::string::ToString::to_string(&message),
-                ),
+            ::oxiplate::escapers::escape(
+                f,
+                &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
+                &::std::string::ToString::to_string(&message),
             )?;
             f.write_str("\n")?;
         }

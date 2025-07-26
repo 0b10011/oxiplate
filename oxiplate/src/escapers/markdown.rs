@@ -9,7 +9,7 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::borrow::Cow;
+use std::fmt::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
 pub enum MarkdownEscaper {
@@ -22,9 +22,9 @@ impl super::Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::Text;
 
     #[inline]
-    fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Text => escape_unformatted_text(value),
+            Self::Text => escape_unformatted_text(f, value),
         }
     }
 }
@@ -46,10 +46,12 @@ impl super::Escaper for MarkdownEscaper {
 /// [Escapes]: https://spec.commonmark.org/0.31.2/#backslash-escapes
 /// [ASCII punctuation characters]: https://spec.commonmark.org/0.31.2/#ascii-punctuation-character
 /// [Unicode whitespace characters]: https://spec.commonmark.org/0.31.2/#unicode-whitespace-character
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-#[must_use]
-pub fn escape_unformatted_text(value: &'_ str) -> Cow<'_, str> {
-    let mut string = String::with_capacity(value.len());
+pub fn escape_unformatted_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
     let mut start_of_string = true;
     let mut needs_whitespace = false;
     macro_rules! append {
@@ -59,10 +61,10 @@ pub fn escape_unformatted_text(value: &'_ str) -> Cow<'_, str> {
                     start_of_string = false;
                     needs_whitespace = false;
                 } else if needs_whitespace {
-                    string.push(' ');
+                    f.write_char(' ')?;
                     needs_whitespace = false;
                 }
-                $(string.push($character);)+
+                $(f.write_char($character)?;)+
             }
         };
     }
@@ -104,5 +106,5 @@ pub fn escape_unformatted_text(value: &'_ str) -> Cow<'_, str> {
         }
     }
 
-    string.into()
+    Ok(())
 }

@@ -9,7 +9,7 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::borrow::Cow;
+use std::fmt::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
@@ -24,9 +24,9 @@ impl super::Escaper for JsonEscaper {
     const DEFAULT: Self = Self::Substring;
 
     #[inline]
-    fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Substring => escape_substring(value),
+            Self::Substring => escape_substring(f, value),
         }
     }
 }
@@ -40,25 +40,34 @@ impl super::Escaper for JsonEscaper {
 /// Escapes each quotation mark (U+0022) and reverse solidus (U+005C),
 /// and all control characters (U+0000 through U+001F)
 /// by prefixing them with a reverse solidus (U+005C).
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-#[must_use]
-pub fn escape_substring(value: &'_ str) -> Cow<'_, str> {
-    value
-        .chars()
-        .map(|character| match character {
-            '"' => r#"\""#.to_string(),
-            '\\' => r"\\".to_string(),
-            '\u{0000}'..='\u{001F}' => format!("\\u{:04x}", character as u32),
-            _ => character.to_string(),
-        })
-        .collect::<Cow<str>>()
+pub fn escape_substring<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
+    for character in value.chars() {
+        match character {
+            '"' => f.write_str(r#"\""#)?,
+            '\\' => f.write_str(r"\\")?,
+            '\u{0000}'..='\u{001F}' => write!(f, "\\u{:04x}", character as u32)?,
+            _ => f.write_char(character)?,
+        }
+    }
+
+    Ok(())
 }
 
 #[test]
 fn test_escape_substring() {
-    assert_eq!(escape_substring(r"\"), r"\\");
-    assert_eq!(escape_substring(r#"""#), r#"\""#);
-    assert_eq!(escape_substring(r#"\""#), r#"\\\""#);
-    assert_eq!(escape_substring("\u{0000}"), r"\u0000");
-    assert_eq!(escape_substring("\u{0001}"), r"\u0001");
+    fn escape(raw: &str) -> String {
+        let mut escaped = String::with_capacity(raw.len());
+        escape_substring(&mut escaped, raw).unwrap();
+        escaped
+    }
+    assert_eq!(escape(r"\"), r"\\");
+    assert_eq!(escape(r#"""#), r#"\""#);
+    assert_eq!(escape(r#"\""#), r#"\\\""#);
+    assert_eq!(escape("\u{0000}"), r"\u0000");
+    assert_eq!(escape("\u{0001}"), r"\u0001");
 }

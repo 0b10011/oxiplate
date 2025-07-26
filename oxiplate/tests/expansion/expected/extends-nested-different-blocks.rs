@@ -15,6 +15,7 @@ impl ::std::fmt::Display for AbsoluteData {
     }
 }
 impl ::oxiplate::Render for AbsoluteData {
+    #[inline]
     fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         let content = {
@@ -24,18 +25,16 @@ impl ::oxiplate::Render for AbsoluteData {
                 f: &mut dyn Write,
             | -> ::std::fmt::Result {
                 f.write_str("<h1>")?;
-                f.write_str(
-                    &::oxiplate::escapers::escape(
-                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::std::string::ToString::to_string(&self.title),
-                    ),
+                ::oxiplate::escapers::escape(
+                    f,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                    &::std::string::ToString::to_string(&self.title),
                 )?;
                 f.write_str("</h1>\n  <p>")?;
-                f.write_str(
-                    &::oxiplate::escapers::escape(
-                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::std::string::ToString::to_string(&self.message),
-                    ),
+                ::oxiplate::escapers::escape(
+                    f,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                    &::std::string::ToString::to_string(&self.message),
                 )?;
                 f.write_str("</p>")?;
                 Ok(())
@@ -71,6 +70,7 @@ impl ::oxiplate::Render for AbsoluteData {
                 &mut dyn Write,
             ) -> ::std::fmt::Result,
         {
+            #[inline]
             fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
                 use ::std::fmt::Write;
                 let body = {
@@ -124,18 +124,18 @@ impl ::oxiplate::Render for AbsoluteData {
                         &mut dyn Write,
                     ) -> ::std::fmt::Result,
                 {
+                    #[inline]
                     fn render<W: ::std::fmt::Write>(
                         &self,
                         f: &mut W,
                     ) -> ::std::fmt::Result {
                         use ::std::fmt::Write;
                         f.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
-                        f.write_str(
-                            &::oxiplate::escapers::escape(
-                                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                                &::std::string::ToString::to_string(
-                                    &self.oxiplate_extends_data.title,
-                                ),
+                        ::oxiplate::escapers::escape(
+                            f,
+                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                            &::std::string::ToString::to_string(
+                                &self.oxiplate_extends_data.title,
                             ),
                         )?;
                         f.write_str("</title>\n</head>\n<body>")?;

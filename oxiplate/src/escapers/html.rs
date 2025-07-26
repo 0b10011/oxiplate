@@ -10,7 +10,7 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::borrow::Cow;
+use std::fmt::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 pub enum HtmlEscaper {
@@ -31,11 +31,11 @@ impl super::Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::Text;
 
     #[inline]
-    fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Text => escape_text(value),
-            Self::Attr => escape_attribute_quoted_value(value),
-            Self::Comment => escape_comment_text(value),
+            Self::Text => escape_text(f, value),
+            Self::Attr => escape_attribute_quoted_value(f, value),
+            Self::Comment => escape_comment_text(f, value),
         }
     }
 }
@@ -54,21 +54,25 @@ impl super::Escaper for HtmlEscaper {
 /// The shortest encodings for each were selected,
 /// rather than a specific encoding style,
 /// to reduce the length of the final template.
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-#[must_use]
-pub fn escape_text(value: &'_ str) -> Cow<'_, str> {
+pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
     if !value.contains(['&', '<']) {
-        return Cow::Borrowed(value);
+        return f.write_str(value);
     }
 
-    value
-        .chars()
-        .map(|character| match character {
-            '&' => "&amp;".to_string(),
-            '<' => "&lt;".to_string(),
-            _ => character.to_string(),
-        })
-        .collect::<Cow<str>>()
+    for character in value.chars() {
+        match character {
+            '&' => f.write_str("&amp;")?,
+            '<' => f.write_str("&lt;")?,
+            _ => f.write_char(character)?,
+        }
+    }
+
+    Ok(())
 }
 
 /// Escape the value as a single- or double-quoted [attribute value](https://html.spec.whatwg.org/#syntax-attribute-value) in an HTML document.
@@ -95,22 +99,26 @@ pub fn escape_text(value: &'_ str) -> Cow<'_, str> {
 /// The shortest encodings for each were selected,
 /// rather than a specific encoding style,
 /// to reduce the length of the final template.
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-#[must_use]
-pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
+pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
     if !value.contains(['&', '<', '"', '\'']) {
-        return Cow::Borrowed(value);
+        return f.write_str(value);
     }
 
-    value
-        .chars()
-        .map(|character| match character {
-            '&' => "&amp;".to_string(),
-            '"' => "&#34;".to_string(),
-            '\'' => "&#39;".to_string(),
-            _ => character.to_string(),
-        })
-        .collect::<Cow<str>>()
+    for character in value.chars() {
+        match character {
+            '&' => f.write_str("&amp;")?,
+            '"' => f.write_str("&#34;")?,
+            '\'' => f.write_str("&#39;")?,
+            _ => f.write_char(character)?,
+        }
+    }
+
+    Ok(())
 }
 
 /// Escape the value as [comment text](https://html.spec.whatwg.org/#comments) in an HTML document.
@@ -134,9 +142,12 @@ pub fn escape_attribute_quoted_value(value: &'_ str) -> Cow<'_, str> {
 /// Per <https://www.w3.org/TR/REC-xml/#sec-comments>:
 /// > For compatibility,
 /// > the string " -- " (double-hyphen) MUST NOT occur within comments.
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-#[must_use]
-pub fn escape_comment_text(value: &'_ str) -> Cow<'_, str> {
+pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
     if
     // Cannot start with `>` for HTML
     !value.starts_with('>')
@@ -155,21 +166,22 @@ pub fn escape_comment_text(value: &'_ str) -> Cow<'_, str> {
         // Cannot end with `-` to double hyphens for XML 1.0
         && !value.ends_with('-')
     {
-        return Cow::Borrowed(value);
+        return f.write_str(value);
     }
 
     // If any disallowed substrings are found,
     // replace all of the characters that could have been involved
     // to ensure all offenders are replaced
     // and to possibly speed up replacement.
-    value
-        .chars()
-        .map(|character| match character {
-            '-' => '−'.to_string(),
-            '!' => 'ǃ'.to_string(),
-            '<' => '‹'.to_string(),
-            '>' => '›'.to_string(),
-            _ => character.to_string(),
-        })
-        .collect::<Cow<str>>()
+    for character in value.chars() {
+        match character {
+            '-' => f.write_char('−')?,
+            '!' => f.write_char('ǃ')?,
+            '<' => f.write_char('‹')?,
+            '>' => f.write_char('›')?,
+            _ => f.write_char(character)?,
+        }
+    }
+
+    Ok(())
 }

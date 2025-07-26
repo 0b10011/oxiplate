@@ -15,12 +15,12 @@ impl ::std::fmt::Display for Data {
             let mut string = String::new();
             let f = &mut string;
             f.write_str("Braces (")?;
-            f.write_str(&"{")?;
+            f.write_str("{")?;
             f.write_str(" and ")?;
-            f.write_str(&"}")?;
+            f.write_str("}")?;
             f.write_str(") are formatting characters in Rust and must be escaped. ")?;
-            f.write_str(&"{")?;
-            f.write_str(&"}")?;
+            f.write_str("{")?;
+            f.write_str("}")?;
             string
         };
         f.write_str(&string)

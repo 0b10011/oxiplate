@@ -35,13 +35,25 @@ impl Writ<'_> {
         match &self.1 {
             #[cfg(feature = "oxiplate")]
             Escaper::Specified(escaper) => {
-                quote! { ::oxiplate::escapers::escape(&#escaper, &::std::string::ToString::to_string(&#text)) }
+                quote! {
+                    ::oxiplate::escapers::escape(
+                        f,
+                        &#escaper,
+                        &::std::string::ToString::to_string(&#text)
+                    )?
+                }
             }
             #[cfg(feature = "oxiplate")]
             Escaper::Default(escaper) => {
-                quote! { ::oxiplate::escapers::escape(&<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT, &::std::string::ToString::to_string(&#text)) }
+                quote! {
+                    ::oxiplate::escapers::escape(
+                        f,
+                        &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                        &::std::string::ToString::to_string(&#text)
+                    )?
+                }
             }
-            Escaper::None => quote! { ::std::string::ToString::to_string(&#text) },
+            Escaper::None => quote! { f.write_str(&::std::string::ToString::to_string(&#text))? },
         }
     }
 }

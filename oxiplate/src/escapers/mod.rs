@@ -9,7 +9,7 @@
 //! they will be automatically converted to `PascalCase` when converted to an enum variant.
 //!
 //! ```rust
-//! use std::borrow::Cow;
+//! use std::fmt::{Result, Write};
 //!
 //! use oxiplate::escapers::Escaper;
 //!
@@ -24,32 +24,33 @@
 //! impl Escaper for YourEscaper {
 //!     const DEFAULT: Self = Self::Foo;
 //!
-//!     fn escape<'a>(&self, value: &'a str) -> Cow<'a, str> {
+//!     #[inline]
+//!     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
 //!         match self {
-//!             Self::Foo => escape_foo(value),
-//!             Self::Bar => bar_escaper(value),
+//!             Self::Foo => escape_foo(f, value),
+//!             Self::Bar => bar_escaper(f, value),
 //!         }
 //!     }
 //! }
 //!
 //! # #[allow(dead_code)]
-//! #[must_use]
-//! fn escape_foo(value: &'_ str) -> Cow<'_, str> {
+//! #[inline]
+//! fn escape_foo<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
 //!     if !value.contains("foo") {
-//!         return Cow::Borrowed(value);
+//!         return f.write_str(value);
 //!     }
 //!
-//!     value.replace("foo", "f00").into()
+//!     f.write_str(&value.replace("foo", "f00"))
 //! }
 //!
 //! # #[allow(dead_code)]
-//! #[must_use]
-//! fn bar_escaper(value: &'_ str) -> Cow<'_, str> {
+//! #[inline]
+//! fn bar_escaper<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
 //!     if !value.contains("bar") {
-//!         return Cow::Borrowed(value);
+//!         return f.write_str(value);
 //!     }
 //!
-//!     value.replace("bar", "b@r").into()
+//!     f.write_str(&value.replace("bar", "b@r"))
 //! }
 //! ```
 //!
@@ -84,7 +85,7 @@ pub mod html;
 pub mod json;
 pub mod markdown;
 
-use std::borrow::Cow;
+use std::fmt::{Result, Write};
 
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {
@@ -92,12 +93,20 @@ pub trait Escaper {
     const DEFAULT: Self;
 
     /// Function that escapes text based on the selected variant.
-    fn escape<'a>(&self, value: &'a str) -> Cow<'a, str>;
+    ///
+    /// # Errors
+    ///
+    /// If escaped string cannot be written to the writer.
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result;
 }
 
 /// Helper function to ensure the provided escaper implements [`Escaper`].
 /// Called from generated templates whenever an escaper is used.
+///
+/// # Errors
+///
+/// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape<'a>(escaper: &impl Escaper, text: &'a str) -> Cow<'a, str> {
-    escaper.escape(text)
+pub fn escape<W: Write + ?Sized>(f: &mut W, escaper: &impl Escaper, text: &str) -> Result {
+    escaper.escape(f, text)
 }
