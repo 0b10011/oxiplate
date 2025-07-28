@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.6.0...oxiplate-v0.6.1) - 2025-07-28
+
+### Added
+
+- add support for floating-point literals (fixes #22)
+- add support for octal (fixes #20) and hexadecimal (fixes #21) literals
+
 ## [0.6.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.5.1...oxiplate-v0.6.0) - 2025-07-26
 
 ### Other
