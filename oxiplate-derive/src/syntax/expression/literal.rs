@@ -1,7 +1,7 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
-use nom::combinator::{cut, peek};
+use nom::combinator::{cut, opt, peek};
 use nom::error::context;
 use nom::multi::many_till;
 use nom::sequence::{pair, preceded};
@@ -53,27 +53,83 @@ fn alternative_bases(input: Source) -> Res<Source, Expression> {
 
     Ok((
         input,
-        Expression::Number(
+        Expression::Integer(
             number
                 .0
-                .merge(&number.1 .0.merge(&number.1 .1).merge(&number.1 .2)),
+                .merge(&number.1 .0)
+                .merge(&number.1 .1)
+                .merge(&number.1 .2),
         ),
     ))
 }
 
-/// Parse decimal literals.
+/// Parse decimal and floating-point literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn decimal(input: Source) -> Res<Source, Expression> {
-    let (input, number) = (
+    let (input, integer) = integer_literal.parse(input)?;
+
+    // Decimal points won't exist for integers (with or without exponents).
+    // E.g., `19` or `19e0`.
+    let (input, point) = opt(tag(".")).parse(input)?;
+    let Some(point) = point else {
+        let (input, exponent) = opt(exponent).parse(input)?;
+
+        return if let Some(exponent) = exponent {
+            Ok((input, Expression::Float(integer.merge(&exponent))))
+        } else {
+            Ok((input, Expression::Integer(integer)))
+        };
+    };
+
+    // Parse the fractional part of the decimal and the exponent, if any.
+    let (input, end) = opt(pair(integer_literal, opt(exponent))).parse(input)?;
+
+    // If there's no fractional part or exponent,
+    // the float (e.g., `19.`) can be returned early.
+    let Some((fractional, exponent)) = end else {
+        return Ok((input, Expression::Float(integer.merge(&point))));
+    };
+
+    Ok((
+        input,
+        Expression::Float(
+            integer
+                .merge(&point)
+                .merge(&fractional)
+                .merge_some(exponent.as_ref()),
+        ),
+    ))
+}
+
+/// Parse float exponent (e.g., `e-1`, `E+2`, or `e3`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-FLOAT_EXPONENT>
+fn exponent(input: Source) -> Res<Source, Source> {
+    let (input, (e, sign, separators, number)) = (
+        alt((tag("e"), tag("E"))),
+        opt(alt((tag("-"), tag("+")))),
         take_while(|char: char| char == '_'),
+        cut(integer_literal),
+    )
+        .parse(input)?;
+
+    Ok((
+        input,
+        e.merge_some(sign.as_ref())
+            .merge(&separators)
+            .merge(&number),
+    ))
+}
+
+/// Parse decimal literals (e.g., `19`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
+fn integer_literal(input: Source) -> Res<Source, Source> {
+    let (input, number) = (
         take_while1(|char: char| char.is_ascii_digit()),
         take_while(|char: char| char.is_ascii_digit() || char == '_'),
     )
         .parse(input)?;
-    Ok((
-        input,
-        Expression::Number(number.0.merge(&number.1).merge(&number.2)),
-    ))
+
+    Ok((input, number.0.merge(&number.1)))
 }
 
 pub(super) fn string(input: Source) -> Res<Source, Expression> {

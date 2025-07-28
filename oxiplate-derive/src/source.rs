@@ -108,6 +108,14 @@ impl<'a> Source<'a> {
         }
     }
 
+    pub fn merge_some(self, source_to_merge: Option<&Source>) -> Self {
+        if let Some(source_to_merge) = source_to_merge {
+            self.merge(source_to_merge)
+        } else {
+            self
+        }
+    }
+
     fn update_range(range: &mut Range<usize>, pos: usize) {
         if range.start >= pos {
             range.start += 1;

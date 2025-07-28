@@ -43,7 +43,8 @@ impl ToTokens for Field<'_> {
 pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>, IdentifierScope),
     String(Source<'a>),
-    Number(Source<'a>),
+    Integer(Source<'a>),
+    Float(Source<'a>),
     Bool(bool, Source<'a>),
     // Group(Box<Expression<'a>>),
     Concat(Vec<ExpressionAccess<'a>>, Source<'a>),
@@ -129,8 +130,14 @@ impl ToTokens for Expression<'_> {
                     #string
                 }
             }
-            Expression::Number(number) => {
+            Expression::Integer(number) => {
                 let number = ::syn::LitInt::new(number.as_str(), number.span());
+                quote! {
+                    #number
+                }
+            }
+            Expression::Float(number) => {
+                let number = ::syn::LitFloat::new(number.as_str(), number.span());
                 quote! {
                     #number
                 }
