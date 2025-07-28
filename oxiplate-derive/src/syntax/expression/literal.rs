@@ -1,11 +1,11 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
-use nom::combinator::cut;
+use nom::combinator::{cut, peek};
 use nom::error::context;
 use nom::multi::many_till;
-use nom::sequence::pair;
-use nom::Parser as _;
+use nom::sequence::{pair, preceded};
+use nom::{AsChar as _, Parser as _};
 
 use super::{Expression, Res};
 use crate::Source;
@@ -25,22 +25,32 @@ pub(super) fn bool(input: Source) -> Res<Source, Expression> {
 /// Parse a number.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
 pub(super) fn number(input: Source) -> Res<Source, Expression> {
-    alt((binary, decimal)).parse(input)
+    alt((alternative_bases, decimal)).parse(input)
 }
 
-/// Parse binary literals with a `0b` prefix.
-/// Will fail if there's not at least one 1 or 0 following the prefix.
+/// Parse alternative base number literals with a `0b`, `0x`, and `0o` prefixes.
+/// Will fail if there's not at least one valid digit following the prefix.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
-fn binary(input: Source) -> Res<Source, Expression> {
+fn alternative_bases(input: Source) -> Res<Source, Expression> {
+    let (input, prefix) =
+        peek(preceded(char('0'), alt((char('b'), char('x'), char('o'))))).parse(input)?;
+    let (prefix, matcher) = match prefix {
+        'b' => ("0b", char::is_bin_digit as fn(char) -> bool),
+        'x' => ("0x", char::is_hex_digit as fn(char) -> bool),
+        'o' => ("0o", char::is_oct_digit as fn(char) -> bool),
+        _ => unimplemented!("All alternative base prefix cases should be covered"),
+    };
+
     let (input, number) = pair(
-        tag("0b"),
+        tag(prefix),
         cut((
             take_while(|char: char| char == '_'),
-            take_while1(|char: char| char == '0' || char == '1'),
-            take_while(|char: char| char == '0' || char == '1' || char == '_'),
+            take_while1(|char: char| matcher(char)),
+            take_while(|char: char| char == '_' || matcher(char)),
         )),
     )
     .parse(input)?;
+
     Ok((
         input,
         Expression::Number(

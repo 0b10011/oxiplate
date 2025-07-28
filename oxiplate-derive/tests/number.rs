@@ -3,15 +3,10 @@ use oxiplate_derive::Oxiplate;
 #[derive(Oxiplate)]
 #[oxiplate_inline(
     "
-{{ 19 }}
-{{ 10 + 9 }}
-{{ 0 }}
-{{ 000 }}
-{{ 0b10011 }}
-{{ 0b0 }}
-{{ 0b0000 }}
-{{ 0b10011 + 19 }}
-{{ 19 + 0b10011 }}"
+dec: {{ 0 }} {{ 000 }} {{ 19 }} {{ 10 + 9 }} {{ 1_234_567_890 }}
+bin: {{ 0b0 }} {{ 0b0_0000 }} {{ 0b1_0011 }} {{ 0b_1010 + 9 }} {{ 0b01 }}
+hex: {{ 0x0 }} {{ 0x0_00 }} {{ 0x13 }} {{ 0x_a + 0x9 }} {{ 0x_23_45_67_89 }} {{ 0x_01_ab_cd_ef }}
+oct: {{ 0o0 }} {{ 0o0_00 }} {{ 0o23 }} {{ 0o12 + 0o11 }} {{ 0o01_234_567 }}"
 )]
 struct Data;
 
@@ -22,32 +17,9 @@ fn field() {
     assert_eq!(
         format!("{data}"),
         "
-19
-19
-0
-0
-19
-0
-0
-38
-38"
+dec: 0 0 19 19 1234567890
+bin: 0 0 19 19 1
+hex: 0 0 19 19 591751049 28036591
+oct: 0 0 19 19 342391"
     );
-}
-
-#[derive(Oxiplate)]
-#[oxiplate_inline("{{ 1_234_567 }}")]
-struct DecimalNumberSeparators;
-
-#[test]
-fn decimal_number_separators() {
-    assert_eq!(format!("{DecimalNumberSeparators}"), "1234567");
-}
-
-#[derive(Oxiplate)]
-#[oxiplate_inline("{{ 0b0001_0011 }}")]
-struct BinaryNumberSeparators;
-
-#[test]
-fn binary_number_separators() {
-    assert_eq!(format!("{BinaryNumberSeparators}"), "19");
 }
