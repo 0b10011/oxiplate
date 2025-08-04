@@ -170,7 +170,7 @@ impl ToTokens for Extends<'_> {
             });
         }
         tokens.append_all(quote! {
-            write!(f, "{}", template)?;
+            template.render(f)?;
         });
     }
 }

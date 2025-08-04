@@ -134,7 +134,7 @@ impl ::oxiplate::Render for Data {
             main: &main,
             footer: &footer,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }

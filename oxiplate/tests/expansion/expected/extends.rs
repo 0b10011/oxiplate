@@ -98,7 +98,7 @@ impl ::oxiplate::Render for AbsoluteData {
             oxiplate_extends_data: self,
             content: &content,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }
@@ -291,7 +291,7 @@ impl ::oxiplate::Render for Prefix {
             oxiplate_extends_data: self,
             content: &content,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }
@@ -433,7 +433,7 @@ impl ::oxiplate::Render for Replace {
             oxiplate_extends_data: self,
             content: &content,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }
@@ -577,7 +577,7 @@ impl ::oxiplate::Render for Suffix {
             oxiplate_extends_data: self,
             content: &content,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }

@@ -154,7 +154,7 @@ impl ::oxiplate::Render for AbsoluteData {
                     oxiplate_extends_data: &self.oxiplate_extends_data,
                     body: &body,
                 };
-                f.write_fmt(format_args!("{0}", template))?;
+                template.render(f)?;
                 Ok(())
             }
         }
@@ -162,7 +162,7 @@ impl ::oxiplate::Render for AbsoluteData {
             oxiplate_extends_data: self,
             content: &content,
         };
-        f.write_fmt(format_args!("{0}", template))?;
+        template.render(f)?;
         Ok(())
     }
 }
