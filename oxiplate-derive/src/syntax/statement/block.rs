@@ -9,13 +9,12 @@ use super::super::expression::{ident, keyword, Identifier};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::template::{is_whitespace, Template};
-use crate::Source;
+use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 enum Position {
     /// The highest level of block that is automatically applied.
     /// Will be used if not overridden.
-    /// Cannot be selected by a template with `{% block(source) ... %}`.
     Source,
 
     /// Overridden content.
@@ -28,9 +27,13 @@ enum Position {
 pub struct Block<'a> {
     pub(super) name: Identifier<'a>,
     position: Position,
-    pub(super) use_override: bool,
-    prefix: Template<'a>,
-    suffix: Option<Template<'a>>,
+
+    /// Token streams for child blocks.
+    /// Makes it possible to inline the child blocks
+    /// directly into the parent template's block.
+    pub(super) child: Option<(TokenStream, Option<TokenStream>)>,
+    pub(super) prefix: Template<'a>,
+    pub(super) suffix: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
 
@@ -85,66 +88,32 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
 
 impl ToTokens for Block<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Block {
-            name,
-            prefix,
-            suffix,
-            ..
-        } = self;
-        if self.position == Position::Source {
-            if self.use_override {
-                // FIXME: It'd be better if the position information was passed around in the macro instead.
+        let Block { prefix, suffix, .. } = self;
+        if let Some((child_prefix, child_suffix)) = &self.child {
+            if let Some(child_suffix) = child_suffix {
                 tokens.append_all(quote! {
-                    {
-                        use ::std::fmt::Write;
-                        let #name = |f: &mut dyn Write| -> ::std::fmt::Result {
-                            #prefix
-                            Ok(())
-                        };
-                        (self.#name)(#name, f)?;
-                    }
+                    #child_prefix
+                    #prefix
+                    #suffix
+                    #child_suffix
                 });
             } else {
                 tokens.append_all(quote! {
-                    #prefix
+                    #child_prefix
                 });
             }
-        } else if self.use_override {
-            tokens.append_all(quote! {
-                let #name = self.#name;
-            });
         } else {
-            let output = if suffix.is_none() {
-                quote! {
-                    #prefix
-                }
-            } else {
-                quote! {
-                    #prefix
-                    callback(f)?;
-                    #suffix
-                }
-            };
-
             tokens.append_all(quote! {
-                let #name = {
-                    use ::std::fmt::Write;
-                    |
-                        callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                        f: &mut dyn Write
-                    | -> ::std::fmt::Result {
-                        #output
-                        Ok(())
-                    }
-                };
+                #prefix
             });
         }
     }
 }
 
-pub(super) fn parse_block(
-    is_extending: &bool,
-) -> impl FnMut(Source) -> Res<Source, Statement> + '_ {
+pub(super) fn parse_block<'a>(
+    state: &'a State,
+    is_extending: &'a bool,
+) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
     |input| {
         let (input, block_keyword) = keyword("block")(input)?;
 
@@ -161,7 +130,7 @@ pub(super) fn parse_block(
         .parse(input)?;
 
         let source = block_keyword.0.clone();
-        let use_override = input.original.blocks.contains(&name.ident.to_string());
+        let child_block = state.blocks.get(name.ident).cloned();
 
         Ok((
             input,
@@ -169,7 +138,7 @@ pub(super) fn parse_block(
                 kind: Block {
                     name,
                     position,
-                    use_override,
+                    child: child_block,
                     prefix: Template(vec![]),
                     suffix: None,
                     is_ended: false,

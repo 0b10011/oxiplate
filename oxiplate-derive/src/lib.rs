@@ -9,7 +9,7 @@ mod source;
 mod state;
 mod syntax;
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 use std::path::PathBuf;
 
@@ -21,7 +21,7 @@ use syn::spanned::Spanned;
 use syn::token::Colon;
 use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Fields, Ident, Lit, LitStr, MetaList,
-    MetaNameValue, Type,
+    MetaNameValue,
 };
 
 pub(crate) use self::source::Source;
@@ -89,7 +89,15 @@ pub(crate) use self::state::State;
 /// ```
 #[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
-    match parse_template_and_data(input) {
+    oxiplate_internal(input, &HashMap::new())
+}
+
+/// Internal derive function that allows for block token streams to be passed in.
+pub(crate) fn oxiplate_internal(
+    input: TokenStream,
+    blocks: &HashMap<&str, (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>)>,
+) -> TokenStream {
+    match parse_template_and_data(input, blocks) {
         Ok(token_stream) => token_stream,
         Err(err) => err.to_compile_error().into(),
     }
@@ -98,7 +106,10 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 /// Parses the template information from the attributes
 /// and data information from the associated struct.
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
-fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error> {
+fn parse_template_and_data(
+    input: TokenStream,
+    blocks: &HashMap<&str, (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>)>,
+) -> Result<TokenStream, syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
         attrs,
@@ -122,6 +133,7 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
         local_variables: &HashSet::new(),
         inferred_escaper_group: None,
         config: &config,
+        blocks,
     };
 
     // Parse the template type and code literal.
@@ -130,13 +142,10 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
     let (code, literal) = parse_code_literal(&input.into(), span)?;
 
     // Parse the fields and adjust the data type if needed.
-    let data_type = syn::parse2(quote! { #ident #generics })?;
-    let (data_type, _fields, blocks) =
-        parse_fields(data_type, data, template_type == TemplateType::Extends);
+    let (_fields, blocks) = parse_fields(data, template_type == TemplateType::Extends);
 
     // Build the source.
     let owned_source = SourceOwned {
-        data_type,
         blocks,
         code,
         literal,
@@ -155,6 +164,12 @@ fn parse_template_and_data(input: TokenStream) -> Result<TokenStream, syn::Error
     // Build the `::std::fmt::Display` implementation for the struct.
     // (This is where the template is actually parsed.)
     let template = syntax::parse(&state, source);
+
+    // Internally, the template is used directly instead of via `Display`/`Render`.
+    if template_type == TemplateType::Extends {
+        return Ok(TokenStream::from(quote! { #template }));
+    }
+
     let where_clause = &generics.where_clause;
     let expanded = if state.config.optimized_renderer {
         quote! {
@@ -431,11 +446,9 @@ fn parse_source_tokens_for_path(
 }
 
 fn parse_fields(
-    mut data_type: Type,
     data: &Data,
     is_extending: bool,
 ) -> (
-    syn::Type,
     std::vec::Vec<&proc_macro2::Ident>,
     std::vec::Vec<std::string::String>,
 ) {
@@ -449,12 +462,10 @@ fn parse_fields(
                 for field in &fields.named {
                     match &field.ident {
                         Some(name) => {
-                            if !is_extending {
-                                field_names.push(name);
-                            } else if *name == "oxiplate_extends_data" {
-                                data_type = field.ty.clone();
-                            } else {
+                            if is_extending {
                                 blocks.push(name.to_string());
+                            } else {
+                                field_names.push(name);
                             }
                         }
                         None => unreachable!("Named fields should always have a name."),
@@ -469,5 +480,5 @@ fn parse_fields(
         _ => unreachable!("Data should have already been verified to be a struct"),
     }
 
-    (data_type, field_names, blocks)
+    (field_names, blocks)
 }

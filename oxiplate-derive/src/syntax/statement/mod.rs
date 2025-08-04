@@ -135,7 +135,7 @@ pub(super) fn statement<'a>(
             "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
             cut(alt((
                 extends::parse_extends,
-                block::parse_block(is_extending),
+                block::parse_block(state, is_extending),
                 block::parse_parent,
                 block::parse_endblock,
                 r#if::parse_if(state),
@@ -205,6 +205,7 @@ pub(super) fn statement<'a>(
                     local_variables: &local_variables,
                     config: state.config,
                     inferred_escaper_group: state.inferred_escaper_group,
+                    blocks: state.blocks,
                 };
 
                 let (new_input, items) = context(

@@ -64,9 +64,8 @@ impl ToTokens for Expression<'_> {
                     let span = identifier.source.span();
                     match scope {
                         IdentifierScope::Local => quote_spanned! {span=> #identifier },
-                        IdentifierScope::Parent => quote_spanned! {span=> self.#identifier },
-                        IdentifierScope::Data => {
-                            quote_spanned! {span=> self.oxiplate_extends_data.#identifier }
+                        IdentifierScope::Parent | IdentifierScope::Data => {
+                            quote_spanned! {span=> self.#identifier }
                         }
                     }
                 }
@@ -79,11 +78,8 @@ impl ToTokens for Expression<'_> {
                     let span = identifier.source.span();
                     match scope {
                         IdentifierScope::Local => quote_spanned! {span=> #identifier #parens },
-                        IdentifierScope::Parent => {
+                        IdentifierScope::Parent | IdentifierScope::Data => {
                             quote_spanned! {span=> self.#identifier #parens }
-                        }
-                        IdentifierScope::Data => {
-                            quote_spanned! {span=> self.oxiplate_extends_data.#identifier #parens }
                         }
                     }
                 }

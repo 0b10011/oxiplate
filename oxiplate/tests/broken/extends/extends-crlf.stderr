@@ -1,4 +1,4 @@
-error[E0609]: no field `title` on type `&'a AbsoluteData`
+error[E0609]: no field `title` on type `&AbsoluteData`
  --> templates/extends-wrapper-crlf.html.oxip
   |
   | <title>{{ title }}</title>

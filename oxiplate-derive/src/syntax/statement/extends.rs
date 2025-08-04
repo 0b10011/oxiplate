@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt;
 
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
@@ -7,7 +8,7 @@ use nom::error::context;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
-use syn::{GenericArgument, Ident, Type};
+use syn::{GenericArgument, Ident};
 
 use super::super::expression::keyword;
 use super::super::Res;
@@ -18,8 +19,7 @@ use crate::Source;
 
 pub struct Extends<'a> {
     is_extending: bool,
-    data_type: Type,
-    blocks: Vec<String>,
+    blocks: HashMap<&'a str, (TokenStream, Option<TokenStream>)>,
     path: Source<'a>,
     template: Template<'a>,
 }
@@ -50,9 +50,29 @@ impl<'a> Extends<'a> {
 
             // Block statements are allowed, but other statements should fail
             Item::Statement(Statement {
-                kind: StatementKind::Block(_),
+                kind: StatementKind::Block(block),
                 ..
-            }) => self.template.0.push(item),
+            }) => {
+                let prefix = {
+                    let prefix = &block.prefix;
+                    quote! { #prefix }
+                };
+
+                let (prefix, suffix) = match (&block.child, &block.suffix) {
+                    (None, None) => (quote! { #prefix }, None),
+                    (None, Some(suffix)) => (quote! { #prefix }, Some(quote! { #suffix })),
+                    (Some((child_prefix, None)), _) => (quote! { #child_prefix }, None),
+                    (Some((child_prefix, Some(child_suffix))), None) => {
+                        (quote! { #child_prefix #prefix #child_suffix }, None)
+                    }
+                    (Some((child_prefix, Some(child_suffix))), Some(suffix)) => (
+                        quote! { #child_prefix #prefix },
+                        Some(quote! { #suffix #child_suffix }),
+                    ),
+                };
+
+                self.blocks.insert(block.name.ident, (prefix, suffix));
+            }
             Item::Statement(statement) => self.template.0.push(Item::CompileError(
                 "Only block statements are allowed here, along with comments and whitespace."
                     .to_owned(),
@@ -88,7 +108,6 @@ impl ToTokens for Extends<'_> {
         let span = path.span();
         let path = path.as_str();
 
-        let data_type = &self.data_type;
         // FIXME: Should also include local vars here I think
         let mut block_generics = vec![];
         let mut block_constraints = vec![];
@@ -115,7 +134,7 @@ impl ToTokens for Extends<'_> {
                 block_generics.push(generic_name);
                 block_constraints.push(constraint);
 
-                if self.blocks.contains(&block.name.ident.to_string()) {
+                if self.blocks.contains_key(block.name.ident) {
                     block_values.push(quote_spanned! {span=>
                         #block_name: &self.#block_name
                     });
@@ -132,45 +151,34 @@ impl ToTokens for Extends<'_> {
         #[cfg(not(feature = "oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        if self.is_extending {
-            tokens.append_all(quote_spanned! {span=>
-                #template
+        tokens.append_all(quote! { #template });
+
+        let template_to_extend = if self.is_extending {
+            quote_spanned! {span=>
                 #[derive(#oxiplate)]
                 #[oxiplate_extends = #path]
                 struct ExtendingTemplate<'a, #(#block_generics),*>
                 where #(#block_constraints),*
                 {
-                    #[allow(dead_code)]
-                    oxiplate_extends_data: &'a #data_type,
                     #(#block_definitions,)*
                 }
-
-                let template = ExtendingTemplate {
-                    oxiplate_extends_data: &self.oxiplate_extends_data,
-                    #(#block_values,)*
-                };
-            });
+            }
         } else {
-            tokens.append_all(quote_spanned! {span=>
-                #template
+            quote_spanned! {span=>
                 #[derive(#oxiplate)]
                 #[oxiplate_extends = #path]
                 struct Template<'a, #(#block_generics),*>
                 where #(#block_constraints),*
                 {
-                    #[allow(dead_code)]
-                    oxiplate_extends_data: &'a #data_type,
                     #(#block_definitions,)*
                 }
+            }
+        };
+        let template: TokenStream =
+            crate::oxiplate_internal(template_to_extend.into(), &self.blocks).into();
 
-                let template = Template {
-                    oxiplate_extends_data: self,
-                    #(#block_values,)*
-                };
-            });
-        }
         tokens.append_all(quote! {
-            template.render(f)?;
+            #template
         });
     }
 }
@@ -190,8 +198,6 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
     .parse(input)?;
 
     let is_extending = input.original.is_extending;
-    let data_type = input.original.data_type.clone();
-    let blocks = input.original.blocks.clone();
 
     let source = extends_keyword.0;
 
@@ -200,8 +206,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
         Statement {
             kind: Extends {
                 is_extending,
-                data_type,
-                blocks,
+                blocks: HashMap::new(),
                 path: path.clone(),
                 template: Template(vec![]),
             }

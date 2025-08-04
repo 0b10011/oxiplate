@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::{env, fs};
 
+use proc_macro2::TokenStream;
 #[cfg(feature = "config")]
 use serde::Deserialize;
 use syn::spanned::Spanned;
@@ -96,6 +97,7 @@ pub(crate) struct State<'a> {
     pub(crate) local_variables: &'a HashSet<&'a str>,
     pub(crate) config: &'a Config,
     pub(crate) inferred_escaper_group: Option<&'a EscaperGroup>,
+    pub(crate) blocks: &'a HashMap<&'a str, (TokenStream, Option<TokenStream>)>,
 }
 
 /// Macro configuration.

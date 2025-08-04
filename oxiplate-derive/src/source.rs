@@ -6,16 +6,12 @@ use std::str::{CharIndices, Chars};
 
 use nom::{Compare, Input, Needed, Offset};
 use proc_macro2::{Literal, Span};
-use syn::Type;
 
 type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 
 /// Source of a single template.
 /// Does not contain the source of parent/children templates.
 pub(crate) struct SourceOwned {
-    /// Type of data passed to extended templates.
-    pub(crate) data_type: Type,
-
     /// List of names of all blocks in this template and childen templates.
     pub(crate) blocks: Vec<String>,
 

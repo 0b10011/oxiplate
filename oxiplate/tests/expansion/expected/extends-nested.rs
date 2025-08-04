@@ -18,135 +18,27 @@ impl ::oxiplate::Render for AbsoluteData {
     #[inline]
     fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        let content = {
-            use ::std::fmt::Write;
-            |
-                callback: fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                f: &mut dyn Write,
-            | -> ::std::fmt::Result {
-                f.write_str("<h2>")?;
-                ::oxiplate::escapers::escape(
-                    f,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::std::string::ToString::to_string(&self.title),
-                )?;
-                f.write_str("</h2>\n  <div>")?;
-                ::oxiplate::escapers::escape(
-                    f,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                    &::std::string::ToString::to_string(&self.message),
-                )?;
-                f.write_str("</div>")?;
-                Ok(())
-            }
-        };
-        #[oxiplate_extends = "extends-inner-wrapper.html.oxip"]
-        struct Template<'a, Block1>
-        where
-            Block1: Fn(
-                fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                &mut dyn Write,
-            ) -> ::std::fmt::Result,
-        {
-            #[allow(dead_code)]
-            oxiplate_extends_data: &'a AbsoluteData,
-            content: &'a Block1,
-        }
-        impl<'a, Block1> ::std::fmt::Display for Template<'a, Block1>
-        where
-            Block1: Fn(
-                fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                &mut dyn Write,
-            ) -> ::std::fmt::Result,
-        {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                ::oxiplate::Render::render(self, f)
-            }
-        }
-        impl<'a, Block1> ::oxiplate::Render for Template<'a, Block1>
-        where
-            Block1: Fn(
-                fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                &mut dyn Write,
-            ) -> ::std::fmt::Result,
-        {
-            #[inline]
-            fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-                use ::std::fmt::Write;
-                let content = self.content;
-                #[oxiplate_extends = "extends-wrapper.html.oxip"]
-                struct ExtendingTemplate<'a, Block1>
-                where
-                    Block1: Fn(
-                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                        &mut dyn Write,
-                    ) -> ::std::fmt::Result,
-                {
-                    #[allow(dead_code)]
-                    oxiplate_extends_data: &'a &'a AbsoluteData,
-                    content: &'a Block1,
-                }
-                impl<'a, Block1> ::std::fmt::Display for ExtendingTemplate<'a, Block1>
-                where
-                    Block1: Fn(
-                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                        &mut dyn Write,
-                    ) -> ::std::fmt::Result,
-                {
-                    fn fmt(
-                        &self,
-                        f: &mut ::std::fmt::Formatter<'_>,
-                    ) -> ::std::fmt::Result {
-                        ::oxiplate::Render::render(self, f)
-                    }
-                }
-                impl<'a, Block1> ::oxiplate::Render for ExtendingTemplate<'a, Block1>
-                where
-                    Block1: Fn(
-                        fn(f: &mut dyn Write) -> ::std::fmt::Result,
-                        &mut dyn Write,
-                    ) -> ::std::fmt::Result,
-                {
-                    #[inline]
-                    fn render<W: ::std::fmt::Write>(
-                        &self,
-                        f: &mut W,
-                    ) -> ::std::fmt::Result {
-                        use ::std::fmt::Write;
-                        f.write_str("<!DOCTYPE html>\n<title>")?;
-                        ::oxiplate::escapers::escape(
-                            f,
-                            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                            &::std::string::ToString::to_string(
-                                &self.oxiplate_extends_data.title,
-                            ),
-                        )?;
-                        f.write_str("</title>\n")?;
-                        {
-                            use ::std::fmt::Write;
-                            let content = |f: &mut dyn Write| -> ::std::fmt::Result {
-                                f.write_str("test")?;
-                                Ok(())
-                            };
-                            (self.content)(content, f)?;
-                        }
-                        f.write_str("\n")?;
-                        Ok(())
-                    }
-                }
-                let template = ExtendingTemplate {
-                    oxiplate_extends_data: &self.oxiplate_extends_data,
-                    content: &self.content,
-                };
-                template.render(f)?;
-                Ok(())
-            }
-        }
-        let template = Template {
-            oxiplate_extends_data: self,
-            content: &content,
-        };
-        template.render(f)?;
+        f.write_str("<!DOCTYPE html>\n<title>")?;
+        ::oxiplate::escapers::escape(
+            f,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            &::std::string::ToString::to_string(&self.title),
+        )?;
+        f.write_str("</title>\n")?;
+        f.write_str("<h2>")?;
+        ::oxiplate::escapers::escape(
+            f,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            &::std::string::ToString::to_string(&self.title),
+        )?;
+        f.write_str("</h2>\n  <div>")?;
+        ::oxiplate::escapers::escape(
+            f,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            &::std::string::ToString::to_string(&self.message),
+        )?;
+        f.write_str("</div>")?;
+        f.write_str("\n")?;
         Ok(())
     }
 }
