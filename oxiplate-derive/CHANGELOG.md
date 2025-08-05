@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.6.1...oxiplate-derive-v0.6.2) - 2025-08-05
+
+### Added
+
+- simplify generated code to avoid `dyn`, callbacks, and more
+
+### Other
+
+- use more performant render function when extending templates
+
 ## [0.6.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.6.0...oxiplate-derive-v0.6.1) - 2025-07-28
 
 ### Added
