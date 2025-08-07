@@ -11,7 +11,7 @@ struct Data {
 
 #[test]
 fn adjusted_whitespace() {
-    let template = Data { value: true };
+    let data = Data { value: true };
 
-    assert_eq!(format!("{template}"), "foo ");
+    assert_eq!(format!("{data}"), "foo ");
 }

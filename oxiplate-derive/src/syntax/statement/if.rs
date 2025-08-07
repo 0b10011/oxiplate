@@ -91,6 +91,32 @@ pub(crate) struct If<'a> {
 }
 
 impl<'a> If<'a> {
+    /// Get the estimated output length of the shortest branch of the if statement.
+    pub(crate) fn estimated_length(&self) -> usize {
+        let mut estimated_length = None;
+
+        // Check the estimated lengths of all `if`/`else if` branches
+        // and use the shortest one.
+        // This will ensure at least the shortest branch is covered
+        // while keeping the memory usage down for branches that vary wildly.
+        for (_if_type, template) in &self.ifs {
+            let len = template.estimated_length();
+            if len < estimated_length.unwrap_or(usize::MAX) {
+                estimated_length = Some(len);
+            }
+        }
+
+        // Also check the `else` branch and do the same.
+        if let Some(template) = &self.otherwise {
+            let len = template.estimated_length();
+            if len < estimated_length.unwrap_or(usize::MAX) {
+                estimated_length = Some(len);
+            }
+        }
+
+        estimated_length.unwrap_or(0)
+    }
+
     pub fn get_active_variables(&self) -> HashSet<&'a str> {
         match self.ifs.last() {
             Some((IfType::If(_), _)) => HashSet::new(),

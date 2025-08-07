@@ -3,7 +3,7 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(
     html:"{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"
 )]
@@ -12,12 +12,13 @@ struct Data<'a> {
 }
 impl<'a> ::std::fmt::Display for Data<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl<'a> ::oxiplate::Render for Data<'a> {
+    const ESTIMATED_LENGTH: usize = 6usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         for message in (&self.messages) {
             f.write_str("\n")?;
@@ -62,9 +63,7 @@ fn variable() {
         ),
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &r"
 Hello world\!
 

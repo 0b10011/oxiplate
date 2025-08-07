@@ -7,7 +7,7 @@ use nom::combinator::cut;
 use nom::error::context;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
+use quote::{quote, quote_spanned, TokenStreamExt};
 use syn::{GenericArgument, Ident};
 
 use super::super::expression::keyword;
@@ -19,7 +19,7 @@ use crate::Source;
 
 pub struct Extends<'a> {
     is_extending: bool,
-    blocks: HashMap<&'a str, (TokenStream, Option<TokenStream>)>,
+    blocks: HashMap<&'a str, ((TokenStream, Option<TokenStream>), usize)>,
     path: Source<'a>,
     template: Template<'a>,
 }
@@ -36,6 +36,15 @@ impl fmt::Debug for Extends<'_> {
 }
 
 impl<'a> Extends<'a> {
+    /// Get the estimated length of all blocks.
+    pub(crate) fn estimated_length(&self) -> usize {
+        let mut estimated_length = 0;
+        for item in self.blocks.values() {
+            estimated_length += item.1;
+        }
+        estimated_length
+    }
+
     pub(crate) fn add_item(&mut self, mut item: Item<'a>) {
         #[allow(clippy::match_same_arms)]
         match &mut item {
@@ -58,7 +67,7 @@ impl<'a> Extends<'a> {
                     quote! { #prefix }
                 };
 
-                let (prefix, suffix) = match (&block.child, &block.suffix) {
+                let (prefix, suffix) = match (&block.child.0, &block.suffix) {
                     (None, None) => (quote! { #prefix }, None),
                     (None, Some(suffix)) => (quote! { #prefix }, Some(quote! { #suffix })),
                     (Some((child_prefix, None)), _) => (quote! { #child_prefix }, None),
@@ -71,7 +80,16 @@ impl<'a> Extends<'a> {
                     ),
                 };
 
-                self.blocks.insert(block.name.ident, (prefix, suffix));
+                let estimated_length = block.child.1
+                    + block.prefix.estimated_length()
+                    + if let Some(suffix) = &block.suffix {
+                        suffix.estimated_length()
+                    } else {
+                        0
+                    };
+
+                self.blocks
+                    .insert(block.name.ident, ((prefix, suffix), estimated_length));
             }
             Item::Statement(statement) => self.template.0.push(Item::CompileError(
                 "Only block statements are allowed here, along with comments and whitespace."
@@ -93,20 +111,10 @@ impl<'a> Extends<'a> {
             ),
         }
     }
-}
 
-impl<'a> From<Extends<'a>> for StatementKind<'a> {
-    fn from(statement: Extends<'a>) -> Self {
-        StatementKind::Extends(statement)
-    }
-}
-
-impl ToTokens for Extends<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Extends { path, template, .. } = self;
-
-        let span = path.span();
-        let path = path.as_str();
+    pub(crate) fn build_template(&self) -> (TokenStream, usize) {
+        let span = self.path.span();
+        let path = self.path.as_str();
 
         // FIXME: Should also include local vars here I think
         let mut block_generics = vec![];
@@ -151,7 +159,8 @@ impl ToTokens for Extends<'_> {
         #[cfg(not(feature = "oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        tokens.append_all(quote! { #template });
+        let template = &self.template;
+        let mut tokens: TokenStream = quote! { #template };
 
         let template_to_extend = if self.is_extending {
             quote_spanned! {span=>
@@ -174,12 +183,20 @@ impl ToTokens for Extends<'_> {
                 }
             }
         };
-        let template: TokenStream =
-            crate::oxiplate_internal(template_to_extend.into(), &self.blocks).into();
+        let (template, estimated_length) =
+            crate::oxiplate_internal(template_to_extend.into(), &self.blocks);
+        let template: TokenStream = template.into();
 
         tokens.append_all(quote! {
             #template
         });
+        (tokens, estimated_length)
+    }
+}
+
+impl<'a> From<Extends<'a>> for StatementKind<'a> {
+    fn from(statement: Extends<'a>) -> Self {
+        StatementKind::Extends(statement)
     }
 }
 

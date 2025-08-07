@@ -1,9 +1,11 @@
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(html: r#"{
+#[oxiplate_inline(
+    r#"{
     "foo": "Hello {{ name }}!"
-}"#)]
+}"#
+)]
 struct Data<'a> {
     name: &'a str,
 }
@@ -15,7 +17,7 @@ fn variable() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         r#"{
     "foo": "Hello Fiona\",\"bar\":\"Bobby Tables says 'hi'!"
 }"#

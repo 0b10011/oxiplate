@@ -3,19 +3,20 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(html:"<!--{{ comment: comment }}-->")]
 struct Data<'a> {
     comment: &'a str,
 }
 impl<'a> ::std::fmt::Display for Data<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl<'a> ::oxiplate::Render for Data<'a> {
+    const ESTIMATED_LENGTH: usize = 8usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!--")?;
         ::oxiplate::escapers::escape(
@@ -102,12 +103,7 @@ fn comment() {
     ];
     for (comment, expected, reason) in comments {
         let data = Data { comment };
-        match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
-            &expected,
-        ) {
+        match (&data.render().unwrap(), &expected) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
                     let kind = ::core::panicking::AssertKind::Eq;

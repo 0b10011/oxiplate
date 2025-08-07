@@ -45,6 +45,17 @@ pub(crate) enum StatementKind<'a> {
 }
 
 impl<'a> Statement<'a> {
+    /// Get the estimated output length of the statement.
+    pub fn estimated_length(&self) -> usize {
+        match &self.kind {
+            StatementKind::Extends(statement) => statement.estimated_length(),
+            StatementKind::Block(statement) => statement.estimated_length(),
+            StatementKind::If(statement) => statement.estimated_length(),
+            StatementKind::For(statement) => statement.estimated_length(),
+            _ => 0,
+        }
+    }
+
     pub fn is_ended(&self, is_eof: bool) -> bool {
         match &self.kind {
             StatementKind::Extends(_) => is_eof,
@@ -57,10 +68,18 @@ impl<'a> Statement<'a> {
 
     pub fn add_item(&mut self, item: Item<'a>) {
         match &mut self.kind {
-            StatementKind::Extends(statement) => statement.add_item(item),
-            StatementKind::Block(statement) => statement.add_item(item),
-            StatementKind::If(statement) => statement.add_item(item),
-            StatementKind::For(statement) => statement.add_item(item),
+            StatementKind::Extends(statement) => {
+                statement.add_item(item);
+            }
+            StatementKind::Block(statement) => {
+                statement.add_item(item);
+            }
+            StatementKind::If(statement) => {
+                statement.add_item(item);
+            }
+            StatementKind::For(statement) => {
+                statement.add_item(item);
+            }
             _ => unreachable!("add_item() should not be called for this kind of statement"),
         }
     }
@@ -87,7 +106,9 @@ impl<'a> From<Statement<'a>> for Item<'a> {
 impl ToTokens for Statement<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match &self.kind {
-            StatementKind::Extends(extends) => quote! { #extends },
+            StatementKind::Extends(_extends) => {
+                quote! { compile_error!("'extends' statement should be handled elsewhere") }
+            }
 
             StatementKind::Block(block) => quote! { #block },
             StatementKind::Parent => {

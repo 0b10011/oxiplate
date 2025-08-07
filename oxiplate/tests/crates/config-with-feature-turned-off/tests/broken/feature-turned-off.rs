@@ -1,4 +1,4 @@
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(html: "{{ message }}")]
@@ -12,7 +12,7 @@ fn main() {
     };
 
     assert_eq!(
-        format!("{}", data),
+        data.render().unwrap(),
         "Hello world!"
     );
 }

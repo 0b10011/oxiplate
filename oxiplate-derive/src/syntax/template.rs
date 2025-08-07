@@ -13,10 +13,21 @@ use super::r#static::{parse_static, StaticType};
 use super::{Item, Res, Static};
 use crate::State;
 
+/// Collection of items in the template and estimated output length.
 #[derive(Debug)]
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
 impl Template<'_> {
+    /// Estimated length of the output of the template.
+    #[inline]
+    pub(crate) fn estimated_length(&self) -> usize {
+        let mut length = 0;
+        for item in &self.0 {
+            length += item.estimated_length();
+        }
+        length
+    }
+
     #[inline]
     fn write_tokens(str_tokens: &mut Vec<TokenStream>, tokens: &mut TokenStream) {
         if str_tokens.is_empty() {
@@ -62,12 +73,15 @@ impl ToTokens for Template<'_> {
     }
 }
 
-pub(crate) fn parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Template<'a> {
+pub(crate) fn parse<'a>(state: &'a State<'a>, source: Source<'a>) -> (TokenStream, usize) {
     match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
             nom::Err::Error(VerboseError { errors }) | nom::Err::Failure(VerboseError { errors }),
-        ) => Template(vec![convert_error(errors)]),
+        ) => {
+            let template = Template(vec![convert_error(errors)]);
+            (quote! { #template }, 0)
+        }
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
         }
@@ -120,7 +134,10 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
     )
 }
 
-fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Template<'a>> {
+fn try_parse<'a>(
+    state: &'a State<'a>,
+    source: Source<'a>,
+) -> Res<Source<'a>, (TokenStream, usize)> {
     let (input, items_vec) = many0(parse_item(state, &false)).parse(source)?;
 
     // Return error if there's any input remaining.
@@ -133,17 +150,17 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
     }
 
     let mut has_content = false;
-    let mut is_extending = false;
+    let mut extends = None;
     for item in &items {
         match item {
             Item::Statement(statement) => {
-                match statement.kind {
-                    crate::syntax::statement::StatementKind::Extends(_) => {
-                        if has_content || is_extending {
+                match &statement.kind {
+                    crate::syntax::statement::StatementKind::Extends(item) => {
+                        if has_content || extends.is_some() {
                             todo!("Can't extend if already adding content");
                         }
 
-                        is_extending = true;
+                        extends = Some(item);
                     }
                     crate::syntax::statement::StatementKind::Block(_) => {
                         // While blocks are allowed when extending,
@@ -151,7 +168,7 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
                         has_content = true;
                     }
                     _ => {
-                        if is_extending {
+                        if extends.is_some() {
                             todo!("Can't add content if extending");
                         }
 
@@ -162,7 +179,7 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
             #[allow(clippy::match_same_arms)]
             Item::Writ(_) => (),
             Item::Static(_, static_type) => {
-                if is_extending {
+                if extends.is_some() {
                     todo!("Can't add static content or writs when extending");
                 }
 
@@ -173,7 +190,14 @@ fn try_parse<'a>(state: &'a State<'a>, source: Source<'a>) -> Res<Source<'a>, Te
         }
     }
 
-    Ok((input, Template(items)))
+    let template: (TokenStream, usize) = if let Some(extends) = extends {
+        extends.build_template()
+    } else {
+        let template = Template(items);
+        (quote! { #template }, template.estimated_length())
+    };
+
+    Ok((input, template))
 }
 
 pub(crate) fn parse_item<'a>(

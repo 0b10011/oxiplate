@@ -1,4 +1,4 @@
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(html: "{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}")]
@@ -17,7 +17,7 @@ fn variable() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         r"
 Hello world\!
 

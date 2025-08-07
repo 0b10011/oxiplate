@@ -46,6 +46,19 @@ pub(crate) enum Item<'a> {
 }
 
 impl Item<'_> {
+    /// Get the estimated output length of the item.
+    #[inline]
+    pub(super) fn estimated_length(&self) -> usize {
+        match self {
+            Item::Comment => 0,
+            Item::Writ(_writ) => 1,
+            Item::Statement(statement) => statement.estimated_length(),
+            Item::Static(text, _static_type) => text.0.len(),
+            Item::Whitespace(whitespace) => whitespace.0.len(),
+            Item::CompileError(_text, _source) => 0,
+        }
+    }
+
     pub(super) fn to_token(&self) -> ItemToken {
         match self {
             Item::Comment => ItemToken::Comment,

@@ -13,7 +13,7 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(104usize);
             let f = &mut string;
             f.write_str(
                 "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
@@ -48,10 +48,10 @@ pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
 };
 /// Ensure `{}` in a template doesn't break formatting.
 fn format_injection() {
-    let template = Data {};
+    let data = Data {};
     match (
         &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", template))
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
          formatting strings. {}",

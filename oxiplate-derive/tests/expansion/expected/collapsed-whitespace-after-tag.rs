@@ -13,7 +13,7 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(4usize);
             let f = &mut string;
             if self.value {
                 f.write_str("foo")?;
@@ -48,10 +48,10 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn adjusted_whitespace() {
-    let template = Data { value: true };
+    let data = Data { value: true };
     match (
         &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", template))
+            ::alloc::fmt::format(format_args!("{0}", data))
         }),
         &"foo ",
     ) {

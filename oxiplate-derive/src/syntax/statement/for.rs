@@ -27,6 +27,18 @@ pub struct For<'a> {
 }
 
 impl<'a> For<'a> {
+    /// Get the estimated output length of the loop.
+    pub(crate) fn estimated_length(&self) -> usize {
+        // There's a very good chance a loop will run at least twice.
+        let estimated_length = self.template.estimated_length() * 2;
+
+        if let Some(otherwise) = &self.otherwise {
+            estimated_length.min(otherwise.estimated_length())
+        } else {
+            estimated_length
+        }
+    }
+
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             todo!();

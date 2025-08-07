@@ -1,4 +1,4 @@
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate = "./extends-nested-different-blocks.html.oxip"]
@@ -15,7 +15,7 @@ fn absolute() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<DOCTYPE html>\n<head>\n  <title>Oxiplate \
          Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello \
          world!</p></main></body>\n"

@@ -3,17 +3,18 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl ::oxiplate::Render for Data {
+    const ESTIMATED_LENGTH: usize = 81usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<header>")?;
         f.write_str("header")?;
@@ -51,9 +52,7 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
 fn multiple_blocks() {
     let data = Data;
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\n<footer>footer</footer>",
     ) {
         (left_val, right_val) => {

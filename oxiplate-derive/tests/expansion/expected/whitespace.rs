@@ -10,7 +10,7 @@ impl ::std::fmt::Display for AdjustedWhitespace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(12usize);
             let f = &mut string;
             f.write_str("Hello world!")?;
             string
@@ -74,7 +74,7 @@ impl ::std::fmt::Display for WritWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(12usize);
             let f = &mut string;
             f.write_str("Hello ")?;
             f.write_str(&::std::string::ToString::to_string(&self.username))?;
@@ -142,7 +142,7 @@ impl ::std::fmt::Display for CommentWhitespaceControl {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(10usize);
             let f = &mut string;
             f.write_str("Hello  ()!")?;
             string
@@ -210,7 +210,7 @@ impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(27usize);
             let f = &mut string;
             f.write_str("\n")?;
             f.write_str(&::std::string::ToString::to_string(&"leave"))?;

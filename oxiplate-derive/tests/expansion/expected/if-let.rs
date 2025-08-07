@@ -28,7 +28,7 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(13usize);
             let f = &mut string;
             if let Some(count) = &self.cats_count {
                 if let Some(name) = &self.name {

@@ -64,7 +64,7 @@
 //! ## Rust code
 //!
 //! ```compile_fail
-//! use oxiplate::Oxiplate;
+//! use oxiplate::{Oxiplate, Render};
 //!
 //! #[derive(Oxiplate)]
 //! // Because the TOML isn't included in this,
@@ -78,7 +78,9 @@
 //!     value_to_escape: "<.<",
 //! };
 //!
-//! assert_eq!(format!("{}", data), r#"&lt;.&lt;"#);
+//! assert_eq!(data.render()?, r#"&lt;.&lt;"#);
+//!
+//! Ok::<(), ::core::fmt::Error>(())
 //! ```
 
 pub mod html;

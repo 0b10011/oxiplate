@@ -12,7 +12,7 @@ impl ::std::fmt::Display for Comparison {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(3usize);
             let f = &mut string;
             if (self.value == "foo") {
                 f.write_str("bar")?;

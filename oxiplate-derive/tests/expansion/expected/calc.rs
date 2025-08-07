@@ -24,7 +24,7 @@ impl ::std::fmt::Display for Math {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(101usize);
             let f = &mut string;
             f.write_str("1 + 2 = ")?;
             f.write_str(&::std::string::ToString::to_string(&(1 + 2)))?;
@@ -159,7 +159,7 @@ impl ::std::fmt::Display for Comparisons {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(63usize);
             let f = &mut string;
             f.write_str(&::std::string::ToString::to_string(&self.max))?;
             f.write_str(" == ")?;
@@ -275,7 +275,7 @@ impl ::std::fmt::Display for OrAnd {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(135usize);
             let f = &mut string;
             f.write_str(&::std::string::ToString::to_string(&self.yes))?;
             f.write_str(" || ")?;

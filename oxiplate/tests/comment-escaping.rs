@@ -1,4 +1,4 @@
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(html: "<!--{{ comment: comment }}-->")]
@@ -82,6 +82,6 @@ fn comment() {
     ];
     for (comment, expected, reason) in comments {
         let data = Data { comment };
-        assert_eq!(format!("{data}"), expected, "{reason}");
+        assert_eq!(data.render().unwrap(), expected, "{reason}");
     }
 }

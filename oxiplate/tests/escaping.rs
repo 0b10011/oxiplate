@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 struct HelloWorld;
 
@@ -71,7 +71,7 @@ fn types() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         r"
 # default:
 Hello world &amp;lt;&lt;script>&lt;!--

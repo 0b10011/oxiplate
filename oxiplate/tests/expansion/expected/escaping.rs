@@ -4,7 +4,7 @@ use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
 use std::fmt::Display;
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 struct HelloWorld;
 impl HelloWorld {
     fn hello() -> String {
@@ -61,12 +61,13 @@ struct Types<'a> {
 }
 impl<'a> ::std::fmt::Display for Types<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl<'a> ::oxiplate::Render for Types<'a> {
+    const ESTIMATED_LENGTH: usize = 89usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("\n# default:\n")?;
         ::oxiplate::escapers::escape(
@@ -222,9 +223,7 @@ fn types() {
         fn_string: HelloWorld::hello(),
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &r"
 # default:
 Hello world &amp;lt;&lt;script>&lt;!--

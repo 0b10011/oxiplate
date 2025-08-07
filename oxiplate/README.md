@@ -38,7 +38,7 @@ even when issues are caught by Rust instead of Oxiplate.
 ```
 
 ```rust,compile_fail
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate = "external.html.oxip"]
@@ -51,7 +51,9 @@ let hello_world = HelloWorld {
     title: "Hello world",
 };
 
-print!("{hello_world}");
+print!("{}", hello_world.render()?);
+
+Ok::<(), ::core::fmt::Error>(())
 ```
 
 ```text
@@ -87,7 +89,7 @@ You can add your own escapers!
 ```
 
 ```rust,compile_fail
-use oxiplate::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate = "external.html.oxip"]
@@ -101,7 +103,9 @@ let profile_link = ProfileLink {
     name: r#"<!-- --><script>alert("hacked!");</script><!-- -->"#
 };
 
-print!("{profile_link}");
+print!("{}", profile_link.render()?);
+
+Ok::<(), ::core::fmt::Error>(())
 ```
 
 ```html

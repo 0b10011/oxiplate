@@ -15,7 +15,7 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(10usize);
             let f = &mut string;
             for value in (&self.values) {
                 f.write_str(&::std::string::ToString::to_string(&value))?;
@@ -82,7 +82,7 @@ impl ::std::fmt::Display for Accounts {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(10usize);
             let f = &mut string;
             for person in (&self.people) {
                 f.write_str(&::std::string::ToString::to_string(&person.get_name()))?;
@@ -165,7 +165,7 @@ impl ::std::fmt::Display for ShadowVariable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(17usize);
             let f = &mut string;
             f.write_str(&::std::string::ToString::to_string(&self.value))?;
             f.write_str("!\n")?;
@@ -244,7 +244,7 @@ impl ::std::fmt::Display for Functions {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(4usize);
             let f = &mut string;
             for function in (&self.functions) {
                 f.write_str(&::std::string::ToString::to_string(&function()))?;
@@ -316,7 +316,7 @@ impl ::std::fmt::Display for ForElse {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(10usize);
             let f = &mut string;
             {
                 let mut loop_ran = false;

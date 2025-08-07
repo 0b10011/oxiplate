@@ -21,7 +21,7 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(1usize);
             let f = &mut string;
             if self.check {
                 f.write_str("bar")?;

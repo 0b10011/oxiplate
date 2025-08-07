@@ -3,7 +3,7 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 #[oxiplate = "extends.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
@@ -11,12 +11,13 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl ::oxiplate::Render for AbsoluteData {
+    const ESTIMATED_LENGTH: usize = 55usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         ::oxiplate::escapers::escape(
@@ -68,9 +69,7 @@ fn absolute() {
         message: "Hello world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
          world!</p>\n",
     ) {
@@ -116,9 +115,7 @@ fn absolute_2() {
         message: "Goodbye world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  \
          <p>Goodbye world!</p>\n",
     ) {
@@ -149,12 +146,13 @@ struct Prefix {
 }
 impl ::std::fmt::Display for Prefix {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl ::oxiplate::Render for Prefix {
+    const ESTIMATED_LENGTH: usize = 46usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         ::oxiplate::escapers::escape(
@@ -201,9 +199,7 @@ fn prefix() {
         message: "Hello world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Prefixed block</title>\n<p>Hello world!</p>test\n",
     ) {
         (left_val, right_val) => {
@@ -232,12 +228,13 @@ struct Replace {
 }
 impl ::std::fmt::Display for Replace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl ::oxiplate::Render for Replace {
+    const ESTIMATED_LENGTH: usize = 42usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         ::oxiplate::escapers::escape(
@@ -283,9 +280,7 @@ fn replace() {
         message: "Hello world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Replaced block</title>\n<p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {
@@ -315,12 +310,13 @@ struct Suffix {
 }
 impl ::std::fmt::Display for Suffix {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl ::oxiplate::Render for Suffix {
+    const ESTIMATED_LENGTH: usize = 46usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         ::oxiplate::escapers::escape(
@@ -367,9 +363,7 @@ fn suffix() {
         message: "Hello world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {

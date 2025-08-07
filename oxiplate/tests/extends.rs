@@ -1,4 +1,4 @@
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate = "extends.html.oxip"]
@@ -15,7 +15,7 @@ fn absolute() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
          world!</p>\n"
     );
@@ -29,7 +29,7 @@ fn absolute_2() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  \
          <p>Goodbye world!</p>\n"
     );
@@ -55,7 +55,7 @@ fn prefix() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<title>Prefixed block</title>\n<p>Hello world!</p>test\n"
     );
 }
@@ -79,7 +79,7 @@ fn replace() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<title>Replaced block</title>\n<p>Hello world!</p>\n"
     );
 }
@@ -104,7 +104,7 @@ fn suffix() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n"
     );
 }

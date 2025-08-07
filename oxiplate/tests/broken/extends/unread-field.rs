@@ -1,4 +1,4 @@
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[deny(dead_code)]
 #[derive(Oxiplate)]
@@ -16,7 +16,7 @@ fn main() {
     };
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\\
          n<footer>footer</footer>"
     );

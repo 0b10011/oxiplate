@@ -1,4 +1,4 @@
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
@@ -9,7 +9,7 @@ fn multiple_blocks() {
     let data = Data;
 
     assert_eq!(
-        format!("{data}"),
+        data.render().unwrap(),
         "<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\n<footer>footer</footer>"
     );
 }

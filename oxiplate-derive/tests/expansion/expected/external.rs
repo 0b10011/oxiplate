@@ -13,7 +13,7 @@ impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(20usize);
             let f = &mut string;
             f.write_str("<h1>")?;
             f.write_str(&::std::string::ToString::to_string(&self.title))?;

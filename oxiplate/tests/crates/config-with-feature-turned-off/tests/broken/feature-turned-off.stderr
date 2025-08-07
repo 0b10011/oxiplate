@@ -7,14 +7,15 @@ error: `/oxiplate.toml` exists, but the "config" feature is turned off. Either d
 7 | | }
   | |_^
 
-error[E0277]: `Data<'_>` doesn't implement `std::fmt::Display`
-  --> tests/broken/feature-turned-off.rs:15:23
+error[E0599]: no method named `render` found for struct `Data` in the current scope
+  --> tests/broken/feature-turned-off.rs:15:14
    |
-15 |         format!("{}", data),
-   |                  --   ^^^^ `Data<'_>` cannot be formatted with the default formatter
-   |                  |
-   |                  required by this formatting parameter
+5  | struct Data<'a> {
+   | --------------- method `render` not found for this struct
+...
+15 |         data.render().unwrap(),
+   |              ^^^^^^ method not found in `Data<'_>`
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Data<'_>`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `render`, perhaps you need to implement it:
+           candidate #1: `Render`

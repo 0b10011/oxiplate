@@ -15,7 +15,7 @@ impl<'a> ::std::fmt::Display for Data<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::new();
+            let mut string = String::with_capacity(1usize);
             let f = &mut string;
             f.write_str(&::std::string::ToString::to_string(&self.user.name))?;
             string

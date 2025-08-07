@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::{env, fs};
 
@@ -97,12 +98,47 @@ pub(crate) struct State<'a> {
     pub(crate) local_variables: &'a HashSet<&'a str>,
     pub(crate) config: &'a Config,
     pub(crate) inferred_escaper_group: Option<&'a EscaperGroup>,
-    pub(crate) blocks: &'a HashMap<&'a str, (TokenStream, Option<TokenStream>)>,
+    pub(crate) blocks: &'a HashMap<&'a str, ((TokenStream, Option<TokenStream>), usize)>,
+}
+
+#[cfg_attr(feature = "config", derive(Deserialize))]
+pub(crate) struct InferEscaperGroupFromFileExtension(bool);
+
+impl Default for InferEscaperGroupFromFileExtension {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+
+impl Deref for InferEscaperGroupFromFileExtension {
+    type Target = bool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[cfg_attr(feature = "config", derive(Deserialize))]
+pub(crate) struct OptimizedRenderer(bool);
+
+impl Default for OptimizedRenderer {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+
+impl Deref for OptimizedRenderer {
+    type Target = bool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 /// Macro configuration.
 #[cfg_attr(feature = "config", derive(Deserialize))]
 #[cfg_attr(feature = "config", serde(deny_unknown_fields))]
+#[derive(Default)]
 pub(crate) struct Config {
     /// The escaper group to use
     /// when one cannot be inferred from the template's file extension.
@@ -125,23 +161,11 @@ pub(crate) struct Config {
     /// from the template's file extension.
     #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
     #[cfg_attr(feature = "config", serde(default))]
-    pub(crate) infer_escaper_group_from_file_extension: bool,
+    pub(crate) infer_escaper_group_from_file_extension: InferEscaperGroupFromFileExtension,
 
     #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
     #[cfg_attr(feature = "config", serde(default))]
-    pub(crate) optimized_renderer: bool,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            fallback_escaper_group: None,
-            escaper_groups: HashMap::new(),
-            require_specifying_escaper: false,
-            infer_escaper_group_from_file_extension: true,
-            optimized_renderer: true,
-        }
-    }
+    pub(crate) optimized_renderer: OptimizedRenderer,
 }
 
 /// Escaper group defined in the configuration.

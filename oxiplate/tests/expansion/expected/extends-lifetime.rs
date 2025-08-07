@@ -3,7 +3,7 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate_derive::Oxiplate;
+use oxiplate::{Oxiplate, Render};
 #[oxiplate = "extends-deep.html.oxip"]
 struct AbsoluteData<'a> {
     title: &'a str,
@@ -11,12 +11,13 @@ struct AbsoluteData<'a> {
 }
 impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render(self, f)
+        ::oxiplate::Render::render_into(self, f)
     }
 }
 impl<'a> ::oxiplate::Render for AbsoluteData<'a> {
+    const ESTIMATED_LENGTH: usize = 59usize;
     #[inline]
-    fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         ::oxiplate::escapers::escape(
@@ -68,9 +69,7 @@ fn absolute() {
         message: "Hello world!",
     };
     match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
+        &data.render().unwrap(),
         &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
          <div>Hello world!</div>\n",
     ) {

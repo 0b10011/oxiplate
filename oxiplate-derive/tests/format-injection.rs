@@ -10,10 +10,10 @@ struct Data {}
 /// Ensure `{}` in a template doesn't break formatting.
 #[test]
 fn format_injection() {
-    let template = Data {};
+    let data = Data {};
 
     assert_eq!(
-        format!("{template}"),
+        format!("{data}"),
         "Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
          formatting strings. {}"
     );

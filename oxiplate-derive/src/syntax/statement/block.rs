@@ -31,17 +31,32 @@ pub struct Block<'a> {
     /// Token streams for child blocks.
     /// Makes it possible to inline the child blocks
     /// directly into the parent template's block.
-    pub(super) child: Option<(TokenStream, Option<TokenStream>)>,
+    pub(super) child: (Option<(TokenStream, Option<TokenStream>)>, usize),
     pub(super) prefix: Template<'a>,
     pub(super) suffix: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
 
 impl<'a> Block<'a> {
+    /// Get the estimated length of the block.
+    /// Parent blocks include the length of the children,
+    /// and will only include their own content that will actually be rendered.
+    pub(crate) fn estimated_length(&self) -> usize {
+        self.child.1
+            + self.prefix.estimated_length()
+            + self.suffix.as_ref().map_or(0, Template::estimated_length)
+    }
+
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             todo!();
         }
+
+        let (save_prefix, save_suffix) = match &self.child.0 {
+            Some((_child_prefix, Some(_child_suffix))) => (true, true),
+            Some((_child_prefix, None)) => (false, false),
+            None => (true, true),
+        };
 
         match self.position {
             Position::Source => match item {
@@ -52,7 +67,9 @@ impl<'a> Block<'a> {
                     self.is_ended = true;
                 }
                 _ => {
-                    self.prefix.0.push(item);
+                    if save_prefix {
+                        self.prefix.0.push(item);
+                    }
                 }
             },
             Position::Override => match item {
@@ -70,8 +87,10 @@ impl<'a> Block<'a> {
                 }
                 _ => {
                     if let Some(template) = &mut self.suffix {
-                        template.0.push(item);
-                    } else {
+                        if save_suffix {
+                            template.0.push(item);
+                        }
+                    } else if save_prefix {
                         self.prefix.0.push(item);
                     }
                 }
@@ -89,7 +108,7 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
 impl ToTokens for Block<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Block { prefix, suffix, .. } = self;
-        if let Some((child_prefix, child_suffix)) = &self.child {
+        if let Some((child_prefix, child_suffix)) = &self.child.0 {
             if let Some(child_suffix) = child_suffix {
                 tokens.append_all(quote! {
                     #child_prefix
@@ -130,7 +149,12 @@ pub(super) fn parse_block<'a>(
         .parse(input)?;
 
         let source = block_keyword.0.clone();
-        let child_block = state.blocks.get(name.ident).cloned();
+        let (child_block, estimated_length) =
+            if let Some((block, estimated_length)) = state.blocks.get(name.ident).cloned() {
+                (Some(block), estimated_length)
+            } else {
+                (None, 0)
+            };
 
         Ok((
             input,
@@ -138,7 +162,7 @@ pub(super) fn parse_block<'a>(
                 kind: Block {
                     name,
                     position,
-                    child: child_block,
+                    child: (child_block, estimated_length),
                     prefix: Template(vec![]),
                     suffix: None,
                     is_ended: false,

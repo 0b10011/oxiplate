@@ -89,17 +89,23 @@ pub(crate) use self::state::State;
 /// ```
 #[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
-    oxiplate_internal(input, &HashMap::new())
+    oxiplate_internal(input, &HashMap::new()).0
 }
 
 /// Internal derive function that allows for block token streams to be passed in.
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
-    blocks: &HashMap<&str, (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>)>,
-) -> TokenStream {
+    blocks: &HashMap<
+        &str,
+        (
+            (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>),
+            usize,
+        ),
+    >,
+) -> (TokenStream, usize) {
     match parse_template_and_data(input, blocks) {
         Ok(token_stream) => token_stream,
-        Err(err) => err.to_compile_error().into(),
+        Err(err) => (err.to_compile_error().into(), 0),
     }
 }
 
@@ -108,8 +114,14 @@ pub(crate) fn oxiplate_internal(
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
 fn parse_template_and_data(
     input: TokenStream,
-    blocks: &HashMap<&str, (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>)>,
-) -> Result<TokenStream, syn::Error> {
+    blocks: &HashMap<
+        &str,
+        (
+            (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>),
+            usize,
+        ),
+    >,
+) -> Result<(TokenStream, usize), syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
         attrs,
@@ -163,24 +175,27 @@ fn parse_template_and_data(
 
     // Build the `::std::fmt::Display` implementation for the struct.
     // (This is where the template is actually parsed.)
-    let template = syntax::parse(&state, source);
+    let (template, estimated_length): (proc_macro2::TokenStream, usize) =
+        syntax::parse(&state, source);
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if template_type == TemplateType::Extends {
-        return Ok(TokenStream::from(quote! { #template }));
+        return Ok((template.into(), estimated_length));
     }
 
     let where_clause = &generics.where_clause;
-    let expanded = if state.config.optimized_renderer {
+    let expanded = if *state.config.optimized_renderer {
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                    ::oxiplate::Render::render(self, f)
+                    ::oxiplate::Render::render_into(self, f)
                 }
             }
             impl #generics ::oxiplate::Render for #ident #generics #where_clause {
+                const ESTIMATED_LENGTH: usize = #estimated_length;
+
                 #[inline]
-                fn render<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+                fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
                     use ::std::fmt::Write;
                     #template
                     Ok(())
@@ -193,7 +208,7 @@ fn parse_template_and_data(
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                     let string = {
                         use ::std::fmt::Write;
-                        let mut string = String::new();
+                        let mut string = String::with_capacity(#estimated_length);
                         let f = &mut string;
                         #template
                         string
@@ -204,7 +219,7 @@ fn parse_template_and_data(
         }
     };
 
-    Ok(TokenStream::from(expanded))
+    Ok((TokenStream::from(expanded), estimated_length))
 }
 
 #[derive(PartialEq, Eq)]
@@ -342,7 +357,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
                 template,
             })) => {
                 let span = template.span();
-                if state.config.infer_escaper_group_from_file_extension {
+                if *state.config.infer_escaper_group_from_file_extension {
                     if let Some(escaper) = state.config.escaper_groups.get(&escaper.to_string()) {
                         state.inferred_escaper_group = Some(escaper);
                     }
@@ -414,7 +429,7 @@ fn parse_source_tokens_for_path(
     // Infer the escaper from the template's file extension.
     // Only works when using `oxiplate` rather than `oxiplate-derive` directly.
     #[cfg(feature = "oxiplate")]
-    if state.config.infer_escaper_group_from_file_extension {
+    if *state.config.infer_escaper_group_from_file_extension {
         // Get the template's file extension,
         // but ignore `.oxip`.
         let path_value = path.value();
