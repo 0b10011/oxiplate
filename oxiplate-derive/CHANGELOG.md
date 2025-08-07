@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.6.2...oxiplate-derive-v0.7.0) - 2025-08-07
+
+### Added
+
+- [**breaking**] add estimated length and rendering directly into a string
+
 ## [0.6.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.6.1...oxiplate-derive-v0.6.2) - 2025-08-05
 
 ### Added
