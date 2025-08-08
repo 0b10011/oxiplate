@@ -22,10 +22,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::std::fmt::Write;
         for message in (&self.messages) {
             f.write_str("\n<p>")?;
-            ::oxiplate::escapers::escape(
+            ::oxiplate::escapers::UnescapedText::escape(
+                &&message,
                 f,
                 &::oxiplate::escapers::html::HtmlEscaper::Text,
-                &::std::string::ToString::to_string(&message),
             )?;
             f.write_str("</p>")?;
         }

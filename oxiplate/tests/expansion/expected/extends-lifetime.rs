@@ -20,23 +20,23 @@ impl<'a> ::oxiplate::Render for AbsoluteData<'a> {
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         f.write_str("<!DOCTYPE html>\n<title>")?;
-        ::oxiplate::escapers::escape(
+        ::oxiplate::escapers::UnescapedText::escape(
+            &&self.title,
             f,
             &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            &::std::string::ToString::to_string(&self.title),
         )?;
         f.write_str("</title>\n")?;
         f.write_str("<h2>")?;
-        ::oxiplate::escapers::escape(
+        ::oxiplate::escapers::UnescapedText::escape(
+            &&self.title,
             f,
             &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            &::std::string::ToString::to_string(&self.title),
         )?;
         f.write_str("</h2>\n  <div>")?;
-        ::oxiplate::escapers::escape(
+        ::oxiplate::escapers::UnescapedText::escape(
+            &&self.message,
             f,
             &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            &::std::string::ToString::to_string(&self.message),
         )?;
         f.write_str("</div>")?;
         f.write_str("\n")?;
