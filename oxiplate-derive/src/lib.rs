@@ -188,15 +188,25 @@ fn parse_template_and_data(
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                    ::oxiplate::Render::render_into(self, f)
+                    use ::std::io::Write;
+                    let string = {
+                        let mut string = Vec::with_capacity(#estimated_length);
+                        let f = &mut string;
+                        ::oxiplate::Render::render_into(self, f).unwrap();
+                        unsafe {
+                            String::from_utf8_unchecked(string)
+                        }
+                    };
+
+                    f.write_str(&string)
                 }
             }
             impl #generics ::oxiplate::Render for #ident #generics #where_clause {
                 const ESTIMATED_LENGTH: usize = #estimated_length;
 
                 #[inline]
-                fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-                    use ::std::fmt::Write;
+                fn render_into<W: ::std::io::Write>(&self, f: &mut W) -> ::std::io::Result<()> {
+                    use ::std::io::Write;
                     #template
                     Ok(())
                 }
@@ -207,13 +217,13 @@ fn parse_template_and_data(
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                     let string = {
-                        use ::std::fmt::Write;
-                        let mut string = String::with_capacity(#estimated_length);
+                        use ::std::io::Write;
+                        let mut string = Vec::with_capacity(#estimated_length);
                         let f = &mut string;
                         #template
                         string
                     };
-                    f.write_str(&string)
+                    f.write_str(&String::from_utf8_unchecked(string))
                 }
             }
         }

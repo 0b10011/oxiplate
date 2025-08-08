@@ -9,7 +9,7 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::fmt::{Result, Write};
+use std::io::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
@@ -24,7 +24,7 @@ impl super::Escaper for JsonEscaper {
     const DEFAULT: Self = Self::Substring;
 
     #[inline]
-    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &[u8]) -> Result<()> {
         match self {
             Self::Substring => escape_substring(f, value),
         }
@@ -45,11 +45,11 @@ impl super::Escaper for JsonEscaper {
 ///
 /// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape_substring<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    for character in value.chars() {
+pub fn escape_substring<W: Write + ?Sized>(f: &mut W, value: &'_ [u8]) -> Result<()> {
+    for character in value {
         match character {
-            '"' => f.write_str(r#"\""#)?,
-            '\\' => f.write_str(r"\\")?,
+            b'"' => f.write_all(b"\\\"")?,
+            b'\\' => f.write_all(b"\\\\")?,
             '\u{0000}'..='\u{001F}' => write!(f, "\\u{:04x}", character as u32)?,
             _ => f.write_char(character)?,
         }

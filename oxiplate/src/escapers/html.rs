@@ -10,7 +10,7 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::fmt::{Result, Write};
+use std::io::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 pub enum HtmlEscaper {
@@ -31,7 +31,7 @@ impl super::Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::Text;
 
     #[inline]
-    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &[u8]) -> Result<()> {
         match self {
             Self::Text => escape_text(f, value),
             Self::Attr => escape_attribute_quoted_value(f, value),
@@ -59,20 +59,22 @@ impl super::Escaper for HtmlEscaper {
 ///
 /// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains(['&', '<']) {
-        return f.write_str(value);
-    }
-
-    for character in value.chars() {
+pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ [u8]) -> Result<()> {
+    for character in value {
         match character {
-            '&' => f.write_str("&amp;")?,
-            '<' => f.write_str("&lt;")?,
-            _ => f.write_char(character)?,
+            b'&' => {
+                f.write_all(b"&amp;")?;
+            }
+            b'<' => {
+                f.write_all(b"&lt;")?;
+            }
+            _ => {
+                f.write_all(&[character.to_owned()])?;
+            }
         }
     }
 
-    Ok(())
+    f.flush()
 }
 
 /// Escape the value as a single- or double-quoted [attribute value](https://html.spec.whatwg.org/#syntax-attribute-value) in an HTML document.
@@ -104,21 +106,25 @@ pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
 ///
 /// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains(['&', '"', '\'']) {
-        return f.write_str(value);
-    }
-
-    for character in value.chars() {
+pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ [u8]) -> Result<()> {
+    for character in value {
         match character {
-            '&' => f.write_str("&amp;")?,
-            '"' => f.write_str("&#34;")?,
-            '\'' => f.write_str("&#39;")?,
-            _ => f.write_char(character)?,
+            b'&' => {
+                f.write_all(b"&amp;")?;
+            }
+            b'"' => {
+                f.write_all(b"&#34;")?;
+            }
+            b'\'' => {
+                f.write_all(b"&#39;")?;
+            }
+            _ => {
+                f.write_all(&[character.to_owned()])?;
+            }
         }
     }
 
-    Ok(())
+    f.flush()
 }
 
 /// Escape the value as [comment text](https://html.spec.whatwg.org/#comments) in an HTML document.
@@ -147,41 +153,19 @@ pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ st
 ///
 /// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if
-    // Cannot start with `>` for HTML
-    !value.starts_with('>')
-
-        // Cannot start with `->` for HTML
-        // Cannot start with `-` to avoid double hyphens for XML 1.0
-        && !value.starts_with('-')
-
-        // Cannot contain `<!--`, `-->` or `--!>` for HTML
-        // Cannot contain `--` to avoid double hyphens for XML 1.0
-        && !value.contains("--")
-
-        // Cannot end with `<!-` for HTML
-        && !value.ends_with("<!-")
-
-        // Cannot end with `-` to double hyphens for XML 1.0
-        && !value.ends_with('-')
-    {
-        return f.write_str(value);
-    }
-
-    // If any disallowed substrings are found,
-    // replace all of the characters that could have been involved
+pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ [u8]) -> Result<()> {
+    // Replace all of the characters that could be part of invalid strings
     // to ensure all offenders are replaced
     // and to possibly speed up replacement.
-    for character in value.chars() {
+    for character in value {
         match character {
-            '-' => f.write_char('−')?,
-            '!' => f.write_char('ǃ')?,
-            '<' => f.write_char('‹')?,
-            '>' => f.write_char('›')?,
-            _ => f.write_char(character)?,
+            b'-' => f.write_all('−'.to_string().as_bytes())?,
+            b'!' => f.write_all('ǃ'.to_string().as_bytes())?,
+            b'<' => f.write_all('‹'.to_string().as_bytes())?,
+            b'>' => f.write_all('›'.to_string().as_bytes())?,
+            _ => f.write_all(&[character.to_owned()])?,
         }
     }
 
-    Ok(())
+    f.flush()
 }

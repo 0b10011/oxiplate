@@ -39,7 +39,7 @@ impl Writ<'_> {
                     ::oxiplate::escapers::escape(
                         f,
                         &#escaper,
-                        &::std::string::ToString::to_string(&#text)
+                        &::std::string::ToString::to_string(&#text).as_bytes()
                     )?
                 }
             }
@@ -49,11 +49,13 @@ impl Writ<'_> {
                     ::oxiplate::escapers::escape(
                         f,
                         &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::std::string::ToString::to_string(&#text)
+                        &::std::string::ToString::to_string(&#text).as_bytes()
                     )?
                 }
             }
-            Escaper::None => quote! { f.write_str(&::std::string::ToString::to_string(&#text))? },
+            Escaper::None => {
+                quote! { f.write_all(&::std::string::ToString::to_string(&#text).as_bytes())? }
+            }
         }
     }
 }

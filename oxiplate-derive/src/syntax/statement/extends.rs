@@ -132,7 +132,7 @@ impl<'a> Extends<'a> {
                 generic_name_i += 1;
                 let generic_name = Ident::new(&format!("Block{generic_name_i}"), span);
                 let constraint: GenericArgument = syn::parse_quote_spanned!(span=>
-                    #generic_name: Fn(fn(f: &mut dyn Write) -> ::std::fmt::Result, &mut dyn Write) -> ::std::fmt::Result
+                    #generic_name: Fn(fn(f: &mut dyn Write) -> ::std::io::Result, &mut dyn Write) -> ::std::io::Result
                 );
                 let block_name = &block.name;
 

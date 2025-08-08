@@ -4,7 +4,7 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-use core::fmt::{Error, Write};
+use std::io::{Error, Write};
 
 pub use oxiplate_derive::Oxiplate;
 
@@ -21,9 +21,11 @@ pub trait Render {
     ///
     /// If strings cannot be written to the formatter.
     fn render(&self) -> Result<String, Error> {
-        let mut string = String::with_capacity(Self::ESTIMATED_LENGTH);
+        let mut string = Vec::with_capacity(Self::ESTIMATED_LENGTH);
         self.render_into(&mut string)?;
-        Ok(string)
+        unsafe {
+            Ok(String::from_utf8_unchecked(string))
+        }
     }
 
     /// Render the template into a writer.
@@ -31,5 +33,5 @@ pub trait Render {
     /// # Errors
     ///
     /// If strings cannot be written to the formatter.
-    fn render_into<W: Write>(&self, writer: &mut W) -> ::std::fmt::Result;
+    fn render_into<W: Write>(&self, writer: &mut W) -> ::std::io::Result<()>;
 }

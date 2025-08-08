@@ -34,10 +34,10 @@ impl Template<'_> {
             return;
         }
 
-        let concat_tokens = quote! { concat!(#(#str_tokens),*) };
+        let concat_tokens = quote! { concat!(#(#str_tokens),*).as_bytes() };
         str_tokens.clear();
 
-        tokens.append_all(quote! { f.write_str(#concat_tokens)?; });
+        tokens.append_all(quote! { f.write_all(#concat_tokens)?; });
     }
 }
 

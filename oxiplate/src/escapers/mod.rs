@@ -84,10 +84,10 @@
 //! ```
 
 pub mod html;
-pub mod json;
-pub mod markdown;
+// pub mod json;
+// pub mod markdown;
 
-use std::fmt::{Result, Write};
+use std::io::{Result, Write};
 
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {
@@ -99,7 +99,7 @@ pub trait Escaper {
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result;
+    fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &[u8]) -> Result<()>;
 }
 
 /// Helper function to ensure the provided escaper implements [`Escaper`].
@@ -109,6 +109,6 @@ pub trait Escaper {
 ///
 /// If escaped string cannot be written to the writer.
 #[inline]
-pub fn escape<W: Write + ?Sized>(f: &mut W, escaper: &impl Escaper, text: &str) -> Result {
+pub fn escape<W: Write + ?Sized>(f: &mut W, escaper: &impl Escaper, text: &[u8]) -> Result<()> {
     escaper.escape(f, text)
 }
