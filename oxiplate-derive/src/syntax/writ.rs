@@ -53,7 +53,12 @@ impl Writ<'_> {
                     )?
                 }
             }
-            Escaper::None => quote! { f.write_str(&::std::string::ToString::to_string(&#text))? },
+            Escaper::None => quote! {
+                ::oxiplate::escapers::UnescapedText::raw(
+                    &&#text,
+                    f,
+                )?
+            },
         }
     }
 }
