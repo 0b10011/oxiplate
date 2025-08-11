@@ -157,3 +157,25 @@ impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for &str {
         f.write_str(self)
     }
 }
+
+macro_rules! unescaped_ints {
+    ($($ty:ty)*) => { $(
+        impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for $ty {
+            #[inline]
+            fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+                escaper.escape(f, itoa::Buffer::new().format(*self))
+            }
+
+            #[inline]
+            fn raw(&'a self, f: &mut W) -> Result {
+                f.write_str(itoa::Buffer::new().format(*self))
+            }
+        }
+    )* };
+}
+
+unescaped_ints!(
+    i8 i16 i32 i64 i128 isize
+    u8 u16 u32 u64 u128 usize
+);
+
