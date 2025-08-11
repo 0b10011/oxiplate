@@ -87,7 +87,7 @@ pub mod html;
 // pub mod json;
 // pub mod markdown;
 
-use std::io::{Result, Write};
+use std::{fmt::Display, io::{Result, Write}};
 
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {
@@ -111,4 +111,72 @@ pub trait Escaper {
 #[inline]
 pub fn escape<W: Write + ?Sized>(f: &mut W, escaper: &impl Escaper, text: &[u8]) -> Result<()> {
     escaper.escape(f, text)
+}
+
+/// Specialized calls to escape.
+pub trait UnescapedText<'a, W: Write + ?Sized> {
+    /// Helper function to ensure the provided escaper implements [`Escaper`]
+    /// and to use the most efficient conversion to `&str`.
+    /// Called from generated templates whenever an escaper is used.
+    ///
+    /// # Errors
+    ///
+    /// If escaped string cannot be written to the writer.
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result<()>;
+
+    /// Helper function to use the most efficient conversion to `&str`.
+    /// Called from generated templates whenever raw output is used.
+    ///
+    /// # Errors
+    ///
+    /// If escaped string cannot be written to the writer.
+    fn raw(&'a self, f: &mut W) -> Result<()>;
+}
+
+impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W> for &T {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result<()> {
+        escaper.escape(f, ::std::string::ToString::to_string(&self).as_bytes())
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result<()> {
+        f.write_all(::std::string::ToString::to_string(&self).as_bytes())
+    }
+}
+
+impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for String {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result<()> {
+        escaper.escape(f, self.as_bytes())
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result<()> {
+        f.write_all(self.as_bytes())
+    }
+}
+
+impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for &str {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result<()> {
+        escaper.escape(f, self.as_bytes())
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result<()> {
+        f.write_all(self.as_bytes())
+    }
+}
+
+impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for &[u8] {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result<()> {
+        escaper.escape(f, self)
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result<()> {
+        f.write_all(self)
+    }
 }

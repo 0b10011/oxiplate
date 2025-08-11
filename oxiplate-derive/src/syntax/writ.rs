@@ -36,26 +36,24 @@ impl Writ<'_> {
             #[cfg(feature = "oxiplate")]
             Escaper::Specified(escaper) => {
                 quote! {
-                    ::oxiplate::escapers::escape(
+                    ::oxiplate::escapers::UnescapedText::escape(
+                        &&#text,
                         f,
                         &#escaper,
-                        &::std::string::ToString::to_string(&#text).as_bytes()
                     )?
                 }
             }
             #[cfg(feature = "oxiplate")]
             Escaper::Default(escaper) => {
                 quote! {
-                    ::oxiplate::escapers::escape(
+                    ::oxiplate::escapers::UnescapedText::escape(
+                        &&#text,
                         f,
                         &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-                        &::std::string::ToString::to_string(&#text).as_bytes()
                     )?
                 }
             }
-            Escaper::None => {
-                quote! { f.write_all(&::std::string::ToString::to_string(&#text).as_bytes())? }
-            }
+            Escaper::None => quote! { ::oxiplate::escapers::UnescapedText::raw(&&#text, f)? },
         }
     }
 }
