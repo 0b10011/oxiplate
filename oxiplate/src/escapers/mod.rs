@@ -125,12 +125,12 @@ pub trait UnescapedText<'a, W: Write + ?Sized> {
 impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W> for &T {
     #[inline]
     fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        escaper.escape(f, &::std::string::ToString::to_string(&self))
+        escaper.escape(f, &::std::string::ToString::to_string(self))
     }
 
     #[inline]
     fn raw(&'a self, f: &mut W) -> Result {
-        f.write_str(&::std::string::ToString::to_string(&self))
+        f.write_str(&::std::string::ToString::to_string(self))
     }
 }
 

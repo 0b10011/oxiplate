@@ -36,8 +36,7 @@ impl Writ<'_> {
             #[cfg(feature = "oxiplate")]
             Escaper::Specified(escaper) => {
                 quote! {
-                    ::oxiplate::escapers::UnescapedText::escape(
-                        &&#text,
+                    (&#text).escape(
                         f,
                         &#escaper,
                     )?
@@ -46,18 +45,14 @@ impl Writ<'_> {
             #[cfg(feature = "oxiplate")]
             Escaper::Default(escaper) => {
                 quote! {
-                    ::oxiplate::escapers::UnescapedText::escape(
-                        &&#text,
+                    (&#text).escape(
                         f,
                         &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
                     )?
                 }
             }
             Escaper::None => quote! {
-                ::oxiplate::escapers::UnescapedText::raw(
-                    &&#text,
-                    f,
-                )?
+                (&#text).raw(f)?
             },
         }
     }

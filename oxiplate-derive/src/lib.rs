@@ -197,6 +197,7 @@ fn parse_template_and_data(
                 #[inline]
                 fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
                     use ::std::fmt::Write;
+                    use ::oxiplate::escapers::UnescapedText;
                     #template
                     Ok(())
                 }
