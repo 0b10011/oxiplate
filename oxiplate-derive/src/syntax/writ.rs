@@ -87,11 +87,10 @@ enum Escaper {
 }
 
 impl Escaper {
-    pub fn build<'a, 'b>(
-        #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &'b State<'b>,
-        #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] group: Option<
-            Identifier<'a>,
-        >,
+    #[cfg_attr(not(feature = "oxiplate"), allow(clippy::elidable_lifetime_names))]
+    pub fn build<'a, #[cfg(feature = "oxiplate")] 'b>(
+        #[cfg(feature = "oxiplate")] state: &'b State<'b>,
+        #[cfg(feature = "oxiplate")] group: Option<Identifier<'a>>,
         escaper: Identifier<'a>,
     ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
         if escaper.ident == "raw" {
@@ -104,7 +103,7 @@ impl Escaper {
                 "Escaper other than `raw` specified, but `oxiplate` is not available for escaping.",
                 fail::<_, (), _>(),
             )
-            .parse(escaper.source.clone())?;
+            .parse(escaper.source)?;
             unreachable!("fail() should always bail early");
         }
 
@@ -138,14 +137,14 @@ impl Escaper {
                     r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined."#,
                     fail::<_, (), _>(),
                 )
-                .parse(escaper.source.clone())?;
+                .parse(escaper.source)?;
 
                 #[cfg(feature = "config")]
                 context(
                     r#"No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
                     fail::<_, (), _>(),
                 )
-                .parse(escaper.source.clone())?;
+                .parse(escaper.source)?;
                 unreachable!("fail() should always bail early");
             };
 
@@ -207,9 +206,11 @@ impl Escaper {
             }
 
             context(
-                r#"Default escapers are only possible when using `oxiplate` rather than `oxiplate-derive` directly."#,
+                "Default escapers are only possible when using `oxiplate` rather than \
+                 `oxiplate-derive` directly.",
                 fail::<_, (), _>(),
-            )                .parse(input.clone())?;
+            )
+            .parse(input.clone())?;
             unreachable!("fail() should always bail early");
         }
 
@@ -283,7 +284,13 @@ pub(super) fn writ<'a>(
 
         #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
         let escaper = if let Some((escaper_group, escaper, _colon, _whitespace)) = escaper_info {
-            Escaper::build(state, escaper_group, escaper)?
+            Escaper::build(
+                #[cfg(feature = "oxiplate")]
+                state,
+                #[cfg(feature = "oxiplate")]
+                escaper_group,
+                escaper,
+            )?
         } else {
             Escaper::default(state, &input)?
         };

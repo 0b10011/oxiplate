@@ -19,25 +19,26 @@ impl ::oxiplate::Render for AbsoluteData {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
+        use ::oxiplate::escapers::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<title>")?;
-        ::oxiplate::escapers::UnescapedText::escape(
-            &&self.title,
-            f,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-        )?;
+        (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
+            .escape(
+                f,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            )?;
         f.write_str("</title>\n")?;
         f.write_str("<h2>")?;
-        ::oxiplate::escapers::UnescapedText::escape(
-            &&self.title,
-            f,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-        )?;
+        (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
+            .escape(
+                f,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            )?;
         f.write_str("</h2>\n  <div>")?;
-        ::oxiplate::escapers::UnescapedText::escape(
-            &&self.message,
-            f,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-        )?;
+        (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
+            .escape(
+                f,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+            )?;
         f.write_str("</div>")?;
         f.write_str("\n")?;
         Ok(())

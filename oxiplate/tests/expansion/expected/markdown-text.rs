@@ -20,13 +20,11 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
+        use ::oxiplate::escapers::UnescapedText;
         for message in (&self.messages) {
             f.write_str("\n")?;
-            ::oxiplate::escapers::UnescapedText::escape(
-                &&message,
-                f,
-                &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
-            )?;
+            (&&::oxiplate::escapers::UnescapedTextWrapper::new(&message))
+                .escape(f, &::oxiplate::escapers::markdown::MarkdownEscaper::Text)?;
             f.write_str("\n")?;
         }
         Ok(())
