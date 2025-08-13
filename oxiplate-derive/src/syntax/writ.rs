@@ -87,18 +87,9 @@ enum Escaper {
 }
 
 impl Escaper {
-    #[cfg_attr(not(feature = "oxiplate"), allow(clippy::elidable_lifetime_names))]
-    pub fn build<'a, #[cfg(feature = "oxiplate")] 'b>(
-        #[cfg(feature = "oxiplate")] state: &'b State<'b>,
-        #[cfg(feature = "oxiplate")] group: Option<Identifier<'a>>,
-        escaper: Identifier<'a>,
-    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
-        if escaper.ident == "raw" {
-            return Ok(Escaper::None);
-        }
-
-        #[cfg(not(feature = "oxiplate"))]
-        {
+    #[cfg(not(feature = "oxiplate"))]
+    pub fn build(escaper: Identifier<'_>) -> Result<Escaper, nom::Err<VerboseError<Source<'_>>>> {
+        if escaper.ident != "raw" {
             context(
                 "Escaper other than `raw` specified, but `oxiplate` is not available for escaping.",
                 fail::<_, (), _>(),
@@ -107,84 +98,93 @@ impl Escaper {
             unreachable!("fail() should always bail early");
         }
 
-        #[cfg(feature = "oxiplate")]
-        {
-            let escaper_group = if let Some(group) = group {
-                let Some(escaper_group) = state.config.escaper_groups.get(group.ident) else {
-                    context("Invalid escaper group specified", fail::<_, (), _>())
-                        .parse(group.source.clone())?;
-                    unreachable!("fail() should always bail early");
-                };
+        Ok(Escaper::None)
+    }
 
-                (escaper_group, group.source)
-            } else if let Some(inferred_group) = state.inferred_escaper_group {
-                (inferred_group, escaper.source.clone())
-            } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
-                let Some(escaper_group) = state.config.escaper_groups.get(fallback_group.as_str())
-                else {
-                    context(
-                        "Invalid fallback escaper group specified",
-                        fail::<_, (), _>(),
-                    )
-                    .parse(escaper.source.clone())?;
-                    unreachable!("fail() should always bail early");
-                };
+    #[cfg(feature = "oxiplate")]
+    pub fn build<'a, 'b>(
+        state: &'b State<'b>,
+        group: Option<Identifier<'a>>,
+        escaper: Identifier<'a>,
+    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
+        if escaper.ident == "raw" {
+            return Ok(Escaper::None);
+        }
 
-                (escaper_group, escaper.source.clone())
-            } else {
-                #[cfg(not(feature = "config"))]
-                context(
-                    r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined."#,
-                    fail::<_, (), _>(),
-                )
-                .parse(escaper.source)?;
-
-                #[cfg(feature = "config")]
-                context(
-                    r#"No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
-                    fail::<_, (), _>(),
-                )
-                .parse(escaper.source)?;
+        let escaper_group = if let Some(group) = group {
+            let Some(escaper_group) = state.config.escaper_groups.get(group.ident) else {
+                context("Invalid escaper group specified", fail::<_, (), _>())
+                    .parse(group.source.clone())?;
                 unreachable!("fail() should always bail early");
             };
 
-            // Strip underscores and capitalize first character at the beginning and after underscores.
-            // That is, `hello_world` becomes `HelloWorld`.
-            let mut escaper_variant = String::with_capacity(escaper.ident.len());
-            let mut capitalize_next = true;
-            for char in escaper.ident.chars() {
-                match (capitalize_next, char) {
-                    (_, '_') => capitalize_next = true,
-                    (true, _) => {
-                        escaper_variant.push(char.to_ascii_uppercase());
-                        capitalize_next = false;
-                    }
-                    (_, _) => escaper_variant.push(char),
-                }
-            }
+            (escaper_group, group.source)
+        } else if let Some(inferred_group) = state.inferred_escaper_group {
+            (inferred_group, escaper.source.clone())
+        } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
+            let Some(escaper_group) = state.config.escaper_groups.get(fallback_group.as_str())
+            else {
+                context(
+                    "Invalid fallback escaper group specified",
+                    fail::<_, (), _>(),
+                )
+                .parse(escaper.source.clone())?;
+                unreachable!("fail() should always bail early");
+            };
 
-            if let Ok(escaper) =
-                syn::LitStr::new(&escaper_variant, escaper.span()).parse::<PathSegment>()
-            {
-                if let Ok(group) =
-                    syn::LitStr::new(&escaper_group.0.escaper, escaper_group.1.span())
-                        .parse::<Path>()
-                {
-                    if let Ok(sep) = syn::LitStr::new("::", escaper.span()).parse::<PathSep>() {
-                        let span = escaper.span();
-                        let path = syn::parse2::<Path>(quote_spanned! {span=>
-                            #group #sep #escaper
-                        });
-                        if let Ok(path) = path {
-                            return Ok(Escaper::Specified(path));
-                        }
-                    }
-                }
-            }
+            (escaper_group, escaper.source.clone())
+        } else {
+            #[cfg(not(feature = "config"))]
+            context(
+                r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined."#,
+                fail::<_, (), _>(),
+            )
+            .parse(escaper.source)?;
 
-            context("Invalid escaper specified", fail::<_, (), _>()).parse(escaper.source)?;
+            #[cfg(feature = "config")]
+            context(
+                r#"No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
+                fail::<_, (), _>(),
+            )
+            .parse(escaper.source)?;
             unreachable!("fail() should always bail early");
+        };
+
+        // Strip underscores and capitalize first character at the beginning and after underscores.
+        // That is, `hello_world` becomes `HelloWorld`.
+        let mut escaper_variant = String::with_capacity(escaper.ident.len());
+        let mut capitalize_next = true;
+        for char in escaper.ident.chars() {
+            match (capitalize_next, char) {
+                (_, '_') => capitalize_next = true,
+                (true, _) => {
+                    escaper_variant.push(char.to_ascii_uppercase());
+                    capitalize_next = false;
+                }
+                (_, _) => escaper_variant.push(char),
+            }
         }
+
+        if let Ok(escaper) =
+            syn::LitStr::new(&escaper_variant, escaper.span()).parse::<PathSegment>()
+        {
+            if let Ok(group) =
+                syn::LitStr::new(&escaper_group.0.escaper, escaper_group.1.span()).parse::<Path>()
+            {
+                if let Ok(sep) = syn::LitStr::new("::", escaper.span()).parse::<PathSep>() {
+                    let span = escaper.span();
+                    let path = syn::parse2::<Path>(quote_spanned! {span=>
+                        #group #sep #escaper
+                    });
+                    if let Ok(path) = path {
+                        return Ok(Escaper::Specified(path));
+                    }
+                }
+            }
+        }
+
+        context("Invalid escaper specified", fail::<_, (), _>()).parse(escaper.source)?;
+        unreachable!("fail() should always bail early");
     }
 
     pub fn default<'a>(
