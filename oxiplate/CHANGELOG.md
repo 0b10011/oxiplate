@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - added specialization for escaping and outputting raw text for a ~3-5x improvement in runtime performance
 
+### Removed
+
+- [**breaking**] removed `oxiplate::escapers::escape()` that was previously called from macro-generated code
+
 ## [0.7.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.6.2...oxiplate-v0.7.0) - 2025-08-07
 
 ### Added
