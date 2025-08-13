@@ -187,6 +187,31 @@ impl Escaper {
         unreachable!("fail() should always bail early");
     }
 
+    #[cfg(not(feature = "oxiplate"))]
+    pub fn default<'a>(
+        state: &State,
+        input: &Source<'a>,
+    ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
+        if state.config.require_specifying_escaper {
+            context(
+                r"Escapers must be specified on all writs due to `require_specifying_escaper` config setting being set to `true` in `/oxiplate.toml`.",
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+        } else if state.config.fallback_escaper_group != Some("raw".to_string()) {
+            context(
+                "Default escapers are only possible when using `oxiplate` rather than \
+                 `oxiplate-derive` directly.",
+                fail::<_, (), _>(),
+            )
+            .parse(input.clone())?;
+            unreachable!("fail() should always bail early");
+        }
+
+        Ok(Escaper::None)
+    }
+
+    #[cfg(feature = "oxiplate")]
     pub fn default<'a>(
         state: &State,
         input: &Source<'a>,
@@ -199,72 +224,54 @@ impl Escaper {
             .parse(input.clone())?;
         }
 
-        #[cfg(not(feature = "oxiplate"))]
-        {
-            if state.config.fallback_escaper_group == Some("raw".to_string()) {
+        let default_group = if let Some(inferred_group) = state.inferred_escaper_group {
+            inferred_group
+        } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
+            if fallback_group == "raw" {
                 return Ok(Escaper::None);
             }
 
-            context(
-                "Default escapers are only possible when using `oxiplate` rather than \
-                 `oxiplate-derive` directly.",
-                fail::<_, (), _>(),
-            )
-            .parse(input.clone())?;
-            unreachable!("fail() should always bail early");
-        }
+            let Some(fallback_group) = state.config.escaper_groups.get(fallback_group) else {
+                context(
+                    "Invalid default escaper group specified. Make sure the escaper name in the \
+                     template matches the name set in `/oxiplate.toml`.",
+                    fail::<_, (), _>(),
+                )
+                .parse(input.clone())?;
+                unreachable!("fail() should always bail early");
+            };
 
-        #[cfg(feature = "oxiplate")]
-        {
-            let default_group = if let Some(inferred_group) = state.inferred_escaper_group {
-                inferred_group
-            } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
-                if fallback_group == "raw" {
-                    return Ok(Escaper::None);
-                }
-
-                let Some(fallback_group) = state.config.escaper_groups.get(fallback_group) else {
-                    context(
-                        "Invalid default escaper group specified. Make sure the escaper name in \
-                         the template matches the name set in `/oxiplate.toml`.",
-                        fail::<_, (), _>(),
-                    )
-                    .parse(input.clone())?;
-                    unreachable!("fail() should always bail early");
-                };
-
-                fallback_group
-            } else {
-                #[cfg(not(feature = "config"))]
+            fallback_group
+        } else {
+            #[cfg(not(feature = "config"))]
             context(
                 r#"No escaper is specified, it could not be inferred from the template's file extension, and the "config" feature is turned off so no default escaper group could be defined. Check to make sure the template's file extension is correct."#,
                 fail::<_, (), _>(),
             )
             .parse(input.clone())?;
 
-                #[cfg(feature = "config")]
+            #[cfg(feature = "config")]
             context(
                 r#"No escaper is specified, it could not be inferred from the template's file extension, and there was also no fallback escaper group defined. Check to make sure the template's file extension is correct. If escaping is not wanted in ANY files, set `fallback_escaper_group = "raw"` in `/oxiplate.toml`. If escaping is not wanted just in this one instance, prefix the writ with `raw:`."#,
                 fail::<_, (), _>(),
             )
             .parse(input.clone())?;
 
-                unreachable!("fail() should always bail early");
-            };
+            unreachable!("fail() should always bail early");
+        };
 
-            let Ok(group) = syn::LitStr::new(&default_group.escaper, input.span()).parse::<Path>()
-            else {
-                context(
-                    r#"Unparseable default escaper group path. Make sure the escaper path is correct in \
-                    `/oxiplate.toml`. It should look something like `escaper = "::oxiplate::escapers::html::HtmlEscaper"`."#,
-                    fail::<_, (), _>(),
-                )
-                    .parse(input.clone())?;
-                unreachable!("fail() should always bail early");
-            };
+        let Ok(group) = syn::LitStr::new(&default_group.escaper, input.span()).parse::<Path>()
+        else {
+            context(
+                r#"Unparseable default escaper group path. Make sure the escaper path is correct in \
+                `/oxiplate.toml`. It should look something like `escaper = "::oxiplate::escapers::html::HtmlEscaper"`."#,
+                fail::<_, (), _>(),
+            )
+                .parse(input.clone())?;
+            unreachable!("fail() should always bail early");
+        };
 
-            Ok(Escaper::Default(group))
-        }
+        Ok(Escaper::Default(group))
     }
 }
 
