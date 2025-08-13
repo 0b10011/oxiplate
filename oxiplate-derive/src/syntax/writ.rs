@@ -36,7 +36,7 @@ impl Writ<'_> {
             #[cfg(feature = "oxiplate")]
             Escaper::Specified(escaper) => {
                 quote! {
-                    (&&::oxiplate::escapers::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
+                    (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
                         f,
                         &#escaper,
                     )?
@@ -45,7 +45,7 @@ impl Writ<'_> {
             #[cfg(feature = "oxiplate")]
             Escaper::Default(escaper) => {
                 quote! {
-                    (&&::oxiplate::escapers::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
+                    (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
                         f,
                         &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
                     )?
@@ -53,7 +53,7 @@ impl Writ<'_> {
             }
             #[cfg(feature = "oxiplate")]
             Escaper::None => quote! {
-                (&&::oxiplate::escapers::UnescapedTextWrapper::new(&#text)).oxiplate_raw(f)?
+                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_raw(f)?
             },
             #[cfg(not(feature = "oxiplate"))]
             Escaper::None => quote! {

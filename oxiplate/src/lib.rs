@@ -9,6 +9,7 @@ use core::fmt::{Error, Write};
 pub use oxiplate_derive::Oxiplate;
 
 pub mod escapers;
+pub mod unescaped_text;
 
 /// Optimized render function trait.
 pub trait Render {
