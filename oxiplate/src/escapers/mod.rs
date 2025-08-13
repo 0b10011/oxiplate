@@ -101,14 +101,3 @@ pub trait Escaper {
     /// If escaped string cannot be written to the writer.
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result;
 }
-
-/// Helper function to ensure the provided escaper implements [`Escaper`].
-/// Called from generated templates whenever an escaper is used.
-///
-/// # Errors
-///
-/// If escaped string cannot be written to the writer.
-#[inline]
-pub fn escape<W: Write + ?Sized>(f: &mut W, escaper: &impl Escaper, text: &str) -> Result {
-    escaper.escape(f, text)
-}

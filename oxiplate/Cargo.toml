@@ -15,6 +15,7 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
+itoa = "1.0.15"
 oxiplate-derive = { version = "0.7.0", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
 
 [dev-dependencies]
@@ -30,3 +31,7 @@ built-in-escapers = ["oxiplate-derive/built-in-escapers"]
 
 # Makes it possible to configure Oxiplate via `/oxiplate.toml`.
 config = ["oxiplate-derive/config"]
+
+# Feature only meant to be turned on for tests.
+# Changes the output for various types to 
+debug-fast-escape-type-priority = ["oxiplate-derive/debug-fast-escape-type-priority"]

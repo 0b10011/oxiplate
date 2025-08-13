@@ -1,0 +1,8 @@
+[package]
+name = "oxiplate-test-fast-escape-type-priority"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate = { path = "../../../", features = ["debug-fast-escape-type-priority"] }

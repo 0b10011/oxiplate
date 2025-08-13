@@ -6,10 +6,22 @@ dev = [
     "fmt",
 
     "-x",
-    "clippy --all-targets",
+    "clippy --package oxiplate-derive",
 
     "-x",
-    "test",
+    "test --package oxiplate-derive",
+
+    "-x",
+    "clippy --package oxiplate-test-fast-escape-type-priority",
+
+    "-x",
+    "test --package oxiplate-test-fast-escape-type-priority",
+
+    "-x",
+    "clippy --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority",
+
+    "-x",
+    "test --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority",
 
     "-x",
     "expansion-tests",
