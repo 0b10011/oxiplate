@@ -359,6 +359,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-fast-escape-type-priority"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-require-specifying-escaper"
 version = "0.0.0"
 dependencies = [

@@ -89,6 +89,16 @@ pub mod markdown;
 
 use std::fmt::{Display, Result, Write};
 
+/// Wrapper around escapable text.
+pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
+
+impl<'a, T> UnescapedTextWrapper<'a, T> {
+    /// Wrap escapable text.
+    pub fn new(value: &'a T) -> Self {
+        Self(value)
+    }
+}
+
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {
     /// The default escaper for this escaper group.
@@ -122,53 +132,181 @@ pub trait UnescapedText<'a, W: Write + ?Sized> {
     fn raw(&'a self, f: &mut W) -> Result;
 }
 
-impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W> for &T {
+/// Specialized calls to escape.
+pub trait FastEscape<'a, W: Write + ?Sized> {
+    /// Helper function to ensure the provided escaper implements [`Escaper`]
+    /// and to use the most efficient conversion to `&str`.
+    /// Called from generated templates whenever an escaper is used.
+    ///
+    /// # Errors
+    ///
+    /// If escaped string cannot be written to the writer.
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result;
+
+    /// Helper function to use the most efficient conversion to `&str`.
+    /// Called from generated templates whenever raw output is used.
+    ///
+    /// # Errors
+    ///
+    /// If escaped string cannot be written to the writer.
+    fn raw(&'a self, f: &mut W) -> Result;
+}
+
+impl<'a, T: FastEscape<'a, W>, W: Write + ?Sized> UnescapedText<'a, W>
+    for &UnescapedTextWrapper<'a, T>
+{
     #[inline]
     fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        escaper.escape(f, &::std::string::ToString::to_string(self))
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("FastEscape(")?;
+
+        self.0.escape(f, escaper)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
     }
 
     #[inline]
     fn raw(&'a self, f: &mut W) -> Result {
-        f.write_str(&::std::string::ToString::to_string(self))
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("FastEscape(")?;
+
+        self.0.raw(f)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
     }
 }
 
-impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for String {
+impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
+    for &&UnescapedTextWrapper<'a, T>
+{
     #[inline]
     fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        escaper.escape(f, self)
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("Display(")?;
+
+        escaper.escape(f, &::std::string::ToString::to_string(self.0))?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
     }
 
     #[inline]
     fn raw(&'a self, f: &mut W) -> Result {
-        f.write_str(self)
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("Display(")?;
+
+        f.write_str(&::std::string::ToString::to_string(self.0))?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
     }
 }
 
-impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for &str {
+impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for &T {
     #[inline]
     fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        escaper.escape(f, self)
+        <T>::escape(self, f, escaper)
     }
 
     #[inline]
     fn raw(&'a self, f: &mut W) -> Result {
-        f.write_str(self)
+        <T>::raw(self, f)
+    }
+}
+
+impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("String(")?;
+
+        escaper.escape(f, self)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result {
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("String(")?;
+
+        f.write_str(self)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
+    }
+}
+
+impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("str(")?;
+
+        escaper.escape(f, self)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result {
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str("str(")?;
+
+        f.write_str(self)?;
+
+        #[cfg(feature = "debug-fast-escape-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
     }
 }
 
 macro_rules! unescaped_ints {
     ($($ty:ty)*) => { $(
-        impl<'a, W: Write + ?Sized> UnescapedText<'a, W> for $ty {
+        impl<'a, W: Write + ?Sized> FastEscape<'a, W> for $ty {
             #[inline]
             fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-                escaper.escape(f, itoa::Buffer::new().format(*self))
+                #[cfg(feature = "debug-fast-escape-type-priority")]
+                f.write_str("int(")?;
+
+                escaper.escape(f, itoa::Buffer::new().format(*self))?;
+
+                #[cfg(feature = "debug-fast-escape-type-priority")]
+                f.write_str(")")?;
+
+                Ok(())
             }
 
             #[inline]
             fn raw(&'a self, f: &mut W) -> Result {
-                f.write_str(itoa::Buffer::new().format(*self))
+                #[cfg(feature = "debug-fast-escape-type-priority")]
+                f.write_str("int(")?;
+
+                f.write_str(itoa::Buffer::new().format(*self))?;
+
+                #[cfg(feature = "debug-fast-escape-type-priority")]
+                f.write_str(")")?;
+
+                Ok(())
             }
         }
     )* };
@@ -178,4 +316,3 @@ unescaped_ints!(
     i8 i16 i32 i64 i128 isize
     u8 u16 u32 u64 u128 usize
 );
-
