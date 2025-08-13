@@ -4,33 +4,78 @@ macro_rules! test {
     ($fn_name:ident, $ty:ty, $value:expr, $expected:expr) => {
         #[test]
         fn $fn_name() {
-            #[derive(Oxiplate)]
-            #[oxiplate_inline(html: "{{ value }}")]
-            struct Value<'a> {
-                value: $ty,
-                #[allow(dead_code)]
-                borrow: &'a ::std::marker::PhantomData<()>,
-            }
-            let value = Value {
-                value: $value,
-                borrow: &::std::marker::PhantomData,
-            };
-            assert_eq!(value.render().unwrap(), $expected);
+            test!("{{ value }}", $ty, $value, $expected, "escaped");
+            test!("{{ raw: value }}", $ty, $value, $expected, "raw");
 
-            #[derive(Oxiplate)]
-            #[oxiplate_inline(html: "{{ raw: value }}")]
-            struct RawValue<'a> {
-                value: $ty,
-                #[allow(dead_code)]
-                borrow: &'a ::std::marker::PhantomData<()>,
-            }
-            let value = RawValue {
-                value: $value,
-                borrow: &::std::marker::PhantomData,
-            };
-            assert_eq!(value.render().unwrap(), $expected);
+            // Box
+            let value = $value;
+            test!(
+                "{{ value }}",
+                Box<$ty>,
+                Box::new(value),
+                $expected,
+                "box escaped"
+            );
+            let value = $value;
+            test!(
+                "{{ raw: value }}",
+                Box<$ty>,
+                Box::new(value),
+                $expected,
+                "box raw"
+            );
+
+            // Rc
+            let value = $value;
+            test!(
+                "{{ value }}",
+                ::std::rc::Rc<$ty>,
+                ::std::rc::Rc::new(value),
+                $expected,
+                "rc escaped"
+            );
+            let value = $value;
+            test!(
+                "{{ raw: value }}",
+                ::std::rc::Rc<$ty>,
+                ::std::rc::Rc::new(value),
+                $expected,
+                "rc raw"
+            );
+
+            // Arc
+            let value = $value;
+            test!(
+                "{{ value }}",
+                ::std::sync::Arc<$ty>,
+                ::std::sync::Arc::new(value),
+                $expected,
+                "arc escaped"
+            );
+            let value = $value;
+            test!(
+                "{{ raw: value }}",
+                ::std::sync::Arc<$ty>,
+                ::std::sync::Arc::new(value),
+                $expected,
+                "arc raw"
+            );
         }
     };
+    ($template:literal, $ty:ty, $value:expr, $expected:expr, $message:literal) => {{
+        #[derive(Oxiplate)]
+        #[oxiplate_inline(html: $template)]
+        struct Value<'a> {
+            value: $ty,
+            #[allow(dead_code)]
+            borrow: &'a ::std::marker::PhantomData<()>,
+        }
+        let value = Value {
+            value: $value,
+            borrow: &::std::marker::PhantomData,
+        };
+        assert_eq!(value.render().unwrap(), $expected, $message);
+    }};
 }
 
 test!(

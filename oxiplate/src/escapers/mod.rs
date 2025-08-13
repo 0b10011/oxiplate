@@ -88,6 +88,8 @@ pub mod json;
 pub mod markdown;
 
 use std::fmt::{Display, Result, Write};
+use std::rc::Rc;
+use std::sync::Arc;
 
 /// Wrapper around escapable text.
 pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
@@ -233,6 +235,42 @@ impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for
     #[inline]
     fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
         <T>::oxiplate_fast_raw(self, f)
+    }
+}
+
+impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for Box<T> {
+    #[inline]
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::oxiplate_fast_escape(self.as_ref(), f, escaper)
+    }
+
+    #[inline]
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
+        <T>::oxiplate_fast_raw(self.as_ref(), f)
+    }
+}
+
+impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for Rc<T> {
+    #[inline]
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::oxiplate_fast_escape(self.as_ref(), f, escaper)
+    }
+
+    #[inline]
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
+        <T>::oxiplate_fast_raw(self.as_ref(), f)
+    }
+}
+
+impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for Arc<T> {
+    #[inline]
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::oxiplate_fast_escape(self.as_ref(), f, escaper)
+    }
+
+    #[inline]
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
+        <T>::oxiplate_fast_raw(self.as_ref(), f)
     }
 }
 
