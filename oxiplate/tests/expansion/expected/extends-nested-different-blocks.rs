@@ -22,7 +22,7 @@ impl ::oxiplate::Render for AbsoluteData {
         use ::oxiplate::escapers::UnescapedText;
         f.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
@@ -30,13 +30,13 @@ impl ::oxiplate::Render for AbsoluteData {
         f.write_str("<main>")?;
         f.write_str("<h1>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("</h1>\n  <p>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;

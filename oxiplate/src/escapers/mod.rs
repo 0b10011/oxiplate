@@ -121,7 +121,7 @@ pub trait UnescapedText<'a, W: Write + ?Sized> {
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result;
+    fn oxiplate_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result;
 
     /// Helper function to use the most efficient conversion to `&str`.
     /// Called from generated templates whenever raw output is used.
@@ -129,7 +129,7 @@ pub trait UnescapedText<'a, W: Write + ?Sized> {
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn raw(&'a self, f: &mut W) -> Result;
+    fn oxiplate_raw(&'a self, f: &mut W) -> Result;
 }
 
 /// Specialized calls to escape.
@@ -141,7 +141,7 @@ pub trait FastEscape<'a, W: Write + ?Sized> {
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result;
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result;
 
     /// Helper function to use the most efficient conversion to `&str`.
     /// Called from generated templates whenever raw output is used.
@@ -149,18 +149,18 @@ pub trait FastEscape<'a, W: Write + ?Sized> {
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn raw(&'a self, f: &mut W) -> Result;
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result;
 }
 
 impl<'a, T: FastEscape<'a, W>, W: Write + ?Sized> UnescapedText<'a, W>
     for &UnescapedTextWrapper<'a, T>
 {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+    fn oxiplate_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("FastEscape(")?;
 
-        self.0.escape(f, escaper)?;
+        self.0.oxiplate_fast_escape(f, escaper)?;
 
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str(")")?;
@@ -169,11 +169,11 @@ impl<'a, T: FastEscape<'a, W>, W: Write + ?Sized> UnescapedText<'a, W>
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("FastEscape(")?;
 
-        self.0.raw(f)?;
+        self.0.oxiplate_fast_raw(f)?;
 
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str(")")?;
@@ -186,7 +186,7 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
     for &&UnescapedTextWrapper<'a, T>
 {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+    fn oxiplate_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
@@ -199,7 +199,7 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
@@ -214,31 +214,31 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
 
 impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for &T {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        <T>::escape(self, f, escaper)
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::oxiplate_fast_escape(self, f, escaper)
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
-        <T>::raw(self, f)
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
+        <T>::oxiplate_fast_raw(self, f)
     }
 }
 
 impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for &mut T {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        <T>::escape(self, f, escaper)
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::oxiplate_fast_escape(self, f, escaper)
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
-        <T>::raw(self, f)
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
+        <T>::oxiplate_fast_raw(self, f)
     }
 }
 
 impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("String(")?;
 
@@ -251,7 +251,7 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("String(")?;
 
@@ -266,7 +266,7 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
 
 impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
     #[inline]
-    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("str(")?;
 
@@ -279,7 +279,7 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
     }
 
     #[inline]
-    fn raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("str(")?;
 
@@ -296,7 +296,7 @@ macro_rules! unescaped_ints {
     ($($ty:ty)*) => { $(
         impl<'a, W: Write + ?Sized> FastEscape<'a, W> for $ty {
             #[inline]
-            fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+            fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
                 #[cfg(feature = "debug-fast-escape-type-priority")]
                 f.write_str("int(")?;
 
@@ -309,7 +309,7 @@ macro_rules! unescaped_ints {
             }
 
             #[inline]
-            fn raw(&'a self, f: &mut W) -> Result {
+            fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
                 #[cfg(feature = "debug-fast-escape-type-priority")]
                 f.write_str("int(")?;
 

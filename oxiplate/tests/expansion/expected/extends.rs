@@ -22,20 +22,20 @@ impl ::oxiplate::Render for AbsoluteData {
         use ::oxiplate::escapers::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("</title>\n")?;
         f.write_str("<h1>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("</h1>\n  <p>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
@@ -158,14 +158,14 @@ impl ::oxiplate::Render for Prefix {
         use ::oxiplate::escapers::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("</title>\n")?;
         f.write_str("<p>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
@@ -241,14 +241,14 @@ impl ::oxiplate::Render for Replace {
         use ::oxiplate::escapers::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("</title>\n")?;
         f.write_str("<p>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
@@ -324,7 +324,7 @@ impl ::oxiplate::Render for Suffix {
         use ::oxiplate::escapers::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.title))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
@@ -332,7 +332,7 @@ impl ::oxiplate::Render for Suffix {
         f.write_str("test")?;
         f.write_str("<p>")?;
         (&&::oxiplate::escapers::UnescapedTextWrapper::new(&self.message))
-            .escape(
+            .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
