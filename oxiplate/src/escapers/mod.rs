@@ -224,6 +224,18 @@ impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for
     }
 }
 
+impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for &mut T {
+    #[inline]
+    fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
+        <T>::escape(self, f, escaper)
+    }
+
+    #[inline]
+    fn raw(&'a self, f: &mut W) -> Result {
+        <T>::raw(self, f)
+    }
+}
+
 impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
     #[inline]
     fn escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {

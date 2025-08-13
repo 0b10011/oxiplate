@@ -45,18 +45,37 @@ test!(str_2, &'a &'a str, &"text", "FastEscape(str(text))");
 test!(i8, i8, 19_i8, "FastEscape(int(19))");
 test!(i8_borrow, &'a i8, &19_i8, "FastEscape(int(19))");
 test!(i8_borrow_2, &'a &'a i8, &&19_i8, "FastEscape(int(19))");
+test!(i8_borrow_mut, &'a mut i8, &mut 19_i8, "FastEscape(int(19))");
 
 test!(i16, i16, 19_i16, "FastEscape(int(19))");
 test!(i16_borrow, &'a i16, &19_i16, "FastEscape(int(19))");
 test!(i16_borrow_2, &'a &'a i16, &&19_i16, "FastEscape(int(19))");
+test!(
+    i16_borrow_mut,
+    &'a mut i16,
+    &mut 19_i16,
+    "FastEscape(int(19))"
+);
 
 test!(i32, i32, 19_i32, "FastEscape(int(19))");
 test!(i32_borrow, &'a i32, &19_i32, "FastEscape(int(19))");
 test!(i32_borrow_2, &'a &'a i32, &&19_i32, "FastEscape(int(19))");
+test!(
+    i32_borrow_mut,
+    &'a mut i32,
+    &mut 19_i32,
+    "FastEscape(int(19))"
+);
 
 test!(i64, i64, 19_i64, "FastEscape(int(19))");
 test!(i64_borrow, &'a i64, &19_i64, "FastEscape(int(19))");
 test!(i64_borrow_2, &'a &'a i64, &&19_i64, "FastEscape(int(19))");
+test!(
+    i64_borrow_mut,
+    &'a mut i64,
+    &mut 19_i64,
+    "FastEscape(int(19))"
+);
 
 test!(i128, i128, 19_i128, "FastEscape(int(19))");
 test!(i128_borrow, &'a i128, &19_i128, "FastEscape(int(19))");
@@ -64,6 +83,12 @@ test!(
     i128_borrow_2,
     &'a &'a i128,
     &&19_i128,
+    "FastEscape(int(19))"
+);
+test!(
+    i128_borrow_mut,
+    &'a mut i128,
+    &mut 19_i128,
     "FastEscape(int(19))"
 );
 
