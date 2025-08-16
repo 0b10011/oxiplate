@@ -8,10 +8,7 @@ use nom::sequence::{preceded, terminated};
 use nom::Parser as _;
 use nom_language::error::VerboseError;
 use proc_macro2::TokenStream;
-use quote::quote;
-#[cfg(feature = "oxiplate")]
 use quote::quote_spanned;
-#[cfg(feature = "oxiplate")]
 use syn::spanned::Spanned;
 #[cfg(feature = "oxiplate")]
 use syn::token::PathSep;
@@ -32,10 +29,17 @@ impl Writ<'_> {
     pub(crate) fn to_token(&self) -> TokenStream {
         let text = &self.0;
 
+        // Errors with the escape/raw calls
+        // will almost always be issues
+        // with the type of the expression being escaped,
+        // so it'll be more helpful to use the expression's span
+        // rather than the escaper's.
+        let span = self.0.span();
+
         match &self.1 {
             #[cfg(feature = "oxiplate")]
             Escaper::Specified(escaper) => {
-                quote! {
+                quote_spanned! {span=>
                     (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
                         f,
                         &#escaper,
@@ -44,7 +48,7 @@ impl Writ<'_> {
             }
             #[cfg(feature = "oxiplate")]
             Escaper::Default(escaper) => {
-                quote! {
+                quote_spanned! {span=>
                     (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
                         f,
                         &<#escaper as ::oxiplate::escapers::Escaper>::DEFAULT,
@@ -52,11 +56,11 @@ impl Writ<'_> {
                 }
             }
             #[cfg(feature = "oxiplate")]
-            Escaper::None => quote! {
+            Escaper::None => quote_spanned! {span=>
                 (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_raw(f)?
             },
             #[cfg(not(feature = "oxiplate"))]
-            Escaper::None => quote! {
+            Escaper::None => quote_spanned! {span=>
                 f.write_str(&::std::string::ToString::to_string(&#text))?;
             },
         }
