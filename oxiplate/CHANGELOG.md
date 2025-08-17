@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.8.0...oxiplate-v0.8.1) - 2025-08-17
+
+### Fixed
+
+- improved error message when specified template cannot be found
+- improve error message for unwritable writs
+- get rid of unnecessary clone
+
+### Other
+
+- added tests for invalid template paths
+
 ## [0.8.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.7.0...oxiplate-v0.8.0) - 2025-08-13
 
 ### Added
