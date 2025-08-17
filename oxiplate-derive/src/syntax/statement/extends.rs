@@ -224,7 +224,7 @@ pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
             kind: Extends {
                 is_extending,
                 blocks: HashMap::new(),
-                path: path.clone(),
+                path,
                 template: Template(vec![]),
             }
             .into(),
