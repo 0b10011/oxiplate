@@ -3,3 +3,9 @@ error[E0609]: no field `title` on type `&AbsoluteData`
   |
   | <title>{{ title }}</title>
   |           ^^^^^ unknown field
+  |
+help: a field with a similar name exists
+  |
+2 - <title>{{ title }}</title>
+2 + <title>{{ tile }}</title>
+  |

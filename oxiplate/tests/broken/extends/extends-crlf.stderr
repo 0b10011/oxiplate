@@ -3,10 +3,3 @@ error[E0609]: no field `title` on type `&AbsoluteData`
   |
   | <title>{{ title }}</title>
   |           ^^^^^ unknown field
-  |
- ::: tests/broken/extends/extends-crlf.rs:3:10
-  |
-3 | #[derive(Oxiplate)]
-  |          -------- in this derive macro expansion
-  |
-  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

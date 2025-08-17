@@ -5,7 +5,7 @@ error: couldn't read `$DIR/templates/external-non-existent.html.oxip`: No such f
   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: Must provide either an external or internal template:
-       External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
        Internal: #[oxiplate_inline(html: "{{ your_var }}")]
  --> tests/broken/external-non-existent.rs:4:14
   |

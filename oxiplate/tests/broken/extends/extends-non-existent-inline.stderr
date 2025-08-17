@@ -1,15 +1,11 @@
 error: couldn't read `$DIR/templates/extends-non-existent.html.oxip`: No such file or directory (os error 2)
- --> tests/broken/extends/extends-non-existent-inline.rs:3:10
+ --> tests/broken/extends/extends-non-existent-inline.rs:4:40
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
+4 | #[oxiplate_inline(html: r#"{% extends "extends-non-existent.html.oxip" %}"#)]
+  |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: Must provide either an external or internal template:
-       External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
- --> tests/broken/extends/extends-non-existent-inline.rs:3:10
+error: Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`
+ --> tests/broken/extends/extends-non-existent-inline.rs:4:40
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
+4 | #[oxiplate_inline(html: r#"{% extends "extends-non-existent.html.oxip" %}"#)]
+  |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

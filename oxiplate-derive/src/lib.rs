@@ -151,7 +151,7 @@ fn parse_template_and_data(
     // Parse the template type and code literal.
     let (attr, template_type) = parse_template_type(attrs);
     let (span, input, origin) = parse_source_tokens(attr, &template_type, &mut state);
-    let (code, literal) = parse_code_literal(&input.into(), span)?;
+    let (code, literal) = parse_code_literal(&template_type, &input.into(), span)?;
 
     // Parse the fields and adjust the data type if needed.
     let (_fields, blocks) = parse_fields(data, template_type == TemplateType::Extends);
@@ -250,10 +250,21 @@ fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
     unimplemented!("Must specify an attribute");
 }
 
-fn parse_code_literal(input: &TokenStream, span: Span) -> Result<(String, Literal), syn::Error> {
-    let invalid_attribute_message = r#"Must provide either an external or internal template:
-External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#;
+fn parse_code_literal(
+    template_type: &TemplateType,
+    input: &TokenStream,
+    span: Span,
+) -> Result<(String, Literal), syn::Error> {
+    let invalid_attribute_message = match template_type {
+        TemplateType::Path | TemplateType::Inline => {
+            r#"Must provide either an external or internal template:
+External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
+        }
+        TemplateType::Extends => {
+            r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
+        }
+    };
 
     // Expand any macros, or fallback to the unexpanded input
     let input = input.expand_expr();

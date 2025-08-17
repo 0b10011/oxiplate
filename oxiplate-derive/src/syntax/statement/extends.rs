@@ -8,7 +8,7 @@ use nom::error::context;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, TokenStreamExt};
-use syn::{GenericArgument, Ident};
+use syn::{GenericArgument, Ident, LitStr};
 
 use super::super::expression::keyword;
 use super::super::Res;
@@ -114,7 +114,7 @@ impl<'a> Extends<'a> {
 
     pub(crate) fn build_template(&self) -> (TokenStream, usize) {
         let span = self.path.span();
-        let path = self.path.as_str();
+        let path = LitStr::new(self.path.as_str(), span);
 
         // FIXME: Should also include local vars here I think
         let mut block_generics = vec![];
