@@ -5,8 +5,8 @@
 //! To build your own escaper,
 //! make an enum with variants matching the escaper names you'd like to use,
 //! and have it implement [`crate::escapers::Escaper`].
-//! While Oxiplate templates use `snake_case` escaper names,
-//! they will be automatically converted to `PascalCase` when converted to an enum variant.
+//! Oxiplate templates usually use `snake_case` escaper names,
+//! so it's suggested to use those on your escaper group enum.
 //!
 //! ```rust
 //! use std::fmt::{Result, Write};
@@ -14,21 +14,22 @@
 //! use oxiplate::escapers::Escaper;
 //!
 //! # #[allow(dead_code)]
+//! #[allow(non_camel_case_types)]
 //! pub enum YourEscaper {
 //! #   #[allow(dead_code)]
-//!     Foo,
+//!     foo,
 //! #   #[allow(dead_code)]
-//!     Bar,
+//!     bar,
 //! }
 //!
 //! impl Escaper for YourEscaper {
-//!     const DEFAULT: Self = Self::Foo;
+//!     const DEFAULT: Self = Self::foo;
 //!
 //!     #[inline]
 //!     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
 //!         match self {
-//!             Self::Foo => escape_foo(f, value),
-//!             Self::Bar => bar_escaper(f, value),
+//!             Self::foo => escape_foo(f, value),
+//!             Self::bar => bar_escaper(f, value),
 //!         }
 //!     }
 //! }
@@ -63,29 +64,30 @@
 //!
 //! ## Rust code
 //!
-//! ```compile_fail
+//! ```
 //! use oxiplate::{Oxiplate, Render};
 //!
 //! #[derive(Oxiplate)]
 //! // Because the TOML isn't included in this,
 //! // `your_group` isn't available and the example doesn't compile.
-//! #[oxiplate_inline(html: "{{ your_group.foo: value_to_escape }}")]
+//! #[oxiplate_inline(your_group: "{{ foo: value_to_escape }} | {{ bar: value_to_escape }}")]
 //! struct Data<'a> {
 //!     value_to_escape: &'a str,
 //! }
 //!
 //! let data = Data {
-//!     value_to_escape: "<.<",
+//!     value_to_escape: "foo bar",
 //! };
 //!
-//! assert_eq!(data.render()?, r#"&lt;.&lt;"#);
+//! assert_eq!(data.render()?, r#"f00 bar | foo b@r"#);
 //!
-//! Ok::<(), ::core::fmt::Error>(())
+//! # Ok::<(), ::core::fmt::Error>(())
 //! ```
 
 pub mod html;
 pub mod json;
 pub mod markdown;
+pub mod your_group;
 
 use std::fmt::{Result, Write};
 

@@ -5,4 +5,4 @@ publish = false
 
 [dev-dependencies]
 trybuild = "1.0.101"
-oxiplate = { path = "../../../" }
+oxiplate = { path = "../../../", default-features = false, features = ["config"]}

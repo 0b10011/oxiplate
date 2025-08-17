@@ -111,11 +111,13 @@ impl Escaper {
         group: Option<Identifier<'a>>,
         escaper: Identifier<'a>,
     ) -> Result<Escaper, nom::Err<VerboseError<Source<'a>>>> {
+        use crate::state::EscaperGroup;
+
         if escaper.ident == "raw" {
             return Ok(Escaper::None);
         }
 
-        let escaper_group = if let Some(group) = group {
+        let escaper_group: (&EscaperGroup, Source) = if let Some(group) = group {
             let Some(escaper_group) = state.config.escaper_groups.get(group.ident) else {
                 context("Invalid escaper group specified", fail::<_, (), _>())
                     .parse(group.source.clone())?;
@@ -140,37 +142,28 @@ impl Escaper {
         } else {
             #[cfg(not(feature = "config"))]
             context(
-                r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no default escaper group could be defined."#,
+                r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no escaper groups are defined that might otherwise match."#,
                 fail::<_, (), _>(),
             )
             .parse(escaper.source)?;
 
-            #[cfg(feature = "config")]
+            #[cfg(all(feature = "config", feature = "built-in-escapers"))]
             context(
-                r#"No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
+                r#"No escaper group was selected and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`."#,
+                fail::<_, (), _>(),
+            )
+            .parse(escaper.source)?;
+
+            #[cfg(all(feature = "config", not(feature = "built-in-escapers")))]
+            context(
+                r#"No fallback escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
                 fail::<_, (), _>(),
             )
             .parse(escaper.source)?;
             unreachable!("fail() should always bail early");
         };
 
-        // Strip underscores and capitalize first character at the beginning and after underscores.
-        // That is, `hello_world` becomes `HelloWorld`.
-        let mut escaper_variant = String::with_capacity(escaper.ident.len());
-        let mut capitalize_next = true;
-        for char in escaper.ident.chars() {
-            match (capitalize_next, char) {
-                (_, '_') => capitalize_next = true,
-                (true, _) => {
-                    escaper_variant.push(char.to_ascii_uppercase());
-                    capitalize_next = false;
-                }
-                (_, _) => escaper_variant.push(char),
-            }
-        }
-
-        if let Ok(escaper) =
-            syn::LitStr::new(&escaper_variant, escaper.span()).parse::<PathSegment>()
+        if let Ok(escaper) = syn::LitStr::new(escaper.ident, escaper.span()).parse::<PathSegment>()
         {
             if let Ok(group) =
                 syn::LitStr::new(&escaper_group.0.escaper, escaper_group.1.span()).parse::<Path>()

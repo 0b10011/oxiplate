@@ -26,7 +26,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
             (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&message))
                 .oxiplate_escape(
                     f,
-                    &::oxiplate::escapers::markdown::MarkdownEscaper::Text,
+                    &::oxiplate::escapers::markdown::MarkdownEscaper::text,
                 )?;
             f.write_str("\n")?;
         }

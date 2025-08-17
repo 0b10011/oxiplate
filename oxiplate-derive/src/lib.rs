@@ -15,7 +15,7 @@ use std::path::PathBuf;
 
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
-use quote::quote;
+use quote::{quote, quote_spanned};
 use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::token::Colon;
@@ -28,6 +28,7 @@ pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 use self::state::build_config;
 pub(crate) use self::state::State;
+use crate::state::Config;
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -150,33 +151,9 @@ fn parse_template_and_data(
 
     // Parse the template type and code literal.
     let (attr, template_type) = parse_template_type(attrs);
-    let (span, input, origin) = parse_source_tokens(attr, &template_type, &mut state);
-    let (code, literal) = parse_code_literal(&template_type, &input.into(), span)?;
-
-    // Parse the fields and adjust the data type if needed.
-    let (_fields, blocks) = parse_fields(data, template_type == TemplateType::Extends);
-
-    // Build the source.
-    let owned_source = SourceOwned {
-        blocks,
-        code,
-        literal,
-        span_hygiene: span,
-        origin,
-        is_extending: template_type == TemplateType::Extends,
-    };
-    let source = Source {
-        original: &owned_source,
-        range: Range {
-            start: 0,
-            end: owned_source.code.len(),
-        },
-    };
-
-    // Build the `::std::fmt::Display` implementation for the struct.
-    // (This is where the template is actually parsed.)
+    let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
     let (template, estimated_length): (proc_macro2::TokenStream, usize) =
-        syntax::parse(&state, source);
+        process_parsed_tokens(parsed_tokens, &config, &template_type, data, &state)?;
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if template_type == TemplateType::Extends {
@@ -221,6 +198,61 @@ fn parse_template_and_data(
     };
 
     Ok((TokenStream::from(expanded), estimated_length))
+}
+
+fn process_parsed_tokens(
+    parsed_tokens: Result<(Span, proc_macro2::TokenStream, Option<PathBuf>), (String, Span)>,
+    config: &Config,
+    template_type: &TemplateType,
+    data: &Data,
+    state: &State,
+) -> Result<(proc_macro2::TokenStream, usize), syn::Error> {
+    match parsed_tokens {
+        Err((escaper, span)) => {
+            let registered_escaper_groups = config
+                .escaper_groups
+                .keys()
+                .map(|key| &**key)
+                .collect::<Vec<&str>>()
+                .join(", ");
+            let template = match template_type {
+                TemplateType::Path | TemplateType::Extends => {
+                    quote_spanned! {span=> compile_error!(concat!("The file extension `.", #escaper, "` is not registered as an escaper group in `/oxiplate.toml`. All used template extensions must be registered. Registered escaper groups: ", #registered_escaper_groups)); }
+                }
+                TemplateType::Inline => {
+                    quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #registered_escaper_groups)); }
+                }
+            };
+            Ok((template, 0))
+        }
+        Ok((span, input, origin)) => {
+            let (code, literal) = parse_code_literal(template_type, &input.into(), span)?;
+
+            // Parse the fields and adjust the data type if needed.
+            let (_fields, blocks) = parse_fields(data, *template_type == TemplateType::Extends);
+
+            // Build the source.
+            let owned_source = SourceOwned {
+                blocks,
+                code,
+                literal,
+                span_hygiene: span,
+                origin,
+                is_extending: *template_type == TemplateType::Extends,
+            };
+            let source = Source {
+                original: &owned_source,
+                range: Range {
+                    start: 0,
+                    end: owned_source.code.len(),
+                },
+            };
+
+            // Build the `::std::fmt::Display` implementation for the struct.
+            // (This is where the template is actually parsed.)
+            Ok(syntax::parse(state, source))
+        }
+    }
 }
 
 #[derive(PartialEq, Eq)]
@@ -283,7 +315,7 @@ fn parse_source_tokens(
     attr: &Attribute,
     template_type: &TemplateType,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
-) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
+) -> Result<(Span, proc_macro2::TokenStream, Option<PathBuf>), (String, Span)> {
     match template_type {
         TemplateType::Inline => parse_source_tokens_for_inline(attr, state),
         TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr, state),
@@ -340,10 +372,11 @@ impl Parse for TemplateWithoutEscaper {
     }
 }
 
+#[cfg_attr(not(feature = "oxiplate"), allow(clippy::unnecessary_wraps))]
 fn parse_source_tokens_for_inline(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
-) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
+) -> Result<(Span, proc_macro2::TokenStream, Option<PathBuf>), (String, Span)> {
     match attr.meta.clone() {
         syn::Meta::Path(_path) => unimplemented!(
             r#"Must provide either an external or internal template:
@@ -370,15 +403,18 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
             })) => {
                 let span = template.span();
                 if *state.config.infer_escaper_group_from_file_extension {
-                    if let Some(escaper) = state.config.escaper_groups.get(&escaper.to_string()) {
-                        state.inferred_escaper_group = Some(escaper);
+                    if let Some(group_path) = state.config.escaper_groups.get(&escaper.to_string())
+                    {
+                        state.inferred_escaper_group = Some(group_path);
+                    } else {
+                        return Err((escaper.to_string(), escaper.span()));
                     }
                 }
-                (span, quote::quote_spanned!(span=> #template), None)
+                Ok((span, quote::quote_spanned!(span=> #template), None))
             }
             Ok(Template::WithoutEscaper(TemplateWithoutEscaper { template })) => {
                 let span = template.span();
-                (span, quote::quote_spanned!(span=> #template), None)
+                Ok((span, quote::quote_spanned!(span=> #template), None))
             }
             Err(_) => unimplemented!(
                 r#"Must provide either an external or internal template:
@@ -394,10 +430,11 @@ Without an escaper group: #[oxiplate_inline("{{ your_var }}")]"#
     }
 }
 
+#[cfg_attr(not(feature = "oxiplate"), allow(clippy::unnecessary_wraps))]
 fn parse_source_tokens_for_path(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
-) -> (Span, proc_macro2::TokenStream, Option<PathBuf>) {
+) -> Result<(Span, proc_macro2::TokenStream, Option<PathBuf>), (String, Span)> {
     let syn::Meta::NameValue(MetaNameValue {
         path: _,
         eq_token: _,
@@ -458,18 +495,20 @@ fn parse_source_tokens_for_path(
 
         // Set the inferred escaper group if the extension mapped to one.
         if let Some(extension) = extension {
-            if let Some(escaper) = state.config.escaper_groups.get(extension) {
-                state.inferred_escaper_group = Some(escaper);
+            if let Some(group_path) = state.config.escaper_groups.get(extension) {
+                state.inferred_escaper_group = Some(group_path);
+            } else {
+                return Err((extension.to_string(), path.span()));
             }
         }
     }
 
     // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-    (
+    Ok((
         span,
         quote::quote_spanned!(span=> include_str!(#path)),
         Some(full_path),
-    )
+    ))
 }
 
 fn parse_fields(

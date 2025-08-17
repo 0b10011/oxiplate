@@ -21,7 +21,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::oxiplate::unescaped_text::UnescapedText;
         f.write_str("<!--")?;
         (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.comment))
-            .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::Comment)?;
+            .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::comment)?;
         f.write_str("-->")?;
         Ok(())
     }

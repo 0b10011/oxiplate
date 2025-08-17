@@ -13,29 +13,30 @@
 use std::fmt::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
+#[allow(non_camel_case_types)]
 pub enum HtmlEscaper {
     /// Escaper for [text](https://html.spec.whatwg.org/#text-content) in an HTML document.
     /// See [`escape_text()`] for details.
-    Text,
+    text,
 
     /// Escaper for single- and double-quoted [attribute values](https://html.spec.whatwg.org/#syntax-attribute-value) in an HTML document.
     /// See [`escape_attribute_quoted_value()`] for details.
-    Attr,
+    attr,
 
     /// Escaper for [comment text](https://html.spec.whatwg.org/#comments) in an HTML document.
     /// See [`escape_comment_text()`] for details.
-    Comment,
+    comment,
 }
 
 impl super::Escaper for HtmlEscaper {
-    const DEFAULT: Self = Self::Text;
+    const DEFAULT: Self = Self::text;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Text => escape_text(f, value),
-            Self::Attr => escape_attribute_quoted_value(f, value),
-            Self::Comment => escape_comment_text(f, value),
+            Self::text => escape_text(f, value),
+            Self::attr => escape_attribute_quoted_value(f, value),
+            Self::comment => escape_comment_text(f, value),
         }
     }
 }

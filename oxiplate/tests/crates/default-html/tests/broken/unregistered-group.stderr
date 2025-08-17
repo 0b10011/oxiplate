@@ -1,0 +1,5 @@
+error: The file extension `.json` is not registered as an escaper group in `/oxiplate.toml`. All used template extensions must be registered. Registered escaper groups: html
+ --> tests/broken/unregistered-group.rs:4:14
+  |
+4 | #[oxiplate = "page.json.oxip"]
+  |              ^^^^^^^^^^^^^^^^

@@ -12,19 +12,20 @@
 use std::fmt::{Result, Write};
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
+#[allow(non_camel_case_types)]
 pub enum MarkdownEscaper {
     /// Escaper for text in a Markdown document.
     /// See [`escape_unformatted_text()`] for details.
-    Text,
+    text,
 }
 
 impl super::Escaper for MarkdownEscaper {
-    const DEFAULT: Self = Self::Text;
+    const DEFAULT: Self = Self::text;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Text => escape_unformatted_text(f, value),
+            Self::text => escape_unformatted_text(f, value),
         }
     }
 }

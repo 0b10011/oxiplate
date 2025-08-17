@@ -1,5 +1,5 @@
-error: No default escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature.
- --> tests/broken/escaper-without-default-escaper-group.rs:4:29
+error: The specified escaper group `html` is not registered in `/oxiplate.toml`. Registered escaper groups:
+ --> tests/broken/escaper-without-default-escaper-group.rs:4:19
   |
 4 | #[oxiplate_inline(html: "{{ text: message }}")]
-  |                             ^^^^
+  |                   ^^^^

@@ -1,4 +1,4 @@
-error[E0599]: no variant or associated item named `Textt` found for enum `HtmlEscaper` in the current scope
+error[E0599]: no variant or associated item named `textt` found for enum `HtmlEscaper` in the current scope
  --> tests/broken/unknown-group.rs:4:64
   |
 4 | #[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ textt: message }}</p>{% endfor %}\n")]
@@ -7,5 +7,5 @@ error[E0599]: no variant or associated item named `Textt` found for enum `HtmlEs
 help: there is a variant with a similar name
   |
 4 - #[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ textt: message }}</p>{% endfor %}\n")]
-4 + #[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ Text: message }}</p>{% endfor %}\n")]
+4 + #[oxiplate_inline(html: "{% for message in &messages %}\n<p>{{ text: message }}</p>{% endfor %}\n")]
   |

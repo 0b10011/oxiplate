@@ -14,19 +14,20 @@ use std::fmt::{Result, Write};
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
 /// consider using `raw` in conjuction with something like Serde.
+#[allow(non_camel_case_types)]
 pub enum JsonEscaper {
     /// For escaping a substring that is placed within an existing string.
     /// See [`escape_substring()`] for details.
-    Substring,
+    substring,
 }
 
 impl super::Escaper for JsonEscaper {
-    const DEFAULT: Self = Self::Substring;
+    const DEFAULT: Self = Self::substring;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
-            Self::Substring => escape_substring(f, value),
+            Self::substring => escape_substring(f, value),
         }
     }
 }
