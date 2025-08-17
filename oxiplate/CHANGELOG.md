@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.8.1...oxiplate-v0.9.0) - 2025-08-17
+
+### Added
+
+- [**breaking**] improve error messages for unrecognized escaper groups
+
 ## [0.8.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.8.0...oxiplate-v0.8.1) - 2025-08-17
 
 ### Fixed
