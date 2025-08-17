@@ -1,0 +1,26 @@
+error: couldn't read `$DIR/templates/external-non-existent.html.oxip`: No such file or directory (os error 2)
+ --> tests/broken/external-non-existent.rs:4:14
+  |
+4 | #[oxiplate = "external-non-existent.html.oxip"]
+  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: Must provide either an external or internal template:
+       External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/external-non-existent.rs:4:14
+  |
+4 | #[oxiplate = "external-non-existent.html.oxip"]
+  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `render` found for struct `Data` in the current scope
+  --> tests/broken/external-non-existent.rs:14:36
+   |
+5  | struct Data {
+   | ----------- method `render` not found for this struct
+...
+14 |     assert_eq!("Hello World", data.render().unwrap());
+   |                                    ^^^^^^ method not found in `Data`
+   |
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `render`, perhaps you need to implement it:
+           candidate #1: `Render`

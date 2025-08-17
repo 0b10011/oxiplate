@@ -1,0 +1,4 @@
+{% extends "extends-missing.html.oxip" %}
+{% block content -%}
+  Goodbye world!
+{%- endblock %}
