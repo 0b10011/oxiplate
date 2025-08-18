@@ -1,5 +1,5 @@
 error: Expected an expression.
- --> tests/broken/writ-without-expression.rs:4:23
+ --> tests/broken/writ/writ-without-expression.rs:4:23
   |
 4 | #[oxiplate_inline("{{ ` }}")]
   |                       ^^^^

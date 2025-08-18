@@ -1,5 +1,5 @@
 error[E0277]: the trait bound `Vec<&str>: ToString` is not satisfied
- --> tests/broken/unwritable-writ.rs:4:23
+ --> tests/broken/writ/unwritable-writ.rs:4:23
   |
 4 | #[oxiplate_inline("{{ messages }} {{ raw: messages }}\n")]
   |                       ^^^^^^^^ the trait `std::fmt::Display` is not implemented for `Vec<&str>`
@@ -7,7 +7,7 @@ error[E0277]: the trait bound `Vec<&str>: ToString` is not satisfied
   = note: required for `Vec<&str>` to implement `ToString`
 
 error[E0277]: the trait bound `Vec<&str>: ToString` is not satisfied
- --> tests/broken/unwritable-writ.rs:4:43
+ --> tests/broken/writ/unwritable-writ.rs:4:43
   |
 4 | #[oxiplate_inline("{{ messages }} {{ raw: messages }}\n")]
   |                                           ^^^^^^^^ the trait `std::fmt::Display` is not implemented for `Vec<&str>`
