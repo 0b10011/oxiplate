@@ -1,19 +1,17 @@
-error: proc-macro derive panicked
- --> tests/broken/for/else-after-else.rs:3:10
+error: `else` previously present in this `for` statement; expected `endfor`
+ --> tests/broken/for/else-after-else.rs:9:4
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: not yet implemented
+9 | {% else %}
+  |    ^^^^
 
-error[E0277]: `Data` doesn't implement `std::fmt::Display`
-  --> tests/broken/for/else-after-else.rs:20:18
+error: `else` previously present in this `for` statement; expected `endfor`
+  --> tests/broken/for/else-after-else.rs:11:4
    |
-20 |     print!("{}", Data { foo: true });
-   |             --   ^^^^^^^^^^^^^^^^^^ `Data` cannot be formatted with the default formatter
-   |             |
-   |             required by this formatting parameter
+11 | {% else %}
+   |    ^^^^
+
+error: Unexpected 'else' statement
+  --> tests/broken/for/else-after-else.rs:14:4
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Data`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
+14 | {% else %}")]
+   |    ^^^^

@@ -47,16 +47,20 @@ impl<'a> For<'a> {
         match item {
             Item::Statement(Statement {
                 kind: StatementKind::Else,
-                ..
+                source,
             }) => {
                 if self.is_ended {
                     todo!();
                 }
-                if self.otherwise.is_some() {
-                    todo!();
+                if let Some(ref mut ifs) = self.otherwise {
+                    ifs.0.push(Item::CompileError(
+                        "`else` previously present in this `for` statement; expected `endfor`"
+                            .to_string(),
+                        source,
+                    ));
+                } else {
+                    self.otherwise = Some(Template(vec![]));
                 }
-
-                self.otherwise = Some(Template(vec![]));
             }
             Item::Statement(Statement {
                 kind: StatementKind::EndFor,

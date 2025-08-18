@@ -13,9 +13,9 @@ use oxiplate_derive::Oxiplate;
 {% endfor %}
 {% else %}")]
 struct Data {
-    foo: bool,
+    numbers: Vec<u8>,
 }
 
 fn main() {
-    print!("{}", Data { foo: true });
+    print!("{}", Data { numbers: vec![19, 89] });
 }
