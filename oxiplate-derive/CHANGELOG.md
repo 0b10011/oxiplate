@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.9.0...oxiplate-derive-v0.9.1) - 2025-08-18
+
+### Added
+
+- added support for including templates (fixes #35)
+
+### Fixed
+
+- use `unreachable!()` instead of `todo!()` for `add_item()` calls after statement is closed (fixes #23)
+- improve error message for extra `else` statements in `for` statement (fixes #25)
+- improve error message for extra `else` statements in `if` statement (fixes #24)
+
+### Other
+
+- moved extends tests to the macro
+- added test for extra `else` statements in `if` statement
+- added test for extra `else` statements in `for` statement
+- reorganize tests a bit to make them easier to navigate
+
 ## [0.9.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.8.1...oxiplate-derive-v0.9.0) - 2025-08-17
 
 ### Added
