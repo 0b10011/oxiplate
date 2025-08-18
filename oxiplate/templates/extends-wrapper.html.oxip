@@ -1,3 +1,0 @@
-<!DOCTYPE html>
-<title>{{ title }}</title>
-{% block content -%}test{%- endblock %}
