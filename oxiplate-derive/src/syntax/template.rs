@@ -11,6 +11,7 @@ use super::super::Source;
 use super::item::{parse_tag, ItemToken};
 use super::r#static::{parse_static, StaticType};
 use super::{Item, Res, Static};
+use crate::syntax::statement::StatementKind;
 use crate::State;
 
 /// Collection of items in the template and estimated output length.
@@ -154,20 +155,23 @@ fn try_parse<'a>(
     for item in &items {
         match item {
             Item::Statement(statement) => {
+                #[allow(clippy::enum_glob_use)]
+                use StatementKind::*;
                 match &statement.kind {
-                    crate::syntax::statement::StatementKind::Extends(item) => {
+                    Extends(item) => {
                         if has_content || extends.is_some() {
                             todo!("Can't extend if already adding content");
                         }
 
                         extends = Some(item);
                     }
-                    crate::syntax::statement::StatementKind::Block(_) => {
+                    Block(_) => {
                         // While blocks are allowed when extending,
                         // the extends tag should cause an error if it appears _after_ a block.
                         has_content = true;
                     }
-                    _ => {
+                    Parent | EndBlock | Include(_) | If(_) | ElseIf(_) | Else | EndIf | For(_)
+                    | EndFor => {
                         if extends.is_some() {
                             todo!("Can't add content if extending");
                         }

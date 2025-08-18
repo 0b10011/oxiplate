@@ -1,0 +1,3 @@
+<p>hello</p>
+{% include "include.html.oxip" %}
+<p>world</p>

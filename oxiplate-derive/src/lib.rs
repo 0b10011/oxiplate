@@ -88,7 +88,10 @@ use crate::state::Config;
 ///     print!("{}", homepage);
 /// }
 /// ```
-#[proc_macro_derive(Oxiplate, attributes(oxiplate, oxiplate_inline, oxiplate_extends))]
+#[proc_macro_derive(
+    Oxiplate,
+    attributes(oxiplate, oxiplate_inline, oxiplate_extends, oxiplate_include)
+)]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
     oxiplate_internal(input, &HashMap::new()).0
 }
@@ -156,7 +159,7 @@ fn parse_template_and_data(
         process_parsed_tokens(parsed_tokens, &config, &template_type, data, &state)?;
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
-    if template_type == TemplateType::Extends {
+    if template_type == TemplateType::Extends || template_type == TemplateType::Include {
         return Ok((template.into(), estimated_length));
     }
 
@@ -216,7 +219,7 @@ fn process_parsed_tokens(
                 .collect::<Vec<&str>>()
                 .join(", ");
             let template = match template_type {
-                TemplateType::Path | TemplateType::Extends => {
+                TemplateType::Path | TemplateType::Extends | TemplateType::Include => {
                     quote_spanned! {span=> compile_error!(concat!("The file extension `.", #escaper, "` is not registered as an escaper group in `/oxiplate.toml`. All used template extensions must be registered. Registered escaper groups: ", #registered_escaper_groups)); }
                 }
                 TemplateType::Inline => {
@@ -260,6 +263,7 @@ enum TemplateType {
     Path,
     Inline,
     Extends,
+    Include,
 }
 
 /// Parse the attributes to figure out what type of template this struct references.
@@ -270,6 +274,8 @@ fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
             TemplateType::Inline
         } else if path.is_ident("oxiplate_extends") {
             TemplateType::Extends
+        } else if path.is_ident("oxiplate_include") {
+            TemplateType::Include
         } else if path.is_ident("oxiplate") {
             TemplateType::Path
         } else {
@@ -296,6 +302,9 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
         TemplateType::Extends => {
             r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
         }
+        TemplateType::Include => {
+            r#"Must provide a path to a template that exists. E.g., `{% include "path/to/template.html.oxip" %}`"#
+        }
     };
 
     // Expand any macros, or fallback to the unexpanded input
@@ -318,7 +327,9 @@ fn parse_source_tokens(
 ) -> Result<(Span, proc_macro2::TokenStream, Option<PathBuf>), (String, Span)> {
     match template_type {
         TemplateType::Inline => parse_source_tokens_for_inline(attr, state),
-        TemplateType::Path | TemplateType::Extends => parse_source_tokens_for_path(attr, state),
+        TemplateType::Path | TemplateType::Extends | TemplateType::Include => {
+            parse_source_tokens_for_path(attr, state)
+        }
     }
 }
 

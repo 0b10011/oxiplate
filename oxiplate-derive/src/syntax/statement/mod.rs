@@ -4,6 +4,7 @@ mod block;
 mod extends;
 mod r#for;
 mod r#if;
+mod include;
 
 use block::Block;
 use extends::Extends;
@@ -21,6 +22,7 @@ use self::r#if::{ElseIf, If};
 use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;
+use crate::syntax::statement::include::Include;
 use crate::syntax::template::{is_whitespace, parse_item};
 use crate::{Source, State};
 
@@ -36,6 +38,7 @@ pub(crate) enum StatementKind<'a> {
     Block(Block<'a>),
     Parent,
     EndBlock,
+    Include(Include<'a>),
     If(If<'a>),
     ElseIf(ElseIf<'a>),
     Else,
@@ -47,40 +50,49 @@ pub(crate) enum StatementKind<'a> {
 impl<'a> Statement<'a> {
     /// Get the estimated output length of the statement.
     pub fn estimated_length(&self) -> usize {
+        #[allow(clippy::enum_glob_use)]
+        use StatementKind::*;
         match &self.kind {
-            StatementKind::Extends(statement) => statement.estimated_length(),
-            StatementKind::Block(statement) => statement.estimated_length(),
-            StatementKind::If(statement) => statement.estimated_length(),
-            StatementKind::For(statement) => statement.estimated_length(),
-            _ => 0,
+            Extends(statement) => statement.estimated_length(),
+            Include(statement) => statement.estimated_length(),
+            Block(statement) => statement.estimated_length(),
+            If(statement) => statement.estimated_length(),
+            For(statement) => statement.estimated_length(),
+            Parent | EndBlock | ElseIf(_) | Else | EndIf | EndFor => 0,
         }
     }
 
     pub fn is_ended(&self, is_eof: bool) -> bool {
+        #[allow(clippy::enum_glob_use)]
+        use StatementKind::*;
         match &self.kind {
-            StatementKind::Extends(_) => is_eof,
-            StatementKind::Block(statement) => statement.is_ended,
-            StatementKind::If(statement) => statement.is_ended,
-            StatementKind::For(statement) => statement.is_ended,
-            _ => true, /* unreachable!("is_ended() should not be called for this kind of statement"), */
+            Extends(_) => is_eof,
+            Block(statement) => statement.is_ended,
+            If(statement) => statement.is_ended,
+            For(statement) => statement.is_ended,
+            Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf | EndFor => true,
         }
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
+        #[allow(clippy::enum_glob_use)]
+        use StatementKind::*;
         match &mut self.kind {
-            StatementKind::Extends(statement) => {
+            Extends(statement) => {
                 statement.add_item(item);
             }
-            StatementKind::Block(statement) => {
+            Block(statement) => {
                 statement.add_item(item);
             }
-            StatementKind::If(statement) => {
+            If(statement) => {
                 statement.add_item(item);
             }
-            StatementKind::For(statement) => {
+            For(statement) => {
                 statement.add_item(item);
             }
-            _ => unreachable!("add_item() should not be called for this kind of statement"),
+            Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf | EndFor => {
+                unreachable!("add_item() should not be called for this kind of statement")
+            }
         }
     }
 
@@ -107,9 +119,8 @@ impl ToTokens for Statement<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append_all(match &self.kind {
             StatementKind::Extends(_extends) => {
-                quote! { compile_error!("'extends' statement should be handled elsewhere") }
+                quote! { compile_error!("'extends' statement should be handled elsewhere"); }
             }
-
             StatementKind::Block(block) => quote! { #block },
             StatementKind::Parent => {
                 let span = self.source.span();
@@ -118,6 +129,10 @@ impl ToTokens for Statement<'_> {
             StatementKind::EndBlock => {
                 let span = self.source.span();
                 quote_spanned! {span=> compile_error!("Unexpected 'endblock' statement"); }
+            }
+
+            StatementKind::Include(statement) => {
+                quote! { #statement }
             }
 
             StatementKind::If(statement) => quote! { #statement },
@@ -156,6 +171,7 @@ pub(super) fn statement<'a>(
             "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
             cut(alt((
                 extends::parse_extends,
+                include::parse_include,
                 block::parse_block(state, is_extending),
                 block::parse_parent,
                 block::parse_endblock,
@@ -211,6 +227,7 @@ pub(super) fn statement<'a>(
                             StatementKind::Extends(_)
                             | StatementKind::Parent
                             | StatementKind::EndBlock
+                            | StatementKind::Include(_)
                             | StatementKind::ElseIf(_)
                             | StatementKind::Else
                             | StatementKind::EndIf
