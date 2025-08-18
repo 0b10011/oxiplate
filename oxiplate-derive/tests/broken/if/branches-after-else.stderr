@@ -1,19 +1,29 @@
-error: proc-macro derive panicked
- --> tests/broken/if/branches-after-else.rs:3:10
+error: `else` already present in this if statement; expected `endif`
+ --> tests/broken/if/branches-after-else.rs:9:4
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: not yet implemented
+9 | {% else %}
+  |    ^^^^
 
-error[E0277]: `Data` doesn't implement `std::fmt::Display`
-  --> tests/broken/if/branches-after-else.rs:24:18
+error: `else` already present in this if statement; expected `endif`
+  --> tests/broken/if/branches-after-else.rs:11:4
    |
-24 |     print!("{}", Data { foo: true });
-   |             --   ^^^^^^^^^^^^^^^^^^ `Data` cannot be formatted with the default formatter
-   |             |
-   |             required by this formatting parameter
+11 | {% else %}
+   |    ^^^^
+
+error: `else` previously present in this if statement; expected `endif`
+  --> tests/broken/if/branches-after-else.rs:13:4
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Data`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
+13 | {% elseif foo %}
+   |    ^^^^^^
+
+error: `else` previously present in this if statement; expected `endif`
+  --> tests/broken/if/branches-after-else.rs:15:4
+   |
+15 | {% elseif foo %}
+   |    ^^^^^^
+
+error: Unexpected 'else' statement
+  --> tests/broken/if/branches-after-else.rs:18:4
+   |
+18 | {% else %}")]
+   |    ^^^^

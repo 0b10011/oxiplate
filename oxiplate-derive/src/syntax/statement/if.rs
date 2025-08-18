@@ -129,29 +129,36 @@ impl<'a> If<'a> {
         match item {
             Item::Statement(Statement {
                 kind: StatementKind::ElseIf(ElseIf(if_type)),
-                source: _,
+                source,
             }) => {
                 if self.is_ended {
                     todo!();
                 }
-                if self.otherwise.is_some() {
-                    todo!();
+                if let Some(ref mut ifs) = self.otherwise {
+                    ifs.0.push(Item::CompileError(
+                        "`else` previously present in this if statement; expected `endif`"
+                            .to_string(),
+                        source,
+                    ));
+                } else {
+                    self.ifs.push((if_type, Template(vec![])));
                 }
-
-                self.ifs.push((if_type, Template(vec![])));
             }
             Item::Statement(Statement {
                 kind: StatementKind::Else,
-                source: _,
+                source,
             }) => {
                 if self.is_ended {
                     todo!();
                 }
-                if self.otherwise.is_some() {
-                    todo!();
+                if let Some(ref mut ifs) = self.otherwise {
+                    ifs.0.push(Item::CompileError(
+                        "`else` already present in this if statement; expected `endif`".to_string(),
+                        source,
+                    ));
+                } else {
+                    self.otherwise = Some(Template(vec![]));
                 }
-
-                self.otherwise = Some(Template(vec![]));
             }
             Item::Statement(Statement {
                 kind: StatementKind::EndIf,
