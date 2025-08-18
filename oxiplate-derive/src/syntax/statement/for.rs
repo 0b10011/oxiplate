@@ -41,7 +41,9 @@ impl<'a> For<'a> {
 
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            todo!();
+            unreachable!(
+                "Should not attempt to add item to `for` statement after statement is ended."
+            );
         }
 
         match item {
@@ -49,9 +51,6 @@ impl<'a> For<'a> {
                 kind: StatementKind::Else,
                 source,
             }) => {
-                if self.is_ended {
-                    todo!();
-                }
                 if let Some(ref mut ifs) = self.otherwise {
                     ifs.0.push(Item::CompileError(
                         "`else` previously present in this `for` statement; expected `endfor`"
@@ -66,10 +65,6 @@ impl<'a> For<'a> {
                 kind: StatementKind::EndFor,
                 ..
             }) => {
-                if self.is_ended {
-                    todo!();
-                }
-
                 self.is_ended = true;
             }
             _ => {

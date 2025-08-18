@@ -126,14 +126,17 @@ impl<'a> If<'a> {
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
+        if self.is_ended {
+            unreachable!(
+                "Should not attempt to add item to `if` statement after statement is ended."
+            );
+        }
+
         match item {
             Item::Statement(Statement {
                 kind: StatementKind::ElseIf(ElseIf(if_type)),
                 source,
             }) => {
-                if self.is_ended {
-                    todo!();
-                }
                 if let Some(ref mut ifs) = self.otherwise {
                     ifs.0.push(Item::CompileError(
                         "`else` previously present in this if statement; expected `endif`"
@@ -148,9 +151,6 @@ impl<'a> If<'a> {
                 kind: StatementKind::Else,
                 source,
             }) => {
-                if self.is_ended {
-                    todo!();
-                }
                 if let Some(ref mut ifs) = self.otherwise {
                     ifs.0.push(Item::CompileError(
                         "`else` already present in this if statement; expected `endif`".to_string(),
@@ -167,9 +167,6 @@ impl<'a> If<'a> {
                 self.is_ended = true;
             }
             _ => {
-                if self.is_ended {
-                    todo!();
-                }
                 if let Some(template) = &mut self.otherwise {
                     template.0.push(item);
                 } else {
