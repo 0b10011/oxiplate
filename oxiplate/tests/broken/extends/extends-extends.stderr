@@ -1,5 +1,0 @@
-error: Only block statements are allowed here, along with comments and whitespace.
- --> tests/broken/extends/extends-extends.rs:4:72
-  |
-4 | #[oxiplate_inline(html: r#"{% extends "extends-wrapper.html.oxip" %}{% extends "extends-wrapper.html.oxip" %}"#)]
-  |                                                                        ^^^^^^^

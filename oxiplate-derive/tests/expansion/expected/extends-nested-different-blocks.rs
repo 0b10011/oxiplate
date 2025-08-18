@@ -3,45 +3,32 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate::{Oxiplate, Render};
-#[oxiplate = "./extends-deep.html.oxip"]
+use oxiplate_derive::Oxiplate;
+#[oxiplate = "./extends-nested-different-blocks.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
     message: &'static str,
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for AbsoluteData {
-    const ESTIMATED_LENGTH: usize = 59usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</title>\n")?;
-        f.write_str("<h2>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</h2>\n  <div>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.message))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</div>")?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(97usize);
+            let f = &mut string;
+            f.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</title>\n</head>\n<body>")?;
+            f.write_str("<main>")?;
+            f.write_str("<h1>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</h1>\n  <p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>")?;
+            f.write_str("</main>")?;
+            f.write_str("</body>\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -52,7 +39,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends-nested.rs",
+        source_file: "oxiplate-derive/tests/extends-nested-different-blocks.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
@@ -70,9 +57,12 @@ fn absolute() {
         message: "Hello world!",
     };
     match (
-        &data.render().unwrap(),
-        &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
-         <div>Hello world!</div>\n",
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"<DOCTYPE html>\n<head>\n  <title>Oxiplate \
+         Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello \
+         world!</p></main></body>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

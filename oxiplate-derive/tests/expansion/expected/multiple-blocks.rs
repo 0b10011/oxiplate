@@ -3,28 +3,25 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate::{Oxiplate, Render};
+use oxiplate_derive::Oxiplate;
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
 struct Data;
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for Data {
-    const ESTIMATED_LENGTH: usize = 81usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<header>")?;
-        f.write_str("header")?;
-        f.write_str("</header>\n<main>")?;
-        f.write_str("main")?;
-        f.write_str("</main>\n<footer>")?;
-        f.write_str("footer")?;
-        f.write_str("</footer>")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(81usize);
+            let f = &mut string;
+            f.write_str("<!DOCTYPE html>\n<header>")?;
+            f.write_str("header")?;
+            f.write_str("</header>\n<main>")?;
+            f.write_str("main")?;
+            f.write_str("</main>\n<footer>")?;
+            f.write_str("footer")?;
+            f.write_str("</footer>")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -35,7 +32,7 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("multiple_blocks"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/multiple-blocks.rs",
+        source_file: "oxiplate-derive/tests/multiple-blocks.rs",
         start_line: 8usize,
         start_col: 4usize,
         end_line: 8usize,
@@ -53,7 +50,9 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
 fn multiple_blocks() {
     let data = Data;
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\n<footer>footer</footer>",
     ) {
         (left_val, right_val) => {

@@ -1,0 +1,11 @@
+error: couldn't read `$DIR/templates/extends-non-existent.html.oxip`: No such file or directory (os error 2)
+ --> tests/broken/extends/extends-non-existent-inline.rs:4:34
+  |
+4 | #[oxiplate_inline(r#"{% extends "extends-non-existent.html.oxip" %}"#)]
+  |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`
+ --> tests/broken/extends/extends-non-existent-inline.rs:4:34
+  |
+4 | #[oxiplate_inline(r#"{% extends "extends-non-existent.html.oxip" %}"#)]
+  |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

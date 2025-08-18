@@ -1,4 +1,4 @@
-use oxiplate::{Oxiplate, Render};
+use oxiplate_derive::{Oxiplate};
 
 #[derive(Oxiplate)]
 #[oxiplate = "extends-with-empty-content.html.oxip"]
@@ -8,5 +8,5 @@ fn main() {
     // Intentionally missing the "title" field used by the parent template
     let data = AbsoluteData {};
 
-    panic!("{}", data.render().unwrap());
+    panic!("{}", data);
 }

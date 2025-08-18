@@ -1,9 +1,9 @@
-use oxiplate::{Oxiplate, Render};
+use oxiplate_derive::{Oxiplate};
 
 #[derive(Oxiplate)]
 #[oxiplate = "extends-missing-deep.html.oxip"]
 struct Data;
 
 fn main() {
-    assert_eq!("", Data.render().unwrap());
+    assert_eq!("", format!("{}", Data));
 }

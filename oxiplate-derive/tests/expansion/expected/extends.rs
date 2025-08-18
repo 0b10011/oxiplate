@@ -3,7 +3,7 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
-use oxiplate::{Oxiplate, Render};
+use oxiplate_derive::Oxiplate;
 #[oxiplate = "extends.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
@@ -11,37 +11,22 @@ struct AbsoluteData {
 }
 impl ::std::fmt::Display for AbsoluteData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for AbsoluteData {
-    const ESTIMATED_LENGTH: usize = 55usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</title>\n")?;
-        f.write_str("<h1>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</h1>\n  <p>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.message))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</p>")?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(55usize);
+            let f = &mut string;
+            f.write_str("<!DOCTYPE html>\n<title>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</title>\n")?;
+            f.write_str("<h1>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</h1>\n  <p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>")?;
+            f.write_str("\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -52,7 +37,7 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
+        source_file: "oxiplate-derive/tests/extends.rs",
         start_line: 11usize,
         start_col: 4usize,
         end_line: 11usize,
@@ -70,7 +55,9 @@ fn absolute() {
         message: "Hello world!",
     };
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
          world!</p>\n",
     ) {
@@ -95,7 +82,7 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute_2"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
+        source_file: "oxiplate-derive/tests/extends.rs",
         start_line: 25usize,
         start_col: 4usize,
         end_line: 25usize,
@@ -116,7 +103,9 @@ fn absolute_2() {
         message: "Goodbye world!",
     };
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<title>Oxiplate Example #2</title>\n<h1>Oxiplate Example #2</h1>\n  \
          <p>Goodbye world!</p>\n",
     ) {
@@ -134,7 +123,7 @@ fn absolute_2() {
     };
 }
 #[oxiplate_inline(
-    html:r#"{% extends "extends-wrapper.html.oxip" %}
+    r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     <p>{{ message }}</p>
     {%- parent %}
@@ -147,32 +136,21 @@ struct Prefix {
 }
 impl ::std::fmt::Display for Prefix {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for Prefix {
-    const ESTIMATED_LENGTH: usize = 46usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</title>\n")?;
-        f.write_str("<p>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.message))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</p>")?;
-        f.write_str("test")?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(46usize);
+            let f = &mut string;
+            f.write_str("<!DOCTYPE html>\n<title>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</title>\n")?;
+            f.write_str("<p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>")?;
+            f.write_str("test")?;
+            f.write_str("\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -183,10 +161,10 @@ pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("prefix"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
-        start_line: 51usize,
+        source_file: "oxiplate-derive/tests/extends.rs",
+        start_line: 53usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 53usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -201,7 +179,9 @@ fn prefix() {
         message: "Hello world!",
     };
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<title>Prefixed block</title>\n<p>Hello world!</p>test\n",
     ) {
         (left_val, right_val) => {
@@ -218,7 +198,7 @@ fn prefix() {
     };
 }
 #[oxiplate_inline(
-    html:r#"{% extends "extends-wrapper.html.oxip" %}
+    r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     <p>{{ message }}</p>
 {%- endblock %}
@@ -230,31 +210,20 @@ struct Replace {
 }
 impl ::std::fmt::Display for Replace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for Replace {
-    const ESTIMATED_LENGTH: usize = 42usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</title>\n")?;
-        f.write_str("<p>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.message))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</p>")?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(42usize);
+            let f = &mut string;
+            f.write_str("<!DOCTYPE html>\n<title>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</title>\n")?;
+            f.write_str("<p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>")?;
+            f.write_str("\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -265,10 +234,10 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("replace"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
-        start_line: 75usize,
+        source_file: "oxiplate-derive/tests/extends.rs",
+        start_line: 79usize,
         start_col: 4usize,
-        end_line: 75usize,
+        end_line: 79usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -283,7 +252,9 @@ fn replace() {
         message: "Hello world!",
     };
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<title>Replaced block</title>\n<p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {
@@ -300,7 +271,7 @@ fn replace() {
     };
 }
 #[oxiplate_inline(
-    html:r#"{% extends "extends-wrapper.html.oxip" %}
+    r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     {% parent -%}
     <p>{{ message }}</p>
@@ -313,32 +284,21 @@ struct Suffix {
 }
 impl ::std::fmt::Display for Suffix {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
-    }
-}
-impl ::oxiplate::Render for Suffix {
-    const ESTIMATED_LENGTH: usize = 46usize;
-    #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
-        f.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.title))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</title>\n")?;
-        f.write_str("test")?;
-        f.write_str("<p>")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.message))
-            .oxiplate_escape(
-                f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
-            )?;
-        f.write_str("</p>")?;
-        f.write_str("\n")?;
-        Ok(())
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(46usize);
+            let f = &mut string;
+            f.write_str("<!DOCTYPE html>\n<title>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</title>\n")?;
+            f.write_str("test")?;
+            f.write_str("<p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>")?;
+            f.write_str("\n")?;
+            string
+        };
+        f.write_str(&string)
     }
 }
 extern crate test;
@@ -349,10 +309,10 @@ pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("suffix"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
-        start_line: 100usize,
+        source_file: "oxiplate-derive/tests/extends.rs",
+        start_line: 106usize,
         start_col: 4usize,
-        end_line: 100usize,
+        end_line: 106usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -367,7 +327,9 @@ fn suffix() {
         message: "Hello world!",
     };
     match (
-        &data.render().unwrap(),
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
         &"<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {

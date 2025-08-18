@@ -1,4 +1,4 @@
-use oxiplate::{Oxiplate, Render};
+use oxiplate_derive::{Oxiplate};
 
 #[derive(Oxiplate)]
 #[oxiplate = "extends-with-empty-content.html.oxip"]
@@ -12,5 +12,5 @@ fn main() {
         tile: "Hello world",
     };
 
-    let _ = data.render().unwrap();
+    let _ = data;
 }
