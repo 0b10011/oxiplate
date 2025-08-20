@@ -90,10 +90,6 @@ impl<'a> Statement<'a> {
         }
     }
 
-    // pub fn is_extending(&self) -> bool {
-    //     matches!(&self.kind, StatementKind::Extends(_))
-    // }
-
     pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
