@@ -9,7 +9,7 @@ use proc_macro2::{Group, TokenStream};
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::token::Dot;
 
-use self::ident::{IdentifierOrFunction, IdentifierScope};
+use self::ident::IdentifierOrFunction;
 use super::template::whitespace;
 use super::Res;
 use crate::syntax::item::tag_end;
@@ -41,7 +41,7 @@ impl ToTokens for Field<'_> {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
-    Identifier(IdentifierOrFunction<'a>, IdentifierScope),
+    Identifier(IdentifierOrFunction<'a>),
     String(Source<'a>),
     Integer(Source<'a>),
     Float(Source<'a>),
@@ -56,17 +56,20 @@ pub(crate) enum Expression<'a> {
     Prefixed(PrefixOperator<'a>, Box<ExpressionAccess<'a>>),
 }
 
-impl ToTokens for Expression<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Expression<'_> {
+    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+        let mut tokens = TokenStream::new();
+        let mut estimated_length = 0;
+
         tokens.append_all(match self {
-            Expression::Identifier(identifier, scope) => match &identifier {
+            Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.source.span();
-                    match scope {
-                        IdentifierScope::Local => quote_spanned! {span=> #identifier },
-                        IdentifierScope::Parent | IdentifierScope::Data => {
-                            quote_spanned! {span=> self.#identifier }
-                        }
+                    estimated_length += 1;
+                    if state.local_variables.contains(identifier.ident) {
+                        quote_spanned! {span=> #identifier }
+                    } else {
+                        quote_spanned! {span=> self.#identifier }
                     }
                 }
                 IdentifierOrFunction::Function(identifier, parens) => {
@@ -76,11 +79,11 @@ impl ToTokens for Expression<'_> {
                     parens.set_span(span);
 
                     let span = identifier.source.span();
-                    match scope {
-                        IdentifierScope::Local => quote_spanned! {span=> #identifier #parens },
-                        IdentifierScope::Parent | IdentifierScope::Data => {
-                            quote_spanned! {span=> self.#identifier #parens }
-                        }
+                    estimated_length += 1;
+                    if state.local_variables.contains(identifier.ident) {
+                        quote_spanned! {span=> #identifier #parens }
+                    } else {
+                        quote_spanned! {span=> self.#identifier #parens }
                     }
                 }
             },
@@ -95,18 +98,21 @@ impl ToTokens for Expression<'_> {
                             expression: Expression::String(string),
                             fields,
                         } if fields.is_empty() => {
+                            estimated_length += string.as_str().len();
                             let string = syn::LitStr::new(string.as_str(), string.span());
                             format_tokens.push(quote_spanned! {span=> #string });
                         }
                         _ => {
                             format_tokens.push(quote_spanned! {span=> "{}" });
+                            let (expression, expression_length) = expression.to_tokens(state);
+                            estimated_length += expression_length;
                             argument_tokens.push(quote!(#expression));
                         }
                     }
                 }
 
                 if argument_tokens.is_empty() {
-                    return;
+                    return (tokens, estimated_length);
                 }
 
                 let format_concat_tokens = quote! { concat!(#(#format_tokens),*) };
@@ -118,21 +124,33 @@ impl ToTokens for Expression<'_> {
                     quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) }
                 }
             }
-            Expression::Calc(left, operator, right) => quote!((#left #operator #right)),
-            Expression::Prefixed(operator, expression) => quote!((#operator #expression)),
+            Expression::Calc(left, operator, right) => {
+                let (left, left_length) = left.to_tokens(state);
+                let (right, right_length) = right.to_tokens(state);
+                estimated_length += left_length.min(right_length);
+                quote!((#left #operator #right))
+            }
+            Expression::Prefixed(operator, expression) => {
+                let (expression, expression_length) = expression.to_tokens(state);
+                estimated_length += expression_length;
+                quote!((#operator #expression))
+            }
             Expression::String(string) => {
+                estimated_length += string.as_str().len();
                 let string = ::syn::LitStr::new(string.as_str(), string.span());
                 quote! {
                     #string
                 }
             }
             Expression::Integer(number) => {
+                estimated_length += number.as_str().len();
                 let number = ::syn::LitInt::new(number.as_str(), number.span());
                 quote! {
                     #number
                 }
             }
             Expression::Float(number) => {
+                estimated_length += number.as_str().len();
                 let number = ::syn::LitFloat::new(number.as_str(), number.span());
                 quote! {
                     #number
@@ -143,6 +161,8 @@ impl ToTokens for Expression<'_> {
                 quote! { #bool }
             }
         });
+
+        (tokens, estimated_length)
     }
 }
 
@@ -151,11 +171,13 @@ pub(crate) struct ExpressionAccess<'a> {
     expression: Expression<'a>,
     fields: Vec<Field<'a>>,
 }
-impl ToTokens for ExpressionAccess<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let expression = &self.expression;
+impl ExpressionAccess<'_> {
+    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+        let mut tokens = TokenStream::new();
+        let (expression, estimated_length) = self.expression.to_tokens(state);
         let fields = &self.fields;
         tokens.append_all(quote! { #expression #(#fields)* });
+        (tokens, estimated_length)
     }
 }
 
@@ -263,20 +285,19 @@ impl ToTokens for PrefixOperator<'_> {
 }
 
 pub(super) fn expression<'a>(
-    state: &'a State,
     allow_calc: bool,
     allow_concat: bool,
 ) -> impl Fn(Source) -> Res<Source, ExpressionAccess> + 'a {
     move |input| {
         let (input, (expression, fields)) = pair(
             alt((
-                concat(state, allow_concat),
-                calc(state, allow_calc),
+                concat(allow_concat),
+                calc(allow_calc),
                 string,
                 number,
                 bool,
-                identifier(state),
-                prefixed_expression(state),
+                identifier,
+                prefixed_expression,
             )),
             many0(field()),
         )
@@ -340,24 +361,18 @@ fn operator(input: Source) -> Res<Source, Operator> {
     Ok((input, operator))
 }
 
-fn concat<'a>(
-    state: &'a State,
-    allow_concat: bool,
-) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn concat<'a>(allow_concat: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
         if !allow_concat {
             return fail().parse(input);
         }
         let (input, (left, concats)) = (
-            expression(state, false, false),
+            expression(false, false),
             many1((
                 opt(whitespace),
                 tag("~"),
                 opt(whitespace),
-                context(
-                    "Expected an expression",
-                    cut(expression(state, true, false)),
-                ),
+                context("Expected an expression", cut(expression(true, false))),
             )),
         )
             .parse(input)?;
@@ -379,22 +394,19 @@ fn concat<'a>(
     }
 }
 
-fn calc<'a>(state: &'a State, allow_calc: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
+fn calc<'a>(allow_calc: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
     move |input| {
         if !allow_calc {
             return fail().parse(input);
         }
         let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace, right)) = (
-            expression(state, false, false),
+            expression(false, false),
             opt(whitespace),
             // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
             not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
             operator,
             opt(whitespace),
-            context(
-                "Expected an expression",
-                cut(expression(state, true, false)),
-            ),
+            context("Expected an expression", cut(expression(true, false))),
         )
             .parse(input)?;
         Ok((
@@ -414,20 +426,18 @@ fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
 
     Ok((input, operator))
 }
-fn prefixed_expression<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-    |input| {
-        let (input, (prefix_operator, expression)) = (
-            prefix_operator,
-            context(
-                "Expected an expression after prefix operator",
-                cut(expression(state, true, true)),
-            ),
-        )
-            .parse(input)?;
+fn prefixed_expression(input: Source) -> Res<Source, Expression> {
+    let (input, (prefix_operator, expression)) = (
+        prefix_operator,
+        context(
+            "Expected an expression after prefix operator",
+            cut(expression(true, true)),
+        ),
+    )
+        .parse(input)?;
 
-        Ok((
-            input,
-            Expression::Prefixed(prefix_operator, Box::new(expression)),
-        ))
-    }
+    Ok((
+        input,
+        Expression::Prefixed(prefix_operator, Box::new(expression)),
+    ))
 }

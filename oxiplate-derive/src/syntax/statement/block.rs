@@ -1,9 +1,11 @@
+use std::collections::{HashMap, VecDeque};
+
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 
 use super::super::expression::{ident, keyword, Identifier};
 use super::super::{Item, Res};
@@ -11,105 +13,117 @@ use super::{Statement, StatementKind};
 use crate::syntax::template::{is_whitespace, Template};
 use crate::{Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
-enum Position {
-    /// The highest level of block that is automatically applied.
-    /// Will be used if not overridden.
-    Source,
-
-    /// Overridden content.
-    /// The parent's content will be placed where the `{% parent %}` tag appears,
-    /// otherwise the source content will be completely replaced.
-    Override,
-}
-
 #[derive(Debug)]
 pub struct Block<'a> {
     pub(super) name: Identifier<'a>,
-    position: Position,
-
-    /// Token streams for child blocks.
-    /// Makes it possible to inline the child blocks
-    /// directly into the parent template's block.
-    pub(super) child: (Option<(TokenStream, Option<TokenStream>)>, usize),
     pub(super) prefix: Template<'a>,
     pub(super) suffix: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
 
 impl<'a> Block<'a> {
-    /// Get the estimated length of the block.
-    /// Parent blocks include the length of the children,
-    /// and will only include their own content that will actually be rendered.
-    pub(crate) fn estimated_length(&self) -> usize {
-        self.child.1
-            + self.prefix.estimated_length()
-            + self.suffix.as_ref().map_or(0, Template::estimated_length)
-    }
-
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             todo!();
         }
 
-        let (save_prefix, save_suffix) = match &self.child.0 {
-            Some((_child_prefix, Some(_child_suffix))) => (true, true),
-            Some((_child_prefix, None)) => (false, false),
-            None => (true, true),
-        };
+        match item {
+            Item::Statement(Statement {
+                kind: StatementKind::EndBlock,
+                ..
+            }) => {
+                self.is_ended = true;
+            }
+            Item::Statement(Statement {
+                kind: StatementKind::Parent,
+                source,
+            }) => {
+                if let Some(suffix) = &mut self.suffix {
+                    suffix.0.push(Item::CompileError(
+                        "Multiple parent blocks present in block".to_string(),
+                        source,
+                    ));
+                }
 
-        match self.position {
-            Position::Source => match item {
-                Item::Statement(Statement {
-                    kind: StatementKind::EndBlock,
-                    ..
-                }) => {
-                    self.is_ended = true;
+                self.suffix = Some(Template(vec![]));
+            }
+            _ => {
+                if let Some(template) = &mut self.suffix {
+                    template.0.push(item);
+                } else {
+                    self.prefix.0.push(item);
                 }
-                _ => {
-                    if save_prefix {
-                        self.prefix.0.push(item);
-                    }
-                }
-            },
-            Position::Override => match item {
-                Item::Statement(Statement {
-                    kind: StatementKind::EndBlock,
-                    ..
-                }) => {
-                    self.is_ended = true;
-                }
-                Item::Statement(Statement {
-                    kind: StatementKind::Parent,
-                    ..
-                }) => {
-                    self.suffix = Some(Template(vec![]));
-                }
-                _ => {
-                    if let Some(template) = &mut self.suffix {
-                        if save_suffix {
-                            template.0.push(item);
-                        }
-                    } else if save_prefix {
-                        self.prefix.0.push(item);
-                    }
-                }
-            },
+            }
         }
     }
-}
 
-impl<'a> From<Block<'a>> for StatementKind<'a> {
-    fn from(statement: Block<'a>) -> Self {
-        StatementKind::Block(statement)
+    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+        let mut block_stack = state.blocks.clone();
+        let block = HashMap::from([(self.name.ident, (&self.prefix, self.suffix.as_ref()))]);
+        block_stack.push_back(&block);
+        self.build_block(
+            // self.prefix.to_tokens(state),
+            // self.suffix.as_ref().map_or((None, 0), |template| {
+            //     let (template, estimated_length) = template.to_tokens(state);
+            //     (Some(template), estimated_length)
+            // }),
+            (quote! {}, 0),
+            (Some(quote! {}), 0),
+            state,
+            block_stack,
+        )
     }
-}
 
-impl ToTokens for Block<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Block { prefix, suffix, .. } = self;
-        if let Some((child_prefix, child_suffix)) = &self.child.0 {
+    fn build_block(
+        &self,
+        (child_prefix, child_prefix_length): (TokenStream, usize),
+        (child_suffix, child_suffix_length): (Option<TokenStream>, usize),
+        state: &State,
+        mut block_stack: VecDeque<&HashMap<&str, (&Template, Option<&Template>)>>,
+    ) -> (TokenStream, usize) {
+        let mut estimated_length = child_prefix_length + child_suffix_length;
+        let mut tokens = TokenStream::new();
+        let Some(blocks) = block_stack.pop_front() else {
+            return (quote! { #child_prefix #child_suffix }, estimated_length);
+        };
+
+        if let Some(&(prefix, suffix)) = blocks.get(self.name.ident) {
+            let (prefix, prefix_length) = prefix.to_tokens(state);
+
             if let Some(child_suffix) = child_suffix {
+                let (suffix, suffix_length) = suffix.as_ref().map_or((None, 0), |template| {
+                    let (template, estimated_length) = template.to_tokens(state);
+                    (Some(template), estimated_length)
+                });
+
+                if !block_stack.is_empty() {
+                    return if suffix.is_some() {
+                        self.build_block(
+                            (
+                                quote! { #child_prefix #prefix },
+                                child_prefix_length + prefix_length,
+                            ),
+                            (
+                                Some(quote! { #suffix #child_suffix }),
+                                suffix_length + child_suffix_length,
+                            ),
+                            state,
+                            block_stack,
+                        )
+                    } else {
+                        self.build_block(
+                            (
+                                quote! { #child_prefix #prefix #child_suffix },
+                                child_prefix_length + prefix_length + child_suffix_length,
+                            ),
+                            (None, 0),
+                            state,
+                            block_stack,
+                        )
+                    };
+                }
+
+                estimated_length += prefix_length + suffix_length;
                 tokens.append_all(quote! {
                     #child_prefix
                     #prefix
@@ -122,56 +136,52 @@ impl ToTokens for Block<'_> {
                 });
             }
         } else {
+            if !block_stack.is_empty() && child_suffix.is_some() {
+                return self.build_block(
+                    (child_prefix, child_prefix_length),
+                    (child_suffix, child_suffix_length),
+                    state,
+                    block_stack,
+                );
+            }
+
             tokens.append_all(quote! {
-                #prefix
+                #child_prefix
+                #child_suffix
             });
         }
+        (tokens, estimated_length)
     }
 }
 
-pub(super) fn parse_block<'a>(
-    state: &'a State,
-    is_extending: &'a bool,
-) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
-    |input| {
-        let (input, block_keyword) = keyword("block")(input)?;
-
-        let position = if *is_extending {
-            Position::Override
-        } else {
-            Position::Source
-        };
-
-        let (input, (_, name)) = cut((
-            context("Expected space after 'block'", take_while1(is_whitespace)),
-            context("Expected an identifier", ident),
-        ))
-        .parse(input)?;
-
-        let source = block_keyword.0.clone();
-        let (child_block, estimated_length) =
-            if let Some((block, estimated_length)) = state.blocks.get(name.ident).cloned() {
-                (Some(block), estimated_length)
-            } else {
-                (None, 0)
-            };
-
-        Ok((
-            input,
-            Statement {
-                kind: Block {
-                    name,
-                    position,
-                    child: (child_block, estimated_length),
-                    prefix: Template(vec![]),
-                    suffix: None,
-                    is_ended: false,
-                }
-                .into(),
-                source,
-            },
-        ))
+impl<'a> From<Block<'a>> for StatementKind<'a> {
+    fn from(statement: Block<'a>) -> Self {
+        StatementKind::Block(statement)
     }
+}
+
+pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
+    let (input, block_keyword) = keyword("block")(input)?;
+
+    let (input, (_, name)) = cut((
+        context("Expected space after 'block'", take_while1(is_whitespace)),
+        context("Expected an identifier", ident),
+    ))
+    .parse(input)?;
+
+    Ok((
+        input,
+        Statement {
+            kind: Block {
+                name,
+                prefix: Template(vec![]),
+                suffix: None,
+                is_ended: false,
+            }
+            .into(),
+            source: block_keyword.0,
+        },
+    ))
 }
 
 pub(super) fn parse_parent(input: Source) -> Res<Source, Statement> {

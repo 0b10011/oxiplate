@@ -9,7 +9,7 @@ mod source;
 mod state;
 mod syntax;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::ops::Range;
 use std::path::PathBuf;
 
@@ -93,19 +93,13 @@ use crate::state::Config;
     attributes(oxiplate, oxiplate_inline, oxiplate_extends, oxiplate_include)
 )]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
-    oxiplate_internal(input, &HashMap::new()).0
+    oxiplate_internal(input, &VecDeque::from([&HashMap::new()])).0
 }
 
 /// Internal derive function that allows for block token streams to be passed in.
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
-    blocks: &HashMap<
-        &str,
-        (
-            (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>),
-            usize,
-        ),
-    >,
+    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
 ) -> (TokenStream, usize) {
     match parse_template_and_data(input, blocks) {
         Ok(token_stream) => token_stream,
@@ -118,13 +112,7 @@ pub(crate) fn oxiplate_internal(
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
 fn parse_template_and_data(
     input: TokenStream,
-    blocks: &HashMap<
-        &str,
-        (
-            (proc_macro2::TokenStream, Option<proc_macro2::TokenStream>),
-            usize,
-        ),
-    >,
+    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
 ) -> Result<(TokenStream, usize), syn::Error> {
     let input = syn::parse(input).unwrap();
     let DeriveInput {
@@ -150,6 +138,7 @@ fn parse_template_and_data(
         inferred_escaper_group: None,
         config: &config,
         blocks,
+        is_extending: &false,
     };
 
     // Parse the template type and code literal.

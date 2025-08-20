@@ -1,13 +1,14 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::{env, fs};
 
-use proc_macro2::TokenStream;
 #[cfg(feature = "config")]
 use serde::Deserialize;
 use syn::spanned::Spanned;
 use syn::DeriveInput;
+
+use crate::syntax::Template;
 
 #[cfg(all(feature = "built-in-escapers", not(feature = "oxiplate")))]
 compile_error!(
@@ -98,7 +99,9 @@ pub(crate) struct State<'a> {
     pub(crate) local_variables: &'a HashSet<&'a str>,
     pub(crate) config: &'a Config,
     pub(crate) inferred_escaper_group: Option<&'a EscaperGroup>,
-    pub(crate) blocks: &'a HashMap<&'a str, ((TokenStream, Option<TokenStream>), usize)>,
+    pub(crate) blocks:
+        &'a VecDeque<&'a HashMap<&'a str, (&'a Template<'a>, Option<&'a Template<'a>>)>>,
+    pub(crate) is_extending: &'a bool,
 }
 
 #[cfg_attr(feature = "config", derive(Deserialize))]

@@ -83,11 +83,15 @@ impl ::std::fmt::Display for IncludeDeep {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(38usize);
+            let mut string = String::with_capacity(32usize);
             let f = &mut string;
-            f.write_str("<p>hello</p>\n")?;
+            f.write_str("<h1>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str("</h1>\n")?;
             f.write_str("<p>foo</p>\n")?;
-            f.write_str("\n<p>world</p>\n")?;
+            f.write_str("\n<p>")?;
+            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str("</p>\n")?;
             string
         };
         f.write_str(&string)
@@ -125,7 +129,7 @@ fn include_deep() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", data))
         }),
-        &"<p>hello</p>\n<p>foo</p>\n\n<p>world</p>\n",
+        &"<h1>Oxiplate Example</h1>\n<p>foo</p>\n\n<p>Hello world!</p>\n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

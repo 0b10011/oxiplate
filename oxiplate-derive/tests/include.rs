@@ -37,6 +37,6 @@ fn include_deep() {
 
     assert_eq!(
         format!("{}", data),
-        "<p>hello</p>\n<p>foo</p>\n\n<p>world</p>\n"
+        "<h1>Oxiplate Example</h1>\n<p>foo</p>\n\n<p>Hello world!</p>\n"
     );
 }

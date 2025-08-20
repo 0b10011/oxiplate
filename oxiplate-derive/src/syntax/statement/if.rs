@@ -12,10 +12,10 @@ use quote::{quote, ToTokens, TokenStreamExt};
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
-use super::{State, Statement, StatementKind};
+use super::{Statement, StatementKind};
 use crate::syntax::expression::{ident, ExpressionAccess, Identifier};
 use crate::syntax::template::{is_whitespace, Template};
-use crate::Source;
+use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
@@ -91,32 +91,6 @@ pub(crate) struct If<'a> {
 }
 
 impl<'a> If<'a> {
-    /// Get the estimated output length of the shortest branch of the if statement.
-    pub(crate) fn estimated_length(&self) -> usize {
-        let mut estimated_length = None;
-
-        // Check the estimated lengths of all `if`/`else if` branches
-        // and use the shortest one.
-        // This will ensure at least the shortest branch is covered
-        // while keeping the memory usage down for branches that vary wildly.
-        for (_if_type, template) in &self.ifs {
-            let len = template.estimated_length();
-            if len < estimated_length.unwrap_or(usize::MAX) {
-                estimated_length = Some(len);
-            }
-        }
-
-        // Also check the `else` branch and do the same.
-        if let Some(template) = &self.otherwise {
-            let len = template.estimated_length();
-            if len < estimated_length.unwrap_or(usize::MAX) {
-                estimated_length = Some(len);
-            }
-        }
-
-        estimated_length.unwrap_or(0)
-    }
-
     pub fn get_active_variables(&self) -> HashSet<&'a str> {
         match self.ifs.last() {
             Some((IfType::If(_), _)) => HashSet::new(),
@@ -175,20 +149,18 @@ impl<'a> If<'a> {
             }
         }
     }
-}
 
-impl<'a> From<If<'a>> for StatementKind<'a> {
-    fn from(statement: If<'a>) -> Self {
-        StatementKind::If(statement)
-    }
-}
+    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+        let mut tokens = TokenStream::new();
+        let mut estimated_length = usize::MAX;
 
-impl ToTokens for If<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut is_elseif = false;
         for (expression, template) in &self.ifs {
             match expression {
                 IfType::If(expression) => {
+                    let (expression, _expression_length) = expression.to_tokens(state);
+                    let (template, template_length) = template.to_tokens(state);
+                    estimated_length = estimated_length.min(template_length);
                     if is_elseif {
                         tokens.append_all(quote! { else if #expression { #template } });
                     } else {
@@ -196,6 +168,22 @@ impl ToTokens for If<'_> {
                     }
                 }
                 IfType::IfLet(ty, Some(expression)) => {
+                    let (expression, _expression_length) = expression.to_tokens(state);
+
+                    let mut local_variables = ty.get_variables();
+                    for value in state.local_variables {
+                        local_variables.insert(value);
+                    }
+                    let branch_state = &State {
+                        local_variables: &local_variables,
+                        config: state.config,
+                        inferred_escaper_group: state.inferred_escaper_group,
+                        blocks: state.blocks,
+                        is_extending: state.is_extending,
+                    };
+                    let (template, template_length) = template.to_tokens(branch_state);
+                    estimated_length = estimated_length.min(template_length);
+
                     if is_elseif {
                         tokens.append_all(quote! { else if let #ty = &#expression { #template } });
                     } else {
@@ -206,6 +194,21 @@ impl ToTokens for If<'_> {
                     let expression = ty
                         .get_ident()
                         .expect("Expressionless if let statements should have an ident available");
+
+                    let mut local_variables = ty.get_variables();
+                    for value in state.local_variables {
+                        local_variables.insert(value);
+                    }
+                    let branch_state = &State {
+                        local_variables: &local_variables,
+                        config: state.config,
+                        inferred_escaper_group: state.inferred_escaper_group,
+                        blocks: state.blocks,
+                        is_extending: state.is_extending,
+                    };
+                    let (template, template_length) = template.to_tokens(branch_state);
+                    estimated_length = estimated_length.min(template_length);
+
                     if is_elseif {
                         tokens.append_all(quote! { else if let #ty = #expression { #template } });
                     } else {
@@ -217,8 +220,18 @@ impl ToTokens for If<'_> {
             is_elseif = true;
         }
         if let Some(template) = &self.otherwise {
+            let (template, template_length) = template.to_tokens(state);
+            estimated_length = estimated_length.min(template_length);
             tokens.append_all(quote! { else { #template } });
         }
+
+        (tokens, estimated_length)
+    }
+}
+
+impl<'a> From<If<'a>> for StatementKind<'a> {
+    fn from(statement: If<'a>) -> Self {
+        StatementKind::If(statement)
     }
 }
 
@@ -229,116 +242,108 @@ pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
     Ok((input, TypeName(ident.as_str(), ident)))
 }
 
-pub(super) fn parse_type<'a>(_state: &'a State) -> impl FnMut(Source) -> Res<Source, Type> + 'a {
-    |input| {
-        let (input, (path_segments, type_name, _open, identifier, _close)) = cut((
-            many0((parse_type_name, tag("::"))),
-            parse_type_name,
-            char('('),
-            ident,
-            char(')'),
-        ))
-        .parse(input)?;
-        Ok((
-            input,
-            Type(
-                path_segments,
-                type_name,
-                TypeOrIdent::Identifier(identifier),
-            ),
-        ))
-    }
+pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
+    let (input, (path_segments, type_name, _open, identifier, _close)) = cut((
+        many0((parse_type_name, tag("::"))),
+        parse_type_name,
+        char('('),
+        ident,
+        char(')'),
+    ))
+    .parse(input)?;
+    Ok((
+        input,
+        Type(
+            path_segments,
+            type_name,
+            TypeOrIdent::Identifier(identifier),
+        ),
+    ))
 }
 
-pub(super) fn parse_if<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, Statement> + 'a {
-    |input| {
-        let (input, statement_source) = tag("if")(input)?;
+pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
+    let (input, statement_source) = tag("if")(input)?;
 
-        let (input, if_type) = parse_if_generic(state)(input)?;
+    let (input, if_type) = parse_if_generic(input)?;
 
-        Ok((
-            input,
-            Statement {
-                kind: If {
-                    ifs: vec![(if_type, Template(vec![]))],
-                    otherwise: None,
-                    is_ended: false,
-                }
-                .into(),
-                source: statement_source,
-            },
-        ))
-    }
+    Ok((
+        input,
+        Statement {
+            kind: If {
+                ifs: vec![(if_type, Template(vec![]))],
+                otherwise: None,
+                is_ended: false,
+            }
+            .into(),
+            source: statement_source,
+        },
+    ))
 }
 
-fn parse_if_generic<'a>(state: &'a State) -> impl FnMut(Source) -> Res<Source, IfType> + 'a {
-    |input| {
-        // Consume at least one whitespace.
-        let (input, _) = take_while1(is_whitespace).parse(input)?;
+fn parse_if_generic(input: Source) -> Res<Source, IfType> {
+    // Consume at least one whitespace.
+    let (input, _) = take_while1(is_whitespace).parse(input)?;
 
-        let (input, r#let) = cut(opt((tag("let"), take_while1(is_whitespace)))).parse(input)?;
+    let (input, r#let) = cut(opt((tag("let"), take_while1(is_whitespace)))).parse(input)?;
 
-        if r#let.is_some() {
-            let (input, ty) =
-                context(r#"Expected a type after "let""#, cut(parse_type(state))).parse(input)?;
-            let (input, expression) = if ty.get_variables().len() == 1 {
-                opt(preceded(
-                    take_while(is_whitespace),
+    if r#let.is_some() {
+        let (input, ty) =
+            context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
+        let (input, expression) = if ty.get_variables().len() == 1 {
+            opt(preceded(
+                take_while(is_whitespace),
+                preceded(
+                    char('='),
                     preceded(
-                        char('='),
-                        preceded(
-                            take_while(is_whitespace),
-                            context(
-                                "Expected an expression after `=`",
-                                cut(expression(state, true, true)),
-                            ),
+                        take_while(is_whitespace),
+                        context(
+                            "Expected an expression after `=`",
+                            cut(expression(true, true)),
                         ),
                     ),
-                ))
-                .parse(input)?
-            } else {
-                let (input, expression) = preceded(
-                    take_while(is_whitespace),
-                    preceded(
-                        context("Expected `=`", cut(char('='))),
-                        preceded(
-                            take_while(is_whitespace),
-                            context(
-                                "Expected an expression after `=`",
-                                cut(expression(state, true, true)),
-                            ),
-                        ),
-                    ),
-                )
-                .parse(input)?;
-                (input, Some(expression))
-            };
-            Ok((input, IfType::IfLet(ty, expression)))
+                ),
+            ))
+            .parse(input)?
         } else {
-            let (input, output) = context(
-                "Expected an expression after `if`",
-                cut(expression(state, true, true)),
+            let (input, expression) = preceded(
+                take_while(is_whitespace),
+                preceded(
+                    context("Expected `=`", cut(char('='))),
+                    preceded(
+                        take_while(is_whitespace),
+                        context(
+                            "Expected an expression after `=`",
+                            cut(expression(true, true)),
+                        ),
+                    ),
+                ),
             )
             .parse(input)?;
-            Ok((input, IfType::If(output)))
-        }
+            (input, Some(expression))
+        };
+        Ok((input, IfType::IfLet(ty, expression)))
+    } else {
+        let (input, output) = context(
+            "Expected an expression after `if`",
+            cut(expression(true, true)),
+        )
+        .parse(input)?;
+        Ok((input, IfType::If(output)))
     }
 }
 
-pub(super) fn parse_elseif<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
-    |input| {
-        let (input, statement_source) = tag("elseif").parse(input)?;
+pub(super) fn parse_elseif(input: Source) -> Res<Source, Statement> {
+    let (input, statement_source) = tag("elseif").parse(input)?;
 
-        let (input, if_type) = parse_if_generic(state)(input)?;
+    let (input, if_type) = parse_if_generic(input)?;
 
-        Ok((
-            input,
-            Statement {
-                kind: ElseIf(if_type).into(),
-                source: statement_source,
-            },
-        ))
-    }
+    Ok((
+        input,
+        Statement {
+            kind: ElseIf(if_type).into(),
+            source: statement_source,
+        },
+    ))
 }
 
 pub(super) fn parse_else(input: Source) -> Res<Source, Statement> {

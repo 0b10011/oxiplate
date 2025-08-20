@@ -210,7 +210,7 @@ impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(27usize);
+            let mut string = String::with_capacity(95usize);
             let f = &mut string;
             f.write_str("\n")?;
             f.write_str(&::std::string::ToString::to_string(&"leave"))?;

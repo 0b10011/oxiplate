@@ -16,10 +16,10 @@ use super::{Res, Statement, Static, Writ};
 use crate::{Source, State};
 
 pub(super) enum ItemToken {
-    StaticText(TokenStream),
-    DynamicText(TokenStream),
+    StaticText(TokenStream, usize),
+    DynamicText(TokenStream, usize),
     Comment,
-    Statement(TokenStream),
+    Statement(TokenStream, usize),
 }
 
 /// One piece of a template.
@@ -46,29 +46,28 @@ pub(crate) enum Item<'a> {
 }
 
 impl Item<'_> {
-    /// Get the estimated output length of the item.
-    #[inline]
-    pub(super) fn estimated_length(&self) -> usize {
-        match self {
-            Item::Comment => 0,
-            Item::Writ(_writ) => 1,
-            Item::Statement(statement) => statement.estimated_length(),
-            Item::Static(text, _static_type) => text.0.len(),
-            Item::Whitespace(whitespace) => whitespace.0.len(),
-            Item::CompileError(_text, _source) => 0,
-        }
-    }
-
-    pub(super) fn to_token(&self) -> ItemToken {
+    pub(super) fn to_token(&self, state: &State<'_>) -> ItemToken {
         match self {
             Item::Comment => ItemToken::Comment,
-            Item::Writ(writ) => ItemToken::DynamicText(writ.to_token()),
-            Item::Statement(statement) => ItemToken::Statement(quote! { #statement }),
-            Item::Static(text, _static_type) => ItemToken::StaticText(text.to_token()),
-            Item::Whitespace(whitespace) => ItemToken::StaticText(whitespace.to_token()),
+            Item::Writ(writ) => {
+                let (text, estimated_length) = writ.to_token(state);
+                ItemToken::DynamicText(text, estimated_length)
+            }
+            Item::Statement(statement) => {
+                let (statement, estimated_length) = statement.to_tokens(state);
+                ItemToken::Statement(quote! { #statement }, estimated_length)
+            }
+            Item::Static(text, _static_type) => {
+                let (text, estimated_length) = text.to_token();
+                ItemToken::StaticText(text, estimated_length)
+            }
+            Item::Whitespace(whitespace) => {
+                let (text, estimated_length) = whitespace.to_token();
+                ItemToken::StaticText(text, estimated_length)
+            }
             Item::CompileError(text, source) => {
                 let span = source.span();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#text); })
+                ItemToken::Statement(quote_spanned! {span=> compile_error!(#text); }, 0)
             }
         }
     }
@@ -81,33 +80,28 @@ pub enum TagOpen<'a> {
     Comment(Source<'a>),
 }
 
-pub(crate) fn parse_tag<'a>(
-    state: &'a State,
-    is_extending: &'a bool,
-) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
-    |input| {
-        let (input, (leading_whitespace, open)) = tag_start(input)?;
+pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
+    let (input, (leading_whitespace, open)) = tag_start(input)?;
 
-        let (input, (tag, trailing_whitespace)) = match open {
-            TagOpen::Writ(_source) => cut(writ(state)).parse(input)?,
-            TagOpen::Statement(_source) => cut(statement(state, is_extending)).parse(input)?,
-            TagOpen::Comment(_source) => cut(comment).parse(input)?,
-        };
+    let (input, (tag, trailing_whitespace)) = match open {
+        TagOpen::Writ(_source) => cut(writ).parse(input)?,
+        TagOpen::Statement(_source) => cut(statement).parse(input)?,
+        TagOpen::Comment(_source) => cut(comment).parse(input)?,
+    };
 
-        let mut items = vec![];
+    let mut items = vec![];
 
-        if let Some(leading_whitespace) = leading_whitespace {
-            items.push(leading_whitespace);
-        }
-
-        items.push(tag);
-
-        if let Some(trailing_whitespace) = trailing_whitespace {
-            items.push(trailing_whitespace);
-        }
-
-        Ok((input, items))
+    if let Some(leading_whitespace) = leading_whitespace {
+        items.push(leading_whitespace);
     }
+
+    items.push(tag);
+
+    if let Some(trailing_whitespace) = trailing_whitespace {
+        items.push(trailing_whitespace);
+    }
+
+    Ok((input, items))
 }
 
 pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen)> {

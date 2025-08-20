@@ -15,10 +15,10 @@ use crate::Source;
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
 impl Static<'_> {
-    pub fn to_token(&self) -> TokenStream {
+    pub fn to_token(&self) -> (TokenStream, usize) {
         let text = &self.0;
         let span = self.1.span();
-        quote_spanned! { span => #text }
+        (quote_spanned! { span => #text }, text.len())
     }
 }
 

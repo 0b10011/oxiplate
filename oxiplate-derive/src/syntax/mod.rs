@@ -14,5 +14,5 @@ type Res<T, U> = IResult<T, U, VerboseError<T>>;
 use item::Item;
 use r#static::Static;
 use statement::Statement;
-pub(crate) use template::parse;
+pub(crate) use template::{parse, Template};
 use writ::Writ;

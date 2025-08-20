@@ -15,11 +15,11 @@ use super::super::Res;
 use super::{Statement, StatementKind, StaticType};
 use crate::syntax::template::{is_whitespace, Template};
 use crate::syntax::Item;
-use crate::Source;
+use crate::{Source, State};
 
 pub struct Extends<'a> {
     is_extending: bool,
-    blocks: HashMap<&'a str, ((TokenStream, Option<TokenStream>), usize)>,
+    blocks: HashMap<&'a str, (Template<'a>, Option<Template<'a>>)>,
     path: Source<'a>,
     template: Template<'a>,
 }
@@ -36,18 +36,9 @@ impl fmt::Debug for Extends<'_> {
 }
 
 impl<'a> Extends<'a> {
-    /// Get the estimated length of all blocks.
-    pub(crate) fn estimated_length(&self) -> usize {
-        let mut estimated_length = 0;
-        for item in self.blocks.values() {
-            estimated_length += item.1;
-        }
-        estimated_length
-    }
-
-    pub(crate) fn add_item(&mut self, mut item: Item<'a>) {
+    pub(crate) fn add_item(&mut self, item: Item<'a>) {
         #[allow(clippy::match_same_arms)]
-        match &mut item {
+        match item {
             // Comments are fine to keep
             Item::Comment => self.template.0.push(item),
 
@@ -62,34 +53,8 @@ impl<'a> Extends<'a> {
                 kind: StatementKind::Block(block),
                 ..
             }) => {
-                let prefix = {
-                    let prefix = &block.prefix;
-                    quote! { #prefix }
-                };
-
-                let (prefix, suffix) = match (&block.child.0, &block.suffix) {
-                    (None, None) => (quote! { #prefix }, None),
-                    (None, Some(suffix)) => (quote! { #prefix }, Some(quote! { #suffix })),
-                    (Some((child_prefix, None)), _) => (quote! { #child_prefix }, None),
-                    (Some((child_prefix, Some(child_suffix))), None) => {
-                        (quote! { #child_prefix #prefix #child_suffix }, None)
-                    }
-                    (Some((child_prefix, Some(child_suffix))), Some(suffix)) => (
-                        quote! { #child_prefix #prefix },
-                        Some(quote! { #suffix #child_suffix }),
-                    ),
-                };
-
-                let estimated_length = block.child.1
-                    + block.prefix.estimated_length()
-                    + if let Some(suffix) = &block.suffix {
-                        suffix.estimated_length()
-                    } else {
-                        0
-                    };
-
                 self.blocks
-                    .insert(block.name.ident, ((prefix, suffix), estimated_length));
+                    .insert(block.name.ident, (block.prefix, block.suffix));
             }
             Item::Statement(statement) => self.template.0.push(Item::CompileError(
                 "Only block statements are allowed here, along with comments and whitespace."
@@ -99,7 +64,7 @@ impl<'a> Extends<'a> {
 
             // No static text or writs allowed
             Item::Static(_, static_type) => {
-                if static_type != &StaticType::Whitespace {
+                if static_type != StaticType::Whitespace {
                     unimplemented!(
                         "Text is not allowed here. Only comments, whitespace, and blocks are \
                          allowed."
@@ -112,7 +77,7 @@ impl<'a> Extends<'a> {
         }
     }
 
-    pub(crate) fn build_template(&self) -> (TokenStream, usize) {
+    pub(crate) fn build_template(&self, state: &State) -> (TokenStream, usize) {
         let span = self.path.span();
         let path = LitStr::new(self.path.as_str(), span);
 
@@ -159,7 +124,14 @@ impl<'a> Extends<'a> {
         #[cfg(not(feature = "oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        let template = &self.template;
+        let state = &State {
+            local_variables: state.local_variables,
+            config: state.config,
+            inferred_escaper_group: state.inferred_escaper_group,
+            blocks: state.blocks,
+            is_extending: &true,
+        };
+        let (template, _template_length) = &self.template.to_tokens(state);
         let mut tokens: TokenStream = quote! { #template };
 
         let template_to_extend = if self.is_extending {
@@ -183,8 +155,16 @@ impl<'a> Extends<'a> {
                 }
             }
         };
+
+        let mut block_stack = state.blocks.clone();
+        let mut blocks = HashMap::new();
+        for (name, block) in &self.blocks {
+            blocks.insert(*name, (&block.0, block.1.as_ref()));
+        }
+        block_stack.push_back(&blocks);
+
         let (template, estimated_length) =
-            crate::oxiplate_internal(template_to_extend.into(), &self.blocks);
+            crate::oxiplate_internal(template_to_extend.into(), &block_stack);
         let template: TokenStream = template.into();
 
         tokens.append_all(quote! {

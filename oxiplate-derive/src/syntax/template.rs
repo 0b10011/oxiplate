@@ -5,7 +5,7 @@ use nom::multi::many0;
 use nom::{Input, Parser as _};
 use nom_language::error::{VerboseError, VerboseErrorKind};
 use proc_macro2::{LineColumn, TokenStream};
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 
 use super::super::Source;
 use super::item::{parse_tag, ItemToken};
@@ -19,16 +19,6 @@ use crate::State;
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
 impl Template<'_> {
-    /// Estimated length of the output of the template.
-    #[inline]
-    pub(crate) fn estimated_length(&self) -> usize {
-        let mut length = 0;
-        for item in &self.0 {
-            length += item.estimated_length();
-        }
-        length
-    }
-
     #[inline]
     fn write_tokens(str_tokens: &mut Vec<TokenStream>, tokens: &mut TokenStream) {
         if str_tokens.is_empty() {
@@ -40,48 +30,54 @@ impl Template<'_> {
 
         tokens.append_all(quote! { f.write_str(#concat_tokens)?; });
     }
-}
 
-impl ToTokens for Template<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    pub fn to_tokens(&self, state: &State<'_>) -> (TokenStream, usize) {
+        let mut tokens = TokenStream::new();
+        let mut estimated_length = 0;
+
         let mut str_tokens = vec![];
         for item in &self.0 {
-            match item.to_token() {
+            match item.to_token(state) {
                 ItemToken::Comment => (),
-                ItemToken::StaticText(token_stream) => {
+                ItemToken::StaticText(token_stream, item_length) => {
+                    estimated_length += item_length;
                     str_tokens.push(token_stream);
                 }
-                ItemToken::DynamicText(token_stream) => {
+                ItemToken::DynamicText(token_stream, item_length) => {
+                    estimated_length += item_length;
                     // Write out static text
                     if !str_tokens.is_empty() {
-                        Self::write_tokens(&mut str_tokens, tokens);
+                        Self::write_tokens(&mut str_tokens, &mut tokens);
                     }
 
                     tokens.append_all(quote! {
                         #token_stream;
                     });
                 }
-                ItemToken::Statement(token_stream) => {
-                    Self::write_tokens(&mut str_tokens, tokens);
+                ItemToken::Statement(token_stream, item_length) => {
+                    estimated_length += item_length;
+                    Self::write_tokens(&mut str_tokens, &mut tokens);
                     tokens.append_all(token_stream);
                 }
             }
         }
 
         if !str_tokens.is_empty() {
-            Self::write_tokens(&mut str_tokens, tokens);
+            Self::write_tokens(&mut str_tokens, &mut tokens);
         }
+
+        (tokens, estimated_length)
     }
 }
 
-pub(crate) fn parse<'a>(state: &'a State<'a>, source: Source<'a>) -> (TokenStream, usize) {
+pub(crate) fn parse(state: &State, source: Source) -> (TokenStream, usize) {
     match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
             nom::Err::Error(VerboseError { errors }) | nom::Err::Failure(VerboseError { errors }),
         ) => {
             let template = Template(vec![convert_error(errors)]);
-            (quote! { #template }, 0)
+            template.to_tokens(state)
         }
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
@@ -135,11 +131,8 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
     )
 }
 
-fn try_parse<'a>(
-    state: &'a State<'a>,
-    source: Source<'a>,
-) -> Res<Source<'a>, (TokenStream, usize)> {
-    let (input, items_vec) = many0(parse_item(state, &false)).parse(source)?;
+fn try_parse<'a>(state: &State, source: Source<'a>) -> Res<Source<'a>, (TokenStream, usize)> {
+    let (input, items_vec) = many0(parse_item).parse(source)?;
 
     // Return error if there's any input remaining.
     // Successful value is `("", "")`, so no need to capture.
@@ -195,27 +188,17 @@ fn try_parse<'a>(
     }
 
     let template: (TokenStream, usize) = if let Some(extends) = extends {
-        extends.build_template()
+        extends.build_template(state)
     } else {
         let template = Template(items);
-        (quote! { #template }, template.estimated_length())
+        template.to_tokens(state)
     };
 
     Ok((input, template))
 }
 
-pub(crate) fn parse_item<'a>(
-    state: &'a State,
-    is_extending: &'a bool,
-) -> impl Fn(Source) -> Res<Source, Vec<Item>> + 'a {
-    |input| {
-        alt((
-            parse_tag(state, is_extending),
-            parse_static,
-            adjusted_whitespace,
-        ))
-        .parse(input)
-    }
+pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {
+    alt((parse_tag, parse_static, adjusted_whitespace)).parse(input)
 }
 
 pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {

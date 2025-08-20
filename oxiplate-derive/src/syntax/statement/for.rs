@@ -5,7 +5,7 @@ use nom::combinator::cut;
 use nom::error::context;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 
 use super::super::expression::{expression, ident, keyword, Identifier, Keyword};
 use super::super::{Item, Res};
@@ -27,18 +27,6 @@ pub struct For<'a> {
 }
 
 impl<'a> For<'a> {
-    /// Get the estimated output length of the loop.
-    pub(crate) fn estimated_length(&self) -> usize {
-        // There's a very good chance a loop will run at least twice.
-        let estimated_length = self.template.estimated_length() * 2;
-
-        if let Some(otherwise) = &self.otherwise {
-            estimated_length.min(otherwise.estimated_length())
-        } else {
-            estimated_length
-        }
-    }
-
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             unreachable!(
@@ -80,16 +68,11 @@ impl<'a> For<'a> {
     pub(crate) fn get_active_variables(&self) -> HashSet<&'a str> {
         HashSet::from([self.ident.ident])
     }
-}
 
-impl<'a> From<For<'a>> for StatementKind<'a> {
-    fn from(statement: For<'a>) -> Self {
-        StatementKind::For(statement)
-    }
-}
+    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+        let mut tokens = TokenStream::new();
+        let mut estimated_length = 0;
 
-impl ToTokens for For<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
         let For {
             for_keyword,
             ident,
@@ -100,9 +83,27 @@ impl ToTokens for For<'_> {
             is_ended: _,
         } = self;
 
-        if otherwise.is_none() {
-            tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
-        } else {
+        let (expression, _expression_length) = expression.to_tokens(state);
+
+        let mut local_variables = self.get_active_variables();
+        for value in state.local_variables {
+            local_variables.insert(value);
+        }
+        let loop_state = &State {
+            local_variables: &local_variables,
+            config: state.config,
+            inferred_escaper_group: state.inferred_escaper_group,
+            blocks: state.blocks,
+            is_extending: state.is_extending,
+        };
+        let (template, template_length) = template.to_tokens(loop_state);
+
+        // Loops will very likely run at least twice.
+        estimated_length += template_length * 2;
+
+        if let Some(otherwise) = otherwise {
+            let (otherwise, otherwise_length) = otherwise.to_tokens(state);
+            estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
                     let mut loop_ran = false;
@@ -115,49 +116,57 @@ impl ToTokens for For<'_> {
                     }
                 }
             });
+        } else {
+            tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
         }
+
+        (tokens, estimated_length)
     }
 }
 
-pub(super) fn parse_for<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Statement> + 'a {
-    |input| {
-        let (input, for_keyword) = keyword("for").parse(input)?;
-
-        let (input, (_, ident, _, in_keyword, _, expression)) = cut((
-            context("Expected space after 'for'", take_while1(is_whitespace)),
-            context("Expected an identifier", ident),
-            context(
-                "Expected space after identifier",
-                take_while1(is_whitespace),
-            ),
-            context("Expected 'in'", keyword("in")),
-            context("Expected space after 'in'", take_while1(is_whitespace)),
-            context(
-                "Expected an expression that is iterable",
-                expression(state, true, true),
-            ),
-        ))
-        .parse(input)?;
-
-        let source = for_keyword.0.clone();
-
-        Ok((
-            input,
-            Statement {
-                kind: For {
-                    for_keyword,
-                    ident,
-                    in_keyword,
-                    expression,
-                    template: Template(vec![]),
-                    otherwise: None,
-                    is_ended: false,
-                }
-                .into(),
-                source,
-            },
-        ))
+impl<'a> From<For<'a>> for StatementKind<'a> {
+    fn from(statement: For<'a>) -> Self {
+        StatementKind::For(statement)
     }
+}
+
+pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
+    let (input, for_keyword) = keyword("for").parse(input)?;
+
+    let (input, (_, ident, _, in_keyword, _, expression)) = cut((
+        context("Expected space after 'for'", take_while1(is_whitespace)),
+        context("Expected an identifier", ident),
+        context(
+            "Expected space after identifier",
+            take_while1(is_whitespace),
+        ),
+        context("Expected 'in'", keyword("in")),
+        context("Expected space after 'in'", take_while1(is_whitespace)),
+        context(
+            "Expected an expression that is iterable",
+            expression(true, true),
+        ),
+    ))
+    .parse(input)?;
+
+    let source = for_keyword.0.clone();
+
+    Ok((
+        input,
+        Statement {
+            kind: For {
+                for_keyword,
+                ident,
+                in_keyword,
+                expression,
+                template: Template(vec![]),
+                otherwise: None,
+                is_ended: false,
+            }
+            .into(),
+            source,
+        },
+    ))
 }
 
 pub(super) fn parse_endfor(input: Source) -> Res<Source, Statement> {

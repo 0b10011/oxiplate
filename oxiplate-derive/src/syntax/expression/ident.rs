@@ -6,35 +6,18 @@ use proc_macro2::{Group, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 
 use super::{Expression, Res};
-use crate::{Source, State};
+use crate::Source;
 
-pub(crate) fn identifier<'a>(state: &'a State) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-    |input| {
-        let (input, (ident, parens)) = pair(&ident, opt(tag("()"))).parse(input)?;
+pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
+    let (input, (ident, parens)) = pair(&ident, opt(tag("()"))).parse(input)?;
 
-        let ident_str = ident.ident;
-        let field = if let Some(parens) = parens {
-            IdentifierOrFunction::Function(ident, parens)
-        } else {
-            IdentifierOrFunction::Identifier(ident)
-        };
-        let is_extending = input.original.is_extending;
-        let is_local = state.local_variables.contains(ident_str);
+    let field = if let Some(parens) = parens {
+        IdentifierOrFunction::Function(ident, parens)
+    } else {
+        IdentifierOrFunction::Identifier(ident)
+    };
 
-        Ok((
-            input,
-            Expression::Identifier(
-                field,
-                if is_local {
-                    IdentifierScope::Local
-                } else if is_extending {
-                    IdentifierScope::Data
-                } else {
-                    IdentifierScope::Parent
-                },
-            ),
-        ))
-    }
+    Ok((input, Expression::Identifier(field)))
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -106,11 +89,4 @@ impl ToTokens for IdentifierOrFunction<'_> {
             }
         }
     }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum IdentifierScope {
-    Local,
-    Parent,
-    Data,
 }
