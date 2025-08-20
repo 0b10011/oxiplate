@@ -1,0 +1,22 @@
+error: proc-macro derive panicked
+ --> tests/broken/extends/extends-after-writ.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not yet implemented: Can't extend if already adding content
+
+error[E0277]: `Writ` doesn't implement `std::fmt::Display`
+  --> tests/broken/extends/extends-after-writ.rs:10:18
+   |
+10 |       print!("{}", Writ {
+   |  _____________--___^
+   | |             |
+   | |             required by this formatting parameter
+11 | |         title: "Double extends",
+12 | |     });
+   | |_____^ `Writ` cannot be formatted with the default formatter
+   |
+   = help: the trait `std::fmt::Display` is not implemented for `Writ`
+   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
