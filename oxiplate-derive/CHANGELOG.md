@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.9.1...oxiplate-derive-v0.9.2) - 2025-08-20
+
+### Other
+
+- move state from parsing to token building and improve length estimation along the way
+
 ## [0.9.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.9.0...oxiplate-derive-v0.9.1) - 2025-08-18
 
 ### Added
