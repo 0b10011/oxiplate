@@ -95,13 +95,14 @@ fn config_path() -> PathBuf {
 }
 
 /// Macro state containing the configuration and any local variables.
+#[derive(Clone)]
 pub(crate) struct State<'a> {
     pub(crate) local_variables: &'a HashSet<&'a str>,
     pub(crate) config: &'a Config,
     pub(crate) inferred_escaper_group: Option<&'a EscaperGroup>,
     pub(crate) blocks:
         &'a VecDeque<&'a HashMap<&'a str, (&'a Template<'a>, Option<&'a Template<'a>>)>>,
-    pub(crate) is_extending: &'a bool,
+    pub(crate) has_content: &'a bool,
 }
 
 #[cfg_attr(feature = "config", derive(Deserialize))]

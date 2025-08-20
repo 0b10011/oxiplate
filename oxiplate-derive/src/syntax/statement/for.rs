@@ -91,10 +91,7 @@ impl<'a> For<'a> {
         }
         let loop_state = &State {
             local_variables: &local_variables,
-            config: state.config,
-            inferred_escaper_group: state.inferred_escaper_group,
-            blocks: state.blocks,
-            is_extending: state.is_extending,
+            ..*state
         };
         let (template, template_length) = template.to_tokens(loop_state);
 

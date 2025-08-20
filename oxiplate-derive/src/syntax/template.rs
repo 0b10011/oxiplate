@@ -11,7 +11,6 @@ use super::super::Source;
 use super::item::{parse_tag, ItemToken};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
-use crate::syntax::statement::StatementKind;
 use crate::State;
 
 /// Collection of items in the template and estimated output length.
@@ -36,8 +35,9 @@ impl Template<'_> {
         let mut estimated_length = 0;
 
         let mut str_tokens = vec![];
+        let mut state = state.clone();
         for item in &self.0 {
-            match item.to_token(state) {
+            match item.to_token(&mut state) {
                 ItemToken::Comment => (),
                 ItemToken::StaticText(token_stream, item_length) => {
                     estimated_length += item_length;
@@ -143,58 +143,7 @@ fn try_parse<'a>(state: &State, source: Source<'a>) -> Res<Source<'a>, (TokenStr
         items.append(&mut item_vec);
     }
 
-    let mut has_content = false;
-    let mut extends = None;
-    for item in &items {
-        match item {
-            Item::Statement(statement) => {
-                #[allow(clippy::enum_glob_use)]
-                use StatementKind::*;
-                match &statement.kind {
-                    Extends(item) => {
-                        if has_content || extends.is_some() {
-                            todo!("Can't extend if already adding content");
-                        }
-
-                        extends = Some(item);
-                    }
-                    Block(_) => {
-                        // While blocks are allowed when extending,
-                        // the extends tag should cause an error if it appears _after_ a block.
-                        has_content = true;
-                    }
-                    Parent | EndBlock | Include(_) | If(_) | ElseIf(_) | Else | EndIf | For(_)
-                    | EndFor => {
-                        if extends.is_some() {
-                            todo!("Can't add content if extending");
-                        }
-
-                        has_content = true;
-                    }
-                }
-            }
-            #[allow(clippy::match_same_arms)]
-            Item::Writ(_) => has_content = true,
-            Item::Static(_, _static_type) => {
-                if extends.is_some() {
-                    todo!("Can't add static content or writs when extending");
-                }
-
-                has_content = true;
-            }
-            // These are fine anywhere
-            Item::CompileError(_, _) | Item::Comment | Item::Whitespace(_) => (),
-        }
-    }
-
-    let template: (TokenStream, usize) = if let Some(extends) = extends {
-        extends.build_template(state)
-    } else {
-        let template = Template(items);
-        template.to_tokens(state)
-    };
-
-    Ok((input, template))
+    Ok((input, Template(items).to_tokens(state)))
 }
 
 pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {

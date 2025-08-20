@@ -77,7 +77,7 @@ impl<'a> Extends<'a> {
         }
     }
 
-    pub(crate) fn build_template(&self, state: &State) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
         let span = self.path.span();
         let path = LitStr::new(self.path.as_str(), span);
 
@@ -124,13 +124,6 @@ impl<'a> Extends<'a> {
         #[cfg(not(feature = "oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        let state = &State {
-            local_variables: state.local_variables,
-            config: state.config,
-            inferred_escaper_group: state.inferred_escaper_group,
-            blocks: state.blocks,
-            is_extending: &true,
-        };
         let (template, _template_length) = &self.template.to_tokens(state);
         let mut tokens: TokenStream = quote! { #template };
 

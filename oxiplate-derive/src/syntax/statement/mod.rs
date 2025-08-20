@@ -95,8 +95,15 @@ impl<'a> Statement<'a> {
         let mut estimated_length = 0;
 
         tokens.append_all(match &self.kind {
-            StatementKind::Extends(_extends) => {
-                quote! { compile_error!("'extends' statement should be handled elsewhere"); }
+            StatementKind::Extends(statement) => {
+                if *state.has_content {
+                    let span = self.source.span();
+                    quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); }
+                } else {
+                    let (statement, statement_length) = statement.to_tokens(state);
+                    estimated_length += statement_length;
+                    statement
+                }
             }
             StatementKind::Block(block) => {
                 let mut local_variables = self.get_active_variables();
@@ -105,10 +112,7 @@ impl<'a> Statement<'a> {
                 }
                 let state = &State {
                     local_variables: &local_variables,
-                    config: state.config,
-                    inferred_escaper_group: state.inferred_escaper_group,
-                    blocks: state.blocks,
-                    is_extending: state.is_extending,
+                    ..*state
                 };
                 let (block, block_length) = block.to_tokens(state);
                 estimated_length += block_length;

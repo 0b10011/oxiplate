@@ -138,7 +138,7 @@ fn parse_template_and_data(
         inferred_escaper_group: None,
         config: &config,
         blocks,
-        is_extending: &false,
+        has_content: &false,
     };
 
     // Parse the template type and code literal.

@@ -46,19 +46,22 @@ pub(crate) enum Item<'a> {
 }
 
 impl Item<'_> {
-    pub(super) fn to_token(&self, state: &State<'_>) -> ItemToken {
+    pub(super) fn to_token(&self, state: &mut State<'_>) -> ItemToken {
         match self {
             Item::Comment => ItemToken::Comment,
             Item::Writ(writ) => {
                 let (text, estimated_length) = writ.to_token(state);
+                state.has_content = &true;
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
                 let (statement, estimated_length) = statement.to_tokens(state);
+                state.has_content = &true;
                 ItemToken::Statement(quote! { #statement }, estimated_length)
             }
             Item::Static(text, _static_type) => {
                 let (text, estimated_length) = text.to_token();
+                state.has_content = &true;
                 ItemToken::StaticText(text, estimated_length)
             }
             Item::Whitespace(whitespace) => {

@@ -176,10 +176,7 @@ impl<'a> If<'a> {
                     }
                     let branch_state = &State {
                         local_variables: &local_variables,
-                        config: state.config,
-                        inferred_escaper_group: state.inferred_escaper_group,
-                        blocks: state.blocks,
-                        is_extending: state.is_extending,
+                        ..*state
                     };
                     let (template, template_length) = template.to_tokens(branch_state);
                     estimated_length = estimated_length.min(template_length);
@@ -201,10 +198,7 @@ impl<'a> If<'a> {
                     }
                     let branch_state = &State {
                         local_variables: &local_variables,
-                        config: state.config,
-                        inferred_escaper_group: state.inferred_escaper_group,
-                        blocks: state.blocks,
-                        is_extending: state.is_extending,
+                        ..*state
                     };
                     let (template, template_length) = template.to_tokens(branch_state);
                     estimated_length = estimated_length.min(template_length);
