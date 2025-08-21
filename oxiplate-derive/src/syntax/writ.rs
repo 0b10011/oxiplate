@@ -21,7 +21,7 @@ use crate::{Source, State};
 
 enum EscaperType<'a> {
     Default,
-    Specified(&'a EscaperGroup, Span, &'a Identifier<'a>),
+    Specified((&'a str, &'a EscaperGroup), Span, &'a Identifier<'a>),
     Raw,
 }
 
@@ -57,9 +57,15 @@ impl Writ<'_> {
 
         match escaper_type {
             EscaperType::Default => Self::escaper_default(state, span, text, estimated_length),
-            EscaperType::Specified(group, group_span, escaper) => {
-                Self::escaper_specified(group, group_span, escaper, span, text, estimated_length)
-            }
+            EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
+                state,
+                group,
+                group_span,
+                escaper,
+                span,
+                text,
+                estimated_length,
+            ),
             EscaperType::Raw => Self::escaper_raw(text, estimated_length),
         }
     }
@@ -76,7 +82,7 @@ impl Writ<'_> {
             }) => {
                 if let Some(escaper_group) = state.config.escaper_groups.get(group.ident) {
                     Ok(EscaperType::Specified(
-                        escaper_group,
+                        (group.ident, escaper_group),
                         group.source.span(),
                         escaper,
                     ))
@@ -96,6 +102,12 @@ impl Writ<'_> {
             }) => {
                 if escaper.ident == "raw" {
                     Ok(EscaperType::Raw)
+                } else if let Some(default_group) = state.default_escaper_group {
+                    Ok(EscaperType::Specified(
+                        default_group,
+                        escaper.source.span(),
+                        escaper,
+                    ))
                 } else if let Some(inferred_group) = state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
                         inferred_group,
@@ -107,7 +119,7 @@ impl Writ<'_> {
                         state.config.escaper_groups.get(fallback_group.as_str())
                     {
                         Ok(EscaperType::Specified(
-                            escaper_group,
+                            (fallback_group.as_str(), escaper_group),
                             escaper.source.span(),
                             escaper,
                         ))
@@ -171,10 +183,14 @@ impl Writ<'_> {
             );
         }
 
-        let default_group = if let Some(inferred_group) = state.inferred_escaper_group {
+        let default_group: (&str, &EscaperGroup) = if let Some(default_group) =
+            state.default_escaper_group
+        {
+            default_group
+        } else if let Some(inferred_group) = state.inferred_escaper_group {
             inferred_group
-        } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
-            if fallback_group == "raw" {
+        } else if let Some(fallback_group_name) = &state.config.fallback_escaper_group {
+            if fallback_group_name == "raw" {
                 #[cfg(not(feature = "oxiplate"))]
                 return (
                     quote_spanned! {span=> f.write_str(&::std::string::ToString::to_string(&#text))?; },
@@ -190,16 +206,23 @@ impl Writ<'_> {
                 );
             }
 
-            let Some(fallback_group) = state.config.escaper_groups.get(fallback_group) else {
+            let Some(fallback_group) = state.config.escaper_groups.get(fallback_group_name) else {
                 return token_error!(
                     span,
-                    "Invalid default escaper group specified. Make sure the escaper name in the \
+                    "Invalid fallback escaper group specified. Make sure the escaper name in the \
                      template matches the name set in `/oxiplate.toml`.",
                 );
             };
 
-            fallback_group
+            (fallback_group_name, fallback_group)
         } else {
+            if *state.failed_to_set_default_escaper_group {
+                return (
+                    quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
+                    0,
+                );
+            }
+
             #[cfg(not(feature = "config"))]
             return token_error!(
                 span,
@@ -213,7 +236,7 @@ impl Writ<'_> {
             );
         };
 
-        let Ok(group) = syn::LitStr::new(&default_group.escaper, span).parse::<Path>() else {
+        let Ok(group) = syn::LitStr::new(&default_group.1.escaper, span).parse::<Path>() else {
             return token_error!(
                 span,
                 r#"Unparseable default escaper group path. Make sure the escaper path is correct in \
@@ -233,16 +256,24 @@ impl Writ<'_> {
     }
 
     fn escaper_specified(
-        group: &EscaperGroup,
+        state: &State,
+        group: (&str, &EscaperGroup),
         group_span: Span,
         escaper: &Identifier,
         span: Span,
         text: &TokenStream,
         estimated_length: usize,
     ) -> (TokenStream, usize) {
+        if *state.failed_to_set_default_escaper_group {
+            return (
+                quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
+                0,
+            );
+        }
+
         if let Ok(escaper) = syn::LitStr::new(escaper.ident, escaper.span()).parse::<PathSegment>()
         {
-            if let Ok(group) = syn::LitStr::new(&group.escaper, group_span).parse::<Path>() {
+            if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
                 if let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>() {
                     let path = syn::parse2::<Path>(quote! {
                         #group #sep #escaper

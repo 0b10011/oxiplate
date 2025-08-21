@@ -13,6 +13,7 @@ use super::statement::statement;
 use super::template::whitespace;
 use super::writ::writ;
 use super::{Res, Statement, Static, Writ};
+use crate::syntax::statement::StatementKind;
 use crate::{Source, State};
 
 pub(super) enum ItemToken {
@@ -45,8 +46,8 @@ pub(crate) enum Item<'a> {
     CompileError(String, Source<'a>),
 }
 
-impl Item<'_> {
-    pub(super) fn to_token(&self, state: &mut State<'_>) -> ItemToken {
+impl<'a> Item<'a> {
+    pub(super) fn to_token(&'a self, state: &mut State<'a>) -> ItemToken {
         match self {
             Item::Comment => ItemToken::Comment,
             Item::Writ(writ) => {
@@ -55,9 +56,30 @@ impl Item<'_> {
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
-                let (statement, estimated_length) = statement.to_tokens(state);
+                let (statement_tokens, estimated_length) = match statement.to_tokens(state) {
+                    Ok(result) => result,
+                    Err(result) => {
+                        if let StatementKind::DefaultEscaper(_) = statement.kind {
+                            state.failed_to_set_default_escaper_group = &true;
+                        }
+
+                        result
+                    }
+                };
                 state.has_content = &true;
-                ItemToken::Statement(quote! { #statement }, estimated_length)
+
+                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
+                    if let Some(default_escaper_group) = state
+                        .config
+                        .escaper_groups
+                        .get(default_escaper.escaper.ident)
+                    {
+                        state.default_escaper_group =
+                            Some((default_escaper.escaper.ident, default_escaper_group));
+                    }
+                }
+
+                ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
             }
             Item::Static(text, _static_type) => {
                 let (text, estimated_length) = text.to_token();

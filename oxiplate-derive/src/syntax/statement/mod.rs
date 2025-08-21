@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 mod block;
+mod escaper;
 mod extends;
 mod r#for;
 mod r#if;
@@ -15,14 +16,15 @@ use nom::error::context;
 use nom::sequence::preceded;
 use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, TokenStreamExt};
+use quote::quote_spanned;
 
+pub(crate) use self::escaper::DefaultEscaper;
+use self::include::Include;
 use self::r#for::For;
 use self::r#if::{ElseIf, If};
 use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;
-use crate::syntax::statement::include::Include;
 use crate::syntax::template::{is_whitespace, parse_item};
 use crate::{Source, State};
 
@@ -34,6 +36,7 @@ pub(crate) struct Statement<'a> {
 
 #[derive(Debug)]
 pub(crate) enum StatementKind<'a> {
+    DefaultEscaper(DefaultEscaper<'a>),
     Extends(Extends<'a>),
     Block(Block<'a>),
     Parent,
@@ -56,7 +59,8 @@ impl<'a> Statement<'a> {
             Block(statement) => statement.is_ended,
             If(statement) => statement.is_ended,
             For(statement) => statement.is_ended,
-            Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf | EndFor => true,
+            DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
+            | EndFor => true,
         }
     }
 
@@ -76,7 +80,8 @@ impl<'a> Statement<'a> {
             For(statement) => {
                 statement.add_item(item);
             }
-            Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf | EndFor => {
+            DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
+            | EndFor => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
         }
@@ -90,19 +95,31 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
+    pub(crate) fn to_tokens(
+        &self,
+        state: &State,
+    ) -> Result<(TokenStream, usize), (TokenStream, usize)> {
+        macro_rules! unexpected {
+            ($tag:literal) => {{
+                let span = self.source.span();
+                Err((
+                    quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
+                    0,
+                ))
+            }};
+        }
 
-        tokens.append_all(match &self.kind {
+        match &self.kind {
+            StatementKind::DefaultEscaper(default_escaper) => default_escaper.to_tokens(state),
             StatementKind::Extends(statement) => {
                 if *state.has_content {
                     let span = self.source.span();
-                    quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); }
+                    Err((
+                        quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
+                        0,
+                    ))
                 } else {
-                    let (statement, statement_length) = statement.to_tokens(state);
-                    estimated_length += statement_length;
-                    statement
+                    Ok(statement.to_tokens(state))
                 }
             }
             StatementKind::Block(block) => {
@@ -114,55 +131,21 @@ impl<'a> Statement<'a> {
                     local_variables: &local_variables,
                     ..*state
                 };
-                let (block, block_length) = block.to_tokens(state);
-                estimated_length += block_length;
-                quote! { #block }
+                Ok(block.to_tokens(state))
             }
-            StatementKind::Parent => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'parent' statement"); }
-            }
-            StatementKind::EndBlock => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'endblock' statement"); }
-            }
+            StatementKind::Parent => unexpected!("parent"),
+            StatementKind::EndBlock => unexpected!("endblock"),
 
-            StatementKind::Include(statement) => {
-                let (statement, statement_length) = statement.to_tokens();
-                estimated_length += statement_length;
-                quote! { #statement }
-            }
+            StatementKind::Include(statement) => Ok(statement.to_tokens()),
 
-            StatementKind::If(statement) => {
-                let (statement, statement_length) = statement.to_tokens(state);
-                estimated_length += statement_length;
-                quote! { #statement }
-            }
-            StatementKind::ElseIf(_) => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'elseif' statement"); }
-            }
-            StatementKind::Else => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'else' statement"); }
-            }
-            StatementKind::EndIf => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'endif' statement"); }
-            }
+            StatementKind::If(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::ElseIf(_) => unexpected!("elseif"),
+            StatementKind::Else => unexpected!("else"),
+            StatementKind::EndIf => unexpected!("endif"),
 
-            StatementKind::For(statement) => {
-                let (statement, statement_length) = statement.to_tokens(state);
-                estimated_length += statement_length;
-                quote! { #statement }
-            }
-            StatementKind::EndFor => {
-                let span = self.source.span();
-                quote_spanned! {span=> compile_error!("Unexpected 'endfor' statement"); }
-            }
-        });
-
-        (tokens, estimated_length)
+            StatementKind::For(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::EndFor => unexpected!("endfor"),
+        }
     }
 }
 
@@ -180,6 +163,7 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Item>)> {
     let (input, mut statement) = context(
         "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
         cut(alt((
+            escaper::parse_default_escaper_group,
             extends::parse_extends,
             include::parse_include,
             block::parse_block,
@@ -226,7 +210,8 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Item>)> {
                         StatementKind::Block(_) => context_message!("block"),
                         StatementKind::If(_) => context_message!("if"),
                         StatementKind::For(_) => context_message!("for"),
-                        StatementKind::Extends(_)
+                        StatementKind::DefaultEscaper(_)
+                        | StatementKind::Extends(_)
                         | StatementKind::Parent
                         | StatementKind::EndBlock
                         | StatementKind::Include(_)

@@ -53,22 +53,33 @@ And if you want to be explicit, `{{ name }}` and `{{ text: name }}` are equivale
 Using Oxiplate to build inline templates,
 or templates that don't use file extensions that cleanly match up with escapers?
 
-You can switch the fallback escaper for all of your templates:
+You can specify the escaper from the attribute:
+
+```rust
+#[derive(Oxiplate)]
+#[oxiplate_inline(html: "{{ name }}")]
+struct Data { name: &'static str }
+```
+
+You can also set a fallback escaper for any of your templates that don't specify an escaper group:
 
 ```toml:/oxiplate.toml
 fallback_escaper_group = "html"
 ```
 
-Or switch it for the template you're in:
-
-<div class="warning">
-
-`default_escaper_group` is not yet implemented ([#39](https://github.com/0b10011/oxiplate/issues/39)).
-
-</div>
+And finally, you can set the escaper group for the template you're in:
 
 ```json.oxip
 {% default_escaper_group json %}
+{
+    "greeting": "Hello {{ name }}!",
+}
+```
+
+If an escaper group was inferred from the extension, you can still override it:
+
+```json.oxip:json.html
+{% replace_escaper_group json %}
 {
     "greeting": "Hello {{ name }}!",
 }

@@ -99,7 +99,17 @@ fn config_path() -> PathBuf {
 pub(crate) struct State<'a> {
     pub(crate) local_variables: &'a HashSet<&'a str>,
     pub(crate) config: &'a Config,
-    pub(crate) inferred_escaper_group: Option<&'a EscaperGroup>,
+    pub(crate) inferred_escaper_group: Option<(&'a str, &'a EscaperGroup)>,
+
+    /// Default escaper group for a template.
+    /// Overrides any inferred escaping group that's already set.
+    pub(crate) default_escaper_group: Option<(&'a str, &'a EscaperGroup)>,
+
+    /// Flag to track when setting the default escaper group fails.
+    /// Because this can change which escapers are available,
+    /// it can result in a different error for every writ that escapes values.
+    /// This allows for reducing it to a single error per template.
+    pub(crate) failed_to_set_default_escaper_group: &'a bool,
     pub(crate) blocks:
         &'a VecDeque<&'a HashMap<&'a str, (&'a Template<'a>, Option<&'a Template<'a>>)>>,
     pub(crate) has_content: &'a bool,
