@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.9.2...oxiplate-v0.9.3) - 2025-08-21
+
+### Added
+
+- made it possible to specify/override the escaper group from within a template (fixes #39)
+
+### Fixed
+
+- improve error message for extends statements after other content
+
+### Other
+
+- added tests for extends processing
+- remove commented out code
+
 ## [0.9.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.9.1...oxiplate-v0.9.2) - 2025-08-20
 
 ### Other
