@@ -12,14 +12,11 @@ Oxiplate supports many of the same literals Rust itself does:
 - String (e.g., `"This is a string."`)
 - Boolean (i.e., `true` or `false`)
 - Integer (e.g., `19`)
-
-With improved support planned:
-
-- Float ([#22](https://github.com/0b10011/oxiplate/issues/22); e.g., `1.9e1`)
-- Binary ([#19](https://github.com/0b10011/oxiplate/issues/19); e.g., `0b10011`)
-- Octal ([#20](https://github.com/0b10011/oxiplate/issues/20); e.g., `0o23`)
-- Hexadecimal ([#21](https://github.com/0b10011/oxiplate/issues/21); e.g., `0x13`)
-- Underscore number separators ([#18](https://github.com/0b10011/oxiplate/issues/18); e.g., `1_000_000`)
+- Float (e.g., `1.9e1`)
+- Binary (e.g., `0b10011`)
+- Octal (e.g., `0o23`)
+- Hexadecimal (e.g., `0x13`)
+- Underscore number separators (e.g., `1_000_000`)
 
 ## Variables, fields, and functions
 
