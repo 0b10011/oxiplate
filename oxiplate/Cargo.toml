@@ -16,7 +16,7 @@ workspace = true
 
 [dependencies]
 itoa = "1.0.15"
-oxiplate-derive = { version = "0.9.2", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
+oxiplate-derive = { version = "0.9.3", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
 
 [dev-dependencies]
 rustversion = "1.0.19"
