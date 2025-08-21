@@ -111,10 +111,6 @@ impl Expression<'_> {
                     }
                 }
 
-                if argument_tokens.is_empty() {
-                    return (tokens, estimated_length);
-                }
-
                 let format_concat_tokens = quote! { concat!(#(#format_tokens),*) };
                 format_tokens.clear();
 

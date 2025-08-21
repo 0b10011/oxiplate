@@ -73,10 +73,67 @@ fn variable() {
         }
     };
 }
+#[oxiplate_inline(r#"{{ "hello" ~ " " ~ "world" }}"#)]
+struct ConcatStrings;
+impl ::std::fmt::Display for ConcatStrings {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(11usize);
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&"hello world"))?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "concat_strings"]
+#[doc(hidden)]
+pub const concat_strings: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("concat_strings"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/concat.rs",
+        start_line: 25usize,
+        start_col: 4usize,
+        end_line: 25usize,
+        end_col: 18usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(concat_strings()),
+    ),
+};
+fn concat_strings() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", ConcatStrings))
+        }),
+        &"hello world",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&variable])
+    test::test_main_static(&[&concat_strings, &variable])
 }

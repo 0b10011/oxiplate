@@ -16,3 +16,12 @@ fn variable() {
 
     assert_eq!(format!("{data}"), "Xavier (XYZ Company)");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ "hello" ~ " " ~ "world" }}"#)]
+struct ConcatStrings;
+
+#[test]
+fn concat_strings() {
+    assert_eq!(format!("{}", ConcatStrings), "hello world");
+}
