@@ -58,18 +58,14 @@ pub(crate) enum Expression<'a> {
 
 impl Expression<'_> {
     pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
-
-        tokens.append_all(match self {
+        match self {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.source.span();
-                    estimated_length += 1;
                     if state.local_variables.contains(identifier.ident) {
-                        quote_spanned! {span=> #identifier }
+                        (quote! { #identifier }, 1)
                     } else {
-                        quote_spanned! {span=> self.#identifier }
+                        (quote_spanned! {span=> self.#identifier }, 1)
                     }
                 }
                 IdentifierOrFunction::Function(identifier, parens) => {
@@ -79,11 +75,10 @@ impl Expression<'_> {
                     parens.set_span(span);
 
                     let span = identifier.source.span();
-                    estimated_length += 1;
                     if state.local_variables.contains(identifier.ident) {
-                        quote_spanned! {span=> #identifier #parens }
+                        (quote! { #identifier #parens }, 1)
                     } else {
-                        quote_spanned! {span=> self.#identifier #parens }
+                        (quote_spanned! {span=> self.#identifier #parens }, 1)
                     }
                 }
             },
@@ -92,6 +87,7 @@ impl Expression<'_> {
 
                 let mut format_tokens = vec![];
                 let mut argument_tokens = vec![];
+                let mut estimated_length = 0;
                 for expression in expressions {
                     match expression {
                         ExpressionAccess {
@@ -115,50 +111,43 @@ impl Expression<'_> {
                 format_tokens.clear();
 
                 if argument_tokens.is_empty() {
-                    format_concat_tokens
+                    (format_concat_tokens, estimated_length)
                 } else {
-                    quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) }
+                    (
+                        quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) },
+                        estimated_length,
+                    )
                 }
             }
             Expression::Calc(left, operator, right) => {
                 let (left, left_length) = left.to_tokens(state);
                 let (right, right_length) = right.to_tokens(state);
-                estimated_length += left_length.min(right_length);
-                quote!((#left #operator #right))
+                (
+                    quote!((#left #operator #right)),
+                    left_length.min(right_length),
+                )
             }
             Expression::Prefixed(operator, expression) => {
                 let (expression, expression_length) = expression.to_tokens(state);
-                estimated_length += expression_length;
-                quote!((#operator #expression))
+                (quote!((#operator #expression)), expression_length)
             }
             Expression::String(string) => {
-                estimated_length += string.as_str().len();
-                let string = ::syn::LitStr::new(string.as_str(), string.span());
-                quote! {
-                    #string
-                }
+                let literal = ::syn::LitStr::new(string.as_str(), string.span());
+                (quote! { #literal }, string.as_str().len())
             }
             Expression::Integer(number) => {
-                estimated_length += number.as_str().len();
-                let number = ::syn::LitInt::new(number.as_str(), number.span());
-                quote! {
-                    #number
-                }
+                let literal = ::syn::LitInt::new(number.as_str(), number.span());
+                (quote! { #literal }, number.as_str().len())
             }
             Expression::Float(number) => {
-                estimated_length += number.as_str().len();
-                let number = ::syn::LitFloat::new(number.as_str(), number.span());
-                quote! {
-                    #number
-                }
+                let literal = ::syn::LitFloat::new(number.as_str(), number.span());
+                (quote! { #literal }, number.as_str().len())
             }
             Expression::Bool(bool, source) => {
-                let bool = ::syn::LitBool::new(*bool, source.span());
-                quote! { #bool }
+                let literal = ::syn::LitBool::new(*bool, source.span());
+                (quote! { #literal }, 0)
             }
-        });
-
-        (tokens, estimated_length)
+        }
     }
 }
 
