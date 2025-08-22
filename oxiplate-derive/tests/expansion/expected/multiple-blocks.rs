@@ -1,8 +1,8 @@
 #![feature(prelude_import)]
-#[prelude_import]
-use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
 struct Data;

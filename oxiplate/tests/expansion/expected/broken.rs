@@ -1,8 +1,8 @@
 #![feature(prelude_import)]
-#[prelude_import]
-use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
 extern crate test;
 #[rustc_test_marker = "broken"]
 #[doc(hidden)]

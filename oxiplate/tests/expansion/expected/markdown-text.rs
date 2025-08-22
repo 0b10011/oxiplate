@@ -1,8 +1,8 @@
 #![feature(prelude_import)]
-#[prelude_import]
-use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(
     html:"{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"

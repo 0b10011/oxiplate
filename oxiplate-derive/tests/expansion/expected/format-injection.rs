@@ -1,8 +1,8 @@
 #![feature(prelude_import)]
-#[prelude_import]
-use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting \
