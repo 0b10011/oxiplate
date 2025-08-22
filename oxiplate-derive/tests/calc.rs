@@ -142,17 +142,11 @@ struct OrderOfOperations {
     a: usize,
     b: usize,
     c: usize,
-    yes: bool,
 }
 
 #[test]
 fn test_order_of_operations() {
-    let data = OrderOfOperations {
-        a: 16,
-        b: 8,
-        c: 2,
-        yes: true,
-    };
+    let data = OrderOfOperations { a: 16, b: 8, c: 2 };
 
     assert_eq!(format!("{data}"), "8 < 10");
 }
