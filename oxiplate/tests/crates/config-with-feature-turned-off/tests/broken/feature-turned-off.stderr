@@ -8,9 +8,9 @@ error: `/oxiplate.toml` exists, but the "config" feature is turned off. Either d
   | |_^
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
-  --> tests/broken/feature-turned-off.rs:15:14
-   |
-5  | struct Data<'a> {
+ --> tests/broken/feature-turned-off.rs:15:14
+  |
+ 5 | struct Data<'a> {
    | --------------- method `render` not found for this struct
 ...
 15 |         data.render().unwrap(),

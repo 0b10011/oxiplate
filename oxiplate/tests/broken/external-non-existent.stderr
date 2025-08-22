@@ -13,9 +13,9 @@ error: Must provide either an external or internal template:
   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
-  --> tests/broken/external-non-existent.rs:14:36
-   |
-5  | struct Data {
+ --> tests/broken/external-non-existent.rs:14:36
+  |
+ 5 | struct Data {
    | ----------- method `render` not found for this struct
 ...
 14 |     assert_eq!("Hello World", data.render().unwrap());
