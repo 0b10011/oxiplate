@@ -46,7 +46,7 @@ pub(crate) enum Expression<'a> {
     Integer(Source<'a>),
     Float(Source<'a>),
     Bool(bool, Source<'a>),
-    // Group(Box<Expression<'a>>),
+    Group(Source<'a>, Box<ExpressionAccess<'a>>, Source<'a>),
     Concat(Vec<ExpressionAccess<'a>>, Source<'a>),
     Calc(
         Box<ExpressionAccess<'a>>,
@@ -82,6 +82,11 @@ impl Expression<'_> {
                     }
                 }
             },
+            Expression::Group(open_paren, expression, _close_paren) => {
+                let (expression, expression_length) = expression.to_tokens(state);
+                let span = open_paren.span();
+                (quote_spanned! {span=> ( #expression ) }, expression_length)
+            }
             Expression::Concat(expressions, concat_operator) => {
                 let span = concat_operator.span();
 
@@ -283,6 +288,7 @@ pub(super) fn expression<'a>(
                 bool,
                 identifier,
                 prefixed_expression,
+                group,
             )),
             many0(field()),
         )
@@ -425,4 +431,11 @@ fn prefixed_expression(input: Source) -> Res<Source, Expression> {
         input,
         Expression::Prefixed(prefix_operator, Box::new(expression)),
     ))
+}
+
+fn group(input: Source) -> Res<Source, Expression> {
+    let (input, (open, inner, close)) =
+        (tag("("), expression(true, true), tag(")")).parse(input)?;
+
+    Ok((input, Expression::Group(open, Box::new(inner), close)))
 }
