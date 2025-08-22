@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.9.3...oxiplate-v0.9.4) - 2025-08-22
+
+### Added
+
+- added support for parentheses in expressions (fixes #49)
+
+### Fixed
+
+- fixed concat expressions that only contain literals
+
+### Other
+
+- moved return values into match to shorten a bit and aid in future refactoring
+
 ## [0.9.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.9.2...oxiplate-v0.9.3) - 2025-08-21
 
 ### Added
