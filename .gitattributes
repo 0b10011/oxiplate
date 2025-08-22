@@ -1,0 +1,7 @@
+# Expected output.
+# While these files are technically generated,
+# the changes should still show up in diffs,
+# so `linguist-vendored` is used instead.
+# See <https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes>.
+tests/expansion/expected/** linguist-vendored
+*.stderr linguist-vendored
