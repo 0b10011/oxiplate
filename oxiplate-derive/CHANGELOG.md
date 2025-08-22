@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.9.4...oxiplate-derive-v0.10.0) - 2025-08-22
+
+### Fixed
+
+- [**breaking**] fixed order of operations to match rust's
+
 ## [0.9.4](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.9.3...oxiplate-derive-v0.9.4) - 2025-08-22
 
 ### Added
