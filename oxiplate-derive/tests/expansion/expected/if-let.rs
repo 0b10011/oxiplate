@@ -33,19 +33,19 @@ impl ::std::fmt::Display for Data {
             if let Some(count) = &self.cats_count {
                 if let Some(name) = &self.name {
                     f.write_str("Found ")?;
-                    f.write_str(&::std::string::ToString::to_string(&count))?;
+                    f.write_str(&::std::string::ToString::to_string(&(count)))?;
                     f.write_str(" cats named ")?;
-                    f.write_str(&::std::string::ToString::to_string(&name))?;
+                    f.write_str(&::std::string::ToString::to_string(&(name)))?;
                     f.write_str("!")?;
                 } else {
                     f.write_str("Found ")?;
-                    f.write_str(&::std::string::ToString::to_string(&count))?;
+                    f.write_str(&::std::string::ToString::to_string(&(count)))?;
                     f.write_str(" cats!")?;
                 }
             } else {
                 if let Some(missing_name) = &self.name {
                     f.write_str("No cats named ")?;
-                    f.write_str(&::std::string::ToString::to_string(&missing_name))?;
+                    f.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
                     f.write_str(" found :(")?;
                 } else {
                     f.write_str("No cats found :(")?;

@@ -17,7 +17,7 @@ impl ::std::fmt::Display for GroupCalc {
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
             f.write_str(
-                &::std::string::ToString::to_string(&(self.c * ((self.a + self.b)))),
+                &::std::string::ToString::to_string(&(self.c * (self.a + self.b))),
             )?;
             string
         };

@@ -17,11 +17,11 @@ impl ::std::fmt::Display for User {
             let f = &mut string;
             f.write_str(
                 &::std::string::ToString::to_string(
-                    &::alloc::__export::must_use({
+                    &(::alloc::__export::must_use({
                         ::alloc::fmt::format(
                             format_args!("{0} ({1})", self.name, self.company),
                         )
-                    }),
+                    })),
                 ),
             )?;
             string
@@ -81,7 +81,7 @@ impl ::std::fmt::Display for ConcatStrings {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(11usize);
             let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&"hello world"))?;
+            f.write_str(&::std::string::ToString::to_string(&("hello world")))?;
             string
         };
         f.write_str(&string)

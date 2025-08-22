@@ -17,8 +17,8 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
             let f = &mut string;
-            for value in (&self.values) {
-                f.write_str(&::std::string::ToString::to_string(&value))?;
+            for value in &self.values {
+                f.write_str(&::std::string::ToString::to_string(&(value)))?;
                 f.write_str("<br>")?;
             }
             string
@@ -84,8 +84,8 @@ impl ::std::fmt::Display for Accounts {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
             let f = &mut string;
-            for person in (&self.people) {
-                f.write_str(&::std::string::ToString::to_string(&person.get_name()))?;
+            for person in &self.people {
+                f.write_str(&::std::string::ToString::to_string(&(person.get_name())))?;
                 f.write_str("<br>")?;
             }
             string
@@ -167,13 +167,13 @@ impl ::std::fmt::Display for ShadowVariable {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(17usize);
             let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&self.value))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.value)))?;
             f.write_str("!\n")?;
-            for value in (&self.values) {
-                f.write_str(&::std::string::ToString::to_string(&value))?;
+            for value in &self.values {
+                f.write_str(&::std::string::ToString::to_string(&(value)))?;
                 f.write_str("\n")?;
             }
-            f.write_str(&::std::string::ToString::to_string(&self.value))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.value)))?;
             f.write_str(" again :D")?;
             string
         };
@@ -246,8 +246,8 @@ impl ::std::fmt::Display for Functions {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(4usize);
             let f = &mut string;
-            for function in (&self.functions) {
-                f.write_str(&::std::string::ToString::to_string(&function()))?;
+            for function in &self.functions {
+                f.write_str(&::std::string::ToString::to_string(&(function())))?;
                 f.write_str("\n")?;
             }
             string
@@ -320,9 +320,9 @@ impl ::std::fmt::Display for ForElse {
             let f = &mut string;
             {
                 let mut loop_ran = false;
-                for value in (&self.values) {
+                for value in &self.values {
                     loop_ran = true;
-                    f.write_str(&::std::string::ToString::to_string(&value))?;
+                    f.write_str(&::std::string::ToString::to_string(&(value)))?;
                     f.write_str("<br>")?;
                 }
                 if !loop_ran {

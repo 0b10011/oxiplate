@@ -14,7 +14,7 @@ impl ::std::fmt::Display for Variable {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             string
         };
         f.write_str(&string)
@@ -74,9 +74,9 @@ impl ::std::fmt::Display for Variables {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(5usize);
             let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str(" / ")?;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             string
         };
         f.write_str(&string)

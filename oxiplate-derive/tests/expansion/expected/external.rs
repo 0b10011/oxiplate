@@ -16,9 +16,9 @@ impl ::std::fmt::Display for AbsoluteData {
             let mut string = String::with_capacity(20usize);
             let f = &mut string;
             f.write_str("<h1>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</h1>\n<p>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             f.write_str("</p>\n")?;
             string
         };

@@ -20,16 +20,16 @@ impl ::oxiplate::Render for Html {
         use ::std::fmt::Write;
         use ::oxiplate::unescaped_text::UnescapedText;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.name))
+        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
                 f,
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
             )?;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.name))
+        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::foo)?;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.name))
+        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::bar)?;
         f.write_str("\n")?;
         Ok(())

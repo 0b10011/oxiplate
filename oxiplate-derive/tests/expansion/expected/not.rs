@@ -17,7 +17,7 @@ impl ::std::fmt::Display for Not {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
             let f = &mut string;
-            if (!self.foo) {
+            if !self.foo {
                 f.write_str("Yay")?;
             }
             string

@@ -22,7 +22,7 @@ impl ::std::fmt::Display for Data {
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
             if let Type::Text(text) = &self.ty {
-                f.write_str(&::std::string::ToString::to_string(&text))?;
+                f.write_str(&::std::string::ToString::to_string(&(text)))?;
             }
             string
         };

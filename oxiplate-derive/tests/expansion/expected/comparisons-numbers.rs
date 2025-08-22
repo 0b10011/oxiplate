@@ -14,7 +14,7 @@ impl ::std::fmt::Display for Comparison {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
             let f = &mut string;
-            if (self.value == 5) {
+            if self.value == 5 {
                 f.write_str("bar")?;
             }
             string

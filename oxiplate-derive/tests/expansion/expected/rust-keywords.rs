@@ -22,11 +22,11 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
-            if (!self.r#ref.is_empty()) {
+            if !self.r#ref.is_empty() {
                 f.write_str("Referee: ")?;
-                f.write_str(&::std::string::ToString::to_string(&self.r#ref))?;
+                f.write_str(&::std::string::ToString::to_string(&(self.r#ref)))?;
             } else {
-                f.write_str(&::std::string::ToString::to_string(&self.r#else))?;
+                f.write_str(&::std::string::ToString::to_string(&(self.r#else)))?;
             }
             string
         };

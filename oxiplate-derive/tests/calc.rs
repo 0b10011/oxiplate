@@ -11,16 +11,27 @@ use oxiplate_derive::Oxiplate;
 {{ max }} % {{ min }} = {{ max % min }}
 {{ min }} + {{ min }} * {{ max }} = {{ min + min * max }}
 {{ max }} + {{ max }} / {{ min }} = {{ max + max / min }}
-{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}"
+{{ max }} - {{ min }} % {{ min }} = {{ max - min % min }}
+{{ a }} - {{ b }} * {{ c }} = {{ a - b * c }}
+{{ a }} / {{ b }} + {{ c }} = {{ a / b + c }}"
 )]
 struct Math {
     min: i16,
     max: i16,
+    a: usize,
+    b: usize,
+    c: usize,
 }
 
 #[test]
 fn test_math() {
-    let data = Math { min: 19, max: 89 };
+    let data = Math {
+        min: 19,
+        max: 89,
+        a: 16,
+        b: 8,
+        c: 2,
+    };
 
     assert_eq!(
         format!("{data}"),
@@ -32,7 +43,9 @@ fn test_math() {
 89 % 19 = 13
 19 + 19 * 89 = 1710
 89 + 89 / 19 = 93
-89 - 19 % 19 = 89"
+89 - 19 % 19 = 89
+16 - 8 * 2 = 0
+16 / 8 + 2 = 4"
     );
 }
 
@@ -112,4 +125,34 @@ true || false && false = true
 false || true && false = false
 false || true && true = true"
     );
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    "
+{%- if a - b < c + b -%}
+    {{ a - b }} < {{ c + b }}
+{%- else -%}
+    {{ a - b }} > {{ c + b }}
+{%- endif -%}
+"
+)]
+#[allow(clippy::struct_excessive_bools)]
+struct OrderOfOperations {
+    a: usize,
+    b: usize,
+    c: usize,
+    yes: bool,
+}
+
+#[test]
+fn test_order_of_operations() {
+    let data = OrderOfOperations {
+        a: 16,
+        b: 8,
+        c: 2,
+        yes: true,
+    };
+
+    assert_eq!(format!("{data}"), "8 < 10");
 }

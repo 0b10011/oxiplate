@@ -26,7 +26,7 @@ impl ::std::fmt::Display for Data {
             if self.check {
                 f.write_str("bar")?;
             } else if let Some(text) = &self.ty {
-                f.write_str(&::std::string::ToString::to_string(&text))?;
+                f.write_str(&::std::string::ToString::to_string(&(text)))?;
             }
             string
         };

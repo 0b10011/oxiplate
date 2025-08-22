@@ -193,14 +193,14 @@ impl Writ<'_> {
             if fallback_group_name == "raw" {
                 #[cfg(not(feature = "oxiplate"))]
                 return (
-                    quote_spanned! {span=> f.write_str(&::std::string::ToString::to_string(&#text))?; },
+                    quote_spanned! {span=> f.write_str(&::std::string::ToString::to_string(&(#text)))?; },
                     estimated_length,
                 );
 
                 #[cfg(feature = "oxiplate")]
                 return (
                     quote_spanned! {span=>
-                        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_raw(f)?
+                        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(f)?
                     },
                     estimated_length,
                 );
@@ -246,7 +246,7 @@ impl Writ<'_> {
 
         (
             quote_spanned! {span=>
-                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
+                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
                     f,
                     &<#group as ::oxiplate::escapers::Escaper>::DEFAULT,
                 )?
@@ -281,7 +281,7 @@ impl Writ<'_> {
                     if let Ok(path) = path {
                         return (
                             quote_spanned! {span=>
-                                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_escape(
+                                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
                                     f,
                                     &#path,
                                 )?
@@ -302,7 +302,7 @@ impl Writ<'_> {
         #[cfg(not(feature = "oxiplate"))]
         return (
             quote_spanned! {span=>
-                f.write_str(&::std::string::ToString::to_string(&#text))?;
+                f.write_str(&::std::string::ToString::to_string(&(#text)))?;
             },
             estimated_length,
         );
@@ -310,7 +310,7 @@ impl Writ<'_> {
         #[cfg(feature = "oxiplate")]
         return (
             quote_spanned! {span=>
-                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&#text)).oxiplate_raw(f)?
+                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(f)?
             },
             estimated_length,
         );

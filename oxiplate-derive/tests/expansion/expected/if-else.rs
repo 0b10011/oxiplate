@@ -24,11 +24,11 @@ impl ::std::fmt::Display for Data {
             let f = &mut string;
             if self.do_this {
                 f.write_str("This then ")?;
-                f.write_str(&::std::string::ToString::to_string(&self.action))?;
+                f.write_str(&::std::string::ToString::to_string(&(self.action)))?;
                 f.write_str(" :D")?;
             } else {
                 f.write_str("Can\'t ")?;
-                f.write_str(&::std::string::ToString::to_string(&self.action))?;
+                f.write_str(&::std::string::ToString::to_string(&(self.action)))?;
                 f.write_str(" :(")?;
             }
             string

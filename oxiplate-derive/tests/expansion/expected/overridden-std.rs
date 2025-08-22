@@ -15,7 +15,7 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&self.foo))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.foo)))?;
             string
         };
         f.write_str(&string)

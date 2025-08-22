@@ -21,9 +21,9 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::unescaped_text::UnescapedText;
-        for message in (&self.messages) {
+        for message in &self.messages {
             f.write_str("\n")?;
-            (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&message))
+            (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(message)))
                 .oxiplate_escape(
                     f,
                     &::oxiplate::escapers::markdown::MarkdownEscaper::text,

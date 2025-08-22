@@ -16,12 +16,12 @@ impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
             let mut string = String::with_capacity(59usize);
             let f = &mut string;
             f.write_str("<!DOCTYPE html>\n<title>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</title>\n")?;
             f.write_str("<h2>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</h2>\n  <div>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             f.write_str("</div>")?;
             f.write_str("\n")?;
             string

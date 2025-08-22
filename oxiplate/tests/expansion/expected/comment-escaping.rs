@@ -20,7 +20,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::std::fmt::Write;
         use ::oxiplate::unescaped_text::UnescapedText;
         f.write_str("<!--")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&self.comment))
+        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.comment)))
             .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::comment)?;
         f.write_str("-->")?;
         Ok(())

@@ -16,12 +16,12 @@ impl ::std::fmt::Display for Include {
             let mut string = String::with_capacity(55usize);
             let f = &mut string;
             f.write_str("<!DOCTYPE html>\n<title>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</title>\n")?;
             f.write_str("<h1>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</h1>\n  <p>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             f.write_str("</p>")?;
             f.write_str("\n")?;
             string
@@ -86,11 +86,11 @@ impl ::std::fmt::Display for IncludeDeep {
             let mut string = String::with_capacity(32usize);
             let f = &mut string;
             f.write_str("<h1>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.title))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
             f.write_str("</h1>\n")?;
             f.write_str("<p>foo</p>\n")?;
             f.write_str("\n<p>")?;
-            f.write_str(&::std::string::ToString::to_string(&self.message))?;
+            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
             f.write_str("</p>\n")?;
             string
         };

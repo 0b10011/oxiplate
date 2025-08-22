@@ -128,13 +128,13 @@ impl Expression<'_> {
                 let (left, left_length) = left.to_tokens(state);
                 let (right, right_length) = right.to_tokens(state);
                 (
-                    quote!((#left #operator #right)),
+                    quote! { #left #operator #right },
                     left_length.min(right_length),
                 )
             }
             Expression::Prefixed(operator, expression) => {
                 let (expression, expression_length) = expression.to_tokens(state);
-                (quote!((#operator #expression)), expression_length)
+                (quote! { #operator #expression }, expression_length)
             }
             Expression::String(string) => {
                 let literal = ::syn::LitStr::new(string.as_str(), string.span());
