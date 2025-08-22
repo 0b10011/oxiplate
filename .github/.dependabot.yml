@@ -4,8 +4,16 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "build"
+      include: "scope"
 
   - package-ecosystem: "rust-toolchain"
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "build"
+      include: "scope"
