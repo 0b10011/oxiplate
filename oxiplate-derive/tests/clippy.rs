@@ -36,6 +36,16 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             continue;
         }
 
+        // Ignore non-rust files
+        if !entry.file_name().to_string_lossy().ends_with(".rs") {
+            writeln!(
+                std::io::stdout(),
+                "Skipping non-rust file `{}`",
+                entry.file_name().to_string_lossy()
+            )?;
+            continue;
+        }
+
         let test_name_path = entry.path().with_extension("");
         let test_name = test_name_path
             .file_name()
