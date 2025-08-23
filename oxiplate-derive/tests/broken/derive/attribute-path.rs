@@ -2,8 +2,13 @@ use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate_inline]
-struct Data;
+struct Inline;
+
+#[derive(Oxiplate)]
+#[oxiplate]
+struct External;
 
 fn main() {
-    print!("{}", Data);
+    print!("{}", Inline);
+    print!("{}", External);
 }

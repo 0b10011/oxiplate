@@ -200,7 +200,7 @@ type ParsedTokens = Result<
         Option<PathBuf>,
         Option<String>,
     ),
-    (String, Span),
+    ParsedEscaperError,
 >;
 
 fn process_parsed_tokens(
@@ -210,7 +210,8 @@ fn process_parsed_tokens(
     state: &State,
 ) -> Result<(proc_macro2::TokenStream, usize), syn::Error> {
     match parsed_tokens {
-        Err((escaper, span)) => {
+        #[cfg(feature = "oxiplate")]
+        Err(ParsedEscaperError::EscaperNotFound((escaper, span))) => {
             let mut available_escaper_groups = state
                 .config
                 .escaper_groups
@@ -221,7 +222,7 @@ fn process_parsed_tokens(
             let available_escaper_groups = LitStr::new(&available_escaper_groups.join(", "), span);
             let template = match template_type {
                 TemplateType::Path | TemplateType::Extends | TemplateType::Include => unreachable!(
-                    "Unregistered file extensions are fine, `None` sohuld be returned instead"
+                    "Unregistered file extensions are fine, `None` should be returned instead"
                 ),
                 TemplateType::Inline => {
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
@@ -229,6 +230,7 @@ fn process_parsed_tokens(
             };
             Ok((template, 0))
         }
+        Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
         Ok((span, input, origin, inferred_escaper_group_name)) => {
             let (code, literal) = parse_code_literal(template_type, &input.into(), span)?;
 
@@ -408,17 +410,26 @@ impl Parse for TemplateWithoutEscaper {
     }
 }
 
+enum ParsedEscaperError {
+    #[cfg(feature = "oxiplate")]
+    EscaperNotFound((String, Span)),
+    ParseError(proc_macro2::TokenStream),
+}
+
 #[cfg_attr(not(feature = "oxiplate"), allow(clippy::unnecessary_wraps))]
 fn parse_source_tokens_for_inline(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> ParsedTokens {
     match attr.meta.clone() {
-        syn::Meta::Path(_path) => unimplemented!(
-            r#"Must provide either an external or internal template:
+        syn::Meta::Path(path) => {
+            let span = path.span();
+            return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                compile_error!(r#"Must provide either an external or internal template:
 External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
-        ),
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
+            }));
+        }
         syn::Meta::List(MetaList {
             path: _,
             delimiter: _,
@@ -446,7 +457,10 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
                             .as_ref()
                             .expect("Escaper name should have just been set"),
                     ) {
-                        return Err((escaper.to_string(), escaper.span()));
+                        return Err(ParsedEscaperError::EscaperNotFound((
+                            escaper.to_string(),
+                            escaper.span(),
+                        )));
                     }
                 }
                 Ok((
