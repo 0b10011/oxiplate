@@ -1,10 +1,10 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
 use nom::character::complete::char;
-use nom::combinator::{cut, opt, peek};
+use nom::combinator::{cut, not, opt, peek};
 use nom::error::context;
 use nom::multi::many_till;
-use nom::sequence::{pair, preceded};
+use nom::sequence::{pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
 
 use super::{Expression, Res};
@@ -70,7 +70,7 @@ fn decimal(input: Source) -> Res<Source, Expression> {
 
     // Decimal points won't exist for integers (with or without exponents).
     // E.g., `19` or `19e0`.
-    let (input, point) = opt(tag(".")).parse(input)?;
+    let (input, point) = opt(terminated(tag("."), not(tag(".")))).parse(input)?;
     let Some(point) = point else {
         let (input, exponent) = opt(exponent).parse(input)?;
 

@@ -1,5 +1,5 @@
-error: Expected an expression that is iterable
- --> tests/broken/for/for-no-expression.rs:4:38
+error: Expected an expression after prefix operator
+ --> tests/broken/for/for-no-expression.rs:4:39
   |
 4 | #[oxiplate_inline("{%- for number in -%}{{ number }} + {{ number_to_add }} = {{ numb + number_to_add }}{% endfor %}")]
-  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

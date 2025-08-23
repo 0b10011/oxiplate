@@ -1,5 +1,5 @@
 error: Expected an expression after prefix operator
- --> tests/broken/not-alone.rs:4:30
+ --> tests/broken/not-alone.rs:4:31
   |
 4 | #[oxiplate_inline(r##"{% if ! %}"##)]
-  |                              ^^^
+  |                               ^^
