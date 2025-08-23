@@ -436,12 +436,15 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
             tokens,
         }) => match syn::parse2::<Template>(tokens) {
             #[cfg(not(feature = "oxiplate"))]
-            Ok(Template::WithEscaper(_template)) => unimplemented!(
-                "Escaping requires the `oxiplate` library, but you appear to be using \
+            Ok(Template::WithEscaper(template)) => {
+                let span = template.escaper.span();
+                return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                    compile_error!("Escaping requires the `oxiplate` library, but you appear to be using \
                  `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the \
                  dependencies should fix this issue, although you may need to turn off some \
-                 default features if you want it to work the same way."
-            ),
+                 default features if you want it to work the same way.");
+                }));
+            }
             #[cfg(feature = "oxiplate")]
             Ok(Template::WithEscaper(TemplateWithEscaper {
                 escaper,

@@ -1,19 +1,5 @@
-error: proc-macro derive panicked
- --> tests/broken/derive/escaping.rs:3:10
+error: Escaping requires the `oxiplate` library, but you appear to be using `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the dependencies should fix this issue, although you may need to turn off some default features if you want it to work the same way.
+ --> tests/broken/derive/escaping.rs:4:19
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: not implemented: Escaping requires the `oxiplate` library, but you appear to be using `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the dependencies should fix this issue, although you may need to turn off some default features if you want it to work the same way.
-
-error[E0277]: `Data` doesn't implement `std::fmt::Display`
-  --> tests/broken/derive/escaping.rs:10:18
-   |
-10 |     print!("{}", Data { var: "foo" });
-   |             --   ^^^^^^^^^^^^^^^^^^^ `Data` cannot be formatted with the default formatter
-   |             |
-   |             required by this formatting parameter
-   |
-   = help: the trait `std::fmt::Display` is not implemented for `Data`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
+4 | #[oxiplate_inline(html: "{{ var }}")]
+  |                   ^^^^
