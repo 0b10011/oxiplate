@@ -486,11 +486,12 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                 }))
             }
         },
-        syn::Meta::NameValue(_) => unimplemented!(
-            r#"Inline templates must be defined with the following syntax:
-With an escaper group: #[oxiplate_inline(html: "{{ your_var }}")]
-Without an escaper group: #[oxiplate_inline("{{ your_var }}")]"#
-        ),
+        syn::Meta::NameValue(meta) => {
+            let span = meta.span();
+            Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                compile_error!("Incorrect syntax for inline template. Should look something like:\n#[oxiplate_inline(html: \"{{ your_var }}\")]");
+            }))
+        }
     }
 }
 
