@@ -477,11 +477,14 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                 let span = template.span();
                 Ok((span, quote::quote_spanned!(span=> #template), None, None))
             }
-            Err(_) => unimplemented!(
-                r#"Must provide either an external or internal template:
-External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
-            ),
+            Err(error) => {
+                let span = error.span();
+                let compile_error = error.to_compile_error();
+                Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                    compile_error!("Failed to parse inline template. Should look something like:\n#[oxiplate_inline(html: \"{{ your_var }}\")]");
+                    #compile_error
+                }))
+            }
         },
         syn::Meta::NameValue(_) => unimplemented!(
             r#"Inline templates must be defined with the following syntax:

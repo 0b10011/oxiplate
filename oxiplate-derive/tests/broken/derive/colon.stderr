@@ -1,9 +1,12 @@
-error: proc-macro derive panicked
- --> tests/broken/derive/colon.rs:3:10
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/derive/colon.rs:4:19
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
+4 | #[oxiplate_inline(:)]
+  |                   ^
+
+error: expected an expression
+ --> tests/broken/derive/colon.rs:4:19
   |
-  = help: message: not implemented: Must provide either an external or internal template:
-          External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
-          Internal: #[oxiplate_inline(html: "{ your_var }")]
+4 | #[oxiplate_inline(:)]
+  |                   ^
