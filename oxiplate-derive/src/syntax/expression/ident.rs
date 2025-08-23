@@ -1,18 +1,19 @@
-use nom::bytes::complete::{tag, take_while1};
+use nom::bytes::complete::take_while1;
 use nom::combinator::{cut, opt, peek};
 use nom::sequence::pair;
 use nom::Parser as _;
-use proc_macro2::{Group, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
 use super::{Expression, Res};
-use crate::Source;
+use crate::syntax::expression::arguments::{arguments, ArgumentsGroup};
+use crate::{Source, State};
 
 pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
-    let (input, (ident, parens)) = pair(&ident, opt(tag("()"))).parse(input)?;
+    let (input, (ident, arguments)) = pair(&ident, opt(arguments)).parse(input)?;
 
-    let field = if let Some(parens) = parens {
-        IdentifierOrFunction::Function(ident, parens)
+    let field = if let Some(arguments) = arguments {
+        IdentifierOrFunction::Function(ident, arguments)
     } else {
         IdentifierOrFunction::Identifier(ident)
     };
@@ -71,22 +72,23 @@ pub(crate) fn ident(input: Source) -> Res<Source, Identifier> {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IdentifierOrFunction<'a> {
     Identifier(Identifier<'a>),
-    Function(Identifier<'a>, Source<'a>),
+    Function(Identifier<'a>, ArgumentsGroup<'a>),
 }
-impl ToTokens for IdentifierOrFunction<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl IdentifierOrFunction<'_> {
+    pub fn to_tokens(&self, state: &State) -> TokenStream {
+        let mut tokens = TokenStream::new();
+
         match self {
             IdentifierOrFunction::Identifier(identifier) => {
                 tokens.append_all(quote! { #identifier });
             }
-            IdentifierOrFunction::Function(identifier, parens) => {
-                let span = parens.span();
-                let mut parens =
-                    Group::new(proc_macro2::Delimiter::Parenthesis, TokenStream::new());
-                parens.set_span(span);
+            IdentifierOrFunction::Function(identifier, arguments) => {
+                let arguments = arguments.to_tokens(state);
 
-                tokens.append_all(quote! { #identifier #parens });
+                tokens.append_all(quote! { #identifier #arguments });
             }
         }
+
+        tokens
     }
 }

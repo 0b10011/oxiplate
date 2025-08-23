@@ -5,37 +5,38 @@ use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::pair;
 use nom::Parser as _;
-use proc_macro2::{Group, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::token::Dot;
 
-use self::ident::IdentifierOrFunction;
-use super::template::whitespace;
-use super::Res;
-use crate::syntax::item::tag_end;
-use crate::{Source, State};
-
+mod arguments;
 mod ident;
 mod keyword;
 mod literal;
 
+use self::arguments::arguments;
+use self::ident::IdentifierOrFunction;
 pub(super) use self::ident::{ident, identifier, Identifier};
 pub(super) use self::keyword::{keyword, Keyword};
 use self::literal::{bool, number, string};
+use super::template::whitespace;
+use super::Res;
+use crate::syntax::item::tag_end;
+use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Field<'a> {
     dot: Source<'a>,
     ident_or_fn: IdentifierOrFunction<'a>,
 }
-impl ToTokens for Field<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Field<'_> {
+    pub fn to_tokens(&self, state: &State) -> TokenStream {
         let span = self.dot.span();
         let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
             .expect("Dot should be able to be parsed properly here");
 
-        let ident_or_fn = &self.ident_or_fn;
-        tokens.append_all(quote! { #dot #ident_or_fn });
+        let ident_or_fn = &self.ident_or_fn.to_tokens(state);
+        quote! { #dot #ident_or_fn }
     }
 }
 
@@ -68,17 +69,14 @@ impl Expression<'_> {
                         (quote_spanned! {span=> self.#identifier }, 1)
                     }
                 }
-                IdentifierOrFunction::Function(identifier, parens) => {
-                    let span = parens.span();
-                    let mut parens =
-                        Group::new(proc_macro2::Delimiter::Parenthesis, TokenStream::new());
-                    parens.set_span(span);
+                IdentifierOrFunction::Function(identifier, arguments) => {
+                    let arguments = arguments.to_tokens(state);
 
                     let span = identifier.source.span();
                     if state.local_variables.contains(identifier.ident) {
-                        (quote! { #identifier #parens }, 1)
+                        (quote! { #identifier #arguments }, 1)
                     } else {
-                        (quote_spanned! {span=> self.#identifier #parens }, 1)
+                        (quote_spanned! {span=> self.#identifier #arguments }, 1)
                     }
                 }
             },
@@ -165,8 +163,10 @@ impl ExpressionAccess<'_> {
     pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
         let mut tokens = TokenStream::new();
         let (expression, estimated_length) = self.expression.to_tokens(state);
-        let fields = &self.fields;
-        tokens.append_all(quote! { #expression #(#fields)* });
+        tokens.append_all(expression);
+        for field in &self.fields {
+            tokens.append_all(field.to_tokens(state));
+        }
         (tokens, estimated_length)
     }
 }
@@ -300,10 +300,10 @@ pub(super) fn expression<'a>(
 
 fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
     |input| {
-        let (input, (dot, ident, parens)) = (tag("."), &ident, opt(tag("()"))).parse(input)?;
+        let (input, (dot, ident, arguments)) = (tag("."), &ident, opt(arguments)).parse(input)?;
 
-        let ident_or_fn = if let Some(parens) = parens {
-            IdentifierOrFunction::Function(ident, parens)
+        let ident_or_fn = if let Some(arguments) = arguments {
+            IdentifierOrFunction::Function(ident, arguments)
         } else {
             IdentifierOrFunction::Identifier(ident)
         };

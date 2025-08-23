@@ -79,10 +79,154 @@ fn field() {
         }
     };
 }
+#[oxiplate_inline(r#"{% if user.display_name().contains("i") %}yup!{% endif %}"#)]
+struct Argument {
+    user: User,
+}
+impl ::std::fmt::Display for Argument {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(4usize);
+            let f = &mut string;
+            if self.user.display_name().contains("i") {
+                f.write_str("yup!")?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "field_with_argument"]
+#[doc(hidden)]
+pub const field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("field_with_argument"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/method.rs",
+        start_line: 38usize,
+        start_col: 4usize,
+        end_line: 38usize,
+        end_col: 23usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field_with_argument()),
+    ),
+};
+fn field_with_argument() {
+    let data = Argument {
+        user: User {
+            name: "Kiera",
+            company: "Floating Air LLC",
+        },
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"yup!",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    r#"{{ user.display_name().replace("a", "@",) }} {{ user.display_name().replace("a", "@") }}"#
+)]
+struct Arguments {
+    user: User,
+}
+impl ::std::fmt::Display for Arguments {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(3usize);
+            let f = &mut string;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(self.user.display_name().replace("a", "@")),
+                ),
+            )?;
+            f.write_str(" ")?;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(self.user.display_name().replace("a", "@")),
+                ),
+            )?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "field_with_arguments"]
+#[doc(hidden)]
+pub const field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("field_with_arguments"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/method.rs",
+        start_line: 58usize,
+        start_col: 4usize,
+        end_line: 58usize,
+        end_col: 24usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field_with_arguments()),
+    ),
+};
+fn field_with_arguments() {
+    let data = Arguments {
+        user: User {
+            name: "Kiera",
+            company: "Floating Air LLC",
+        },
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"Flo@ting Air LLC (Kier@) Flo@ting Air LLC (Kier@)",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&field])
+    test::test_main_static(&[&field, &field_with_argument, &field_with_arguments])
 }
