@@ -307,12 +307,12 @@ fn parse_template_type(
         return Ok((attr, template_type));
     }
 
-    return Err(syn::Error::new(
+    Err(syn::Error::new(
         span,
         r#"Expected an attribute named `oxiplate_inline` or `oxiplate` to specify the template:
 External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
 Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
-    ));
+    ))
 }
 
 fn parse_code_literal(
@@ -424,11 +424,11 @@ fn parse_source_tokens_for_inline(
     match attr.meta.clone() {
         syn::Meta::Path(path) => {
             let span = path.span();
-            return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+            Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
                 compile_error!(r#"Must provide either an external or internal template:
 External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
 Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
-            }));
+            }))
         }
         syn::Meta::List(MetaList {
             path: _,
@@ -438,12 +438,12 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
             #[cfg(not(feature = "oxiplate"))]
             Ok(Template::WithEscaper(template)) => {
                 let span = template.escaper.span();
-                return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
                     compile_error!("Escaping requires the `oxiplate` library, but you appear to be using \
                  `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the \
                  dependencies should fix this issue, although you may need to turn off some \
                  default features if you want it to work the same way.");
-                }));
+                }))
             }
             #[cfg(feature = "oxiplate")]
             Ok(Template::WithEscaper(TemplateWithEscaper {
@@ -572,10 +572,10 @@ fn parse_source_tokens_for_path(
         }
 
         // Set the inferred escaper group if the extension mapped to one.
-        if let Some(extension) = extension {
-            if state.config.escaper_groups.contains_key(extension) {
-                escaper_name = Some(extension.to_owned());
-            }
+        if let Some(extension) = extension
+            && state.config.escaper_groups.contains_key(extension)
+        {
+            escaper_name = Some(extension.to_owned());
         }
     }
 
