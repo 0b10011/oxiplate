@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.1...oxiplate-v0.10.2) - 2025-08-23
+
+### Fixed
+
+- added handling for some path edge cases and a bunch of new tests for error messages
+- improved error message when using the wrong syntax for inline templates
+- improved error message when failing to parse inline
+- improved error mesage when escaper group is provided to an inline template without using `oxiplate`
+- improved error message for inline attribute without a value
+- improved error message for missing template attribute
+
+### Other
+
+- updated to 2024 edition
+- fixed some linting warnings
+- combine some nested `if let` statements
+- added tests for a bunch of derive errors
+
 ## [0.10.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.0...oxiplate-v0.10.1) - 2025-08-23
 
 ### Added
