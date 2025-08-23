@@ -143,7 +143,7 @@ fn parse_template_and_data(
     };
 
     // Parse the template type and code literal.
-    let (attr, template_type) = parse_template_type(attrs);
+    let (attr, template_type) = parse_template_type(attrs, ident.span())?;
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
     let (template, estimated_length): (proc_macro2::TokenStream, usize) =
         process_parsed_tokens(parsed_tokens, &template_type, data, &state)?;
@@ -284,7 +284,10 @@ enum TemplateType {
 }
 
 /// Parse the attributes to figure out what type of template this struct references.
-fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
+fn parse_template_type(
+    attrs: &Vec<Attribute>,
+    span: Span,
+) -> Result<(&Attribute, TemplateType), syn::Error> {
     for attr in attrs {
         let path = attr.path();
         let template_type = if path.is_ident("oxiplate_inline") {
@@ -299,10 +302,15 @@ fn parse_template_type(attrs: &Vec<Attribute>) -> (&Attribute, TemplateType) {
             continue;
         };
 
-        return (attr, template_type);
+        return Ok((attr, template_type));
     }
 
-    unimplemented!("Must specify an attribute");
+    return Err(syn::Error::new(
+        span,
+        r#"Expected an attribute named `oxiplate_inline` or `oxiplate` to specify the template:
+External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
+    ));
 }
 
 fn parse_code_literal(

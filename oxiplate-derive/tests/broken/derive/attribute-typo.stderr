@@ -1,10 +1,10 @@
-error: proc-macro derive panicked
- --> tests/broken/derive/attribute-typo.rs:3:10
+error: Expected an attribute named `oxiplate_inline` or `oxiplate` to specify the template:
+       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/derive/attribute-typo.rs:5:8
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: not implemented: Must specify an attribute
+5 | struct Data;
+  |        ^^^^
 
 error: cannot find attribute `oxiplatee` in this scope
  --> tests/broken/derive/attribute-typo.rs:4:3
