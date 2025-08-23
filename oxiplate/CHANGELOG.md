@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.0...oxiplate-v0.10.1) - 2025-08-23
+
+### Added
+
+- added support for indexing and range expressions (fixes #53)
+- added support for arguments in function/method calls
+
+### Other
+
+- fix expansion tests for recent nightly update
+- updated to latest nightly
+- added tests for negative numbers
+- removed test that was failing due to a clippy change
+- removed unused variable in test
+
 ## [0.10.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.9.4...oxiplate-v0.10.0) - 2025-08-22
 
 ### Fixed
