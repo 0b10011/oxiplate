@@ -1,0 +1,7 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/external-parens.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not yet implemented: need to handle when non-name-value data is provided

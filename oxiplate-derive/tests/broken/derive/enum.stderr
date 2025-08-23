@@ -1,0 +1,9 @@
+error: Expected a struct
+ --> tests/broken/derive/enum.rs:4:1
+  |
+4 | / #[oxiplate_inline("")]
+5 | | enum Data {
+6 | |     Foo,
+7 | |     Bar,
+8 | | }
+  | |_^

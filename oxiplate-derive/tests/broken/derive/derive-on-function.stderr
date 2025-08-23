@@ -1,0 +1,28 @@
+error[E0774]: `derive` may only be applied to `struct`s, `enum`s and `union`s
+ --> tests/broken/derive/derive-on-function.rs:3:1
+  |
+3 | #[derive(Oxiplate)]
+  | ^^^^^^^^^^^^^^^^^^^ not applicable here
+4 | #[oxiplate_inline(html: "")]
+5 | fn main() {}
+  | ------------ not a `struct`, `enum` or `union`
+
+error: cannot find attribute `oxiplate_inline` in this scope
+ --> tests/broken/derive/derive-on-function.rs:4:3
+  |
+4 | #[oxiplate_inline(html: "")]
+  |   ^^^^^^^^^^^^^^^
+  |
+help: `oxiplate_inline` is an attribute that can be used by the derive macro `Oxiplate`, you might be missing a `derive` attribute
+  |
+5 + #[derive(Oxiplate)]
+6 | fn main() {}
+  |
+
+warning: unused import: `oxiplate_derive::Oxiplate`
+ --> tests/broken/derive/derive-on-function.rs:1:5
+  |
+1 | use oxiplate_derive::Oxiplate;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default

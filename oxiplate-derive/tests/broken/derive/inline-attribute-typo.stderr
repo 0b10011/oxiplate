@@ -1,0 +1,13 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/inline-attribute-typo.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Must specify an attribute
+
+error: cannot find attribute `oxiplate_inlinee` in this scope
+ --> tests/broken/derive/inline-attribute-typo.rs:4:3
+  |
+4 | #[oxiplate_inlinee("")]
+  |   ^^^^^^^^^^^^^^^^ help: a derive helper attribute with a similar name exists: `oxiplate_inline`

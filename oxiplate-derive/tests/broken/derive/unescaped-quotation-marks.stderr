@@ -1,0 +1,9 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/unescaped-quotation-marks.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Must provide either an external or internal template:
+          External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+          Internal: #[oxiplate_inline(html: "{ your_var }")]

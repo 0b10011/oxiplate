@@ -1,0 +1,3 @@
+# `cargo watch` ignores
+
+*.stderr

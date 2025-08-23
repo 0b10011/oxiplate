@@ -1,0 +1,15 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/colon-and-string.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Must provide either an external or internal template:
+          External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+          Internal: #[oxiplate_inline(html: "{ your_var }")]
+
+error[E0601]: `main` function not found in crate `$CRATE`
+ --> tests/broken/derive/colon-and-string.rs:5:13
+  |
+5 | struct Data;
+  |             ^ consider adding a `main` function to `$DIR/tests/broken/derive/colon-and-string.rs`

@@ -1,0 +1,9 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/inline-equals.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Inline templates must be defined with the following syntax:
+          With an escaper group: #[oxiplate_inline(html: "{ your_var }"]
+          Without an escaper group: #[oxiplate_inline("{ your_var }")]
