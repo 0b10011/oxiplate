@@ -272,24 +272,22 @@ impl Writ<'_> {
         }
 
         if let Ok(escaper) = syn::LitStr::new(escaper.ident, escaper.span()).parse::<PathSegment>()
+            && let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>()
+            && let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>()
         {
-            if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
-                if let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>() {
-                    let path = syn::parse2::<Path>(quote! {
-                        #group #sep #escaper
-                    });
-                    if let Ok(path) = path {
-                        return (
-                            quote_spanned! {span=>
-                                (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                                    f,
-                                    &#path,
-                                )?
-                            },
-                            estimated_length,
-                        );
-                    }
-                }
+            let path = syn::parse2::<Path>(quote! {
+                #group #sep #escaper
+            });
+            if let Ok(path) = path {
+                return (
+                    quote_spanned! {span=>
+                        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
+                            f,
+                            &#path,
+                        )?
+                    },
+                    estimated_length,
+                );
             }
         }
 

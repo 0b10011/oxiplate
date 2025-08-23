@@ -68,15 +68,14 @@ impl<'a> Item<'a> {
                 };
                 state.has_content = &true;
 
-                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
-                    if let Some(default_escaper_group) = state
+                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind
+                    && let Some(default_escaper_group) = state
                         .config
                         .escaper_groups
                         .get(default_escaper.escaper.ident)
-                    {
-                        state.default_escaper_group =
-                            Some((default_escaper.escaper.ident, default_escaper_group));
-                    }
+                {
+                    state.default_escaper_group =
+                        Some((default_escaper.escaper.ident, default_escaper_group));
                 }
 
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
