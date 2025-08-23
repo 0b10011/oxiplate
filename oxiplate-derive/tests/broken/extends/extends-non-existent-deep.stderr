@@ -1,11 +1,19 @@
-error: couldn't read `$DIR/templates/extends-non-existent.html.oxip`: No such file or directory (os error 2)
- --> templates/extends-missing.html.oxip
+error: proc-macro derive panicked
+ --> tests/broken/extends/extends-non-existent-deep.rs:3:10
   |
-  | {% extends "extends-non-existent.html.oxip" %}
-  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: Template path could not be canonicalized; Provided: extends-non-existent.html.oxip
 
-error: Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`
- --> templates/extends-missing.html.oxip
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/broken/extends/extends-non-existent-deep.rs:8:34
   |
-  | {% extends "extends-non-existent.html.oxip" %}
-  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     assert_eq!("", format!("{}", Data));
+  |                             --   ^^^^ `Data` cannot be formatted with the default formatter
+  |                             |
+  |                             required by this formatting parameter
+  |
+  = help: the trait `std::fmt::Display` is not implemented for `Data`
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)

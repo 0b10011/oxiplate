@@ -1,16 +1,10 @@
-error: couldn't read `$DIR/templates/external-non-existent.html.oxip`: No such file or directory (os error 2)
- --> tests/broken/external-non-existent.rs:4:14
+error: proc-macro derive panicked
+ --> tests/broken/external-non-existent.rs:3:10
   |
-4 | #[oxiplate = "external-non-existent.html.oxip"]
-  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-error: Must provide either an external or internal template:
-       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
-       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
- --> tests/broken/external-non-existent.rs:4:14
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
   |
-4 | #[oxiplate = "external-non-existent.html.oxip"]
-  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: message: Template path could not be canonicalized; Provided: external-non-existent.html.oxip
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
  --> tests/broken/external-non-existent.rs:14:36

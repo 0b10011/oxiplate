@@ -1,9 +1,30 @@
 error: Expected a struct
  --> tests/broken/derive/enum.rs:4:1
   |
-4 | / #[oxiplate_inline("")]
+4 | / #[oxiplate_inline("hello")]
 5 | | enum Data {
 6 | |     Foo,
 7 | |     Bar,
 8 | | }
   | |_^
+
+error[E0423]: expected value, found enum `Data`
+  --> tests/broken/derive/enum.rs:11:18
+   |
+11 |     print!("{}", Data);
+   |                  ^^^^
+   |
+note: the enum is defined here
+  --> tests/broken/derive/enum.rs:5:1
+   |
+ 5 | / enum Data {
+ 6 | |     Foo,
+ 7 | |     Bar,
+ 8 | | }
+   | |_^
+help: you might have meant to use one of the following enum variants
+   |
+11 |     print!("{}", Data::Bar);
+   |                      +++++
+11 |     print!("{}", Data::Foo);
+   |                      +++++

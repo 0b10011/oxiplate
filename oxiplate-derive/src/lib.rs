@@ -468,7 +468,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
         },
         syn::Meta::NameValue(_) => unimplemented!(
             r#"Inline templates must be defined with the following syntax:
-With an escaper group: #[oxiplate_inline(html: "{{ your_var }}"]
+With an escaper group: #[oxiplate_inline(html: "{{ your_var }}")]
 Without an escaper group: #[oxiplate_inline("{{ your_var }}")]"#
         ),
     }
@@ -502,7 +502,12 @@ fn parse_source_tokens_for_path(
     );
 
     // Path::join() doesn't play well with absolute paths (for our use case).
-    let templates_dir_root = root.join(templates_dir.clone());
+    let Ok(templates_dir_root) = root.join(templates_dir.clone()).canonicalize() else {
+        panic!(
+            "OXIP_TEMPLATE_DIR could not be canonicalized. Provided: {}",
+            templates_dir.display()
+        );
+    };
     if !templates_dir_root.starts_with(root) {
         panic!(
             "OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of \
@@ -512,7 +517,12 @@ fn parse_source_tokens_for_path(
     }
 
     // Path::join() doesn't play well with absolute paths (for our use case).
-    let full_path = templates_dir_root.join(path.value());
+    let Ok(full_path) = templates_dir_root.join(path.value()).canonicalize() else {
+        panic!(
+            "Template path could not be canonicalized; Provided: {}",
+            path.value()
+        );
+    };
     if !full_path.starts_with(templates_dir_root) {
         panic!(
             "Template path must be a relative path; example 'template.oxip' instead of \

@@ -5,5 +5,5 @@ error: proc-macro derive panicked
   |          ^^^^^^^^
   |
   = help: message: not implemented: Inline templates must be defined with the following syntax:
-          With an escaper group: #[oxiplate_inline(html: "{ your_var }"]
+          With an escaper group: #[oxiplate_inline(html: "{ your_var }")]
           Without an escaper group: #[oxiplate_inline("{ your_var }")]

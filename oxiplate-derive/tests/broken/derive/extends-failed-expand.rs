@@ -1,11 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("hello")]
-enum Data {
-    Foo,
-    Bar,
-}
+#[oxiplate_extends = "path/that/does/not/exist"]
+struct Data;
 
 fn main() {
     print!("{}", Data);

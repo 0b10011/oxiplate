@@ -1,0 +1,21 @@
+error: proc-macro derive panicked
+ --> tests/broken/derive/inline-unparseable.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Must provide either an external or internal template:
+          External: #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+          Internal: #[oxiplate_inline(html: "{ your_var }")]
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/broken/derive/inline-unparseable.rs:8:18
+  |
+8 |     print!("{}", Data);
+  |             --   ^^^^ `Data` cannot be formatted with the default formatter
+  |             |
+  |             required by this formatting parameter
+  |
+  = help: the trait `std::fmt::Display` is not implemented for `Data`
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
