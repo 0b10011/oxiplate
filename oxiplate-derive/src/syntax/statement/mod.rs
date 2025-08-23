@@ -9,19 +9,19 @@ mod include;
 
 use block::Block;
 use extends::Extends;
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::combinator::{cut, fail};
 use nom::error::context;
 use nom::sequence::preceded;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
 pub(crate) use self::escaper::DefaultEscaper;
-use self::include::Include;
 use self::r#for::For;
 use self::r#if::{ElseIf, If};
+use self::include::Include;
 use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;

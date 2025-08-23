@@ -1,18 +1,18 @@
 use std::collections::HashSet;
 
+use nom::Parser as _;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, TokenStreamExt};
+use quote::{TokenStreamExt, quote};
 
-use super::super::expression::{expression, ident, keyword, Identifier, Keyword};
+use super::super::expression::{Identifier, Keyword, expression, ident, keyword};
 use super::super::{Item, Res};
 use super::{State, Statement, StatementKind};
-use crate::syntax::expression::ExpressionAccess;
-use crate::syntax::template::{is_whitespace, Template};
 use crate::Source;
+use crate::syntax::expression::ExpressionAccess;
+use crate::syntax::template::{Template, is_whitespace};
 
 #[derive(Debug)]
 pub struct For<'a> {

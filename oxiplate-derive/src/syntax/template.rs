@@ -5,10 +5,10 @@ use nom::multi::many0;
 use nom::{Input, Parser as _};
 use nom_language::error::{VerboseError, VerboseErrorKind};
 use proc_macro2::{LineColumn, TokenStream};
-use quote::{quote, TokenStreamExt};
+use quote::{TokenStreamExt, quote};
 
 use super::super::Source;
-use super::item::{parse_tag, ItemToken};
+use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
 use crate::State;

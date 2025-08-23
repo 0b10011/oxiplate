@@ -1,20 +1,20 @@
 use std::collections::HashSet;
 
+use nom::Parser as _;
 use nom::bytes::complete::{tag, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::preceded;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::syntax::expression::{ident, ExpressionAccess, Identifier};
-use crate::syntax::template::{is_whitespace, Template};
+use crate::syntax::expression::{ExpressionAccess, Identifier, ident};
+use crate::syntax::template::{Template, is_whitespace};
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -61,7 +61,7 @@ impl ToTokens for Type<'_> {
                 }
 
                 let type_name: proc_macro2::TokenStream =
-                    self.1 .0.parse().expect("Should be able to parse type");
+                    self.1.0.parse().expect("Should be able to parse type");
                 tokens.append_all(quote! {
                     #type_name(#ident)
                 });
@@ -144,7 +144,7 @@ impl<'a> If<'a> {
                 if let Some(template) = &mut self.otherwise {
                     template.0.push(item);
                 } else {
-                    self.ifs.last_mut().unwrap().1 .0.push(item);
+                    self.ifs.last_mut().unwrap().1.0.push(item);
                 }
             }
         }

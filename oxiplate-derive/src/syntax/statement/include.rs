@@ -1,19 +1,19 @@
 use std::collections::{HashMap, VecDeque};
 
+use nom::Parser as _;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, TokenStreamExt};
+use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::LitStr;
 
-use super::super::expression::keyword;
 use super::super::Res;
+use super::super::expression::keyword;
 use super::{Statement, StatementKind};
 use crate::syntax::template::is_whitespace;
-use crate::{oxiplate_internal, Source};
+use crate::{Source, oxiplate_internal};
 
 #[derive(Debug)]
 pub struct Include<'a> {

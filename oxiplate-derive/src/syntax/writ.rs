@@ -1,18 +1,18 @@
 use std::fmt::Debug;
 
+use nom::Parser as _;
 use nom::bytes::complete::take_while;
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::sequence::{preceded, terminated};
-use nom::Parser as _;
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
-use super::expression::{expression, ident, ExpressionAccess, Identifier};
+use super::expression::{ExpressionAccess, Identifier, expression, ident};
 use super::item::tag_end;
 use super::template::is_whitespace;
 use super::{Item, Res};

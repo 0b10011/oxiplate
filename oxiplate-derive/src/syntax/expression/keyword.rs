@@ -1,6 +1,6 @@
 use nom::bytes::complete::tag;
 use proc_macro2::TokenStream;
-use quote::{quote_spanned, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::Res;
 use crate::Source;

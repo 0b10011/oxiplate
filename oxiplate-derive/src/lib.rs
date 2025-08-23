@@ -26,8 +26,8 @@ use syn::{
 
 pub(crate) use self::source::Source;
 use self::source::SourceOwned;
-use self::state::build_config;
 pub(crate) use self::state::State;
+use self::state::build_config;
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -124,7 +124,7 @@ fn parse_template_and_data(
 
     // Ensure the data is a struct
     match data {
-        Data::Struct(ref _struct_item) => (),
+        Data::Struct(_struct_item) => (),
         _ => {
             return Err(syn::Error::new(input.span(), "Expected a struct"));
         }
@@ -567,7 +567,7 @@ fn parse_fields(
     let mut blocks: Vec<String> = vec![];
 
     match data {
-        Data::Struct(ref struct_item) => match &struct_item.fields {
+        Data::Struct(struct_item) => match &struct_item.fields {
             // A named struct like `Data { title: &'static str }`.
             Fields::Named(fields) => {
                 for field in &fields.named {

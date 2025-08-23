@@ -5,8 +5,8 @@ use std::{env, fs};
 
 #[cfg(feature = "config")]
 use serde::Deserialize;
-use syn::spanned::Spanned;
 use syn::DeriveInput;
+use syn::spanned::Spanned;
 
 use crate::syntax::Template;
 

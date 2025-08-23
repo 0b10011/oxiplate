@@ -1,15 +1,15 @@
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::take_while1;
 use nom::combinator::cut;
 use nom::error::context;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
-use syn::spanned::Spanned as _;
 use syn::LitStr;
+use syn::spanned::Spanned as _;
 
-use super::super::expression::{ident, keyword, Identifier};
 use super::super::Res;
+use super::super::expression::{Identifier, ident, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::is_whitespace;

@@ -1,20 +1,20 @@
 use std::collections::HashMap;
 use std::fmt;
 
+use nom::Parser as _;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, TokenStreamExt};
+use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::{GenericArgument, Ident, LitStr};
 
-use super::super::expression::keyword;
 use super::super::Res;
+use super::super::expression::keyword;
 use super::{Statement, StatementKind, StaticType};
-use crate::syntax::template::{is_whitespace, Template};
 use crate::syntax::Item;
+use crate::syntax::template::{Template, is_whitespace};
 use crate::{Source, State};
 
 pub struct Extends<'a> {

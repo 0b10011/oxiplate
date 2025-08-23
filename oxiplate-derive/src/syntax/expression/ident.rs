@@ -1,12 +1,12 @@
+use nom::Parser as _;
 use nom::bytes::complete::take_while1;
 use nom::combinator::{cut, opt, peek};
 use nom::sequence::pair;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
-use crate::syntax::expression::arguments::{arguments, ArgumentsGroup};
+use crate::syntax::expression::arguments::{ArgumentsGroup, arguments};
 use crate::{Source, State};
 
 pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
@@ -36,7 +36,7 @@ impl ToTokens for Identifier<'_> {
             // Prefix with `r#` so Rust will accept them as idents.
             "abstract" | "as" | "async" | "await" | "become" | "box" | "break" | "const"
             | "continue" | "crate" | "do" | "dyn" | "else" | "enum" | "extern" | "false"
-            | "final" | "fn" | "for" | "if" | "impl" | "in" | "let" | "loop" | "macro"
+            | "final" | "fn" | "for" | "gen" | "if" | "impl" | "in" | "let" | "loop" | "macro"
             | "macro_rules" | "match" | "mod" | "move" | "mut" | "override" | "priv" | "pub"
             | "ref" | "return" | "static" | "struct" | "trait" | "true" | "try" | "type"
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"

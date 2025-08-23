@@ -1,14 +1,14 @@
+use nom::Parser as _;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::pair;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote_spanned, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::Res;
-use crate::syntax::expression::{expression, ExpressionAccess};
+use crate::syntax::expression::{ExpressionAccess, expression};
 use crate::syntax::template::whitespace;
 use crate::{Source, State};
 

@@ -2,7 +2,7 @@
 #[macro_use]
 extern crate std;
 #[prelude_import]
-use std::prelude::rust_2021::*;
+use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}

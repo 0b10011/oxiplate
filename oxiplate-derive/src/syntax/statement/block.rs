@@ -1,16 +1,16 @@
 use std::collections::{HashMap, VecDeque};
 
+use nom::Parser as _;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, TokenStreamExt};
+use quote::{TokenStreamExt, quote};
 
-use super::super::expression::{ident, keyword, Identifier};
+use super::super::expression::{Identifier, ident, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::syntax::template::{is_whitespace, Template};
+use crate::syntax::template::{Template, is_whitespace};
 use crate::{Source, State};
 
 #[derive(Debug)]

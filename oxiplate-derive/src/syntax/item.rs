@@ -1,15 +1,15 @@
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt, peek};
 use nom::sequence::pair;
-use nom::Parser as _;
 use nom_language::error::VerboseError;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::comment::comment;
-use super::r#static::StaticType;
 use super::statement::statement;
+use super::r#static::StaticType;
 use super::template::whitespace;
 use super::writ::writ;
 use super::{Res, Statement, Static, Writ};

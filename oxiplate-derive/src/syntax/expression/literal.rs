@@ -56,9 +56,9 @@ fn alternative_bases(input: Source) -> Res<Source, Expression> {
         Expression::Integer(
             number
                 .0
-                .merge(&number.1 .0)
-                .merge(&number.1 .1)
-                .merge(&number.1 .2),
+                .merge(&number.1.0)
+                .merge(&number.1.1)
+                .merge(&number.1.2),
         ),
     ))
 }

@@ -1,12 +1,12 @@
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, fail, not, opt};
 use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::pair;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::token::Dot;
 
 mod arguments;
@@ -16,11 +16,11 @@ mod literal;
 
 use self::arguments::arguments;
 use self::ident::IdentifierOrFunction;
-pub(super) use self::ident::{ident, identifier, Identifier};
-pub(super) use self::keyword::{keyword, Keyword};
+pub(super) use self::ident::{Identifier, ident, identifier};
+pub(super) use self::keyword::{Keyword, keyword};
 use self::literal::{bool, number, string};
-use super::template::whitespace;
 use super::Res;
+use super::template::whitespace;
 use crate::syntax::item::tag_end;
 use crate::{Source, State};
 

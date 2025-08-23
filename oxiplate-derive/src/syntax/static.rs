@@ -1,8 +1,8 @@
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
 use nom::multi::many_till;
-use nom::Parser as _;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 

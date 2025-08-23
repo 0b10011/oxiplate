@@ -2,7 +2,7 @@
 #[macro_use]
 extern crate std;
 #[prelude_import]
-use std::prelude::rust_2021::*;
+use std::prelude::rust_2024::*;
 extern crate test;
 #[rustc_test_marker = "broken"]
 #[doc(hidden)]

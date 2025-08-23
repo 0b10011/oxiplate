@@ -12,7 +12,7 @@ use nom_language::error::VerboseError;
 type Res<T, U> = IResult<T, U, VerboseError<T>>;
 
 use item::Item;
-use r#static::Static;
 use statement::Statement;
-pub(crate) use template::{parse, Template};
+use r#static::Static;
+pub(crate) use template::{Template, parse};
 use writ::Writ;
