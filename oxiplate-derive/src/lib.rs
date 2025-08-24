@@ -355,7 +355,7 @@ fn parse_source_tokens(
     match template_type {
         TemplateType::Inline => parse_source_tokens_for_inline(attr, state),
         TemplateType::Path | TemplateType::Extends | TemplateType::Include => {
-            Ok(parse_source_tokens_for_path(attr, state))
+            parse_source_tokens_for_path(attr, state)
         }
     }
 }
@@ -498,12 +498,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
 fn parse_source_tokens_for_path(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
-) -> (
-    Span,
-    proc_macro2::TokenStream,
-    Option<PathBuf>,
-    Option<String>,
-) {
+) -> ParsedTokens {
     let syn::Meta::NameValue(MetaNameValue {
         path: _,
         eq_token: _,
@@ -513,7 +508,10 @@ fn parse_source_tokens_for_path(
         }),
     }) = attr.meta.clone()
     else {
-        todo!("need to handle when non-name-value data is provided");
+        let span = attr.span();
+        return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+            compile_error!("Incorrect syntax for external template. Should look something like:\n#[oxiplate = \"/path/to/template/from/templates/directory.txt.oxip\"]");
+        }));
     };
     let templates_dir = PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
     let root = PathBuf::from(
@@ -584,7 +582,7 @@ fn parse_source_tokens_for_path(
     }
 
     // Change the `syn::Expr` into a `proc_macro2::TokenStream`
-    (
+    Ok((
         span,
         quote::quote_spanned!(span=> include_str!(#path)),
         Some(full_path),
@@ -592,7 +590,7 @@ fn parse_source_tokens_for_path(
         escaper_name,
         #[cfg(not(feature = "oxiplate"))]
         None,
-    )
+    ))
 }
 
 fn parse_fields(

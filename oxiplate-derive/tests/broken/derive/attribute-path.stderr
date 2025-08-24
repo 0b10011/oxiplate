@@ -6,22 +6,9 @@ error: Must provide either an external or internal template:
 4 | #[oxiplate_inline]
   |   ^^^^^^^^^^^^^^^
 
-error: proc-macro derive panicked
- --> tests/broken/derive/attribute-path.rs:7:10
+error: Incorrect syntax for external template. Should look something like:
+       #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+ --> tests/broken/derive/attribute-path.rs:8:1
   |
-7 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: not yet implemented: need to handle when non-name-value data is provided
-
-error[E0277]: `External` doesn't implement `std::fmt::Display`
-  --> tests/broken/derive/attribute-path.rs:13:18
-   |
-13 |     print!("{}", External);
-   |             --   ^^^^^^^^ `External` cannot be formatted with the default formatter
-   |             |
-   |             required by this formatting parameter
-   |
-   = help: the trait `std::fmt::Display` is not implemented for `External`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
+8 | #[oxiplate]
+  | ^^^^^^^^^^^
