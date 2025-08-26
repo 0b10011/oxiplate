@@ -1,10 +1,10 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while, take_while1};
-use nom::character::complete::char;
+use nom::character::complete::{char as nom_char, none_of};
 use nom::combinator::{cut, not, opt, peek};
 use nom::error::context;
 use nom::multi::many_till;
-use nom::sequence::{pair, preceded, terminated};
+use nom::sequence::{delimited, pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
 
 use super::{Expression, Res};
@@ -32,8 +32,11 @@ pub(super) fn number(input: Source) -> Res<Source, Expression> {
 /// Will fail if there's not at least one valid digit following the prefix.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn alternative_bases(input: Source) -> Res<Source, Expression> {
-    let (input, prefix) =
-        peek(preceded(char('0'), alt((char('b'), char('x'), char('o'))))).parse(input)?;
+    let (input, prefix) = peek(preceded(
+        nom_char('0'),
+        alt((nom_char('b'), nom_char('x'), nom_char('o'))),
+    ))
+    .parse(input)?;
     let (prefix, matcher) = match prefix {
         'b' => ("0b", char::is_bin_digit as fn(char) -> bool),
         'x' => ("0x", char::is_hex_digit as fn(char) -> bool),
@@ -132,11 +135,33 @@ fn integer_literal(input: Source) -> Res<Source, Source> {
     Ok((input, number.0.merge(&number.1)))
 }
 
+/// Parse char literal (e.g., `'a'`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
+pub(super) fn char(input: Source) -> Res<Source, Expression> {
+    let (input, char) = delimited(
+        tag("'"),
+        context(
+            r"Expected `\'`, `\\`, or a single char followed by `'`.",
+            cut(alt((
+                preceded(
+                    nom_char('\\'),
+                    alt((tag("'"), tag("\\"), tag("\n"), tag("\r"), tag("\t"))),
+                ),
+                preceded(peek(none_of("'\\\n\r\t")), take(1usize)),
+            ))),
+        ),
+        context(r"Expected `'`.", cut(tag("'"))),
+    )
+    .parse(input)?;
+
+    Ok((input, Expression::Char(char)))
+}
+
 pub(super) fn string(input: Source) -> Res<Source, Expression> {
     let (input, (opening_hashes, _opening_quote)) =
-        pair(take_while(|c| c == '#'), char('"')).parse(input)?;
+        pair(take_while(|c| c == '#'), nom_char('"')).parse(input)?;
 
-    let closing = pair(char('"'), tag(opening_hashes.as_str()));
+    let closing = pair(nom_char('"'), tag(opening_hashes.as_str()));
     let (input, (string, _)) = context(
         r#"String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening."#,
         cut(many_till(take(1u32), closing)),

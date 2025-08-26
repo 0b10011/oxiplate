@@ -18,7 +18,7 @@ use self::arguments::arguments;
 use self::ident::IdentifierOrFunction;
 pub(super) use self::ident::{Identifier, ident, identifier};
 pub(super) use self::keyword::{Keyword, keyword};
-use self::literal::{bool, number, string};
+use self::literal::{bool, char, number, string};
 use super::Res;
 use super::template::whitespace;
 use crate::syntax::item::tag_end;
@@ -43,6 +43,7 @@ impl Field<'_> {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>),
+    Char(Source<'a>),
     String(Source<'a>),
     Integer(Source<'a>),
     Float(Source<'a>),
@@ -119,6 +120,16 @@ impl Expression<'_> {
             Expression::Prefixed(operator, expression) => {
                 let (expression, expression_length) = expression.to_tokens(state);
                 (quote! { #operator #expression }, expression_length)
+            }
+            Expression::Char(char) => {
+                let literal = ::syn::LitChar::new(
+                    char.as_str()
+                        .chars()
+                        .nth(0)
+                        .expect("Char should always be 1 length"),
+                    char.span(),
+                );
+                (quote! { #literal }, 1)
             }
             Expression::String(string) => {
                 let literal = ::syn::LitStr::new(string.as_str(), string.span());
@@ -402,6 +413,7 @@ pub(super) fn expression<'a>(
                 concat(allow_concat_nesting),
                 calc(allow_generic_nesting),
                 index(allow_generic_nesting),
+                char,
                 string,
                 number,
                 bool,
