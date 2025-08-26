@@ -575,31 +575,14 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
         })
 }
 
-fn parse_source_tokens_for_path(
-    attr: &Attribute,
-    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
-) -> ParsedTokens {
-    let syn::Meta::NameValue(MetaNameValue {
-        path: _,
-        eq_token: _,
-        value: Expr::Lit(ExprLit {
-            attrs: _,
-            lit: Lit::Str(path),
-        }),
-    }) = attr.meta.clone()
-    else {
-        let span = attr.span();
-        return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
-            compile_error!("Incorrect syntax for external template. Should look something like:\n#[oxiplate = \"/path/to/template/from/templates/directory.txt.oxip\"]");
-        }));
-    };
-
-    let templates_dir = templates_dir(attr.span())?;
+/// Build the template path.
+fn template_path(path: &LitStr, attr_span: Span) -> Result<PathBuf, ParsedEscaperError> {
+    let templates_dir = templates_dir(attr_span)?;
 
     // Path::join() doesn't play well with absolute paths (for our use case).
     let span = path.span();
-    let full_path =
-        templates_dir
+
+    templates_dir
             .append_path(path.value(), true)
             .map_err(|err| -> ParsedEscaperError {
                 match err {
@@ -637,7 +620,29 @@ fn parse_source_tokens_for_path(
                         })
                     },
                 }
-            })?;
+            })
+}
+
+fn parse_source_tokens_for_path(
+    attr: &Attribute,
+    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
+) -> ParsedTokens {
+    let syn::Meta::NameValue(MetaNameValue {
+        path: _,
+        eq_token: _,
+        value: Expr::Lit(ExprLit {
+            attrs: _,
+            lit: Lit::Str(path),
+        }),
+    }) = attr.meta.clone()
+    else {
+        let span = attr.span();
+        return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+            compile_error!("Incorrect syntax for external template. Should look something like:\n#[oxiplate = \"/path/to/template/from/templates/directory.txt.oxip\"]");
+        }));
+    };
+
+    let full_path = template_path(&path, attr.span())?;
 
     let span = path.span();
     let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
