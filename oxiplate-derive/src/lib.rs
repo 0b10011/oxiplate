@@ -10,8 +10,9 @@ mod state;
 mod syntax;
 
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::io;
 use std::ops::Range;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
@@ -495,6 +496,85 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
     }
 }
 
+/// Build the absolute template directory
+/// from the package's directory and provided relative template directory.
+fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
+    const DEFAULT_TEMPLATE_DIR: &str = "templates";
+
+    let (specified_templates_dir, using_default_template_dir) =
+        if let Some(templates_dir) = option_env!("OXIP_TEMPLATE_DIR") {
+            (templates_dir, false)
+        } else {
+            (DEFAULT_TEMPLATE_DIR, true)
+        };
+    let root = PathBuf::from(
+        ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
+            .or(::std::env::var("CARGO_MANIFEST_DIR"))
+            .unwrap(),
+    );
+
+    // Path::join() doesn't play well with absolute paths (for our use case).
+    root
+        .append_path(specified_templates_dir, false)
+        .map_err(|err| -> ParsedEscaperError {
+            match err {
+                AppendPathError::DoesNotExist(path_buf) => {
+                    let path_buf = path_buf.to_string_lossy();
+                    ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!(concat!("Template directory `", #path_buf, "` not found."));
+                    })
+                },
+                AppendPathError::IsSymlink(path_buf) => {
+                    let path_buf = path_buf.to_string_lossy();
+                    ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!(concat!("Template directory `", #path_buf, "` cannot be a symlink."));
+                    })
+                },
+                AppendPathError::CanonicalizeError(path_buf, error) => {
+                    if using_default_template_dir {
+                        unreachable!(
+                            "Failed to normalize default template directory. Original error: {error}",
+                        );
+                    } else {
+                        let path_buf = path_buf.to_string_lossy();
+                        let error = error.to_string();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Failed to normalize `", #path_buf, "`. Original error: ", #error));
+                        })
+                    }
+                },
+                AppendPathError::PrefixNotPresent { prefix, final_path } => {
+                    if using_default_template_dir {
+                        let _ = prefix;
+                        let _ = final_path;
+                        unreachable!(
+                            "`DEFAULT_TEMPLATE_DIR` constant in `oxiplate-derive` code must be a relative \
+                            path; example: 'templates' instead of '/templates'. Provided: {specified_templates_dir}",
+                        );
+                    } else {
+                        let prefix = prefix.to_string_lossy();
+                        let final_path = final_path.to_string_lossy();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!(
+                                "`OXIP_TEMPLATE_DIR` environment variable must be a relative path that resolves under `",
+                                #prefix,
+                                "`; example: 'templates' instead of '/templates'. Provided: ",
+                                #final_path
+                            ));
+                        })
+                    }
+                },
+                AppendPathError::NotDirectory(path_buf) => {
+                    let path_buf = path_buf.to_string_lossy();
+                    ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!(concat!("Template directory `", #path_buf, "` was not a directory."));
+                    })
+                },
+                AppendPathError::NotFile(_path_buf) => unreachable!("Directory is expected, not a file"),
+            }
+        })
+}
+
 fn parse_source_tokens_for_path(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
@@ -513,42 +593,52 @@ fn parse_source_tokens_for_path(
             compile_error!("Incorrect syntax for external template. Should look something like:\n#[oxiplate = \"/path/to/template/from/templates/directory.txt.oxip\"]");
         }));
     };
-    let templates_dir = PathBuf::from(option_env!("OXIP_TEMPLATE_DIR").unwrap_or("templates"));
-    let root = PathBuf::from(
-        ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
-            .or(::std::env::var("CARGO_MANIFEST_DIR"))
-            .unwrap(),
-    );
+
+    let templates_dir = templates_dir(attr.span())?;
 
     // Path::join() doesn't play well with absolute paths (for our use case).
-    let Ok(templates_dir_root) = root.join(templates_dir.clone()).canonicalize() else {
-        panic!(
-            "OXIP_TEMPLATE_DIR could not be canonicalized. Provided: {}",
-            templates_dir.display()
-        );
-    };
-    if !templates_dir_root.starts_with(root) {
-        panic!(
-            "OXIP_TEMPLATE_DIR must be a relative path; example: 'templates' instead of \
-             '/templates'. Provided: {}",
-            templates_dir.display()
-        );
-    }
+    let span = path.span();
+    let full_path =
+        templates_dir
+            .append_path(path.value(), true)
+            .map_err(|err| -> ParsedEscaperError {
+                match err {
+                    AppendPathError::DoesNotExist(path_buf) => {
+                        let path_buf = path_buf.to_string_lossy();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Path does not exist: `", #path_buf, "`"));
+                        })
+                    },
+                    AppendPathError::IsSymlink(path_buf) => {
+                        let path_buf = path_buf.to_string_lossy();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Symlinks are not allowed for template paths: `", #path_buf, "`"));
+                        })
+                    },
+                    AppendPathError::CanonicalizeError(path_buf, error) => {
+                        let path_buf = path_buf.to_string_lossy();
+                        let error = error.to_string();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Failed to canonicalize path: `", #path_buf, "`. Original error: ", #error));
+                        })
+                    },
+                    AppendPathError::PrefixNotPresent { prefix, final_path } => {
+                        let prefix = prefix.to_string_lossy();
+                        let final_path = final_path.to_string_lossy();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Template path `", #final_path, "` not within template directory `", #prefix, "`"));
+                        })
+                    },
+                    AppendPathError::NotDirectory(_path_buf) => unreachable!("File is expected, not a directory"),
+                    AppendPathError::NotFile(path_buf) => {
+                        let path_buf = path_buf.to_string_lossy();
+                        ParsedEscaperError::ParseError(quote_spanned! {span=>
+                            compile_error!(concat!("Path is not a file: `", #path_buf, "`"));
+                        })
+                    },
+                }
+            })?;
 
-    // Path::join() doesn't play well with absolute paths (for our use case).
-    let Ok(full_path) = templates_dir_root.join(path.value()).canonicalize() else {
-        panic!(
-            "Template path could not be canonicalized; Provided: {}",
-            path.value()
-        );
-    };
-    if !full_path.starts_with(templates_dir_root) {
-        panic!(
-            "Template path must be a relative path; example 'template.oxip' instead of \
-             '/template.oxip'. Provided: {}",
-            path.value()
-        );
-    }
     let span = path.span();
     let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
 
@@ -591,6 +681,75 @@ fn parse_source_tokens_for_path(
         #[cfg(not(feature = "oxiplate"))]
         None,
     ))
+}
+
+/// Error when attempting to append one path onto another one.
+enum AppendPathError {
+    /// Path does not exist.
+    DoesNotExist(PathBuf),
+    /// Path is a symlink instead of a file or directory.
+    IsSymlink(PathBuf),
+    /// Canonicalizing the path failed.
+    /// More information in the IO error.
+    CanonicalizeError(PathBuf, io::Error),
+    /// Final path is outside the directory being appended to.
+    /// Absolute paths (`/templates`) or `..` directories can cause this.
+    PrefixNotPresent {
+        prefix: PathBuf,
+        final_path: PathBuf,
+    },
+    /// Path is not a directory (probably a file).
+    NotDirectory(PathBuf),
+    /// Path is not a file (probably a directory).
+    NotFile(PathBuf),
+}
+
+/// Trait to append one path onto another.
+trait AppendPath<P: AsRef<Path>> {
+    /// Append a path onto an existing path.
+    /// Will fail if the new path is outside of the existing path.
+    fn append_path(&self, suffix: P, expecting_file: bool) -> Result<Self, AppendPathError>
+    where
+        Self: Sized;
+}
+impl<P: AsRef<Path>> AppendPath<P> for PathBuf {
+    fn append_path(&self, suffix: P, expecting_file: bool) -> Result<Self, AppendPathError> {
+        // Append the suffix to the main path
+        let new_path = self.join(suffix);
+
+        // Do some checks before canonicalizing
+        // in order to return better error messages.
+        if !new_path.starts_with(self) {
+            return Err(AppendPathError::PrefixNotPresent {
+                prefix: self.clone(),
+                final_path: new_path,
+            });
+        } else if !new_path.exists() {
+            return Err(AppendPathError::DoesNotExist(new_path));
+        } else if new_path.is_symlink() {
+            return Err(AppendPathError::IsSymlink(new_path));
+        }
+
+        // Canonicalize to ensure prefix check later is against final path.
+        let new_path = new_path
+            .canonicalize()
+            .map_err(|error| AppendPathError::CanonicalizeError(new_path, error))?;
+
+        // Ensure path is within the original directory
+        // and the new path is a file/directory.
+        if !new_path.starts_with(self) {
+            return Err(AppendPathError::PrefixNotPresent {
+                prefix: self.clone(),
+                final_path: new_path,
+            });
+        } else if !expecting_file && !new_path.is_dir() {
+            return Err(AppendPathError::NotDirectory(new_path));
+        } else if expecting_file && !new_path.is_file() {
+            return Err(AppendPathError::NotFile(new_path));
+        }
+
+        Ok(new_path)
+    }
 }
 
 fn parse_fields(

@@ -1,10 +1,8 @@
-error: proc-macro derive panicked
- --> tests/broken/derive/include-failed-expand.rs:3:10
+error: Path does not exist: `$DIR/templates/path/that/does/not/exist`
+ --> tests/broken/derive/include-failed-expand.rs:4:22
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
-  |
-  = help: message: Template path could not be canonicalized; Provided: path/that/does/not/exist
+4 | #[oxiplate_include = "path/that/does/not/exist"]
+  |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0277]: `Data` doesn't implement `std::fmt::Display`
  --> tests/broken/derive/include-failed-expand.rs:8:18
