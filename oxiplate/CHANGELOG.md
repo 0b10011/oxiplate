@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.2...oxiplate-v0.10.3) - 2025-08-26
+
+### Added
+
+- added basic support for chars (fixes #65)
+
+### Fixed
+
+- improved error messages when a template can't be loaded
+- improved error message for non-name-value attributes for external templates
+
+### Other
+
+- split template path code into a separate function
+- removed duplicate test
+
 ## [0.10.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.1...oxiplate-v0.10.2) - 2025-08-23
 
 ### Fixed
