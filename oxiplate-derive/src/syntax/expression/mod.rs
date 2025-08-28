@@ -6,13 +6,15 @@ use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::pair;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::token::Dot;
 
 mod arguments;
 mod ident;
 mod keyword;
 mod literal;
+mod operator;
+mod prefix_operator;
 
 use self::arguments::arguments;
 use self::ident::IdentifierOrFunction;
@@ -21,6 +23,8 @@ pub(super) use self::keyword::{Keyword, keyword};
 use self::literal::{bool, char, number, string};
 use super::Res;
 use super::template::whitespace;
+use crate::syntax::expression::operator::{Operator, parse_operator};
+use crate::syntax::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::syntax::item::tag_end;
 use crate::{Source, State};
 
@@ -225,184 +229,6 @@ impl ExpressionAccess<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum Operator<'a> {
-    Addition(Source<'a>),
-    Subtraction(Source<'a>),
-    Multiplication(Source<'a>),
-    Division(Source<'a>),
-    Remainder(Source<'a>),
-
-    Equal(Source<'a>),
-    NotEqual(Source<'a>),
-    GreaterThan(Source<'a>),
-    LessThan(Source<'a>),
-    GreaterThanOrEqual(Source<'a>),
-    LessThanOrEqual(Source<'a>),
-
-    Or(Source<'a>),
-    And(Source<'a>),
-
-    /// `start..=end` that matches all values where `start <= x <= end`.
-    /// See: <https://doc.rust-lang.org/core/ops/struct.RangeInclusive.html>
-    RangeInclusive(Source<'a>),
-
-    /// `start..end` that matches all values where `start <= x < end`.
-    /// `start..` that matches all values where `start <= x`.
-    /// See: <https://doc.rust-lang.org/core/ops/struct.Range.html>
-    RangeExclusive(Source<'a>),
-}
-
-impl Operator<'_> {
-    fn requires_expression_after(&self) -> bool {
-        match self {
-            Operator::Addition(_)
-            | Operator::Subtraction(_)
-            | Operator::Multiplication(_)
-            | Operator::Division(_)
-            | Operator::Remainder(_)
-            | Operator::Equal(_)
-            | Operator::NotEqual(_)
-            | Operator::GreaterThan(_)
-            | Operator::LessThan(_)
-            | Operator::GreaterThanOrEqual(_)
-            | Operator::LessThanOrEqual(_)
-            | Operator::Or(_)
-            | Operator::And(_)
-            | Operator::RangeInclusive(_) => true,
-
-            // `expr..` is valid as well as `expr..expr`.
-            Operator::RangeExclusive(_) => false,
-        }
-    }
-}
-
-impl ToTokens for Operator<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append_all(match self {
-            Operator::Addition(source) => {
-                let span = source.span();
-                quote_spanned!(span=> +)
-            }
-            Operator::Subtraction(source) => {
-                let span = source.span();
-                quote_spanned!(span=> -)
-            }
-            Operator::Multiplication(source) => {
-                let span = source.span();
-                quote_spanned!(span=> *)
-            }
-            Operator::Division(source) => {
-                let span = source.span();
-                quote_spanned!(span=> /)
-            }
-            Operator::Remainder(source) => {
-                let span = source.span();
-                quote_spanned!(span=> %)
-            }
-
-            Operator::Equal(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ==)
-            }
-            Operator::NotEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> !=)
-            }
-            Operator::GreaterThan(source) => {
-                let span = source.span();
-                quote_spanned!(span=> >)
-            }
-            Operator::LessThan(source) => {
-                let span = source.span();
-                quote_spanned!(span=> <)
-            }
-            Operator::GreaterThanOrEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> >=)
-            }
-            Operator::LessThanOrEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> <=)
-            }
-
-            Operator::Or(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ||)
-            }
-            Operator::And(source) => {
-                let span = source.span();
-                quote_spanned!(span=> &&)
-            }
-
-            Operator::RangeInclusive(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ..=)
-            }
-            Operator::RangeExclusive(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ..)
-            }
-        });
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum PrefixOperator<'a> {
-    Borrow(Source<'a>),
-    Dereference(Source<'a>),
-    Not(Source<'a>),
-
-    /// `-` results in a negative value in the following expression.
-    /// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#negation-operators>
-    Negative(Source<'a>),
-
-    /// `..=end` that matches all values where `x <= end`.
-    /// See: <https://doc.rust-lang.org/core/ops/struct.RangeToInclusive.html>
-    RangeInclusive(Source<'a>),
-
-    /// `..end` that matches all values where `x < end`.
-    /// See: <https://doc.rust-lang.org/core/ops/struct.RangeTo.html>
-    RangeExclusive(Source<'a>),
-}
-
-impl PrefixOperator<'_> {
-    fn cut_if_not_followed_by_expression(&self) -> bool {
-        match self {
-            PrefixOperator::Borrow(_)
-            | PrefixOperator::Dereference(_)
-            | PrefixOperator::Not(_)
-            | PrefixOperator::Negative(_)
-            | PrefixOperator::RangeInclusive(_) => true,
-
-            // The full range expression is this operator
-            // without an expression after it
-            // so this has to be recoverable
-            // for that expression to be matched later.
-            PrefixOperator::RangeExclusive(_) => false,
-        }
-    }
-}
-
-impl ToTokens for PrefixOperator<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        macro_rules! op {
-            ($source:ident, $op:tt) => {{
-                let span = $source.span();
-                quote_spanned! {span=> $op }
-            }};
-        }
-        tokens.append_all(match self {
-            Self::Borrow(source) => op!(source, &),
-            Self::Dereference(source) => op!(source, *),
-            Self::Not(source) => op!(source, !),
-            Self::Negative(source) => op!(source, -),
-            Self::RangeInclusive(source) => op!(source, ..=),
-            Self::RangeExclusive(source) => op!(source, ..),
-        });
-    }
-}
-
 pub(super) fn expression<'a>(
     allow_generic_nesting: bool,
     allow_concat_nesting: bool,
@@ -418,7 +244,7 @@ pub(super) fn expression<'a>(
                 number,
                 bool,
                 identifier,
-                prefixed_expression,
+                parse_prefixed_expression,
                 group,
                 full_range,
             )),
@@ -442,51 +268,6 @@ fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
 
         Ok((input, Field { dot, ident_or_fn }))
     }
-}
-fn operator(input: Source) -> Res<Source, Operator> {
-    let (input, operator) = alt((
-        tag("+"),
-        tag("-"),
-        tag("*"),
-        tag("/"),
-        tag("%"),
-        tag("=="),
-        tag("!="),
-        tag(">="),
-        tag("<="),
-        tag(">"),
-        tag("<"),
-        tag("||"),
-        tag("&&"),
-        tag("..="),
-        tag(".."),
-    ))
-    .parse(input)?;
-
-    let operator = match operator.as_str() {
-        "+" => Operator::Addition(operator),
-        "-" => Operator::Subtraction(operator),
-        "*" => Operator::Multiplication(operator),
-        "/" => Operator::Division(operator),
-        "%" => Operator::Remainder(operator),
-
-        "==" => Operator::Equal(operator),
-        "!=" => Operator::NotEqual(operator),
-        ">" => Operator::GreaterThan(operator),
-        "<" => Operator::LessThan(operator),
-        ">=" => Operator::GreaterThanOrEqual(operator),
-        "<=" => Operator::LessThanOrEqual(operator),
-
-        "||" => Operator::Or(operator),
-        "&&" => Operator::And(operator),
-
-        "..=" => Operator::RangeInclusive(operator),
-        ".." => Operator::RangeExclusive(operator),
-
-        _ => unreachable!("All cases should be covered"),
-    };
-
-    Ok((input, operator))
 }
 
 fn concat<'a>(allow_concat: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
@@ -533,7 +314,7 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
             opt(whitespace),
             // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
             not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
-            operator,
+            parse_operator,
             opt(whitespace),
         )
             .parse(input)?;
@@ -551,47 +332,6 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
             Expression::Calc(Box::new(left), operator, Box::new(right)),
         ))
     }
-}
-fn prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
-    let (input, operator) = alt((
-        tag("&"),
-        tag("*"),
-        tag("!"),
-        tag("-"),
-        tag("..="),
-        tag(".."),
-    ))
-    .parse(input)?;
-    let operator = match operator.as_str() {
-        "&" => PrefixOperator::Borrow(operator),
-        "*" => PrefixOperator::Dereference(operator),
-        "!" => PrefixOperator::Not(operator),
-        "-" => PrefixOperator::Negative(operator),
-        "..=" => PrefixOperator::RangeInclusive(operator),
-        ".." => PrefixOperator::RangeExclusive(operator),
-        _ => unreachable!("All cases should be covered"),
-    };
-
-    Ok((input, operator))
-}
-fn prefixed_expression(input: Source) -> Res<Source, Expression> {
-    let (input, (_leading_whitespace, prefix_operator, _trailing_whitespace)) =
-        (opt(whitespace), prefix_operator, opt(whitespace)).parse(input)?;
-
-    let (input, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
-        context(
-            "Expected an expression after prefix operator",
-            cut(expression(true, true)),
-        )
-        .parse(input)?
-    } else {
-        expression(true, true).parse(input)?
-    };
-
-    Ok((
-        input,
-        Expression::Prefixed(prefix_operator, Box::new(expression)),
-    ))
 }
 
 fn group(input: Source) -> Res<Source, Expression> {
