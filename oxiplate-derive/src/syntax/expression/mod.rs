@@ -6,7 +6,8 @@ use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::pair;
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use syn::spanned::Spanned;
 use syn::token::Dot;
 
 mod arguments;
@@ -23,6 +24,7 @@ pub(super) use self::keyword::{Keyword, keyword};
 use self::literal::{bool, char, number, string};
 use super::Res;
 use super::template::whitespace;
+use crate::syntax::expression::arguments::ArgumentsGroup;
 use crate::syntax::expression::operator::{Operator, parse_operator};
 use crate::syntax::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::syntax::item::tag_end;
@@ -76,6 +78,14 @@ pub(crate) enum Expression<'a> {
         Box<ExpressionAccess<'a>>,
         Source<'a>,
     ),
+
+    /// `expr | filter(args)`
+    Filter {
+        name: Identifier<'a>,
+        expression: Box<ExpressionAccess<'a>>,
+        vertical_bar: Source<'a>,
+        arguments: ArgumentsGroup<'a>,
+    },
 }
 
 impl Expression<'_> {
@@ -164,6 +174,12 @@ impl Expression<'_> {
                     estimated_length,
                 )
             }
+            Expression::Filter {
+                name,
+                expression,
+                vertical_bar,
+                arguments,
+            } => Self::filter(state, name, expression, vertical_bar, arguments),
         }
     }
 
@@ -210,6 +226,44 @@ impl Expression<'_> {
             }
         }
     }
+
+    /// Generate tokens for a filter expression.
+    fn filter(
+        state: &State,
+        name: &Identifier,
+        expression: &ExpressionAccess,
+        vertical_bar: &Source,
+        arguments: &ArgumentsGroup,
+    ) -> (TokenStream, usize) {
+        let (mut argument_tokens, estimated_length) = expression.to_tokens(state);
+
+        if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
+            // First argument
+            let comma_span = vertical_bar.span();
+            argument_tokens.append_all(quote_spanned! {comma_span=> , });
+            argument_tokens.append_all(first_argument.to_tokens(state).0);
+
+            // Remaining arguments
+            for (comma, expression) in remaining_arguments {
+                let comma_span = comma.span();
+                argument_tokens.append_all(quote_spanned! {comma_span=> , });
+                argument_tokens.append_all(expression.to_tokens(state).0);
+            }
+        }
+
+        let mut group =
+            proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
+        let mut arguments_source = arguments.open_paren.clone();
+        arguments_source.range.end = arguments.close_paren.range.end;
+        group.set_span(arguments_source.span());
+        let arguments = group.to_token_stream();
+
+        let span = name.span();
+        (
+            quote_spanned! {span=> crate::filters_for_oxiplate::#name #arguments },
+            estimated_length,
+        )
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -239,6 +293,7 @@ pub(super) fn expression<'a>(
                 concat(allow_concat_nesting),
                 calc(allow_generic_nesting),
                 index(allow_generic_nesting),
+                filters(allow_generic_nesting),
                 char,
                 string,
                 number,
@@ -376,6 +431,39 @@ fn index(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expressi
         Ok((
             input,
             Expression::Index(Box::new(expression), open, Box::new(range), close),
+        ))
+    }
+}
+
+/// Parses filters (`expr | filter()`).
+fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expression> {
+    move |input| {
+        if !allow_generic_nesting {
+            return fail().parse(input);
+        }
+
+        let (input, (expression, _, vertical_bar, _, filter, _, arguments)) = (
+            expression(false, false),
+            opt(whitespace),
+            tag("|"),
+            opt(whitespace),
+            context("Expected a filter name", cut(ident)),
+            opt(whitespace),
+            context(
+                "Expected parentheses surrounding zero or more arguments for the filter",
+                cut(arguments),
+            ),
+        )
+            .parse(input)?;
+
+        Ok((
+            input,
+            Expression::Filter {
+                name: filter,
+                expression: Box::new(expression),
+                vertical_bar,
+                arguments,
+            },
         ))
     }
 }

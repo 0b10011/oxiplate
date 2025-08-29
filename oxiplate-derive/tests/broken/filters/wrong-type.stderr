@@ -1,0 +1,39 @@
+error[E0277]: `Message` doesn't implement `std::fmt::Display`
+  --> tests/broken/filters/wrong-type.rs:22:25
+   |
+22 | #[oxiplate_inline(r#"{{ message | respond() }} {{ message | respond_string() }}"#)]
+   |                         ^^^^^^^   ------- required by a bound introduced by this call
+   |                         |
+   |                         the trait `std::fmt::Display` is not implemented for `Message`
+   |
+note: required by a bound in `respond`
+  --> tests/broken/filters/wrong-type.rs:6:37
+   |
+ 6 |     pub fn respond(expression: impl Display) -> impl Display {
+   |                                     ^^^^^^^ required by this bound in `respond`
+
+error[E0277]: `Message` doesn't implement `std::fmt::Display`
+  --> tests/broken/filters/wrong-type.rs:22:35
+   |
+22 | #[oxiplate_inline(r#"{{ message | respond() }} {{ message | respond_string() }}"#)]
+   |                                   ^^^^^^^^^ the trait `std::fmt::Display` is not implemented for `Message`
+   |
+note: required by a bound in `respond`
+  --> tests/broken/filters/wrong-type.rs:6:37
+   |
+ 6 |     pub fn respond(expression: impl Display) -> impl Display {
+   |                                     ^^^^^^^ required by this bound in `respond`
+
+error[E0308]: mismatched types
+  --> tests/broken/filters/wrong-type.rs:22:51
+   |
+22 | #[oxiplate_inline(r#"{{ message | respond() }} {{ message | respond_string() }}"#)]
+   |                                                   ^^^^^^^   -------------- arguments to this function are incorrect
+   |                                                   |
+   |                                                   expected `String`, found `Message`
+   |
+note: function defined here
+  --> tests/broken/filters/wrong-type.rs:14:12
+   |
+14 |     pub fn respond_string(expression: String) -> impl Display {
+   |            ^^^^^^^^^^^^^^ ------------------

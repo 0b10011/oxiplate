@@ -43,12 +43,6 @@ it will be implied when a local variable of the same name doesn't exist.
 
 ## Filters
 
-<div class="warning">
-
-Filters are not yet implemented ([#26](https://github.com/0b10011/oxiplate/issues/26)).
-
-</div>
-
 Filters modify expressions that precede them:
 
 ```oxip
@@ -57,7 +51,7 @@ Filters modify expressions that precede them:
 
 > FOO
 
-Behind the scenes, filters are functions that are passed the result of the expression as the first argument. Additional arguments can be passed to the filter directly:
+Behind the scenes, filters are functions in the `filters_for_oxiplate` module at the root of _your_ crate that are passed the result of the expression as the first argument. Additional arguments can be passed to the filter directly:
 
 ```oxip
 {{ "hello world"|replace("hello", "goodbye") }}

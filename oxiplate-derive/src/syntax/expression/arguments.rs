@@ -12,14 +12,14 @@ use crate::syntax::expression::{ExpressionAccess, expression};
 use crate::syntax::template::whitespace;
 use crate::{Source, State};
 
-type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
-type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;
+pub(crate) type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
+pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct ArgumentsGroup<'a> {
-    open_paren: Source<'a>,
-    arguments: Option<(FirstArgument<'a>, RemainingArguments<'a>)>,
-    close_paren: Source<'a>,
+    pub(crate) open_paren: Source<'a>,
+    pub(crate) arguments: Option<(FirstArgument<'a>, RemainingArguments<'a>)>,
+    pub(crate) close_paren: Source<'a>,
 }
 
 impl ArgumentsGroup<'_> {
