@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.3...oxiplate-v0.10.4) - 2025-08-29
+
+### Added
+
+- added support for filters (fixes #26)
+
+### Other
+
+- split operator/prefix operator code into separate mod
+
 ## [0.10.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.2...oxiplate-v0.10.3) - 2025-08-26
 
 ### Added
