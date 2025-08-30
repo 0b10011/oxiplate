@@ -1,10 +1,10 @@
 [package]
 name = "oxiplate"
-description.workspace = true
-version.workspace = true
+description = "Compile-time template engine with a focus on escaping, helpful error messages, and whitespace control."
+version = "0.10.4"
+readme = "README.md"
 authors.workspace = true
 homepage.workspace = true
-readme.workspace = true
 repository.workspace = true
 categories.workspace = true
 keywords.workspace = true

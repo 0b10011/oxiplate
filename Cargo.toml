@@ -3,11 +3,8 @@ resolver = "2"
 members = ["oxiplate", "oxiplate-derive", "oxiplate/tests/crates/*"]
 
 [workspace.package]
-description = "Compile-time template engine with a focus on escaping and whitespace control."
-version = "0.10.4"
 authors = ["Brandon Frohs <brandon@19.codes>"]
 homepage = "https://0b10011.io/oxiplate"
-readme = "README.md"
 repository = "https://github.com/0b10011/oxiplate"
 categories = ["template-engine"]
 keywords = ["escaping", "whitespace-control", "compile-time"]
