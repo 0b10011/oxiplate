@@ -2,9 +2,9 @@
 name = "oxiplate-traits"
 version = "0.1.0"
 description = "Traits used by Oxiplate and Oxiplate-related libraries."
+readme = "README.md"
 authors.workspace = true
 homepage.workspace = true
-readme.workspace = true
 repository.workspace = true
 categories.workspace = true
 keywords.workspace = true
