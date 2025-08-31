@@ -375,6 +375,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-slow-escape-ints"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-traits"
 version = "0.1.1"
 dependencies = [

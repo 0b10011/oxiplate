@@ -12,14 +12,20 @@ license.workspace = true
 edition.workspace = true
 
 [dependencies]
-itoa = "1.0.15"
+itoa = { version = "1.0.15", optional = true }
 
 [features]
+
+default = ["fast-escape-ints"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types
 # to make it clear which use `FastEscape`.
 debug-fast-escape-type-priority = []
+
+# Includes the `itoa` dependency
+# and speeds up integer escaping.
+fast-escape-ints = ["dep:itoa"]
 
 [lints]
 workspace = true

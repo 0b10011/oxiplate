@@ -23,7 +23,7 @@ rustversion = "1.0.19"
 trybuild = "1.0.101"
 
 [features]
-default = ["built-in-escapers", "config"]
+default = ["built-in-escapers", "config", "fast-escape-ints"]
 
 # Automatically adds the built-in escapers to the list of available escapers,
 # and uses "html" as the default escaper if a different one isn't specified.
@@ -35,3 +35,7 @@ config = ["oxiplate-derive/config"]
 # Feature only meant to be turned on for tests.
 # Changes the output for various types to 
 debug-fast-escape-type-priority = ["oxiplate-traits/debug-fast-escape-type-priority"]
+
+# Includes the `itoa` dependency
+# and speeds up integer escaping.
+fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]

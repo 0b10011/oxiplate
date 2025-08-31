@@ -1,0 +1,8 @@
+[package]
+name = "oxiplate-test-slow-escape-ints"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate = { path = "../../../", default-features = false, features = ["built-in-escapers", "debug-fast-escape-type-priority"] }

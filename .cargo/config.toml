@@ -18,10 +18,16 @@ dev = [
     "test --package oxiplate-test-fast-escape-type-priority",
 
     "-x",
-    "clippy --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority",
+    "clippy --package oxiplate-test-slow-escape-ints",
 
     "-x",
-    "test --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority",
+    "test --package oxiplate-test-slow-escape-ints",
+
+    "-x",
+    "clippy --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
+
+    "-x",
+    "test --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
 
     "-x",
     "expansion-tests",

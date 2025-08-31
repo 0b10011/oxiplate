@@ -250,6 +250,7 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
     }
 }
 
+#[cfg(feature = "fast-escape-ints")]
 macro_rules! unescaped_ints {
     ($($ty:ty)*) => { $(
         impl<'a, W: Write + ?Sized> FastEscape<'a, W> for $ty {
@@ -282,6 +283,7 @@ macro_rules! unescaped_ints {
     )* };
 }
 
+#[cfg(feature = "fast-escape-ints")]
 unescaped_ints!(
     i8 i16 i32 i64 i128 isize
     u8 u16 u32 u64 u128 usize
