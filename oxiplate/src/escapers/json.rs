@@ -11,6 +11,8 @@
 
 use std::fmt::{Result, Write};
 
+use oxiplate_traits::Escaper;
+
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
 /// consider using `raw` in conjuction with something like Serde.
@@ -21,7 +23,7 @@ pub enum JsonEscaper {
     substring,
 }
 
-impl super::Escaper for JsonEscaper {
+impl Escaper for JsonEscaper {
     const DEFAULT: Self = Self::substring;
 
     #[inline]

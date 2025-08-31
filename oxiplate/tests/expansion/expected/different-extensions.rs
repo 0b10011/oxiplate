@@ -18,18 +18,18 @@ impl ::oxiplate::Render for Html {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
+        use ::oxiplate::UnescapedText;
         f.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::attr)?;
         f.write_str("\">Hello ")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
                 f,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         f.write_str("!</p>\n<p>Goodbye ")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::text)?;
         f.write_str("!</p>\n")?;
         Ok(())
@@ -94,15 +94,15 @@ impl ::oxiplate::Render for Json {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
+        use ::oxiplate::UnescapedText;
         f.write_str("{\n    \"foo\": \"hello ")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
                 f,
-                &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         f.write_str("\",\n    \"bar\": \"goodbye ")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::json::JsonEscaper::substring)?;
         f.write_str("\"\n}\n")?;
         Ok(())

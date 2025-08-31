@@ -1,0 +1,25 @@
+[package]
+name = "oxiplate-traits"
+version = "0.1.0"
+description = "Traits used by Oxiplate and Oxiplate-related libraries."
+authors.workspace = true
+homepage.workspace = true
+readme.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+itoa = "1.0.15"
+
+[features]
+
+# Feature only meant to be turned on for tests.
+# Changes the output for various types
+# to make it clear which use `FastEscape`.
+debug-fast-escape-type-priority = []
+
+[lints]
+workspace = true

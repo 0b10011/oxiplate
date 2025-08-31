@@ -5,7 +5,7 @@ use std::fmt::{Display, Result, Write};
 use std::rc::Rc;
 use std::sync::Arc;
 
-use crate::escapers::Escaper;
+use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
 /// that will implement `UnescapedText`
@@ -14,11 +14,12 @@ use crate::escapers::Escaper;
 /// Must borrow twice before calling `oxiplate_escape()` or `oxiplate_raw()`.
 ///
 /// ```rust
-/// use oxiplate::unescaped_text::UnescapedText;
+/// # use oxiplate_traits as oxiplate;
+/// use oxiplate::UnescapedText;
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
+/// (&&oxiplate::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```

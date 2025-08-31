@@ -18,9 +18,9 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
+        use ::oxiplate::UnescapedText;
         f.write_str("<!--")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.comment)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment)))
             .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::comment)?;
         f.write_str("-->")?;
         Ok(())

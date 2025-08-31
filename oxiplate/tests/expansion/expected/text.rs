@@ -20,10 +20,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
+        use ::oxiplate::UnescapedText;
         for message in &self.messages {
             f.write_str("\n<p>")?;
-            (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(message)))
+            (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
                 .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::text)?;
             f.write_str("</p>")?;
         }

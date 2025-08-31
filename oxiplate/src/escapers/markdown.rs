@@ -11,6 +11,8 @@
 
 use std::fmt::{Result, Write};
 
+use oxiplate_traits::Escaper;
+
 /// Escaper group to pass to Oxiplate for Markdown escaping.
 #[allow(non_camel_case_types)]
 pub enum MarkdownEscaper {
@@ -19,7 +21,7 @@ pub enum MarkdownEscaper {
     text,
 }
 
-impl super::Escaper for MarkdownEscaper {
+impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
     #[inline]

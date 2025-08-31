@@ -4,9 +4,13 @@ release = false
 [[package]]
 name = "oxiplate"
 release = true
-changelog_include = ["oxiplate-derive"]
+changelog_include = ["oxiplate-derive", "oxiplate-traits"]
 
 [[package]]
 name = "oxiplate-derive"
 release = true
 changelog_include = ["oxiplate-traits"]
+
+[[package]]
+name = "oxiplate-traits"
+release = true

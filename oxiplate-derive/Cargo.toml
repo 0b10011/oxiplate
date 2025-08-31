@@ -46,10 +46,6 @@ config = ["dep:serde", "dep:toml"]
 # and allows for some additional functionality like escaping.
 oxiplate = []
 
-# Feature only meant to be turned on for tests.
-# Changes the output for various types to 
-debug-fast-escape-type-priority = []
-
 [[bench]]
 name = "benchmark"
 harness = false

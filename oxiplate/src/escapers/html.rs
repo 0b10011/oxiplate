@@ -12,6 +12,8 @@
 
 use std::fmt::{Result, Write};
 
+use oxiplate_traits::Escaper;
+
 /// Escaper group to pass to Oxiplate for HTML escaping.
 #[allow(non_camel_case_types)]
 pub enum HtmlEscaper {
@@ -28,7 +30,7 @@ pub enum HtmlEscaper {
     comment,
 }
 
-impl super::Escaper for HtmlEscaper {
+impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
     #[inline]

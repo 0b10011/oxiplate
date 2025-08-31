@@ -2,7 +2,7 @@
 
 use std::fmt::{Result, Write};
 
-use super::Escaper;
+use oxiplate_traits::Escaper;
 
 /// Enum for example escaper.
 #[allow(dead_code)]

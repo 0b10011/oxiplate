@@ -18,18 +18,18 @@ impl ::oxiplate::Render for Html {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::unescaped_text::UnescapedText;
+        use ::oxiplate::UnescapedText;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
                 f,
-                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::escapers::Escaper>::DEFAULT,
+                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::foo)?;
         f.write_str("\n")?;
-        (&&::oxiplate::unescaped_text::UnescapedTextWrapper::new(&(self.name)))
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::bar)?;
         f.write_str("\n")?;
         Ok(())

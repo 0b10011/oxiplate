@@ -15,8 +15,8 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-itoa = "1.0.15"
 oxiplate-derive = { version = "0.10.4", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
+oxiplate-traits = { version = "0.1", path = "../oxiplate-traits", default-features = false, features = [] }
 
 [dev-dependencies]
 rustversion = "1.0.19"
@@ -34,4 +34,4 @@ config = ["oxiplate-derive/config"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types to 
-debug-fast-escape-type-priority = ["oxiplate-derive/debug-fast-escape-type-priority"]
+debug-fast-escape-type-priority = ["oxiplate-traits/debug-fast-escape-type-priority"]

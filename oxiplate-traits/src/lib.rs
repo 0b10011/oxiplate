@@ -4,7 +4,10 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-pub mod escapers;
+mod escaper;
+mod render;
+mod unescaped_text;
 
-pub use oxiplate_derive::Oxiplate;
-pub use oxiplate_traits::{Escaper, FastEscape, Render, UnescapedText, UnescapedTextWrapper};
+pub use escaper::Escaper;
+pub use render::Render;
+pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
