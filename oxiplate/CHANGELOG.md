@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.4...oxiplate-v0.11.0) - 2025-08-31
+
+### Added
+
+- split traits into separate crate
+- [**breaking**] add estimated length and rendering directly into a string
+
+### Other
+
+- split descriptions, versions, and readmes
+- improve highlighting of code block filenames
+- fix links in released crate
+- use correct error message
+- add more information about the main focuses to the READMEs
+- rewrite readme to add badges and point to book/docs
+- `cargo clippy` changes
+- Fix newlines
+- Move templates to their own directory and support nesting
+- Fix hygiene
+- Initial attempt to use `include_str!()` to fetch files
+- Add message about code being experimental
+- Add support for templates stored in separate files
+- Add basic documentation
+
 ## [0.10.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.10.3...oxiplate-v0.10.4) - 2025-08-29
 
 ### Added
