@@ -1,7 +1,7 @@
 [package]
 name = "oxiplate"
 description = "Compile-time template engine with a focus on escaping, helpful error messages, and whitespace control."
-version = "0.11.1"
+version = "0.11.2"
 readme = "README.md"
 authors.workspace = true
 homepage.workspace = true
