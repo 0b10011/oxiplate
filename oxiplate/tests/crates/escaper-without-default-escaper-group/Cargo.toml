@@ -1,6 +1,6 @@
 [package]
 name = "oxiplate-test-escaper-without-default-escaper-group"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dev-dependencies]
