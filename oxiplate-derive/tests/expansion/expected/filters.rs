@@ -282,10 +282,134 @@ fn pad() {
         }
     };
 }
+#[oxiplate_inline(r#"{{ message | respond() | shorten(length) }}"#)]
+struct Multiple {
+    message: &'static str,
+    length: usize,
+}
+impl ::std::fmt::Display for Multiple {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(1usize);
+            let f = &mut string;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(crate::filters_for_oxiplate::shorten(
+                        crate::filters_for_oxiplate::respond(self.message),
+                        self.length,
+                    )),
+                ),
+            )?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "multiple"]
+#[doc(hidden)]
+pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("multiple"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/filters.rs",
+        start_line: 113usize,
+        start_col: 4usize,
+        end_line: 113usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(multiple())),
+};
+fn multiple() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 6,
+                    },
+                ),
+            )
+        }),
+        &"world",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 5,
+                    },
+                ),
+            )
+        }),
+        &"world",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 4,
+                    },
+                ),
+            )
+        }),
+        &"worl",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&pad, &respond, &shorten])
+    test::test_main_static(&[&multiple, &pad, &respond, &shorten])
 }

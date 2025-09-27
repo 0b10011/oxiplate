@@ -101,3 +101,44 @@ fn pad() {
         " 19"
     );
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ message | respond() | shorten(length) }}"#)]
+struct Multiple {
+    message: &'static str,
+    length: usize,
+}
+
+#[test]
+fn multiple() {
+    assert_eq!(
+        format!(
+            "{}",
+            Multiple {
+                message: "hello",
+                length: 6
+            }
+        ),
+        "world"
+    );
+    assert_eq!(
+        format!(
+            "{}",
+            Multiple {
+                message: "hello",
+                length: 5
+            }
+        ),
+        "world"
+    );
+    assert_eq!(
+        format!(
+            "{}",
+            Multiple {
+                message: "hello",
+                length: 4
+            }
+        ),
+        "worl"
+    );
+}

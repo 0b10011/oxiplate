@@ -282,6 +282,14 @@ impl ExpressionAccess<'_> {
         (tokens, estimated_length)
     }
 }
+impl<'a> From<Expression<'a>> for ExpressionAccess<'a> {
+    fn from(expression: Expression<'a>) -> Self {
+        ExpressionAccess {
+            expression,
+            fields: Vec::new(),
+        }
+    }
+}
 
 pub(super) fn expression<'a>(
     allow_generic_nesting: bool,
@@ -442,28 +450,35 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
             return fail().parse(input);
         }
 
-        let (input, (expression, _, vertical_bar, _, filter, _, arguments)) = (
+        let (input, (expression, filters)) = (
             expression(false, false),
-            opt(whitespace),
-            tag("|"),
-            opt(whitespace),
-            context("Expected a filter name", cut(ident)),
-            opt(whitespace),
-            context(
-                "Expected parentheses surrounding zero or more arguments for the filter",
-                cut(arguments),
-            ),
+            many1((
+                opt(whitespace),
+                tag("|"),
+                opt(whitespace),
+                context("Expected a filter name", cut(ident)),
+                opt(whitespace),
+                context(
+                    "Expected parentheses surrounding zero or more arguments for the filter",
+                    cut(arguments),
+                ),
+            )),
         )
             .parse(input)?;
 
-        Ok((
-            input,
-            Expression::Filter {
-                name: filter,
-                expression: Box::new(expression),
-                vertical_bar,
-                arguments,
-            },
-        ))
+        let mut expression_access = expression;
+        for (_, vertical_bar, _, name, _, arguments) in filters {
+            expression_access = ExpressionAccess {
+                expression: Expression::Filter {
+                    name,
+                    expression: Box::new(expression_access),
+                    vertical_bar,
+                    arguments,
+                },
+                fields: Vec::new(),
+            }
+        }
+
+        Ok((input, expression_access.expression))
     }
 }
