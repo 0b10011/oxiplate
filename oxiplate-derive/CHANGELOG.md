@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.0...oxiplate-derive-v0.11.1) - 2025-09-27
+
+### Fixed
+
+- fixed chaining filters
+
 ## [0.11.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.10.4...oxiplate-derive-v0.11.0) - 2025-08-31
 
 ### Added
