@@ -1,0 +1,18 @@
+error[E0277]: &str is expected to be prefixed by `>` and implement `::oxiplate_traits::ToCowString`.
+  --> tests/broken/cow_str/missing-cow-prefix-on-argument.rs:20:49
+   |
+20 | #[oxiplate_inline(r#"{{ raw: >message | respond("world") }}"#)]
+   |                                         ------- ^^^^^^^ Insert `>` prefix before this expression if `&str` is a string-like value (`str`, `impl Display`, etc).
+   |                                         |
+   |                                         required by a bound introduced by this call
+   |
+   = help: the trait `CowStr<'_>` is not implemented for `&str`
+   = note: Consider implementing `::oxiplate_traits::ToCowStr` if `&str` is owned by your crate, and then prefix with `>`.
+   = note: If `&str` is not a string-like value, perhaps you meant to pass a different argument to the filter?
+   = note: Oxiplate efficiently builds `::std::borrow::Cow<'a, str>` when a `>` prefix is used on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is used by filters for string arguments. Because the syntax for doing so is not obvious and prone to silently breaking, this alternative syntax is used to let Oxiplate handle the details while ensuring it's tested properly.
+   = help: the trait `CowStr<'a>` is implemented for `CowStrWrapper<'a>`
+note: required by a bound in `respond`
+  --> tests/broken/cow_str/missing-cow-prefix-on-argument.rs:8:42
+   |
+ 8 |     pub fn respond<'a, E: CowStr<'a>, R: CowStr<'a>>(expression: E, response: R) -> Cow<'a, str> {
+   |                                          ^^^^^^^^^^ required by this bound in `respond`

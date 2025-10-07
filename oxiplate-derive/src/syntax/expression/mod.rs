@@ -78,6 +78,11 @@ pub(crate) enum Expression<'a> {
         Box<Option<ExpressionAccess<'a>>>,
     ),
     Prefixed(PrefixOperator<'a>, Box<ExpressionAccess<'a>>),
+    Cow {
+        funnel: Source<'a>,
+        expression: Box<ExpressionAccess<'a>>,
+        source: Source<'a>,
+    },
 
     /// `..` that represents a range
     /// where the start/end matches whatever it is applied to.
@@ -100,12 +105,14 @@ pub(crate) enum Expression<'a> {
         name: Identifier<'a>,
         expression: Box<ExpressionAccess<'a>>,
         vertical_bar: Source<'a>,
+        funnel: Option<Source<'a>>,
         arguments: ArgumentsGroup<'a>,
         source: Source<'a>,
     },
 }
 
 impl<'a> Expression<'a> {
+    #[allow(clippy::too_many_lines)]
     pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
         match self {
             Expression::Identifier(identifier) => match &identifier {
@@ -150,6 +157,27 @@ impl<'a> Expression<'a> {
                 let (expression, expression_length) = expression.to_tokens(state);
                 (quote! { #operator #expression }, expression_length)
             }
+            Expression::Cow {
+                funnel: _,
+                expression,
+                source,
+            } => {
+                #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
+                let (expression, expression_length) = expression.to_tokens(state);
+                let span = source.span();
+
+                #[cfg(feature = "oxiplate")]
+                let expression = quote_spanned! {span=>
+                    ::oxiplate::CowStrWrapper::new((&&::oxiplate::ToCowStrWrapper::new(&(#expression))).to_cow_str())
+                };
+
+                #[cfg(not(feature = "oxiplate"))]
+                let expression = quote_spanned! {span=>
+                    compile_error!("Cow str funnel requires the `oxiplate` library due to trait usage")
+                };
+
+                (expression, expression_length)
+            }
             Expression::Char { value, source } => {
                 let literal = ::syn::LitChar::new(*value, source.span());
                 (quote! { #literal }, 1)
@@ -187,9 +215,18 @@ impl<'a> Expression<'a> {
                 name,
                 expression,
                 vertical_bar,
+                funnel,
                 arguments,
                 source,
-            } => Self::filter(state, name, expression, vertical_bar, arguments, source),
+            } => Self::filter(
+                state,
+                name,
+                expression,
+                vertical_bar,
+                funnel.as_ref(),
+                arguments,
+                source,
+            ),
         }
     }
 
@@ -199,10 +236,12 @@ impl<'a> Expression<'a> {
         name: &Identifier,
         expression: &ExpressionAccess,
         vertical_bar: &Source,
+        funnel: Option<&Source>,
         arguments: &ArgumentsGroup,
         source: &Source,
     ) -> (TokenStream, usize) {
-        let (mut argument_tokens, estimated_length) = expression.to_tokens(state);
+        let (expression, estimated_length) = expression.to_tokens(state);
+        let mut argument_tokens = expression;
 
         if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
             // First argument
@@ -226,10 +265,38 @@ impl<'a> Expression<'a> {
         let arguments = group.to_token_stream();
 
         let span = name.span();
-        (
-            quote_spanned! {span=> crate::filters_for_oxiplate::#name #arguments },
-            estimated_length,
-        )
+        if let Some(funnel) = funnel {
+            let span = funnel.span();
+
+            if cfg!(feature = "oxiplate") {
+                (
+                    quote_spanned! {span=>
+                        ::oxiplate::CowStrWrapper::new(
+                            (
+                                &&::oxiplate::ToCowStrWrapper::new(
+                                    &(crate::filters_for_oxiplate::#name #arguments)
+                                )
+                            ).to_cow_str()
+                        )
+                    },
+                    estimated_length,
+                )
+            } else {
+                (
+                    quote_spanned! {span=>
+                        compile_error!("Cow str funnel requires the `oxiplate` library due to trait usage")
+                    },
+                    0,
+                )
+            }
+        } else {
+            (
+                quote_spanned! {span=>
+                    crate::filters_for_oxiplate::#name #arguments
+                },
+                estimated_length,
+            )
+        }
     }
 
     /// Get the `Source` for the entire expression.
@@ -246,7 +313,13 @@ impl<'a> Expression<'a> {
                 name: _,
                 expression: _,
                 vertical_bar: _,
+                funnel: _,
                 arguments: _,
+                source,
+            }
+            | Expression::Cow {
+                funnel: _,
+                expression: _,
                 source,
             } => source.clone(),
             Expression::Group(open_paren, expression_access, close_paren) => open_paren
@@ -330,6 +403,7 @@ pub(super) fn expression<'a>(
                 calc(allow_generic_nesting),
                 index(allow_generic_nesting),
                 filters(allow_generic_nesting),
+                parse_cow_funnel,
                 char,
                 string,
                 number,
@@ -451,6 +525,8 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                 opt(whitespace),
                 tag("|"),
                 opt(whitespace),
+                opt(tag(">")),
+                opt(whitespace),
                 context("Expected a filter name", cut(ident)),
                 opt(whitespace),
                 context(
@@ -463,7 +539,17 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
 
         let mut source = expression.source();
         let mut expression_access = expression;
-        for (leading_ws, vertical_bar, middle_ws, name, trailing_ws, arguments) in filters {
+        for (
+            leading_ws,
+            vertical_bar,
+            funnel_leading_ws,
+            funnel,
+            funnel_trailing_ws,
+            name,
+            trailing_ws,
+            arguments,
+        ) in filters
+        {
             source = source
                 .merge_some(
                     leading_ws.as_ref(),
@@ -473,7 +559,15 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                     &vertical_bar,
                     "Vertical bar should follow leading whitespace",
                 )
-                .merge_some(middle_ws.as_ref(), "Whitespace should follow vertical bar")
+                .merge_some(
+                    funnel_leading_ws.as_ref(),
+                    "Whitespace should follow vertical bar",
+                )
+                .merge_some(funnel.as_ref(), "Cow prefix should follow whitespace")
+                .merge_some(
+                    funnel_trailing_ws.as_ref(),
+                    "Whitespace should follow cow prefix",
+                )
                 .merge(&name.source, "Filter name should follow whitespace")
                 .merge_some(
                     trailing_ws.as_ref(),
@@ -489,6 +583,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                     name,
                     expression: Box::new(expression_access),
                     vertical_bar,
+                    funnel,
                     arguments,
                     source: source.clone(),
                 },
@@ -498,4 +593,29 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
 
         Ok((input, expression_access.expression))
     }
+}
+
+fn parse_cow_funnel(input: Source) -> Res<Source, Expression> {
+    let (input, (funnel, (whitespace, expression))) = (
+        tag(">"),
+        context(
+            "Expected an expression after cow funnel operator",
+            cut((opt(whitespace), expression(false, false))),
+        ),
+    )
+        .parse(input)?;
+
+    let source = funnel
+        .clone()
+        .merge_some(whitespace.as_ref(), "Whitespace should follow funnel")
+        .merge(&expression.source(), "Expression should follow whitespace");
+
+    Ok((
+        input,
+        Expression::Cow {
+            funnel,
+            expression: Box::new(expression),
+            source,
+        },
+    ))
 }

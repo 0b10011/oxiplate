@@ -7,4 +7,7 @@
 pub mod escapers;
 
 pub use oxiplate_derive::Oxiplate;
-pub use oxiplate_traits::{Escaper, FastEscape, Render, UnescapedText, UnescapedTextWrapper};
+pub use oxiplate_traits::{
+    CowStr, CowStrWrapper, Escaper, FastCowStr, FastEscape, Render, ToCowStr, ToCowStrWrapper,
+    UnescapedText, UnescapedTextWrapper,
+};

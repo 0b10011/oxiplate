@@ -1,4 +1,6 @@
-use oxiplate::{Oxiplate, Render};
+use std::borrow::Cow;
+
+use oxiplate::{CowStrWrapper, Oxiplate, Render};
 
 macro_rules! test {
     ($fn_name:ident, $ty:ty, $value:expr, $expected:expr) => {
@@ -78,6 +80,18 @@ macro_rules! test {
     }};
 }
 
+test!(
+    cow_str_wrapper_string,
+    CowStrWrapper<'a>,
+    CowStrWrapper::new(Cow::Owned("text".to_string())),
+    "FastEscape(CowStrWrapper(text))"
+);
+test!(
+    cow_str_wrapper_str,
+    CowStrWrapper<'a>,
+    CowStrWrapper::new(Cow::Borrowed("text")),
+    "FastEscape(CowStrWrapper(text))"
+);
 test!(
     string,
     String,
