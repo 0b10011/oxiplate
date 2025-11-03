@@ -1,5 +1,5 @@
 error: Expected an expression.
- --> tests/broken/string-continuation-span.rs:5:6
+ --> tests/broken/strings/string-continuation-span.rs:5:6
   |
 5 |     {{")]
   |      ^

@@ -1,5 +1,5 @@
 error: "if" statement is never closed (unexpected end of template)
- --> tests/broken/raw-rust-string.rs:4:41
+ --> tests/broken/strings/raw-rust-string.rs:4:41
   |
 4 | #[oxiplate_inline(r##"{% if "foo" == 3 %}"##)]
   |                                         ^
