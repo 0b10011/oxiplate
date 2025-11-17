@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.3...oxiplate-v0.11.4) - 2025-11-17
+
+### Fixed
+
+- improved spans for error messages and string/char support
+
+### Other
+
+- reorganized broken string tests
+
 ## [0.11.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.2...oxiplate-v0.11.3) - 2025-09-27
 
 ### Fixed
