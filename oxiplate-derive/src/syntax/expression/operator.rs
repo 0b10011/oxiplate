@@ -81,7 +81,7 @@ pub(crate) enum Operator<'a> {
     RangeExclusive(Source<'a>),
 }
 
-impl Operator<'_> {
+impl<'a> Operator<'a> {
     pub(super) fn requires_expression_after(&self) -> bool {
         match self {
             Operator::Addition(_)
@@ -101,6 +101,27 @@ impl Operator<'_> {
 
             // `expr..` is valid as well as `expr..expr`.
             Operator::RangeExclusive(_) => false,
+        }
+    }
+
+    /// Get the `Source` for the operator.
+    pub fn source<'b>(&'b self) -> &'b Source<'a> {
+        match self {
+            Operator::Addition(source)
+            | Operator::Subtraction(source)
+            | Operator::Multiplication(source)
+            | Operator::Division(source)
+            | Operator::Remainder(source)
+            | Operator::Equal(source)
+            | Operator::NotEqual(source)
+            | Operator::GreaterThan(source)
+            | Operator::LessThan(source)
+            | Operator::GreaterThanOrEqual(source)
+            | Operator::LessThanOrEqual(source)
+            | Operator::Or(source)
+            | Operator::And(source)
+            | Operator::RangeInclusive(source)
+            | Operator::RangeExclusive(source) => source,
         }
     }
 }

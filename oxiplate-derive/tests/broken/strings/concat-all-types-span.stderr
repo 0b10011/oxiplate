@@ -1,0 +1,19 @@
+error[E0609]: no field `foo` on type `&Data`
+ --> tests/broken/strings/concat-all-types-span.rs:5:5
+  |
+5 |     foo
+  |     ^^^ unknown field
+
+error[E0308]: mismatched types
+ --> tests/broken/strings/concat-all-types-span.rs:5:5
+  |
+ 5 | /     foo
+ 6 | |     ~ 'a' ~ '\n' ~ '\r' ~ '\t' ~ '\0' ~ '\\' ~ '\'' ~ '\"'
+ 7 | |     ~ "hello world" ~ #"jane "the deer" doe"#
+ 8 | |     ~ true ~ false
+...  |
+13 | |     ~ 1_9_e_0_ ~ 19e-1 ~ 19E+1
+14 | |     ~ 1_.9_
+   | |___________^ expected `usize`, found `String`
+   |
+   = note: this error originates in the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)

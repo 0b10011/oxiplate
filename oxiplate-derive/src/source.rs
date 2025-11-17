@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::str::{CharIndices, Chars};
 
 use nom::{Compare, Input, Needed, Offset};
+use proc_macro::Diagnostic;
 use proc_macro2::{Literal, Span};
 
 type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
@@ -90,9 +91,19 @@ impl<'a> Source<'a> {
             .resolved_at(self.original.span_hygiene)
     }
 
-    pub fn merge(self, source_to_merge: &Source) -> Self {
+    pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
         if self.range.end != source_to_merge.range.start {
-            panic!("Expected end of own range to match start of next range");
+            Diagnostic::new(
+                proc_macro::Level::Error,
+                "Internal Oxiplate error: Disjointed ranges cannot be merged",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged")
+            .help("Include template that caused the issue and the associated notes.")
+            .note(format!("Error: {error_message}"))
+            .span_note(self.span().unwrap(), "First range appears here")
+            .span_note(source_to_merge.span().unwrap(), "Second range appears here")
+            .emit();
+            panic!("Internal Oxiplate error. See previous error for more information.");
         }
 
         let mut range = self.range;
@@ -104,9 +115,9 @@ impl<'a> Source<'a> {
         }
     }
 
-    pub fn merge_some(self, source_to_merge: Option<&Source>) -> Self {
+    pub fn merge_some(self, source_to_merge: Option<&Source>, error_message: &str) -> Self {
         if let Some(source_to_merge) = source_to_merge {
-            self.merge(source_to_merge)
+            self.merge(source_to_merge, error_message)
         } else {
             self
         }

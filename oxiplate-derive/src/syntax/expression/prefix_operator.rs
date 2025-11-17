@@ -72,7 +72,7 @@ pub enum PrefixOperator<'a> {
     RangeExclusive(Source<'a>),
 }
 
-impl PrefixOperator<'_> {
+impl<'a> PrefixOperator<'a> {
     fn cut_if_not_followed_by_expression(&self) -> bool {
         match self {
             PrefixOperator::Borrow(_)
@@ -86,6 +86,18 @@ impl PrefixOperator<'_> {
             // so this has to be recoverable
             // for that expression to be matched later.
             PrefixOperator::RangeExclusive(_) => false,
+        }
+    }
+
+    /// Get the `Source` for the prefix operator.
+    pub fn source(&self) -> Source<'a> {
+        match self {
+            PrefixOperator::Borrow(source)
+            | PrefixOperator::Dereference(source)
+            | PrefixOperator::Not(source)
+            | PrefixOperator::Negative(source)
+            | PrefixOperator::RangeInclusive(source)
+            | PrefixOperator::RangeExclusive(source) => source.clone(),
         }
     }
 }

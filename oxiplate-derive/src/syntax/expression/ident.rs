@@ -74,7 +74,7 @@ pub(crate) enum IdentifierOrFunction<'a> {
     Identifier(Identifier<'a>),
     Function(Identifier<'a>, ArgumentsGroup<'a>),
 }
-impl IdentifierOrFunction<'_> {
+impl<'a> IdentifierOrFunction<'a> {
     pub fn to_tokens(&self, state: &State) -> TokenStream {
         let mut tokens = TokenStream::new();
 
@@ -90,5 +90,18 @@ impl IdentifierOrFunction<'_> {
         }
 
         tokens
+    }
+
+    /// Get the `Source` for the entire identifier or function call.
+    pub fn source(&self) -> Source<'a> {
+        match self {
+            IdentifierOrFunction::Identifier(identifier) => identifier.source.clone(),
+            IdentifierOrFunction::Function(identifier, arguments_group) => {
+                identifier.source.clone().merge(
+                    &arguments_group.source(),
+                    "Arguments group should immediately follow the function name",
+                )
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ use nom::character::complete::{char as nom_char, none_of};
 use nom::combinator::{cut, not, opt, peek};
 use nom::error::context;
 use nom::multi::many_till;
-use nom::sequence::{delimited, pair, preceded, terminated};
+use nom::sequence::{pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
 
 use super::{Expression, Res};
@@ -59,15 +59,16 @@ fn alternative_bases(input: Source) -> Res<Source, Expression> {
         Expression::Integer(
             number
                 .0
-                .merge(&number.1.0)
-                .merge(&number.1.1)
-                .merge(&number.1.2),
+                .merge(&number.1.0, "Leading underscores should follow prefix")
+                .merge(&number.1.1, "Digits should follow leading underscores")
+                .merge(&number.1.2, "Trailing underscores should follow digits"),
         ),
     ))
 }
 
 /// Parse decimal and floating-point literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
+/// See: <https://doc.rust-lang.org/reference/tokens.html#floating-point-literals>
 fn decimal(input: Source) -> Res<Source, Expression> {
     let (input, integer) = integer_literal.parse(input)?;
 
@@ -78,7 +79,10 @@ fn decimal(input: Source) -> Res<Source, Expression> {
         let (input, exponent) = opt(exponent).parse(input)?;
 
         return if let Some(exponent) = exponent {
-            Ok((input, Expression::Float(integer.merge(&exponent))))
+            Ok((
+                input,
+                Expression::Float(integer.merge(&exponent, "Exponent should follow integer")),
+            ))
         } else {
             Ok((input, Expression::Integer(integer)))
         };
@@ -90,16 +94,19 @@ fn decimal(input: Source) -> Res<Source, Expression> {
     // If there's no fractional part or exponent,
     // the float (e.g., `19.`) can be returned early.
     let Some((fractional, exponent)) = end else {
-        return Ok((input, Expression::Float(integer.merge(&point))));
+        return Ok((
+            input,
+            Expression::Float(integer.merge(&point, "Decimal point should follow integer")),
+        ));
     };
 
     Ok((
         input,
         Expression::Float(
             integer
-                .merge(&point)
-                .merge(&fractional)
-                .merge_some(exponent.as_ref()),
+                .merge(&point, "Decimal point should follow integer")
+                .merge(&fractional, "Fractional should follow decimal point")
+                .merge_some(exponent.as_ref(), "Exponent should follow fractional"),
         ),
     ))
 }
@@ -117,9 +124,9 @@ fn exponent(input: Source) -> Res<Source, Source> {
 
     Ok((
         input,
-        e.merge_some(sign.as_ref())
-            .merge(&separators)
-            .merge(&number),
+        e.merge_some(sign.as_ref(), "Sign should follow 'e'")
+            .merge(&separators, "Underscores should follow sign")
+            .merge(&number, "Integer should follow underscores"),
     ))
 }
 
@@ -132,50 +139,95 @@ fn integer_literal(input: Source) -> Res<Source, Source> {
     )
         .parse(input)?;
 
-    Ok((input, number.0.merge(&number.1)))
+    Ok((
+        input,
+        number
+            .0
+            .merge(&number.1, "Digits/underscores should follow leading digits"),
+    ))
 }
 
 /// Parse char literal (e.g., `'a'`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
 pub(super) fn char(input: Source) -> Res<Source, Expression> {
-    let (input, char) = delimited(
+    let (input, (opening_quote, value, closing_quote)) = (
         tag("'"),
         context(
             r"Expected `\'`, `\\`, or a single char followed by `'`.",
             cut(alt((
-                preceded(
-                    nom_char('\\'),
-                    alt((tag("'"), tag("\\"), tag("\n"), tag("\r"), tag("\t"))),
-                ),
+                // Char
                 preceded(peek(none_of("'\\\n\r\t")), take(1usize)),
+                // Quote/ascii escape
+                alt((
+                    tag(r"\'"),
+                    tag(r#"\""#),
+                    tag(r"\n"),
+                    tag(r"\r"),
+                    tag(r"\t"),
+                    tag(r"\\"),
+                    tag(r"\0"),
+                )),
             ))),
         ),
         context(r"Expected `'`.", cut(tag("'"))),
     )
-    .parse(input)?;
+        .parse(input)?;
 
-    Ok((input, Expression::Char(char)))
+    let source = opening_quote
+        .merge(&value, "Char should follow opening quote")
+        .merge(&closing_quote, "Closing quote should follow char");
+
+    let value = match value.as_str() {
+        r"\'" => '\'',
+        r#"\""# => '"',
+        r"\n" => '\n',
+        r"\r" => '\r',
+        r"\t" => '\t',
+        r"\\" => '\\',
+        r"\0" => '\0',
+        str => {
+            let mut chars = str.chars();
+            let Some(char) = chars.next() else {
+                panic!("No char present in char expression");
+            };
+            if chars.count() > 0 {
+                panic!(r#""{str}" is not a single character"#);
+            }
+            char
+        }
+    };
+
+    Ok((input, Expression::Char { value, source }))
 }
 
 pub(super) fn string(input: Source) -> Res<Source, Expression> {
-    let (input, (opening_hashes, _opening_quote)) =
-        pair(take_while(|c| c == '#'), nom_char('"')).parse(input)?;
+    let (input, (opening_hashes, opening_quote)) =
+        pair(take_while(|c| c == '#'), tag("\"")).parse(input)?;
 
-    let closing = pair(nom_char('"'), tag(opening_hashes.as_str()));
-    let (input, (string, _)) = context(
+    let closing = pair(tag("\""), tag(opening_hashes.as_str()));
+    let (input, (string, (closing_quote, closing_hashes))) = context(
         r#"String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening."#,
         cut(many_till(take(1u32), closing)),
     ).parse(input)?;
-    let (input, _closing_hashes) = tag(opening_hashes.as_str()).parse(input)?;
 
-    let full_string = if let Some(full_string) = string.first() {
-        let mut full_string = full_string.clone();
-        full_string.range.end = string.last().unwrap().range.end;
-        full_string
+    let value = if let Some(value) = string.first() {
+        let mut value = value.clone();
+        value.range.end = string.last().unwrap().range.end;
+        value
     } else {
-        let mut full_string = opening_hashes.clone();
-        full_string.range.start = full_string.range.end;
-        full_string
+        let mut value = opening_hashes.clone();
+        value.range.start = value.range.end;
+        value
     };
-    Ok((input, Expression::String(full_string)))
+
+    let source = opening_hashes
+        .merge(&opening_quote, "Opening quote should follow opening hashes")
+        .merge(&value, "Value should follow opening quote")
+        .merge(&closing_quote, "Closing quote should follow value")
+        .merge(
+            &closing_hashes,
+            "Closing hashes should follow closing quote",
+        );
+
+    Ok((input, Expression::String { value, source }))
 }

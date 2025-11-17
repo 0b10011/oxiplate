@@ -1,0 +1,17 @@
+error[E0308]: mismatched types
+ --> tests/broken/filters/span.rs:10:38
+  |
+ 10 | #[oxiplate_inline(r#"{{ "foo".repeat("bar" | length()) }}"#)]
+    |                               ------ ^^^^^^^^^^^^^^^^ expected `usize`, found `u64`
+    |                               |
+    |                               arguments to this method are incorrect
+    |
+note: method defined here
+   --> $RUST/alloc/src/str.rs
+    |
+    |     pub fn repeat(&self, n: usize) -> String {
+    |            ^^^^^^
+help: you can convert a `u64` to a `usize` and panic if the converted value doesn't fit
+    |
+ 10 | #[oxiplate_inline(r#"{{ "foo".repeat("bar" | length().try_into().unwrap()) }}"#)]
+    |                                                      ++++++++++++++++++++

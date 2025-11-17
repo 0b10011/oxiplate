@@ -22,7 +22,7 @@ pub(crate) struct ArgumentsGroup<'a> {
     pub(crate) close_paren: Source<'a>,
 }
 
-impl ArgumentsGroup<'_> {
+impl<'a> ArgumentsGroup<'a> {
     pub fn to_tokens(&self, state: &State) -> TokenStream {
         let mut tokens = TokenStream::new();
 
@@ -39,6 +39,33 @@ impl ArgumentsGroup<'_> {
         }
 
         proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, tokens).to_token_stream()
+    }
+
+    /// Get the `Source` for the entire arguments group.
+    pub fn source(&self) -> Source<'a> {
+        let mut source = self.open_paren.clone();
+        if let Some((first_arg, remaining_args)) = &self.arguments {
+            source = source.merge(
+                &first_arg.source(),
+                "First argument should be next to open parentheses and whitespace",
+            );
+
+            for arg in remaining_args {
+                source = source
+                    .merge(
+                        &arg.0,
+                        "Comma and whitespace should be next to previous argument",
+                    )
+                    .merge(
+                        &arg.1.source(),
+                        "Argument should be next to comma and whitespace",
+                    );
+            }
+        }
+        source.merge(
+            &self.close_paren,
+            "Closing parenthese should immediately follow the last argument",
+        )
     }
 }
 
