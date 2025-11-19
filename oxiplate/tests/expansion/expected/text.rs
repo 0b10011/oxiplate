@@ -20,7 +20,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     #[inline]
     fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
         use ::std::fmt::Write;
-        use ::oxiplate::UnescapedText;
+        use ::oxiplate::{ToCowStr, UnescapedText};
         for message in &self.messages {
             f.write_str("\n<p>")?;
             (&&::oxiplate::UnescapedTextWrapper::new(&(message)))

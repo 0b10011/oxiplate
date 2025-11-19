@@ -54,10 +54,22 @@ Filters modify expressions that precede them:
 Behind the scenes, filters are functions in the `filters_for_oxiplate` module at the root of _your_ crate that are passed the result of the expression as the first argument. Additional arguments can be passed to the filter directly:
 
 ```oxip
-{{ "hello world"|replace("hello", "goodbye") }}
+{{ "hello world" | replace("hello", "goodbye") }}
 ```
 
 > goodbye world
+
+## Cow prefix for more efficient string conversion
+
+Expressions and filters can be prefixed with the cow prefix (`>`)
+to convert string-like values into `::oxiplate_traits::CowStr`
+which filters can use to retrieve the generated `Cow<str>` via `CowStr::cow_str()`.
+This conversion happens more efficiently than using `Display`
+and the cow prefix helps template writers avoid fragile boilerplate.
+
+```oxip
+{{ >"hello world" | >replace(>19, >89) | shorten(19) }}
+```
 
 ## Operators
 
