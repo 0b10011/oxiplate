@@ -68,7 +68,7 @@ This conversion happens more efficiently than using `Display`
 and the cow prefix helps template writers avoid fragile boilerplate.
 
 ```oxip
-{{ >"hello world" | replace(>19, >89) }}
+{{ >"hello world" | >replace(>19, >89) | shorten(19) }}
 ```
 
 ## Operators
