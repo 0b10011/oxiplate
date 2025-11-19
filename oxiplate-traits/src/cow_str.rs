@@ -113,7 +113,7 @@ impl<'a, T> ToCowStrWrapper<'a, T> {
 /// a trait that allows for more efficient conversions to `Cow<'a, str>`.
 pub trait ToCowStr<'a> {
     /// Helper function to use the most efficient conversion to `&str`.
-    /// Called from generated templates whenever a cow str funnel is used.
+    /// Called from generated templates whenever a cow prefix is used.
     fn to_cow_str(&'a self) -> Cow<'a, str>;
 }
 
@@ -132,7 +132,7 @@ impl<'a, T: ToString> ToCowStr<'a> for &&ToCowStrWrapper<'a, T> {
 /// Trait that allows for more efficient conversions to `&str`.
 pub trait FastCowStr<'a> {
     /// Helper function to use the most efficient conversion to `&str`.
-    /// Called from generated templates whenever a cow str funnel is used.
+    /// Called from generated templates whenever a cow prefix is used.
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str>;
 }
 
