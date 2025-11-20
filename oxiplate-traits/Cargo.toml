@@ -1,6 +1,6 @@
 [package]
 name = "oxiplate-traits"
-version = "0.1.2"
+version = "0.1.3"
 description = "Traits used by Oxiplate and Oxiplate-related libraries."
 readme = "README.md"
 authors.workspace = true

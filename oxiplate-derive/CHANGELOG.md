@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.2...oxiplate-derive-v0.11.3) - 2025-11-20
+
+### Added
+
+- added efficient conversion to `Cow<'a, str>` via `CowStr` trait for filters
+
 ## [0.11.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.1...oxiplate-derive-v0.11.2) - 2025-11-17
 
 ### Fixed
