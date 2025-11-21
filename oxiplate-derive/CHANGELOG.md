@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.4](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.3...oxiplate-derive-v0.11.4) - 2025-11-21
+
+### Added
+
+- support for calling filters that don't accept additional arguments without parentheses
+
 ## [0.11.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.2...oxiplate-derive-v0.11.3) - 2025-11-20
 
 ### Added
