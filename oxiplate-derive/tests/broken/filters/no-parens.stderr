@@ -1,5 +1,0 @@
-error: Expected parentheses surrounding zero or more arguments for the filter
-  --> tests/broken/filters/no-parens.rs:14:51
-   |
-14 | #[oxiplate_inline(r#"{{ message | extract_message }}"#)]
-   |                                                   ^^

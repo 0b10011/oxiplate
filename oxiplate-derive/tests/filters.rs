@@ -26,7 +26,7 @@ mod filters_for_oxiplate {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ message | respond() }}"#)]
+#[oxiplate_inline(r#"{{ message | respond }}"#)]
 struct Respond {
     message: &'static str,
 }

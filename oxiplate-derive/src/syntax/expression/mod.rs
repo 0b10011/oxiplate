@@ -106,7 +106,7 @@ pub(crate) enum Expression<'a> {
         expression: Box<ExpressionAccess<'a>>,
         vertical_bar: Source<'a>,
         cow_prefix: Option<Source<'a>>,
-        arguments: ArgumentsGroup<'a>,
+        arguments: Option<ArgumentsGroup<'a>>,
         source: Source<'a>,
     },
 }
@@ -224,7 +224,7 @@ impl<'a> Expression<'a> {
                 expression,
                 vertical_bar,
                 cow_prefix.as_ref(),
-                arguments,
+                arguments.as_ref(),
                 source,
             ),
         }
@@ -237,32 +237,39 @@ impl<'a> Expression<'a> {
         expression: &ExpressionAccess,
         vertical_bar: &Source,
         cow_prefix: Option<&Source>,
-        arguments: &ArgumentsGroup,
+        arguments: Option<&ArgumentsGroup>,
         source: &Source,
     ) -> (TokenStream, usize) {
         let (expression, estimated_length) = expression.to_tokens(state);
         let mut argument_tokens = expression;
 
-        if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
-            // First argument
-            let comma_span = vertical_bar.span();
-            argument_tokens.append_all(quote_spanned! {comma_span=> , });
-            argument_tokens.append_all(first_argument.to_tokens(state).0);
-
-            // Remaining arguments
-            for (comma, expression) in remaining_arguments {
-                let comma_span = comma.span();
+        let arguments = if let Some(arguments) = arguments {
+            if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
+                // First argument
+                let comma_span = vertical_bar.span();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                argument_tokens.append_all(expression.to_tokens(state).0);
-            }
-        }
+                argument_tokens.append_all(first_argument.to_tokens(state).0);
 
-        let mut group =
-            proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-        let mut arguments_source = arguments.open_paren.clone();
-        arguments_source.range.end = arguments.close_paren.range.end;
-        group.set_span(source.span());
-        let arguments = group.to_token_stream();
+                // Remaining arguments
+                for (comma, expression) in remaining_arguments {
+                    let comma_span = comma.span();
+                    argument_tokens.append_all(quote_spanned! {comma_span=> , });
+                    argument_tokens.append_all(expression.to_tokens(state).0);
+                }
+            }
+
+            let mut group =
+                proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
+            let mut arguments_source = arguments.open_paren.clone();
+            arguments_source.range.end = arguments.close_paren.range.end;
+            group.set_span(source.span());
+            group.to_token_stream()
+        } else {
+            let mut group =
+                proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
+            group.set_span(name.span());
+            group.to_token_stream()
+        };
 
         let span = name.span();
         if let Some(cow_prefix) = cow_prefix {
@@ -518,10 +525,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                 opt(whitespace),
                 context("Expected a filter name", cut(ident)),
                 opt(whitespace),
-                context(
-                    "Expected parentheses surrounding zero or more arguments for the filter",
-                    cut(arguments),
-                ),
+                opt(arguments),
             )),
         )
             .parse(input)?;
@@ -562,8 +566,8 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                     trailing_ws.as_ref(),
                     "Trailing whitespace should follow filter name",
                 )
-                .merge(
-                    &arguments.source(),
+                .merge_some(
+                    arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
                     "Arguments should follow trailing whitespace",
                 );
 

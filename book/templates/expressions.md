@@ -46,7 +46,7 @@ it will be implied when a local variable of the same name doesn't exist.
 Filters modify expressions that precede them:
 
 ```oxip
-{{ "foo"|upper }}
+{{ "foo" | upper }}
 ```
 
 > FOO
