@@ -1,6 +1,10 @@
 use std::borrow::Cow;
+#[cfg(test)]
+use std::fmt::Display;
 
 use oxiplate_traits::CowStr;
+#[cfg(test)]
+use oxiplate_traits::{ToCowStr, cow_str_wrapper};
 
 /// Returns the lowercase version of the string.
 ///
@@ -23,4 +27,31 @@ pub fn lower<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
         Cow::Borrowed(str) => str.to_lowercase().into(),
         Cow::Owned(string) => string.to_lowercase().into(),
     }
+}
+
+#[test]
+fn str() {
+    assert_eq!("hello", lower(cow_str_wrapper!("Hello")));
+}
+
+#[test]
+fn string() {
+    assert_eq!("world", lower(cow_str_wrapper!(String::from("World"))));
+}
+
+#[test]
+fn integer() {
+    assert_eq!("19", lower(cow_str_wrapper!(19)));
+}
+
+#[test]
+fn display() {
+    struct Data;
+    impl Display for Data {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str("Data")
+        }
+    }
+
+    assert_eq!("data", lower(cow_str_wrapper!(Data)));
 }
