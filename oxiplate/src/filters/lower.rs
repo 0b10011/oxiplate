@@ -21,6 +21,6 @@ use oxiplate_traits::CowStr;
 pub fn lower<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
     match expression.cow_str() {
         Cow::Borrowed(str) => str.to_lowercase().into(),
-        Cow::Owned(string) => string.to_uppercase().into(),
+        Cow::Owned(string) => string.to_lowercase().into(),
     }
 }
