@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.5...oxiplate-v0.11.6) - 2025-11-21
+
+### Added
+
+- support for calling filters that don't accept additional arguments without parentheses
+- macro for building `CowStrWrapper` for testing filters dealing with string-like values
+
+### Fixed
+
+- `lower` now lowercases owned strings instead of capitalizing them
+
+### Other
+
+- added tests for `lower` and `upper`
+
 ## [0.11.5](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.4...oxiplate-v0.11.5) - 2025-11-20
 
 ### Added
