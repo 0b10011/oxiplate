@@ -45,12 +45,14 @@ pub struct CowStrWrapper<'a>(Cow<'a, str>);
 impl<'a> CowStrWrapper<'a> {
     /// Create a new `CowStrWrapper`.
     #[must_use]
+    #[inline]
     pub fn new(cow_str: Cow<'a, str>) -> Self {
         Self(cow_str)
     }
 }
 
 impl<'a> CowStr<'a> for CowStrWrapper<'a> {
+    #[inline]
     fn cow_str(self) -> Cow<'a, str> {
         self.0
     }
@@ -103,6 +105,7 @@ pub struct ToCowStrWrapper<'a, T>(&'a T);
 
 impl<'a, T> ToCowStrWrapper<'a, T> {
     /// Wrap text.
+    #[inline]
     pub fn new(value: &'a T) -> Self {
         Self(value)
     }
@@ -118,12 +121,14 @@ pub trait ToCowStr<'a> {
 }
 
 impl<'a, T: FastCowStr<'a>> ToCowStr<'a> for &ToCowStrWrapper<'a, T> {
+    #[inline]
     fn to_cow_str(&'a self) -> Cow<'a, str> {
         self.0.oxiplate_cow_str()
     }
 }
 
 impl<'a, T: ToString> ToCowStr<'a> for &&ToCowStrWrapper<'a, T> {
+    #[inline]
     fn to_cow_str(&'a self) -> Cow<'a, str> {
         Cow::Owned(self.0.to_string())
     }
@@ -137,6 +142,7 @@ pub trait FastCowStr<'a> {
 }
 
 impl<'a> FastCowStr<'a> for &'a str {
+    #[inline]
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
         Cow::Borrowed(self)
     }

@@ -15,7 +15,7 @@ error[E0599]: the method `to_cow_str` exists for reference `&&ToCowStrWrapper<'_
 note: the traits `FastCowStr` and `ToString` must be implemented
     --> $WORKSPACE/oxiplate-traits/src/cow_str.rs
      |
- 133 | pub trait FastCowStr<'a> {
+ 138 | pub trait FastCowStr<'a> {
      | ^^^^^^^^^^^^^^^^^^^^^^^^
      |
     ::: $RUST/alloc/src/string.rs
