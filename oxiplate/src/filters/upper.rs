@@ -31,7 +31,7 @@ pub fn upper<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
 
 #[test]
 fn str() {
-    assert_eq!("HELLO", upper(cow_str_wrapper!("Hello")));
+    assert_eq!("HELLO ММ ЦЦ", upper(cow_str_wrapper!("Hello Мм Цц")));
 }
 
 #[test]
