@@ -30,8 +30,6 @@ pub(crate) struct Identifier<'a> {
 impl ToTokens for Identifier<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = match self.ident.to_ascii_lowercase().as_str() {
-            keyword @ ("self" | "super") => panic!("{keyword} cannot be a raw identifier"),
-
             // Keywords from <https://doc.rust-lang.org/reference/keywords.html>.
             // Prefix with `r#` so Rust will accept them as idents.
             "abstract" | "as" | "async" | "await" | "become" | "box" | "break" | "const"
@@ -42,6 +40,8 @@ impl ToTokens for Identifier<'_> {
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
             | "yield" => syn::Ident::new_raw(self.ident, self.source.span()),
 
+            // `self` and `super` can't be worked around,
+            // so Rust can bail when it encounters them during compilation.
             _ => syn::Ident::new(self.ident, self.source.span()),
         };
 
