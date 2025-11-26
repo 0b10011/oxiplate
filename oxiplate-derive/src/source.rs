@@ -93,17 +93,16 @@ impl<'a> Source<'a> {
 
     pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
         if self.range.end != source_to_merge.range.start {
-            Diagnostic::new(
+            Diagnostic::spanned(
+                vec![self.span().unwrap(), source_to_merge.span().unwrap()],
                 proc_macro::Level::Error,
                 "Internal Oxiplate error: Disjointed ranges cannot be merged",
             )
             .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged")
-            .help("Include template that caused the issue and the associated notes.")
+            .help("Include template that caused the issue and the associated note.")
             .note(format!("Error: {error_message}"))
-            .span_note(self.span().unwrap(), "First range appears here")
-            .span_note(source_to_merge.span().unwrap(), "Second range appears here")
             .emit();
-            panic!("Internal Oxiplate error. See previous error for more information.");
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
 
         let mut range = self.range;
