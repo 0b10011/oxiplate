@@ -6,6 +6,7 @@ use nom::error::context;
 use nom::multi::many_till;
 use nom::sequence::{pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
+use proc_macro::Diagnostic;
 
 use super::{Expression, Res};
 use crate::Source;
@@ -188,10 +189,26 @@ pub(super) fn char(input: Source) -> Res<Source, Expression> {
         str => {
             let mut chars = str.chars();
             let Some(char) = chars.next() else {
-                panic!("No char present in char expression");
+                Diagnostic::spanned(
+                    source.span().unwrap(),
+                    proc_macro::Level::Error,
+                    "No char present in char expression",
+                )
+                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=No+char+present+in+char+expression")
+                .help("Include template that caused the issue.")
+                .emit();
+                unreachable!("Internal Oxiplate error. See previous error for more information.");
             };
             if chars.count() > 0 {
-                panic!(r#""{str}" is not a single character"#);
+                Diagnostic::spanned(
+                    source.span().unwrap(),
+                    proc_macro::Level::Error,
+                    "More than one char present in char expression",
+                )
+                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=More+than+one+char+present+in+char+expression")
+                .help("Include template that caused the issue.")
+                .emit();
+                unreachable!("Internal Oxiplate error. See previous error for more information.");
             }
             char
         }
