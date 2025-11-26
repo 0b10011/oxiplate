@@ -4,6 +4,7 @@ use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt, peek};
 use nom::sequence::pair;
 use nom_language::error::VerboseError;
+use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
@@ -269,7 +270,17 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
         "{{" => Ok((input, TagOpen::Writ(output))),
         "{%" => Ok((input, TagOpen::Statement(output))),
         "{#" => Ok((input, TagOpen::Comment(output))),
-        _ => panic!("This should never happen"),
+        _ => {
+            Diagnostic::spanned(
+                output.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error: Unsupported open tag encountered",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unsupported+open+tag+encountered")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     }
 }
 
