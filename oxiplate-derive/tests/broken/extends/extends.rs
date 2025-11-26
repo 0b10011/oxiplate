@@ -8,5 +8,5 @@ fn main() {
     // Intentionally missing the "title" field used by the parent template
     let data = AbsoluteData {};
 
-    panic!("{}", data);
+    print!("{}", data);
 }
