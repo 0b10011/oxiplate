@@ -63,12 +63,14 @@ impl<'a> Extends<'a> {
             )),
 
             // No static text or writs allowed
-            Item::Static(_, static_type) => {
+            Item::Static(text, static_type) => {
                 if static_type != StaticType::Whitespace {
-                    unimplemented!(
-                        "Text is not allowed here. Only comments, whitespace, and blocks are \
-                         allowed."
-                    )
+                    self.template.0.push(Item::CompileError(
+                        "Text is not allowed here. Only comments, whitespace, and block \
+                         statements are allowed."
+                            .to_owned(),
+                        text.1.clone(),
+                    ));
                 }
             }
             Item::Writ(_) => unimplemented!(
