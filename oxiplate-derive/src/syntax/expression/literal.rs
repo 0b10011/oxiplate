@@ -33,16 +33,23 @@ pub(super) fn number(input: Source) -> Res<Source, Expression> {
 /// Will fail if there's not at least one valid digit following the prefix.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn alternative_bases(input: Source) -> Res<Source, Expression> {
-    let (input, prefix) = peek(preceded(
-        nom_char('0'),
-        alt((nom_char('b'), nom_char('x'), nom_char('o'))),
-    ))
-    .parse(input)?;
-    let (prefix, matcher) = match prefix {
-        'b' => ("0b", char::is_bin_digit as fn(char) -> bool),
-        'x' => ("0x", char::is_hex_digit as fn(char) -> bool),
-        'o' => ("0o", char::is_oct_digit as fn(char) -> bool),
-        _ => unimplemented!("All alternative base prefix cases should be covered"),
+    let (input, prefix) =
+        peek(preceded(nom_char('0'), alt((tag("b"), tag("x"), tag("o"))))).parse(input)?;
+    let (prefix, matcher) = match prefix.as_str() {
+        "b" => ("0b", char::is_bin_digit as fn(char) -> bool),
+        "x" => ("0x", char::is_hex_digit as fn(char) -> bool),
+        "o" => ("0o", char::is_oct_digit as fn(char) -> bool),
+        _ => {
+            Diagnostic::spanned(
+                prefix.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error. Unhandled alternative base prefix.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+alternative+base+prefix")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     };
 
     let (input, number) = pair(
