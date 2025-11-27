@@ -1,0 +1,19 @@
+error: proc-macro derive panicked
+ --> tests/broken/extends/static-text.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: not implemented: Text is not allowed here. Only comments, whitespace, and blocks are allowed.
+
+error[E0277]: `Static` doesn't implement `std::fmt::Display`
+ --> tests/broken/extends/static-text.rs:8:18
+  |
+8 |     print!("{}", Static);
+  |             --   ^^^^^^ `Static` cannot be formatted with the default formatter
+  |             |
+  |             required by this formatting parameter
+  |
+  = help: the trait `std::fmt::Display` is not implemented for `Static`
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
