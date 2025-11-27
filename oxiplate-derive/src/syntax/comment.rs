@@ -17,7 +17,7 @@ impl<'a> From<Comment<'a>> for Item<'a> {
 }
 
 pub(super) fn comment(input: Source) -> Res<Source, (Item, Option<Item>)> {
-    let (input, (_comment, trailing_whitespace)) = many_till(
+    let (input, (_comment, (trailing_whitespace, _close_tag))) = many_till(
         alt((
             take_till1(|char| char == '-' || char == '_' || char == '#'),
             tag("-"),

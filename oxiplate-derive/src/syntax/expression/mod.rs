@@ -72,11 +72,12 @@ pub(crate) enum Expression<'a> {
     Bool(bool, Source<'a>),
     Group(Source<'a>, Box<ExpressionAccess<'a>>, Source<'a>),
     Concat(Concat<'a>),
-    Calc(
-        Box<ExpressionAccess<'a>>,
-        Operator<'a>,
-        Box<Option<ExpressionAccess<'a>>>,
-    ),
+    Calc {
+        left: Box<ExpressionAccess<'a>>,
+        operator: Operator<'a>,
+        right: Box<Option<ExpressionAccess<'a>>>,
+        source: Source<'a>,
+    },
     Prefixed(PrefixOperator<'a>, Box<ExpressionAccess<'a>>),
     Cow {
         prefix: Source<'a>,
@@ -141,7 +142,12 @@ impl<'a> Expression<'a> {
                 (quote_spanned! {span=> ( #expression ) }, expression_length)
             }
             Expression::Concat(concat) => concat.to_tokens(state),
-            Expression::Calc(left, operator, right) => {
+            Expression::Calc {
+                left,
+                operator,
+                right,
+                source: _,
+            } => {
                 let (left, left_length) = left.to_tokens(state);
                 let (right, right_length) = if let Some(right) = right.as_ref() {
                     right.to_tokens(state)
@@ -310,7 +316,8 @@ impl<'a> Expression<'a> {
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
             Expression::Identifier(identifier_or_function) => identifier_or_function.source(),
-            Expression::Char { value: _, source }
+            Expression::Calc { source, .. }
+            | Expression::Char { value: _, source }
             | Expression::String { value: _, source }
             | Expression::Integer(source)
             | Expression::Float(source)
@@ -329,16 +336,6 @@ impl<'a> Expression<'a> {
                     "Closing parenthese should immediately follow the contained expression",
                 ),
             Expression::Concat(concat) => concat.source.clone(),
-            Expression::Calc(left, operator, right) => {
-                if let Some(right) = &**right {
-                    left.source()
-                        .merge(operator.source(), "Operator should follow left expression")
-                        .merge(&right.source(), "Right expression should follow operator")
-                } else {
-                    left.source()
-                        .merge(operator.source(), "Operator should follow left expression")
-                }
-            }
             Expression::Prefixed(prefix_operator, expression) => prefix_operator
                 .source()
                 .merge(&expression.source(), "Expression should follow operator"),
@@ -437,7 +434,7 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
             return fail().parse(input);
         }
 
-        let (input, (left, _leading_whitespace, (), operator, _trailing_whitespace)) = (
+        let (input, (left, leading_whitespace, (), operator, trailing_whitespace)) = (
             expression(false, false),
             opt(whitespace),
             // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
@@ -455,9 +452,35 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
             opt(expression(true, true)).parse(input)?
         };
 
+        let source = if let Some(right) = &right {
+            left.source()
+                .merge_some(
+                    leading_whitespace.as_ref(),
+                    "Whitespace expected after left expression",
+                )
+                .merge(operator.source(), "Operator should follow whitespace")
+                .merge_some(
+                    trailing_whitespace.as_ref(),
+                    "Whitespace expected after operator",
+                )
+                .merge(&right.source(), "Right expression should follow whitespace")
+        } else {
+            left.source()
+                .merge_some(
+                    leading_whitespace.as_ref(),
+                    "Whitespace expected after left expression",
+                )
+                .merge(operator.source(), "Operator should follow left expression")
+        };
+
         Ok((
             input,
-            Expression::Calc(Box::new(left), operator, Box::new(right)),
+            Expression::Calc {
+                left: Box::new(left),
+                operator,
+                right: Box::new(right),
+                source,
+            },
         ))
     }
 }
@@ -567,7 +590,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                     "Trailing whitespace should follow filter name",
                 )
                 .merge_some(
-                    arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
+                    arguments.as_ref().map(ArgumentsGroup::source),
                     "Arguments should follow trailing whitespace",
                 );
 

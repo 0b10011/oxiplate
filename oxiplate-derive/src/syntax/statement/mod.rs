@@ -180,7 +180,7 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Item>)> {
     .parse(input)?;
 
     // Parse the closing tag and any trailing whitespace
-    let (mut input, mut trailing_whitespace) = preceded(
+    let (mut input, (mut trailing_whitespace, _close_tag)) = preceded(
         take_while(is_whitespace),
         context(r#""%}" expected"#, cut(tag_end("%}"))),
     )

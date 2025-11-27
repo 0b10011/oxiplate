@@ -98,7 +98,7 @@ impl<'a> IdentifierOrFunction<'a> {
             IdentifierOrFunction::Identifier(identifier) => identifier.source.clone(),
             IdentifierOrFunction::Function(identifier, arguments_group) => {
                 identifier.source.clone().merge(
-                    &arguments_group.source(),
+                    arguments_group.source(),
                     "Arguments group should immediately follow the function name",
                 )
             }

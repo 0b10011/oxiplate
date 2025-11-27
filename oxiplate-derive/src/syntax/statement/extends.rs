@@ -73,9 +73,14 @@ impl<'a> Extends<'a> {
                     ));
                 }
             }
-            Item::Writ(_) => unimplemented!(
-                "Writs are not allowed here. Only comments, whitespace, and blocks are allowed."
-            ),
+            Item::Writ(writ) => {
+                self.template.0.push(Item::CompileError(
+                    "Writs are not allowed here. Only comments, whitespace, and block statements \
+                     are allowed."
+                        .to_owned(),
+                    writ.source().clone(),
+                ));
+            }
         }
     }
 
