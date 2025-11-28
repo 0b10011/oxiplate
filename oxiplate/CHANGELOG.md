@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.6...oxiplate-v0.11.7) - 2025-11-28
+
+### Fixed
+
+- fixed parsing of empty strings
+- improved error message for writs after extends
+- improved error message for unhandled alternative base prefixes
+- improved error message for text after extends
+- replaced panics in source parsing code with spanned errors (fixes #82)
+- improved error messages when char is not a single char
+- simplified error message when attempting to merge disjointed ranges so both spans appear for the main error message
+- improved error message if an open tag is ever not handled
+- improved error message when `super` or `self` are used in a variable assignment
+
+### Other
+
+- started testing multi-byte characters with the `lower` and `upper` filters
+- inlined `CowStr` related trait methods
+- added tests for bool usage
+- removed code duplicated by the trait itself
+- added tests for text/writs in extends
+- use `print!()` instead of `panic!()` in a couple tests that don't rely on panic functionality
+- added test for `self` and `super` ident usage
+
 ## [0.11.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.5...oxiplate-v0.11.6) - 2025-11-21
 
 ### Added
