@@ -14,19 +14,6 @@ impl ToTokens for Keyword<'_> {
         let keyword = syn::Ident::new(self.0.as_str(), span);
         tokens.append_all(quote_spanned! {span=> #keyword });
     }
-
-    fn to_token_stream(&self) -> TokenStream {
-        let mut tokens = TokenStream::new();
-        self.to_tokens(&mut tokens);
-        tokens
-    }
-
-    fn into_token_stream(self) -> TokenStream
-    where
-        Self: Sized,
-    {
-        self.to_token_stream()
-    }
 }
 
 pub(crate) fn keyword<'a>(
