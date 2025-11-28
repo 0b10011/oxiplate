@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.4...oxiplate-traits-v0.1.5) - 2025-11-28
+
+### Other
+
+- inlined `CowStr` related trait methods
+
 ## [0.1.4](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.3...oxiplate-traits-v0.1.4) - 2025-11-21
 
 ### Added
