@@ -10,3 +10,14 @@ fn raw_string() {
 
     assert_eq!(format!("{template}"), r###"jane #"the deer"# doe"###);
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ "" }}"#)]
+struct EmptyString {}
+
+#[test]
+fn empty_string() {
+    let template = EmptyString {};
+
+    assert_eq!(format!("{template}"), "");
+}

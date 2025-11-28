@@ -64,10 +64,68 @@ fn raw_string() {
         }
     };
 }
+#[oxiplate_inline(r#"{{ "" }}"#)]
+struct EmptyString {}
+impl ::std::fmt::Display for EmptyString {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(0usize);
+            let f = &mut string;
+            f.write_str(&::std::string::ToString::to_string(&("")))?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "empty_string"]
+#[doc(hidden)]
+pub const empty_string: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_string"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/string.rs",
+        start_line: 19usize,
+        start_col: 4usize,
+        end_line: 19usize,
+        end_col: 16usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(empty_string()),
+    ),
+};
+fn empty_string() {
+    let template = EmptyString {};
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", template))
+        }),
+        &"",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&raw_string])
+    test::test_main_static(&[&empty_string, &raw_string])
 }

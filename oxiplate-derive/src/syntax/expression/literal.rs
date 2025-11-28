@@ -239,7 +239,7 @@ pub(super) fn string(input: Source) -> Res<Source, Expression> {
         value.range.end = string.last().unwrap().range.end;
         value
     } else {
-        let mut value = opening_hashes.clone();
+        let mut value = opening_quote.clone();
         value.range.start = value.range.end;
         value
     };
