@@ -3,10 +3,10 @@ use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
     use std::fmt::Display;
 
-    pub fn respond(expression: impl Display) -> impl Display {
+    pub fn respond(expression: impl Display, yell: bool) -> impl Display {
         let expression = expression.to_string();
         match expression.as_str() {
-            "hello" => "world".to_string(),
+            "hello" => if yell { "WORLD" } else { "world" }.to_string(),
             _ => "did not understand: ".to_string() + &expression,
         }
     }
@@ -26,17 +26,17 @@ mod filters_for_oxiplate {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ message | respond }}"#)]
+#[oxiplate_inline(r#"{{ message | respond(false) }} {{ message | respond(true) }}"#)]
 struct Respond {
     message: &'static str,
 }
 
 #[test]
 fn respond() {
-    assert_eq!(format!("{}", Respond { message: "hello" }), "world");
+    assert_eq!(format!("{}", Respond { message: "hello" }), "world WORLD");
     assert_eq!(
         format!("{}", Respond { message: "goodbye" }),
-        "did not understand: goodbye"
+        "did not understand: goodbye did not understand: goodbye"
     );
 }
 
@@ -103,7 +103,7 @@ fn pad() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ message | respond() | shorten(length) }}"#)]
+#[oxiplate_inline(r#"{{ message | respond(false) | shorten(length) }}"#)]
 struct Multiple {
     message: &'static str,
     length: usize,

@@ -6,10 +6,10 @@ use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
     use std::fmt::Display;
-    pub fn respond(expression: impl Display) -> impl Display {
+    pub fn respond(expression: impl Display, yell: bool) -> impl Display {
         let expression = expression.to_string();
         match expression.as_str() {
-            "hello" => "world".to_string(),
+            "hello" => if yell { "WORLD" } else { "world" }.to_string(),
             _ => "did not understand: ".to_string() + &expression,
         }
     }
@@ -27,7 +27,7 @@ mod filters_for_oxiplate {
         })
     }
 }
-#[oxiplate_inline(r#"{{ message | respond }}"#)]
+#[oxiplate_inline(r#"{{ message | respond(false) }} {{ message | respond(true) }}"#)]
 struct Respond {
     message: &'static str,
 }
@@ -35,11 +35,17 @@ impl ::std::fmt::Display for Respond {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            let mut string = String::with_capacity(3usize);
             let f = &mut string;
             f.write_str(
                 &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::respond(self.message)),
+                    &(crate::filters_for_oxiplate::respond(self.message, false)),
+                ),
+            )?;
+            f.write_str(" ")?;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(crate::filters_for_oxiplate::respond(self.message, true)),
                 ),
             )?;
             string
@@ -72,7 +78,7 @@ fn respond() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", Respond { message: "hello" }))
         }),
-        &"world",
+        &"world WORLD",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -90,7 +96,7 @@ fn respond() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", Respond { message: "goodbye" }))
         }),
-        &"did not understand: goodbye",
+        &"did not understand: goodbye did not understand: goodbye",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -282,7 +288,7 @@ fn pad() {
         }
     };
 }
-#[oxiplate_inline(r#"{{ message | respond() | shorten(length) }}"#)]
+#[oxiplate_inline(r#"{{ message | respond(false) | shorten(length) }}"#)]
 struct Multiple {
     message: &'static str,
     length: usize,
@@ -296,7 +302,7 @@ impl ::std::fmt::Display for Multiple {
             f.write_str(
                 &::std::string::ToString::to_string(
                     &(crate::filters_for_oxiplate::shorten(
-                        crate::filters_for_oxiplate::respond(self.message),
+                        crate::filters_for_oxiplate::respond(self.message, false),
                         self.length,
                     )),
                 ),
