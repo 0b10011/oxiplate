@@ -1,0 +1,8 @@
+{
+    // Fixes `oxiplate-derive` tests
+    // that fail when the `oxiplate` feature is enabled.
+    "rust-analyzer.check.workspace": false,
+
+    // Allow use of `cargo dev` alongside VS Code's built-in checks.
+    "rust-analyzer.cargo.targetDir": true
+}
