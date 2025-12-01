@@ -41,13 +41,13 @@ It can be a good idea to run `cargo clean` to remove old builds,
 and to delete `/tmp/oxiplate-coverage/` to remove old profiles.
 
 ```shell
-CARGO_INCREMENTAL=0 RUSTFLAGS="-C instrument-coverage -Zcoverage-options=branch -C link-dead-code" LLVM_PROFILE_FILE="/tmp/oxiplate-coverage/default_%m_%p.profraw" cargo dev
+rm -rf /tmp/oxiplate-coverage/ && CARGO_INCREMENTAL=0 RUSTFLAGS="-C instrument-coverage -Zcoverage-options=branch -C link-dead-code" LLVM_PROFILE_FILE="/tmp/oxiplate-coverage/default_%m_%p.profraw" cargo dev
 ```
 
 `grcov` can generate an HTML report from the raw profiles:
 
 ```shell
-grcov /tmp/oxiplate-coverage/ -s . --binary-path ./target/debug/ -t html --branch --ignore-not-existing --llvm -o ./target/debug/coverage/
+rm -rf ./target/debug/coverage/ && grcov /tmp/oxiplate-coverage/ -s . --binary-path ./target/debug/ -t html --branch --ignore-not-existing --llvm -o ./target/debug/coverage/ --ignore "oxiplate/tests/*" --ignore "oxiplate-derive/tests/*"
 ```
 
 Alternatively, the raw profiles can be merged:
