@@ -79,9 +79,11 @@ pub(crate) fn parse(state: &State, source: Source) -> (TokenStream, usize) {
             let template = Template(vec![convert_error(errors)]);
             template.to_tokens(state)
         }
+        // coverage:ignore-start
         Err(nom::Err::Incomplete(_)) => {
             unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
         }
+        // coverage:ignore-stop
     }
 }
 
@@ -169,6 +171,7 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
             }
         }
         "{-}" => vec![],
+        // coverage:ignore
         _ => unreachable!("Only whitespace control tags should be matched"),
     };
 

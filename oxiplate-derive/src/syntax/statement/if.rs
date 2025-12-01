@@ -95,15 +95,18 @@ impl<'a> If<'a> {
         match self.ifs.last() {
             Some((IfType::If(_), _)) => HashSet::new(),
             Some((IfType::IfLet(ty, _), _)) => ty.get_variables(),
+            // coverage:ignore
             None => unreachable!("If statements should always have at least one if"),
         }
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
+            // coverage:ignore-start
             unreachable!(
                 "Should not attempt to add item to `if` statement after statement is ended."
             );
+            // coverage:ignore-stop
         }
 
         match item {

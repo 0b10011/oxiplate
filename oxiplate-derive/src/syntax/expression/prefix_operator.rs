@@ -28,6 +28,7 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
         "-" => PrefixOperator::Negative(operator),
         "..=" => PrefixOperator::RangeInclusive(operator),
         ".." => PrefixOperator::RangeExclusive(operator),
+        // coverage:ignore
         _ => unreachable!("All cases should be covered"),
     };
 

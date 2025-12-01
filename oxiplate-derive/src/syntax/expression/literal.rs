@@ -17,6 +17,7 @@ pub(super) fn bool(input: Source) -> Res<Source, Expression> {
     let bool = match source.as_str() {
         "true" => true,
         "false" => false,
+        // coverage:ignore
         _ => unreachable!("All cases should be covered"),
     };
 
@@ -39,6 +40,7 @@ fn alternative_bases(input: Source) -> Res<Source, Expression> {
         "b" => ("0b", char::is_bin_digit as fn(char) -> bool),
         "x" => ("0x", char::is_hex_digit as fn(char) -> bool),
         "o" => ("0o", char::is_oct_digit as fn(char) -> bool),
+        // coverage:ignore-start
         _ => {
             Diagnostic::spanned(
                 prefix.span().unwrap(),
@@ -50,6 +52,7 @@ fn alternative_bases(input: Source) -> Res<Source, Expression> {
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
+        // coverage:ignore-stop
     };
 
     let (input, number) = pair(
@@ -196,6 +199,7 @@ pub(super) fn char(input: Source) -> Res<Source, Expression> {
         str => {
             let mut chars = str.chars();
             let Some(char) = chars.next() else {
+                // coverage:ignore-start
                 Diagnostic::spanned(
                     source.span().unwrap(),
                     proc_macro::Level::Error,
@@ -205,8 +209,10 @@ pub(super) fn char(input: Source) -> Res<Source, Expression> {
                 .help("Include template that caused the issue.")
                 .emit();
                 unreachable!("Internal Oxiplate error. See previous error for more information.");
+                // coverage:ignore-stop
             };
             if chars.count() > 0 {
+                // coverage:ignore-start
                 Diagnostic::spanned(
                     source.span().unwrap(),
                     proc_macro::Level::Error,
@@ -216,6 +222,7 @@ pub(super) fn char(input: Source) -> Res<Source, Expression> {
                 .help("Include template that caused the issue.")
                 .emit();
                 unreachable!("Internal Oxiplate error. See previous error for more information.");
+                // coverage:ignore-stop
             }
             char
         }

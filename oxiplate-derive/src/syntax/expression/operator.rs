@@ -47,6 +47,7 @@ pub(super) fn parse_operator(input: Source) -> Res<Source, Operator> {
         "..=" => Operator::RangeInclusive(operator),
         ".." => Operator::RangeExclusive(operator),
 
+        // coverage:ignore
         _ => unreachable!("All cases should be covered"),
     };
 

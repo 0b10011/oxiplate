@@ -8,6 +8,7 @@ fn expansion() -> Result<(), Box<dyn Error>> {
     test::expansion()
 }
 
+#[cfg(test)]
 #[rustversion::before(2025-07-14)]
 mod test {
     pub(super) fn expansion() -> Result<(), Box<dyn super::Error>> {
@@ -18,6 +19,7 @@ mod test {
     }
 }
 
+#[cfg(test)]
 #[rustversion::since(2025-07-14)]
 mod test {
     use std::collections::HashSet;

@@ -117,6 +117,7 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
     let can_replace_inferred_escaper = match tag.0.as_str() {
         "default_escaper_group" => false,
         "replace_escaper_group" => true,
+        // coverage:ignore
         _ => unreachable!("All tag cases should be covered"),
     };
 
