@@ -111,3 +111,59 @@ pub fn escape_unformatted_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> 
 
     Ok(())
 }
+
+#[test]
+fn null() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, "\u{0000}").unwrap();
+    assert_eq!("\u{FFFD}", string);
+}
+
+#[test]
+fn ascii_puncutation_characters() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, r#"An ASCII punctuation character is !, ", #, $, %, &, ', (, ), *, +, ,, -, ., / (U+0021–2F), :, ;, <, =, >, ?, @ (U+003A–0040), [, \, ], ^, _, ` (U+005B–0060), {, |, }, or ~ (U+007B–007E)."#).unwrap();
+
+    // All ASCII punctuation characters should be prefixed by `\`.
+    assert_eq!(
+        r#"An ASCII punctuation character is \!\, \"\, \#\, \$\, \%\, \&\, \'\, \(\, \)\, \*\, \+\, \,\, \-\, \.\, \/ \(U\+0021–2F\)\, \:\, \;\, \<\, \=\, \>\, \?\, \@ \(U\+003A–0040\)\, \[\, \\\, \]\, \^\, \_\, \` \(U\+005B–0060\)\, \{\, \|\, \}\, or \~ \(U\+007B–007E\)\."#,
+        string
+    );
+}
+
+#[cfg(test)]
+static WHITESPACE: &str =
+    "\u{0009}\u{000A}\u{000C}\u{000D}\u{0020}\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003} \
+     \u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{202F}\u{205F}\u{3000}";
+
+#[test]
+fn whitespace_only() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, WHITESPACE).unwrap();
+    // Whitespace should be trimmed, leaving an empty string.
+    assert_eq!("", string);
+}
+
+#[test]
+fn whitespace_prefix() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, &format!("{}world", WHITESPACE)).unwrap();
+    // Whitespace should be trimmed, leaving just non-whitespace characters.
+    assert_eq!("world", string);
+}
+
+#[test]
+fn whitespace_suffix() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, &format!("hello{}", WHITESPACE)).unwrap();
+    // Whitespace should be trimmed, leaving just non-whitespace characters.
+    assert_eq!("hello", string);
+}
+
+#[test]
+fn whitespace() {
+    let mut string = String::new();
+    escape_unformatted_text(&mut string, &format!("hello{}world", WHITESPACE)).unwrap();
+    // Whitespace between non-whitespace characters should be collapsed into a single space.
+    assert_eq!("hello world", string);
+}

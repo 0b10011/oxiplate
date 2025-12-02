@@ -76,6 +76,23 @@ foo b@r
             }
         }
     };
+    match (&Html { name: r#"hello"# }.render().unwrap(), &r#"
+hello
+hello
+hello
+"#) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
 }
 #[rustc_main]
 #[coverage(off)]

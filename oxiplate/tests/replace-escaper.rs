@@ -16,4 +16,12 @@ f00 bar
 foo b@r
 "#
     );
+    assert_eq!(
+        Html { name: r#"hello"# }.render().unwrap(),
+        r#"
+hello
+hello
+hello
+"#
+    );
 }

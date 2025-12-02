@@ -188,3 +188,17 @@ pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Resu
 
     Ok(())
 }
+
+#[test]
+fn test_escape_attribute_quoted_value() {
+    let mut string = String::new();
+    escape_attribute_quoted_value(&mut string, r#"&"' hello"#).unwrap();
+    assert_eq!("&amp;&#34;&#39; hello", string);
+}
+
+#[test]
+fn test_escape_attribute_quoted_value_nothing_to_escape() {
+    let mut string = String::new();
+    escape_attribute_quoted_value(&mut string, r#"Hello world!"#).unwrap();
+    assert_eq!("Hello world!", string);
+}
