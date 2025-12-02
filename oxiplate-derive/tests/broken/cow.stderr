@@ -1,0 +1,5 @@
+error: Cow prefix requires the `oxiplate` library due to trait usage
+ --> tests/broken/cow.rs:4:25
+  |
+4 | #[oxiplate_inline(r#"{{ >"foo" }}"#)]
+  |                         ^^^^^^

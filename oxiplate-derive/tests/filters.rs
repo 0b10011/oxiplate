@@ -23,6 +23,17 @@ mod filters_for_oxiplate {
     pub fn pad(expression: usize, max_length: usize) -> impl Display {
         format!("{:width$}", expression, width = max_length)
     }
+
+    pub fn trim(expression: impl Display) -> impl Display {
+        expression.to_string().trim().to_owned()
+    }
+
+    pub fn replace(expression: impl Display, from: impl Display, to: impl Display) -> impl Display {
+        expression
+            .to_string()
+            .replace(&from.to_string(), &to.to_string())
+            .to_owned()
+    }
 }
 
 #[derive(Oxiplate)]
@@ -141,4 +152,26 @@ fn multiple() {
         ),
         "worl"
     );
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ value | trim }} {{ value | trim() }}"#)]
+struct Trim {
+    value: &'static str,
+}
+
+#[test]
+fn trim() {
+    assert_eq!("hi hi", format!("{}", Trim { value: " hi " }))
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ value | replace("ar", "oo") }}"#)]
+struct Replace {
+    value: &'static str,
+}
+
+#[test]
+fn replace() {
+    assert_eq!("boo boo", format!("{}", Replace { value: "bar bar" }))
 }

@@ -376,14 +376,6 @@ impl<'a> ExpressionAccess<'a> {
         source
     }
 }
-impl<'a> From<Expression<'a>> for ExpressionAccess<'a> {
-    fn from(expression: Expression<'a>) -> Self {
-        ExpressionAccess {
-            expression,
-            fields: Vec::new(),
-        }
-    }
-}
 
 pub(super) fn expression<'a>(
     allow_generic_nesting: bool,

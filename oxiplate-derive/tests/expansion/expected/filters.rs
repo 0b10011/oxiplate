@@ -26,6 +26,16 @@ mod filters_for_oxiplate {
             ::alloc::fmt::format(format_args!("{0:1$}", expression, max_length))
         })
     }
+    pub fn trim(expression: impl Display) -> impl Display {
+        expression.to_string().trim().to_owned()
+    }
+    pub fn replace(
+        expression: impl Display,
+        from: impl Display,
+        to: impl Display,
+    ) -> impl Display {
+        expression.to_string().replace(&from.to_string(), &to.to_string()).to_owned()
+    }
 }
 #[oxiplate_inline(r#"{{ message | respond(false) }} {{ message | respond(true) }}"#)]
 struct Respond {
@@ -62,9 +72,9 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 35usize,
+        start_line: 46usize,
         start_col: 4usize,
-        end_line: 35usize,
+        end_line: 46usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -144,9 +154,9 @@ pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 51usize,
+        start_line: 62usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 62usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -239,9 +249,9 @@ pub const pad: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 82usize,
+        start_line: 93usize,
         start_col: 4usize,
-        end_line: 82usize,
+        end_line: 93usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -321,9 +331,9 @@ pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 113usize,
+        start_line: 124usize,
         start_col: 4usize,
-        end_line: 113usize,
+        end_line: 124usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -412,10 +422,136 @@ fn multiple() {
         }
     };
 }
+#[oxiplate_inline(r#"{{ value | trim }} {{ value | trim() }}"#)]
+struct Trim {
+    value: &'static str,
+}
+impl ::std::fmt::Display for Trim {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(3usize);
+            let f = &mut string;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(crate::filters_for_oxiplate::trim(self.value)),
+                ),
+            )?;
+            f.write_str(" ")?;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(crate::filters_for_oxiplate::trim(self.value)),
+                ),
+            )?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "trim"]
+#[doc(hidden)]
+pub const trim: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("trim"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/filters.rs",
+        start_line: 164usize,
+        start_col: 4usize,
+        end_line: 164usize,
+        end_col: 8usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(trim())),
+};
+fn trim() {
+    match (
+        &"hi hi",
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", Trim { value: " hi " }))
+        }),
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    }
+}
+#[oxiplate_inline(r#"{{ value | replace("ar", "oo") }}"#)]
+struct Replace {
+    value: &'static str,
+}
+impl ::std::fmt::Display for Replace {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(1usize);
+            let f = &mut string;
+            f.write_str(
+                &::std::string::ToString::to_string(
+                    &(crate::filters_for_oxiplate::replace(self.value, "ar", "oo")),
+                ),
+            )?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "replace"]
+#[doc(hidden)]
+pub const replace: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("replace"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/filters.rs",
+        start_line: 175usize,
+        start_col: 4usize,
+        end_line: 175usize,
+        end_col: 11usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(replace())),
+};
+fn replace() {
+    match (
+        &"boo boo",
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", Replace { value: "bar bar" }))
+        }),
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    }
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&multiple, &pad, &respond, &shorten])
+    test::test_main_static(&[&multiple, &pad, &replace, &respond, &shorten, &trim])
 }
