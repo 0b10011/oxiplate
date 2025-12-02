@@ -132,7 +132,7 @@ impl<'a> Expression<'a> {
                     if state.local_variables.contains(identifier.ident) {
                         (quote! { #identifier #arguments }, 1)
                     } else {
-                        (quote_spanned! {span=> self.#identifier #arguments }, 1)
+                        (quote_spanned! {span=> (self.#identifier)#arguments }, 1)
                     }
                 }
             },

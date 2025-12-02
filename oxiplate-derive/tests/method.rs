@@ -68,3 +68,22 @@ fn field_with_arguments() {
         "Flo@ting Air LLC (Kier@) Flo@ting Air LLC (Kier@)"
     );
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{{ foo() }}"#)]
+struct Callback {
+    foo: fn() -> &'static str,
+}
+
+#[test]
+fn callback() {
+    assert_eq!(
+        "hello world",
+        format!(
+            "{}",
+            Callback {
+                foo: || "hello world"
+            }
+        )
+    )
+}
