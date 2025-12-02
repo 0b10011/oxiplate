@@ -29,11 +29,9 @@ pub struct For<'a> {
 impl<'a> For<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            // coverage:ignore-start
             unreachable!(
                 "Should not attempt to add item to `for` statement after statement is ended."
             );
-            // coverage:ignore-stop
         }
 
         match item {

@@ -222,11 +222,9 @@ fn process_parsed_tokens(
             available_escaper_groups.sort_unstable();
             let available_escaper_groups = LitStr::new(&available_escaper_groups.join(", "), span);
             let template = match template_type {
-                // coverage:ignore-start
                 TemplateType::Path | TemplateType::Extends | TemplateType::Include => unreachable!(
                     "Unregistered file extensions are fine, `None` should be returned instead"
                 ),
-                // coverage:ignore-stop
                 TemplateType::Inline => {
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
                 }
@@ -534,7 +532,6 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                 },
                 AppendPathError::CanonicalizeError(path_buf, error) => {
                     if using_default_template_dir {
-                        // coverage:ignore
                         unreachable!(
                             "Failed to normalize default template directory. Original error: {error}",
                         );
@@ -783,7 +780,6 @@ fn parse_fields(
                                 field_names.push(name);
                             }
                         }
-                        // coverage:ignore
                         None => unreachable!("Named fields should always have a name."),
                     }
                 }
@@ -793,7 +789,6 @@ fn parse_fields(
             // it could still be useful to have a template set up as one of these.
             Fields::Unnamed(_) | Fields::Unit => (),
         },
-        // coverage:ignore
         _ => unreachable!("Data should have already been verified to be a struct"),
     }
 

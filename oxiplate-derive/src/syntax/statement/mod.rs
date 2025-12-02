@@ -80,12 +80,10 @@ impl<'a> Statement<'a> {
             For(statement) => {
                 statement.add_item(item);
             }
-            // coverage:ignore-start
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
             | EndFor => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
-            // coverage:ignore-stop
         }
     }
 
@@ -212,7 +210,6 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Item>)> {
                         StatementKind::Block(_) => context_message!("block"),
                         StatementKind::If(_) => context_message!("if"),
                         StatementKind::For(_) => context_message!("for"),
-                        // coverage:ignore-start
                         StatementKind::DefaultEscaper(_)
                         | StatementKind::Extends(_)
                         | StatementKind::Parent
@@ -224,7 +221,6 @@ pub(super) fn statement(input: Source) -> Res<Source, (Item, Option<Item>)> {
                         | StatementKind::EndFor => unreachable!(
                             "These blocks should never fail to be closed because of EOF"
                         ),
-                        // coverage:ignore-stop
                     };
                     return context(context_message, fail()).parse(input);
                 }

@@ -117,7 +117,6 @@ impl<'a> Source<'a> {
 
     pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
         if self.range.end != source_to_merge.range.start {
-            // coverage:ignore-start
             Diagnostic::spanned(
                 vec![self.span().unwrap(), source_to_merge.span().unwrap()],
                 proc_macro::Level::Error,
@@ -128,7 +127,6 @@ impl<'a> Source<'a> {
             .note(format!("Error: {error_message}"))
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
-            // coverage:ignore-stop
         }
 
         let mut range = self.range;
@@ -164,7 +162,6 @@ impl<'a> Source<'a> {
         debug_range: &mut Range<usize>,
     ) -> Option<usize> {
         let Some((pos, char)) = chars.next() else {
-            // coverage:ignore-start
             debug_range.start -= 1;
             debug_range.end -= 1;
             bail!(
@@ -173,7 +170,6 @@ impl<'a> Source<'a> {
                 owned_source,
                 debug_range
             )
-            // coverage:ignore-stop
         };
         match char {
             'r' => (),
@@ -183,14 +179,12 @@ impl<'a> Source<'a> {
                 debug_range.end += 1;
                 return None;
             }
-            // coverage:ignore-start
             _ => bail!(
                 r#"Internal Oxiplate error: Failed to parse start of string. Expected `r` or `"`."#,
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+string",
                 owned_source,
                 debug_range
             ),
-            // coverage:ignore-stop
         }
 
         Self::update_range(range, pos);
@@ -205,14 +199,12 @@ impl<'a> Source<'a> {
                     Self::update_range(range, pos);
                     break;
                 }
-                // coverage:ignore-start
                 _ => bail!(
                     r#"Internal Oxiplate error: Failed to parse start of raw string. Expected `#` or `"`."#,
                     "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+raw+string",
                     owned_source,
                     debug_range
                 ),
-                // coverage:ignore-stop
             }
             Self::update_range(range, pos);
             debug_range.start += 1;
@@ -232,7 +224,6 @@ impl<'a> Source<'a> {
         // Up to 0x7F
         match chars.next() {
             Some((pos, '0'..='7')) => Self::update_range(range, pos),
-            // coverage:ignore-start
             Some((_pos, _char)) => bail!(
                 r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-7]`.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
@@ -249,14 +240,12 @@ impl<'a> Source<'a> {
                     debug_range
                 )
             }
-            // coverage:ignore-stop
         }
         debug_range.start += 1;
         debug_range.end += 1;
 
         match chars.next() {
             Some((pos, '0'..='9' | 'a'..='f' | 'A'..='F')) => Self::update_range(range, pos),
-            // coverage:ignore-start
             Some((_pos, _char)) => bail!(
                 r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-9a-f]`.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
@@ -273,7 +262,6 @@ impl<'a> Source<'a> {
                     debug_range
                 )
             }
-            // coverage:ignore-stop
         }
         debug_range.start += 1;
         debug_range.end += 1;
@@ -289,7 +277,6 @@ impl<'a> Source<'a> {
         let mut unicode_code = String::new();
         loop {
             let Some((pos, char)) = chars.next() else {
-                // coverage:ignore-start
                 debug_range.start -= 1;
                 debug_range.end -= 1;
                 bail!(
@@ -298,7 +285,6 @@ impl<'a> Source<'a> {
                     owned_source,
                     debug_range
                 )
-                // coverage:ignore-stop
             };
             Self::update_range(range, pos);
             match (unicode_chars_parsed, char) {
@@ -312,24 +298,20 @@ impl<'a> Source<'a> {
                 (1..=4, '}') => {
                     let code = match u32::from_str_radix(&unicode_code, 16) {
                         Ok(code) => code,
-                        // coverage:ignore-start
                         Err(err) => bail!(
                             format!(r"Internal Oxiplate error: Failed to parse unicode escape. Expected a u32, found `{unicode_code}`. Error: {err}"),
                             "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
                             owned_source,
                             debug_range
                         ),
-                        // coverage:ignore-stop
                     };
                     let Some(char) = char::from_u32(code) else {
-                        // coverage:ignore-start
                         bail!(
                             format!(r"Internal Oxiplate error: Failed to parse unicode escape. `{unicode_code}` did not map to a char."),
                             "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
                             owned_source,
                             debug_range
                         );
-                        // coverage:ignore-stop
                     };
                     let byte_count = char.to_string().len();
                     if range.start >= pos {
@@ -342,7 +324,6 @@ impl<'a> Source<'a> {
                     debug_range.end += 1;
                     return;
                 }
-                // coverage:ignore-start
                 (-1, _) => bail!(
                     r"Internal Oxiplate error: Failed to parse unicode escape. Expected `{`.",
                     "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
@@ -373,7 +354,6 @@ impl<'a> Source<'a> {
                     owned_source,
                     debug_range
                 ),
-                // coverage:ignore-stop
             }
             debug_range.start += 1;
             debug_range.end += 1;
@@ -405,7 +385,6 @@ impl<'a> Source<'a> {
         debug_range: &mut Range<usize>,
     ) {
         let Some((pos, char)) = chars.next() else {
-            // coverage:ignore-start
             debug_range.start -= 1;
             debug_range.end -= 1;
             bail!(
@@ -414,7 +393,6 @@ impl<'a> Source<'a> {
                 owned_source,
                 debug_range
             )
-            // coverage:ignore-stop
         };
         match char {
             // https://doc.rust-lang.org/reference/tokens.html#quote-escapes
@@ -442,14 +420,12 @@ impl<'a> Source<'a> {
                 debug_range.end += 1;
                 Self::parse_string_continuation(chars, range, debug_range);
             }
-            // coverage:ignore-start
             _ => bail!(
                 r#"Internal Oxiplate error: Failed to parse escape. Expected ', ", n, r, t, \, 0, x, u, or \n."#,
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+escape",
                 owned_source,
                 debug_range
             ),
-            // coverage:ignore-stop
         }
     }
 

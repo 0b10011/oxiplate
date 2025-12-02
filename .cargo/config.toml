@@ -3,31 +3,40 @@ dev = [
     "watch",
 
     "-x",
+    "llvm-cov clean --workspace",
+
+    "-x",
     "fmt",
 
     "-x",
     "clippy --package oxiplate-derive",
 
     "-x",
-    "test --package oxiplate-derive",
+    "llvm-cov --no-report --package oxiplate-derive",
 
     "-x",
     "clippy --package oxiplate-test-fast-escape-type-priority",
 
     "-x",
-    "test --package oxiplate-test-fast-escape-type-priority",
+    "llvm-cov --no-report --package oxiplate-test-fast-escape-type-priority",
 
     "-x",
     "clippy --package oxiplate-test-slow-escape-ints",
 
     "-x",
-    "test --package oxiplate-test-slow-escape-ints",
+    "llvm-cov --no-report --package oxiplate-test-slow-escape-ints",
 
     "-x",
     "clippy --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
 
     "-x",
-    "test --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
+    "llvm-cov --no-report --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
+
+    "-x",
+    "llvm-cov report --lcov --output-path target/llvm-cov/lcov.info",
+
+    "-x",
+    "llvm-cov report --html",
 
     "-x",
     "expansion-tests",

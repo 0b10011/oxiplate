@@ -180,7 +180,6 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
                 whitespace.map(|whitespace| Static(" ", whitespace))
             }
             "-" => None,
-            // coverage:ignore
             _ => unreachable!("Only - or _ should be matched"),
         }
     } else {
@@ -279,7 +278,6 @@ pub(crate) fn tag_end<'a>(
                 let (input, _matched_whitespace) = opt(whitespace).parse(input)?;
                 (input, None)
             }
-            // coverage:ignore
             _ => unreachable!("Only - or _ should be matched"),
         };
 
@@ -308,7 +306,6 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
         "{{" => Ok((input, TagOpen::Writ(output))),
         "{%" => Ok((input, TagOpen::Statement(output))),
         "{#" => Ok((input, TagOpen::Comment(output))),
-        // coverage:ignore-start
         _ => {
             Diagnostic::spanned(
                 output.span().unwrap(),
@@ -320,7 +317,6 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
-        // coverage:ignore-stop
     }
 }
 
