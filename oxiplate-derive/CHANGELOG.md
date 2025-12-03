@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.5...oxiplate-derive-v0.12.0) - 2025-12-03
+
+### Fixed
+
+- [**breaking**] fixed `if let` without an assignment for non-local variables and stopped automatically borrowing `if let` assignments
+- fixed calling callbacks on the top level struct
+
+### Other
+
+- improved test coverage
+- improved test coverage
+
 ## [0.11.5](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.11.4...oxiplate-derive-v0.11.5) - 2025-11-28
 
 ### Fixed
