@@ -21,7 +21,7 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
             let f = &mut string;
-            if let Type::Text(text) = &self.ty {
+            if let Type::Text(text) = self.ty {
                 f.write_str(&::std::string::ToString::to_string(&(text)))?;
             }
             string

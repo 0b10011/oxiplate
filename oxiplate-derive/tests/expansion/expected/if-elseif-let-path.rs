@@ -28,7 +28,7 @@ impl ::std::fmt::Display for Data {
             let f = &mut string;
             if self.check {
                 f.write_str("bar")?;
-            } else if let Type::Text(text) = &self.ty {
+            } else if let Type::Text(text) = self.ty {
                 f.write_str(&::std::string::ToString::to_string(&(text)))?;
             }
             string

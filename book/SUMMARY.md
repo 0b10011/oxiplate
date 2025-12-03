@@ -15,6 +15,6 @@
     - [Escaping](templates/writs/escaping.md)
 - [Statements](templates/statements/README.md)
     - [extends / block](templates/statements/extends.md)
-    - [if / else if / else](templates/statements/if-else.md)
+    - [if / elseif / else](templates/statements/if-else.md)
     - [for / else](templates/statements/for.md)
 - [Expressions](templates/expressions.md)

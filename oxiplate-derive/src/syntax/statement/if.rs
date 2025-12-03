@@ -8,7 +8,8 @@ use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote};
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use syn::spanned::Spanned;
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
@@ -182,15 +183,21 @@ impl<'a> If<'a> {
                     estimated_length = estimated_length.min(template_length);
 
                     if is_elseif {
-                        tokens.append_all(quote! { else if let #ty = &#expression { #template } });
+                        tokens.append_all(quote! { else if let #ty = #expression { #template } });
                     } else {
-                        tokens.append_all(quote! { if let #ty = &#expression { #template } });
+                        tokens.append_all(quote! { if let #ty = #expression { #template } });
                     }
                 }
                 IfType::IfLet(ty, None) => {
-                    let expression = ty
+                    let ident_expression = ty
                         .get_ident()
                         .expect("Expressionless if let statements should have an ident available");
+                    let span = ty.span();
+                    let prefix = if state.local_variables.contains(ident_expression.ident) {
+                        quote_spanned! {span=> & }
+                    } else {
+                        quote_spanned! {span=> &self. }
+                    };
 
                     let mut local_variables = ty.get_variables();
                     for value in state.local_variables {
@@ -204,9 +211,13 @@ impl<'a> If<'a> {
                     estimated_length = estimated_length.min(template_length);
 
                     if is_elseif {
-                        tokens.append_all(quote! { else if let #ty = #expression { #template } });
+                        tokens.append_all(
+                            quote! { else if let #ty = #prefix #ident_expression { #template } },
+                        );
                     } else {
-                        tokens.append_all(quote! { if let #ty = #expression { #template } });
+                        tokens.append_all(
+                            quote! { if let #ty = #prefix #ident_expression { #template } },
+                        );
                     }
                 }
             }

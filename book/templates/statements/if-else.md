@@ -1,4 +1,4 @@
-# Branching with `if`, `else if`, and `else`
+# Branching with `if`, `elseif`, and `else`
 
 ```rust
 #[derive(Oxiplate)]
@@ -28,4 +28,54 @@ print!("{}", YourStruct {
 
 ```html
 <p>19 is positive</p>
+```
+
+## `if let` and `elseif let`
+
+Similarly to Rust,
+`let` can be used in `if` and `elseif` statements.
+
+```rust
+#[derive(Oxiplate)]
+#[oxiplate_inline(html: r#"
+<p>
+    {%- if let Some(count) = count -%}
+        The count is {{ count }}.
+    {%- else -%}
+        No count provided.
+    {%- endif -%}
+</p>
+"#)]
+struct YourStruct {
+    count: Option<i64>,
+}
+
+assert_eq!("<p>The count is 19.</p>", format!("{}", YourStruct {
+    count: Some(19),
+}));
+```
+
+Additionally,
+for single-variable situations where borrowing is acceptable,
+the `= variable` part can be skipped
+(`= &variable` will be inserted automatically):
+
+```rust
+#[derive(Oxiplate)]
+#[oxiplate_inline(html: r#"
+<p>
+    {%- if let Some(count) -%}
+        The count is {{ count }}.
+    {%- else -%}
+        No count provided.
+    {%- endif -%}
+</p>
+"#)]
+struct YourStruct {
+    count: Option<i64>,
+}
+
+assert_eq!("<p>The count is 19.</p>", format!("{}", YourStruct {
+    count: Some(19),
+}));
 ```

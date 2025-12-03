@@ -4,25 +4,38 @@ extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
+enum Name {
+    Actual(String),
+    Nickname(String),
+    Missing,
+}
 #[oxiplate_inline(
     "
-{%- if let Some(count) = cats_count -%}
-    {%- if let Some(name) = name -%}
-        Found {{ count }} cats named {{ name }}!
+{%- if let Ok(name) -%}
+    {%- if let Some(cats_count) -%}
+        {%- if let Name::Actual(name) -%}
+            Found {{ cats_count }} cats named {{ name }}!
+        {%- elseif let Name::Nickname(name) -%}
+            Found {{ cats_count }} cats nicknamed {{ name }}!
+        {%- else -%}
+            Found {{ cats_count }} cats!
+        {%- endif -%}
     {%- else -%}
-        Found {{ count }} cats!
-    {%- endif -%}
+        {%- if let Name::Actual(missing_name) = &name -%}
+            No cats named {{ missing_name }} found :(
+        {%- elseif let Name::Nickname(missing_name) = &name -%}
+            No cats nicknamed {{ missing_name }} found :(
+        {%- else -%}
+            No cats found :(
+        {%- endif -%}
+    {%- endif %}
 {%- else -%}
-    {%- if let Some(missing_name) = name -%}
-        No cats named {{ missing_name }} found :(
-    {%- else -%}
-        No cats found :(
-    {%- endif -%}
-{%- endif %}"
+    Name could not be fetched.
+{%- endif -%}"
 )]
 struct Data {
     cats_count: Option<u8>,
-    name: Option<String>,
+    name: Result<Name, ()>,
 }
 impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -30,26 +43,44 @@ impl ::std::fmt::Display for Data {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(13usize);
             let f = &mut string;
-            if let Some(count) = &self.cats_count {
-                if let Some(name) = &self.name {
-                    f.write_str("Found ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(count)))?;
-                    f.write_str(" cats named ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(name)))?;
-                    f.write_str("!")?;
+            if let Ok(name) = &self.name {
+                if let Some(cats_count) = &self.cats_count {
+                    if let Name::Actual(name) = &name {
+                        f.write_str("Found ")?;
+                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        f.write_str(" cats named ")?;
+                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        f.write_str("!")?;
+                    } else if let Name::Nickname(name) = &name {
+                        f.write_str("Found ")?;
+                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        f.write_str(" cats nicknamed ")?;
+                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        f.write_str("!")?;
+                    } else {
+                        f.write_str("Found ")?;
+                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        f.write_str(" cats!")?;
+                    }
                 } else {
-                    f.write_str("Found ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(count)))?;
-                    f.write_str(" cats!")?;
+                    if let Name::Actual(missing_name) = &name {
+                        f.write_str("No cats named ")?;
+                        f.write_str(
+                            &::std::string::ToString::to_string(&(missing_name)),
+                        )?;
+                        f.write_str(" found :(")?;
+                    } else if let Name::Nickname(missing_name) = &name {
+                        f.write_str("No cats nicknamed ")?;
+                        f.write_str(
+                            &::std::string::ToString::to_string(&(missing_name)),
+                        )?;
+                        f.write_str(" found :(")?;
+                    } else {
+                        f.write_str("No cats found :(")?;
+                    }
                 }
             } else {
-                if let Some(missing_name) = &self.name {
-                    f.write_str("No cats named ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
-                    f.write_str(" found :(")?;
-                } else {
-                    f.write_str("No cats found :(")?;
-                }
+                f.write_str("Name could not be fetched.")?;
             }
             string
         };
@@ -65,9 +96,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 26usize,
+        start_line: 40usize,
         start_col: 4usize,
-        end_line: 26usize,
+        end_line: 40usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -82,7 +113,7 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
 fn test_count() {
     let data = Data {
         cats_count: Some(5),
-        name: None,
+        name: Ok(Name::Missing),
     };
     match (
         &::alloc::__export::must_use({
@@ -112,9 +143,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 36usize,
+        start_line: 50usize,
         start_col: 4usize,
-        end_line: 36usize,
+        end_line: 50usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -129,7 +160,7 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
 fn test_count_name() {
     let data = Data {
         cats_count: Some(5),
-        name: Some(String::from("Sam")),
+        name: Ok(Name::Actual(String::from("Sam"))),
     };
     match (
         &::alloc::__export::must_use({
@@ -159,9 +190,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 46usize,
+        start_line: 60usize,
         start_col: 4usize,
-        end_line: 46usize,
+        end_line: 60usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -173,13 +204,13 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
 fn test_name() {
     let data = Data {
         cats_count: None,
-        name: Some(String::from("Sam")),
+        name: Ok(Name::Nickname(String::from("Sam"))),
     };
     match (
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", data))
         }),
-        &"No cats named Sam found :(",
+        &"No cats nicknamed Sam found :(",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -203,9 +234,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 56usize,
+        start_line: 70usize,
         start_col: 4usize,
-        end_line: 56usize,
+        end_line: 70usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -217,7 +248,7 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
 fn test_none() {
     let data = Data {
         cats_count: None,
-        name: None,
+        name: Ok(Name::Missing),
     };
     match (
         &::alloc::__export::must_use({
