@@ -1,0 +1,5 @@
+error: Expected an expression
+ --> tests/broken/operators/without-expression-after.rs:4:27
+  |
+4 | #[oxiplate_inline("{{ a + }}")]
+  |                           ^^
