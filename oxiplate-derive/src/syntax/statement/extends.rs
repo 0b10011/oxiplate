@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fmt;
 
 use nom::Parser as _;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
@@ -17,22 +16,12 @@ use crate::syntax::Item;
 use crate::syntax::template::{Template, is_whitespace};
 use crate::{Source, State};
 
+#[derive(Debug)]
 pub struct Extends<'a> {
     is_extending: bool,
     blocks: HashMap<&'a str, (Template<'a>, Option<Template<'a>>)>,
     path: Source<'a>,
     template: Template<'a>,
-}
-
-impl fmt::Debug for Extends<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Extends")
-            // .field("data_type", &"UNSUPPORTED_SORRY")
-            .field("blocks", &self.blocks)
-            .field("path", &self.path)
-            .field("template", &self.template)
-            .finish()
-    }
 }
 
 impl<'a> Extends<'a> {
