@@ -1,5 +1,5 @@
 error[E0277]: cannot add `bool` to `u8`
- --> tests/broken/add-u8-and-bool.rs:4:25
+ --> tests/broken/operators/add-u8-and-bool.rs:4:25
   |
 4 | #[oxiplate_inline("{{ a + b }}")]
   |                         ^ no implementation for `u8 + bool`
