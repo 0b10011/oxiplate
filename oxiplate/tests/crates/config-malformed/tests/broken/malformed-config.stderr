@@ -1,0 +1,19 @@
+error: Failed to parse `/oxiplate.toml`: key with no value, expected `=`
+ --> tests/broken/malformed-config.rs:4:1
+  |
+4 | / #[oxiplate_inline(html: "hello world")]
+5 | | struct Data;
+  | |____________^
+
+error[E0599]: no method named `render` found for struct `Data` in the current scope
+ --> tests/broken/malformed-config.rs:9:14
+  |
+5 | struct Data;
+  | ----------- method `render` not found for this struct
+...
+9 |         Data.render().unwrap(),
+  |              ^^^^^^ method not found in `Data`
+  |
+  = help: items from traits can only be used if the trait is implemented and in scope
+  = note: the following trait defines an item `render`, perhaps you need to implement it:
+          candidate #1: `Render`

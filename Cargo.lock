@@ -319,6 +319,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-config-malformed"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-config-with-feature-turned-off"
 version = "0.0.0"
 dependencies = [
