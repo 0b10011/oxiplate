@@ -4,8 +4,10 @@ use nom::Parser as _;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::cut;
 use nom::error::context;
+use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
+use syn::spanned::Spanned;
 
 use super::super::expression::{Identifier, ident, keyword};
 use super::super::{Item, Res};
@@ -76,7 +78,15 @@ impl<'a> Block<'a> {
         let mut estimated_length = child_prefix_length + child_suffix_length;
         let mut tokens = TokenStream::new();
         let Some(blocks) = block_stack.pop_front() else {
-            return (quote! { #child_prefix #child_suffix }, estimated_length);
+            Diagnostic::spanned(
+                child_prefix.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error: `build_block()` should not be called with an empty block stack.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=%60build_block()%60+should+not+be+called+with+an+empty+block")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
         };
 
         if let Some(&(prefix, suffix)) = blocks.get(self.name.ident) {
