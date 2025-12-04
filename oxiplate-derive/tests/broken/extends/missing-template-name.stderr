@@ -1,0 +1,5 @@
+error: Expected "
+ --> tests/broken/extends/missing-template-name.rs:4:33
+  |
+4 | #[oxiplate_inline(r#"{% extends %}"#)]
+  |                                 ^^

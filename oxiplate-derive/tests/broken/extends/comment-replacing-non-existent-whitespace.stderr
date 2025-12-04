@@ -1,0 +1,5 @@
+error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
+ --> tests/broken/extends/comment-replacing-non-existent-whitespace.rs:4:55
+  |
+4 | #[oxiplate_inline(r#"{% extends "extends.html.oxip" %}{#_ Missing whitespace before this #}"#)]
+  |                                                       ^^^
