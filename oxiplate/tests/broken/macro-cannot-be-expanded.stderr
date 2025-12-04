@@ -1,0 +1,34 @@
+error: Must provide either an external or internal template:
+       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/macro-cannot-be-expanded.rs:4:25
+  |
+4 | #[oxiplate_inline(html: format!("oops"))]
+  |                         ^^^^^^^^^^^^^^^
+
+error: Incorrect syntax for external template. Should look something like:
+       #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+ --> tests/broken/macro-cannot-be-expanded.rs:8:1
+  |
+8 | #[oxiplate = format!("oops")]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: attribute value must be a literal
+ --> tests/broken/macro-cannot-be-expanded.rs:8:14
+  |
+8 | #[oxiplate = format!("oops")]
+  |              ^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: `Inline` doesn't implement `std::fmt::Display`
+  --> tests/broken/macro-cannot-be-expanded.rs:12:18
+   |
+12 |     print!("{}", Inline);
+   |             --   ^^^^^^ `Inline` cannot be formatted with the default formatter
+   |             |
+   |             required by this formatting parameter
+   |
+   = help: the trait `std::fmt::Display` is not implemented for `Inline`
+   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)
