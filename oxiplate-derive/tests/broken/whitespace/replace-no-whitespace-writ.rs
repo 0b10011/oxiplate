@@ -5,9 +5,6 @@ use oxiplate_derive::Oxiplate;
 {{ "replace" _}}{{_ "replace" }}
 {{ "replace" _}}{{ "preserve" }}
 {{ "preserve" }}{{_ "replace" }}
-{# "replace" _#}{#_ "replace" #}
-{# "replace" _#}{# "preserve" #}
-{# "preserve" #}{#_ "replace" #}
 "#)]
 struct Data {}
 
