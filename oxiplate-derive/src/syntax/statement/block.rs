@@ -24,7 +24,9 @@ pub struct Block<'a> {
 impl<'a> Block<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            todo!();
+            unreachable!(
+                "Should not attempt to add item to `block` statement after statement is ended."
+            );
         }
 
         match item {
