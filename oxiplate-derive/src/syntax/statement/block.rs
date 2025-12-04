@@ -63,17 +63,7 @@ impl<'a> Block<'a> {
         let mut block_stack = state.blocks.clone();
         let block = HashMap::from([(self.name.ident, (&self.prefix, self.suffix.as_ref()))]);
         block_stack.push_back(&block);
-        self.build_block(
-            // self.prefix.to_tokens(state),
-            // self.suffix.as_ref().map_or((None, 0), |template| {
-            //     let (template, estimated_length) = template.to_tokens(state);
-            //     (Some(template), estimated_length)
-            // }),
-            (quote! {}, 0),
-            (Some(quote! {}), 0),
-            state,
-            block_stack,
-        )
+        self.build_block((quote! {}, 0), (Some(quote! {}), 0), state, block_stack)
     }
 
     fn build_block(
