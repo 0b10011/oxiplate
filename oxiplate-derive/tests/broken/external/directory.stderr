@@ -1,0 +1,5 @@
+error: Path is not a file: `$DIR/templates/subdirectory`
+ --> tests/broken/external/directory.rs:4:14
+  |
+4 | #[oxiplate = "subdirectory"]
+  |              ^^^^^^^^^^^^^^
