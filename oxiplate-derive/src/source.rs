@@ -554,10 +554,3 @@ impl Offset for Source<'_> {
         self.as_str().offset(offset.as_str())
     }
 }
-
-impl<'a> Iterator for Source<'a> {
-    type Item = Source<'a>;
-    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        todo!()
-    }
-}
