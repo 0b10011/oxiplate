@@ -1,4 +1,3 @@
-use std::fmt;
 use std::iter::{Enumerate, Peekable};
 use std::ops::Range;
 use std::path::PathBuf;
@@ -12,10 +11,8 @@ type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 
 /// Source of a single template.
 /// Does not contain the source of parent/children templates.
+#[derive(Debug)]
 pub(crate) struct SourceOwned {
-    /// List of names of all blocks in this template and childen templates.
-    pub(crate) blocks: Vec<String>,
-
     /// The template code.
     pub(crate) code: String,
 
@@ -27,23 +24,6 @@ pub(crate) struct SourceOwned {
 
     /// The file path for external templates.
     pub(crate) origin: Option<PathBuf>,
-
-    /// Whether this is extending another template.
-    pub(crate) is_extending: bool,
-}
-
-impl fmt::Debug for SourceOwned {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("SourceOwned")
-            // .field("data_type", &"UNSUPPORTED_SORRY")
-            .field("blocks", &self.blocks)
-            .field("code", &self.code)
-            .field("literal", &self.literal)
-            .field("span_hygiene", &self.span_hygiene)
-            .field("origin", &self.origin)
-            .field("is_extending", &self.is_extending)
-            .finish_non_exhaustive()
-    }
 }
 
 /// A clonable range within a template.

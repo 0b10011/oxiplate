@@ -21,8 +21,7 @@ use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::token::Colon;
 use syn::{
-    Attribute, Data, DeriveInput, Expr, ExprLit, Fields, Ident, Lit, LitStr, MetaList,
-    MetaNameValue,
+    Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
 pub(crate) use self::source::Source;
@@ -147,7 +146,7 @@ fn parse_template_and_data(
     let (attr, template_type) = parse_template_type(attrs, ident.span())?;
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
     let (template, estimated_length): (proc_macro2::TokenStream, usize) =
-        process_parsed_tokens(parsed_tokens, &template_type, data, &state)?;
+        process_parsed_tokens(parsed_tokens, &template_type, &state)?;
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if template_type == TemplateType::Extends || template_type == TemplateType::Include {
@@ -207,7 +206,6 @@ type ParsedTokens = Result<
 fn process_parsed_tokens(
     parsed_tokens: ParsedTokens,
     template_type: &TemplateType,
-    data: &Data,
     state: &State,
 ) -> Result<(proc_macro2::TokenStream, usize), syn::Error> {
     match parsed_tokens {
@@ -251,17 +249,12 @@ fn process_parsed_tokens(
                 state
             };
 
-            // Parse the fields and adjust the data type if needed.
-            let (_fields, blocks) = parse_fields(data, *template_type == TemplateType::Extends);
-
             // Build the source.
             let owned_source = SourceOwned {
-                blocks,
                 code,
                 literal,
                 span_hygiene: span,
                 origin,
-                is_extending: *template_type == TemplateType::Extends,
             };
             let source = Source {
                 original: &owned_source,
@@ -755,42 +748,4 @@ impl<P: AsRef<Path>> AppendPath<P> for PathBuf {
 
         Ok(new_path)
     }
-}
-
-fn parse_fields(
-    data: &Data,
-    is_extending: bool,
-) -> (
-    std::vec::Vec<&proc_macro2::Ident>,
-    std::vec::Vec<std::string::String>,
-) {
-    let mut field_names: Vec<&syn::Ident> = Vec::new();
-    let mut blocks: Vec<String> = vec![];
-
-    match data {
-        Data::Struct(struct_item) => match &struct_item.fields {
-            // A named struct like `Data { title: &'static str }`.
-            Fields::Named(fields) => {
-                for field in &fields.named {
-                    match &field.ident {
-                        Some(name) => {
-                            if is_extending {
-                                blocks.push(name.to_string());
-                            } else {
-                                field_names.push(name);
-                            }
-                        }
-                        None => unreachable!("Named fields should always have a name."),
-                    }
-                }
-            }
-
-            // While there aren't any accessible fields,
-            // it could still be useful to have a template set up as one of these.
-            Fields::Unnamed(_) | Fields::Unit => (),
-        },
-        _ => unreachable!("Data should have already been verified to be a struct"),
-    }
-
-    (field_names, blocks)
 }
