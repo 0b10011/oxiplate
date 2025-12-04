@@ -446,25 +446,20 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                 template,
             })) => {
                 let span = template.span();
-                let mut escaper_name = None;
-                if *state.config.infer_escaper_group_from_file_extension {
-                    escaper_name = Some(escaper.to_string());
-                    if !state.config.escaper_groups.contains_key(
-                        escaper_name
-                            .as_ref()
-                            .expect("Escaper name should have just been set"),
-                    ) {
-                        return Err(ParsedEscaperError::EscaperNotFound((
-                            escaper.to_string(),
-                            escaper.span(),
-                        )));
-                    }
+
+                let escaper_name = escaper.to_string();
+                if !state.config.escaper_groups.contains_key(&escaper_name) {
+                    return Err(ParsedEscaperError::EscaperNotFound((
+                        escaper_name,
+                        escaper.span(),
+                    )));
                 }
+
                 Ok((
                     span,
                     quote::quote_spanned!(span=> #template),
                     None,
-                    escaper_name,
+                    Some(escaper_name),
                 ))
             }
             Ok(Template::WithoutEscaper(TemplateWithoutEscaper { template })) => {

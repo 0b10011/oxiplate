@@ -1,0 +1,5 @@
+error: No escaper is specified, it could not be inferred from the template's file extension, and there was also no fallback escaper group defined. Check to make sure the template's file extension is correct. If escaping is not wanted in ANY files, set `fallback_escaper_group = "raw"` in `/oxiplate.toml`. If escaping is not wanted just in this one instance, prefix the writ with `raw:`.
+ --> templates/template.html.oxip
+  |
+  | Message: {{ message -}}
+  |             ^^^^^^^
