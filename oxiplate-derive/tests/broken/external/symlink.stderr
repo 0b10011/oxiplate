@@ -1,0 +1,5 @@
+error: Symlinks are not allowed for template paths: `$DIR/templates/external-symlink.html.oxip`
+ --> tests/broken/external/symlink.rs:4:14
+  |
+4 | #[oxiplate = "external-symlink.html.oxip"]
+  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
