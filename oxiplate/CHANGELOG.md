@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.12.0...oxiplate-v0.12.1) - 2025-12-04
+
+### Fixed
+
+- improved error message when a comment tag is not closed
+- stopped clearing block suffix if a second parent was found and started properly reporting the error
+- replaced todo with unreachable for blocks to match other statements
+
+### Other
+
+- added tests for non-literal macros in attributes
+- added test for a malformed config file
+- expanded coverage for escaping
+- expanded coverage for extends
+- added tests for non-string literals in attributes
+- remove unused implementation
+- switched to deriving debug for `SourceOwned` and removed unused code found as a result
+- added tests for whitespace replacement around statements
+- split comment and writ whitespace replacement tests for better readability of the errors
+- added test for missing block name
+- replaced unreachable code with diagnostic info and a panic
+- removed some commented out old code
+- removed old extends code that's no longer needed
+- switched to deriving debug for `Extends`
+- moved some operator tests into the new folder for them
+- expanded coverage for operators
+
 ## [0.12.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.11.7...oxiplate-v0.12.0) - 2025-12-03
 
 ### Fixed

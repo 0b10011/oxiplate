@@ -294,7 +294,7 @@ checksum = "d6790f58c7ff633d8771f42965289203411a5e5c68388703c06e14f24770b41e"
 
 [[package]]
 name = "oxiplate"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "oxiplate-derive",
  "oxiplate-traits",
@@ -304,7 +304,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "criterion",
  "nom",

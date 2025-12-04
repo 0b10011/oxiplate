@@ -1,7 +1,7 @@
 [package]
 name = "oxiplate-derive"
 description = "Oxiplate's derive macro that provides a compile-time template engine with a focus on helpful error messages and whitespace control."
-version = "0.12.0"
+version = "0.12.1"
 readme = "README.md"
 authors.workspace = true
 homepage.workspace = true
