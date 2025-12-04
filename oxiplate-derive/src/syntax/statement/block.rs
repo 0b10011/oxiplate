@@ -45,9 +45,9 @@ impl<'a> Block<'a> {
                         "Multiple parent blocks present in block".to_string(),
                         source,
                     ));
+                } else {
+                    self.suffix = Some(Template(vec![]));
                 }
-
-                self.suffix = Some(Template(vec![]));
             }
             _ => {
                 if let Some(template) = &mut self.suffix {
