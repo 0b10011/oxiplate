@@ -399,6 +399,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-template-dir-absolute"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-test-template-dir-file"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-test-template-dir-missing"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-test-template-dir-symlink"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-traits"
 version = "0.1.5"
 dependencies = [

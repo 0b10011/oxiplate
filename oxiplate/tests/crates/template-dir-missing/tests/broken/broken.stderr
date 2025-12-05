@@ -1,0 +1,5 @@
+error: Template directory `$DIR/missing-dir` not found.
+ --> tests/broken/broken.rs:4:1
+  |
+4 | #[oxiplate = "external.html.oxip"]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

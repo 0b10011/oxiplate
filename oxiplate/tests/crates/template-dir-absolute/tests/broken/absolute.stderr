@@ -1,0 +1,5 @@
+error: `OXIP_TEMPLATE_DIR` environment variable must be a relative path that resolves under `$WORKSPACE/oxiplate/tests/crates/template-dir-absolute`; example: 'templates' instead of '/templates'. Provided: /templates
+ --> tests/broken/absolute.rs:4:1
+  |
+4 | #[oxiplate = "external.html.oxip"]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

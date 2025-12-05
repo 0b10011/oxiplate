@@ -1,0 +1,5 @@
+error: Template directory `$DIR/templates/external.html.oxip` was not a directory.
+ --> tests/broken/broken.rs:4:1
+  |
+4 | #[oxiplate = "external.html.oxip"]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,5 @@
+error: Template directory `$DIR/templates-symlink` cannot be a symlink.
+ --> tests/broken/broken.rs:4:1
+  |
+4 | #[oxiplate = "external.html.oxip"]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
