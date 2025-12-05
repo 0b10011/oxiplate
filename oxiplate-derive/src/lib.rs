@@ -487,13 +487,13 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
 /// Build the absolute template directory
 /// from the package's directory and provided relative template directory.
 fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
-    const DEFAULT_TEMPLATE_DIR: &str = "templates";
+    let default_template_dir = String::from("templates");
 
     let (specified_templates_dir, using_default_template_dir) =
-        if let Some(templates_dir) = option_env!("OXIP_TEMPLATE_DIR") {
+        if let Ok(templates_dir) = ::std::env::var("OXIP_TEMPLATE_DIR") {
             (templates_dir, false)
         } else {
-            (DEFAULT_TEMPLATE_DIR, true)
+            (default_template_dir, true)
         };
     let root = PathBuf::from(
         ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
@@ -503,7 +503,7 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
 
     // Path::join() doesn't play well with absolute paths (for our use case).
     root
-        .append_path(specified_templates_dir, false)
+        .append_path(&specified_templates_dir, false)
         .map_err(|err| -> ParsedEscaperError {
             match err {
                 AppendPathError::DoesNotExist(path_buf) => {
@@ -536,7 +536,7 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                         let _ = prefix;
                         let _ = final_path;
                         unreachable!(
-                            "`DEFAULT_TEMPLATE_DIR` constant in `oxiplate-derive` code must be a relative \
+                            "`default_template_dir` variable in `oxiplate-derive` code must be a relative \
                             path; example: 'templates' instead of '/templates'. Provided: {specified_templates_dir}",
                         );
                     } else {
