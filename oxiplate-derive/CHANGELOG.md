@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.12.1...oxiplate-derive-v0.12.2) - 2025-12-05
+
+### Fixed
+
+- stopped silently ignoring escaper specified in inline templates when the `infer_escaper_group_from_file_extension` option is turned off
+
+### Other
+
+- stopped using static macro to fetch environment variable so coverage profiles will merge properly
+- move external test into new dedicated folder
+- added test for template paths that are directories
+- added test for template paths that are symlinks
+
 ## [0.12.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.12.0...oxiplate-derive-v0.12.1) - 2025-12-04
 
 ### Fixed
