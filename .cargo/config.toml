@@ -33,10 +33,10 @@ dev = [
     "llvm-cov --no-report --workspace --exclude oxiplate-derive --exclude oxiplate-test-fast-escape-type-priority --exclude oxiplate-test-slow-escape-ints",
 
     "-x",
-    "llvm-cov report --lcov --output-path target/llvm-cov/lcov.info",
+    "llvm-cov report --html",
 
     "-x",
-    "llvm-cov report --html",
+    "llvm-cov report --lcov --output-path target/llvm-cov/lcov.info",
 
     "-x",
     "expansion-tests",
