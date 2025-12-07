@@ -6,7 +6,7 @@ use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
 enum Name {
     Actual(String),
-    Nickname(String),
+    Nickname { name: String },
     Missing,
 }
 #[oxiplate_inline(
@@ -15,7 +15,7 @@ enum Name {
     {%- if let Some(cats_count) -%}
         {%- if let Name::Actual(name) -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname(name) -%}
+        {%- elseif let Name::Nickname { name } -%}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
@@ -23,7 +23,7 @@ enum Name {
     {%- else -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
-        {%- elseif let Name::Nickname(missing_name) = &name -%}
+        {%- elseif let Name::Nickname { name: missing_name } = &name -%}
             No cats nicknamed {{ missing_name }} found :(
         {%- else -%}
             No cats found :(
@@ -51,7 +51,7 @@ impl ::std::fmt::Display for Data {
                         f.write_str(" cats named ")?;
                         f.write_str(&::std::string::ToString::to_string(&(name)))?;
                         f.write_str("!")?;
-                    } else if let Name::Nickname(name) = &name {
+                    } else if let Name::Nickname { name } = &name {
                         f.write_str("Found ")?;
                         f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         f.write_str(" cats nicknamed ")?;
@@ -69,7 +69,7 @@ impl ::std::fmt::Display for Data {
                             &::std::string::ToString::to_string(&(missing_name)),
                         )?;
                         f.write_str(" found :(")?;
-                    } else if let Name::Nickname(missing_name) = &name {
+                    } else if let Name::Nickname { name: missing_name } = &name {
                         f.write_str("No cats nicknamed ")?;
                         f.write_str(
                             &::std::string::ToString::to_string(&(missing_name)),
@@ -204,7 +204,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
 fn test_name() {
     let data = Data {
         cats_count: None,
-        name: Ok(Name::Nickname(String::from("Sam"))),
+        name: Ok(Name::Nickname {
+            name: String::from("Sam"),
+        }),
     };
     match (
         &::alloc::__export::must_use({
@@ -234,9 +236,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 70usize,
+        start_line: 72usize,
         start_col: 4usize,
-        end_line: 70usize,
+        end_line: 72usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

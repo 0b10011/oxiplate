@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use nom::Parser as _;
+use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while, take_while1};
 use nom::character::complete::char;
 use nom::combinator::{cut, opt};
@@ -9,65 +10,52 @@ use nom::multi::many0;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use syn::Ident;
 use syn::spanned::Spanned;
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::{ExpressionAccess, Identifier, ident};
-use crate::syntax::template::{Template, is_whitespace};
+use crate::syntax::template::{Template, is_whitespace, whitespace};
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Type<'a>(
-    Vec<(TypeName<'a>, Source<'a>)>,
-    TypeName<'a>,
-    TypeOrIdent<'a>,
-);
+pub(crate) struct Type<'a>(Vec<(TypeName<'a>, Source<'a>)>, TypeName<'a>, Fields<'a>);
 
 impl<'a> Type<'a> {
-    pub fn get_variables(&self) -> HashSet<&'a str> {
+    pub fn get_variables(&'a self) -> HashSet<&'a str> {
         match self {
-            Type(_, _, TypeOrIdent::Identifier(ident)) => HashSet::from([ident.ident]),
-            Type(_, _, TypeOrIdent::Type(ty)) => ty.get_variables(),
-        }
-    }
-
-    pub fn get_ident(&'_ self) -> Option<&'_ Identifier<'_>> {
-        match self {
-            Type(_, _, TypeOrIdent::Identifier(ident)) => Some(ident),
-            Type(_, _, TypeOrIdent::Type(ty)) => ty.get_ident(),
+            Type(_, _, fields) => fields.get_variables(),
         }
     }
 }
 
 impl ToTokens for Type<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        match &self.2 {
-            TypeOrIdent::Type(_) => todo!(),
-            TypeOrIdent::Identifier(ident) => {
-                for (type_name, separator) in &self.0 {
-                    let type_name: proc_macro2::TokenStream =
-                        type_name.0.parse().expect("Should be able to parse type");
-                    let separator: proc_macro2::TokenStream = separator
-                        .as_str()
-                        .parse()
-                        .expect("Should be able to parse type");
-                    tokens.append_all(quote! {
-                        #type_name #separator
-                    });
-                }
-
-                let type_name: proc_macro2::TokenStream =
-                    self.1.0.parse().expect("Should be able to parse type");
-                tokens.append_all(quote! {
-                    #type_name(#ident)
-                });
-            }
+        for (type_name, separator) in &self.0 {
+            let type_name: proc_macro2::TokenStream =
+                type_name.0.parse().expect("Should be able to parse type");
+            let separator: proc_macro2::TokenStream = separator
+                .as_str()
+                .parse()
+                .expect("Should be able to parse type");
+            tokens.append_all(quote! {
+                #type_name #separator
+            });
         }
+
+        let type_name: proc_macro2::TokenStream =
+            self.1.0.parse().expect("Should be able to parse type");
+
+        let fields = &self.2;
+
+        tokens.append_all(quote! {
+            #type_name #fields
+        });
     }
 }
 
@@ -78,10 +66,28 @@ pub(crate) enum TypeOrIdent<'a> {
     Identifier(Identifier<'a>),
 }
 
+impl<'a> TypeOrIdent<'a> {
+    fn get_variables(&'a self) -> HashSet<&'a str> {
+        match self {
+            Self::Type(ty) => ty.get_variables(),
+            Self::Identifier(ident) => HashSet::from([ident.ident]),
+        }
+    }
+}
+
+impl ToTokens for TypeOrIdent<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::Type(ty) => tokens.append_all(quote! { #ty }),
+            Self::Identifier(ident) => tokens.append_all(quote! { #ident }),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
     If(ExpressionAccess<'a>),
-    IfLet(Type<'a>, Option<ExpressionAccess<'a>>),
+    IfLet(TypeOrIdent<'a>, Option<ExpressionAccess<'a>>),
 }
 
 #[derive(Debug)]
@@ -92,7 +98,7 @@ pub(crate) struct If<'a> {
 }
 
 impl<'a> If<'a> {
-    pub fn get_active_variables(&self) -> HashSet<&'a str> {
+    pub fn get_active_variables(&'a self) -> HashSet<&'a str> {
         match self.ifs.last() {
             Some((IfType::If(_), _)) => HashSet::new(),
             Some((IfType::IfLet(ty, _), _)) => ty.get_variables(),
@@ -189,14 +195,29 @@ impl<'a> If<'a> {
                     }
                 }
                 IfType::IfLet(ty, None) => {
-                    let ident_expression = ty
-                        .get_ident()
-                        .expect("Expressionless if let statements should have an ident available");
+                    let vars = ty.get_variables();
+
+                    let mut ident = None;
+                    for var in vars {
+                        if ident.is_none() {
+                            ident = Some(var);
+                        } else {
+                            ident = None;
+                            break;
+                        }
+                    }
+
                     let span = ty.span();
-                    let prefix = if state.local_variables.contains(ident_expression.ident) {
-                        quote_spanned! {span=> & }
+                    let ident = if let Some(ident_str) = ident {
+                        let ident = Ident::new(ident_str, ty.span());
+
+                        if state.local_variables.contains(ident_str) {
+                            quote_spanned! {span=> = &#ident }
+                        } else {
+                            quote_spanned! {span=> = &self.#ident }
+                        }
                     } else {
-                        quote_spanned! {span=> &self. }
+                        quote! {}
                     };
 
                     let mut local_variables = ty.get_variables();
@@ -211,13 +232,9 @@ impl<'a> If<'a> {
                     estimated_length = estimated_length.min(template_length);
 
                     if is_elseif {
-                        tokens.append_all(
-                            quote! { else if let #ty = #prefix #ident_expression { #template } },
-                        );
+                        tokens.append_all(quote! { else if let #ty #ident { #template } });
                     } else {
-                        tokens.append_all(
-                            quote! { if let #ty = #prefix #ident_expression { #template } },
-                        );
+                        tokens.append_all(quote! { if let #ty #ident { #template } });
                     }
                 }
             }
@@ -247,23 +264,245 @@ pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
     Ok((input, TypeName(ident.as_str(), ident)))
 }
 
-pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
-    let (input, (path_segments, type_name, _open, identifier, _close)) = cut((
-        many0((parse_type_name, tag("::"))),
-        parse_type_name,
-        char('('),
+#[derive(Debug, PartialEq, Eq)]
+enum Field<'a> {
+    Ident(Identifier<'a>),
+    Type {
+        ident: Identifier<'a>,
+        ty: TypeOrIdent<'a>,
+    },
+}
+
+impl<'a> Field<'a> {
+    fn get_variables(&'a self) -> HashSet<&'a str> {
+        match self {
+            Self::Ident(Identifier { ident, source: _ }) => HashSet::from([*ident]),
+            Self::Type { ident: _, ty } => ty.get_variables(),
+        }
+    }
+}
+
+impl ToTokens for Field<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::Ident(ident) => tokens.append_all(quote! { #ident }),
+            Self::Type { ident, ty } => {
+                let span = ident.span();
+                tokens.append_all(quote_spanned! {span=> #ident: #ty });
+            }
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum Fields<'a> {
+    Struct {
+        first_field: Field<'a>,
+        additional_fields: Vec<(Source<'a>, Field<'a>)>,
+    },
+    Tuple {
+        first_field: TypeOrIdent<'a>,
+        additional_fields: Vec<(Source<'a>, TypeOrIdent<'a>)>,
+    },
+}
+
+impl<'a> Fields<'a> {
+    fn get_variables(&'a self) -> HashSet<&'a str> {
+        let mut vars: HashSet<&'a str> = HashSet::new();
+        match &self {
+            Fields::Struct {
+                first_field,
+                additional_fields,
+            } => {
+                for var in first_field.get_variables() {
+                    vars.insert(var);
+                }
+                for (_separator, field) in additional_fields {
+                    for var in field.get_variables() {
+                        vars.insert(var);
+                    }
+                }
+            }
+            Fields::Tuple {
+                first_field,
+                additional_fields,
+            } => {
+                for var in first_field.get_variables() {
+                    vars.insert(var);
+                }
+                for (_separator, field) in additional_fields {
+                    for var in field.get_variables() {
+                        vars.insert(var);
+                    }
+                }
+            }
+        }
+        vars
+    }
+}
+
+impl ToTokens for Fields<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Fields::Struct {
+                first_field,
+                additional_fields,
+            } => {
+                let mut fields = quote! { #first_field };
+                for (separator, field) in additional_fields {
+                    let span = separator.span();
+                    let separator = separator.as_str();
+                    let separator = quote_spanned! {span=> #separator };
+                    fields.append_all(quote! { #separator #field });
+                }
+                tokens.append_all(quote! { { #fields } });
+            }
+            Fields::Tuple {
+                first_field,
+                additional_fields,
+            } => {
+                let mut fields = quote! { #first_field };
+                for (separator, field) in additional_fields {
+                    let span = separator.span();
+                    fields.append_all(quote_spanned! {span=> , #field });
+                }
+                tokens.append_all(quote! { ( #fields ) });
+            }
+        }
+    }
+}
+
+fn parse_field(input: Source) -> Res<Source, Field> {
+    let (input, (name, value)) = (
         ident,
-        char(')'),
-    ))
-    .parse(input)?;
+        opt((
+            opt(whitespace),
+            tag(":"),
+            opt(whitespace),
+            parse_type_or_ident,
+        )),
+    )
+        .parse(input)?;
+
+    let field = if let Some((_leading_whitespace, _colon, _trailing_whitespace, ty)) = value {
+        Field::Type { ident: name, ty }
+    } else {
+        Field::Ident(name)
+    };
+
+    Ok((input, field))
+}
+
+fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
+    let (input, (first_field, additional_fields_and_whitespace)) = (
+        parse_field,
+        many0((opt(whitespace), tag(","), opt(whitespace), parse_field)),
+    )
+        .parse(input)?;
+
+    let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
+    for (leading_whitespace, comma, trailing_whitespace, field) in additional_fields_and_whitespace
+    {
+        let source = if let Some(source) = leading_whitespace {
+            source.merge(&comma, "Comma expected after whitespace")
+        } else {
+            comma.clone()
+        }
+        .merge_some(
+            trailing_whitespace.as_ref(),
+            "Whitespace expected after comma",
+        );
+
+        additional_fields.push((source, field));
+    }
+
     Ok((
         input,
-        Type(
+        Fields::Struct {
+            first_field,
+            additional_fields,
+        },
+    ))
+}
+
+fn parse_tuple_fields(input: Source) -> Res<Source, Fields> {
+    let (input, (first_field, additional_fields_and_whitespace)) = (
+        parse_type_or_ident,
+        many0((
+            opt(whitespace),
+            tag(","),
+            opt(whitespace),
+            parse_type_or_ident,
+        )),
+    )
+        .parse(input)?;
+
+    let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
+    for (leading_whitespace, comma, trailing_whitespace, field) in additional_fields_and_whitespace
+    {
+        let source = if let Some(source) = leading_whitespace {
+            source.merge(&comma, "Comma expected after whitespace")
+        } else {
+            comma.clone()
+        }
+        .merge_some(
+            trailing_whitespace.as_ref(),
+            "Whitespace expected after comma",
+        );
+
+        additional_fields.push((source, field));
+    }
+
+    Ok((
+        input,
+        Fields::Tuple {
+            first_field,
+            additional_fields,
+        },
+    ))
+}
+
+fn parse_type_or_ident(input: Source) -> Res<Source, TypeOrIdent> {
+    let (input, ty) = opt(parse_type).parse(input)?;
+
+    if let Some(ty) = ty {
+        return Ok((input, TypeOrIdent::Type(Box::new(ty))));
+    }
+
+    let (input, ident) = ident.parse(input)?;
+
+    Ok((input, TypeOrIdent::Identifier(ident)))
+}
+
+pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
+    let (
+        input,
+        (
             path_segments,
             type_name,
-            TypeOrIdent::Identifier(identifier),
+            _whitespace,
+            (_open_brace, _leading_whitespace, (fields, _trailing_whitespace, _close_brace)),
         ),
-    ))
+    ) = (
+        many0((parse_type_name, tag("::"))),
+        parse_type_name,
+        opt(whitespace),
+        alt((
+            (
+                tag("{"),
+                opt(whitespace),
+                cut((parse_struct_fields, opt(whitespace), tag("}"))),
+            ),
+            (
+                tag("("),
+                opt(whitespace),
+                cut((parse_tuple_fields, opt(whitespace), tag(")"))),
+            ),
+        )),
+    )
+        .parse(input)?;
+
+    Ok((input, Type(path_segments, type_name, fields)))
 }
 
 pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
@@ -293,7 +532,7 @@ fn parse_if_generic(input: Source) -> Res<Source, IfType> {
 
     if r#let.is_some() {
         let (input, ty) =
-            context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
+            context(r#"Expected a type after "let""#, cut(parse_type_or_ident)).parse(input)?;
         let (input, expression) = if ty.get_variables().len() == 1 {
             opt(preceded(
                 take_while(is_whitespace),

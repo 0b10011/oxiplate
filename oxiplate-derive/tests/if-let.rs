@@ -2,7 +2,7 @@ use oxiplate_derive::Oxiplate;
 
 enum Name {
     Actual(String),
-    Nickname(String),
+    Nickname { name: String },
     Missing,
 }
 
@@ -13,7 +13,7 @@ enum Name {
     {%- if let Some(cats_count) -%}
         {%- if let Name::Actual(name) -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname(name) -%}
+        {%- elseif let Name::Nickname { name } -%}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
@@ -21,7 +21,7 @@ enum Name {
     {%- else -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
-        {%- elseif let Name::Nickname(missing_name) = &name -%}
+        {%- elseif let Name::Nickname { name: missing_name } = &name -%}
             No cats nicknamed {{ missing_name }} found :(
         {%- else -%}
             No cats found :(
@@ -60,7 +60,9 @@ fn test_count_name() {
 fn test_name() {
     let data = Data {
         cats_count: None,
-        name: Ok(Name::Nickname(String::from("Sam"))),
+        name: Ok(Name::Nickname {
+            name: String::from("Sam"),
+        }),
     };
 
     assert_eq!(format!("{data}"), "No cats nicknamed Sam found :(");
