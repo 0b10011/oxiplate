@@ -1,0 +1,9 @@
+error: Expected `=`
+ --> tests/broken/if/if-let-multiple-without-expression.rs:8:25
+  |
+ 8 |   {%- if let Couple(a, b) -%}
+   |  _________________________^
+ 9 | |     {{ a }} + {{ b }} = {{ a + b }}
+10 | | {%- endif -%}
+11 | | "#
+   | |_^
