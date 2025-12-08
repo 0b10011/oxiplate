@@ -1,0 +1,9 @@
+error: Expect fields followed by `}`
+  --> tests/broken/if/if-let-malformed-struct.rs:10:20
+   |
+10 |   {%- if let Value { % } -%}
+   |  ____________________^
+11 | |     No value provided.
+12 | | {%- endif -%}
+13 | | "#
+   | |_^
