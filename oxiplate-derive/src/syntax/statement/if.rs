@@ -10,7 +10,6 @@ use nom::multi::many0;
 use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-use syn::Ident;
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
@@ -20,12 +19,9 @@ use crate::syntax::template::{Template, is_whitespace, whitespace};
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
-
-#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Type<'a> {
-    path_segments: Vec<(TypeName<'a>, Source<'a>)>,
-    name: TypeName<'a>,
+    path_segments: Vec<(Identifier<'a>, Source<'a>)>,
+    name: Identifier<'a>,
     fields: Fields<'a>,
     source: Source<'a>,
 }
@@ -40,8 +36,6 @@ impl<'a> Type<'a> {
 impl ToTokens for Type<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         for (type_name, separator) in &self.path_segments {
-            let type_name: proc_macro2::TokenStream =
-                type_name.0.parse().expect("Should be able to parse type");
             let separator: proc_macro2::TokenStream = separator
                 .as_str()
                 .parse()
@@ -51,11 +45,8 @@ impl ToTokens for Type<'_> {
             });
         }
 
-        let type_name: proc_macro2::TokenStream =
-            self.name.0.parse().expect("Should be able to parse type");
-
+        let type_name = &self.name;
         let fields = &self.fields;
-
         tokens.append_all(quote! {
             #type_name #fields
         });
@@ -96,7 +87,7 @@ impl ToTokens for TypeOrIdent<'_> {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
     If(ExpressionAccess<'a>),
-    IfLet(TypeOrIdent<'a>, Option<ExpressionAccess<'a>>),
+    IfLet(TypeOrIdent<'a>, ExpressionAccess<'a>),
 }
 
 #[derive(Debug)]
@@ -175,7 +166,7 @@ impl<'a> If<'a> {
                         tokens.append_all(quote! { if #expression { #template } });
                     }
                 }
-                IfType::IfLet(ty, Some(expression)) => {
+                IfType::IfLet(ty, expression) => {
                     let (expression, _expression_length) = expression.to_tokens(state);
 
                     let mut local_variables = ty.get_variables();
@@ -193,54 +184,6 @@ impl<'a> If<'a> {
                         tokens.append_all(quote! { else if let #ty = #expression { #template } });
                     } else {
                         tokens.append_all(quote! { if let #ty = #expression { #template } });
-                    }
-                }
-                IfType::IfLet(ty, None) => {
-                    let vars = ty.get_variables();
-
-                    let mut ident = None;
-                    for var in vars {
-                        if ident.is_none() {
-                            ident = Some(var);
-                        } else {
-                            // This should be caught during parsing,
-                            // but it's not a big deal if it makes it this far
-                            // since Rust will report a similar error as well.
-                            ident = None;
-                            break;
-                        }
-                    }
-
-                    let span = ty.source().span();
-                    let ident = if let Some(ident_str) = ident {
-                        let ident = Ident::new(ident_str, span);
-
-                        if state.local_variables.contains(ident_str) {
-                            quote_spanned! {span=> = &#ident }
-                        } else {
-                            quote_spanned! {span=> = &self.#ident }
-                        }
-                    } else {
-                        quote! {}
-                    };
-
-                    let mut local_variables = ty.get_variables();
-                    for value in state.local_variables {
-                        local_variables.insert(value);
-                    }
-                    let branch_state = &State {
-                        local_variables: &local_variables,
-                        ..*state
-                    };
-                    let (template, template_length) = template.to_tokens(branch_state);
-                    estimated_length = estimated_length.min(template_length);
-
-                    if is_elseif {
-                        tokens.append_all(
-                            quote_spanned! {span=> else if let #ty #ident { #template } },
-                        );
-                    } else {
-                        tokens.append_all(quote_spanned! {span=> if let #ty #ident { #template } });
                     }
                 }
             }
@@ -263,11 +206,10 @@ impl<'a> From<If<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_type_name(input: Source) -> Res<Source, TypeName> {
-    let (input, ident) =
-        take_while1(|char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
-            .parse(input)?;
-    Ok((input, TypeName(ident.as_str(), ident)))
+fn parse_type_fields(input: Source) -> Res<Source, Fields> {
+    let (input, fields) = opt(alt((parse_struct_fields, parse_tuple_fields))).parse(input)?;
+
+    Ok((input, fields.unwrap_or(Fields::Unit)))
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -313,46 +255,21 @@ enum Fields<'a> {
     Struct {
         first_field: Field<'a>,
         additional_fields: Vec<(Source<'a>, Field<'a>)>,
+        source: Source<'a>,
     },
     Tuple {
         first_field: TypeOrIdent<'a>,
         additional_fields: Vec<(Source<'a>, TypeOrIdent<'a>)>,
+        source: Source<'a>,
     },
+    Unit,
 }
 
 impl<'a> Fields<'a> {
-    fn source(&self) -> Source<'a> {
+    fn source(&self) -> Option<&Source<'a>> {
         match self {
-            Self::Struct {
-                first_field,
-                additional_fields,
-            } => {
-                let mut source = first_field.source().clone();
-                for (comma_and_whitespace, field) in additional_fields {
-                    source = source
-                        .merge(
-                            comma_and_whitespace,
-                            "Comma and whitespace expected after previous field",
-                        )
-                        .merge(field.source(), "Field expected after comma and whitespace");
-                }
-                source
-            }
-            Self::Tuple {
-                first_field,
-                additional_fields,
-            } => {
-                let mut source = first_field.source().clone();
-                for (comma_and_whitespace, field) in additional_fields {
-                    source = source
-                        .merge(
-                            comma_and_whitespace,
-                            "Comma and whitespace expected after previous field",
-                        )
-                        .merge(field.source(), "Field expected after comma and whitespace");
-                }
-                source
-            }
+            Self::Struct { source, .. } | Self::Tuple { source, .. } => Some(source),
+            Self::Unit => None,
         }
     }
 
@@ -362,6 +279,7 @@ impl<'a> Fields<'a> {
             Fields::Struct {
                 first_field,
                 additional_fields,
+                ..
             } => {
                 for var in first_field.get_variables() {
                     vars.insert(var);
@@ -375,6 +293,7 @@ impl<'a> Fields<'a> {
             Fields::Tuple {
                 first_field,
                 additional_fields,
+                ..
             } => {
                 for var in first_field.get_variables() {
                     vars.insert(var);
@@ -385,6 +304,7 @@ impl<'a> Fields<'a> {
                     }
                 }
             }
+            Fields::Unit => (),
         }
         vars
     }
@@ -396,6 +316,7 @@ impl ToTokens for Fields<'_> {
             Fields::Struct {
                 first_field,
                 additional_fields,
+                source,
             } => {
                 let mut fields = quote! { #first_field };
                 for (separator, field) in additional_fields {
@@ -404,19 +325,23 @@ impl ToTokens for Fields<'_> {
                     let separator = quote_spanned! {span=> #separator };
                     fields.append_all(quote! { #separator #field });
                 }
-                tokens.append_all(quote! { { #fields } });
+                let span = source.span();
+                tokens.append_all(quote_spanned! {span=> { #fields } });
             }
             Fields::Tuple {
                 first_field,
                 additional_fields,
+                source,
             } => {
                 let mut fields = quote! { #first_field };
                 for (separator, field) in additional_fields {
                     let span = separator.span();
                     fields.append_all(quote_spanned! {span=> , #field });
                 }
-                tokens.append_all(quote! { ( #fields ) });
+                let span = source.span();
+                tokens.append_all(quote_spanned! {span=> ( #fields ) });
             }
+            Fields::Unit => (),
         }
     }
 }
@@ -461,16 +386,45 @@ fn parse_field(input: Source) -> Res<Source, Field> {
 }
 
 fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
-    let (input, (first_field, additional_fields_and_whitespace)) = (
-        parse_field,
-        many0((opt(whitespace), tag(","), opt(whitespace), parse_field)),
+    let (
+        input,
+        (
+            leading_whitespace,
+            open_brace,
+            middle_whitespace,
+            (first_field, additional_fields_and_whitespace, trailing_whitespace, close_brace),
+        ),
+    ) = (
+        opt(whitespace),
+        tag("{"),
+        opt(whitespace),
+        context(
+            "Expect fields followed by `}`",
+            cut((
+                parse_field,
+                many0((opt(whitespace), tag(","), opt(whitespace), parse_field)),
+                opt(whitespace),
+                tag("}"),
+            )),
+        ),
     )
         .parse(input)?;
+
+    let mut source = if let Some(leading_whitespace) = leading_whitespace {
+        leading_whitespace.merge(&open_brace, "Open brace expected after whitespace")
+    } else {
+        open_brace
+    }
+    .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `{`")
+    .merge(
+        first_field.source(),
+        "First field expected after whitespace",
+    );
 
     let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
     for (leading_whitespace, comma, trailing_whitespace, field) in additional_fields_and_whitespace
     {
-        let source = if let Some(source) = leading_whitespace {
+        let comma_source = if let Some(source) = leading_whitespace {
             source.merge(&comma, "Comma expected after whitespace")
         } else {
             comma.clone()
@@ -480,34 +434,78 @@ fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
             "Whitespace expected after comma",
         );
 
-        additional_fields.push((source, field));
+        source = source
+            .merge(
+                &comma_source,
+                "Comma and whitespace expected after whitespace",
+            )
+            .merge(field.source(), "Field expected after whitespace");
+
+        additional_fields.push((comma_source, field));
     }
+
+    source = source
+        .merge_some(
+            trailing_whitespace.as_ref(),
+            "Whitespace expected after last field",
+        )
+        .merge(&close_brace, "Closing brace expected after whitespace");
 
     Ok((
         input,
         Fields::Struct {
             first_field,
             additional_fields,
+            source,
         },
     ))
 }
 
 fn parse_tuple_fields(input: Source) -> Res<Source, Fields> {
-    let (input, (first_field, additional_fields_and_whitespace)) = (
-        parse_type_or_ident,
-        many0((
-            opt(whitespace),
-            tag(","),
-            opt(whitespace),
-            parse_type_or_ident,
-        )),
+    let (
+        input,
+        (
+            leading_whitespace,
+            open_brace,
+            middle_whitespace,
+            (first_field, additional_fields_and_whitespace, trailing_whitespace, close_brace),
+        ),
+    ) = (
+        opt(whitespace),
+        tag("("),
+        opt(whitespace),
+        context(
+            "Expect fields followed by `)`",
+            cut((
+                parse_type_or_ident,
+                many0((
+                    opt(whitespace),
+                    tag(","),
+                    opt(whitespace),
+                    parse_type_or_ident,
+                )),
+                opt(whitespace),
+                tag(")"),
+            )),
+        ),
     )
         .parse(input)?;
+
+    let mut source = if let Some(leading_whitespace) = leading_whitespace {
+        leading_whitespace.merge(&open_brace, "Open brace expected after whitespace")
+    } else {
+        open_brace
+    }
+    .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `{`")
+    .merge(
+        first_field.source(),
+        "First field expected after whitespace",
+    );
 
     let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
     for (leading_whitespace, comma, trailing_whitespace, field) in additional_fields_and_whitespace
     {
-        let source = if let Some(source) = leading_whitespace {
+        let comma_source = if let Some(source) = leading_whitespace {
             source.merge(&comma, "Comma expected after whitespace")
         } else {
             comma.clone()
@@ -517,57 +515,52 @@ fn parse_tuple_fields(input: Source) -> Res<Source, Fields> {
             "Whitespace expected after comma",
         );
 
-        additional_fields.push((source, field));
+        source = source
+            .merge(
+                &comma_source,
+                "Comma and whitespace expected after whitespace",
+            )
+            .merge(field.source(), "Field expected after whitespace");
+
+        additional_fields.push((comma_source, field));
     }
+
+    source = source
+        .merge_some(
+            trailing_whitespace.as_ref(),
+            "Whitespace expected after last field",
+        )
+        .merge(&close_brace, "Closing brace expected after whitespace");
 
     Ok((
         input,
         Fields::Tuple {
             first_field,
             additional_fields,
+            source,
         },
     ))
 }
 
 fn parse_type_or_ident(input: Source) -> Res<Source, TypeOrIdent> {
-    let (input, ty) = opt(parse_type).parse(input)?;
+    let (input, ty) = parse_type.parse(input)?;
 
-    if let Some(ty) = ty {
-        return Ok((input, TypeOrIdent::Type(Box::new(ty))));
+    match (ty.path_segments.len(), &ty.fields) {
+        (0, Fields::Unit) => Ok((input, TypeOrIdent::Identifier(ty.name))),
+        _ => Ok((input, TypeOrIdent::Type(Box::new(ty)))),
     }
-
-    let (input, ident) = ident.parse(input)?;
-
-    Ok((input, TypeOrIdent::Identifier(ident)))
 }
 
 pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
-    let (
-        input,
-        (
-            path_segments,
-            type_name,
-            whitespace,
-            (open_brace, leading_whitespace, (fields, trailing_whitespace, close_brace)),
-        ),
-    ) = (
-        many0((parse_type_name, tag("::"))),
-        parse_type_name,
-        opt(whitespace),
-        alt((
-            (
-                tag("{"),
-                opt(whitespace),
-                cut((parse_struct_fields, opt(whitespace), tag("}"))),
-            ),
-            (
-                tag("("),
-                opt(whitespace),
-                cut((parse_tuple_fields, opt(whitespace), tag(")"))),
-            ),
-        )),
-    )
-        .parse(input)?;
+    let (input, path_segments) = many0((ident, tag("::"))).parse(input)?;
+
+    let mut parser = (ident, parse_type_fields);
+
+    let (input, (type_name, fields)) = if path_segments.is_empty() {
+        parser.parse(input)?
+    } else {
+        context("Expected type name and optional fields", cut(parser)).parse(input)?
+    };
 
     let mut source: Option<Source> = None;
     for (_, segment_source) in &path_segments {
@@ -576,21 +569,10 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
         }));
     }
     let source = source
-        .map_or(type_name.1.clone(), |source| {
-            source.merge(&type_name.1, "Type name expected after path segments")
+        .map_or(type_name.source.clone(), |source| {
+            source.merge(&type_name.source, "Type name expected after path segments")
         })
-        .merge_some(whitespace.as_ref(), "Whitespace expected after type name")
-        .merge(&open_brace, "Open brace expected after whitespace")
-        .merge_some(
-            leading_whitespace.as_ref(),
-            "Whitespace expected after open brace",
-        )
-        .merge(&fields.source(), "Fields expected after whitespace")
-        .merge_some(
-            trailing_whitespace.as_ref(),
-            "Whitespace expected after fields",
-        )
-        .merge(&close_brace, "Close brace expected after whitespace");
+        .merge_some(fields.source(), "Fields expected after type name");
 
     Ok((
         input,
@@ -631,38 +613,20 @@ fn parse_if_generic(input: Source) -> Res<Source, IfType> {
     if r#let.is_some() {
         let (input, ty) =
             context(r#"Expected a type after "let""#, cut(parse_type_or_ident)).parse(input)?;
-        let (input, expression) = if ty.get_variables().len() == 1 {
-            opt(preceded(
-                take_while(is_whitespace),
+        let (input, expression) = preceded(
+            take_while(is_whitespace),
+            preceded(
+                context("Expected `=`", cut(char('='))),
                 preceded(
-                    char('='),
-                    preceded(
-                        take_while(is_whitespace),
-                        context(
-                            "Expected an expression after `=`",
-                            cut(expression(true, true)),
-                        ),
+                    take_while(is_whitespace),
+                    context(
+                        "Expected an expression after `=`",
+                        cut(expression(true, true)),
                     ),
                 ),
-            ))
-            .parse(input)?
-        } else {
-            let (input, expression) = preceded(
-                take_while(is_whitespace),
-                preceded(
-                    context("Expected `=`", cut(char('='))),
-                    preceded(
-                        take_while(is_whitespace),
-                        context(
-                            "Expected an expression after `=`",
-                            cut(expression(true, true)),
-                        ),
-                    ),
-                ),
-            )
-            .parse(input)?;
-            (input, Some(expression))
-        };
+            ),
+        )
+        .parse(input)?;
         Ok((input, IfType::IfLet(ty, expression)))
     } else {
         let (input, output) = context(

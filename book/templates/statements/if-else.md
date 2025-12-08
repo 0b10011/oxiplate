@@ -54,28 +54,3 @@ assert_eq!("<p>The count is 19.</p>", format!("{}", YourStruct {
     count: Some(19),
 }));
 ```
-
-Additionally,
-for single-variable situations where borrowing is acceptable,
-the `= variable` part can be skipped
-(`= &variable` will be inserted automatically):
-
-```rust
-#[derive(Oxiplate)]
-#[oxiplate_inline(html: r#"
-<p>
-    {%- if let Some(count) -%}
-        The count is {{ count }}.
-    {%- else -%}
-        No count provided.
-    {%- endif -%}
-</p>
-"#)]
-struct YourStruct {
-    count: Option<i64>,
-}
-
-assert_eq!("<p>The count is 19.</p>", format!("{}", YourStruct {
-    count: Some(19),
-}));
-```

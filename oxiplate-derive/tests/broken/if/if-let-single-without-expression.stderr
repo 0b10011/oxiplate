@@ -1,0 +1,9 @@
+error: Expected `=`
+ --> tests/broken/if/if-let-single-without-expression.rs:8:21
+  |
+ 8 |   {%- if let Value(a) -%}
+   |  _____________________^
+ 9 | |     {{ a }}
+10 | | {%- endif -%}
+11 | | "#
+   | |_^

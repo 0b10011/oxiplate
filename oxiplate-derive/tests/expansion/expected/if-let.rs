@@ -11,11 +11,11 @@ enum Name {
 }
 #[oxiplate_inline(
     "
-{%- if let Ok(name) -%}
-    {%- if let Some(cats_count) -%}
-        {%- if let Name::Actual(name) -%}
+{%- if let Ok(name) = &name -%}
+    {%- if let Some(cats_count) = cats_count -%}
+        {%- if let Name::Actual(name) = name -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname { name } -%}
+        {%- elseif let Name::Nickname { name } = name -%}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
@@ -44,14 +44,14 @@ impl ::std::fmt::Display for Data {
             let mut string = String::with_capacity(13usize);
             let f = &mut string;
             if let Ok(name) = &self.name {
-                if let Some(cats_count) = &self.cats_count {
-                    if let Name::Actual(name) = &name {
+                if let Some(cats_count) = self.cats_count {
+                    if let Name::Actual(name) = name {
                         f.write_str("Found ")?;
                         f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         f.write_str(" cats named ")?;
                         f.write_str(&::std::string::ToString::to_string(&(name)))?;
                         f.write_str("!")?;
-                    } else if let Name::Nickname { name } = &name {
+                    } else if let Name::Nickname { name } = name {
                         f.write_str("Found ")?;
                         f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         f.write_str(" cats nicknamed ")?;

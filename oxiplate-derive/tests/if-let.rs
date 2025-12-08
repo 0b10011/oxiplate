@@ -9,11 +9,11 @@ enum Name {
 #[derive(Oxiplate)]
 #[oxiplate_inline(
     "
-{%- if let Ok(name) -%}
-    {%- if let Some(cats_count) -%}
-        {%- if let Name::Actual(name) -%}
+{%- if let Ok(name) = &name -%}
+    {%- if let Some(cats_count) = cats_count -%}
+        {%- if let Name::Actual(name) = name -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname { name } -%}
+        {%- elseif let Name::Nickname { name } = name -%}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
