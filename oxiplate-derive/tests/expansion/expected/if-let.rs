@@ -15,7 +15,8 @@ enum Name {
     {%- if let Some(cats_count) = cats_count -%}
         {%- if let Name::Actual(name) = name -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname { name } = name -%}
+        {%- elseif let Name::Nickname{name}=name -%}
+            {# Extra whitespace intentionally skipped for coverage purposes -#}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
@@ -96,9 +97,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 40usize,
+        start_line: 41usize,
         start_col: 4usize,
-        end_line: 40usize,
+        end_line: 41usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -143,9 +144,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 50usize,
+        start_line: 51usize,
         start_col: 4usize,
-        end_line: 50usize,
+        end_line: 51usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -190,9 +191,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 60usize,
+        start_line: 61usize,
         start_col: 4usize,
-        end_line: 60usize,
+        end_line: 61usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -236,9 +237,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 72usize,
+        start_line: 73usize,
         start_col: 4usize,
-        end_line: 72usize,
+        end_line: 73usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

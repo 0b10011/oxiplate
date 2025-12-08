@@ -13,7 +13,8 @@ enum Name {
     {%- if let Some(cats_count) = cats_count -%}
         {%- if let Name::Actual(name) = name -%}
             Found {{ cats_count }} cats named {{ name }}!
-        {%- elseif let Name::Nickname { name } = name -%}
+        {%- elseif let Name::Nickname{name}=name -%}
+            {# Extra whitespace intentionally skipped for coverage purposes -#}
             Found {{ cats_count }} cats nicknamed {{ name }}!
         {%- else -%}
             Found {{ cats_count }} cats!
