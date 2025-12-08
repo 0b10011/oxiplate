@@ -11,7 +11,6 @@ use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::Ident;
-use syn::spanned::Spanned;
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
@@ -24,19 +23,23 @@ use crate::{Source, State};
 pub(crate) struct TypeName<'a>(&'a str, Source<'a>);
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Type<'a>(Vec<(TypeName<'a>, Source<'a>)>, TypeName<'a>, Fields<'a>);
+pub(crate) struct Type<'a> {
+    path_segments: Vec<(TypeName<'a>, Source<'a>)>,
+    name: TypeName<'a>,
+    fields: Fields<'a>,
+    source: Source<'a>,
+}
 
 impl<'a> Type<'a> {
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
-        match self {
-            Type(_, _, fields) => fields.get_variables(),
-        }
+        let Type { fields, .. } = self;
+        fields.get_variables()
     }
 }
 
 impl ToTokens for Type<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        for (type_name, separator) in &self.0 {
+        for (type_name, separator) in &self.path_segments {
             let type_name: proc_macro2::TokenStream =
                 type_name.0.parse().expect("Should be able to parse type");
             let separator: proc_macro2::TokenStream = separator
@@ -49,9 +52,9 @@ impl ToTokens for Type<'_> {
         }
 
         let type_name: proc_macro2::TokenStream =
-            self.1.0.parse().expect("Should be able to parse type");
+            self.name.0.parse().expect("Should be able to parse type");
 
-        let fields = &self.2;
+        let fields = &self.fields;
 
         tokens.append_all(quote! {
             #type_name #fields
@@ -61,12 +64,18 @@ impl ToTokens for Type<'_> {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum TypeOrIdent<'a> {
-    #[allow(dead_code)]
     Type(Box<Type<'a>>),
     Identifier(Identifier<'a>),
 }
 
 impl<'a> TypeOrIdent<'a> {
+    fn source(&self) -> &Source<'a> {
+        match self {
+            Self::Type(ty) => &ty.source,
+            Self::Identifier(ident) => &ident.source,
+        }
+    }
+
     fn get_variables(&'a self) -> HashSet<&'a str> {
         match self {
             Self::Type(ty) => ty.get_variables(),
@@ -194,14 +203,17 @@ impl<'a> If<'a> {
                         if ident.is_none() {
                             ident = Some(var);
                         } else {
+                            // This should be caught during parsing,
+                            // but it's not a big deal if it makes it this far
+                            // since Rust will report a similar error as well.
                             ident = None;
                             break;
                         }
                     }
 
-                    let span = ty.span();
+                    let span = ty.source().span();
                     let ident = if let Some(ident_str) = ident {
-                        let ident = Ident::new(ident_str, ty.span());
+                        let ident = Ident::new(ident_str, span);
 
                         if state.local_variables.contains(ident_str) {
                             quote_spanned! {span=> = &#ident }
@@ -224,9 +236,11 @@ impl<'a> If<'a> {
                     estimated_length = estimated_length.min(template_length);
 
                     if is_elseif {
-                        tokens.append_all(quote! { else if let #ty #ident { #template } });
+                        tokens.append_all(
+                            quote_spanned! {span=> else if let #ty #ident { #template } },
+                        );
                     } else {
-                        tokens.append_all(quote! { if let #ty #ident { #template } });
+                        tokens.append_all(quote_spanned! {span=> if let #ty #ident { #template } });
                     }
                 }
             }
@@ -262,14 +276,22 @@ enum Field<'a> {
     Type {
         ident: Identifier<'a>,
         ty: TypeOrIdent<'a>,
+        source: Source<'a>,
     },
 }
 
 impl<'a> Field<'a> {
+    fn source(&self) -> &Source<'a> {
+        match self {
+            Self::Ident(ident) => &ident.source,
+            Self::Type { source, .. } => source,
+        }
+    }
+
     fn get_variables(&'a self) -> HashSet<&'a str> {
         match self {
             Self::Ident(Identifier { ident, source: _ }) => HashSet::from([*ident]),
-            Self::Type { ident: _, ty } => ty.get_variables(),
+            Self::Type { ty, .. } => ty.get_variables(),
         }
     }
 }
@@ -278,8 +300,8 @@ impl ToTokens for Field<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             Self::Ident(ident) => tokens.append_all(quote! { #ident }),
-            Self::Type { ident, ty } => {
-                let span = ident.span();
+            Self::Type { ident, ty, source } => {
+                let span = source.span();
                 tokens.append_all(quote_spanned! {span=> #ident: #ty });
             }
         }
@@ -299,6 +321,41 @@ enum Fields<'a> {
 }
 
 impl<'a> Fields<'a> {
+    fn source(&self) -> Source<'a> {
+        match self {
+            Self::Struct {
+                first_field,
+                additional_fields,
+            } => {
+                let mut source = first_field.source().clone();
+                for (comma_and_whitespace, field) in additional_fields {
+                    source = source
+                        .merge(
+                            comma_and_whitespace,
+                            "Comma and whitespace expected after previous field",
+                        )
+                        .merge(field.source(), "Field expected after comma and whitespace");
+                }
+                source
+            }
+            Self::Tuple {
+                first_field,
+                additional_fields,
+            } => {
+                let mut source = first_field.source().clone();
+                for (comma_and_whitespace, field) in additional_fields {
+                    source = source
+                        .merge(
+                            comma_and_whitespace,
+                            "Comma and whitespace expected after previous field",
+                        )
+                        .merge(field.source(), "Field expected after comma and whitespace");
+                }
+                source
+            }
+        }
+    }
+
     fn get_variables(&'a self) -> HashSet<&'a str> {
         let mut vars: HashSet<&'a str> = HashSet::new();
         match &self {
@@ -376,8 +433,26 @@ fn parse_field(input: Source) -> Res<Source, Field> {
     )
         .parse(input)?;
 
-    let field = if let Some((_leading_whitespace, _colon, _trailing_whitespace, ty)) = value {
-        Field::Type { ident: name, ty }
+    let field = if let Some((leading_whitespace, colon, trailing_whitespace, ty)) = value {
+        let source = name
+            .source
+            .clone()
+            .merge_some(
+                leading_whitespace.as_ref(),
+                "Whitespace expected after name",
+            )
+            .merge(&colon, "Colon expected after whitespace")
+            .merge_some(
+                trailing_whitespace.as_ref(),
+                "Whitespace expected after colon",
+            )
+            .merge(ty.source(), "Type expected after whitespace");
+
+        Field::Type {
+            ident: name,
+            ty,
+            source,
+        }
     } else {
         Field::Ident(name)
     };
@@ -472,8 +547,8 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
         (
             path_segments,
             type_name,
-            _whitespace,
-            (_open_brace, _leading_whitespace, (fields, _trailing_whitespace, _close_brace)),
+            whitespace,
+            (open_brace, leading_whitespace, (fields, trailing_whitespace, close_brace)),
         ),
     ) = (
         many0((parse_type_name, tag("::"))),
@@ -494,7 +569,38 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
     )
         .parse(input)?;
 
-    Ok((input, Type(path_segments, type_name, fields)))
+    let mut source: Option<Source> = None;
+    for (_, segment_source) in &path_segments {
+        source = Some(source.map_or(segment_source.clone(), |source| {
+            source.merge(segment_source, "Segment expected after previous segment")
+        }));
+    }
+    let source = source
+        .map_or(type_name.1.clone(), |source| {
+            source.merge(&type_name.1, "Type name expected after path segments")
+        })
+        .merge_some(whitespace.as_ref(), "Whitespace expected after type name")
+        .merge(&open_brace, "Open brace expected after whitespace")
+        .merge_some(
+            leading_whitespace.as_ref(),
+            "Whitespace expected after open brace",
+        )
+        .merge(&fields.source(), "Fields expected after whitespace")
+        .merge_some(
+            trailing_whitespace.as_ref(),
+            "Whitespace expected after fields",
+        )
+        .merge(&close_brace, "Close brace expected after whitespace");
+
+    Ok((
+        input,
+        Type {
+            path_segments,
+            name: type_name,
+            fields,
+            source,
+        },
+    ))
 }
 
 pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
