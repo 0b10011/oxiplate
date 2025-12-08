@@ -98,14 +98,6 @@ pub(crate) struct If<'a> {
 }
 
 impl<'a> If<'a> {
-    pub fn get_active_variables(&'a self) -> HashSet<&'a str> {
-        match self.ifs.last() {
-            Some((IfType::If(_), _)) => HashSet::new(),
-            Some((IfType::IfLet(ty, _), _)) => ty.get_variables(),
-            None => unreachable!("If statements should always have at least one if"),
-        }
-    }
-
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             unreachable!(

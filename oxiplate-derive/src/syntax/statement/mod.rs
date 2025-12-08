@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 mod block;
 mod escaper;
 mod extends;
@@ -87,14 +85,6 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub fn get_active_variables(&'a self) -> HashSet<&'a str> {
-        match &self.kind {
-            StatementKind::For(statement) => statement.get_active_variables(),
-            StatementKind::If(statement) => statement.get_active_variables(),
-            _ => HashSet::new(),
-        }
-    }
-
     pub(crate) fn to_tokens(
         &self,
         state: &State,
@@ -122,17 +112,7 @@ impl<'a> Statement<'a> {
                     Ok(statement.to_tokens(state))
                 }
             }
-            StatementKind::Block(block) => {
-                let mut local_variables = self.get_active_variables();
-                for value in state.local_variables {
-                    local_variables.insert(value);
-                }
-                let state = &State {
-                    local_variables: &local_variables,
-                    ..*state
-                };
-                Ok(block.to_tokens(state))
-            }
+            StatementKind::Block(block) => Ok(block.to_tokens(state)),
             StatementKind::Parent => unexpected!("parent"),
             StatementKind::EndBlock => unexpected!("endblock"),
 
