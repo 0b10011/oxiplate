@@ -12,7 +12,7 @@ use super::{Expression, Res};
 use crate::Source;
 
 /// Parses a bool value: `true` or `false`
-pub(super) fn bool(input: Source) -> Res<Source, Expression> {
+pub(crate) fn bool(input: Source) -> Res<Source, Expression> {
     let (input, source) = alt((tag("true"), tag("false"))).parse(input)?;
     let bool = match source.as_str() {
         "true" => true,
@@ -25,7 +25,7 @@ pub(super) fn bool(input: Source) -> Res<Source, Expression> {
 
 /// Parse a number.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
-pub(super) fn number(input: Source) -> Res<Source, Expression> {
+pub(crate) fn number(input: Source) -> Res<Source, Expression> {
     alt((alternative_bases, decimal)).parse(input)
 }
 
@@ -157,7 +157,7 @@ fn integer_literal(input: Source) -> Res<Source, Source> {
 
 /// Parse char literal (e.g., `'a'`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
-pub(super) fn char(input: Source) -> Res<Source, Expression> {
+pub(crate) fn char(input: Source) -> Res<Source, Expression> {
     let (input, (opening_quote, value, closing_quote)) = (
         tag("'"),
         context(
@@ -224,7 +224,7 @@ pub(super) fn char(input: Source) -> Res<Source, Expression> {
     Ok((input, Expression::Char { value, source }))
 }
 
-pub(super) fn string(input: Source) -> Res<Source, Expression> {
+pub(crate) fn string(input: Source) -> Res<Source, Expression> {
     let (input, (opening_hashes, opening_quote)) =
         pair(take_while(|c| c == '#'), tag("\"")).parse(input)?;
 

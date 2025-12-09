@@ -272,10 +272,105 @@ fn test_none() {
         }
     };
 }
+struct Multiple {
+    a: usize,
+    b: char,
+    c: &'static str,
+    d: bool,
+}
+#[oxiplate_inline(
+    r#"
+{%- if let Multiple { a: 10,b:'b' , c: "19", d: false } = multiple -%}
+    bad
+{%- elseif let Multiple { a: 10,b:'b' , c: "19", d: true } = multiple -%}
+    yes
+{%- else -%}
+    no
+{%- endif -%}
+"#
+)]
+struct MultipleWrapper {
+    multiple: Multiple,
+}
+impl ::std::fmt::Display for MultipleWrapper {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(2usize);
+            let f = &mut string;
+            if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
+                f.write_str("bad")?;
+            } else if let Multiple { a: 10, b: 'b', c: "19", d: true } = self.multiple {
+                f.write_str("yes")?;
+            } else {
+                f.write_str("no")?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "test_multiple"]
+#[doc(hidden)]
+pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("test_multiple"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 106usize,
+        start_col: 4usize,
+        end_line: 106usize,
+        end_col: 17usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_multiple()),
+    ),
+};
+fn test_multiple() {
+    match (
+        &"yes",
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    MultipleWrapper {
+                        multiple: Multiple {
+                            a: 10,
+                            b: 'b',
+                            c: "19",
+                            d: true,
+                        },
+                    },
+                ),
+            )
+        }),
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    }
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test_count, &test_count_name, &test_name, &test_none])
+    test::test_main_static(
+        &[&test_count, &test_count_name, &test_multiple, &test_name, &test_none],
+    )
 }

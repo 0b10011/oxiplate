@@ -23,7 +23,7 @@ use self::concat::Concat;
 use self::ident::IdentifierOrFunction;
 pub(super) use self::ident::{Identifier, ident, identifier};
 pub(super) use self::keyword::{Keyword, keyword};
-use self::literal::{bool, char, number, string};
+pub(super) use self::literal::{bool, char, number, string};
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};

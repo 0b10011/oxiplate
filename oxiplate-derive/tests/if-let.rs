@@ -78,3 +78,44 @@ fn test_none() {
 
     assert_eq!(format!("{data}"), "No cats found :(");
 }
+
+struct Multiple {
+    a: usize,
+    b: char,
+    c: &'static str,
+    d: bool,
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- if let Multiple { a: 10,b:'b' , c: "19", d: false } = multiple -%}
+    bad
+{%- elseif let Multiple { a: 10,b:'b' , c: "19", d: true } = multiple -%}
+    yes
+{%- else -%}
+    no
+{%- endif -%}
+"#
+)]
+struct MultipleWrapper {
+    multiple: Multiple,
+}
+
+#[test]
+fn test_multiple() {
+    assert_eq!(
+        "yes",
+        format!(
+            "{}",
+            MultipleWrapper {
+                multiple: Multiple {
+                    a: 10,
+                    b: 'b',
+                    c: "19",
+                    d: true
+                }
+            }
+        )
+    )
+}
