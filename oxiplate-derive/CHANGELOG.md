@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.12.2...oxiplate-derive-v0.13.0) - 2025-12-09
+
+### Added
+
+- added support for literals as values when destructuring
+- improved span information for if let destructuring
+- added `if let` destructuring for tuple structs with more than one field and c/unit structs
+
+### Fixed
+
+- [**breaking**] added support for unit structs, but removed automatic insertion of variable assignment in if let statements to improve related error messages
+
+### Other
+
+- adjusted test to cover more lines
+- added test for malformed struct field
+- added test for 2 tuple fields without an expression
+- removed unused local variable code
+
 ## [0.12.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.12.1...oxiplate-derive-v0.12.2) - 2025-12-05
 
 ### Fixed
