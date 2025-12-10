@@ -1,0 +1,9 @@
+error: Expected a space
+ --> tests/broken/if/if-let-missing-space-after-if.rs:6:7
+  |
+6 |   {%- ifvalue == true -%}
+  |  _______^
+7 | |     Data found.
+8 | | {%- endif -%}
+9 | | "#
+  | |_^

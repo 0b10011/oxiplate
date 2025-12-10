@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use nom::Parser as _;
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_while, take_while1};
+use nom::bytes::complete::tag;
 use nom::character::complete::char as nom_char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
@@ -15,7 +15,7 @@ use super::super::expression::{bool, char, expression, number, string};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::{Expression, ExpressionAccess, Identifier, ident};
-use crate::syntax::template::{Template, is_whitespace, whitespace};
+use crate::syntax::template::{Template, whitespace};
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -621,7 +621,7 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
 pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
     let (input, statement_source) = tag("if")(input)?;
 
-    let (input, if_type) = parse_if_generic(input)?;
+    let (input, if_type) = cut(parse_if_generic).parse(input)?;
 
     Ok((
         input,
@@ -639,19 +639,19 @@ pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
 
 fn parse_if_generic(input: Source) -> Res<Source, IfType> {
     // Consume at least one whitespace.
-    let (input, _) = take_while1(is_whitespace).parse(input)?;
+    let (input, _) = context("Expected a space", whitespace).parse(input)?;
 
-    let (input, r#let) = cut(opt((tag("let"), take_while1(is_whitespace)))).parse(input)?;
+    let (input, r#let) = opt((tag("let"), whitespace)).parse(input)?;
 
     if r#let.is_some() {
         let (input, ty) =
             context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
         let (input, expression) = preceded(
-            take_while(is_whitespace),
+            opt(whitespace),
             preceded(
                 context("Expected `=`", cut(nom_char('='))),
                 preceded(
-                    take_while(is_whitespace),
+                    opt(whitespace),
                     context(
                         "Expected an expression after `=`",
                         cut(expression(true, true)),
@@ -674,7 +674,7 @@ fn parse_if_generic(input: Source) -> Res<Source, IfType> {
 pub(super) fn parse_elseif(input: Source) -> Res<Source, Statement> {
     let (input, statement_source) = tag("elseif").parse(input)?;
 
-    let (input, if_type) = parse_if_generic(input)?;
+    let (input, if_type) = cut(parse_if_generic).parse(input)?;
 
     Ok((
         input,
