@@ -32,6 +32,7 @@ macro_rules! token_error {
 /// Expression to output and the specified escaper.
 /// If no escaper is provided,
 /// the _default_ escaper is assumed.
+#[derive(Debug)]
 pub(crate) struct Writ<'a> {
     escaper: Option<Escaper<'a>>,
     expression: ExpressionAccess<'a>,
@@ -321,21 +322,13 @@ impl<'a> Writ<'a> {
     }
 }
 
-impl Debug for Writ<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Writ")
-            .field(&self.expression)
-            .field(&"escaper path is skipped")
-            .finish()
-    }
-}
-
 impl<'a> From<Writ<'a>> for Item<'a> {
     fn from(writ: Writ<'a>) -> Self {
         Item::Writ(writ)
     }
 }
 
+#[derive(Debug)]
 struct Escaper<'a> {
     group: Option<Identifier<'a>>,
     escaper: Identifier<'a>,
