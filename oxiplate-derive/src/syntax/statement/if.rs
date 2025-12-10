@@ -94,29 +94,10 @@ pub(crate) enum TypeOrIdent<'a> {
     Identifier(Identifier<'a>),
 }
 
-impl<'a> TypeOrIdent<'a> {
-    fn get_variables(&'a self) -> HashSet<&'a str> {
-        match self {
-            Self::Type(ty) => ty.get_variables(),
-            Self::Identifier(ident) => HashSet::from([ident.ident]),
-        }
-    }
-
-    fn to_tokens(&self, state: &State) -> TokenStream {
-        match self {
-            Self::Type(ty) => {
-                let ty = ty.to_tokens(state);
-                quote! { #ty }
-            }
-            Self::Identifier(ident) => quote! { #ident },
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
     If(ExpressionAccess<'a>),
-    IfLet(TypeOrIdent<'a>, ExpressionAccess<'a>),
+    IfLet(Type<'a>, ExpressionAccess<'a>),
 }
 
 #[derive(Debug)]
@@ -654,7 +635,7 @@ fn parse_if_generic(input: Source) -> Res<Source, IfType> {
 
     if r#let.is_some() {
         let (input, ty) =
-            context(r#"Expected a type after "let""#, cut(parse_type_or_ident)).parse(input)?;
+            context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
         let (input, expression) = preceded(
             take_while(is_whitespace),
             preceded(
