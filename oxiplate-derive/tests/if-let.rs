@@ -120,3 +120,58 @@ fn test_multiple() {
         )
     )
 }
+
+struct InnerA {
+    value: usize,
+}
+struct InnerB(usize);
+
+struct MiddleA {
+    a: InnerA,
+    b: InnerB,
+}
+
+struct MiddleB(InnerA, InnerB);
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = a -%}
+    a.b: {{ b }}
+{%- elseif let MiddleB(InnerA { value: a }, InnerB(42)) = b -%}
+    b.a: {{ a }}
+{%- endif -%}
+"#
+)]
+struct Outer {
+    a: MiddleA,
+    b: MiddleB,
+}
+
+#[test]
+fn nested() {
+    macro_rules! a {
+        ($a:literal, $b:literal) => {
+            MiddleA {
+                a: InnerA { value: $a },
+                b: InnerB($b),
+            }
+        };
+    }
+    macro_rules! b {
+        ($a:literal, $b:literal) => {
+            MiddleB(InnerA { value: $a }, InnerB($b))
+        };
+    }
+    macro_rules! outer {
+        ($aa:literal, $ab:literal, $ba:literal, $bb:literal) => {
+            Outer {
+                a: a!($aa, $ab),
+                b: b!($ba, $bb),
+            }
+        };
+    }
+    assert_eq!(format!("{}", outer!(42, 19, 89, 42)), "a.b: 19");
+    assert_eq!(format!("{}", outer!(64, 19, 89, 42)), "b.a: 89");
+    assert_eq!(format!("{}", outer!(64, 19, 89, 16)), "");
+}

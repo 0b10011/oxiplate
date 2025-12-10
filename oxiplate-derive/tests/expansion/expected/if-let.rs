@@ -366,12 +366,161 @@ fn test_multiple() {
         }
     }
 }
+struct InnerA {
+    value: usize,
+}
+struct InnerB(usize);
+struct MiddleA {
+    a: InnerA,
+    b: InnerB,
+}
+struct MiddleB(InnerA, InnerB);
+#[oxiplate_inline(
+    r#"
+{%- if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = a -%}
+    a.b: {{ b }}
+{%- elseif let MiddleB(InnerA { value: a }, InnerB(42)) = b -%}
+    b.a: {{ a }}
+{%- endif -%}
+"#
+)]
+struct Outer {
+    a: MiddleA,
+    b: MiddleB,
+}
+impl ::std::fmt::Display for Outer {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(6usize);
+            let f = &mut string;
+            if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
+                f.write_str("a.b: ")?;
+                f.write_str(&::std::string::ToString::to_string(&(b)))?;
+            } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
+                f.write_str("b.a: ")?;
+                f.write_str(&::std::string::ToString::to_string(&(a)))?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "nested"]
+#[doc(hidden)]
+pub const nested: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("nested"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 152usize,
+        start_col: 4usize,
+        end_line: 152usize,
+        end_col: 10usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(nested())),
+};
+fn nested() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 42 },
+                            b: InnerB(19),
+                        },
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                    },
+                ),
+            )
+        }),
+        &"a.b: 19",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 64 },
+                            b: InnerB(19),
+                        },
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                    },
+                ),
+            )
+        }),
+        &"b.a: 89",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 64 },
+                            b: InnerB(19),
+                        },
+                        b: MiddleB(InnerA { value: 89 }, InnerB(16)),
+                    },
+                ),
+            )
+        }),
+        &"",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(
-        &[&test_count, &test_count_name, &test_multiple, &test_name, &test_none],
+        &[&nested, &test_count, &test_count_name, &test_multiple, &test_name, &test_none],
     )
 }
