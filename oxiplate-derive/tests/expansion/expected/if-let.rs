@@ -13,7 +13,8 @@ enum Name {
     "
 {%- if let Ok(name) = &name -%}
     {%- if let Some(cats_count) = cats_count -%}
-        {%- if let Name::Actual(name) = name -%}
+        {%- if let Name::Actual ( name ) = name -%}
+            {# Extra whitespace intentionally inserted for coverage purposes -#}
             Found {{ cats_count }} cats named {{ name }}!
         {%- elseif let Name::Nickname{name}=name -%}
             {# Extra whitespace intentionally skipped for coverage purposes -#}
@@ -97,9 +98,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 41usize,
+        start_line: 42usize,
         start_col: 4usize,
-        end_line: 41usize,
+        end_line: 42usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -144,9 +145,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 51usize,
+        start_line: 52usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 52usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -191,9 +192,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 61usize,
+        start_line: 62usize,
         start_col: 4usize,
-        end_line: 61usize,
+        end_line: 62usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -237,9 +238,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 73usize,
+        start_line: 74usize,
         start_col: 4usize,
-        end_line: 73usize,
+        end_line: 74usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -319,9 +320,9 @@ pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 106usize,
+        start_line: 107usize,
         start_col: 4usize,
-        end_line: 106usize,
+        end_line: 107usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
