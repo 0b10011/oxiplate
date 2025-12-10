@@ -20,7 +20,7 @@ enum Name {
         {%- else -%}
             Found {{ cats_count }} cats!
         {%- endif -%}
-    {%- elseif let None = cats_count -%}
+    {%- elseif let std::option::Option::None = cats_count -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
         {%- elseif let Name::Nickname { name: missing_name } = &name -%}

@@ -586,10 +586,20 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
     };
 
     let mut source: Option<Source> = None;
-    for (_, segment_source) in &path_segments {
-        source = Some(source.map_or(segment_source.clone(), |source| {
-            source.merge(segment_source, "Segment expected after previous segment")
-        }));
+    for (ident, path_separator) in &path_segments {
+        source = Some(
+            source
+                .map_or(ident.source.clone(), |source| {
+                    source.merge(
+                        &ident.source,
+                        "Segment name expected after previous segment",
+                    )
+                })
+                .merge(
+                    path_separator,
+                    "Path separator (`::`) expected after segment name",
+                ),
+        );
     }
     let source = source
         .map_or(type_name.source.clone(), |source| {

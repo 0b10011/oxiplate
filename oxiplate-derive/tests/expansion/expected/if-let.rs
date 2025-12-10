@@ -22,7 +22,7 @@ enum Name {
         {%- else -%}
             Found {{ cats_count }} cats!
         {%- endif -%}
-    {%- elseif let None = cats_count -%}
+    {%- elseif let std::option::Option::None = cats_count -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
         {%- elseif let Name::Nickname { name: missing_name } = &name -%}
@@ -64,7 +64,7 @@ impl ::std::fmt::Display for Data {
                         f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         f.write_str(" cats!")?;
                     }
-                } else if let None = self.cats_count {
+                } else if let std::option::Option::None = self.cats_count {
                     if let Name::Actual(missing_name) = &name {
                         f.write_str("No cats named ")?;
                         f.write_str(
