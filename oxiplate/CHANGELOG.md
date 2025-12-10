@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.13.0...oxiplate-v0.14.0) - 2025-12-10
+
+### Fixed
+
+- started deriving `Debug` for `Writ`
+- improved error message for missing space after `if`/`elseif`
+- fixed handling of paths in destructuring
+
+### Other
+
+- added test for path segments without a final type name in destructuring
+- added test for malformed struct value
+- added test for space before comma in destructuring
+- added test for unit struct destructuring
+- [**breaking**] removed `if let` patterns using a variable instead of a type before the `=`
+- added tests for nested struct destructuring
+- added test for whitespace around parentheses in tuple structs
+
 ## [0.13.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.12.2...oxiplate-v0.13.0) - 2025-12-09
 
 ### Added
