@@ -22,7 +22,7 @@ enum Name {
         {%- else -%}
             Found {{ cats_count }} cats!
         {%- endif -%}
-    {%- else -%}
+    {%- elseif let None = cats_count -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
         {%- elseif let Name::Nickname { name: missing_name } = &name -%}
@@ -64,7 +64,7 @@ impl ::std::fmt::Display for Data {
                         f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         f.write_str(" cats!")?;
                     }
-                } else {
+                } else if let None = self.cats_count {
                     if let Name::Actual(missing_name) = &name {
                         f.write_str("No cats named ")?;
                         f.write_str(
@@ -377,9 +377,11 @@ struct MiddleA {
 struct MiddleB(InnerA, InnerB);
 #[oxiplate_inline(
     r#"
-{%- if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = a -%}
+{%- if let MiddleA { a: InnerA { value: 42 } , b: InnerB(b) } = a -%}
+    {# Extra whitespace before comma intentional for coverage -#}
     a.b: {{ b }}
-{%- elseif let MiddleB(InnerA { value: a }, InnerB(42)) = b -%}
+{%- elseif let MiddleB(InnerA { value: a } , InnerB(42)) = b -%}
+    {# Extra whitespace before comma intentional for coverage -#}
     b.a: {{ a }}
 {%- endif -%}
 "#
@@ -415,9 +417,9 @@ pub const nested: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 152usize,
+        start_line: 154usize,
         start_col: 4usize,
-        end_line: 152usize,
+        end_line: 154usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,

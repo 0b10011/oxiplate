@@ -136,9 +136,11 @@ struct MiddleB(InnerA, InnerB);
 #[derive(Oxiplate)]
 #[oxiplate_inline(
     r#"
-{%- if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = a -%}
+{%- if let MiddleA { a: InnerA { value: 42 } , b: InnerB(b) } = a -%}
+    {# Extra whitespace before comma intentional for coverage -#}
     a.b: {{ b }}
-{%- elseif let MiddleB(InnerA { value: a }, InnerB(42)) = b -%}
+{%- elseif let MiddleB(InnerA { value: a } , InnerB(42)) = b -%}
+    {# Extra whitespace before comma intentional for coverage -#}
     b.a: {{ a }}
 {%- endif -%}
 "#
