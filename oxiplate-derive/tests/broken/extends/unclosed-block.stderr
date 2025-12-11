@@ -1,0 +1,5 @@
+error: "block" statement is never closed (unexpected end of template)
+ --> tests/broken/extends/unclosed-block.rs:4:73
+  |
+4 | #[oxiplate_inline(r#"{% extends "extends.html.oxip" %}{% block content %}"#)]
+  |                                                                         ^
