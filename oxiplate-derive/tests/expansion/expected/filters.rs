@@ -37,9 +37,12 @@ mod filters_for_oxiplate {
         expression.to_string().replace(&from.to_string(), &to.to_string()).to_owned()
     }
 }
-#[oxiplate_inline(r#"{{ message | respond(false) }} {{ message | respond(true) }}"#)]
+#[oxiplate_inline(
+    r#"{{ message | respond(*respond) }} {{ message | respond(!*respond) }}"#
+)]
 struct Respond {
     message: &'static str,
+    respond: &'static bool,
 }
 impl ::std::fmt::Display for Respond {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -49,13 +52,13 @@ impl ::std::fmt::Display for Respond {
             let f = &mut string;
             f.write_str(
                 &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::respond(self.message, false)),
+                    &(crate::filters_for_oxiplate::respond(self.message, *self.respond)),
                 ),
             )?;
             f.write_str(" ")?;
             f.write_str(
                 &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::respond(self.message, true)),
+                    &(crate::filters_for_oxiplate::respond(self.message, !*self.respond)),
                 ),
             )?;
             string
@@ -72,9 +75,9 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 46usize,
+        start_line: 47usize,
         start_col: 4usize,
-        end_line: 46usize,
+        end_line: 47usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -86,7 +89,15 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
 fn respond() {
     match (
         &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", Respond { message: "hello" }))
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Respond {
+                        message: "hello",
+                        respond: &false,
+                    },
+                ),
+            )
         }),
         &"world WORLD",
     ) {
@@ -104,7 +115,15 @@ fn respond() {
     };
     match (
         &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", Respond { message: "goodbye" }))
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Respond {
+                        message: "goodbye",
+                        respond: &false,
+                    },
+                ),
+            )
         }),
         &"did not understand: goodbye did not understand: goodbye",
     ) {
@@ -154,9 +173,9 @@ pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 62usize,
+        start_line: 78usize,
         start_col: 4usize,
-        end_line: 62usize,
+        end_line: 78usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -249,9 +268,9 @@ pub const pad: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 93usize,
+        start_line: 109usize,
         start_col: 4usize,
-        end_line: 93usize,
+        end_line: 109usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -331,9 +350,9 @@ pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 124usize,
+        start_line: 140usize,
         start_col: 4usize,
-        end_line: 124usize,
+        end_line: 140usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -457,9 +476,9 @@ pub const trim: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 164usize,
+        start_line: 180usize,
         start_col: 4usize,
-        end_line: 164usize,
+        end_line: 180usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
@@ -517,9 +536,9 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 175usize,
+        start_line: 191usize,
         start_col: 4usize,
-        end_line: 175usize,
+        end_line: 191usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

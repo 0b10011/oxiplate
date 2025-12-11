@@ -37,16 +37,32 @@ mod filters_for_oxiplate {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ message | respond(false) }} {{ message | respond(true) }}"#)]
+#[oxiplate_inline(r#"{{ message | respond(*respond) }} {{ message | respond(!*respond) }}"#)]
 struct Respond {
     message: &'static str,
+    respond: &'static bool,
 }
 
 #[test]
 fn respond() {
-    assert_eq!(format!("{}", Respond { message: "hello" }), "world WORLD");
     assert_eq!(
-        format!("{}", Respond { message: "goodbye" }),
+        format!(
+            "{}",
+            Respond {
+                message: "hello",
+                respond: &false
+            }
+        ),
+        "world WORLD"
+    );
+    assert_eq!(
+        format!(
+            "{}",
+            Respond {
+                message: "goodbye",
+                respond: &false
+            }
+        ),
         "did not understand: goodbye did not understand: goodbye"
     );
 }
