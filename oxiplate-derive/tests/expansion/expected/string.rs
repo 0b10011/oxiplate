@@ -122,10 +122,67 @@ fn empty_string() {
         }
     };
 }
+#[oxiplate_inline("\x00 \x0F \x0f \x7F")]
+struct SevenBitEscapes;
+impl ::std::fmt::Display for SevenBitEscapes {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(7usize);
+            let f = &mut string;
+            f.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "seven_bit_escapes"]
+#[doc(hidden)]
+pub const seven_bit_escapes: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("seven_bit_escapes"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/string.rs",
+        start_line: 30usize,
+        start_col: 4usize,
+        end_line: 30usize,
+        end_col: 21usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(seven_bit_escapes()),
+    ),
+};
+fn seven_bit_escapes() {
+    match (
+        &"\0 \u{f} \u{f} \u{7f}",
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", SevenBitEscapes))
+        }),
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&empty_string, &raw_string])
+    test::test_main_static(&[&empty_string, &raw_string, &seven_bit_escapes])
 }

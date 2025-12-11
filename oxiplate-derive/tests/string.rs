@@ -21,3 +21,12 @@ fn empty_string() {
 
     assert_eq!(format!("{template}"), "");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline("\x00 \x0F \x0f \x7F")]
+struct SevenBitEscapes;
+
+#[test]
+fn seven_bit_escapes() {
+    assert_eq!("\0 \u{f} \u{f} \u{7f}", format!("{}", SevenBitEscapes));
+}
