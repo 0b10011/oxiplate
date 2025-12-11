@@ -2,10 +2,12 @@ use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(
-    "
-{%- for value in &values -%}
-    {{ value }}<br>
-{%- endfor %}"
+    r#"
+{%- for a in &values -%}
+    {%- for b in &values -%}
+        {{ a ~ " - " ~ b }}<br>
+    {%- endfor %}
+{%- endfor %}"#
 )]
 struct Data {
     values: Vec<&'static str>,
@@ -14,10 +16,13 @@ struct Data {
 #[test]
 fn test_for() {
     let data = Data {
-        values: vec!["foo", "bar", "baz"],
+        values: vec!["foo", "bar"],
     };
 
-    assert_eq!(format!("{data}"), "foo<br>bar<br>baz<br>");
+    assert_eq!(
+        format!("{data}"),
+        "foo - foo<br>foo - bar<br>bar - foo<br>bar - bar<br>"
+    );
 }
 
 #[derive(Oxiplate)]

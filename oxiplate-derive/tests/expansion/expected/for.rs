@@ -4,10 +4,14 @@ extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("
-{%- for value in &values -%}
-    {{ value }}<br>
-{%- endfor %}")]
+#[oxiplate_inline(
+    r#"
+{%- for a in &values -%}
+    {%- for b in &values -%}
+        {{ a ~ " - " ~ b }}<br>
+    {%- endfor %}
+{%- endfor %}"#
+)]
 struct Data {
     values: Vec<&'static str>,
 }
@@ -15,11 +19,19 @@ impl ::std::fmt::Display for Data {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(10usize);
+            let mut string = String::with_capacity(36usize);
             let f = &mut string;
-            for value in &self.values {
-                f.write_str(&::std::string::ToString::to_string(&(value)))?;
-                f.write_str("<br>")?;
+            for a in &self.values {
+                for b in &self.values {
+                    f.write_str(
+                        &::std::string::ToString::to_string(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
+                            })),
+                        ),
+                    )?;
+                    f.write_str("<br>")?;
+                }
             }
             string
         };
@@ -35,9 +47,9 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 15usize,
+        start_line: 17usize,
         start_col: 4usize,
-        end_line: 15usize,
+        end_line: 17usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -48,13 +60,13 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_for() {
     let data = Data {
-        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar", "baz"])),
+        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar"])),
     };
     match (
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", data))
         }),
-        &"foo<br>bar<br>baz<br>",
+        &"foo - foo<br>foo - bar<br>bar - foo<br>bar - bar<br>",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -110,9 +122,9 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 44usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 44usize,
+        end_line: 49usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
@@ -189,9 +201,9 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 67usize,
+        start_line: 72usize,
         start_col: 4usize,
-        end_line: 67usize,
+        end_line: 72usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
@@ -264,9 +276,9 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 95usize,
+        start_line: 100usize,
         start_col: 4usize,
-        end_line: 95usize,
+        end_line: 100usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -343,9 +355,9 @@ pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 117usize,
+        start_line: 122usize,
         start_col: 4usize,
-        end_line: 117usize,
+        end_line: 122usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
