@@ -523,22 +523,6 @@ impl<'a> PartialEq<Source<'a>> for Source<'a> {
 
 impl Eq for Source<'_> {}
 
-impl PartialEq<char> for Source<'_> {
-    fn eq(&self, char: &char) -> bool {
-        self.as_str().len() == 1 && char == &self.as_str().chars().next().unwrap()
-    }
-}
-
-impl<'a> Compare<&Source<'a>> for Source<'a> {
-    fn compare(&self, other_source: &Source) -> nom::CompareResult {
-        self.as_str().compare(other_source.as_str())
-    }
-
-    fn compare_no_case(&self, other_source: &Source) -> nom::CompareResult {
-        self.as_str().compare_no_case(other_source.as_str())
-    }
-}
-
 impl Compare<&str> for Source<'_> {
     fn compare(&self, string: &str) -> nom::CompareResult {
         self.as_str().compare(string)
@@ -552,5 +536,170 @@ impl Compare<&str> for Source<'_> {
 impl Offset for Source<'_> {
     fn offset(&self, offset: &Self) -> usize {
         self.as_str().offset(offset.as_str())
+    }
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use std::ops::Range;
+
+    use nom::{Compare, CompareResult, Input};
+    use proc_macro2::{Literal, Span};
+
+    use super::Source;
+
+    #[test]
+    #[should_panic = "proc_macro::Span is only available in procedural macros"]
+    fn disjointed_ranges() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 1 },
+        };
+        let b = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 2, end: 3 },
+        };
+        a.merge(&b, "B does not follow A");
+    }
+
+    #[test]
+    #[should_panic = "proc_macro::Span is only available in procedural macros"]
+    fn non_string_literal() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::usize_unsuffixed(0),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 1 },
+        };
+        a.span();
+    }
+
+    #[test]
+    #[should_panic = "End greater than end of string"]
+    fn take_too_many() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 1 },
+        };
+        a.take(5);
+    }
+
+    #[test]
+    #[should_panic = "Start greater than end of string"]
+    fn take_from_too_many() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 1 },
+        };
+        a.take_from(5);
+    }
+
+    #[test]
+    #[should_panic = "Split point greater than end of string"]
+    fn take_split_too_many() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 1 },
+        };
+        a.take_split(5);
+    }
+
+    #[test]
+    fn take_split() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 11 },
+        };
+
+        let b = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 5 },
+        };
+        let c = Source {
+            original: &crate::SourceOwned {
+                code: "hello world".to_string(),
+                literal: Literal::string("hello world"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 5, end: 11 },
+        };
+
+        assert_eq!((c, b), a.take_split(5));
+    }
+
+    #[test]
+    fn iter_indices() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "hi".to_string(),
+                literal: Literal::string("hi"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 2 },
+        };
+        let mut indices = vec![];
+        let mut chars = vec![];
+        for (index, char) in a.iter_indices() {
+            indices.push(index);
+            chars.push(char);
+        }
+        assert_eq!((vec![0, 1], vec!['h', 'i']), (indices, chars));
+    }
+
+    #[test]
+    fn compare_no_case() {
+        let a = Source {
+            original: &crate::SourceOwned {
+                code: "Hello World".to_string(),
+                literal: Literal::string("Hello World"),
+                span_hygiene: Span::call_site(),
+                origin: None,
+            },
+            range: Range { start: 0, end: 11 },
+        };
+        assert_eq!(CompareResult::Ok, a.compare_no_case("hElLo wOrLd"));
+        assert_eq!(CompareResult::Error, a.compare_no_case("goodbye world"));
+        assert_eq!(CompareResult::Incomplete, a.compare_no_case("hello world!"));
     }
 }

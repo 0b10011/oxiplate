@@ -20,3 +20,6 @@ pedantic = { level = "deny", priority = -1 }
 
 # Lints
 manual_assert = "allow"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(coverage,coverage_nightly)"] }
