@@ -1,7 +1,7 @@
 use std::collections::{HashMap, VecDeque};
 
 use nom::Parser as _;
-use nom::bytes::complete::{escaped, is_not, tag, take_while1};
+use nom::bytes::complete::{escaped, is_not, tag};
 use nom::character::complete::one_of;
 use nom::combinator::cut;
 use nom::error::context;
@@ -12,7 +12,7 @@ use syn::LitStr;
 use super::super::Res;
 use super::super::expression::keyword;
 use super::{Statement, StatementKind};
-use crate::syntax::template::is_whitespace;
+use crate::syntax::template::whitespace;
 use crate::{Source, oxiplate_internal};
 
 #[derive(Debug)]
@@ -67,8 +67,8 @@ impl Include<'_> {
 pub(super) fn parse_include(input: Source) -> Res<Source, Statement> {
     let (input, include_keyword) = keyword("include").parse(input)?;
 
-    let (input, (_, _, path, _)) = cut((
-        context("Expected space after 'include'", take_while1(is_whitespace)),
+    let (input, (leading_whitespace, start_quote, path, end_quote)) = cut((
+        context("Expected space after 'include'", whitespace),
         context(r#"Expected ""#, tag(r#"""#)),
         context(
             "Expected path to the template to include",
@@ -78,7 +78,12 @@ pub(super) fn parse_include(input: Source) -> Res<Source, Statement> {
     ))
     .parse(input)?;
 
-    let source = include_keyword.0;
+    let source = include_keyword
+        .0
+        .merge(&leading_whitespace, "Whitespace expected after `include`")
+        .merge(&start_quote, "`\"` expected after whitespace")
+        .merge(&path, "Path expected after `\"`")
+        .merge(&end_quote, "`\"` expected after path");
 
     Ok((
         input,

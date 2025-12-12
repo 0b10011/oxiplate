@@ -18,6 +18,17 @@ use crate::State;
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
 impl Template<'_> {
+    #[cfg(coverage_nightly)]
+    pub fn source(&self) -> Option<Source<'_>> {
+        let mut source: Option<Source<'_>> = None;
+        for item in &self.0 {
+            source = Some(source.map_or(item.source().clone(), |source| {
+                source.merge(item.source(), "Item source should follow previous item")
+            }));
+        }
+        source
+    }
+
     #[inline]
     fn write_tokens(str_tokens: &mut Vec<TokenStream>, tokens: &mut TokenStream) {
         if str_tokens.is_empty() {
@@ -107,7 +118,11 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
             }
             VerboseErrorKind::Context(error) => {
                 let source = <Source as Input>::take_from(&source, 0);
-                return Item::CompileError(error.to_string(), source);
+                return Item::CompileError {
+                    message: error.to_string(),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                };
             }
             VerboseErrorKind::Nom(nom_error) => {
                 let LineColumn { line, column } = source.span().start();
@@ -125,10 +140,13 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
         last_source = Some(source);
     }
 
-    Item::CompileError(
-        converted_error,
-        last_source.expect("There should be at least one source listed in an error"),
-    )
+    let consumed_source =
+        last_source.expect("There should be at least one source listed in an error");
+    Item::CompileError {
+        message: converted_error,
+        error_source: consumed_source.clone(),
+        consumed_source,
+    }
 }
 
 fn try_parse<'a>(state: &State, source: Source<'a>) -> Res<Source<'a>, (TokenStream, usize)> {
@@ -143,7 +161,13 @@ fn try_parse<'a>(state: &State, source: Source<'a>) -> Res<Source<'a>, (TokenStr
         items.append(&mut item_vec);
     }
 
-    Ok((input, Template(items).to_tokens(state)))
+    let template = Template(items);
+
+    // Ensure all tested items build source properly.
+    #[cfg(coverage_nightly)]
+    let _ = template.source();
+
+    Ok((input, template.to_tokens(state)))
 }
 
 pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {
@@ -158,17 +182,28 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
     )
         .parse(input)?;
 
-    let whitespace = match tag.as_str() {
-        "{_}" => {
-            if let Some(leading_whitespace) = leading_whitespace {
-                vec![Item::Whitespace(Static(" ", leading_whitespace))]
-            } else if let Some(trailing_whitespace) = trailing_whitespace {
-                vec![Item::Whitespace(Static(" ", trailing_whitespace))]
-            } else {
-                vec![]
-            }
+    let has_whitespace = leading_whitespace.is_some() || trailing_whitespace.is_some();
+    let tag_str = tag.as_str();
+    let source = if let Some(leading_whitespace) = leading_whitespace {
+        leading_whitespace
+            .clone()
+            .merge(&tag, "Tag expected after leading whitespace")
+    } else {
+        tag
+    }
+    .merge_some(
+        trailing_whitespace.as_ref(),
+        "Whitespace expected after tag",
+    );
+
+    let whitespace = match (has_whitespace, tag_str) {
+        (true, "{_}") => vec![Item::Whitespace(Static(" ", source))],
+        (false, "{_}") => vec![Item::Comment(source)],
+        // Return the tag as a comment to keep contiguous source
+        // without actually outputting anything.
+        (_, "{-}") => {
+            vec![Item::Comment(source)]
         }
-        "{-}" => vec![],
         _ => unreachable!("Only whitespace control tags should be matched"),
     };
 

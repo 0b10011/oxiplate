@@ -1,6 +1,5 @@
 use nom::Parser as _;
 use nom::branch::alt;
-use nom::bytes::complete::take_while1;
 use nom::combinator::cut;
 use nom::error::context;
 use proc_macro2::TokenStream;
@@ -12,7 +11,7 @@ use super::super::Res;
 use super::super::expression::{Identifier, ident, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
-use crate::syntax::template::is_whitespace;
+use crate::syntax::template::whitespace;
 use crate::{Source, State};
 
 #[derive(Debug)]
@@ -108,8 +107,8 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
     ))
     .parse(input)?;
 
-    let (input, (_, escaper)) = cut((
-        context("Expected space", take_while1(is_whitespace)),
+    let (input, (leading_whitespace, escaper)) = cut((
+        context("Expected space", whitespace),
         context("Expected an escaper group name", ident),
     ))
     .parse(input)?;
@@ -120,7 +119,11 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
         _ => unreachable!("All tag cases should be covered"),
     };
 
-    let source = tag.0.clone();
+    let source = tag
+        .0
+        .clone()
+        .merge(&leading_whitespace, "Whitespace expected after tag name")
+        .merge(&escaper.source, "Escaper name expected after whitespace");
 
     Ok((
         input,

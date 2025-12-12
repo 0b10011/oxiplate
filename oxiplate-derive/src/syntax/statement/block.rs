@@ -1,7 +1,7 @@
 use std::collections::{HashMap, VecDeque};
 
 use nom::Parser as _;
-use nom::bytes::complete::{tag, take_while1};
+use nom::bytes::complete::tag;
 use nom::combinator::cut;
 use nom::error::context;
 use proc_macro::Diagnostic;
@@ -12,7 +12,7 @@ use syn::spanned::Spanned;
 use super::super::expression::{Identifier, ident, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::syntax::template::{Template, is_whitespace};
+use crate::syntax::template::{Template, whitespace};
 use crate::{Source, State};
 
 #[derive(Debug)]
@@ -43,10 +43,11 @@ impl<'a> Block<'a> {
                 source,
             }) => {
                 if let Some(suffix) = &mut self.suffix {
-                    suffix.0.push(Item::CompileError(
-                        "Multiple parent blocks present in block".to_string(),
-                        source,
-                    ));
+                    suffix.0.push(Item::CompileError {
+                        message: "Multiple parent blocks present in block".to_string(),
+                        error_source: source.clone(),
+                        consumed_source: source,
+                    });
                 } else {
                     self.suffix = Some(Template(vec![]));
                 }
@@ -165,11 +166,16 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
 pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
     let (input, block_keyword) = keyword("block")(input)?;
 
-    let (input, (_, name)) = cut((
-        context("Expected space after 'block'", take_while1(is_whitespace)),
+    let (input, (leading_whitespace, name)) = cut((
+        context("Expected space after 'block'", whitespace),
         context("Expected an identifier", ident),
     ))
     .parse(input)?;
+
+    let source = block_keyword
+        .0
+        .merge(&leading_whitespace, "Whitespace expected after `block`")
+        .merge(&name.source, "Block name expected after whitespace");
 
     Ok((
         input,
@@ -181,7 +187,7 @@ pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
                 is_ended: false,
             }
             .into(),
-            source: block_keyword.0,
+            source,
         },
     ))
 }

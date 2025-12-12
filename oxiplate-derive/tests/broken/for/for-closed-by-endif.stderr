@@ -1,0 +1,11 @@
+error: Unexpected 'endif' statement
+ --> tests/broken/for/for-closed-by-endif.rs:4:61
+  |
+4 | #[oxiplate_inline("{%- for number in numbers -%}{{ number }}{% endif %}")]
+  |                                                             ^^^^^^^^^^^
+
+error: "for" statement is never closed (unexpected end of template)
+ --> tests/broken/for/for-closed-by-endif.rs:4:71
+  |
+4 | #[oxiplate_inline("{%- for number in numbers -%}{{ number }}{% endif %}")]
+  |                                                                       ^

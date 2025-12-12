@@ -28,7 +28,7 @@ pub(super) enum ItemToken {
 #[derive(Debug)]
 pub(crate) enum Item<'a> {
     /// A private comment that should be discarded from the final output.
-    Comment,
+    Comment(Source<'a>),
 
     /// An expression that should be evaluated and output.
     Writ(Writ<'a>),
@@ -44,13 +44,31 @@ pub(crate) enum Item<'a> {
     Whitespace(Static<'a>),
 
     /// A template error encountered during compliation.
-    CompileError(String, Source<'a>),
+    CompileError {
+        message: String,
+        error_source: Source<'a>,
+        consumed_source: Source<'a>,
+    },
 }
 
 impl<'a> Item<'a> {
+    pub(super) fn source(&self) -> &Source<'a> {
+        match self {
+            Self::Comment(source)
+            | Self::CompileError {
+                consumed_source: source,
+                ..
+            } => source,
+            Self::Writ(writ) => writ.source(),
+            Self::Statement(statement) => statement.source(),
+            Self::Static(text, _static_type) => &text.1,
+            Self::Whitespace(text) => &text.1,
+        }
+    }
+
     pub(super) fn to_token(&'a self, state: &mut State<'a>) -> ItemToken {
         match self {
-            Item::Comment => ItemToken::Comment,
+            Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
                 let (text, estimated_length) = writ.to_token(state);
                 state.has_content = &true;
@@ -90,9 +108,13 @@ impl<'a> Item<'a> {
                 let (text, estimated_length) = whitespace.to_token();
                 ItemToken::StaticText(text, estimated_length)
             }
-            Item::CompileError(text, source) => {
-                let span = source.span();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#text); }, 0)
+            Item::CompileError {
+                message,
+                error_source,
+                consumed_source: _,
+            } => {
+                let span = error_source.span();
+                ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
             }
         }
     }
@@ -118,8 +140,8 @@ pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
 
     let (input, (tag, trailing_whitespace)) = match open {
         TagOpen::Writ(_source) => cut(writ(source)).parse(input)?,
-        TagOpen::Statement(_source) => cut(statement).parse(input)?,
-        TagOpen::Comment(_source) => cut(comment).parse(input)?,
+        TagOpen::Statement(_source) => cut(statement(source)).parse(input)?,
+        TagOpen::Comment(_source) => cut(comment(source)).parse(input)?,
     };
 
     let mut items = vec![];
@@ -148,45 +170,58 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
     )
         .parse(input)?;
 
-    let whitespace = if let Some(command) = &command {
+    let (whitespace, removed_whitespace) = if let Some(command) = &command {
         match command.as_str() {
             "_" => {
                 if whitespace
                     .as_ref()
                     .is_none_or(|whitespace| whitespace.as_str().is_empty())
                 {
-                    let mut source = match &open {
+                    let source = match &open {
                         TagOpen::Writ(source)
                         | TagOpen::Statement(source)
                         | TagOpen::Comment(source) => source.clone(),
-                    };
-                    source.range.end = command.range.end;
+                    }
+                    .merge(command, "Command expected after tag open");
+                    let mut consumed_source = source.clone();
+                    consumed_source.range.end = consumed_source.range.start;
+                    let mut error_source = source.clone();
+                    error_source.range.end = command.range.end;
                     return Ok((
                         input,
                         (
-                            Some(Item::CompileError(
-                                "Whitespace replace character `_` used after non-whitespace. \
-                                 Either add whitespace or change how whitespace is handled before \
-                                 this tag."
+                            Some(Item::CompileError {
+                                message: "Whitespace replace character `_` used after \
+                                          non-whitespace. Either add whitespace or change how \
+                                          whitespace is handled before this tag."
                                     .to_owned(),
-                                source.clone(),
-                            )),
+                                error_source,
+                                consumed_source,
+                            }),
                             open,
                             source,
                         ),
                     ));
                 }
 
-                whitespace.map(|whitespace| Static(" ", whitespace))
+                (whitespace.map(|whitespace| Static(" ", whitespace)), None)
             }
-            "-" => None,
+            "-" => (None, whitespace),
             _ => unreachable!("Only - or _ should be matched"),
         }
     } else {
-        whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace))
+        (
+            whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace)),
+            None,
+        )
     };
 
-    let source = open.source().clone().merge_some(
+    let source = if let Some(removed_whitespace) = removed_whitespace {
+        removed_whitespace.merge(open.source(), "Open tag expected after whitespace")
+    } else {
+        open.source().clone()
+    }
+    .merge_some(
         command.as_ref(),
         "Expected whitespace control character after open tag",
     );
@@ -194,6 +229,7 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
     Ok((input, (whitespace.map(Item::Whitespace), open, source)))
 }
 
+#[allow(clippy::too_many_lines)]
 pub(crate) fn tag_end<'a>(
     tag_close: &'static str,
 ) -> impl Fn(Source<'a>) -> Res<Source<'a>, (Option<Item<'a>>, Source<'a>)> + 'a {
@@ -216,6 +252,11 @@ pub(crate) fn tag_end<'a>(
         )
             .parse(input)?;
 
+        let source = command.clone().merge(
+            &close_tag,
+            "Tag close expected after whitespace control character",
+        );
+
         let mut next_command_is_set = false;
         if let Some((_open_tag, next_command)) = adjacent_open_tag {
             if next_command.is_some() {
@@ -223,15 +264,18 @@ pub(crate) fn tag_end<'a>(
             }
             match (&command, &next_command) {
                 (command, Some(next_command)) if command.as_str() != next_command.as_str() => {
-                    let mut source = command.clone();
-                    source.range.end = next_command.range.end;
+                    let mut consumed_source = source.clone();
+                    consumed_source.range.start = consumed_source.range.end;
+                    let mut error_source = command.clone();
+                    error_source.range.end = next_command.range.end;
                     return Ok((
                         input,
                         (
-                            Some(Item::CompileError(
-                                "Mismatched whitespace adjustment characters".to_owned(),
-                                source,
-                            )),
+                            Some(Item::CompileError {
+                                message: "Mismatched whitespace adjustment characters".to_owned(),
+                                error_source,
+                                consumed_source,
+                            }),
                             command.clone().merge(
                                 &close_tag,
                                 "Tag close expected after whitespace control character",
@@ -243,21 +287,24 @@ pub(crate) fn tag_end<'a>(
             }
         }
 
-        let (input, matched_whitespace) = match command.as_str() {
+        let (input, matched_whitespace, removed_whitespace) = match command.as_str() {
             "_" => {
                 if matched_whitespace.is_none_or(|whitespace| whitespace.as_str().is_empty()) {
-                    let mut source = command.clone();
-                    source.range.end = close_tag.range.end;
+                    let mut consumed_source = source.clone();
+                    consumed_source.range.start = consumed_source.range.end;
+                    let mut error_source = command.clone();
+                    error_source.range.end = close_tag.range.end;
                     return Ok((
                         input,
                         (
-                            Some(Item::CompileError(
-                                "Whitespace replace character `_` used before non-whitespace. \
-                                 Either add whitespace or change how whitespace is handled after \
-                                 this tag."
+                            Some(Item::CompileError {
+                                message: "Whitespace replace character `_` used before \
+                                          non-whitespace. Either add whitespace or change how \
+                                          whitespace is handled after this tag."
                                     .to_owned(),
-                                source,
-                            )),
+                                error_source,
+                                consumed_source,
+                            }),
                             command.clone().merge(
                                 &close_tag,
                                 "Tag close expected after whitespace control character",
@@ -265,18 +312,19 @@ pub(crate) fn tag_end<'a>(
                         ),
                     ));
                 } else if next_command_is_set {
-                    (input, None)
+                    (input, None, None)
                 } else {
                     let (input, matched_whitespace) = opt(whitespace).parse(input)?;
                     (
                         input,
                         matched_whitespace.map(|whitespace| Static(" ", whitespace)),
+                        None,
                     )
                 }
             }
             "-" => {
-                let (input, _matched_whitespace) = opt(whitespace).parse(input)?;
-                (input, None)
+                let (input, matched_whitespace) = opt(whitespace).parse(input)?;
+                (input, None, matched_whitespace)
             }
             _ => unreachable!("Only - or _ should be matched"),
         };
@@ -285,9 +333,9 @@ pub(crate) fn tag_end<'a>(
             input,
             (
                 matched_whitespace.map(Item::Whitespace),
-                command.merge(
-                    &close_tag,
-                    "Tag close expected after whitespace control character",
+                source.merge_some(
+                    removed_whitespace.as_ref(),
+                    "Whitespace expected after close tag",
                 ),
             ),
         ))

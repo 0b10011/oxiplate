@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use nom::Parser as _;
-use nom::bytes::complete::{tag, take_while1};
+use nom::bytes::complete::tag;
 use nom::combinator::cut;
 use nom::error::context;
 use proc_macro2::TokenStream;
@@ -12,7 +12,7 @@ use super::super::{Item, Res};
 use super::{State, Statement, StatementKind};
 use crate::Source;
 use crate::syntax::expression::ExpressionAccess;
-use crate::syntax::template::{Template, is_whitespace};
+use crate::syntax::template::{Template, whitespace};
 
 #[derive(Debug)]
 pub struct For<'a> {
@@ -40,11 +40,13 @@ impl<'a> For<'a> {
                 source,
             }) => {
                 if let Some(ref mut ifs) = self.otherwise {
-                    ifs.0.push(Item::CompileError(
-                        "`else` previously present in this `for` statement; expected `endfor`"
+                    ifs.0.push(Item::CompileError {
+                        message: "`else` previously present in this `for` statement; expected \
+                                  `endfor`"
                             .to_string(),
-                        source,
-                    ));
+                        error_source: source.clone(),
+                        consumed_source: source,
+                    });
                 } else {
                     self.otherwise = Some(Template(vec![]));
                 }
@@ -130,23 +132,29 @@ impl<'a> From<For<'a>> for StatementKind<'a> {
 pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
     let (input, for_keyword) = keyword("for").parse(input)?;
 
-    let (input, (_, ident, _, in_keyword, _, expression)) = cut((
-        context("Expected space after 'for'", take_while1(is_whitespace)),
-        context("Expected an identifier", ident),
-        context(
-            "Expected space after identifier",
-            take_while1(is_whitespace),
-        ),
-        context("Expected 'in'", keyword("in")),
-        context("Expected space after 'in'", take_while1(is_whitespace)),
-        context(
-            "Expected an expression that is iterable",
-            expression(true, true),
-        ),
-    ))
-    .parse(input)?;
+    let (input, (for_whitespace, ident, ident_whitespace, in_keyword, in_whitespace, expression)) =
+        cut((
+            context("Expected space after 'for'", whitespace),
+            context("Expected an identifier", ident),
+            context("Expected space after identifier", whitespace),
+            context("Expected 'in'", keyword("in")),
+            context("Expected space after 'in'", whitespace),
+            context(
+                "Expected an expression that is iterable",
+                expression(true, true),
+            ),
+        ))
+        .parse(input)?;
 
-    let source = for_keyword.0.clone();
+    let source = for_keyword
+        .0
+        .clone()
+        .merge(&for_whitespace, "Whitespace expected after `for`")
+        .merge(&ident.source, "Ident expected after whitespace")
+        .merge(&ident_whitespace, "Whitespace expected after ident")
+        .merge(&in_keyword.0, "`in` expected after whitespace")
+        .merge(&in_whitespace, "Whitespace expected after `in`")
+        .merge(&expression.source(), "Expression expected after whitespace");
 
     Ok((
         input,

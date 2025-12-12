@@ -105,6 +105,11 @@ impl<'a> Source<'a> {
             .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged")
             .help("Include template that caused the issue and the associated note.")
             .note(format!("Error: {error_message}"))
+
+            // Spans are sometimes overlapping,
+            // so having them split into separate messages is helpful sometimes.
+            .span_help(self.span().unwrap(), "First range here")
+            .span_help(source_to_merge.span().unwrap(), "Second range here")
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         }

@@ -1,17 +1,17 @@
 error: `else` previously present in this `for` statement; expected `endfor`
- --> tests/broken/for/else-after-else.rs:9:4
+ --> tests/broken/for/else-after-else.rs:9:1
   |
 9 | {% else %}
-  |    ^^^^
+  | ^^^^^^^^^^
 
 error: `else` previously present in this `for` statement; expected `endfor`
-  --> tests/broken/for/else-after-else.rs:11:4
+  --> tests/broken/for/else-after-else.rs:11:1
    |
 11 | {% else %}
-   |    ^^^^
+   | ^^^^^^^^^^
 
 error: Unexpected 'else' statement
-  --> tests/broken/for/else-after-else.rs:14:4
+  --> tests/broken/for/else-after-else.rs:14:1
    |
 14 | {% else %}")]
-   |    ^^^^
+   | ^^^^^^^^^^

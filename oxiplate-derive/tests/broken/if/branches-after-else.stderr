@@ -1,29 +1,29 @@
 error: `else` already present in this if statement; expected `endif`
- --> tests/broken/if/branches-after-else.rs:9:4
+ --> tests/broken/if/branches-after-else.rs:9:1
   |
 9 | {% else %}
-  |    ^^^^
+  | ^^^^^^^^^^
 
 error: `else` already present in this if statement; expected `endif`
-  --> tests/broken/if/branches-after-else.rs:11:4
+  --> tests/broken/if/branches-after-else.rs:11:1
    |
 11 | {% else %}
-   |    ^^^^
+   | ^^^^^^^^^^
 
 error: `else` previously present in this if statement; expected `endif`
-  --> tests/broken/if/branches-after-else.rs:13:4
+  --> tests/broken/if/branches-after-else.rs:13:1
    |
 13 | {% elseif foo %}
-   |    ^^^^^^
+   | ^^^^^^^^^^^^^^^^
 
 error: `else` previously present in this if statement; expected `endif`
-  --> tests/broken/if/branches-after-else.rs:15:4
+  --> tests/broken/if/branches-after-else.rs:15:1
    |
 15 | {% elseif foo %}
-   |    ^^^^^^
+   | ^^^^^^^^^^^^^^^^
 
 error: Unexpected 'else' statement
-  --> tests/broken/if/branches-after-else.rs:18:4
+  --> tests/broken/if/branches-after-else.rs:18:1
    |
 18 | {% else %}")]
-   |    ^^^^
+   | ^^^^^^^^^^

@@ -3,3 +3,21 @@ error: "if" statement is never closed (unexpected end of template)
   |
 4 | #[oxiplate_inline(r##"{% if "foo" == 3 %}"##)]
   |                                         ^
+
+error[E0277]: can't compare `&str` with `{integer}`
+ --> tests/broken/strings/raw-rust-string.rs:4:35
+  |
+4 | #[oxiplate_inline(r##"{% if "foo" == 3 %}"##)]
+  |                                   ^^ no implementation for `&str == {integer}`
+  |
+  = help: the trait `PartialEq<{integer}>` is not implemented for `&str`
+  = help: the following other types implement trait `PartialEq<Rhs>`:
+            `&str` implements `PartialEq<ByteStr>`
+            `&str` implements `PartialEq<ByteString>`
+            `&str` implements `PartialEq<Cow<'_, str>>`
+            `&str` implements `PartialEq<OsString>`
+            `&str` implements `PartialEq<String>`
+            `str` implements `PartialEq<ByteStr>`
+            `str` implements `PartialEq<ByteString>`
+            `str` implements `PartialEq<Cow<'_, str>>`
+          and $N others

@@ -1,5 +1,5 @@
 error: Unexpected 'extends' statement after content already present in template
- --> tests/broken/extends/extends-after-statement.rs:4:49
+ --> tests/broken/extends/extends-after-statement.rs:4:46
   |
 4 | #[oxiplate_inline(r#"{% if true %}{% endif %}{% extends "multiple-blocks.html.oxip" %}"#)]
-  |                                                 ^^^^^^^
+  |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

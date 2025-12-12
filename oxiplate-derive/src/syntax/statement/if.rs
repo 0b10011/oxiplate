@@ -3,11 +3,9 @@ use std::collections::HashSet;
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::char as nom_char;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::multi::many0;
-use nom::sequence::preceded;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
@@ -121,11 +119,12 @@ impl<'a> If<'a> {
                 source,
             }) => {
                 if let Some(ref mut ifs) = self.otherwise {
-                    ifs.0.push(Item::CompileError(
-                        "`else` previously present in this if statement; expected `endif`"
+                    ifs.0.push(Item::CompileError {
+                        message: "`else` previously present in this if statement; expected `endif`"
                             .to_string(),
-                        source,
-                    ));
+                        error_source: source.clone(),
+                        consumed_source: source,
+                    });
                 } else {
                     self.ifs.push((if_type, Template(vec![])));
                 }
@@ -135,10 +134,12 @@ impl<'a> If<'a> {
                 source,
             }) => {
                 if let Some(ref mut ifs) = self.otherwise {
-                    ifs.0.push(Item::CompileError(
-                        "`else` already present in this if statement; expected `endif`".to_string(),
-                        source,
-                    ));
+                    ifs.0.push(Item::CompileError {
+                        message: "`else` already present in this if statement; expected `endif`"
+                            .to_string(),
+                        error_source: source.clone(),
+                        consumed_source: source,
+                    });
                 } else {
                     self.otherwise = Some(Template(vec![]));
                 }
@@ -621,7 +622,9 @@ pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
 pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
     let (input, statement_source) = tag("if")(input)?;
 
-    let (input, if_type) = cut(parse_if_generic).parse(input)?;
+    let (input, (if_type, if_type_source)) = cut(parse_if_generic).parse(input)?;
+
+    let source = statement_source.merge(&if_type_source, "Type source expected after if");
 
     Ok((
         input,
@@ -632,55 +635,74 @@ pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
                 is_ended: false,
             }
             .into(),
-            source: statement_source,
+            source,
         },
     ))
 }
 
-fn parse_if_generic(input: Source) -> Res<Source, IfType> {
+fn parse_if_generic(input: Source) -> Res<Source, (IfType, Source)> {
     // Consume at least one whitespace.
-    let (input, _) = context("Expected a space", whitespace).parse(input)?;
+    let (input, leading_whitespace) = context("Expected a space", whitespace).parse(input)?;
+
+    let mut source = leading_whitespace;
 
     let (input, r#let) = opt((tag("let"), whitespace)).parse(input)?;
 
-    if r#let.is_some() {
+    if let Some((let_tag, let_whitespace)) = r#let {
         let (input, ty) =
             context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
-        let (input, expression) = preceded(
+        let (input, (leading_whitespace, equal, trailing_whitespace, expression)) = (
             opt(whitespace),
-            preceded(
-                context("Expected `=`", cut(nom_char('='))),
-                preceded(
-                    opt(whitespace),
-                    context(
-                        "Expected an expression after `=`",
-                        cut(expression(true, true)),
-                    ),
-                ),
+            context("Expected `=`", cut(tag("="))),
+            opt(whitespace),
+            context(
+                "Expected an expression after `=`",
+                cut(expression(true, true)),
             ),
         )
-        .parse(input)?;
-        Ok((input, IfType::IfLet(ty, expression)))
+            .parse(input)?;
+
+        source = source
+            .merge(&let_tag, "`let` expected after whitespace")
+            .merge(&let_whitespace, "Whitespace expected after `let`")
+            .merge(&ty.source, "Type expected after whitespace")
+            .merge_some(
+                leading_whitespace.as_ref(),
+                "Whitespace expected after type",
+            )
+            .merge(&equal, "`=` expected after whitespace")
+            .merge_some(
+                trailing_whitespace.as_ref(),
+                "Whitespace expected after `=`",
+            )
+            .merge(&expression.source(), "Expression expected after whitespace");
+
+        Ok((input, (IfType::IfLet(ty, expression), source)))
     } else {
         let (input, output) = context(
             "Expected an expression after `if`",
             cut(expression(true, true)),
         )
         .parse(input)?;
-        Ok((input, IfType::If(output)))
+
+        source = source.merge(&output.source(), "Expression expected after whitespace");
+
+        Ok((input, (IfType::If(output), source)))
     }
 }
 
 pub(super) fn parse_elseif(input: Source) -> Res<Source, Statement> {
     let (input, statement_source) = tag("elseif").parse(input)?;
 
-    let (input, if_type) = cut(parse_if_generic).parse(input)?;
+    let (input, (if_type, if_source)) = cut(parse_if_generic).parse(input)?;
+
+    let source = statement_source.merge(&if_source, "Expression expected after `elseif`");
 
     Ok((
         input,
         Statement {
             kind: ElseIf(if_type).into(),
-            source: statement_source,
+            source,
         },
     ))
 }
