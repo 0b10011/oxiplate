@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.14.0...oxiplate-derive-v0.15.0) - 2025-12-12
+
+### Added
+
+- [**breaking**] improved whitespace handling to be more consistent between statements and whitespace control tags; `{_}` now produces an error when it's not touching whitespace
+- improved spans for errors, stopped throwing away previous items/errors when EOF was reached in a statement, and started testing full template ranges in every test
+
+### Other
+
+- added test for unclosed `block` statement
+- added test for unclosed if tag
+- added test for accessing local variables from outside for loop inside of it
+- adjusted test to cover `!` and `*` prefix operators
+- added tests for 7-bit escape edge cases
+- added tests and removed unused trait impls to improve coverage
+
 ## [0.14.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.13.0...oxiplate-derive-v0.14.0) - 2025-12-10
 
 ### Fixed
