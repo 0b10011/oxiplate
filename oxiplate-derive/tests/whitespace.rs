@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !")]
+#[oxiplate_inline("Hello  \t\n {_} \r\n\t wor{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 
 #[test]
@@ -52,10 +52,20 @@ fn comment_whitespace_control() {
 {{ "leave" }}  {{ "leave" }}
 {{ "leave" }}  {{- "remove" }}
 {{ "leave" }}  {{_ "replace" }}
+{{ "removetag" }}{-}  {{ "leave" }}
+{{ "leave" }}  {-}{{ "removetag" }}
+{{ "replacetag" }}{_}  {{ "leave" }}
+{{ "leave" }}  {_}{{ "replacetag" }}
+
 {{ "remove" -}}  {{ "leave" }}
 {{ "remove" -}}  {{- "remove" }}
+{{ "removetag" }}{-}  {{- "remove" }}
+{{ "remove" -}}  {-}{{ "removetag" }}
+
 {{ "replace" _}}  {{ "leave" }}
 {{ "replace" _}}  {{_ "replace" }}
+{{ "replacetag" }}{_}  {{_ "replace" }}
+{{ "replace" _}}  {_}{{ "replacetag" }}
 "#
 )]
 struct AdjacentTags {}
@@ -70,10 +80,20 @@ fn adjacent_tags() {
 leave  leave
 leaveremove
 leave replace
+removetagleave
+leaveremovetag
+replacetag leave
+leave replacetag
+
 removeleave
 removeremove
+removetagremove
+removeremovetag
+
 replace leave
 replace replace
+replacetag replace
+replace replacetag
 "
     );
 }

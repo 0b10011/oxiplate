@@ -1,0 +1,5 @@
+error: Whitespace replace tag `{_}` used between non-whitespace. Either add whitespace or remove this tag.
+ --> tests/broken/whitespace/replace-no-whitespace-tag.rs:4:27
+  |
+4 | #[oxiplate_inline(r#"hello{_}world"#)]
+  |                           ^^^

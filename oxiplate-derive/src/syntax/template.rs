@@ -12,6 +12,7 @@ use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
 use crate::State;
+use crate::syntax::item::{WhitespacePreference, parse_trailing_whitespace};
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
@@ -175,34 +176,60 @@ pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {
 }
 
 pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, tag, trailing_whitespace)) = (
-        opt(whitespace),
-        alt((tag("{_}"), tag("{-}"))),
-        opt(whitespace),
-    )
-        .parse(input)?;
+    let (input, (leading_whitespace, tag)) =
+        (opt(whitespace), alt((tag("{_}"), tag("{-}")))).parse(input)?;
 
-    let has_whitespace = leading_whitespace.is_some() || trailing_whitespace.is_some();
+    let whitespace_preference = match tag.as_str() {
+        "{-}" => WhitespacePreference::Remove,
+        "{_}" => WhitespacePreference::Replace,
+        _ => unreachable!("All whitespace adjustment tags should be covered"),
+    };
+
+    let (input, trailing_whitespace) = parse_trailing_whitespace(
+        tag.clone(),
+        whitespace_preference,
+        leading_whitespace.is_some(),
+    )
+    .parse(input)?;
+
+    let has_whitespace =
+        leading_whitespace.is_some() || matches!(&trailing_whitespace, Some(Item::Whitespace(_)));
     let tag_str = tag.as_str();
-    let source = if let Some(leading_whitespace) = leading_whitespace {
+
+    let source = if let Some(leading_whitespace) = &leading_whitespace {
         leading_whitespace
             .clone()
             .merge(&tag, "Tag expected after leading whitespace")
     } else {
-        tag
+        tag.clone()
     }
     .merge_some(
-        trailing_whitespace.as_ref(),
+        trailing_whitespace.as_ref().map(Item::source),
         "Whitespace expected after tag",
     );
 
     let whitespace = match (has_whitespace, tag_str) {
-        (true, "{_}") => vec![Item::Whitespace(Static(" ", source))],
-        (false, "{_}") => vec![Item::Comment(source)],
+        (true, "{_}") => {
+            let space = if leading_whitespace.is_some()
+                || matches!(&trailing_whitespace, Some(Item::Whitespace(Static(" ", _))))
+            {
+                " "
+            } else {
+                ""
+            };
+            vec![Item::Whitespace(Static(space, source))]
+        }
+        (false, "{_}") => vec![Item::CompileError {
+            message: "Whitespace replace tag `{_}` used between non-whitespace. Either add \
+                      whitespace or remove this tag."
+                .to_string(),
+            error_source: source.clone(),
+            consumed_source: source,
+        }],
         // Return the tag as a comment to keep contiguous source
         // without actually outputting anything.
         (_, "{-}") => {
-            vec![Item::Comment(source)]
+            vec![Item::Whitespace(Static("", source))]
         }
         _ => unreachable!("Only whitespace control tags should be matched"),
     };

@@ -6,6 +6,7 @@ use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
 use nom::multi::many0;
+use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
@@ -108,9 +109,16 @@ pub(crate) struct If<'a> {
 impl<'a> If<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            unreachable!(
-                "Should not attempt to add item to `if` statement after statement is ended."
-            );
+            Diagnostic::spanned(
+                item.source().span().unwrap(),
+                Level::Error,
+                "Internal Oxiplate error: Attempted to add item to ended `if` statement.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+if+statement")
+            .help("Include template that caused the issue and the associated note.")
+            .help(format!("Item: {item:?}"))
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
 
         match item {

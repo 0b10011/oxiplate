@@ -4,7 +4,7 @@ extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("Hello  \t\n {_} \r\n\t wo{_}r{-}ld \n\t {-} \t\n !")]
+#[oxiplate_inline("Hello  \t\n {_} \r\n\t wor{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 impl ::std::fmt::Display for AdjustedWhitespace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -199,10 +199,20 @@ fn comment_whitespace_control() {
 {{ "leave" }}  {{ "leave" }}
 {{ "leave" }}  {{- "remove" }}
 {{ "leave" }}  {{_ "replace" }}
+{{ "removetag" }}{-}  {{ "leave" }}
+{{ "leave" }}  {-}{{ "removetag" }}
+{{ "replacetag" }}{_}  {{ "leave" }}
+{{ "leave" }}  {_}{{ "replacetag" }}
+
 {{ "remove" -}}  {{ "leave" }}
 {{ "remove" -}}  {{- "remove" }}
+{{ "removetag" }}{-}  {{- "remove" }}
+{{ "remove" -}}  {-}{{ "removetag" }}
+
 {{ "replace" _}}  {{ "leave" }}
 {{ "replace" _}}  {{_ "replace" }}
+{{ "replacetag" }}{_}  {{_ "replace" }}
+{{ "replace" _}}  {_}{{ "replacetag" }}
 "#
 )]
 struct AdjacentTags {}
@@ -210,7 +220,7 @@ impl ::std::fmt::Display for AdjacentTags {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(95usize);
+            let mut string = String::with_capacity(231usize);
             let f = &mut string;
             f.write_str("\n")?;
             f.write_str(&::std::string::ToString::to_string(&("leave")))?;
@@ -224,12 +234,32 @@ impl ::std::fmt::Display for AdjacentTags {
             f.write_str(" ")?;
             f.write_str(&::std::string::ToString::to_string(&("replace")))?;
             f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
+            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            f.write_str("\n\n")?;
             f.write_str(&::std::string::ToString::to_string(&("remove")))?;
             f.write_str(&::std::string::ToString::to_string(&("leave")))?;
             f.write_str("\n")?;
             f.write_str(&::std::string::ToString::to_string(&("remove")))?;
             f.write_str(&::std::string::ToString::to_string(&("remove")))?;
             f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
+            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            f.write_str("\n\n")?;
             f.write_str(&::std::string::ToString::to_string(&("replace")))?;
             f.write_str(" ")?;
             f.write_str(&::std::string::ToString::to_string(&("leave")))?;
@@ -237,6 +267,14 @@ impl ::std::fmt::Display for AdjacentTags {
             f.write_str(&::std::string::ToString::to_string(&("replace")))?;
             f.write_str(" ")?;
             f.write_str(&::std::string::ToString::to_string(&("replace")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
+            f.write_str("\n")?;
+            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
+            f.write_str(" ")?;
+            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
             f.write_str("\n")?;
             string
         };
@@ -252,9 +290,9 @@ pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 64usize,
+        start_line: 74usize,
         start_col: 4usize,
-        end_line: 64usize,
+        end_line: 74usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -276,10 +314,20 @@ fn adjacent_tags() {
 leave  leave
 leaveremove
 leave replace
+removetagleave
+leaveremovetag
+replacetag leave
+leave replacetag
+
 removeleave
 removeremove
+removetagremove
+removeremovetag
+
 replace leave
 replace replace
+replacetag replace
+replace replacetag
 ",
     ) {
         (left_val, right_val) => {

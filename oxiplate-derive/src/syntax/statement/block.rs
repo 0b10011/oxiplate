@@ -4,7 +4,7 @@ use nom::Parser as _;
 use nom::bytes::complete::tag;
 use nom::combinator::cut;
 use nom::error::context;
-use proc_macro::Diagnostic;
+use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 use syn::spanned::Spanned;
@@ -26,9 +26,16 @@ pub struct Block<'a> {
 impl<'a> Block<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            unreachable!(
-                "Should not attempt to add item to `block` statement after statement is ended."
-            );
+            Diagnostic::spanned(
+                item.source().span().unwrap(),
+                Level::Error,
+                "Internal Oxiplate error: Attempted to add item to ended `block` statement.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+block+statement")
+            .help("Include template that caused the issue and the associated note.")
+            .help(format!("Item: {item:?}"))
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
 
         match item {
