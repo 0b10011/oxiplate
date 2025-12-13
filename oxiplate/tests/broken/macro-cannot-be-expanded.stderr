@@ -20,15 +20,3 @@ error: attribute value must be a literal
   |              ^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `Inline` doesn't implement `std::fmt::Display`
-  --> tests/broken/macro-cannot-be-expanded.rs:12:18
-   |
-12 |     print!("{}", Inline);
-   |             --   ^^^^^^ `Inline` cannot be formatted with the default formatter
-   |             |
-   |             required by this formatting parameter
-   |
-   = help: the trait `std::fmt::Display` is not implemented for `Inline`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
-   = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)

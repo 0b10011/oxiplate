@@ -57,7 +57,7 @@ impl<'a> Writ<'a> {
         // rather than the escaper's.
         let span = text.span();
 
-        let escaper_type: EscaperType = match self.escaper_type(state, text) {
+        let escaper_type: EscaperType = match self.escaper_type(state) {
             Ok(escaper_type) => escaper_type,
             Err(tokens) => return tokens,
         };
@@ -77,11 +77,7 @@ impl<'a> Writ<'a> {
         }
     }
 
-    fn escaper_type(
-        &'a self,
-        state: &'a State,
-        text: &TokenStream,
-    ) -> Result<EscaperType<'a>, (TokenStream, usize)> {
+    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, (TokenStream, usize)> {
         match &self.escaper {
             Some(Escaper {
                 group: Some(group),
@@ -131,10 +127,11 @@ impl<'a> Writ<'a> {
                             escaper,
                         ))
                     } else {
-                        let span = text.span();
+                        let span = escaper.source.span();
+                        let fallback_group = fallback_group.as_str();
                         Err((
                             quote_spanned! {span=>
-                                compile_error!("Invalid fallback escaper group specified");
+                                compile_error!(concat!("Escaper could not be found because an invalid fallback escaper group `", #fallback_group, "` was specified in `/oxiplate.toml`. Specify the escaper group in the writ, or fix the fallback escaper group in `/oxiplate.toml`."));
                             },
                             0,
                         ))

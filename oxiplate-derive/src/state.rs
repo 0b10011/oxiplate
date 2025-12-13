@@ -18,20 +18,46 @@ compile_error!(
 
 /// Build a `Config` from Oxiplate's defaults
 /// and the user-defined `/oxiplate.toml`.
-pub(crate) fn build_config(input: &DeriveInput) -> Result<Config, syn::Error> {
+pub(crate) fn build_config(input: &DeriveInput) -> Result<Config, (syn::Error, OptimizedRenderer)> {
     #[cfg(not(feature = "config"))]
     if fs::exists(config_path()).unwrap_or(false) {
-        return Err(syn::Error::new(
-            input.span(),
-            r#"`/oxiplate.toml` exists, but the "config" feature is turned off. Either delete/rename `/oxiplate.toml`, or turn the "config" feature on."#,
+        return Err((
+            syn::Error::new(
+                input.span(),
+                r#"`/oxiplate.toml` exists, but the "config" feature is turned off. Either delete/rename `/oxiplate.toml`, or turn the "config" feature on."#,
+            ),
+            OptimizedRenderer::unoptimized(),
         ));
     }
 
     #[cfg(not(feature = "built-in-escapers"))]
-    return read_config(input);
+    let config = read_config(input);
 
     #[cfg(feature = "built-in-escapers")]
-    read_config_and_add_built_in_escapers(input)
+    let config = read_config_and_add_built_in_escapers(input);
+
+    let config = config.map_err(|err| (err, OptimizedRenderer::unoptimized()))?;
+
+    if let Some(ref fallback_escaper_group) = config.fallback_escaper_group
+        && fallback_escaper_group != "raw"
+        && !config
+            .escaper_groups
+            .contains_key(fallback_escaper_group.as_str())
+    {
+        return Err((
+            syn::Error::new(
+                input.span(),
+                format!(
+                    "The `fallback_escaper_group` that was provided (`{fallback_escaper_group}`) \
+                     does not match any of the `escaper_groups` specified in `/oxiplate.toml`. \
+                     Fix `fallback_escaper_group` or add the missing group to `escaper_groups`."
+                ),
+            ),
+            config.optimized_renderer,
+        ));
+    }
+
+    Ok(config)
 }
 
 /// Build a `Config` from the user-defined `/oxiplate.toml`
@@ -133,7 +159,14 @@ impl Deref for InferEscaperGroupFromFileExtension {
 }
 
 #[cfg_attr(feature = "config", derive(Deserialize))]
+#[derive(Clone)]
 pub(crate) struct OptimizedRenderer(bool);
+
+impl OptimizedRenderer {
+    pub(super) fn unoptimized() -> Self {
+        OptimizedRenderer(false)
+    }
+}
 
 impl Default for OptimizedRenderer {
     fn default() -> Self {

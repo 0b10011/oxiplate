@@ -29,6 +29,7 @@ pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::build_config;
+use crate::state::OptimizedRenderer;
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -101,7 +102,7 @@ pub(crate) fn oxiplate_internal(
     input: TokenStream,
     blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
 ) -> (TokenStream, usize) {
-    match parse_template_and_data(input, blocks) {
+    match parse_input(input, blocks) {
         Ok(token_stream) => token_stream,
         Err(err) => (err.to_compile_error().into(), 0),
     }
@@ -110,44 +111,29 @@ pub(crate) fn oxiplate_internal(
 /// Parses the template information from the attributes
 /// and data information from the associated struct.
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
-fn parse_template_and_data(
+fn parse_input(
     input: TokenStream,
     blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
 ) -> Result<(TokenStream, usize), syn::Error> {
-    let input = syn::parse(input).unwrap();
+    let input = syn::parse(input)?;
     let DeriveInput {
-        attrs,
-        ident,
-        data,
-        generics,
-        ..
+        ident, generics, ..
     } = &input;
 
-    // Ensure the data is a struct
-    match data {
-        Data::Struct(_struct_item) => (),
-        _ => {
-            return Err(syn::Error::new(input.span(), "Expected a struct"));
-        }
-    }
-
-    // Build the shared state from the `oxiplate.toml` file.
-    let config = build_config(&input)?;
-    let mut state = State {
-        local_variables: &HashSet::new(),
-        inferred_escaper_group: None,
-        default_escaper_group: None,
-        failed_to_set_default_escaper_group: &false,
-        config: &config,
-        blocks,
-        has_content: &false,
+    let (template, estimated_length, template_type, optimized_renderer): (
+        proc_macro2::TokenStream,
+        usize,
+        TemplateType,
+        OptimizedRenderer,
+    ) = match parse_template_and_data(&input, blocks) {
+        Ok(data) => data,
+        Err((err, template_type, optimized_renderer)) => (
+            err.to_compile_error(),
+            0,
+            template_type.unwrap_or(TemplateType::Inline),
+            optimized_renderer,
+        ),
     };
-
-    // Parse the template type and code literal.
-    let (attr, template_type) = parse_template_type(attrs, ident.span())?;
-    let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
-    let (template, estimated_length): (proc_macro2::TokenStream, usize) =
-        process_parsed_tokens(parsed_tokens, &template_type, &state)?;
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if template_type == TemplateType::Extends || template_type == TemplateType::Include {
@@ -155,7 +141,7 @@ fn parse_template_and_data(
     }
 
     let where_clause = &generics.where_clause;
-    let expanded = if *state.config.optimized_renderer {
+    let expanded = if *optimized_renderer {
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -192,6 +178,71 @@ fn parse_template_and_data(
     };
 
     Ok((TokenStream::from(expanded), estimated_length))
+}
+
+fn parse_template_and_data(
+    input: &DeriveInput,
+    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
+) -> Result<
+    (
+        proc_macro2::TokenStream,
+        usize,
+        TemplateType,
+        OptimizedRenderer,
+    ),
+    (syn::Error, Option<TemplateType>, OptimizedRenderer),
+> {
+    // Build the shared config from the `oxiplate.toml` file.
+    let config =
+        build_config(input).map_err(|(err, optimized_renderer)| (err, None, optimized_renderer))?;
+
+    let DeriveInput {
+        attrs, ident, data, ..
+    } = &input;
+
+    // Ensure the data is a struct
+    match data {
+        Data::Struct(_struct_item) => (),
+        _ => {
+            return Err((
+                syn::Error::new(input.span(), "Expected a struct"),
+                None,
+                config.optimized_renderer,
+            ));
+        }
+    }
+
+    let mut state = State {
+        local_variables: &HashSet::new(),
+        inferred_escaper_group: None,
+        default_escaper_group: None,
+        failed_to_set_default_escaper_group: &false,
+        config: &config,
+        blocks,
+        has_content: &false,
+    };
+
+    // Parse the template type and code literal.
+    let (attr, template_type) = parse_template_type(attrs, ident.span())
+        .map_err(|err: syn::Error| (err, None, config.optimized_renderer.clone()))?;
+    let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
+    let (template, estimated_length): (proc_macro2::TokenStream, usize) =
+        process_parsed_tokens(parsed_tokens, &template_type, &state).map_err(
+            |err: syn::Error| {
+                (
+                    err,
+                    Some(template_type.clone()),
+                    config.optimized_renderer.clone(),
+                )
+            },
+        )?;
+
+    Ok((
+        template,
+        estimated_length,
+        template_type,
+        state.config.optimized_renderer.clone(),
+    ))
 }
 
 type ParsedTokens = Result<
@@ -272,7 +323,7 @@ fn process_parsed_tokens(
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 enum TemplateType {
     Path,
     Inline,
