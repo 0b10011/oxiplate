@@ -1,5 +1,5 @@
 error: The specified escaper group `html` is not registered in `/oxiplate.toml`. Registered escaper groups:
- --> tests/broken/escaper-without-default-escaper-group.rs:4:19
+ --> tests/broken/unregistered-escaper-group.rs:4:19
   |
 4 | #[oxiplate_inline(html: "{{ text: message }}")]
   |                   ^^^^

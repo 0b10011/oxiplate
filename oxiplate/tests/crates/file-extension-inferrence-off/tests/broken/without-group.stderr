@@ -1,0 +1,5 @@
+error: No escaper group was selected and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`.
+ --> tests/broken/without-group.rs:4:32
+  |
+4 | #[oxiplate_inline("Message: {{ text: text}}")]
+  |                                ^^^^
