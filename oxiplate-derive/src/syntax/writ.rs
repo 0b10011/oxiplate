@@ -127,6 +127,8 @@ impl<'a> Writ<'a> {
                             escaper,
                         ))
                     } else {
+                        // This should have been caught during initial parsing of the config,
+                        // but leaving a helpful error message just in case.
                         let span = escaper.source.span();
                         let fallback_group = fallback_group.as_str();
                         Err((
@@ -211,6 +213,8 @@ impl<'a> Writ<'a> {
             }
 
             let Some(fallback_group) = state.config.escaper_groups.get(fallback_group_name) else {
+                // This should have been caught during initial parsing of the config,
+                // but leaving a helpful error message just in case.
                 return token_error!(
                     span,
                     "Invalid fallback escaper group specified. Make sure the escaper name in the \
