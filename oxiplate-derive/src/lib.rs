@@ -180,18 +180,17 @@ fn parse_input(
     Ok((TokenStream::from(expanded), estimated_length))
 }
 
+type ParsedTemplate = (
+    proc_macro2::TokenStream,
+    usize,
+    TemplateType,
+    OptimizedRenderer,
+);
+
 fn parse_template_and_data(
     input: &DeriveInput,
     blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
-) -> Result<
-    (
-        proc_macro2::TokenStream,
-        usize,
-        TemplateType,
-        OptimizedRenderer,
-    ),
-    (syn::Error, Option<TemplateType>, OptimizedRenderer),
-> {
+) -> Result<ParsedTemplate, (syn::Error, Option<TemplateType>, OptimizedRenderer)> {
     // Build the shared config from the `oxiplate.toml` file.
     let config =
         build_config(input).map_err(|(err, optimized_renderer)| (err, None, optimized_renderer))?;
