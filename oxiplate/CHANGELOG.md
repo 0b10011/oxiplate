@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.0...oxiplate-v0.15.1) - 2025-12-13
+
+### Added
+
+- improved handling of parsing errors to generate impls of `Display` and `Render`
+
+### Other
+
+- added test for when the default escaper is set to raw using oxiplate
+- added tests for escaper group config coverage
+- improved coverage by including escaper name when default escaper group is set
+- added test for invalid fallback escaper groups
+- simplified type to get rid of warning
+- added test for whitespace followed by `{` to improve coverage
+
 ## [0.15.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.14.0...oxiplate-v0.15.0) - 2025-12-12
 
 ### Added
