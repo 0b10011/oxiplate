@@ -351,6 +351,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-default-raw"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-escaper-without-config"
 version = "0.0.0"
 dependencies = [

@@ -1,0 +1,8 @@
+[package]
+name = "oxiplate-test-default-raw"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate = { path = "../../../", default-features = false, features = ["config"]}
