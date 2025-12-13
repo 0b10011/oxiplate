@@ -1,0 +1,8 @@
+error: The `fallback_escaper_group` that was provided (`invalid-escaper-group`) does not match any of the `escaper_groups` specified in `/oxiplate.toml`. Fix `fallback_escaper_group` or add the missing group to `escaper_groups`.
+ --> tests/broken/malformed-fallback-group.rs:4:1
+  |
+4 | / #[oxiplate_inline("{{ text: data }}")]
+5 | | struct Data {
+6 | |     value: &'static str,
+7 | | }
+  | |_^
