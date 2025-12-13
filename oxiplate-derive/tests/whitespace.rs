@@ -97,3 +97,13 @@ replace replacetag
 "
     );
 }
+
+// Covers edge case of when static is only whitespace followed by `{`
+#[derive(Oxiplate)]
+#[oxiplate_inline(" \t\r\n{")]
+struct WhitespaceOnly;
+
+#[test]
+fn whitespace_only() {
+    assert_eq!(" \t\r\n{", format!("{}", WhitespaceOnly));
+}
