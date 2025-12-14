@@ -2,4 +2,4 @@ error: No escaper is specified, it could not be inferred from the template's fil
  --> templates/template.html.oxip
   |
   | Message: {{ message -}}
-  |             ^^^^^^^
+  |          ^^^^^^^^^^^^^^

@@ -50,12 +50,7 @@ impl<'a> Writ<'a> {
         let (text, text_length) = &self.expression.to_tokens(state);
         estimated_length += text_length;
 
-        // Errors with the escape/raw calls
-        // will almost always be issues
-        // with the type of the expression being escaped,
-        // so it'll be more helpful to use the expression's span
-        // rather than the escaper's.
-        let span = text.span();
+        let span = self.source.span();
 
         let escaper_type: EscaperType = match self.escaper_type(state) {
             Ok(escaper_type) => escaper_type,
