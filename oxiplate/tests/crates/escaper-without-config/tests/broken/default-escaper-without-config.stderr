@@ -1,0 +1,5 @@
+error: No escaper is specified, it could not be inferred from the template's file extension, and the "config" feature is turned off so no default escaper group could be defined. Check to make sure the template's file extension is correct.
+ --> tests/broken/default-escaper-without-config.rs:4:20
+  |
+4 | #[oxiplate_inline("{{ message }}")]
+  |                    ^^^^^^^^^^^^^
