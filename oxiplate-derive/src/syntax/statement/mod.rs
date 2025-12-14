@@ -115,7 +115,9 @@ impl<'a> Statement<'a> {
         }
 
         match &self.kind {
-            StatementKind::DefaultEscaper(default_escaper) => default_escaper.to_tokens(state),
+            StatementKind::DefaultEscaper(default_escaper) => {
+                default_escaper.to_tokens(state, &self.source)
+            }
             StatementKind::Extends(statement) => {
                 if *state.has_content {
                     let span = self.source.span();

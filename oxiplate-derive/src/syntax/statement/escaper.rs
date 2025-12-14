@@ -31,9 +31,10 @@ impl DefaultEscaper<'_> {
     pub(crate) fn to_tokens(
         &self,
         state: &State,
+        statement_source: &Source<'_>,
     ) -> Result<(TokenStream, usize), (TokenStream, usize)> {
         if state.default_escaper_group.is_some() {
-            let span = self.escaper.span();
+            let span = statement_source.span();
             let tag = self.tag.0.as_str();
             let tag_span = self.tag.span();
             let tag = quote_spanned! {tag_span=> #tag };
@@ -42,7 +43,7 @@ impl DefaultEscaper<'_> {
                 0,
             ))
         } else if *state.has_content {
-            let span = self.escaper.span();
+            let span = statement_source.span();
             let tag = self.tag.0.as_str();
             let tag_span = self.tag.span();
             let tag = quote_spanned! {tag_span=> #tag };

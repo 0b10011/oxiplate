@@ -1,8 +1,8 @@
 error: Unexpected 'default_escaper_group' statement after already setting the default escaper group
- --> tests/broken/escaping/default-escaper-group-twice.rs:4:77
+ --> tests/broken/escaping/default-escaper-group-twice.rs:4:52
   |
 4 | #[oxiplate_inline("{% default_escaper_group html %}{% default_escaper_group html %}{{ title }}")]
-  |                                                                             ^^^^
+  |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: Some writ tokens were not generated due to an error setting the default escaper group.
  --> tests/broken/escaping/default-escaper-group-twice.rs:3:10
