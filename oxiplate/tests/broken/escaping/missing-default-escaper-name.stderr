@@ -1,5 +1,5 @@
 error: Expected an escaper group name
  --> tests/broken/escaping/missing-default-escaper-name.rs:4:45
   |
-4 | #[oxiplate_inline("{% default_escaper_group %}{{ title }}")]
-  |                                             ^^^^^^^^^^^^^
+4 | #[oxiplate_inline("{% default_escaper_group %}{{ title }}{{ text: title }}")]
+  |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,11 +1,13 @@
 error: Setting the default escaper group to `json` failed due to the inferred escaper group already being set to `html`. If this was intentional, consider using `replace_escaper_group` instead.
  --> tests/broken/escaping/default-escaper-group-json-in-html.rs:4:51
   |
-4 | #[oxiplate_inline(html: "{% default_escaper_group json %}{% default_escaper_group json %}{{ title }}")]
+4 | #[oxiplate_inline(html: "{% default_escaper_group json %}{{ title }}")]
   |                                                   ^^^^
 
-error: Unexpected 'default_escaper_group' statement after already setting the default escaper group
- --> tests/broken/escaping/default-escaper-group-json-in-html.rs:4:83
+error: Some writ tokens were not generated due to an error setting the default escaper group.
+ --> tests/broken/escaping/default-escaper-group-json-in-html.rs:3:10
   |
-4 | #[oxiplate_inline(html: "{% default_escaper_group json %}{% default_escaper_group json %}{{ title }}")]
-  |                                                                                   ^^^^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

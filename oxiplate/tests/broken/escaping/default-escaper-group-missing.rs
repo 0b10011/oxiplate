@@ -1,7 +1,7 @@
 use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{% default_escaper_group escaper_that_does_not_exist %}{{ title }}")]
+#[oxiplate_inline("{% default_escaper_group escaper_that_does_not_exist %}{{ title }}{{ text: title }}")]
 struct MissingEscaperGroup {
     title: &'static str,
 }

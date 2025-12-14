@@ -106,6 +106,11 @@ impl<'a> Writ<'a> {
                         escaper.source.span(),
                         escaper,
                     ))
+                } else if *state.failed_to_set_default_escaper_group {
+                    Err((
+                        quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
+                        0,
+                    ))
                 } else if let Some(inferred_group) = state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
                         inferred_group,
@@ -182,6 +187,11 @@ impl<'a> Writ<'a> {
                 span,
                 r"Escapers must be specified on all writs due to `require_specifying_escaper` config setting being set to `true` in `/oxiplate.toml`."
             );
+        } else if *state.failed_to_set_default_escaper_group {
+            return (
+                quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
+                0,
+            );
         }
 
         let default_group: (&str, &EscaperGroup) = if let Some(default_group) =
@@ -219,13 +229,6 @@ impl<'a> Writ<'a> {
 
             (fallback_group_name, fallback_group)
         } else {
-            if *state.failed_to_set_default_escaper_group {
-                return (
-                    quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
-                    0,
-                );
-            }
-
             #[cfg(not(feature = "config"))]
             return token_error!(
                 span,

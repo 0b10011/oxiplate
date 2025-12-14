@@ -3,3 +3,11 @@ error: Unexpected 'replace_escaper_group' statement after content already presen
   |
 4 | #[oxiplate_inline("<!DOCTYPE html>{% replace_escaper_group html %}{{ title }}")]
   |                                                            ^^^^
+
+error: Some writ tokens were not generated due to an error setting the default escaper group.
+ --> tests/broken/escaping/replace-escaper-group-after-content.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,7 +1,7 @@
 use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(html: "{% default_escaper_group json %}{% default_escaper_group json %}{{ title }}")]
+#[oxiplate_inline(html: "{% default_escaper_group json %}{{ title }}")]
 struct JsonInHtml {
     title: &'static str,
 }

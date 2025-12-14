@@ -1,7 +1,7 @@
 use oxiplate::{Oxiplate, Render};
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{% default_escaper_group %}{{ title }}")]
+#[oxiplate_inline("{% default_escaper_group %}{{ title }}{{ text: title }}")]
 struct Data {
     title: &'static str,
 }
