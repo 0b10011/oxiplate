@@ -1,0 +1,11 @@
+error: Setting the default escaper group to `json` failed due to the inferred escaper group already being set to `html`. If this was intentional, consider using `replace_escaper_group` instead.
+ --> tests/broken/escaping/default-escaper-group-json-in-html.rs:4:51
+  |
+4 | #[oxiplate_inline(html: "{% default_escaper_group json %}{% default_escaper_group json %}{{ title }}")]
+  |                                                   ^^^^
+
+error: Unexpected 'default_escaper_group' statement after already setting the default escaper group
+ --> tests/broken/escaping/default-escaper-group-json-in-html.rs:4:83
+  |
+4 | #[oxiplate_inline(html: "{% default_escaper_group json %}{% default_escaper_group json %}{{ title }}")]
+  |                                                                                   ^^^^

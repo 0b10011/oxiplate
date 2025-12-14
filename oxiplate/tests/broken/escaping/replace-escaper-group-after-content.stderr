@@ -1,0 +1,5 @@
+error: Unexpected 'replace_escaper_group' statement after content already present in template
+ --> tests/broken/escaping/replace-escaper-group-after-content.rs:4:60
+  |
+4 | #[oxiplate_inline("<!DOCTYPE html>{% replace_escaper_group html %}{{ title }}")]
+  |                                                            ^^^^
