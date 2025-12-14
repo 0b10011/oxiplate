@@ -48,6 +48,14 @@ macro_rules! bail {
     }};
 }
 
+macro_rules! bail_eof {
+    ($message:expr, $help:literal, $original:ident, $debug_range:ident) => {{
+        $debug_range.start -= 1;
+        $debug_range.end -= 1;
+        bail!($message, $help, $original, $debug_range);
+    }};
+}
+
 impl<'a> Source<'a> {
     pub fn as_str(&self) -> &'a str {
         &self.original.code[self.range.clone()]
@@ -147,9 +155,7 @@ impl<'a> Source<'a> {
         debug_range: &mut Range<usize>,
     ) -> Option<usize> {
         let Some((pos, char)) = chars.next() else {
-            debug_range.start -= 1;
-            debug_range.end -= 1;
-            bail!(
+            bail_eof!(
                 r"Internal Oxiplate error: Failed to parse start of string. Unexpected end of string.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+string",
                 owned_source,
@@ -209,44 +215,36 @@ impl<'a> Source<'a> {
         // Up to 0x7F
         match chars.next() {
             Some((pos, '0'..='7')) => Self::update_range(range, pos),
-            Some((_pos, _char)) => bail!(
+            Some(_) => bail!(
                 r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-7]`.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
                 owned_source,
                 debug_range
             ),
-            None => {
-                debug_range.start -= 1;
-                debug_range.end -= 1;
-                bail!(
-                    r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
-                    owned_source,
-                    debug_range
-                )
-            }
+            None => bail_eof!(
+                r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
+                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                owned_source,
+                debug_range
+            ),
         }
         debug_range.start += 1;
         debug_range.end += 1;
 
         match chars.next() {
             Some((pos, '0'..='9' | 'a'..='f' | 'A'..='F')) => Self::update_range(range, pos),
-            Some((_pos, _char)) => bail!(
+            Some(_) => bail!(
                 r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-9a-f]`.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
                 owned_source,
                 debug_range
             ),
-            None => {
-                debug_range.start -= 1;
-                debug_range.end -= 1;
-                bail!(
-                    r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
-                    owned_source,
-                    debug_range
-                )
-            }
+            None => bail_eof!(
+                r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
+                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                owned_source,
+                debug_range
+            ),
         }
         debug_range.start += 1;
         debug_range.end += 1;
@@ -262,9 +260,7 @@ impl<'a> Source<'a> {
         let mut unicode_code = String::new();
         loop {
             let Some((pos, char)) = chars.next() else {
-                debug_range.start -= 1;
-                debug_range.end -= 1;
-                bail!(
+                bail_eof!(
                     r"Internal Oxiplate error: Failed to parse unicode escape. Unexpected end of string.",
                     "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
                     owned_source,
@@ -370,9 +366,7 @@ impl<'a> Source<'a> {
         debug_range: &mut Range<usize>,
     ) {
         let Some((pos, char)) = chars.next() else {
-            debug_range.start -= 1;
-            debug_range.end -= 1;
-            bail!(
+            bail_eof!(
                 r"Internal Oxiplate error: Failed to parse escape. Unexpected end of string.",
                 "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+escape",
                 owned_source,
