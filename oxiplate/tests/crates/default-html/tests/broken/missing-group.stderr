@@ -1,0 +1,5 @@
+error: The specified escaper group `htm` is not registered in `/oxiplate.toml`. Registered escaper groups: html
+ --> tests/broken/missing-group.rs:4:19
+  |
+4 | #[oxiplate_inline(htm: "{{ message }}")]
+  |                   ^^^
