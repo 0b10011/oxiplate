@@ -102,20 +102,20 @@ pub(crate) fn oxiplate_internal(
     input: TokenStream,
     blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
 ) -> (TokenStream, usize) {
-    match parse_input(input, blocks) {
-        Ok(token_stream) => token_stream,
-        Err(err) => (err.to_compile_error().into(), 0),
-    }
+    let input = match syn::parse(input) {
+        Ok(input) => input,
+        Err(err) => return (err.to_compile_error().into(), 0),
+    };
+    parse_input(&input, blocks)
 }
 
 /// Parses the template information from the attributes
 /// and data information from the associated struct.
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
 fn parse_input(
-    input: TokenStream,
+    input: &DeriveInput,
     blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
-) -> Result<(TokenStream, usize), syn::Error> {
-    let input = syn::parse(input)?;
+) -> (TokenStream, usize) {
     let DeriveInput {
         ident, generics, ..
     } = &input;
@@ -125,7 +125,7 @@ fn parse_input(
         usize,
         TemplateType,
         OptimizedRenderer,
-    ) = match parse_template_and_data(&input, blocks) {
+    ) = match parse_template_and_data(input, blocks) {
         Ok(data) => data,
         Err((err, template_type, optimized_renderer)) => (
             err.to_compile_error(),
@@ -137,7 +137,7 @@ fn parse_input(
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if template_type == TemplateType::Extends || template_type == TemplateType::Include {
-        return Ok((template.into(), estimated_length));
+        return (template.into(), estimated_length);
     }
 
     let where_clause = &generics.where_clause;
@@ -177,7 +177,7 @@ fn parse_input(
         }
     };
 
-    Ok((TokenStream::from(expanded), estimated_length))
+    (TokenStream::from(expanded), estimated_length)
 }
 
 type ParsedTemplate = (
