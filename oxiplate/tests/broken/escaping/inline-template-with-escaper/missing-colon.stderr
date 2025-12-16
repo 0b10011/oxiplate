@@ -1,0 +1,12 @@
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/escaping/inline-template-with-escaper/missing-colon.rs:4:24
+  |
+4 | #[oxiplate_inline(html "<!DOCTYPE html><title>{{ title }}</title>")]
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: expected `:`
+ --> tests/broken/escaping/inline-template-with-escaper/missing-colon.rs:4:24
+  |
+4 | #[oxiplate_inline(html "<!DOCTYPE html><title>{{ title }}</title>")]
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

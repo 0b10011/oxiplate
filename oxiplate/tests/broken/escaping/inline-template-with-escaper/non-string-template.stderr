@@ -1,0 +1,5 @@
+error: expected string literal
+ --> tests/broken/escaping/inline-template-with-escaper/non-string-template.rs:4:25
+  |
+4 | #[oxiplate_inline(html: 19)]
+  |                         ^^
