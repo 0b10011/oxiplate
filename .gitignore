@@ -1,5 +1,6 @@
 target
 /book-output
+/lcov.info
 
 # Ignore the cargo lockfile in subdirectories,
 # but not the main one.
