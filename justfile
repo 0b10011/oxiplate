@@ -91,4 +91,4 @@ setup-coverage:
 # Initial setup for generating the book.
 [group("Setup")]
 setup-book:
-    cargo install mdbook mdbook-codename
+    cargo install mdbook@0.4.52 mdbook-codename
