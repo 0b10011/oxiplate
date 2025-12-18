@@ -33,7 +33,8 @@ format-broken:
 
 # Run `cargo clippy` against all packages.
 [group("Lint")]
-clippy: (run-against-all "cargo clippy")
+clippy:
+    cargo clippy --workspace
 
 # Run tests without coverage.
 [group("Test")]
