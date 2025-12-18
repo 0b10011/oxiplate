@@ -1,0 +1,28 @@
+name: tests-and-coverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2025-08-07
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Dependencies
+        run: cargo install just && just setup-coverage setup-expansion
+      - name: Run tests and coverage
+        run: just coverage expansion-tests
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          file: lcov.info
+          format: lcov
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
