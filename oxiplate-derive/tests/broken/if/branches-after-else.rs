@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("
+#[oxiplate_inline(
+    "
 {% if foo %}
     foo
 {% else %}
@@ -15,7 +16,8 @@ use oxiplate_derive::Oxiplate;
 {% elseif foo %}
     world
 {% endif %}
-{% else %}")]
+{% else %}"
+)]
 struct Data {
     foo: bool,
 }

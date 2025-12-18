@@ -8,13 +8,13 @@ error: `/oxiplate.toml` exists, but the "config" feature is turned off. Either d
   | |_^
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
- --> tests/broken/feature-turned-off.rs:15:14
+ --> tests/broken/feature-turned-off.rs:14:21
   |
  5 | struct Data<'a> {
    | --------------- method `render` not found for this struct
 ...
-15 |         data.render().unwrap(),
-   |              ^^^^^^ method not found in `Data<'_>`
+14 |     assert_eq!(data.render().unwrap(), "Hello world!");
+   |                     ^^^^^^ method not found in `Data<'_>`
    |
    = help: items from traits can only be used if the trait is implemented and in scope
    = note: the following trait defines an item `render`, perhaps you need to implement it:

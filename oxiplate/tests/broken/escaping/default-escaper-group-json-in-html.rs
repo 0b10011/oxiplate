@@ -7,5 +7,9 @@ struct JsonInHtml {
 }
 
 pub fn main() {
-    JsonInHtml { title: "<!DOCTYPE html>Hello world" }.render().unwrap();
+    JsonInHtml {
+        title: "<!DOCTYPE html>Hello world",
+    }
+    .render()
+    .unwrap();
 }

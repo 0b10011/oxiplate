@@ -7,7 +7,10 @@ struct Writ {
 }
 
 fn main() {
-    print!("{}", Writ {
-        title: "Double extends",
-    });
+    print!(
+        "{}",
+        Writ {
+            title: "Double extends",
+        }
+    );
 }

@@ -8,11 +8,8 @@ struct Data<'a> {
 
 fn main() {
     let data = Data {
-        message: "Hello world!"
+        message: "Hello world!",
     };
 
-    assert_eq!(
-        data.render().unwrap(),
-        "Hello world!"
-    );
+    assert_eq!(data.render().unwrap(), "Hello world!");
 }

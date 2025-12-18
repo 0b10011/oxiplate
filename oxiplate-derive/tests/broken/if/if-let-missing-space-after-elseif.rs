@@ -15,8 +15,5 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!(
-        "Greater than 0.",
-        format!("{}", Data { value: 19 })
-    );
+    assert_eq!("Greater than 0.", format!("{}", Data { value: 19 }));
 }

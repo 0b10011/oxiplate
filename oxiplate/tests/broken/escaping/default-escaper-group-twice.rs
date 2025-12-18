@@ -7,5 +7,9 @@ struct DefaultTwice {
 }
 
 pub fn main() {
-    DefaultTwice { title: "<!DOCTYPE html>Hello world" }.render().unwrap();
+    DefaultTwice {
+        title: "<!DOCTYPE html>Hello world",
+    }
+    .render()
+    .unwrap();
 }

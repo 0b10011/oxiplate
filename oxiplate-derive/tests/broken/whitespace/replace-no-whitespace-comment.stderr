@@ -1,23 +1,23 @@
 error: Whitespace replace character `_` used before non-whitespace. Either add whitespace or change how whitespace is handled after this tag.
- --> tests/broken/whitespace/replace-no-whitespace-comment.rs:5:14
+ --> tests/broken/whitespace/replace-no-whitespace-comment.rs:6:14
   |
-5 | {# "replace" _#}{#_ "replace" #}
+6 | {# "replace" _#}{#_ "replace" #}
   |              ^^^
 
 error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
- --> tests/broken/whitespace/replace-no-whitespace-comment.rs:5:17
+ --> tests/broken/whitespace/replace-no-whitespace-comment.rs:6:17
   |
-5 | {# "replace" _#}{#_ "replace" #}
+6 | {# "replace" _#}{#_ "replace" #}
   |                 ^^^
 
 error: Whitespace replace character `_` used before non-whitespace. Either add whitespace or change how whitespace is handled after this tag.
- --> tests/broken/whitespace/replace-no-whitespace-comment.rs:6:14
+ --> tests/broken/whitespace/replace-no-whitespace-comment.rs:7:14
   |
-6 | {# "replace" _#}{# "preserve" #}
+7 | {# "replace" _#}{# "preserve" #}
   |              ^^^
 
 error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
- --> tests/broken/whitespace/replace-no-whitespace-comment.rs:7:17
+ --> tests/broken/whitespace/replace-no-whitespace-comment.rs:8:17
   |
-7 | {# "preserve" #}{#_ "replace" #}
+8 | {# "preserve" #}{#_ "replace" #}
   |                 ^^^

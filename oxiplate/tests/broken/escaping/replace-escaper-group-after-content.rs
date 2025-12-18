@@ -7,5 +7,9 @@ struct ReplaceAfterContent {
 }
 
 pub fn main() {
-    ReplaceAfterContent { title: "<!DOCTYPE html>Hello world" }.render().unwrap();
+    ReplaceAfterContent {
+        title: "<!DOCTYPE html>Hello world",
+    }
+    .render()
+    .unwrap();
 }

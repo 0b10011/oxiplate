@@ -17,8 +17,5 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!(
-        "No value provided.",
-        format!("{}", Data { value: None })
-    );
+    assert_eq!("No value provided.", format!("{}", Data { value: None }));
 }

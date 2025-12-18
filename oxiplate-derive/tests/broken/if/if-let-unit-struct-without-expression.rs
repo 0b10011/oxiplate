@@ -13,8 +13,5 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!(
-        "10 + 9 = 19",
-        format!("{}", Data { value: None })
-    );
+    assert_eq!("10 + 9 = 19", format!("{}", Data { value: None }));
 }

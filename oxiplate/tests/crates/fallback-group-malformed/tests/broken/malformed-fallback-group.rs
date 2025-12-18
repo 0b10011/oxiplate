@@ -8,7 +8,11 @@ struct Data {
 
 fn main() {
     assert_eq!(
-        Data { value: "Hello world!" }.render().unwrap(),
+        Data {
+            value: "Hello world!"
+        }
+        .render()
+        .unwrap(),
         "Hello world!"
     );
 }

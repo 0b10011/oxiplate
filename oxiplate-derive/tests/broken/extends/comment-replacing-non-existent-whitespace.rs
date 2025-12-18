@@ -8,5 +8,11 @@ struct Data {
 }
 
 fn main() {
-    print!("{}", Data { title: "Title", message: "Message" });
+    print!(
+        "{}",
+        Data {
+            title: "Title",
+            message: "Message"
+        }
+    );
 }

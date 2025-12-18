@@ -1,9 +1,9 @@
 use oxiplate::Oxiplate;
 
 mod filters_for_oxiplate {
-    use oxiplate_traits::CowStr;
-
     use std::borrow::Cow;
+
+    use oxiplate_traits::CowStr;
 
     pub fn respond<'a, E: CowStr<'a>, R: CowStr<'a>>(expression: E, response: R) -> Cow<'a, str> {
         let expression = expression.cow_str();

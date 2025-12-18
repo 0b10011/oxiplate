@@ -15,8 +15,5 @@ struct ValueWrapper {
 }
 
 fn main() {
-    assert_eq!(
-        "19",
-        format!("{}", ValueWrapper { value: Value(19) })
-    );
+    assert_eq!("19", format!("{}", ValueWrapper { value: Value(19) }));
 }

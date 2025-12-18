@@ -1,4 +1,4 @@
-use oxiplate_derive::{Oxiplate};
+use oxiplate_derive::Oxiplate;
 
 #[deny(dead_code)]
 #[derive(Oxiplate)]

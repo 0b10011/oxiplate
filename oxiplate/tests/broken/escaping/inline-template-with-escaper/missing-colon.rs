@@ -7,5 +7,9 @@ struct DefaultAfterContent {
 }
 
 pub fn main() {
-    DefaultAfterContent { title: "Hello world" }.render().unwrap();
+    DefaultAfterContent {
+        title: "Hello world",
+    }
+    .render()
+    .unwrap();
 }

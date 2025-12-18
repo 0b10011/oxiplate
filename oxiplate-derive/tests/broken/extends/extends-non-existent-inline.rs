@@ -1,4 +1,4 @@
-use oxiplate_derive::{Oxiplate};
+use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(r#"{% extends "extends-non-existent.html.oxip" %}"#)]

@@ -22,8 +22,14 @@ book:
 
 # Format code.
 [group("Lint")]
-format:
+format: && format-broken
     cargo fmt
+
+# Format Rust files in each `/broken/` directory
+[private]
+[group("Lint")]
+format-broken:
+    find -type d -name broken -print0 | xargs -0 -I{} find '{}' -name '*.rs' -print0 | xargs -0 -n 999 rustfmt
 
 # Run `cargo clippy` against all packages.
 [group("Lint")]

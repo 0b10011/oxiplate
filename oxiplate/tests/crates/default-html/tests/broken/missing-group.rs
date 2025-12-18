@@ -11,8 +11,5 @@ fn main() {
         message: "Hello world!",
     };
 
-    assert_eq!(
-        data.render().unwrap(),
-        "Hello world!"
-    );
+    assert_eq!(data.render().unwrap(), "Hello world!");
 }

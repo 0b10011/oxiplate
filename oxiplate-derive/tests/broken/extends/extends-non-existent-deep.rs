@@ -1,4 +1,4 @@
-use oxiplate_derive::{Oxiplate};
+use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate = "extends-missing-deep.html.oxip"]

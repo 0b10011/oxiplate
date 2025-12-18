@@ -25,5 +25,13 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!(format!("{}", Data { message: Message("goodbye".to_string()) }), "did not understand: goodbye");
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                message: Message("goodbye".to_string())
+            }
+        ),
+        "did not understand: goodbye"
+    );
 }

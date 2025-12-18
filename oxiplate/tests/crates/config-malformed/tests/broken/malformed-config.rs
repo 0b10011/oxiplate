@@ -5,8 +5,5 @@ use oxiplate::{Oxiplate, Render};
 struct Data;
 
 fn main() {
-    assert_eq!(
-        Data.render().unwrap(),
-        "Hello world!"
-    );
+    assert_eq!(Data.render().unwrap(), "Hello world!");
 }

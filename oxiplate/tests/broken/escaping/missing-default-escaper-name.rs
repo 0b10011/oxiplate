@@ -7,5 +7,12 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!("Hello World", Data { title: "Hello World" }.render().unwrap());
+    assert_eq!(
+        "Hello World",
+        Data {
+            title: "Hello World"
+        }
+        .render()
+        .unwrap()
+    );
 }

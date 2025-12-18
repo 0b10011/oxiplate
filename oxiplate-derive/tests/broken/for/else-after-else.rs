@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("
+#[oxiplate_inline(
+    "
 {% for number in numbers %}
     {{ number }}
 {% else %}
@@ -11,11 +12,17 @@ use oxiplate_derive::Oxiplate;
 {% else %}
     world
 {% endfor %}
-{% else %}")]
+{% else %}"
+)]
 struct Data {
     numbers: Vec<u8>,
 }
 
 fn main() {
-    print!("{}", Data { numbers: vec![19, 89] });
+    print!(
+        "{}",
+        Data {
+            numbers: vec![19, 89]
+        }
+    );
 }

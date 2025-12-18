@@ -1,8 +1,8 @@
 error: No escaper group named `escaper_that_does_not_exist` was found. Available: html, json, md, your_group
- --> tests/broken/escaping/default-escaper-group-missing.rs:4:45
+ --> tests/broken/escaping/default-escaper-group-missing.rs:5:31
   |
-4 | #[oxiplate_inline("{% default_escaper_group escaper_that_does_not_exist %}{{ title }}{{ text: title }}")]
-  |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |     "{% default_escaper_group escaper_that_does_not_exist %}{{ title }}{{ text: title }}"
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: Some writ tokens were not generated due to an error setting the default escaper group.
  --> tests/broken/escaping/default-escaper-group-missing.rs:3:10

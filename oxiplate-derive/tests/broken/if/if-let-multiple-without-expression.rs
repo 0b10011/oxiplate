@@ -17,6 +17,11 @@ struct CoupleWrapper {
 fn main() {
     assert_eq!(
         "10 + 9 = 19",
-        format!("{}", CoupleWrapper { couple: Couple(10, 9) })
+        format!(
+            "{}",
+            CoupleWrapper {
+                couple: Couple(10, 9)
+            }
+        )
     );
 }

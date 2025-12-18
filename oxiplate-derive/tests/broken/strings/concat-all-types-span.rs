@@ -1,7 +1,8 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r##"{{ "foo".repeat(
+#[oxiplate_inline(
+    r##"{{ "foo".repeat(
     foo
     ~ 'a' ~ '\n' ~ '\r' ~ '\t' ~ '\0' ~ '\\' ~ '\'' ~ '\"'
     ~ "hello world" ~ #"jane "the deer" doe"#
@@ -12,7 +13,8 @@ use oxiplate_derive::Oxiplate;
     ~ 1_9_
     ~ 1_9_e_0_ ~ 19e-1 ~ 19E+1
     ~ 1_.9_
-) }}"##)]
+) }}"##
+)]
 struct Data {}
 
 fn main() {

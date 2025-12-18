@@ -13,8 +13,5 @@ struct Data {
 }
 
 fn main() {
-    assert_eq!(
-        "Data found.",
-        format!("{}", Data { value: true })
-    );
+    assert_eq!("Data found.", format!("{}", Data { value: true }));
 }

@@ -1,6 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
+#[rustfmt::skip]
 #[oxiplate_inline("hello world \
     {{")]
 struct Data {}

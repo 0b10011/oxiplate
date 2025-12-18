@@ -1,7 +1,7 @@
 error[E0609]: no field `numb` on type `&Data`
- --> tests/broken/for/for-bad-variable.rs:4:89
+ --> tests/broken/for/for-bad-variable.rs:5:75
   |
-4 | #[oxiplate_inline("{%- for number in numbers -%}{{ number }} + {{ number_to_add }} = {{ numb + number_to_add }}{% endfor %}")]
-  |                                                                                         ^^^^ unknown field
+5 |     "{%- for number in numbers -%}{{ number }} + {{ number_to_add }} = {{ numb + number_to_add \
+  |                                                                           ^^^^ unknown field
   |
   = note: available fields are: `numbers`, `number_to_add`

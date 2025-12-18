@@ -1,5 +1,5 @@
 error: Multiple parent blocks present in block
- --> tests/broken/extends/multiple-parents.rs:6:32
+ --> tests/broken/extends/multiple-parents.rs:7:32
   |
-6 | {% block content %}{% parent %}{% parent %}
+7 | {% block content %}{% parent %}{% parent %}
   |                                ^^^^^^^^^^^^
