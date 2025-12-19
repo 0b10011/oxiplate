@@ -57,7 +57,7 @@ mod test {
                 stdout,
                 stderr,
             } = Command::new("cargo")
-                .args(["expand", "--test", test_name])
+                .args(["--color", "never", "expand", "--test", test_name])
                 .output()?;
             if !status.success() {
                 Err(String::from_utf8_lossy(&stderr))?;
