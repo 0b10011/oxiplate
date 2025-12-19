@@ -1,6 +1,11 @@
 target
 /book-output
+
+# Coverage files
 /lcov.info
+/oxiplate.lcov
+/oxiplate-derive.lcov
+/oxiplate-traits.lcov
 
 # Ignore the cargo lockfile in subdirectories,
 # but not the main one.

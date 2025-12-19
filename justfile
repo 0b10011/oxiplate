@@ -54,6 +54,15 @@ coverage-lcov: coverage-no-report
 coverage-html: coverage-no-report
     cargo llvm-cov report --html
 
+coverage-for-packages: coverage-no-report \
+    (coverage-for-package "oxiplate" "oxiplate-derive|oxiplate-traits") \
+    (coverage-for-package "oxiplate-derive" "oxiplate|oxiplate-traits") \
+    (coverage-for-package "oxiplate-traits" "oxiplate|oxiplate-derive")
+
+[private]
+coverage-for-package package other-packages: coverage-no-report
+    cargo llvm-cov report --ignore-filename-regex "^$PWD/({{ other-packages }})/" --lcov --output-path {{ package }}.lcov
+
 # Run tests with coverage without building a report. Typically used with `cargo llvm-cov report`.
 [group("Test")]
 coverage-no-report: clean-coverage (run-against-all "cargo llvm-cov --no-report")

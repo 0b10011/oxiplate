@@ -18,11 +18,28 @@ jobs:
       - name: Dependencies
         run: cargo install just && just setup-coverage setup-expansion
       - name: Run tests and coverage
-        run: just coverage expansion-tests
-      - name: Coveralls GitHub Action
+        run: just coverage-for-packages expansion-tests
+      - name: Coveralls upload for `oxiplate`
         uses: coverallsapp/github-action@v2.3.6
         with:
-          file: lcov.info
+          file: oxiplate.lcov
           format: lcov
+          flag-name: oxiplate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls upload for `oxiplate-derive`
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          file: oxiplate-derive.lcov
+          format: lcov
+          flag-name: oxiplate-derive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls upload for `oxiplate-traits`
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          file: oxiplate-traits.lcov
+          format: lcov
+          flag-name: oxiplate-traits
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
