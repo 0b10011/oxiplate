@@ -57,9 +57,9 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             stderr,
         } = Command::new("cargo")
             .args([
+                "clippy",
                 "--color",
                 "never",
-                "clippy",
                 "--bin",
                 &test_name,
                 "--manifest-path",
