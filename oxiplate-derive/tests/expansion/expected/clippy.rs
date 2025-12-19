@@ -87,6 +87,8 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             .to_string_lossy();
         let Output { status, stdout, stderr } = Command::new("cargo")
             .args([
+                "--color",
+                "never",
                 "clippy",
                 "--bin",
                 &test_name,

@@ -57,6 +57,8 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             stderr,
         } = Command::new("cargo")
             .args([
+                "--color",
+                "never",
                 "clippy",
                 "--bin",
                 &test_name,
