@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.1...oxiplate-derive-v0.15.2) - 2025-12-19
+
+### Fixed
+
+- improved unexpected `(default|replace)_escaper_group` statement errors by highlighting the entire statement
+- fixed writ tokens to more consistently not be generated when failing to replace or set a default escaper group could affect their output
+- switched span of writs to full tag
+
+### Other
+
+- added test coverage badge
+- started passing `--color` option directly to clippy
+- fixed expansion tests to be more consistent
+- fixed clippy test output to be more consistent
+- started running `rustfmt` against broken test files
+- moved `syn::parse()` call up to `oxiplate_internal()` to make it clear that parsing after that doesn't fail
+- reduce uncovered regions by moving EOF error range adjustments to a macro
+- added comment about why an unreachable error message is present
+
 ## [0.15.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.0...oxiplate-derive-v0.15.1) - 2025-12-13
 
 ### Added
