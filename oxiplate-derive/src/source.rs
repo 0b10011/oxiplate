@@ -274,6 +274,9 @@ impl<'a> Source<'a> {
         let mut unicode_chars_parsed = -1;
         let mut unicode_code = String::new();
         loop {
+            #[cfg(feature = "unreachable")]
+            Self::consume_quote(chars, range);
+
             let Some((pos, char)) = chars.next() else {
                 bail_eof!(
                     r"Internal Oxiplate error: Failed to parse unicode escape. Unexpected end of string.",
@@ -292,6 +295,11 @@ impl<'a> Source<'a> {
                     unicode_code.push(char);
                 }
                 (1..=4, '}') => {
+                    #[cfg(feature = "unreachable")]
+                    {
+                        unicode_chars_parsed += 1;
+                    }
+
                     let code = match u32::from_str_radix(&unicode_code, 16) {
                         Ok(code) => code,
                         Err(err) => bail!(
@@ -318,6 +326,8 @@ impl<'a> Source<'a> {
                     }
                     debug_range.start += 1;
                     debug_range.end += 1;
+
+                    #[cfg(not(feature = "unreachable"))]
                     return;
                 }
                 (-1, _) => bail!(
