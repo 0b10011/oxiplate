@@ -39,3 +39,6 @@ debug-fast-escape-type-priority = ["oxiplate-traits/debug-fast-escape-type-prior
 # Includes the `itoa` dependency
 # and speeds up integer escaping.
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
+
+# Feature for conditional compilation to cover otherwise unreachable code.
+unreachable = ["oxiplate-derive/unreachable"]

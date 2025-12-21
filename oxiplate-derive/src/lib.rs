@@ -742,10 +742,18 @@ fn parse_source_tokens_for_path(
         }
 
         // Set the inferred escaper group if the extension mapped to one.
-        if let Some(extension) = extension
-            && state.config.escaper_groups.contains_key(extension)
-        {
-            escaper_name = Some(extension.to_owned());
+        if let Some(extension) = extension {
+            if state.config.escaper_groups.contains_key(extension) {
+                escaper_name = Some(extension.to_owned());
+            } else {
+                // `None` will normally be returned for the escaper,
+                // but there's a match arm that is unreachable because of it.
+                #[cfg(feature = "unreachable")]
+                return Err(ParsedEscaperError::EscaperNotFound((
+                    extension.to_string(),
+                    span,
+                )));
+            }
         }
     }
 
