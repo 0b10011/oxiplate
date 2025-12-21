@@ -1,0 +1,16 @@
+error: `optimized_renderer` config option specified in `/oxiplate.toml` is only available when using `oxiplate`. It looks like `oxiplate-derive` is being used directly instead.
+ --> tests/broken/optimized-renderer.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no method named `render` found for struct `Data` in the current scope
+ --> tests/broken/optimized-renderer.rs:8:21
+  |
+5 | struct Data;
+  | ----------- method `render` not found for this struct
+...
+8 |     assert_eq!(Data.render().unwrap(), "Hello world!");
+  |                     ^^^^^^ method not found in `Data`

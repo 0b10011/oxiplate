@@ -170,7 +170,11 @@ impl OptimizedRenderer {
 
 impl Default for OptimizedRenderer {
     fn default() -> Self {
-        Self(true)
+        #[cfg(feature = "oxiplate")]
+        return Self(true);
+
+        #[cfg(not(feature = "oxiplate"))]
+        Self(false)
     }
 }
 

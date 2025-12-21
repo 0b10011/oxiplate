@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["oxiplate", "oxiplate-derive", "oxiplate-traits", "oxiplate/tests/crates/*"]
+members = ["oxiplate", "oxiplate-derive", "oxiplate-traits", "oxiplate-derive/tests/crates/*", "oxiplate/tests/crates/*"]
 
 [workspace.package]
 authors = ["Brandon Frohs <brandon@19.codes>"]
