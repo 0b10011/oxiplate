@@ -199,6 +199,10 @@ pub(crate) fn char(input: Source) -> Res<Source, Expression> {
                     tag(r"\t"),
                     tag(r"\\"),
                     tag(r"\0"),
+                    #[cfg(feature = "unreachable")]
+                    tag(r"'1"),
+                    #[cfg(feature = "unreachable")]
+                    tag(r""),
                 )),
             ))),
         ),
