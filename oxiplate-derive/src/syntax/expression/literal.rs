@@ -13,11 +13,17 @@ use crate::Source;
 
 /// Parses a bool value: `true` or `false`
 pub(crate) fn bool(input: Source) -> Res<Source, Expression> {
-    let (input, source) = alt((tag("true"), tag("false"))).parse(input)?;
+    let (input, source) = alt((
+        tag("true"),
+        tag("false"),
+        #[cfg(feature = "unreachable")]
+        tag("maybe"),
+    ))
+    .parse(input)?;
     let bool = match source.as_str() {
         "true" => true,
         "false" => false,
-        _ => unreachable!("All cases should be covered"),
+        _ => unreachable!("All bool cases should be covered"),
     };
 
     Ok((input, Expression::Bool(bool, source)))
