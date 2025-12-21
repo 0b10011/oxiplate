@@ -23,7 +23,17 @@ pub(crate) fn bool(input: Source) -> Res<Source, Expression> {
     let bool = match source.as_str() {
         "true" => true,
         "false" => false,
-        _ => unreachable!("All bool cases should be covered"),
+        _ => {
+            Diagnostic::spanned(
+                source.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error. Unhandled bool.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+bool")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     };
 
     Ok((input, Expression::Bool(bool, source)))
