@@ -94,6 +94,20 @@ use crate::state::OptimizedRenderer;
     attributes(oxiplate, oxiplate_inline, oxiplate_extends, oxiplate_include)
 )]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
+    #[cfg(feature = "unreachable")]
+    let input = {
+        // Compare tokens as a string to avoid having to parse unnecessarily.
+        if input.to_string()
+            == r#"#[oxiplate_inline("hello world")] struct UnreachableUnparseableInput;"#
+                .to_string()
+        {
+            // Unparseable code that would otherwise fail before reaching this point.
+            quote! { struct 19foo; }.into()
+        } else {
+            input
+        }
+    };
+
     oxiplate_internal(input, &VecDeque::from([&HashMap::new()])).0
 }
 
@@ -142,6 +156,26 @@ fn parse_input(
 
     let where_clause = &generics.where_clause;
     let expanded = if *optimized_renderer {
+        #[cfg(not(feature = "oxiplate"))]
+        quote! {
+            compile_error!(
+                "`optimized_renderer` config option specified in `/oxiplate.toml` is only available when using `oxiplate`. It looks like `oxiplate-derive` is being used directly instead."
+            );
+            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    let string = {
+                        use ::std::fmt::Write;
+                        let mut string = String::with_capacity(#estimated_length);
+                        let f = &mut string;
+                        #template
+                        string
+                    };
+                    f.write_str(&string)
+                }
+            }
+        }
+
+        #[cfg(feature = "oxiplate")]
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {

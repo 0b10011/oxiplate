@@ -81,10 +81,12 @@ clean-coverage:
 [private]
 run-against-all command:
     {{ command }} --package oxiplate-derive
+    {{ command }} --package oxiplate-derive-unreachable
     {{ command }} --package oxiplate-test-fast-escape-type-priority
     {{ command }} --package oxiplate-test-slow-escape-ints
     {{ command }} --workspace \
         --exclude oxiplate-derive \
+        --exclude oxiplate-derive-unreachable \
         --exclude oxiplate-test-fast-escape-type-priority \
         --exclude oxiplate-test-slow-escape-ints
 

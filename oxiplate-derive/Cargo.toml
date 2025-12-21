@@ -46,6 +46,9 @@ config = ["dep:serde", "dep:toml"]
 # and allows for some additional functionality like escaping.
 oxiplate = []
 
+# Feature for conditional compilation to cover otherwise unreachable code.
+unreachable = []
+
 [[bench]]
 name = "benchmark"
 harness = false
