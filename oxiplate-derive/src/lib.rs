@@ -15,6 +15,8 @@ use std::io;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
+#[cfg(feature = "oxiplate")]
+use proc_macro::Diagnostic;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::{quote, quote_spanned};
@@ -303,12 +305,25 @@ fn process_parsed_tokens(
                 .map(|key| &**key)
                 .collect::<Vec<&str>>();
             available_escaper_groups.sort_unstable();
-            let available_escaper_groups = LitStr::new(&available_escaper_groups.join(", "), span);
+            let available_escaper_groups = available_escaper_groups.join(", ");
             let template = match template_type {
-                TemplateType::Path | TemplateType::Extends | TemplateType::Include => unreachable!(
-                    "Unregistered file extensions are fine, `None` should be returned instead"
-                ),
+                TemplateType::Path | TemplateType::Extends | TemplateType::Include => {
+                    Diagnostic::spanned(
+                        span.unwrap(),
+                        proc_macro::Level::Error,
+                        "Internal Oxiplate error. Unregistered file extension causing `EscaperNotFound` error.",
+                    )
+                    .help(format!("Extension found: {escaper}"))
+                    .help(format!("Registered escaper groups: {available_escaper_groups}"))
+                    .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unregistered+file+extension+causing+%60EscaperNotFound%60+error")
+                    .help("Include template that caused the issue.")
+                    .emit();
+                    unreachable!(
+                        "Internal Oxiplate error. See previous error for more information."
+                    );
+                }
                 TemplateType::Inline => {
+                    let available_escaper_groups = LitStr::new(&available_escaper_groups, span);
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
                 }
             };

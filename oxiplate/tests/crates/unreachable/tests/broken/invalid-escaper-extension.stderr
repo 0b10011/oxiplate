@@ -1,10 +1,21 @@
+error: Internal Oxiplate error. Unregistered file extension causing `EscaperNotFound` error.
+ --> tests/broken/invalid-escaper-extension.rs:4:14
+  |
+4 | #[oxiplate = "template.htm"]
+  |              ^^^^^^^^^^^^^^
+  |
+  = help: Extension found: htm
+  = help: Registered escaper groups: html, json, md
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unregistered+file+extension+causing+%60EscaperNotFound%60+error
+  = help: Include template that caused the issue.
+
 error: proc-macro derive panicked
  --> tests/broken/invalid-escaper-extension.rs:3:10
   |
 3 | #[derive(Oxiplate)]
   |          ^^^^^^^^
   |
-  = help: message: internal error: entered unreachable code: Unregistered file extensions are fine, `None` should be returned instead
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
  --> tests/broken/invalid-escaper-extension.rs:8:10
