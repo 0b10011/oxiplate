@@ -49,8 +49,17 @@ pub(crate) fn number(input: Source) -> Res<Source, Expression> {
 /// Will fail if there's not at least one valid digit following the prefix.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 fn alternative_bases(input: Source) -> Res<Source, Expression> {
-    let (input, prefix) =
-        peek(preceded(nom_char('0'), alt((tag("b"), tag("x"), tag("o"))))).parse(input)?;
+    let (input, prefix) = peek(preceded(
+        nom_char('0'),
+        alt((
+            tag("b"),
+            tag("x"),
+            tag("o"),
+            #[cfg(feature = "unreachable")]
+            tag("q"),
+        )),
+    ))
+    .parse(input)?;
     let (prefix, matcher) = match prefix.as_str() {
         "b" => ("0b", char::is_bin_digit as fn(char) -> bool),
         "x" => ("0x", char::is_hex_digit as fn(char) -> bool),
