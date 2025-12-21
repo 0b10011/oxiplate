@@ -3,6 +3,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
+use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
@@ -30,7 +31,17 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
         "-" => PrefixOperator::Negative(operator),
         "..=" => PrefixOperator::RangeInclusive(operator),
         ".." => PrefixOperator::RangeExclusive(operator),
-        _ => unreachable!("All prefix operator cases should be covered"),
+        _ => {
+            Diagnostic::spanned(
+                operator.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error. Unhandled prefix operator.",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+prefix+operator")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     };
 
     Ok((input, operator))
