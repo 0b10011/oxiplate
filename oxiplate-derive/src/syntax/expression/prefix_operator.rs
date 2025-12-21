@@ -19,6 +19,8 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
         tag("-"),
         tag("..="),
         tag(".."),
+        #[cfg(feature = "unreachable")]
+        tag("@"),
     ))
     .parse(input)?;
     let operator = match operator.as_str() {
@@ -28,7 +30,7 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
         "-" => PrefixOperator::Negative(operator),
         "..=" => PrefixOperator::RangeInclusive(operator),
         ".." => PrefixOperator::RangeExclusive(operator),
-        _ => unreachable!("All cases should be covered"),
+        _ => unreachable!("All prefix operator cases should be covered"),
     };
 
     Ok((input, operator))

@@ -189,7 +189,7 @@ impl Deref for OptimizedRenderer {
 /// Macro configuration.
 #[cfg_attr(feature = "config", derive(Deserialize))]
 #[cfg_attr(feature = "config", serde(deny_unknown_fields))]
-#[derive(Default)]
+#[cfg_attr(not(feature = "unreachable"), derive(Default))]
 pub(crate) struct Config {
     /// The escaper group to use
     /// when one cannot be inferred from the template's file extension.
@@ -217,6 +217,19 @@ pub(crate) struct Config {
     #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
     #[cfg_attr(feature = "config", serde(default))]
     pub(crate) optimized_renderer: OptimizedRenderer,
+}
+
+#[cfg(feature = "unreachable")]
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            fallback_escaper_group: Some("raw".to_string()),
+            escaper_groups: HashMap::default(),
+            require_specifying_escaper: Default::default(),
+            infer_escaper_group_from_file_extension: InferEscaperGroupFromFileExtension::default(),
+            optimized_renderer: OptimizedRenderer::default(),
+        }
+    }
 }
 
 /// Escaper group defined in the configuration.
