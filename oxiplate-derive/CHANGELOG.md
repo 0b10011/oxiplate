@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.2...oxiplate-derive-v0.15.3) - 2025-12-21
+
+### Fixed
+
+- improved error message for unreachable unregistered file extensions error
+- when using `oxiplate-derive`, stopped turning on the optimized renderer by default and improved the error message when it is accidentally enabled
+
+### Other
+
+- added test for unhandled prefix operator
+- added test for unreachable unregistered file extensions error
+- added test for failing to parse derive input
+
 ## [0.15.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.1...oxiplate-derive-v0.15.2) - 2025-12-19
 
 ### Fixed
