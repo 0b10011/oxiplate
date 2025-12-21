@@ -390,6 +390,9 @@ impl<'a> Source<'a> {
         owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
+        #[cfg(feature = "unreachable")]
+        Self::consume_quote(chars, range);
+
         let Some((pos, char)) = chars.next() else {
             bail_eof!(
                 r"Internal Oxiplate error: Failed to parse escape. Unexpected end of string.",
