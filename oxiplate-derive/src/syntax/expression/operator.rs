@@ -24,6 +24,8 @@ pub(super) fn parse_operator(input: Source) -> Res<Source, Operator> {
         tag("&&"),
         tag("..="),
         tag(".."),
+        #[cfg(feature = "unreachable")]
+        tag(";;"),
     ))
     .parse(input)?;
 
