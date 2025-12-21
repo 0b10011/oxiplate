@@ -205,12 +205,24 @@ impl<'a> Source<'a> {
         Some(hash_count)
     }
 
+    /// Consume `"` if present. For testing unreachable match arms.
+    #[cfg(feature = "unreachable")]
+    fn consume_quote(chars: &mut CharIterator<'_>, range: &mut Range<usize>) {
+        if let Some((_, '"')) = chars.peek() {
+            let (pos, _) = chars.next().unwrap();
+            Self::update_range(range, pos);
+        }
+    }
+
     fn parse_7_bit_character_code(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
         owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
+        #[cfg(feature = "unreachable")]
+        Self::consume_quote(chars, range);
+
         // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
         // Up to 0x7F
         match chars.next() {
@@ -230,6 +242,9 @@ impl<'a> Source<'a> {
         }
         debug_range.start += 1;
         debug_range.end += 1;
+
+        #[cfg(feature = "unreachable")]
+        Self::consume_quote(chars, range);
 
         match chars.next() {
             Some((pos, '0'..='9' | 'a'..='f' | 'A'..='F')) => Self::update_range(range, pos),
@@ -420,6 +435,14 @@ impl<'a> Source<'a> {
             debug_range.end += 1;
             match (char, hash_count) {
                 ('"', _) => return,
+                // Escapes are parsed by Rust first,
+                // so invalid escape sequences are only reachable
+                // if the code is reached without a `\` before them.
+                #[cfg(feature = "unreachable")]
+                ('/', None) => {
+                    Self::update_range(range, pos);
+                    Self::parse_escape(chars, range, owned_source, debug_range);
+                }
                 ('\\', None) => {
                     Self::update_range(range, pos);
                     Self::parse_escape(chars, range, owned_source, debug_range);
