@@ -105,6 +105,8 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
     let (input, tag) = alt((
         keyword("default_escaper_group"),
         keyword("replace_escaper_group"),
+        #[cfg(feature = "unreachable")]
+        keyword("unreachable_escaper_group"),
     ))
     .parse(input)?;
 
