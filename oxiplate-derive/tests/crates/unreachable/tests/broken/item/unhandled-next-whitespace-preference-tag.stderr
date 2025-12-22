@@ -1,10 +1,19 @@
+error: Internal Oxiplate error: Unhandled next whitespace adjustment tag
+ --> tests/broken/item/unhandled-next-whitespace-preference-tag.rs:4:32
+  |
+4 | #[oxiplate_inline(r#"{{ "" -}} {$}"#)]
+  |                                ^^^
+  |
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+next+whitespace+adjustment+tag
+  = help: Include template that caused the issue.
+
 error: proc-macro derive panicked
  --> tests/broken/item/unhandled-next-whitespace-preference-tag.rs:3:10
   |
 3 | #[derive(Oxiplate)]
   |          ^^^^^^^^
   |
-  = help: message: internal error: entered unreachable code: All whitespace adjustment tags should be covered
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
 
 error[E0277]: `Data` doesn't implement `std::fmt::Display`
  --> tests/broken/item/unhandled-next-whitespace-preference-tag.rs:8:18

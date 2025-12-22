@@ -329,7 +329,17 @@ fn parse_next_whitespace_preference_adjustment_tag(
     let next_whitespace_preference = match tag.as_str() {
         "{-}" => WhitespacePreference::Remove,
         "{_}" => WhitespacePreference::Replace,
-        _ => unreachable!("All whitespace adjustment tags should be covered"),
+        _ => {
+            Diagnostic::spanned(
+                tag.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error: Unhandled next whitespace adjustment tag",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+next+whitespace+adjustment+tag")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     };
 
     Ok((
