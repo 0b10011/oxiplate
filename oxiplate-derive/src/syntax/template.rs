@@ -176,8 +176,16 @@ pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {
 }
 
 pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, tag)) =
-        (opt(whitespace), alt((tag("{_}"), tag("{-}")))).parse(input)?;
+    let (input, (leading_whitespace, tag)) = (
+        opt(whitespace),
+        alt((
+            tag("{_}"),
+            tag("{-}"),
+            #[cfg(feature = "unreachable")]
+            tag("{$}"),
+        )),
+    )
+        .parse(input)?;
 
     let whitespace_preference = match tag.as_str() {
         "{-}" => WhitespacePreference::Remove,
