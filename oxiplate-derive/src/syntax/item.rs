@@ -2,7 +2,6 @@ use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt, peek};
-use nom_language::error::VerboseError;
 use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
@@ -169,7 +168,12 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
         // Check if this is actually a tag; if it's not, that's fine, just return early.
         tag_open,
         // Whitespace control characters are optional.
-        opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+        opt(alt((
+            collapse_whitespace_command,
+            trim_whitespace_command,
+            #[cfg(feature = "unreachable")]
+            tag("$"),
+        ))),
     )
         .parse(input)?;
 
@@ -256,7 +260,12 @@ fn parse_next_whitespace_preference_statement(
         // The group below should match the checks in `tag_start()` after the whitespace check.
         (
             tag_open,
-            opt(alt((collapse_whitespace_command, trim_whitespace_command))),
+            opt(alt((
+                collapse_whitespace_command,
+                trim_whitespace_command,
+                #[cfg(feature = "unreachable")]
+                tag("$"),
+            ))),
         ),
     ))
     .parse(input)?;
@@ -288,7 +297,12 @@ fn parse_next_whitespace_preference_adjustment_tag(
     let (input, (trailing_whitespace, tag)) = peek((
         opt(whitespace),
         // The group below should match the checks in `adjusted_whitespace()` after the whitespace check.
-        alt((tag("{_}"), tag("{-}"))),
+        alt((
+            tag("{_}"),
+            tag("{-}"),
+            #[cfg(feature = "unreachable")]
+            tag("{$}"),
+        )),
     ))
     .parse(input)?;
 
@@ -394,25 +408,29 @@ pub(crate) fn tag_end<'a>(
     tag_close: &'static str,
 ) -> impl Fn(Source<'a>) -> Res<Source<'a>, (Option<Item<'a>>, Source<'a>)> + 'a {
     move |input| {
-        if let Ok((input, tag)) = tag::<_, _, VerboseError<_>>(tag_close).parse(input.clone()) {
-            return Ok((input, (None, tag)));
-        }
-
         let (input, (command, close_tag)) = (
-            alt((collapse_whitespace_command, trim_whitespace_command)),
+            opt(alt((
+                collapse_whitespace_command,
+                trim_whitespace_command,
+                #[cfg(feature = "unreachable")]
+                tag("$"),
+            ))),
             tag(tag_close),
         )
             .parse(input)?;
 
-        let source = command.clone().merge(
-            &close_tag,
-            "Tag close expected after whitespace control character",
-        );
+        let source = command.clone().map_or(close_tag.clone(), |source| {
+            source.merge(
+                &close_tag,
+                "Tag close expected after whitespace control character",
+            )
+        });
 
-        let whitespace_preference = match command.as_str() {
-            "-" => WhitespacePreference::Remove,
-            "_" => WhitespacePreference::Replace,
-            _ => unreachable!("All whitespace adjustment characters should be covered"),
+        let whitespace_preference = match command.map(|source| source.as_str()) {
+            None => WhitespacePreference::Indifferent,
+            Some("-") => WhitespacePreference::Remove,
+            Some("_") => WhitespacePreference::Replace,
+            Some(_) => unreachable!("All whitespace adjustment characters should be covered"),
         };
 
         let (input, trailing_whitespace) =
@@ -427,6 +445,8 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
         tag("{{"), // writ
         tag("{%"), // statement
         tag("{#"), // comment
+        #[cfg(feature = "unreachable")]
+        tag("{&"),
     ))
     .parse(input)?;
 
