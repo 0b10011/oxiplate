@@ -264,7 +264,12 @@ pub(super) fn statement<'a>(
                 }
 
                 let is_eof = input.as_str().is_empty();
+                #[cfg(not(feature = "unreachable"))]
                 if statement.is_ended(is_eof) {
+                    break;
+                }
+                #[cfg(feature = "unreachable")]
+                if is_eof {
                     break;
                 }
             }

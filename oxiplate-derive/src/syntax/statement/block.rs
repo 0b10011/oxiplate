@@ -33,7 +33,6 @@ impl<'a> Block<'a> {
             )
             .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+block+statement")
             .help("Include template that caused the issue and the associated note.")
-            .help(format!("Item: {item:?}"))
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
@@ -85,6 +84,13 @@ impl<'a> Block<'a> {
     ) -> (TokenStream, usize) {
         let mut estimated_length = child_prefix_length + child_suffix_length;
         let mut tokens = TokenStream::new();
+
+        #[cfg(feature = "unreachable")]
+        {
+            let _ = block_stack;
+            block_stack = VecDeque::new();
+        }
+
         let Some(blocks) = block_stack.pop_front() else {
             Diagnostic::spanned(
                 child_prefix.span().unwrap(),
