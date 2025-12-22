@@ -1,10 +1,19 @@
+error: Internal Oxiplate error: Unhandled default escaper group tag
+ --> tests/broken/unhandled-default-escaper-group-tag.rs:4:23
+  |
+4 | #[oxiplate_inline("{% unreachable_escaper_group html %}")]
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+default+escaper+group+tag
+  = help: Include template that caused the issue.
+
 error: proc-macro derive panicked
  --> tests/broken/unhandled-default-escaper-group-tag.rs:3:10
   |
 3 | #[derive(Oxiplate)]
   |          ^^^^^^^^
   |
-  = help: message: internal error: entered unreachable code: All tag cases should be covered
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
 
 error[E0277]: `Data` doesn't implement `std::fmt::Display`
  --> tests/broken/unhandled-default-escaper-group-tag.rs:8:18
