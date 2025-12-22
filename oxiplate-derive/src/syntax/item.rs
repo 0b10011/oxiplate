@@ -456,11 +456,21 @@ pub(crate) fn tag_end<'a>(
             )
         });
 
-        let whitespace_preference = match command.map(|source| source.as_str()) {
+        let whitespace_preference = match command.clone().map(|source| source.as_str()) {
             None => WhitespacePreference::Indifferent,
             Some("-") => WhitespacePreference::Remove,
             Some("_") => WhitespacePreference::Replace,
-            Some(_) => unreachable!("All whitespace adjustment characters should be covered"),
+            Some(_) => {
+                Diagnostic::spanned(
+                    command.expect("Command is already matched as `Some(_)`").span().unwrap(),
+                    proc_macro::Level::Error,
+                    "Internal Oxiplate error: Unhandled whitespace command in tag end",
+                )
+                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+end")
+                .help("Include template that caused the issue.")
+                .emit();
+                unreachable!("Internal Oxiplate error. See previous error for more information.");
+            }
         };
 
         let (input, trailing_whitespace) =
