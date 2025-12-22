@@ -37,7 +37,6 @@ impl<'a> For<'a> {
             )
             .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+for+statement")
             .help("Include template that caused the issue and the associated note.")
-            .help(format!("Item: {item:?}"))
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         }
