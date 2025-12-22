@@ -214,7 +214,17 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
                 (whitespace.map(|whitespace| Static(" ", whitespace)), None)
             }
             "-" => (None, whitespace),
-            _ => unreachable!("Only - or _ should be matched"),
+            _ => {
+                Diagnostic::spanned(
+                    command.span().unwrap(),
+                    proc_macro::Level::Error,
+                    "Internal Oxiplate error: Unhandled whitespace command in tag start",
+                )
+                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+start")
+                .help("Include template that caused the issue.")
+                .emit();
+                unreachable!("Internal Oxiplate error. See previous error for more information.");
+            }
         }
     } else {
         (
