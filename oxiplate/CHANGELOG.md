@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.3...oxiplate-v0.15.4) - 2025-12-22
+
+### Fixed
+
+- improved error message for unhandled whitespace command in tag end
+- improved error message for unhandled next whitespace adjustment tag
+- improved error message for unhandled whitespace command in next tag start
+- improved error message for unhandled whitespace command in tag start
+- improved error message for unhandled prefix operator
+- improved error message for unhandled operator
+- improved error message for unhandled bool
+
+### Other
+
+- added tests for unhandled commands/tags
+- added test for unhandled operator
+- added tests for invalid chars
+- added test for unhandled base prefix
+- added test for unhandled bool case
+- added tests for invalid escape sequences
+- added tests for unreachable match arms for unicode escapes
+- added tests for unreachable match arms for 7-bit escapes
+
 ## [0.15.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.2...oxiplate-v0.15.3) - 2025-12-21
 
 ### Fixed
