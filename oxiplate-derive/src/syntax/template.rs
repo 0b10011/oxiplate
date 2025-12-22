@@ -197,7 +197,7 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
                 proc_macro::Level::Error,
                 "Internal Oxiplate error: Unhandled whitespace adjustment tag",
             )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+end")
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+adjustment+tag")
             .help("Include template that caused the issue.")
             .emit();
             unreachable!("Internal Oxiplate error. See previous error for more information.");

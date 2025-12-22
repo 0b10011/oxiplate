@@ -4,7 +4,7 @@ error: Internal Oxiplate error: Unhandled whitespace adjustment tag
 4 | #[oxiplate_inline(r#"{$}"#)]
   |                      ^^^
   |
-  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+end
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+adjustment+tag
   = help: Include template that caused the issue.
 
 error: proc-macro derive panicked
