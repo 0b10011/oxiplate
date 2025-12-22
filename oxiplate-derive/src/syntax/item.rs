@@ -284,7 +284,17 @@ fn parse_next_whitespace_preference_statement(
         match command.as_str() {
             "-" => WhitespacePreference::Remove,
             "_" => WhitespacePreference::Replace,
-            _ => unreachable!("All whitespace commands should be covered"),
+            _ => {
+                Diagnostic::spanned(
+                    command.span().unwrap(),
+                    proc_macro::Level::Error,
+                    "Internal Oxiplate error: Unhandled whitespace command in next tag start",
+                )
+                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+next+tag+start")
+                .help("Include template that caused the issue.")
+                .emit();
+                unreachable!("Internal Oxiplate error. See previous error for more information.");
+            }
         }
     } else {
         WhitespacePreference::Indifferent
