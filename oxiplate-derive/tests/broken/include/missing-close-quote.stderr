@@ -1,0 +1,5 @@
+error: Expected "
+ --> tests/broken/include/missing-close-quote.rs:4:53
+  |
+4 | #[oxiplate_inline(r#"{% include "include.html.oxip %}"#)]
+  |                                                     ^

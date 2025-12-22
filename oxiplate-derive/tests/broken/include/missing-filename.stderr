@@ -1,0 +1,5 @@
+error: Expected path to the template to include
+ --> tests/broken/include/missing-filename.rs:4:34
+  |
+4 | #[oxiplate_inline(r#"{% include "" %}"#)]
+  |                                  ^^^^

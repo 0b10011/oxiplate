@@ -1,0 +1,5 @@
+error: Expected "
+ --> tests/broken/include/missing-open-quote.rs:4:33
+  |
+4 | #[oxiplate_inline(r#"{% include include.html.oxip" %}"#)]
+  |                                 ^^^^^^^^^^^^^^^^^^^^^
