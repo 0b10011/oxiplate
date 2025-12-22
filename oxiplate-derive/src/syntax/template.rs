@@ -4,6 +4,7 @@ use nom::combinator::{eof, opt};
 use nom::multi::many0;
 use nom::{Input, Parser as _};
 use nom_language::error::{VerboseError, VerboseErrorKind};
+use proc_macro::Diagnostic;
 use proc_macro2::{LineColumn, TokenStream};
 use quote::{TokenStreamExt, quote};
 
@@ -190,7 +191,17 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
     let whitespace_preference = match tag.as_str() {
         "{-}" => WhitespacePreference::Remove,
         "{_}" => WhitespacePreference::Replace,
-        _ => unreachable!("All whitespace adjustment tags should be covered"),
+        _ => {
+            Diagnostic::spanned(
+                tag.span().unwrap(),
+                proc_macro::Level::Error,
+                "Internal Oxiplate error: Unhandled whitespace adjustment tag",
+            )
+            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+end")
+            .help("Include template that caused the issue.")
+            .emit();
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
     };
 
     let (input, trailing_whitespace) = parse_trailing_whitespace(
