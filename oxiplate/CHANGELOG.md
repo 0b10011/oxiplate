@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.5](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.4...oxiplate-v0.15.5) - 2025-12-22
+
+### Fixed
+
+- fixed issue link for unhandled whitespace adjustment tag
+- improved error message for unhandled default escaper group tag
+- improved error message for unhandled whitespace adjustment tag
+
+### Other
+
+- added test for unhandled default escaper group tag
+- added test for unhandled whitespace adjustment tag
+- added tests for unparseable include statement
+- added test for adding if items after it's ended
+- added test for adding for items after it's ended
+- added tests for adding block items after it's ended and an empty block stack
+
 ## [0.15.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.3...oxiplate-v0.15.4) - 2025-12-22
 
 ### Fixed
