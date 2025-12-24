@@ -5,7 +5,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
-use nom::multi::many0;
+use nom::multi::{many0, many1};
 use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
@@ -19,35 +19,184 @@ use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Type<'a> {
-    path_segments: Vec<(Identifier<'a>, Source<'a>)>,
-    name: Identifier<'a>,
-    fields: Box<Fields<'a>>,
+    variant: TypeVariant<'a>,
     source: Source<'a>,
 }
 
 impl<'a> Type<'a> {
-    pub fn get_variables(&'a self) -> HashSet<&'a str> {
-        let Type { fields, .. } = self;
-        fields.get_variables()
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
     }
 
-    fn to_tokens(&self, state: &State) -> TokenStream {
-        let mut path_segments = TokenStream::new();
-        for (type_name, separator) in &self.path_segments {
-            let separator: proc_macro2::TokenStream = separator
-                .as_str()
-                .parse()
-                .expect("Should be able to parse type");
-            path_segments.append_all(quote! {
-                #type_name #separator
-            });
+    pub fn get_variables(&'a self) -> HashSet<&'a str> {
+        match &self.variant {
+            TypeVariant::Struct {
+                fields: Some(fields),
+                ..
+            } => fields.get_variables(),
+            TypeVariant::Struct { fields: None, .. } => HashSet::new(),
+            TypeVariant::Tuple { fields, .. } => fields.get_variables(),
         }
+    }
 
-        let type_name = &self.name;
-        let fields = &self.fields.to_tokens(state);
-        quote! {
-            #path_segments #type_name #fields
+    pub fn to_tokens(&self, state: &State) -> TokenStream {
+        match &self.variant {
+            TypeVariant::Struct {
+                path:
+                    Path {
+                        segments,
+                        name,
+                        source: _,
+                    },
+                fields,
+            } => {
+                let mut path_segments = TokenStream::new();
+                for (type_name, separator) in segments {
+                    let separator: proc_macro2::TokenStream = separator
+                        .as_str()
+                        .parse()
+                        .expect("Should be able to parse type");
+                    path_segments.append_all(quote! {
+                        #type_name #separator
+                    });
+                }
+
+                let fields = if let Some(fields) = fields {
+                    fields.to_tokens(state)
+                } else {
+                    quote! {}
+                };
+                quote! {
+                    #path_segments #name #fields
+                }
+            }
+            TypeVariant::Tuple { path, fields } => {
+                let (path_segments, type_name) = if let Some(Path {
+                    segments,
+                    name,
+                    source: _,
+                }) = path
+                {
+                    let mut path_segments = TokenStream::new();
+                    for (type_name, separator) in segments {
+                        let separator: proc_macro2::TokenStream = separator
+                            .as_str()
+                            .parse()
+                            .expect("Should be able to parse type");
+                        path_segments.append_all(quote! {
+                            #type_name #separator
+                        });
+                    }
+
+                    (path_segments, quote! { #name })
+                } else {
+                    (quote! {}, quote! {})
+                };
+
+                let fields = fields.to_tokens(state);
+                quote! {
+                    #path_segments #type_name #fields
+                }
+            }
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum TypeVariant<'a> {
+    Struct {
+        path: Path<'a>,
+        fields: Option<Box<StructFields<'a>>>,
+    },
+    Tuple {
+        path: Option<Path<'a>>,
+        fields: Box<TupleFields<'a>>,
+    },
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Path<'a> {
+    segments: Vec<(Identifier<'a>, Source<'a>)>,
+    name: Identifier<'a>,
+    source: Source<'a>,
+}
+
+impl<'a> Path<'a> {
+    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+        let (input, path) = opt((
+            many1((ident, opt(whitespace), tag("::"), opt(whitespace))),
+            context("Expected type name and optional fields", cut(ident)),
+        ))
+        .parse(input)?;
+
+        let mut segments = vec![];
+        if let Some((segments_with_whitespace, name)) = path {
+            let mut source: Option<Source<'a>> = None;
+            for (segment, leading_whitespace, colons, trailing_whitespace) in
+                segments_with_whitespace
+            {
+                if let Some(existing_source) = source {
+                    source = Some(
+                        existing_source
+                            .merge(&segment.source, "Segment expected")
+                            .merge_some(
+                                leading_whitespace.as_ref(),
+                                "Whitespace expected after segment",
+                            )
+                            .merge(&colons, "Colons expected after whitespace")
+                            .merge_some(
+                                trailing_whitespace.as_ref(),
+                                "Whitespace expected after colons",
+                            ),
+                    );
+                } else {
+                    source = Some(
+                        segment
+                            .source
+                            .clone()
+                            .merge_some(
+                                leading_whitespace.as_ref(),
+                                "Whitespace expected after segment",
+                            )
+                            .merge(&colons, "Colons expected after whitespace")
+                            .merge_some(
+                                trailing_whitespace.as_ref(),
+                                "Whitespace expected after colons",
+                            ),
+                    );
+                }
+
+                segments.push((segment, colons));
+            }
+
+            let source = source
+                .expect("Source should already exist because at least one segment is required")
+                .merge(&name.source, "Name expected after segments");
+
+            Ok((
+                input,
+                Self {
+                    segments,
+                    name,
+                    source,
+                },
+            ))
+        } else {
+            let (input, name) = ident.parse(input)?;
+            let source = name.source.clone();
+            Ok((
+                input,
+                Self {
+                    segments: vec![],
+                    name,
+                    source,
+                },
+            ))
+        }
+    }
+
+    pub fn source<'b>(&'b self) -> &'b Source<'a> {
+        &self.source
     }
 }
 
@@ -226,10 +375,11 @@ impl<'a> From<If<'a>> for StatementKind<'a> {
     }
 }
 
-fn parse_type_fields(input: Source) -> Res<Source, Fields> {
-    let (input, fields) = opt(alt((parse_struct_fields, parse_tuple_fields))).parse(input)?;
+fn parse_type_fields(input: Source) -> Res<Source, Option<Fields>> {
+    let (input, fields) =
+        opt(alt((parse_maybe_struct_fields, parse_maybe_tuple_fields))).parse(input)?;
 
-    Ok((input, fields.unwrap_or(Fields::Unit)))
+    Ok((input, fields))
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -271,95 +421,73 @@ impl<'a> Field<'a> {
 
 #[derive(Debug, PartialEq, Eq)]
 enum Fields<'a> {
-    Struct {
-        first_field: Field<'a>,
-        additional_fields: Vec<(Source<'a>, Field<'a>)>,
-        source: Source<'a>,
-    },
-    Tuple {
-        first_field: DestructuringValue<'a>,
-        additional_fields: Vec<(Source<'a>, DestructuringValue<'a>)>,
-        source: Source<'a>,
-    },
-    Unit,
+    Struct(StructFields<'a>),
+    Tuple(TupleFields<'a>),
 }
 
-impl<'a> Fields<'a> {
-    fn source(&self) -> Option<&Source<'a>> {
-        match self {
-            Self::Struct { source, .. } | Self::Tuple { source, .. } => Some(source),
-            Self::Unit => None,
-        }
-    }
+#[derive(Debug, PartialEq, Eq)]
+struct StructFields<'a> {
+    first_field: Field<'a>,
+    additional_fields: Vec<(Source<'a>, Field<'a>)>,
+    source: Source<'a>,
+}
 
+impl<'a> StructFields<'a> {
     fn get_variables(&'a self) -> HashSet<&'a str> {
         let mut vars: HashSet<&'a str> = HashSet::new();
-        match &self {
-            Fields::Struct {
-                first_field,
-                additional_fields,
-                ..
-            } => {
-                for var in first_field.get_variables() {
-                    vars.insert(var);
-                }
-                for (_separator, field) in additional_fields {
-                    for var in field.get_variables() {
-                        vars.insert(var);
-                    }
-                }
+        for var in self.first_field.get_variables() {
+            vars.insert(var);
+        }
+        for (_separator, field) in &self.additional_fields {
+            for var in field.get_variables() {
+                vars.insert(var);
             }
-            Fields::Tuple {
-                first_field,
-                additional_fields,
-                ..
-            } => {
-                for var in first_field.get_variables() {
-                    vars.insert(var);
-                }
-                for (_separator, field) in additional_fields {
-                    for var in field.get_variables() {
-                        vars.insert(var);
-                    }
-                }
-            }
-            Fields::Unit => (),
         }
         vars
     }
 
     fn to_tokens(&self, state: &State) -> TokenStream {
-        match self {
-            Fields::Struct {
-                first_field,
-                additional_fields,
-                source,
-            } => {
-                let mut fields = first_field.to_tokens(state);
-                for (separator, field) in additional_fields {
-                    let span = separator.span();
-                    let field = field.to_tokens(state);
-                    fields.append_all(quote_spanned! {span=> , #field });
-                }
-                let span = source.span();
-                quote_spanned! {span=> { #fields } }
-            }
-            Fields::Tuple {
-                first_field,
-                additional_fields,
-                source,
-            } => {
-                let mut fields = first_field.to_tokens(state);
-                for (separator, field) in additional_fields {
-                    let span = separator.span();
-                    let field = field.to_tokens(state);
-                    fields.append_all(quote_spanned! {span=> , #field });
-                }
-                let span = source.span();
-                quote_spanned! {span=> ( #fields ) }
-            }
-            Fields::Unit => TokenStream::new(),
+        let mut fields = self.first_field.to_tokens(state);
+        for (separator, field) in &self.additional_fields {
+            let span = separator.span();
+            let field = field.to_tokens(state);
+            fields.append_all(quote_spanned! {span=> , #field });
         }
+        let span = self.source.span();
+        quote_spanned! {span=> { #fields } }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct TupleFields<'a> {
+    first_field: DestructuringValue<'a>,
+    additional_fields: Vec<(Source<'a>, DestructuringValue<'a>)>,
+    source: Source<'a>,
+}
+
+impl<'a> TupleFields<'a> {
+    fn get_variables(&'a self) -> HashSet<&'a str> {
+        let mut vars: HashSet<&'a str> = HashSet::new();
+        for var in self.first_field.get_variables() {
+            vars.insert(var);
+        }
+        for (_separator, field) in &self.additional_fields {
+            for var in field.get_variables() {
+                vars.insert(var);
+            }
+        }
+        vars
+    }
+
+    fn to_tokens(&self, state: &State) -> TokenStream {
+        let mut fields = self.first_field.to_tokens(state);
+        for (separator, field) in &self.additional_fields {
+            let span = separator.span();
+            let field = field.to_tokens(state);
+            fields.append_all(quote_spanned! {span=> , #field });
+        }
+        let span = self.source.span();
+        quote_spanned! {span=> ( #fields ) }
     }
 }
 
@@ -402,7 +530,13 @@ fn parse_field(input: Source) -> Res<Source, Field> {
     Ok((input, field))
 }
 
-fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
+fn parse_maybe_struct_fields(input: Source) -> Res<Source, Fields> {
+    let (input, fields) = parse_struct_fields.parse(input)?;
+
+    Ok((input, Fields::Struct(fields)))
+}
+
+fn parse_struct_fields(input: Source) -> Res<Source, StructFields> {
     let (
         input,
         (
@@ -470,7 +604,7 @@ fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
 
     Ok((
         input,
-        Fields::Struct {
+        StructFields {
             first_field,
             additional_fields,
             source,
@@ -478,7 +612,13 @@ fn parse_struct_fields(input: Source) -> Res<Source, Fields> {
     ))
 }
 
-fn parse_tuple_fields(input: Source) -> Res<Source, Fields> {
+fn parse_maybe_tuple_fields(input: Source) -> Res<Source, Fields> {
+    let (input, fields) = parse_tuple_fields.parse(input)?;
+
+    Ok((input, Fields::Tuple(fields)))
+}
+
+fn parse_tuple_fields(input: Source) -> Res<Source, TupleFields> {
     let (
         input,
         (
@@ -551,7 +691,7 @@ fn parse_tuple_fields(input: Source) -> Res<Source, Fields> {
 
     Ok((
         input,
-        Fields::Tuple {
+        TupleFields {
             first_field,
             additional_fields,
             source,
@@ -576,54 +716,79 @@ fn parse_type_or_ident_or_value(input: Source) -> Res<Source, DestructuringValue
 fn parse_type_or_ident(input: Source) -> Res<Source, TypeOrIdent> {
     let (input, ty) = parse_type.parse(input)?;
 
-    match (ty.path_segments.len(), &*ty.fields) {
-        (0, Fields::Unit) => Ok((input, TypeOrIdent::Identifier(ty.name))),
+    match ty.variant {
+        TypeVariant::Struct {
+            path:
+                Path {
+                    segments,
+                    name,
+                    source: _,
+                },
+            fields: None,
+        } if segments.is_empty() => Ok((input, TypeOrIdent::Identifier(name))),
         _ => Ok((input, TypeOrIdent::Type(Box::new(ty)))),
     }
 }
 
 pub(super) fn parse_type(input: Source) -> Res<Source, Type> {
-    let (input, path_segments) = many0((ident, tag("::"))).parse(input)?;
+    let (input, path) = opt(Path::parse).parse(input)?;
 
-    let mut parser = (ident, parse_type_fields);
+    if let Some(path) = path {
+        let (input, fields) = parse_type_fields.parse(input)?;
 
-    let (input, (type_name, fields)) = if path_segments.is_empty() {
-        parser.parse(input)?
+        let ty = match fields {
+            Some(Fields::Struct(fields)) => {
+                let source = path
+                    .source()
+                    .clone()
+                    .merge(&fields.source, "Fields should follow path");
+                Type {
+                    variant: TypeVariant::Struct {
+                        path,
+                        fields: Some(Box::new(fields)),
+                    },
+                    source,
+                }
+            }
+            Some(Fields::Tuple(fields)) => {
+                let source = path
+                    .source()
+                    .clone()
+                    .merge(&fields.source, "Fields should follow path");
+                Type {
+                    variant: TypeVariant::Tuple {
+                        path: Some(path),
+                        fields: Box::new(fields),
+                    },
+                    source,
+                }
+            }
+            None => {
+                let source = path.source().clone();
+                Type {
+                    variant: TypeVariant::Struct { path, fields: None },
+                    source,
+                }
+            }
+        };
+
+        Ok((input, ty))
     } else {
-        context("Expected type name and optional fields", cut(parser)).parse(input)?
-    };
+        let (input, fields) = parse_tuple_fields.parse(input)?;
 
-    let mut source: Option<Source> = None;
-    for (ident, path_separator) in &path_segments {
-        source = Some(
-            source
-                .map_or(ident.source.clone(), |source| {
-                    source.merge(
-                        &ident.source,
-                        "Segment name expected after previous segment",
-                    )
-                })
-                .merge(
-                    path_separator,
-                    "Path separator (`::`) expected after segment name",
-                ),
-        );
+        let source = fields.source.clone();
+
+        Ok((
+            input,
+            Type {
+                variant: TypeVariant::Tuple {
+                    path: None,
+                    fields: Box::new(fields),
+                },
+                source,
+            },
+        ))
     }
-    let source = source
-        .map_or(type_name.source.clone(), |source| {
-            source.merge(&type_name.source, "Type name expected after path segments")
-        })
-        .merge_some(fields.source(), "Fields expected after type name");
-
-    Ok((
-        input,
-        Type {
-            path_segments,
-            name: type_name,
-            fields: Box::new(fields),
-            source,
-        },
-    ))
 }
 
 pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {

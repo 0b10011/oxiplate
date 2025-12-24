@@ -17,6 +17,7 @@ mod keyword;
 mod literal;
 mod operator;
 mod prefix_operator;
+mod tuple;
 
 use self::arguments::arguments;
 use self::concat::Concat;
@@ -30,6 +31,7 @@ use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use super::item::tag_end;
 use super::template::whitespace;
+use crate::syntax::expression::tuple::Tuple;
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -71,6 +73,7 @@ pub(crate) enum Expression<'a> {
     Float(Source<'a>),
     Bool(bool, Source<'a>),
     Group(Source<'a>, Box<ExpressionAccess<'a>>, Source<'a>),
+    Tuple(Tuple<'a>),
     Concat(Concat<'a>),
     Calc {
         left: Box<ExpressionAccess<'a>>,
@@ -141,6 +144,7 @@ impl<'a> Expression<'a> {
                 let span = open_paren.span();
                 (quote_spanned! {span=> ( #expression ) }, expression_length)
             }
+            Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
             Expression::Calc {
                 left,
@@ -335,6 +339,7 @@ impl<'a> Expression<'a> {
                     close_paren,
                     "Closing parenthese should immediately follow the contained expression",
                 ),
+            Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source.clone(),
             Expression::Prefixed(prefix_operator, expression) => prefix_operator
                 .source()
@@ -396,6 +401,7 @@ pub(super) fn expression<'a>(
                 identifier,
                 parse_prefixed_expression,
                 group,
+                Tuple::parse,
                 full_range,
             )),
             many0(field()),
@@ -478,12 +484,12 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
 }
 
 fn group(input: Source) -> Res<Source, Expression> {
-    let (input, (open, (inner, close))) = (
+    let (input, (open, _leading_whitespace, inner, _trailing_whitespace, close)) = (
         tag("("),
-        context(
-            "Expected an expression",
-            cut((expression(true, true), tag(")"))),
-        ),
+        opt(whitespace),
+        context("Expected an expression", expression(true, true)),
+        opt(whitespace),
+        context("Expected `)` after expression", tag(")")),
     )
         .parse(input)?;
 
