@@ -61,6 +61,7 @@ impl<'a> Source<'a> {
         &self.original.code[self.range.clone()]
     }
 
+    #[must_use]
     pub fn span(&self) -> Span {
         let mut start = self.range.start;
         let end = self.range.end;
@@ -103,6 +104,7 @@ impl<'a> Source<'a> {
             .resolved_at(self.original.span_hygiene)
     }
 
+    #[must_use]
     pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
         if self.range.end != source_to_merge.range.start {
             Diagnostic::spanned(
@@ -131,6 +133,7 @@ impl<'a> Source<'a> {
         }
     }
 
+    #[must_use]
     pub fn merge_some(self, source_to_merge: Option<&Source>, error_message: &str) -> Self {
         if let Some(source_to_merge) = source_to_merge {
             self.merge(source_to_merge, error_message)
@@ -605,7 +608,7 @@ mod tests {
             },
             range: Range { start: 2, end: 3 },
         };
-        a.merge(&b, "B does not follow A");
+        let _ = a.merge(&b, "B does not follow A");
     }
 
     #[test]
@@ -620,7 +623,7 @@ mod tests {
             },
             range: Range { start: 0, end: 1 },
         };
-        a.span();
+        let _ = a.span();
     }
 
     #[test]
