@@ -4,6 +4,7 @@ mod extends;
 mod r#for;
 mod r#if;
 mod include;
+mod r#match;
 
 use block::Block;
 use extends::Extends;
@@ -22,6 +23,7 @@ use self::include::Include;
 use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;
+use crate::syntax::statement::r#match::{Case, Match};
 use crate::syntax::template::{is_whitespace, parse_item, whitespace};
 use crate::{Source, State};
 
@@ -45,6 +47,9 @@ pub(crate) enum StatementKind<'a> {
     EndIf,
     For(For<'a>),
     EndFor,
+    Match(Match<'a>),
+    Case(Case<'a>),
+    EndMatch,
 }
 
 impl<'a> Statement<'a> {
@@ -66,8 +71,9 @@ impl<'a> Statement<'a> {
             Block(statement) => statement.is_ended,
             If(statement) => statement.is_ended,
             For(statement) => statement.is_ended,
+            Match(statement) => statement.is_ended(),
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | EndFor => true,
+            | EndFor | Case(_) | EndMatch => true,
         }
     }
 
@@ -93,8 +99,11 @@ impl<'a> Statement<'a> {
             For(statement) => {
                 statement.add_item(item);
             }
+            Match(statement) => {
+                statement.add_item(item);
+            }
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | EndFor => {
+            | EndFor | Case(_) | EndMatch => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
         }
@@ -132,16 +141,16 @@ impl<'a> Statement<'a> {
             StatementKind::Block(block) => Ok(block.to_tokens(state)),
             StatementKind::Parent => unexpected!("parent"),
             StatementKind::EndBlock => unexpected!("endblock"),
-
             StatementKind::Include(statement) => Ok(statement.to_tokens()),
-
             StatementKind::If(statement) => Ok(statement.to_tokens(state)),
             StatementKind::ElseIf(_) => unexpected!("elseif"),
             StatementKind::Else => unexpected!("else"),
             StatementKind::EndIf => unexpected!("endif"),
-
             StatementKind::For(statement) => Ok(statement.to_tokens(state)),
             StatementKind::EndFor => unexpected!("endfor"),
+            StatementKind::Match(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Case(_) => unexpected!("case"),
+            StatementKind::EndMatch => unexpected!("endmatch"),
         }
     }
 }
@@ -162,7 +171,8 @@ pub(super) fn statement<'a>(
 
         // Parse statements
         let (input, mut statement) = context(
-            "Expected one of: block, endblock, if, elseif, else, endif, for, endfor",
+            "Expected one of: block, endblock, if, elseif, else, endif, for, endfor, match, case, \
+             endmatch",
             cut(alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
@@ -176,6 +186,9 @@ pub(super) fn statement<'a>(
                 r#if::parse_endif,
                 r#for::parse_for,
                 r#for::parse_endfor,
+                r#match::Match::parse,
+                r#match::Case::parse,
+                r#match::Match::parse_end,
             ))),
         )
         .parse(input)?;
@@ -220,6 +233,7 @@ pub(super) fn statement<'a>(
                             StatementKind::Block(_) => context_message!("block"),
                             StatementKind::If(_) => context_message!("if"),
                             StatementKind::For(_) => context_message!("for"),
+                            StatementKind::Match(_) => context_message!("match"),
                             StatementKind::DefaultEscaper(_)
                             | StatementKind::Extends(_)
                             | StatementKind::Parent
@@ -228,7 +242,9 @@ pub(super) fn statement<'a>(
                             | StatementKind::ElseIf(_)
                             | StatementKind::Else
                             | StatementKind::EndIf
-                            | StatementKind::EndFor => unreachable!(
+                            | StatementKind::EndFor
+                            | StatementKind::Case(_)
+                            | StatementKind::EndMatch => unreachable!(
                                 "These blocks should never fail to be closed because of EOF"
                             ),
                         };
