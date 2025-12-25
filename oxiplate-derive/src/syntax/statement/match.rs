@@ -10,7 +10,7 @@ use super::super::Item;
 use super::{Statement, StatementKind};
 use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, expression};
-use crate::syntax::statement::r#if::{Type, parse_type};
+use crate::syntax::statement::helpers::pattern::{Type, parse_type};
 use crate::syntax::template::{Template, whitespace};
 use crate::{Source, State};
 

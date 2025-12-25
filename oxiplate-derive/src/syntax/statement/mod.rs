@@ -2,6 +2,7 @@ mod block;
 mod escaper;
 mod extends;
 mod r#for;
+mod helpers;
 mod r#if;
 mod include;
 mod r#match;
