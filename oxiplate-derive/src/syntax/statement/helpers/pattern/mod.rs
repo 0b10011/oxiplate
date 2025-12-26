@@ -36,11 +36,11 @@ pub(crate) enum Pattern<'a> {
 impl<'a> Pattern<'a> {
     pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
         alt((
+            into(Range::parse),
             into(Literal::parse),
             into(Tuple::parse),
             into(Struct::parse),
             into(Identifier::parse),
-            into(Range::parse),
         ))
         .parse(input)
     }

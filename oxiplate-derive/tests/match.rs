@@ -174,3 +174,85 @@ fn nested() {
     assert_eq!(format!("{}", outer!(64, 19.89, 89, 42.19)), "b.a: 89");
     assert_eq!(format!("{}", outer!(64, 19.89, 89, 16.19)), "");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- match value %}
+    {%- case ..1 %}To 1
+    {%- case ..=1 %}Through 1
+    {%- case 2 %}2
+    {%- case 3..4 %}3 to 4
+    {%- case 3..=4 %}3 through 4
+    {%- case 3.. %}3 and up
+{%- endmatch -%}
+"#
+)]
+struct RangeInteger {
+    value: isize,
+}
+
+#[test]
+fn range_integer() {
+    assert_eq!("To 1", format!("{}", RangeInteger { value: 0 }));
+    assert_eq!("Through 1", format!("{}", RangeInteger { value: 1 }));
+    assert_eq!("2", format!("{}", RangeInteger { value: 2 }));
+    assert_eq!("3 to 4", format!("{}", RangeInteger { value: 3 }));
+    assert_eq!("3 through 4", format!("{}", RangeInteger { value: 4 }));
+    assert_eq!("3 and up", format!("{}", RangeInteger { value: 5 }));
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- match value %}
+    {%- case ..1. %}To 1
+    {%- case ..=1. %}Through 1
+    {%- case 2.0 %}2
+    {%- case 3. ..4. %}3 to 4
+    {%- case 3. ..=4. %}3 through 4
+    {%- case 3. .. %}3 and up
+    {%- case _ %}Something else
+{%- endmatch -%}
+"#
+)]
+struct RangeFloat {
+    value: f64,
+}
+
+#[test]
+fn range_float() {
+    assert_eq!("To 1", format!("{}", RangeFloat { value: 0. }));
+    assert_eq!("Through 1", format!("{}", RangeFloat { value: 1. }));
+    assert_eq!("2", format!("{}", RangeFloat { value: 2. }));
+    assert_eq!("Something else", format!("{}", RangeFloat { value: 2.19 }));
+    assert_eq!("3 to 4", format!("{}", RangeFloat { value: 3. }));
+    assert_eq!("3 through 4", format!("{}", RangeFloat { value: 4. }));
+    assert_eq!("3 and up", format!("{}", RangeFloat { value: 5. }));
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- match value %}
+    {%- case ..'b' %}To b
+    {%- case ..='b' %}Through b
+    {%- case 'c' %}c
+    {%- case 'd'..'e' %}d to e
+    {%- case 'd'..='e' %}d through e
+    {%- case 'd'.. %}d and up
+{%- endmatch -%}"#
+)]
+struct RangeChar {
+    value: char,
+}
+
+#[test]
+fn range_char() {
+    assert_eq!("To b", format!("{}", RangeChar { value: 'a' }));
+    assert_eq!("Through b", format!("{}", RangeChar { value: 'b' }));
+    assert_eq!("c", format!("{}", RangeChar { value: 'c' }));
+    assert_eq!("d to e", format!("{}", RangeChar { value: 'd' }));
+    assert_eq!("d through e", format!("{}", RangeChar { value: 'e' }));
+    assert_eq!("d and up", format!("{}", RangeChar { value: 'f' }));
+}

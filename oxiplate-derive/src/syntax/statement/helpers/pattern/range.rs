@@ -3,6 +3,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{into, opt};
 use proc_macro2::TokenStream;
+use quote::{quote, quote_spanned};
 
 use super::Pattern;
 use crate::syntax::Res;
@@ -13,11 +14,16 @@ use crate::{Source, State};
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Range<'a> {
     /// start..
-    From { from: Value<'a>, source: Source<'a> },
+    From {
+        from: Value<'a>,
+        operator: Source<'a>,
+        source: Source<'a>,
+    },
 
     /// start..end
     Exclusive {
         from: Value<'a>,
+        operator: Source<'a>,
         to: Value<'a>,
         source: Source<'a>,
     },
@@ -25,22 +31,31 @@ pub(crate) enum Range<'a> {
     /// start..=end
     Inclusive {
         from: Value<'a>,
+        operator: Source<'a>,
         to: Value<'a>,
         source: Source<'a>,
     },
 
     /// ..end
-    ExclusiveTo { to: Value<'a>, source: Source<'a> },
+    ExclusiveTo {
+        operator: Source<'a>,
+        to: Value<'a>,
+        source: Source<'a>,
+    },
 
     /// ..=end
-    InclusiveTo { to: Value<'a>, source: Source<'a> },
+    InclusiveTo {
+        operator: Source<'a>,
+        to: Value<'a>,
+        source: Source<'a>,
+    },
 }
 
 impl<'a> Range<'a> {
     pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
         alt((
-            Self::parse_from_or_exclusive,
             Self::parse_inclusive,
+            Self::parse_from_or_exclusive,
             Self::parse_exclusive_to,
             Self::parse_inclusive_to,
         ))
@@ -75,9 +90,24 @@ impl<'a> Range<'a> {
             );
 
         if let Some(to) = to {
-            Ok((input, Self::Exclusive { from, to, source }))
+            Ok((
+                input,
+                Self::Exclusive {
+                    from,
+                    operator,
+                    to,
+                    source,
+                },
+            ))
         } else {
-            Ok((input, Self::From { from, source }))
+            Ok((
+                input,
+                Self::From {
+                    from,
+                    operator,
+                    source,
+                },
+            ))
         }
     }
 
@@ -105,7 +135,15 @@ impl<'a> Range<'a> {
             )
             .merge(to.source(), "Value expected after whitespace");
 
-        Ok((input, Self::Inclusive { from, to, source }))
+        Ok((
+            input,
+            Self::Inclusive {
+                from,
+                operator,
+                to,
+                source,
+            },
+        ))
     }
 
     pub fn parse_exclusive_to(input: Source<'a>) -> Res<Source<'a>, Self> {
@@ -120,7 +158,14 @@ impl<'a> Range<'a> {
             )
             .merge(to.source(), "Value expected after whitespace");
 
-        Ok((input, Self::ExclusiveTo { to, source }))
+        Ok((
+            input,
+            Self::ExclusiveTo {
+                operator,
+                to,
+                source,
+            },
+        ))
     }
 
     pub fn parse_inclusive_to(input: Source<'a>) -> Res<Source<'a>, Self> {
@@ -135,15 +180,76 @@ impl<'a> Range<'a> {
             )
             .merge(to.source(), "Value expected after whitespace");
 
-        Ok((input, Self::InclusiveTo { to, source }))
+        Ok((
+            input,
+            Self::InclusiveTo {
+                operator,
+                to,
+                source,
+            },
+        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
-        todo!("range source");
+        match self {
+            Self::From { source, .. }
+            | Self::Exclusive { source, .. }
+            | Self::Inclusive { source, .. }
+            | Self::ExclusiveTo { source, .. }
+            | Self::InclusiveTo { source, .. } => source,
+        }
     }
 
     pub fn to_tokens(&self, _state: &State) -> TokenStream {
-        todo!("range to_tokens");
+        let (from, operator, to) = match self {
+            Self::From {
+                from,
+                operator,
+                source: _,
+            } => {
+                let operator_span = operator.span();
+                (Some(from), quote_spanned! {operator_span=> .. }, None)
+            }
+            Self::Exclusive {
+                from,
+                operator,
+                to,
+                source: _,
+            } => {
+                let operator_span = operator.span();
+                (Some(from), quote_spanned! {operator_span=> .. }, Some(to))
+            }
+            Self::Inclusive {
+                from,
+                operator,
+                to,
+                source: _,
+            } => {
+                let operator_span = operator.span();
+                (Some(from), quote_spanned! {operator_span=> ..= }, Some(to))
+            }
+            Self::ExclusiveTo {
+                operator,
+                to,
+                source: _,
+            } => {
+                let operator_span = operator.span();
+                (None, quote_spanned! {operator_span=> .. }, Some(to))
+            }
+            Self::InclusiveTo {
+                operator,
+                to,
+                source: _,
+            } => {
+                let operator_span = operator.span();
+                (None, quote_spanned! {operator_span=> ..= }, Some(to))
+            }
+        };
+
+        let from = from.map_or_else(TokenStream::new, Value::to_tokens);
+        let to = to.map_or_else(TokenStream::new, Value::to_tokens);
+
+        quote! { #from #operator #to }
     }
 }
 
@@ -170,6 +276,14 @@ impl<'a> Value<'a> {
             Self::Integer(integer) => integer.source(),
             Self::Float(float) => float.source(),
             Self::Char(char) => char.source(),
+        }
+    }
+
+    pub fn to_tokens(&self) -> TokenStream {
+        match self {
+            Self::Integer(integer) => integer.to_tokens().0,
+            Self::Float(float) => float.to_tokens().0,
+            Self::Char(char) => char.to_tokens().0,
         }
     }
 }
