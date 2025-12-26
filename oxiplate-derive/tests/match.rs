@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use oxiplate_derive::Oxiplate;
 
 enum Name {
@@ -116,17 +118,17 @@ fn test_multiple() {
     )
 }
 
-struct InnerA {
-    value: usize,
+struct InnerA<T: Display> {
+    value: T,
 }
-struct InnerB(usize);
+struct InnerB<T: Display>(T);
 
-struct MiddleA {
-    a: InnerA,
-    b: InnerB,
+struct MiddleA<A: Display, B: Display> {
+    a: InnerA<A>,
+    b: InnerB<B>,
 }
 
-struct MiddleB(InnerA, InnerB);
+struct MiddleB<A: Display, B: Display>(InnerA<A>, InnerB<B>);
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(
@@ -134,15 +136,15 @@ struct MiddleB(InnerA, InnerB);
 {%- if let MiddleA { a: InnerA { value: 42 } , b: InnerB(b) } = a -%}
     {# Extra whitespace before comma intentional for coverage -#}
     a.b: {{ b }}
-{%- elseif let MiddleB(InnerA { value: a } , InnerB(42)) = b -%}
+{%- elseif let MiddleB(InnerA { value: a } , InnerB(42.19)) = b -%}
     {# Extra whitespace before comma intentional for coverage -#}
     b.a: {{ a }}
 {%- endif -%}
 "#
 )]
 struct Outer {
-    a: MiddleA,
-    b: MiddleB,
+    a: MiddleA<usize, f64>,
+    b: MiddleB<usize, f64>,
 }
 
 #[test]
@@ -168,7 +170,7 @@ fn nested() {
             }
         };
     }
-    assert_eq!(format!("{}", outer!(42, 19, 89, 42)), "a.b: 19");
-    assert_eq!(format!("{}", outer!(64, 19, 89, 42)), "b.a: 89");
-    assert_eq!(format!("{}", outer!(64, 19, 89, 16)), "");
+    assert_eq!(format!("{}", outer!(42, 19.89, 89, 42.19)), "a.b: 19.89");
+    assert_eq!(format!("{}", outer!(64, 19.89, 89, 42.19)), "b.a: 89");
+    assert_eq!(format!("{}", outer!(64, 19.89, 89, 16.19)), "");
 }

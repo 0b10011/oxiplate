@@ -3,6 +3,7 @@
 extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
+use std::fmt::Display;
 use oxiplate_derive::Oxiplate;
 enum Name {
     Actual(String),
@@ -91,9 +92,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 37usize,
+        start_line: 39usize,
         start_col: 4usize,
-        end_line: 37usize,
+        end_line: 39usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -138,9 +139,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 47usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 47usize,
+        end_line: 49usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -185,9 +186,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 57usize,
+        start_line: 59usize,
         start_col: 4usize,
-        end_line: 57usize,
+        end_line: 59usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -231,9 +232,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 69usize,
+        start_line: 71usize,
         start_col: 4usize,
-        end_line: 69usize,
+        end_line: 71usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -313,9 +314,9 @@ pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 102usize,
+        start_line: 104usize,
         start_col: 4usize,
-        end_line: 102usize,
+        end_line: 104usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -359,29 +360,29 @@ fn test_multiple() {
         }
     }
 }
-struct InnerA {
-    value: usize,
+struct InnerA<T: Display> {
+    value: T,
 }
-struct InnerB(usize);
-struct MiddleA {
-    a: InnerA,
-    b: InnerB,
+struct InnerB<T: Display>(T);
+struct MiddleA<A: Display, B: Display> {
+    a: InnerA<A>,
+    b: InnerB<B>,
 }
-struct MiddleB(InnerA, InnerB);
+struct MiddleB<A: Display, B: Display>(InnerA<A>, InnerB<B>);
 #[oxiplate_inline(
     r#"
 {%- if let MiddleA { a: InnerA { value: 42 } , b: InnerB(b) } = a -%}
     {# Extra whitespace before comma intentional for coverage -#}
     a.b: {{ b }}
-{%- elseif let MiddleB(InnerA { value: a } , InnerB(42)) = b -%}
+{%- elseif let MiddleB(InnerA { value: a } , InnerB(42.19)) = b -%}
     {# Extra whitespace before comma intentional for coverage -#}
     b.a: {{ a }}
 {%- endif -%}
 "#
 )]
 struct Outer {
-    a: MiddleA,
-    b: MiddleB,
+    a: MiddleA<usize, f64>,
+    b: MiddleB<usize, f64>,
 }
 impl ::std::fmt::Display for Outer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -392,7 +393,7 @@ impl ::std::fmt::Display for Outer {
             if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
                 f.write_str("a.b: ")?;
                 f.write_str(&::std::string::ToString::to_string(&(b)))?;
-            } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
+            } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) = self.b {
                 f.write_str("b.a: ")?;
                 f.write_str(&::std::string::ToString::to_string(&(a)))?;
             }
@@ -410,9 +411,9 @@ pub const nested: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/match.rs",
-        start_line: 149usize,
+        start_line: 151usize,
         start_col: 4usize,
-        end_line: 149usize,
+        end_line: 151usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -430,14 +431,14 @@ fn nested() {
                     Outer {
                         a: MiddleA {
                             a: InnerA { value: 42 },
-                            b: InnerB(19),
+                            b: InnerB(19.89),
                         },
-                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
                     },
                 ),
             )
         }),
-        &"a.b: 19",
+        &"a.b: 19.89",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -459,9 +460,9 @@ fn nested() {
                     Outer {
                         a: MiddleA {
                             a: InnerA { value: 64 },
-                            b: InnerB(19),
+                            b: InnerB(19.89),
                         },
-                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
                     },
                 ),
             )
@@ -488,9 +489,9 @@ fn nested() {
                     Outer {
                         a: MiddleA {
                             a: InnerA { value: 64 },
-                            b: InnerB(19),
+                            b: InnerB(19.89),
                         },
-                        b: MiddleB(InnerA { value: 89 }, InnerB(16)),
+                        b: MiddleB(InnerA { value: 89 }, InnerB(16.19)),
                     },
                 ),
             )
