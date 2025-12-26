@@ -1,0 +1,5 @@
+error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
+ --> tests/broken/match/error-in-item.rs:4:34
+  |
+4 | #[oxiplate_inline("{% match 19 %}{%_ case _ %}{% endmatch %}")]
+  |                                  ^^^

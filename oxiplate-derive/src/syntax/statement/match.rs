@@ -74,7 +74,7 @@ impl<'a> Match<'a> {
                     let error_source = item.source().clone();
                     let consumed_source = item.source().clone();
                     self.errors.0.push(Item::CompileError {
-                        message: format!("Expected `case` or `endmatch` statement {item:?}"),
+                        message: format!("Expected `case` or `endmatch` statement"),
                         error_source,
                         consumed_source,
                     });
