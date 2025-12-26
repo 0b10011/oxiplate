@@ -8,7 +8,7 @@ use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
-use super::super::expression::{Identifier, Keyword, expression, ident, keyword};
+use super::super::expression::{Identifier, Keyword, expression, keyword};
 use super::super::{Item, Res};
 use super::{State, Statement, StatementKind};
 use crate::Source;
@@ -75,7 +75,7 @@ impl<'a> For<'a> {
     }
 
     pub(crate) fn get_active_variables(&self) -> HashSet<&'a str> {
-        HashSet::from([self.ident.ident])
+        HashSet::from([self.ident.as_str()])
     }
 
     pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
@@ -142,7 +142,7 @@ pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
     let (input, (for_whitespace, ident, ident_whitespace, in_keyword, in_whitespace, expression)) =
         cut((
             context("Expected space after 'for'", whitespace),
-            context("Expected an identifier", ident),
+            context("Expected an identifier", Identifier::parse),
             context("Expected space after identifier", whitespace),
             context("Expected 'in'", keyword("in")),
             context("Expected space after 'in'", whitespace),
@@ -157,7 +157,7 @@ pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
         .0
         .clone()
         .merge(&for_whitespace, "Whitespace expected after `for`")
-        .merge(&ident.source, "Ident expected after whitespace")
+        .merge(ident.source(), "Ident expected after whitespace")
         .merge(&ident_whitespace, "Whitespace expected after ident")
         .merge(&in_keyword.0, "`in` expected after whitespace")
         .merge(&in_whitespace, "Whitespace expected after `in`")

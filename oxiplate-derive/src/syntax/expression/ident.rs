@@ -10,7 +10,7 @@ use crate::syntax::expression::arguments::{ArgumentsGroup, arguments};
 use crate::{Source, State};
 
 pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
-    let (input, (ident, arguments)) = pair(&ident, opt(arguments)).parse(input)?;
+    let (input, (ident, arguments)) = pair(Identifier::parse, opt(arguments)).parse(input)?;
 
     let field = if let Some(arguments) = arguments {
         IdentifierOrFunction::Function(ident, arguments)
@@ -22,14 +22,36 @@ pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Identifier<'a> {
-    pub ident: &'a str,
-    pub source: Source<'a>,
+pub(crate) struct Identifier<'a>(Source<'a>);
+
+impl<'a> Identifier<'a> {
+    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+        // Ignore if it starts with a number
+        let (input, _) = peek(take_while1(
+            |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'),
+        ))
+        .parse(input)?;
+
+        let (input, ident) = cut(take_while1(
+            |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'),
+        ))
+        .parse(input)?;
+
+        Ok((input, Self(ident)))
+    }
+
+    pub fn as_str(&self) -> &'a str {
+        self.0.as_str()
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.0
+    }
 }
 
 impl ToTokens for Identifier<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = match self.ident.to_ascii_lowercase().as_str() {
+        let ident = match self.0.as_str().to_ascii_lowercase().as_str() {
             // Keywords from <https://doc.rust-lang.org/reference/keywords.html>.
             // Prefix with `r#` so Rust will accept them as idents.
             "abstract" | "as" | "async" | "await" | "become" | "box" | "break" | "const"
@@ -38,35 +60,15 @@ impl ToTokens for Identifier<'_> {
             | "macro_rules" | "match" | "mod" | "move" | "mut" | "override" | "priv" | "pub"
             | "ref" | "return" | "static" | "struct" | "trait" | "true" | "try" | "type"
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
-            | "yield" => syn::Ident::new_raw(self.ident, self.source.span()),
+            | "yield" => syn::Ident::new_raw(self.0.as_str(), self.0.span()),
 
             // `self` and `super` can't be worked around,
             // so Rust can bail when it encounters them during compilation.
-            _ => syn::Ident::new(self.ident, self.source.span()),
+            _ => syn::Ident::new(self.0.as_str(), self.0.span()),
         };
 
         tokens.append_all(quote! { #ident });
     }
-}
-
-pub(crate) fn ident(input: Source) -> Res<Source, Identifier> {
-    // Ignore if it starts with a number
-    let (input, _) = peek(take_while1(
-        |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'),
-    ))
-    .parse(input)?;
-
-    let (input, ident) = cut(take_while1(
-        |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'),
-    ))
-    .parse(input)?;
-    Ok((
-        input,
-        Identifier {
-            ident: ident.as_str(),
-            source: ident,
-        },
-    ))
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -95,9 +97,9 @@ impl<'a> IdentifierOrFunction<'a> {
     /// Get the `Source` for the entire identifier or function call.
     pub fn source(&self) -> Source<'a> {
         match self {
-            IdentifierOrFunction::Identifier(identifier) => identifier.source.clone(),
+            IdentifierOrFunction::Identifier(identifier) => identifier.source().clone(),
             IdentifierOrFunction::Function(identifier, arguments_group) => {
-                identifier.source.clone().merge(
+                identifier.source().clone().merge(
                     arguments_group.source(),
                     "Arguments group should immediately follow the function name",
                 )

@@ -1,13 +1,12 @@
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{cut, fail, not, opt};
+use nom::combinator::{cut, fail, into, not, opt};
 use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::pair;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-use syn::spanned::Spanned;
 use syn::token::Dot;
 
 mod arguments;
@@ -22,9 +21,9 @@ mod tuple;
 use self::arguments::arguments;
 use self::concat::Concat;
 use self::ident::IdentifierOrFunction;
-pub(super) use self::ident::{Identifier, ident, identifier};
+pub(super) use self::ident::{Identifier, identifier};
 pub(super) use self::keyword::{Keyword, keyword};
-pub(super) use self::literal::{bool, char, number, string};
+pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
@@ -61,17 +60,11 @@ impl<'a> Field<'a> {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>),
-    Char {
-        value: char,
-        source: Source<'a>,
-    },
-    String {
-        value: Source<'a>,
-        source: Source<'a>,
-    },
-    Integer(Source<'a>),
-    Float(Source<'a>),
-    Bool(bool, Source<'a>),
+    Char(Char<'a>),
+    String(String<'a>),
+    Integer(Integer<'a>),
+    Float(Float<'a>),
+    Bool(Bool<'a>),
     Group(Source<'a>, Box<ExpressionAccess<'a>>, Source<'a>),
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
@@ -121,8 +114,8 @@ impl<'a> Expression<'a> {
         match self {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
-                    let span = identifier.source.span();
-                    if state.local_variables.contains(identifier.ident) {
+                    let span = identifier.source().span();
+                    if state.local_variables.contains(identifier.as_str()) {
                         (quote! { #identifier }, 1)
                     } else {
                         (quote_spanned! {span=> self.#identifier }, 1)
@@ -131,8 +124,8 @@ impl<'a> Expression<'a> {
                 IdentifierOrFunction::Function(identifier, arguments) => {
                     let arguments = arguments.to_tokens(state);
 
-                    let span = identifier.source.span();
-                    if state.local_variables.contains(identifier.ident) {
+                    let span = identifier.source().span();
+                    if state.local_variables.contains(identifier.as_str()) {
                         (quote! { #identifier #arguments }, 1)
                     } else {
                         (quote_spanned! {span=> (self.#identifier)#arguments }, 1)
@@ -188,26 +181,11 @@ impl<'a> Expression<'a> {
 
                 (expression, expression_length)
             }
-            Expression::Char { value, source } => {
-                let literal = ::syn::LitChar::new(*value, source.span());
-                (quote! { #literal }, 1)
-            }
-            Expression::String { value, source } => {
-                let literal = ::syn::LitStr::new(value.as_str(), source.span());
-                (quote! { #literal }, value.as_str().len())
-            }
-            Expression::Integer(number) => {
-                let literal = ::syn::LitInt::new(number.as_str(), number.span());
-                (quote! { #literal }, number.as_str().len())
-            }
-            Expression::Float(number) => {
-                let literal = ::syn::LitFloat::new(number.as_str(), number.span());
-                (quote! { #literal }, number.as_str().len())
-            }
-            Expression::Bool(bool, source) => {
-                let literal = ::syn::LitBool::new(*bool, source.span());
-                (quote! { #literal }, 0)
-            }
+            Expression::Char(char) => char.to_tokens(),
+            Expression::String(string) => string.to_tokens(),
+            Expression::Integer(number) => number.to_tokens(),
+            Expression::Float(number) => number.to_tokens(),
+            Expression::Bool(bool) => bool.to_tokens(),
             Expression::FullRange(operator) => {
                 let span = operator.span();
                 (quote_spanned! {span=> .. }, 0)
@@ -277,11 +255,11 @@ impl<'a> Expression<'a> {
         } else {
             let mut group =
                 proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            group.set_span(name.span());
+            group.set_span(name.source().span());
             group.to_token_stream()
         };
 
-        let span = name.span();
+        let span = name.source().span();
         if let Some(cow_prefix) = cow_prefix {
             let span = cow_prefix.span();
 
@@ -320,12 +298,12 @@ impl<'a> Expression<'a> {
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
             Expression::Identifier(identifier_or_function) => identifier_or_function.source(),
+            Expression::Char(value) => value.source().clone(),
+            Expression::String(value) => value.source().clone(),
+            Expression::Integer(value) => value.source().clone(),
+            Expression::Float(value) => value.source().clone(),
+            Expression::Bool(value) => value.source().clone(),
             Expression::Calc { source, .. }
-            | Expression::Char { value: _, source }
-            | Expression::String { value: _, source }
-            | Expression::Integer(source)
-            | Expression::Float(source)
-            | Expression::Bool(_, source)
             | Expression::FullRange(source)
             | Expression::Filter { source, .. }
             | Expression::Cow { source, .. } => source.clone(),
@@ -394,10 +372,10 @@ pub(super) fn expression<'a>(
                 index(allow_generic_nesting),
                 filters(allow_generic_nesting),
                 parse_cow_prefix,
-                char,
-                string,
-                number,
-                bool,
+                into(Char::parse),
+                into(String::parse),
+                into(Number::parse),
+                into(Bool::parse),
                 identifier,
                 parse_prefixed_expression,
                 group,
@@ -414,7 +392,8 @@ pub(super) fn expression<'a>(
 
 fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
     |input| {
-        let (input, (dot, ident, arguments)) = (tag("."), &ident, opt(arguments)).parse(input)?;
+        let (input, (dot, ident, arguments)) =
+            (tag("."), Identifier::parse, opt(arguments)).parse(input)?;
 
         let ident_or_fn = if let Some(arguments) = arguments {
             IdentifierOrFunction::Function(ident, arguments)
@@ -544,7 +523,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                 opt(whitespace),
                 opt(tag(">")),
                 opt(whitespace),
-                context("Expected a filter name", cut(ident)),
+                context("Expected a filter name", cut(Identifier::parse)),
                 opt(whitespace),
                 opt(arguments),
             )),
@@ -582,7 +561,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                     cow_prefix_trailing_ws.as_ref(),
                     "Whitespace should follow cow prefix",
                 )
-                .merge(&name.source, "Filter name should follow whitespace")
+                .merge(name.source(), "Filter name should follow whitespace")
                 .merge_some(
                     trailing_ws.as_ref(),
                     "Trailing whitespace should follow filter name",

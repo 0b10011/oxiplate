@@ -10,14 +10,14 @@ use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
-use crate::syntax::statement::helpers::pattern::{Type, parse_type};
+use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
 use crate::{Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
     If(ExpressionAccess<'a>),
-    IfLet(Type<'a>, ExpressionAccess<'a>),
+    IfLet(Pattern<'a>, ExpressionAccess<'a>),
 }
 
 #[derive(Debug)]
@@ -105,10 +105,10 @@ impl<'a> If<'a> {
                         tokens.append_all(quote! { if #expression { #template } });
                     }
                 }
-                IfType::IfLet(ty, expression) => {
+                IfType::IfLet(pattern, expression) => {
                     let (expression, _expression_length) = expression.to_tokens(state);
 
-                    let mut local_variables = ty.get_variables();
+                    let mut local_variables = pattern.get_variables();
                     for value in state.local_variables {
                         local_variables.insert(value);
                     }
@@ -119,12 +119,14 @@ impl<'a> If<'a> {
                     let (template, template_length) = template.to_tokens(branch_state);
                     estimated_length = estimated_length.min(template_length);
 
-                    let ty = ty.to_tokens(state);
+                    let pattern = pattern.to_tokens(branch_state);
 
                     if is_elseif {
-                        tokens.append_all(quote! { else if let #ty = #expression { #template } });
+                        tokens.append_all(
+                            quote! { else if let #pattern = #expression { #template } },
+                        );
                     } else {
-                        tokens.append_all(quote! { if let #ty = #expression { #template } });
+                        tokens.append_all(quote! { if let #pattern = #expression { #template } });
                     }
                 }
             }
@@ -178,7 +180,7 @@ fn parse_if_generic(input: Source) -> Res<Source, (IfType, Source)> {
 
     if let Some((let_tag, let_whitespace)) = r#let {
         let (input, ty) =
-            context(r#"Expected a type after "let""#, cut(parse_type)).parse(input)?;
+            context(r#"Expected a type after "let""#, cut(Pattern::parse)).parse(input)?;
         let (input, (leading_whitespace, equal, trailing_whitespace, expression)) = (
             opt(whitespace),
             context("Expected `=`", cut(tag("="))),
@@ -193,7 +195,7 @@ fn parse_if_generic(input: Source) -> Res<Source, (IfType, Source)> {
         source = source
             .merge(&let_tag, "`let` expected after whitespace")
             .merge(&let_whitespace, "Whitespace expected after `let`")
-            .merge(&ty.source(), "Type expected after whitespace")
+            .merge(ty.source(), "Type expected after whitespace")
             .merge_some(
                 leading_whitespace.as_ref(),
                 "Whitespace expected after type",

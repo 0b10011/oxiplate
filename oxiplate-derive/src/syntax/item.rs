@@ -24,6 +24,7 @@ pub(super) enum ItemToken {
 
 /// One piece of a template.
 #[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
 pub(crate) enum Item<'a> {
     /// A private comment that should be discarded from the final output.
     Comment(Source<'a>),
@@ -89,10 +90,10 @@ impl<'a> Item<'a> {
                     && let Some(default_escaper_group) = state
                         .config
                         .escaper_groups
-                        .get(default_escaper.escaper.ident)
+                        .get(default_escaper.escaper.as_str())
                 {
                     state.default_escaper_group =
-                        Some((default_escaper.escaper.ident, default_escaper_group));
+                        Some((default_escaper.escaper.as_str(), default_escaper_group));
                 }
 
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)

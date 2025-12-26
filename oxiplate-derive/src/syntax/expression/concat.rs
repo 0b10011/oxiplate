@@ -26,11 +26,11 @@ impl Concat<'_> {
             for expression in &self.expressions {
                 match expression {
                     ExpressionAccess {
-                        expression: Expression::String { value, source },
+                        expression: Expression::String(string),
                         fields,
                     } if fields.is_empty() => {
-                        estimated_length += value.as_str().len();
-                        let string = syn::LitStr::new(value.as_str(), source.span());
+                        estimated_length += string.as_str().len();
+                        let string = syn::LitStr::new(string.as_str(), string.source().span());
                         format_tokens.push(quote! { #string });
                     }
                     _ => {

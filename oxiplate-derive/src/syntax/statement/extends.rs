@@ -42,7 +42,7 @@ impl<'a> Extends<'a> {
                 ..
             }) => {
                 self.blocks
-                    .insert(block.name.ident, (block.prefix, block.suffix));
+                    .insert(block.name.as_str(), (block.prefix, block.suffix));
             }
             Item::Statement(statement) => self.template.0.push(Item::CompileError {
                 message: "Only block statements are allowed here, along with comments and \

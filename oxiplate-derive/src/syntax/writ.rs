@@ -10,7 +10,7 @@ use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
-use super::expression::{ExpressionAccess, Identifier, expression, ident};
+use super::expression::{ExpressionAccess, Identifier, expression};
 use super::item::tag_end;
 use super::template::is_whitespace;
 use super::{Item, Res};
@@ -78,10 +78,10 @@ impl<'a> Writ<'a> {
                 group: Some(group),
                 escaper,
             }) => {
-                if let Some(escaper_group) = state.config.escaper_groups.get(group.ident) {
+                if let Some(escaper_group) = state.config.escaper_groups.get(group.as_str()) {
                     Ok(EscaperType::Specified(
-                        (group.ident, escaper_group),
-                        group.source.span(),
+                        (group.as_str(), escaper_group),
+                        group.source().span(),
                         escaper,
                     ))
                 } else {
@@ -98,12 +98,12 @@ impl<'a> Writ<'a> {
                 group: None,
                 escaper,
             }) => {
-                if escaper.ident == "raw" {
+                if escaper.as_str() == "raw" {
                     Ok(EscaperType::Raw)
                 } else if let Some(default_group) = state.default_escaper_group {
                     Ok(EscaperType::Specified(
                         default_group,
-                        escaper.source.span(),
+                        escaper.source().span(),
                         escaper,
                     ))
                 } else if *state.failed_to_set_default_escaper_group {
@@ -114,7 +114,7 @@ impl<'a> Writ<'a> {
                 } else if let Some(inferred_group) = state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
                         inferred_group,
-                        escaper.source.span(),
+                        escaper.source().span(),
                         escaper,
                     ))
                 } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
@@ -123,13 +123,13 @@ impl<'a> Writ<'a> {
                     {
                         Ok(EscaperType::Specified(
                             (fallback_group.as_str(), escaper_group),
-                            escaper.source.span(),
+                            escaper.source().span(),
                             escaper,
                         ))
                     } else {
                         // This should have been caught during initial parsing of the config,
                         // but leaving a helpful error message just in case.
-                        let span = escaper.source.span();
+                        let span = escaper.source().span();
                         let fallback_group = fallback_group.as_str();
                         Err((
                             quote_spanned! {span=>
@@ -277,7 +277,8 @@ impl<'a> Writ<'a> {
             );
         }
 
-        if let Ok(escaper) = syn::LitStr::new(escaper.ident, escaper.span()).parse::<PathSegment>()
+        if let Ok(escaper) =
+            syn::LitStr::new(escaper.as_str(), escaper.span()).parse::<PathSegment>()
             && let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>()
             && let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>()
         {
@@ -340,8 +341,8 @@ pub(super) fn writ<'a>(
         let (input, leading_whitespace) = take_while(is_whitespace)(input)?;
 
         let (input, escaper_info) = opt((
-            opt((ident, tag("."))),
-            ident,
+            opt((Identifier::parse, tag("."))),
+            Identifier::parse,
             tag(":"),
             take_while(is_whitespace),
         ))
@@ -350,12 +351,12 @@ pub(super) fn writ<'a>(
         let escaper_source = escaper_info.as_ref().map(|escaper_info| {
             if let Some((escaper_group, dot)) = &escaper_info.0 {
                 escaper_group
-                    .source
+                    .source()
                     .clone()
                     .merge(dot, "Dot expected after escaper group")
-                    .merge(&escaper_info.1.source, "Escaper name expected after group")
+                    .merge(escaper_info.1.source(), "Escaper name expected after group")
             } else {
-                escaper_info.1.source.clone()
+                escaper_info.1.source().clone()
             }
             .merge(&escaper_info.2, "Colon expected after escaper name")
             .merge(&escaper_info.3, "Whitespace expected after colon")

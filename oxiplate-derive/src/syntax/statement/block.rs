@@ -9,7 +9,7 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 use syn::spanned::Spanned;
 
-use super::super::expression::{Identifier, ident, keyword};
+use super::super::expression::{Identifier, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::template::{Template, whitespace};
@@ -70,7 +70,7 @@ impl<'a> Block<'a> {
 
     pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
         let mut block_stack = state.blocks.clone();
-        let block = HashMap::from([(self.name.ident, (&self.prefix, self.suffix.as_ref()))]);
+        let block = HashMap::from([(self.name.as_str(), (&self.prefix, self.suffix.as_ref()))]);
         block_stack.push_back(&block);
         self.build_block((quote! {}, 0), (Some(quote! {}), 0), state, block_stack)
     }
@@ -103,7 +103,7 @@ impl<'a> Block<'a> {
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         };
 
-        if let Some(&(prefix, suffix)) = blocks.get(self.name.ident) {
+        if let Some(&(prefix, suffix)) = blocks.get(self.name.as_str()) {
             let (prefix, prefix_length) = prefix.to_tokens(state);
 
             if let Some(child_suffix) = child_suffix {
@@ -181,14 +181,14 @@ pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
 
     let (input, (leading_whitespace, name)) = cut((
         context("Expected space after 'block'", whitespace),
-        context("Expected an identifier", ident),
+        context("Expected an identifier", Identifier::parse),
     ))
     .parse(input)?;
 
     let source = block_keyword
         .0
         .merge(&leading_whitespace, "Whitespace expected after `block`")
-        .merge(&name.source, "Block name expected after whitespace");
+        .merge(name.source(), "Block name expected after whitespace");
 
     Ok((
         input,

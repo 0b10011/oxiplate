@@ -9,7 +9,7 @@ use syn::LitStr;
 use syn::spanned::Spanned as _;
 
 use super::super::Res;
-use super::super::expression::{Identifier, ident, keyword};
+use super::super::expression::{Identifier, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::whitespace;
@@ -55,11 +55,11 @@ impl DefaultEscaper<'_> {
         } else {
             if !self.can_replace_inferred_escaper
                 && let Some(inferred_escaper_group) = &state.inferred_escaper_group
-                && inferred_escaper_group.0 != self.escaper.ident
+                && inferred_escaper_group.0 != self.escaper.as_str()
             {
-                let default_escaper = LitStr::new(self.escaper.ident, self.escaper.span());
+                let default_escaper = LitStr::new(self.escaper.as_str(), self.escaper.span());
                 let inferred_escaper_group = inferred_escaper_group.0;
-                let span = self.escaper.source.span();
+                let span = self.escaper.source().span();
                 Err((
                     quote_spanned! {span=>
                         compile_error!(concat!(
@@ -73,9 +73,13 @@ impl DefaultEscaper<'_> {
                     0,
                 ))?;
             }
-            if !state.config.escaper_groups.contains_key(self.escaper.ident) {
+            if !state
+                .config
+                .escaper_groups
+                .contains_key(self.escaper.as_str())
+            {
                 let span = self.escaper.span();
-                let default_escaper = LitStr::new(self.escaper.ident, span);
+                let default_escaper = LitStr::new(self.escaper.as_str(), span);
                 let mut available_escaper_groups = state
                     .config
                     .escaper_groups
@@ -113,7 +117,7 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
 
     let (input, (leading_whitespace, escaper)) = cut((
         context("Expected space", whitespace),
-        context("Expected an escaper group name", ident),
+        context("Expected an escaper group name", Identifier::parse),
     ))
     .parse(input)?;
 
@@ -137,7 +141,7 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
         .0
         .clone()
         .merge(&leading_whitespace, "Whitespace expected after tag name")
-        .merge(&escaper.source, "Escaper name expected after whitespace");
+        .merge(escaper.source(), "Escaper name expected after whitespace");
 
     Ok((
         input,
