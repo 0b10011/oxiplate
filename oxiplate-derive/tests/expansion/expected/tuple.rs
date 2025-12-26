@@ -4,20 +4,40 @@ extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
 use oxiplate_derive::Oxiplate;
+#[oxiplate_inline("
+{%- if let (a,) = (a,) -%}
+    {{ a }}
+{%- endif -%}
+")]
+struct Single {
+    a: usize,
+}
+impl ::std::fmt::Display for Single {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(1usize);
+            let f = &mut string;
+            if let (a,) = (self.a,) {
+                f.write_str(&::std::string::ToString::to_string(&(a)))?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
 extern crate test;
 #[rustc_test_marker = "single"]
 #[doc(hidden)]
 pub const single: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("single"),
-        ignore: true,
-        ignore_message: ::core::option::Option::Some(
-            "Single tuple matching does not currently work properly.",
-        ),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 17usize,
+        start_line: 16usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 16usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -26,8 +46,26 @@ pub const single: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(single())),
 };
-#[ignore = "Single tuple matching does not currently work properly."]
-fn single() {}
+fn single() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", Single { a: 9 }))
+        }),
+        &"9",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[oxiplate_inline(
     "
 {%- if let (a, b) = (b, a) -%}
@@ -66,9 +104,9 @@ pub const double: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 35usize,
+        start_line: 34usize,
         start_col: 4usize,
-        end_line: 35usize,
+        end_line: 34usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -146,9 +184,9 @@ pub const several: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 60usize,
+        start_line: 59usize,
         start_col: 4usize,
-        end_line: 60usize,
+        end_line: 59usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

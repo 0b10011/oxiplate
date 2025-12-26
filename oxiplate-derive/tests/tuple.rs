@@ -1,21 +1,20 @@
 use oxiplate_derive::Oxiplate;
 
-// #[derive(Oxiplate)]
-// #[oxiplate_inline(
-//     "
-// {%- if let (a,) = (a,) -%}
-//     {{ a }}
-// {%- endif -%}
-// "
-// )]
-// struct Single {
-//     a: usize,
-// }
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    "
+{%- if let (a,) = (a,) -%}
+    {{ a }}
+{%- endif -%}
+"
+)]
+struct Single {
+    a: usize,
+}
 
 #[test]
-#[ignore = "Single tuple matching does not currently work properly."]
 fn single() {
-    // assert_eq!(format!("{}", Single { a: 9 }), "9");
+    assert_eq!(format!("{}", Single { a: 9 }), "9");
 }
 
 #[derive(Oxiplate)]

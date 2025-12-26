@@ -1,0 +1,9 @@
+error: Expected a type after "let"
+ --> tests/broken/patterns/group-instead-of-tuple.rs:6:12
+  |
+6 |   {%- if let (a) = (a,) -%}
+  |  ____________^
+7 | |     {{ a }}
+8 | | {%- endif -%}
+9 | | "
+  | |_^
