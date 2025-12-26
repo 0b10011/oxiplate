@@ -4,9 +4,10 @@ use nom::Parser as _;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
+use nom::multi::many0;
 use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote};
+use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
@@ -74,7 +75,7 @@ impl<'a> Match<'a> {
                     let error_source = item.source().clone();
                     let consumed_source = item.source().clone();
                     self.errors.0.push(Item::CompileError {
-                        message: format!("Expected `case` or `endmatch` statement"),
+                        message: "Expected `case` or `endmatch` statement".to_string(),
                         error_source,
                         consumed_source,
                     });
@@ -150,33 +151,58 @@ impl<'a> Match<'a> {
 #[derive(Debug)]
 pub(crate) struct Case<'a> {
     first_pattern: Pattern<'a>,
-    additional_patterns: Vec<Pattern<'a>>,
+    additional_patterns: Vec<(Source<'a>, Pattern<'a>)>,
     guard: Option<Guard<'a>>,
     template: Template<'a>,
 }
 
 impl<'a> Case<'a> {
     pub fn parse(input: Source) -> Res<Source, Statement> {
-        let (input, (statement, leading_whitespace, pattern)) = (
+        let (
+            input,
+            (statement, leading_whitespace, (first_pattern, additional_patterns_and_whitespace)),
+        ) = (
             tag("case"),
             opt(whitespace),
-            context("Expected a match pattern after `case`", cut(Pattern::parse)),
+            context(
+                "Expected a match pattern after `case`",
+                cut((
+                    Pattern::parse,
+                    many0((opt(whitespace), tag("|"), opt(whitespace), Pattern::parse)),
+                )),
+            ),
         )
             .parse(input)?;
 
-        let source = statement
+        let mut source = statement
             .merge_some(
                 leading_whitespace.as_ref(),
                 "Whitespace expected after `match`",
             )
-            .merge(pattern.source(), "Type expected after whitespace");
+            .merge(first_pattern.source(), "Type expected after whitespace");
+
+        let mut additional_patterns = Vec::with_capacity(additional_patterns_and_whitespace.len());
+        for (leading_whitespace, operator, middle_whitespace, pattern) in
+            additional_patterns_and_whitespace
+        {
+            source = source
+                .merge_some(
+                    leading_whitespace.as_ref(),
+                    "Whitespace expected after pattern",
+                )
+                .merge(&operator, "`|` expected after whitespace")
+                .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `|`")
+                .merge(pattern.source(), "Pattern expected after whitespace");
+
+            additional_patterns.push((operator, pattern));
+        }
 
         Ok((
             input,
             Statement {
                 kind: StatementKind::Case(Case {
-                    first_pattern: pattern,
-                    additional_patterns: vec![],
+                    first_pattern,
+                    additional_patterns,
                     guard: None,
                     template: Template(vec![]),
                 }),
@@ -188,7 +214,7 @@ impl<'a> Case<'a> {
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
         let mut vars: HashSet<&'a str> = self.first_pattern.get_variables();
 
-        for pattern in &self.additional_patterns {
+        for (_operator, pattern) in &self.additional_patterns {
             vars.extend(pattern.get_variables());
         }
 
@@ -196,10 +222,12 @@ impl<'a> Case<'a> {
     }
 
     pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let pattern = self.first_pattern.to_tokens(state);
+        let mut patterns = self.first_pattern.to_tokens(state);
 
-        if !self.additional_patterns.is_empty() {
-            todo!("Additional patterns in case statements aren't yet supported");
+        for (operator, pattern) in &self.additional_patterns {
+            let span = operator.span();
+            let pattern = pattern.to_tokens(state);
+            patterns.append_all(quote_spanned! {span=> | #pattern });
         }
 
         let mut local_variables = self.get_variables();
@@ -214,7 +242,7 @@ impl<'a> Case<'a> {
         }
 
         let (template, estimated_length) = self.template.to_tokens(branch_state);
-        let tokens = quote! { #pattern => { #template } };
+        let tokens = quote! { #patterns => { #template } };
 
         (tokens, estimated_length)
     }

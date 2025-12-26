@@ -140,6 +140,8 @@ fn test_count() {
 
 
 
+
+
     match (&::alloc::__export::must_use({
                         ::alloc::fmt::format(format_args!("{0}", data))
                     }), &"Found 5 cats!") {
@@ -889,12 +891,130 @@ fn range_char() {
         }
     };
 }
+#[oxiplate_inline(r#"
+{%- match value %}
+    {%- case 19 %}The best number
+    {%- case 42 %}The answer
+    {%- case 69 | 420 %}Internet number
+    {%- case _ %}Boring number
+{%- endmatch -%}
+"#)]
+struct MultipleCases {
+    value: usize,
+}
+impl ::std::fmt::Display for MultipleCases {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string =
+            {
+                use ::std::fmt::Write;
+                let mut string = String::with_capacity(10usize);
+                let f = &mut string;
+                match self.value {
+                    19 => { f.write_str("The best number")?; }
+                    42 => { f.write_str("The answer")?; }
+                    69 | 420 => { f.write_str("Internet number")?; }
+                    _ => { f.write_str("Boring number")?; }
+                }
+                string
+            };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "multiple_cases"]
+#[doc(hidden)]
+pub const multiple_cases: test::TestDescAndFn =
+    test::TestDescAndFn {
+        desc: test::TestDesc {
+            name: test::StaticTestName("multiple_cases"),
+            ignore: false,
+            ignore_message: ::core::option::Option::None,
+            source_file: "oxiplate-derive/tests/match.rs",
+            start_line: 276usize,
+            start_col: 4usize,
+            end_line: 276usize,
+            end_col: 18usize,
+            compile_fail: false,
+            no_run: false,
+            should_panic: test::ShouldPanic::No,
+            test_type: test::TestType::IntegrationTest,
+        },
+        testfn: test::StaticTestFn(#[coverage(off)] ||
+                test::assert_test_result(multiple_cases())),
+    };
+fn multiple_cases() {
+    match (&"The best number",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                MultipleCases { value: 19 }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"The answer",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                MultipleCases { value: 42 }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"Internet number",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                MultipleCases { value: 69 }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"Internet number",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                MultipleCases { value: 420 }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"Boring number",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                MultipleCases { value: 794 }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&nested, &range_char, &range_float,
-                    &range_integer, &test_count, &test_count_name,
+    test::test_main_static(&[&multiple_cases, &nested, &range_char,
+                    &range_float, &range_integer, &test_count, &test_count_name,
                     &test_multiple, &test_name, &test_none])
 }

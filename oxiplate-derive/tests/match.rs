@@ -256,3 +256,36 @@ fn range_char() {
     assert_eq!("d through e", format!("{}", RangeChar { value: 'e' }));
     assert_eq!("d and up", format!("{}", RangeChar { value: 'f' }));
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- match value %}
+    {%- case 19 %}The best number
+    {%- case 42 %}The answer
+    {%- case 69 | 420 %}Internet number
+    {%- case _ %}Boring number
+{%- endmatch -%}
+"#
+)]
+struct MultipleCases {
+    value: usize,
+}
+
+#[test]
+fn multiple_cases() {
+    assert_eq!(
+        "The best number",
+        format!("{}", MultipleCases { value: 19 })
+    );
+    assert_eq!("The answer", format!("{}", MultipleCases { value: 42 }));
+    assert_eq!(
+        "Internet number",
+        format!("{}", MultipleCases { value: 69 })
+    );
+    assert_eq!(
+        "Internet number",
+        format!("{}", MultipleCases { value: 420 })
+    );
+    assert_eq!("Boring number", format!("{}", MultipleCases { value: 794 }));
+}
