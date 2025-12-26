@@ -289,3 +289,24 @@ fn multiple_cases() {
     );
     assert_eq!("Boring number", format!("{}", MultipleCases { value: 794 }));
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    r#"
+{%- match value %}
+    {%- case Some(number) if number % 2 == 0 %}Even
+    {%- case Some(_) %}Odd
+    {%- case None %}Missing
+{%- endmatch -%}
+"#
+)]
+struct Guard {
+    value: Option<usize>,
+}
+
+#[test]
+fn guard() {
+    assert_eq!("Odd", format!("{}", Guard { value: Some(19) }));
+    assert_eq!("Even", format!("{}", Guard { value: Some(42) }));
+    assert_eq!("Missing", format!("{}", Guard { value: None }));
+}

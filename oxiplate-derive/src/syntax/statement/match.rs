@@ -160,7 +160,11 @@ impl<'a> Case<'a> {
     pub fn parse(input: Source) -> Res<Source, Statement> {
         let (
             input,
-            (statement, leading_whitespace, (first_pattern, additional_patterns_and_whitespace)),
+            (
+                statement,
+                leading_whitespace,
+                (first_pattern, additional_patterns_and_whitespace, guard),
+            ),
         ) = (
             tag("case"),
             opt(whitespace),
@@ -169,6 +173,7 @@ impl<'a> Case<'a> {
                 cut((
                     Pattern::parse,
                     many0((opt(whitespace), tag("|"), opt(whitespace), Pattern::parse)),
+                    opt((whitespace, Guard::parse)),
                 )),
             ),
         )
@@ -197,13 +202,22 @@ impl<'a> Case<'a> {
             additional_patterns.push((operator, pattern));
         }
 
+        let guard = if let Some((leading_whitespace, guard)) = guard {
+            source = source
+                .merge(&leading_whitespace, "Whitespace expected after patterns")
+                .merge(guard.source(), "Guard expected after whitespace");
+            Some(guard)
+        } else {
+            None
+        };
+
         Ok((
             input,
             Statement {
                 kind: StatementKind::Case(Case {
                     first_pattern,
                     additional_patterns,
-                    guard: None,
+                    guard,
                     template: Template(vec![]),
                 }),
                 source,
@@ -222,12 +236,12 @@ impl<'a> Case<'a> {
     }
 
     pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let mut patterns = self.first_pattern.to_tokens(state);
+        let mut tokens = self.first_pattern.to_tokens(state);
 
         for (operator, pattern) in &self.additional_patterns {
             let span = operator.span();
             let pattern = pattern.to_tokens(state);
-            patterns.append_all(quote_spanned! {span=> | #pattern });
+            tokens.append_all(quote_spanned! {span=> | #pattern });
         }
 
         let mut local_variables = self.get_variables();
@@ -237,12 +251,12 @@ impl<'a> Case<'a> {
             ..*state
         };
 
-        if self.guard.is_some() {
-            todo!("Match guards in case statements aren't yet supported");
+        if let Some(guard) = &self.guard {
+            tokens.append_all(guard.to_tokens(branch_state));
         }
 
         let (template, estimated_length) = self.template.to_tokens(branch_state);
-        let tokens = quote! { #patterns => { #template } };
+        tokens.append_all(quote! { => { #template } });
 
         (tokens, estimated_length)
     }
@@ -255,8 +269,46 @@ impl<'a> Case<'a> {
 #[derive(Debug)]
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#adding-conditionals-with-match-guards>
 struct Guard<'a> {
-    #[allow(dead_code)]
+    if_tag: Source<'a>,
     expression: ExpressionAccess<'a>,
-    #[allow(dead_code)]
     source: Source<'a>,
+}
+
+impl<'a> Guard<'a> {
+    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+        let (input, (if_tag, middle_whitespace, expression)) = (
+            tag("if"),
+            whitespace,
+            context(
+                "Expected expression after `if`",
+                cut(expression(true, true)),
+            ),
+        )
+            .parse(input)?;
+
+        let source = if_tag
+            .clone()
+            .merge(&middle_whitespace, "Whitespace expected after `if`")
+            .merge(&expression.source(), "Expression expected after whitespace");
+
+        Ok((
+            input,
+            Self {
+                if_tag,
+                expression,
+                source,
+            },
+        ))
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
+    }
+
+    pub fn to_tokens(&self, state: &State) -> TokenStream {
+        let if_span = self.if_tag.span();
+        let (expression, _estimated_length) = self.expression.to_tokens(state);
+
+        quote_spanned! {if_span=> if #expression }
+    }
 }

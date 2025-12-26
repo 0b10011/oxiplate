@@ -142,6 +142,8 @@ fn test_count() {
 
 
 
+
+
     match (&::alloc::__export::must_use({
                         ::alloc::fmt::format(format_args!("{0}", data))
                     }), &"Found 5 cats!") {
@@ -1009,12 +1011,102 @@ fn multiple_cases() {
         }
     };
 }
+#[oxiplate_inline(r#"
+{%- match value %}
+    {%- case Some(number) if number % 2 == 0 %}Even
+    {%- case Some(_) %}Odd
+    {%- case None %}Missing
+{%- endmatch -%}
+"#)]
+struct Guard {
+    value: Option<usize>,
+}
+impl ::std::fmt::Display for Guard {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string =
+            {
+                use ::std::fmt::Write;
+                let mut string = String::with_capacity(3usize);
+                let f = &mut string;
+                match self.value {
+                    Some(number) if number % 2 == 0 => { f.write_str("Even")?; }
+                    Some(_) => { f.write_str("Odd")?; }
+                    None => { f.write_str("Missing")?; }
+                }
+                string
+            };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "guard"]
+#[doc(hidden)]
+pub const guard: test::TestDescAndFn =
+    test::TestDescAndFn {
+        desc: test::TestDesc {
+            name: test::StaticTestName("guard"),
+            ignore: false,
+            ignore_message: ::core::option::Option::None,
+            source_file: "oxiplate-derive/tests/match.rs",
+            start_line: 308usize,
+            start_col: 4usize,
+            end_line: 308usize,
+            end_col: 9usize,
+            compile_fail: false,
+            no_run: false,
+            should_panic: test::ShouldPanic::No,
+            test_type: test::TestType::IntegrationTest,
+        },
+        testfn: test::StaticTestFn(#[coverage(off)] ||
+                test::assert_test_result(guard())),
+    };
+fn guard() {
+    match (&"Odd",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                Guard { value: Some(19) }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"Even",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                Guard { value: Some(42) }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+    match (&"Missing",
+            &::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0}",
+                                Guard { value: None }))
+                    })) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(kind, &*left_val,
+                    &*right_val, ::core::option::Option::None);
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&multiple_cases, &nested, &range_char,
+    test::test_main_static(&[&guard, &multiple_cases, &nested, &range_char,
                     &range_float, &range_integer, &test_count, &test_count_name,
                     &test_multiple, &test_name, &test_none])
 }
