@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.6](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.5...oxiplate-derive-v0.15.6) - 2025-12-26
+
+### Added
+
+- added support for match guards
+- added support for multiple match cases in the same arm
+- added support for range patterns in `match`/`if let`
+- improved support for pattern matching with a refactor of expressions and patterns
+- added basic support for `match` (fixes #34)
+- added basic support for tuple expressions and destructuring
+
+### Fixed
+
+- added support for single item tuples as match patterns and trailing comma support in all tuple match patterns
+- require using return value of `Source::span()`, `Source::merge()`, and `Source::merge_some()`
+
+### Other
+
+- improved test coverage of match statements
+- added test for floats in match patterns
+- moved pattern-related code to new mod
+
 ## [0.15.5](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.4...oxiplate-derive-v0.15.5) - 2025-12-22
 
 ### Fixed
