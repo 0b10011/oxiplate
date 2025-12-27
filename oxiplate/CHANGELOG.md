@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.6...oxiplate-v0.15.7) - 2025-12-27
+
+### Added
+
+- added support for `continue` and `break` statements
+
+### Fixed
+
+- prevented templates from using/overwriting built-in formatter variable and improved error message for `self`/`super` usage (fixes #96)
+
 ## [0.15.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.5...oxiplate-v0.15.6) - 2025-12-26
 
 ### Added
