@@ -392,6 +392,238 @@ fn test_for_else() {
         }
     };
 }
+#[oxiplate_inline(
+    "
+{%- for value in &values -%}
+    {% if *value == 23 -%}
+        {% continue -%}
+    {% endif -%}
+
+    {{ value _}}
+{% endfor %}"
+)]
+struct Continue {
+    values: Vec<usize>,
+}
+impl ::std::fmt::Display for Continue {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(4usize);
+            let f = &mut string;
+            for value in &self.values {
+                if *value == 23 {
+                    continue;
+                }
+                f.write_str(&::std::string::ToString::to_string(&(value)))?;
+                f.write_str(" ")?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "test_continue"]
+#[doc(hidden)]
+pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("test_continue"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/for.rs",
+        start_line: 144usize,
+        start_col: 4usize,
+        end_line: 144usize,
+        end_col: 17usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_continue()),
+    ),
+};
+fn test_continue() {
+    let data = Continue {
+        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 23, 89])),
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"19 89 ",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    "
+{%- for value in &values -%}
+    {% if *value > 42 -%}
+        {% break -%}
+    {% endif -%}
+
+    {{ value _}}
+{% endfor %}"
+)]
+struct Break {
+    values: Vec<usize>,
+}
+impl ::std::fmt::Display for Break {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(4usize);
+            let f = &mut string;
+            for value in &self.values {
+                if *value > 42 {
+                    break;
+                }
+                f.write_str(&::std::string::ToString::to_string(&(value)))?;
+                f.write_str(" ")?;
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "test_break"]
+#[doc(hidden)]
+pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("test_break"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/for.rs",
+        start_line: 168usize,
+        start_col: 4usize,
+        end_line: 168usize,
+        end_col: 14usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_break()),
+    ),
+};
+fn test_break() {
+    let data = Break {
+        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 23, 89])),
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"19 23 ",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    "
+{%- for _value in &values -%}
+    {% break %}
+{%- else -%}
+    No values :(
+{%- endfor %}"
+)]
+struct BreakElse {
+    values: Vec<usize>,
+}
+impl ::std::fmt::Display for BreakElse {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let string = {
+            use ::std::fmt::Write;
+            let mut string = String::with_capacity(0usize);
+            let f = &mut string;
+            {
+                let mut loop_ran = false;
+                for _value in &self.values {
+                    loop_ran = true;
+                    break;
+                }
+                if !loop_ran {
+                    f.write_str("No values :(")?;
+                }
+            }
+            string
+        };
+        f.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "test_break_else"]
+#[doc(hidden)]
+pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("test_break_else"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/for.rs",
+        start_line: 190usize,
+        start_col: 4usize,
+        end_line: 190usize,
+        end_col: 19usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_break_else()),
+    ),
+};
+fn test_break_else() {
+    let data = BreakElse {
+        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 89])),
+    };
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0}", data))
+        }),
+        &"",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
@@ -399,6 +631,9 @@ pub fn main() -> () {
     extern crate test;
     test::test_main_static(
         &[
+            &test_break,
+            &test_break_else,
+            &test_continue,
             &test_for,
             &test_for_else,
             &test_function_variables,

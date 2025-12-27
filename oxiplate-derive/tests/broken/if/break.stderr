@@ -1,0 +1,17 @@
+error[E0268]: `break` outside of a loop or labeled block
+ --> tests/broken/if/break.rs:7:8
+  |
+7 |     {% break %}
+  |        ^^^^^ cannot `break` outside of a loop or labeled block
+
+error[E0268]: `break` outside of a loop or labeled block
+ --> tests/broken/if/break.rs:9:8
+  |
+9 |     {% break %}
+  |        ^^^^^ cannot `break` outside of a loop or labeled block
+
+error[E0268]: `break` outside of a loop or labeled block
+  --> tests/broken/if/break.rs:11:8
+   |
+11 |     {% break %}
+   |        ^^^^^ cannot `break` outside of a loop or labeled block

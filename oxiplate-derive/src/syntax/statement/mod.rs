@@ -12,7 +12,7 @@ use extends::Extends;
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
-use nom::combinator::{cut, opt};
+use nom::combinator::{cut, into, opt};
 use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
@@ -24,6 +24,7 @@ use self::include::Include;
 use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;
+use crate::syntax::statement::r#for::{Break, Continue};
 use crate::syntax::statement::r#match::{Case, Match};
 use crate::syntax::template::{is_whitespace, parse_item, whitespace};
 use crate::{Source, State};
@@ -37,17 +38,24 @@ pub(crate) struct Statement<'a> {
 #[derive(Debug)]
 pub(crate) enum StatementKind<'a> {
     DefaultEscaper(DefaultEscaper<'a>),
+
     Extends(Extends<'a>),
     Block(Block<'a>),
     Parent,
     EndBlock,
+
     Include(Include<'a>),
+
     If(If<'a>),
     ElseIf(ElseIf<'a>),
     Else,
     EndIf,
+
     For(For<'a>),
+    Continue(Continue<'a>),
+    Break(Break<'a>),
     EndFor,
+
     Match(Match<'a>),
     Case(Case<'a>),
     EndMatch,
@@ -74,7 +82,7 @@ impl<'a> Statement<'a> {
             For(statement) => statement.is_ended,
             Match(statement) => statement.is_ended(),
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | EndFor | Case(_) | EndMatch => true,
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch => true,
         }
     }
 
@@ -104,7 +112,7 @@ impl<'a> Statement<'a> {
                 statement.add_item(item);
             }
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | EndFor | Case(_) | EndMatch => {
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
         }
@@ -148,6 +156,8 @@ impl<'a> Statement<'a> {
             StatementKind::Else => unexpected!("else"),
             StatementKind::EndIf => unexpected!("endif"),
             StatementKind::For(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Continue(statement) => Ok(statement.to_tokens()),
+            StatementKind::Break(statement) => Ok(statement.to_tokens()),
             StatementKind::EndFor => unexpected!("endfor"),
             StatementKind::Match(statement) => Ok(statement.to_tokens(state)),
             StatementKind::Case(_) => unexpected!("case"),
@@ -172,8 +182,8 @@ pub(super) fn statement<'a>(
 
         // Parse statements
         let (input, mut statement) = context(
-            "Expected one of: block, endblock, if, elseif, else, endif, for, endfor, match, case, \
-             endmatch",
+            "Expected one of: block, endblock, if, elseif, else, endif, for, continue, break, \
+             endfor, match, case, endmatch",
             cut(alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
@@ -186,6 +196,8 @@ pub(super) fn statement<'a>(
                 r#if::parse_else,
                 r#if::parse_endif,
                 r#for::parse_for,
+                into(Continue::parse),
+                into(Break::parse),
                 r#for::parse_endfor,
                 r#match::Match::parse,
                 r#match::Case::parse,
@@ -243,6 +255,8 @@ pub(super) fn statement<'a>(
                             | StatementKind::ElseIf(_)
                             | StatementKind::Else
                             | StatementKind::EndIf
+                            | StatementKind::Continue(_)
+                            | StatementKind::Break(_)
                             | StatementKind::EndFor
                             | StatementKind::Case(_)
                             | StatementKind::EndMatch => unreachable!(

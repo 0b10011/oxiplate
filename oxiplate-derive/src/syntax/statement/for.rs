@@ -2,11 +2,11 @@ use std::collections::HashSet;
 
 use nom::Parser as _;
 use nom::bytes::complete::tag;
-use nom::combinator::cut;
+use nom::combinator::{cut, into};
 use nom::error::context;
 use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote};
+use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::expression::{Identifier, Keyword, expression, keyword};
 use super::super::{Item, Res};
@@ -191,4 +191,74 @@ pub(super) fn parse_endfor(input: Source) -> Res<Source, Statement> {
             source: output,
         },
     ))
+}
+
+#[derive(Debug)]
+pub(crate) struct Break<'a>(Keyword<'a>);
+
+impl<'a> Break<'a> {
+    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+        into(keyword("break")).parse(input)
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.0.0
+    }
+
+    pub fn to_tokens(&self) -> (TokenStream, usize) {
+        let span = self.0.0.span();
+        let keyword = &self.0;
+
+        (quote_spanned! {span=> #keyword; }, 0)
+    }
+}
+
+impl<'a> From<Keyword<'a>> for Break<'a> {
+    fn from(value: Keyword<'a>) -> Self {
+        Break(value)
+    }
+}
+
+impl<'a> From<Break<'a>> for Statement<'a> {
+    fn from(value: Break<'a>) -> Self {
+        Statement {
+            source: value.source().clone(),
+            kind: StatementKind::Break(value),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct Continue<'a>(Keyword<'a>);
+
+impl<'a> Continue<'a> {
+    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+        into(keyword("continue")).parse(input)
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.0.0
+    }
+
+    pub fn to_tokens(&self) -> (TokenStream, usize) {
+        let span = self.0.0.span();
+        let keyword = &self.0;
+
+        (quote_spanned! {span=> #keyword; }, 0)
+    }
+}
+
+impl<'a> From<Keyword<'a>> for Continue<'a> {
+    fn from(value: Keyword<'a>) -> Self {
+        Continue(value)
+    }
+}
+
+impl<'a> From<Continue<'a>> for Statement<'a> {
+    fn from(value: Continue<'a>) -> Self {
+        Statement {
+            source: value.source().clone(),
+            kind: StatementKind::Continue(value),
+        }
+    }
 }

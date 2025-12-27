@@ -124,3 +124,73 @@ fn test_for_else() {
 
     assert_eq!(format!("{data}"), "No values :(");
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    "
+{%- for value in &values -%}
+    {% if *value == 23 -%}
+        {% continue -%}
+    {% endif -%}
+
+    {{ value _}}
+{% endfor %}"
+)]
+struct Continue {
+    values: Vec<usize>,
+}
+
+#[test]
+fn test_continue() {
+    let data = Continue {
+        values: vec![19, 23, 89],
+    };
+
+    assert_eq!(format!("{data}"), "19 89 ");
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    "
+{%- for value in &values -%}
+    {% if *value > 42 -%}
+        {% break -%}
+    {% endif -%}
+
+    {{ value _}}
+{% endfor %}"
+)]
+struct Break {
+    values: Vec<usize>,
+}
+
+#[test]
+fn test_break() {
+    let data = Break {
+        values: vec![19, 23, 89],
+    };
+
+    assert_eq!(format!("{data}"), "19 23 ");
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
+    "
+{%- for _value in &values -%}
+    {% break %}
+{%- else -%}
+    No values :(
+{%- endfor %}"
+)]
+struct BreakElse {
+    values: Vec<usize>,
+}
+
+#[test]
+fn test_break_else() {
+    let data = BreakElse {
+        values: vec![19, 89],
+    };
+
+    assert_eq!(format!("{data}"), "");
+}

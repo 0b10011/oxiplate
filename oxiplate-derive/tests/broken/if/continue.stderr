@@ -1,0 +1,17 @@
+error[E0268]: `continue` outside of a loop
+ --> tests/broken/if/continue.rs:7:8
+  |
+7 |     {% continue %}
+  |        ^^^^^^^^ cannot `continue` outside of a loop
+
+error[E0268]: `continue` outside of a loop
+ --> tests/broken/if/continue.rs:9:8
+  |
+9 |     {% continue %}
+  |        ^^^^^^^^ cannot `continue` outside of a loop
+
+error[E0268]: `continue` outside of a loop
+  --> tests/broken/if/continue.rs:11:8
+   |
+11 |     {% continue %}
+   |        ^^^^^^^^ cannot `continue` outside of a loop
