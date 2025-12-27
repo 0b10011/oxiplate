@@ -10,23 +10,27 @@ struct User {
     company: &'static str,
 }
 impl ::std::fmt::Display for User {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(5usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(::alloc::__export::must_use({
-                        ::alloc::fmt::format(
-                            format_args!("{0} ({1})", self.name, self.company),
-                        )
-                    })),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(::alloc::__export::must_use({
+                            ::alloc::fmt::format(
+                                format_args!("{0} ({1})", self.name, self.company),
+                            )
+                        })),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -76,15 +80,19 @@ fn variable() {
 #[oxiplate_inline(r#"{{ "hello" ~ " " ~ "world" }}"#)]
 struct ConcatStrings;
 impl ::std::fmt::Display for ConcatStrings {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(11usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&("hello world")))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("hello world")))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

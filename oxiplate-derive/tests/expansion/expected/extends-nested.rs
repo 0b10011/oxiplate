@@ -10,23 +10,29 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::std::fmt::Display for AbsoluteData {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(59usize);
-            let f = &mut string;
-            f.write_str("<!DOCTYPE html>\n<title>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            f.write_str("</title>\n")?;
-            f.write_str("<h2>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            f.write_str("</h2>\n  <div>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            f.write_str("</div>")?;
-            f.write_str("\n")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str("</title>\n")?;
+            oxiplate_formatter.write_str("<h2>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str("</h2>\n  <div>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str("</div>")?;
+            oxiplate_formatter.write_str("\n")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

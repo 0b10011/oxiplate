@@ -10,15 +10,19 @@ struct Data {
     foo: &'static str,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.foo)))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.foo)))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

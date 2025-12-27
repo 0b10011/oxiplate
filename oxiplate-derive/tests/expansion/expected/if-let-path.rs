@@ -21,23 +21,30 @@ struct Data {
     ty: Type,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if let Type::Text(text) = self.ty {
-                f.write_str(&::std::string::ToString::to_string(&(text)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(text)))?;
             } else if let Type::Numbers(left, right) = self.ty {
-                f.write_str(&::std::string::ToString::to_string(&(left)))?;
-                f.write_str(" + ")?;
-                f.write_str(&::std::string::ToString::to_string(&(right)))?;
-                f.write_str(" = ")?;
-                f.write_str(&::std::string::ToString::to_string(&(left + right)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(left)))?;
+                oxiplate_formatter.write_str(" + ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(right)))?;
+                oxiplate_formatter.write_str(" = ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(left + right)))?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

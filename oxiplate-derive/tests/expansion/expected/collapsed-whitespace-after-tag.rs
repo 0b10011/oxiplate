@@ -10,18 +10,21 @@ struct Data {
     value: bool,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(4usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if self.value {
-                f.write_str("foo")?;
+                oxiplate_formatter.write_str("foo")?;
             }
-            f.write_str(" ")?;
+            oxiplate_formatter.write_str(" ")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

@@ -45,25 +45,36 @@ struct Respond {
     respond: &'static bool,
 }
 impl ::std::fmt::Display for Respond {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::respond(self.message, *self.respond)),
-                ),
-            )?;
-            f.write_str(" ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::respond(self.message, !*self.respond)),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::respond(
+                            self.message,
+                            *self.respond,
+                        )),
+                    ),
+                )?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::respond(
+                            self.message,
+                            !*self.respond,
+                        )),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -146,22 +157,26 @@ struct Shorten {
     max_length: usize,
 }
 impl ::std::fmt::Display for Shorten {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::shorten(
-                        self.message,
-                        self.max_length,
-                    )),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::shorten(
+                            self.message,
+                            self.max_length,
+                        )),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -244,19 +259,23 @@ struct Pad {
     length: usize,
 }
 impl ::std::fmt::Display for Pad {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::pad(self.number, self.length)),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::pad(self.number, self.length)),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -323,22 +342,26 @@ struct Multiple {
     length: usize,
 }
 impl ::std::fmt::Display for Multiple {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::shorten(
-                        crate::filters_for_oxiplate::respond(self.message, false),
-                        self.length,
-                    )),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::shorten(
+                            crate::filters_for_oxiplate::respond(self.message, false),
+                            self.length,
+                        )),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -446,25 +469,30 @@ struct Trim {
     value: &'static str,
 }
 impl ::std::fmt::Display for Trim {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::trim(self.value)),
-                ),
-            )?;
-            f.write_str(" ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::trim(self.value)),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::trim(self.value)),
+                    ),
+                )?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::trim(self.value)),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -512,19 +540,23 @@ struct Replace {
     value: &'static str,
 }
 impl ::std::fmt::Display for Replace {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(
-                    &(crate::filters_for_oxiplate::replace(self.value, "ar", "oo")),
-                ),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(crate::filters_for_oxiplate::replace(self.value, "ar", "oo")),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

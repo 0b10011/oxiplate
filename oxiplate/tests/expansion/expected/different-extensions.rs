@@ -9,29 +9,41 @@ struct Html {
     name: &'static str,
 }
 impl ::std::fmt::Display for Html {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Html {
     const ESTIMATED_LENGTH: usize = 66usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
-        f.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::attr)?;
-        f.write_str("\">Hello ")?;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::attr,
+            )?;
+        oxiplate_formatter.write_str("\">Hello ")?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
+            .oxiplate_escape(
+                oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("!</p>\n<p>Goodbye ")?;
+        oxiplate_formatter.write_str("!</p>\n<p>Goodbye ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(f, &::oxiplate::escapers::html::HtmlEscaper::text)?;
-        f.write_str("!</p>\n")?;
+            .oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        oxiplate_formatter.write_str("!</p>\n")?;
         Ok(())
     }
 }
@@ -85,26 +97,35 @@ struct Json {
     name: &'static str,
 }
 impl ::std::fmt::Display for Json {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Json {
     const ESTIMATED_LENGTH: usize = 49usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
-        f.write_str("{\n    \"foo\": \"hello ")?;
+        oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
                 &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("\",\n    \"bar\": \"goodbye ")?;
+        oxiplate_formatter.write_str("\",\n    \"bar\": \"goodbye ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(f, &::oxiplate::escapers::json::JsonEscaper::substring)?;
-        f.write_str("\"\n}\n")?;
+            .oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::json::JsonEscaper::substring,
+            )?;
+        oxiplate_formatter.write_str("\"\n}\n")?;
         Ok(())
     }
 }

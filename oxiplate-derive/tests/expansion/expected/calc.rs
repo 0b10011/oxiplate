@@ -26,96 +26,140 @@ struct Math {
     c: usize,
 }
 impl ::std::fmt::Display for Math {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(129usize);
-            let f = &mut string;
-            f.write_str("1 + 2 = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(1 + 2)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" + ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max + self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" - ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max - self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" * ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max * self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" / ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max / self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" % ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max % self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" + ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" * ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.min + self.min * self.max)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" + ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" / ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.max + self.max / self.min)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" - ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" % ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.max - self.min % self.min)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.a)))?;
-            f.write_str(" - ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.b)))?;
-            f.write_str(" * ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.c)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.a - self.b * self.c)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.a)))?;
-            f.write_str(" / ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.b)))?;
-            f.write_str(" + ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.c)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.a / self.b + self.c)),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("1 + 2 = ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(1 + 2)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max + self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" - ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max - self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" * ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max * self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" / ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max / self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" % ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max % self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" * ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.min + self.min * self.max),
+                    ),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" / ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.max + self.max / self.min),
+                    ),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" - ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" % ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.max - self.min % self.min),
+                    ),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.a)))?;
+            oxiplate_formatter.write_str(" - ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.b)))?;
+            oxiplate_formatter.write_str(" * ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.c)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.a - self.b * self.c)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.a)))?;
+            oxiplate_formatter.write_str(" / ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.b)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.c)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.a / self.b + self.c)),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -189,49 +233,78 @@ struct Comparisons {
     max: i16,
 }
 impl ::std::fmt::Display for Comparisons {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(63usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" == ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max == self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" != ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max != self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" > ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max > self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" < ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max < self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" >= ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max >= self.min)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max)))?;
-            f.write_str(" <= ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.min)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.max <= self.min)))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" == ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.max == self.min)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" != ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.max != self.min)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" > ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max > self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" < ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max < self.min)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" >= ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.max >= self.min)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.max)))?;
+            oxiplate_formatter.write_str(" <= ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.min)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.max <= self.min)),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -305,91 +378,140 @@ struct OrAnd {
     no2: bool,
 }
 impl ::std::fmt::Display for OrAnd {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(135usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes || self.yes2)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes || self.no)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no || self.yes)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no || self.no2)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes && self.yes2)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes && self.no)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no && self.yes)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no && self.no2)))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.yes || self.no && self.no2)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.no || self.yes && self.no2)),
-            )?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.no)))?;
-            f.write_str(" || ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" && ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.yes)))?;
-            f.write_str(" = ")?;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.no || self.yes && self.yes2)),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.yes || self.yes2)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes || self.no)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no || self.yes)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no || self.no2)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.yes && self.yes2)),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes && self.no)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no && self.yes)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no && self.no2)))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.yes || self.no && self.no2),
+                    ),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.no || self.yes && self.no2),
+                    ),
+                )?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.no)))?;
+            oxiplate_formatter.write_str(" || ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" && ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.yes)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(
+                        &(self.no || self.yes && self.yes2),
+                    ),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -467,23 +589,30 @@ struct OrderOfOperations {
     c: usize,
 }
 impl ::std::fmt::Display for OrderOfOperations {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(5usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if self.a - self.b < self.c + self.b {
-                f.write_str(&::std::string::ToString::to_string(&(self.a - self.b)))?;
-                f.write_str(" < ")?;
-                f.write_str(&::std::string::ToString::to_string(&(self.c + self.b)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.a - self.b)))?;
+                oxiplate_formatter.write_str(" < ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.c + self.b)))?;
             } else {
-                f.write_str(&::std::string::ToString::to_string(&(self.a - self.b)))?;
-                f.write_str(" > ")?;
-                f.write_str(&::std::string::ToString::to_string(&(self.c + self.b)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.a - self.b)))?;
+                oxiplate_formatter.write_str(" > ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.c + self.b)))?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

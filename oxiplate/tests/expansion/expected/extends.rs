@@ -10,37 +10,43 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::std::fmt::Display for AbsoluteData {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for AbsoluteData {
     const ESTIMATED_LENGTH: usize = 55usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
-        f.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("</title>\n")?;
-        f.write_str("<h1>")?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        oxiplate_formatter.write_str("<h1>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("</h1>\n  <p>")?;
+        oxiplate_formatter.write_str("</h1>\n  <p>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.message)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("</p>")?;
-        f.write_str("\n")?;
+        oxiplate_formatter.write_str("</p>")?;
+        oxiplate_formatter.write_str("\n")?;
         Ok(())
     }
 }

@@ -9,29 +9,41 @@ struct Html {
     name: &'static str,
 }
 impl ::std::fmt::Display for Html {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Html {
     const ESTIMATED_LENGTH: usize = 7usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
-        f.write_str("\n")?;
+        oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
-                f,
+                oxiplate_formatter,
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        f.write_str("\n")?;
+        oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::foo)?;
-        f.write_str("\n")?;
+            .oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::your_group::YourEscaper::foo,
+            )?;
+        oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(f, &::oxiplate::escapers::your_group::YourEscaper::bar)?;
-        f.write_str("\n")?;
+            .oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::your_group::YourEscaper::bar,
+            )?;
+        oxiplate_formatter.write_str("\n")?;
         Ok(())
     }
 }

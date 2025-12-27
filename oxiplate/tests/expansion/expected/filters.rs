@@ -52,14 +52,20 @@ struct Respond {
     message: &'static str,
 }
 impl ::std::fmt::Display for Respond {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Respond {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
@@ -78,7 +84,7 @@ impl ::oxiplate::Render for Respond {
                     .to_cow_str(),
             )),
         ))
-            .oxiplate_raw(f)?;
+            .oxiplate_raw(oxiplate_formatter)?;
         Ok(())
     }
 }
@@ -146,14 +152,20 @@ struct Shorten {
     max_length: usize,
 }
 impl ::std::fmt::Display for Shorten {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Shorten {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
@@ -164,7 +176,7 @@ impl ::oxiplate::Render for Shorten {
                 self.max_length,
             )),
         ))
-            .oxiplate_raw(f)?;
+            .oxiplate_raw(oxiplate_formatter)?;
         Ok(())
     }
 }
@@ -248,20 +260,26 @@ struct Pad {
     length: usize,
 }
 impl ::std::fmt::Display for Pad {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Pad {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::pad(self.number, self.length)),
         ))
-            .oxiplate_raw(f)?;
+            .oxiplate_raw(oxiplate_formatter)?;
         Ok(())
     }
 }
@@ -329,14 +347,20 @@ struct Multiple {
     length: usize,
 }
 impl ::std::fmt::Display for Multiple {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Multiple {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
@@ -359,7 +383,7 @@ impl ::oxiplate::Render for Multiple {
                 self.length,
             )),
         ))
-            .oxiplate_raw(f)?;
+            .oxiplate_raw(oxiplate_formatter)?;
         Ok(())
     }
 }

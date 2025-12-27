@@ -7,21 +7,24 @@ use oxiplate_derive::Oxiplate;
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
 struct Data;
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(81usize);
-            let f = &mut string;
-            f.write_str("<!DOCTYPE html>\n<header>")?;
-            f.write_str("header")?;
-            f.write_str("</header>\n<main>")?;
-            f.write_str("main")?;
-            f.write_str("</main>\n<footer>")?;
-            f.write_str("footer")?;
-            f.write_str("</footer>")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
+            oxiplate_formatter.write_str("header")?;
+            oxiplate_formatter.write_str("</header>\n<main>")?;
+            oxiplate_formatter.write_str("main")?;
+            oxiplate_formatter.write_str("</main>\n<footer>")?;
+            oxiplate_formatter.write_str("footer")?;
+            oxiplate_formatter.write_str("</footer>")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

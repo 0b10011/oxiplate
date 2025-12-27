@@ -8,15 +8,18 @@ use oxiplate_derive::Oxiplate;
     hello world")]
 struct Data {}
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(11usize);
-            let f = &mut string;
-            f.write_str("hello world")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("hello world")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

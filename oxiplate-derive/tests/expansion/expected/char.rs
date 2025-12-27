@@ -7,15 +7,18 @@ use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r"{{ 'a' }}")]
 struct A;
 impl ::std::fmt::Display for A {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('a')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('a')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -59,15 +62,18 @@ fn a() {
 #[oxiplate_inline(r"{{ '\'' }}")]
 struct SingleQuote;
 impl ::std::fmt::Display for SingleQuote {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\'')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\'')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -116,15 +122,18 @@ fn single_quote() {
 #[oxiplate_inline(r#"{{ '\"' }}"#)]
 struct DoubleQuote;
 impl ::std::fmt::Display for DoubleQuote {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('"')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('"')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -173,15 +182,18 @@ fn double_quote() {
 #[oxiplate_inline(r"{{ '\\' }}")]
 struct Slash;
 impl ::std::fmt::Display for Slash {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\\')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\\')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -227,15 +239,18 @@ fn slash() {
 #[oxiplate_inline(r"{{ '\n' }}")]
 struct NewLine;
 impl ::std::fmt::Display for NewLine {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\n')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\n')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -281,15 +296,18 @@ fn new_line() {
 #[oxiplate_inline(r"{{ '\r' }}")]
 struct CarriageReturn;
 impl ::std::fmt::Display for CarriageReturn {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\r')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\r')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -338,15 +356,18 @@ fn carriage_return() {
 #[oxiplate_inline(r"{{ '\t' }}")]
 struct Tab;
 impl ::std::fmt::Display for Tab {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\t')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\t')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -390,15 +411,18 @@ fn tab() {
 #[oxiplate_inline(r"{{ '\0' }}")]
 struct Null;
 impl ::std::fmt::Display for Null {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&('\0')))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\0')))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

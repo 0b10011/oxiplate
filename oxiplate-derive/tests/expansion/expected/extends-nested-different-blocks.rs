@@ -10,25 +10,31 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::std::fmt::Display for AbsoluteData {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(97usize);
-            let f = &mut string;
-            f.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            f.write_str("</title>\n</head>\n<body>")?;
-            f.write_str("<main>")?;
-            f.write_str("<h1>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            f.write_str("</h1>\n  <p>")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            f.write_str("</p>")?;
-            f.write_str("</main>")?;
-            f.write_str("</body>\n")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str("</title>\n</head>\n<body>")?;
+            oxiplate_formatter.write_str("<main>")?;
+            oxiplate_formatter.write_str("<h1>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str("</h1>\n  <p>")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str("</p>")?;
+            oxiplate_formatter.write_str("</main>")?;
+            oxiplate_formatter.write_str("</body>\n")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

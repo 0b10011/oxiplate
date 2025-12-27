@@ -1,5 +1,5 @@
-error[E0424]: expected unit struct, unit variant or constant, found local variable `self`
+error: `self` is a reserved keyword
  --> tests/broken/for/for-self.rs:4:28
   |
 4 | #[oxiplate_inline("{%- for self in numbers -%}{{ self }}{% endfor %}")]
-  |                            ^^^^ `self` value is a keyword and may not be bound to variables or shadowed
+  |                            ^^^^

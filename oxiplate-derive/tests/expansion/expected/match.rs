@@ -39,59 +39,60 @@ struct Data {
     name: Result<Name, ()>,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(13usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match (&self.name, self.cats_count) {
                     (Ok(Name::Actual(name)), Some(cats_count)) => {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         ;
-                        f.write_str(" cats named ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str(" cats named ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(name)))?;
                         ;
-                        f.write_str("!")?;
+                        oxiplate_formatter.write_str("!")?;
                     }
                     (Ok(Name::Actual(missing_name)), None) => {
-                        f.write_str("No cats named ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
+                        oxiplate_formatter.write_str("No cats named ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
                         ;
-                        f.write_str(" found :(")?;
+                        oxiplate_formatter.write_str(" found :(")?;
                     }
                     (Ok(Name::Nickname { name }), Some(cats_count)) => {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         ;
-                        f.write_str(" cats nicknamed ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str(" cats nicknamed ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(name)))?;
                         ;
-                        f.write_str("!")?;
+                        oxiplate_formatter.write_str("!")?;
                     }
                     (Ok(Name::Nickname { name: missing_name }), None) => {
-                        f.write_str("No cats nicknamed ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
+                        oxiplate_formatter.write_str("No cats nicknamed ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
                         ;
-                        f.write_str(" found :(")?;
+                        oxiplate_formatter.write_str(" found :(")?;
                     }
                     (Ok(Name::Missing), Some(cats_count)) => {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
                         ;
-                        f.write_str(" cats!")?;
+                        oxiplate_formatter.write_str(" cats!")?;
                     }
                     (Ok(Name::Missing), None) => {
-                        f.write_str("No cats found :(")?;
+                        oxiplate_formatter.write_str("No cats found :(")?;
                     }
                     (Err(_), _) => {
-                        f.write_str("Name could not be fetched.")?;
+                        oxiplate_formatter.write_str("Name could not be fetched.")?;
                     }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 
@@ -291,22 +292,23 @@ struct MultipleWrapper {
     multiple: Multiple,
 }
 impl ::std::fmt::Display for MultipleWrapper {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(2usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 if let Multiple { a: 10, b: 'b', c: "19", d: false } =
                         self.multiple {
-                    f.write_str("bad")?;
+                    oxiplate_formatter.write_str("bad")?;
                 } else if let Multiple { a: 10, b: 'b', c: "19", d: true } =
                         self.multiple {
-                    f.write_str("yes")?;
-                } else { f.write_str("no")?; }
+                    oxiplate_formatter.write_str("yes")?;
+                } else { oxiplate_formatter.write_str("no")?; }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -371,26 +373,27 @@ struct Outer {
     b: MiddleB<usize, f64>,
 }
 impl ::std::fmt::Display for Outer {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(6usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } =
                         self.a {
-                    f.write_str("a.b: ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(b)))?;
+                    oxiplate_formatter.write_str("a.b: ")?;
+                    oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
                     ;
                 } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) =
                         self.b {
-                    f.write_str("b.a: ")?;
-                    f.write_str(&::std::string::ToString::to_string(&(a)))?;
+                    oxiplate_formatter.write_str("b.a: ")?;
+                    oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
                     ;
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -488,23 +491,24 @@ struct RangeInteger {
     value: isize,
 }
 impl ::std::fmt::Display for RangeInteger {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(1usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match self.value {
-                    ..1 => { f.write_str("To 1")?; }
-                    ..=1 => { f.write_str("Through 1")?; }
-                    2 => { f.write_str("2")?; }
-                    3..4 => { f.write_str("3 to 4")?; }
-                    3..=4 => { f.write_str("3 through 4")?; }
-                    3.. => { f.write_str("3 and up")?; }
+                    ..1 => { oxiplate_formatter.write_str("To 1")?; }
+                    ..=1 => { oxiplate_formatter.write_str("Through 1")?; }
+                    2 => { oxiplate_formatter.write_str("2")?; }
+                    3..4 => { oxiplate_formatter.write_str("3 to 4")?; }
+                    3..=4 => { oxiplate_formatter.write_str("3 through 4")?; }
+                    3.. => { oxiplate_formatter.write_str("3 and up")?; }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -624,24 +628,25 @@ struct RangeFloat {
     value: f64,
 }
 impl ::std::fmt::Display for RangeFloat {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(1usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match self.value {
-                    ..1. => { f.write_str("To 1")?; }
-                    ..=1. => { f.write_str("Through 1")?; }
-                    2.0 => { f.write_str("2")?; }
-                    3...4. => { f.write_str("3 to 4")?; }
-                    3...=4. => { f.write_str("3 through 4")?; }
-                    3... => { f.write_str("3 and up")?; }
-                    _ => { f.write_str("Something else")?; }
+                    ..1. => { oxiplate_formatter.write_str("To 1")?; }
+                    ..=1. => { oxiplate_formatter.write_str("Through 1")?; }
+                    2.0 => { oxiplate_formatter.write_str("2")?; }
+                    3...4. => { oxiplate_formatter.write_str("3 to 4")?; }
+                    3...=4. => { oxiplate_formatter.write_str("3 through 4")?; }
+                    3... => { oxiplate_formatter.write_str("3 and up")?; }
+                    _ => { oxiplate_formatter.write_str("Something else")?; }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -772,23 +777,26 @@ struct RangeChar {
     value: char,
 }
 impl ::std::fmt::Display for RangeChar {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(1usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match self.value {
-                    ..'b' => { f.write_str("To b")?; }
-                    ..='b' => { f.write_str("Through b")?; }
-                    'c' => { f.write_str("c")?; }
-                    'd'..'e' => { f.write_str("d to e")?; }
-                    'd'..='e' => { f.write_str("d through e")?; }
-                    'd'.. => { f.write_str("d and up")?; }
+                    ..'b' => { oxiplate_formatter.write_str("To b")?; }
+                    ..='b' => { oxiplate_formatter.write_str("Through b")?; }
+                    'c' => { oxiplate_formatter.write_str("c")?; }
+                    'd'..'e' => { oxiplate_formatter.write_str("d to e")?; }
+                    'd'..='e' => {
+                        oxiplate_formatter.write_str("d through e")?;
+                    }
+                    'd'.. => { oxiplate_formatter.write_str("d and up")?; }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -905,21 +913,24 @@ struct MultipleCases {
     value: usize,
 }
 impl ::std::fmt::Display for MultipleCases {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(10usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match self.value {
-                    19 => { f.write_str("The best number")?; }
-                    42 => { f.write_str("The answer")?; }
-                    69 | 420 => { f.write_str("Internet number")?; }
-                    _ => { f.write_str("Boring number")?; }
+                    19 => { oxiplate_formatter.write_str("The best number")?; }
+                    42 => { oxiplate_formatter.write_str("The answer")?; }
+                    69 | 420 => {
+                        oxiplate_formatter.write_str("Internet number")?;
+                    }
+                    _ => { oxiplate_formatter.write_str("Boring number")?; }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -1022,20 +1033,23 @@ struct Guard {
     value: Option<usize>,
 }
 impl ::std::fmt::Display for Guard {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
+        -> ::std::fmt::Result {
         let string =
             {
                 use ::std::fmt::Write;
                 let mut string = String::with_capacity(3usize);
-                let f = &mut string;
+                let oxiplate_formatter = &mut string;
                 match self.value {
-                    Some(number) if number % 2 == 0 => { f.write_str("Even")?; }
-                    Some(_) => { f.write_str("Odd")?; }
-                    None => { f.write_str("Missing")?; }
+                    Some(number) if number % 2 == 0 => {
+                        oxiplate_formatter.write_str("Even")?;
+                    }
+                    Some(_) => { oxiplate_formatter.write_str("Odd")?; }
+                    None => { oxiplate_formatter.write_str("Missing")?; }
                 }
                 string
             };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

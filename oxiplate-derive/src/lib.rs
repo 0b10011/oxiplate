@@ -164,15 +164,15 @@ fn parse_input(
                 "`optimized_renderer` config option specified in `/oxiplate.toml` is only available when using `oxiplate`. It looks like `oxiplate-derive` is being used directly instead."
             );
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                     let string = {
                         use ::std::fmt::Write;
                         let mut string = String::with_capacity(#estimated_length);
-                        let f = &mut string;
+                        let oxiplate_formatter = &mut string;
                         #template
                         string
                     };
-                    f.write_str(&string)
+                    oxiplate_formatter.write_str(&string)
                 }
             }
         }
@@ -180,15 +180,15 @@ fn parse_input(
         #[cfg(feature = "oxiplate")]
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                    ::oxiplate::Render::render_into(self, f)
+                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    ::oxiplate::Render::render_into(self, oxiplate_formatter)
                 }
             }
             impl #generics ::oxiplate::Render for #ident #generics #where_clause {
                 const ESTIMATED_LENGTH: usize = #estimated_length;
 
                 #[inline]
-                fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+                fn render_into<W: ::std::fmt::Write>(&self, oxiplate_formatter: &mut W) -> ::std::fmt::Result {
                     use ::std::fmt::Write;
                     use ::oxiplate::{ToCowStr, UnescapedText};
                     #template
@@ -199,15 +199,15 @@ fn parse_input(
     } else {
         quote! {
             impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                     let string = {
                         use ::std::fmt::Write;
                         let mut string = String::with_capacity(#estimated_length);
-                        let f = &mut string;
+                        let oxiplate_formatter = &mut string;
                         #template
                         string
                     };
-                    f.write_str(&string)
+                    oxiplate_formatter.write_str(&string)
                 }
             }
         }

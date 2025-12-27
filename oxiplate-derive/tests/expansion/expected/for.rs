@@ -16,26 +16,30 @@ struct Data {
     values: Vec<&'static str>,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(36usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             for a in &self.values {
                 for b in &self.values {
-                    f.write_str(
-                        &::std::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
-                            })),
-                        ),
-                    )?;
-                    f.write_str("<br>")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &::std::string::ToString::to_string(
+                                &(::alloc::__export::must_use({
+                                    ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
+                                })),
+                            ),
+                        )?;
+                    oxiplate_formatter.write_str("<br>")?;
                 }
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -91,18 +95,24 @@ struct Accounts {
     people: Vec<Person>,
 }
 impl ::std::fmt::Display for Accounts {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             for person in &self.people {
-                f.write_str(&::std::string::ToString::to_string(&(person.get_name())))?;
-                f.write_str("<br>")?;
+                oxiplate_formatter
+                    .write_str(
+                        &::std::string::ToString::to_string(&(person.get_name())),
+                    )?;
+                oxiplate_formatter.write_str("<br>")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 struct Person {
@@ -174,22 +184,28 @@ struct ShadowVariable {
     value: &'static str,
 }
 impl ::std::fmt::Display for ShadowVariable {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(17usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.value)))?;
-            f.write_str("!\n")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str("!\n")?;
             for value in &self.values {
-                f.write_str(&::std::string::ToString::to_string(&(value)))?;
-                f.write_str("\n")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str("\n")?;
             }
-            f.write_str(&::std::string::ToString::to_string(&(self.value)))?;
-            f.write_str(" again :D")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str(" again :D")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -253,18 +269,22 @@ struct Functions {
     functions: Vec<fn() -> i32>,
 }
 impl ::std::fmt::Display for Functions {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(4usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             for function in &self.functions {
-                f.write_str(&::std::string::ToString::to_string(&(function())))?;
-                f.write_str("\n")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(function())))?;
+                oxiplate_formatter.write_str("\n")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -325,25 +345,29 @@ struct ForElse {
     values: Vec<&'static str>,
 }
 impl ::std::fmt::Display for ForElse {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             {
                 let mut loop_ran = false;
                 for value in &self.values {
                     loop_ran = true;
-                    f.write_str(&::std::string::ToString::to_string(&(value)))?;
-                    f.write_str("<br>")?;
+                    oxiplate_formatter
+                        .write_str(&::std::string::ToString::to_string(&(value)))?;
+                    oxiplate_formatter.write_str("<br>")?;
                 }
                 if !loop_ran {
-                    f.write_str("No values :(")?;
+                    oxiplate_formatter.write_str("No values :(")?;
                 }
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -406,21 +430,25 @@ struct Continue {
     values: Vec<usize>,
 }
 impl ::std::fmt::Display for Continue {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(4usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             for value in &self.values {
                 if *value == 23 {
                     continue;
                 }
-                f.write_str(&::std::string::ToString::to_string(&(value)))?;
-                f.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(" ")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -483,21 +511,25 @@ struct Break {
     values: Vec<usize>,
 }
 impl ::std::fmt::Display for Break {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(4usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             for value in &self.values {
                 if *value > 42 {
                     break;
                 }
-                f.write_str(&::std::string::ToString::to_string(&(value)))?;
-                f.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(" ")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -558,11 +590,14 @@ struct BreakElse {
     values: Vec<usize>,
 }
 impl ::std::fmt::Display for BreakElse {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(0usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             {
                 let mut loop_ran = false;
                 for _value in &self.values {
@@ -570,12 +605,12 @@ impl ::std::fmt::Display for BreakElse {
                     break;
                 }
                 if !loop_ran {
-                    f.write_str("No values :(")?;
+                    oxiplate_formatter.write_str("No values :(")?;
                 }
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

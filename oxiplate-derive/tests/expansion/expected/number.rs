@@ -22,122 +22,156 @@ oct: {{ -0o0 }} {{ -0o0_00 }} {{ -0o23 }} {{ -0o12 + -0o11 }} {{ -0o01_234_567 }
 )]
 struct Data;
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(441usize);
-            let f = &mut string;
-            f.write_str("\ndec: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(000)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(19)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(10 + 9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(1_234_567_890)))?;
-            f.write_str("\nfloat: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(19.)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(19.0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(1.9e1)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(190.0e-1)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(1_234_567.8e-9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(1_234_567_890e0)))?;
-            f.write_str("\nbin: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0b0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0b0_0000)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0b1_0011)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0b_1010 + 9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0b01)))?;
-            f.write_str("\nhex: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x0_00)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x13)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x_a + 0x9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x_23_45_67_89)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0x_01_ab_cd_ef)))?;
-            f.write_str("\noct: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0o0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0o0_00)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0o23)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0o12 + 0o11)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(0o01_234_567)))?;
-            f.write_str("\n\ndec: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-000)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-19)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-10 + -9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-1_234_567_890)))?;
-            f.write_str("\nfloat: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-19.)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-19.0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-1.9e1)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-190.0e-1)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-1_234_567.8e-9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-1_234_567_890e0)))?;
-            f.write_str("\nbin: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0b0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0b0_0000)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0b1_0011)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0b_1010 + -9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0b01)))?;
-            f.write_str("\nhex: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x0_00)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x13)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x_a + -0x9)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x_23_45_67_89)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0x_01_ab_cd_ef)))?;
-            f.write_str("\noct: ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0o0)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0o0_00)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0o23)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0o12 + -0o11)))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&(-0o01_234_567)))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("\ndec: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(000)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(19)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(10 + 9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(1_234_567_890)))?;
+            oxiplate_formatter.write_str("\nfloat: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(19.)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(19.0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(1.9e1)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(190.0e-1)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(1_234_567.8e-9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(1_234_567_890e0)))?;
+            oxiplate_formatter.write_str("\nbin: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0b0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0b0_0000)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0b1_0011)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0b_1010 + 9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0b01)))?;
+            oxiplate_formatter.write_str("\nhex: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0x0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0x0_00)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0x13)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0x_a + 0x9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0x_23_45_67_89)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0x_01_ab_cd_ef)))?;
+            oxiplate_formatter.write_str("\noct: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0o0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0o0_00)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(0o23)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0o12 + 0o11)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(0o01_234_567)))?;
+            oxiplate_formatter.write_str("\n\ndec: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-000)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-19)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-10 + -9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-1_234_567_890)))?;
+            oxiplate_formatter.write_str("\nfloat: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-19.)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-19.0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-1.9e1)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-190.0e-1)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-1_234_567.8e-9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-1_234_567_890e0)))?;
+            oxiplate_formatter.write_str("\nbin: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0b0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0b0_0000)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0b1_0011)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0b_1010 + -9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0b01)))?;
+            oxiplate_formatter.write_str("\nhex: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0x0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0x0_00)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0x13)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0x_a + -0x9)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0x_23_45_67_89)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0x_01_ab_cd_ef)))?;
+            oxiplate_formatter.write_str("\noct: ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0o0)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0o0_00)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(-0o23)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0o12 + -0o11)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(-0o01_234_567)))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

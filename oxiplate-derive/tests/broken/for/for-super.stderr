@@ -1,11 +1,5 @@
-error[E0433]: failed to resolve: there are too many leading `super` keywords
+error: `super` is a reserved keyword
  --> tests/broken/for/for-super.rs:4:28
   |
 4 | #[oxiplate_inline("{%- for super in numbers -%}{{ super }}{% endfor %}")]
-  |                            ^^^^^ there are too many leading `super` keywords
-
-error[E0433]: failed to resolve: there are too many leading `super` keywords
- --> tests/broken/for/for-super.rs:4:51
-  |
-4 | #[oxiplate_inline("{%- for super in numbers -%}{{ super }}{% endfor %}")]
-  |                                                   ^^^^^ there are too many leading `super` keywords
+  |                            ^^^^^

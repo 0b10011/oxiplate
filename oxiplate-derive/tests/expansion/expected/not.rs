@@ -12,17 +12,20 @@ struct Not {
     foo: bool,
 }
 impl ::std::fmt::Display for Not {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if !self.foo {
-                f.write_str("Yay")?;
+                oxiplate_formatter.write_str("Yay")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

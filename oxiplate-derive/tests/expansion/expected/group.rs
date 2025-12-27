@@ -11,17 +11,21 @@ struct GroupCalc {
     c: usize,
 }
 impl ::std::fmt::Display for GroupCalc {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(&(self.c * (self.a + self.b))),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&(self.c * (self.a + self.b))),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

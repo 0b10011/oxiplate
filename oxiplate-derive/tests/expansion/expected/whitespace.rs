@@ -7,15 +7,18 @@ use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("Hello  \t\n {_} \r\n\t wor{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 impl ::std::fmt::Display for AdjustedWhitespace {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(12usize);
-            let f = &mut string;
-            f.write_str("Hello world!")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("Hello world!")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -71,19 +74,24 @@ struct WritWhitespaceControl {
     name: &'static str,
 }
 impl ::std::fmt::Display for WritWhitespaceControl {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(12usize);
-            let f = &mut string;
-            f.write_str("Hello ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.username)))?;
-            f.write_str(" (")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.name)))?;
-            f.write_str(")!")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("Hello ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.username)))?;
+            oxiplate_formatter.write_str(" (")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.name)))?;
+            oxiplate_formatter.write_str(")!")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -139,15 +147,18 @@ fn writ_whitespace_control() {
 )]
 struct CommentWhitespaceControl {}
 impl ::std::fmt::Display for CommentWhitespaceControl {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
-            let f = &mut string;
-            f.write_str("Hello  ()!")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("Hello  ()!")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -217,68 +228,101 @@ fn comment_whitespace_control() {
 )]
 struct AdjacentTags {}
 impl ::std::fmt::Display for AdjacentTags {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(231usize);
-            let f = &mut string;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("  ")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
-            f.write_str("\n\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("remove")))?;
-            f.write_str(&::std::string::ToString::to_string(&("removetag")))?;
-            f.write_str("\n\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("leave")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str("\n")?;
-            f.write_str(&::std::string::ToString::to_string(&("replace")))?;
-            f.write_str(" ")?;
-            f.write_str(&::std::string::ToString::to_string(&("replacetag")))?;
-            f.write_str("\n")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("  ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            oxiplate_formatter.write_str("\n\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+            oxiplate_formatter.write_str("\n\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+            oxiplate_formatter.write_str("\n")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -346,15 +390,18 @@ replace replacetag
 #[oxiplate_inline(" \t\r\n{")]
 struct WhitespaceOnly;
 impl ::std::fmt::Display for WhitespaceOnly {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(5usize);
-            let f = &mut string;
-            f.write_str(" \t\r\n{")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(" \t\r\n{")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

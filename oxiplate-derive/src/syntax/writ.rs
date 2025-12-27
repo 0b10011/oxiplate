@@ -204,14 +204,14 @@ impl<'a> Writ<'a> {
             if fallback_group_name == "raw" {
                 #[cfg(not(feature = "oxiplate"))]
                 return (
-                    quote_spanned! {span=> f.write_str(&::std::string::ToString::to_string(&(#text)))?; },
+                    quote_spanned! {span=> oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(#text)))?; },
                     estimated_length,
                 );
 
                 #[cfg(feature = "oxiplate")]
                 return (
                     quote_spanned! {span=>
-                        (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(f)?
+                        (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(oxiplate_formatter)?
                     },
                     estimated_length,
                 );
@@ -253,7 +253,7 @@ impl<'a> Writ<'a> {
         (
             quote_spanned! {span=>
                 (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                    f,
+                    oxiplate_formatter,
                     &<#group as ::oxiplate::Escaper>::DEFAULT,
                 )?
             },
@@ -289,7 +289,7 @@ impl<'a> Writ<'a> {
                 return (
                     quote_spanned! {span=>
                         (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                            f,
+                            oxiplate_formatter,
                             &#path,
                         )?
                     },
@@ -307,7 +307,7 @@ impl<'a> Writ<'a> {
         #[cfg(not(feature = "oxiplate"))]
         return (
             quote_spanned! {span=>
-                f.write_str(&::std::string::ToString::to_string(&(#text)))?;
+                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(#text)))?;
             },
             estimated_length,
         );
@@ -315,7 +315,7 @@ impl<'a> Writ<'a> {
         #[cfg(feature = "oxiplate")]
         return (
             quote_spanned! {span=>
-                (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(f)?
+                (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(oxiplate_formatter)?
             },
             estimated_length,
         );

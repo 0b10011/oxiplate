@@ -10,17 +10,21 @@ use oxiplate_derive::Oxiplate;
 )]
 struct Data {}
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(104usize);
-            let f = &mut string;
-            f.write_str(
-                "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

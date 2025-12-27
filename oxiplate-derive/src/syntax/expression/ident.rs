@@ -1,6 +1,7 @@
 use nom::Parser as _;
 use nom::bytes::complete::take_while1;
-use nom::combinator::{cut, opt, peek};
+use nom::combinator::{cut, fail, opt, peek};
+use nom::error::context;
 use nom::sequence::pair;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
@@ -37,6 +38,19 @@ impl<'a> Identifier<'a> {
         ))
         .parse(input)?;
 
+        match ident.as_str() {
+            "oxiplate_formatter" => {
+                return context("`oxiplate_formatter` is a reserved name", fail()).parse(ident);
+            }
+            "self" => {
+                return context("`self` is a reserved keyword", fail()).parse(ident);
+            }
+            "super" => {
+                return context("`super` is a reserved keyword", fail()).parse(ident);
+            }
+            _ => (),
+        }
+
         Ok((input, Self(ident)))
     }
 
@@ -62,8 +76,10 @@ impl ToTokens for Identifier<'_> {
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
             | "yield" => syn::Ident::new_raw(self.0.as_str(), self.0.span()),
 
-            // `self` and `super` can't be worked around,
-            // so Rust can bail when it encounters them during compilation.
+            reserved_name @ ("self" | "super" | "oxiplate_formatter") => {
+                unreachable!("`{}` should have generated an error instead", reserved_name);
+            }
+
             _ => syn::Ident::new(self.0.as_str(), self.0.span()),
         };
 

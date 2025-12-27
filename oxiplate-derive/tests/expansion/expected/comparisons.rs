@@ -9,17 +9,20 @@ struct Comparison {
     value: &'static str,
 }
 impl ::std::fmt::Display for Comparison {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(3usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if self.value == "foo" {
-                f.write_str("bar")?;
+                oxiplate_formatter.write_str("bar")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

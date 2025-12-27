@@ -40,7 +40,7 @@ impl Template<'_> {
         let concat_tokens = quote! { concat!(#(#str_tokens),*) };
         str_tokens.clear();
 
-        tokens.append_all(quote! { f.write_str(#concat_tokens)?; });
+        tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
 
     pub fn to_tokens(&self, state: &State<'_>) -> (TokenStream, usize) {

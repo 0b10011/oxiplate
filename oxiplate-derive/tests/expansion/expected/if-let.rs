@@ -40,53 +40,69 @@ struct Data {
     name: Result<Name, ()>,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(13usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if let Ok(name) = &self.name {
                 if let Some(cats_count) = self.cats_count {
                     if let Name::Actual(name) = name {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
-                        f.write_str(" cats named ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
-                        f.write_str("!")?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter
+                            .write_str(
+                                &::std::string::ToString::to_string(&(cats_count)),
+                            )?;
+                        oxiplate_formatter.write_str(" cats named ")?;
+                        oxiplate_formatter
+                            .write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str("!")?;
                     } else if let Name::Nickname { name } = name {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
-                        f.write_str(" cats nicknamed ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(name)))?;
-                        f.write_str("!")?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter
+                            .write_str(
+                                &::std::string::ToString::to_string(&(cats_count)),
+                            )?;
+                        oxiplate_formatter.write_str(" cats nicknamed ")?;
+                        oxiplate_formatter
+                            .write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str("!")?;
                     } else {
-                        f.write_str("Found ")?;
-                        f.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
-                        f.write_str(" cats!")?;
+                        oxiplate_formatter.write_str("Found ")?;
+                        oxiplate_formatter
+                            .write_str(
+                                &::std::string::ToString::to_string(&(cats_count)),
+                            )?;
+                        oxiplate_formatter.write_str(" cats!")?;
                     }
                 } else if let std::option::Option::None = self.cats_count {
                     if let Name::Actual(missing_name) = &name {
-                        f.write_str("No cats named ")?;
-                        f.write_str(
-                            &::std::string::ToString::to_string(&(missing_name)),
-                        )?;
-                        f.write_str(" found :(")?;
+                        oxiplate_formatter.write_str("No cats named ")?;
+                        oxiplate_formatter
+                            .write_str(
+                                &::std::string::ToString::to_string(&(missing_name)),
+                            )?;
+                        oxiplate_formatter.write_str(" found :(")?;
                     } else if let Name::Nickname { name: missing_name } = &name {
-                        f.write_str("No cats nicknamed ")?;
-                        f.write_str(
-                            &::std::string::ToString::to_string(&(missing_name)),
-                        )?;
-                        f.write_str(" found :(")?;
+                        oxiplate_formatter.write_str("No cats nicknamed ")?;
+                        oxiplate_formatter
+                            .write_str(
+                                &::std::string::ToString::to_string(&(missing_name)),
+                            )?;
+                        oxiplate_formatter.write_str(" found :(")?;
                     } else {
-                        f.write_str("No cats found :(")?;
+                        oxiplate_formatter.write_str("No cats found :(")?;
                     }
                 }
             } else {
-                f.write_str("Name could not be fetched.")?;
+                oxiplate_formatter.write_str("Name could not be fetched.")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -294,21 +310,24 @@ struct MultipleWrapper {
     multiple: Multiple,
 }
 impl ::std::fmt::Display for MultipleWrapper {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(2usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
-                f.write_str("bad")?;
+                oxiplate_formatter.write_str("bad")?;
             } else if let Multiple { a: 10, b: 'b', c: "19", d: true } = self.multiple {
-                f.write_str("yes")?;
+                oxiplate_formatter.write_str("yes")?;
             } else {
-                f.write_str("no")?;
+                oxiplate_formatter.write_str("no")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -391,21 +410,24 @@ struct Outer {
     b: MiddleB,
 }
 impl ::std::fmt::Display for Outer {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(6usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
-                f.write_str("a.b: ")?;
-                f.write_str(&::std::string::ToString::to_string(&(b)))?;
+                oxiplate_formatter.write_str("a.b: ")?;
+                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
             } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
-                f.write_str("b.a: ")?;
-                f.write_str(&::std::string::ToString::to_string(&(a)))?;
+                oxiplate_formatter.write_str("b.a: ")?;
+                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

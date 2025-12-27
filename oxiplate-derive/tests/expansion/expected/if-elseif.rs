@@ -18,23 +18,28 @@ struct Data {
     action: &'static str,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(14usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if self.do_this {
-                f.write_str("This then ")?;
-                f.write_str(&::std::string::ToString::to_string(&(self.action)))?;
-                f.write_str(" :D")?;
+                oxiplate_formatter.write_str("This then ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                oxiplate_formatter.write_str(" :D")?;
             } else if self.do_that {
-                f.write_str("That then ")?;
-                f.write_str(&::std::string::ToString::to_string(&(self.action)))?;
-                f.write_str(" :D")?;
+                oxiplate_formatter.write_str("That then ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                oxiplate_formatter.write_str(" :D")?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

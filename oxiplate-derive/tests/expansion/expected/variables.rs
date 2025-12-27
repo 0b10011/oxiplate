@@ -9,15 +9,19 @@ struct Variable {
     message: &'static str,
 }
 impl ::std::fmt::Display for Variable {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -69,17 +73,22 @@ struct Variables {
     message: &'static str,
 }
 impl ::std::fmt::Display for Variables {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(5usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            f.write_str(" / ")?;
-            f.write_str(&::std::string::ToString::to_string(&(self.message)))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str(" / ")?;
+            oxiplate_formatter
+                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

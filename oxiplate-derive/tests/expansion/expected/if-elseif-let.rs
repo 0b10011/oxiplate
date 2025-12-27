@@ -18,19 +18,23 @@ struct Data {
     ty: Option<&'static str>,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if self.check {
-                f.write_str("bar")?;
+                oxiplate_formatter.write_str("bar")?;
             } else if let Some(text) = self.ty {
-                f.write_str(&::std::string::ToString::to_string(&(text)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(text)))?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

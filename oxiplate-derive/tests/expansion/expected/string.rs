@@ -7,17 +7,21 @@ use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r###"{{ ##"jane #"the deer"# doe"## }}"###)]
 struct RawString {}
 impl ::std::fmt::Display for RawString {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(21usize);
-            let f = &mut string;
-            f.write_str(
-                &::std::string::ToString::to_string(&("jane #\"the deer\"# doe")),
-            )?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter
+                .write_str(
+                    &::std::string::ToString::to_string(&("jane #\"the deer\"# doe")),
+                )?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -67,15 +71,18 @@ fn raw_string() {
 #[oxiplate_inline(r#"{{ "" }}"#)]
 struct EmptyString {}
 impl ::std::fmt::Display for EmptyString {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(0usize);
-            let f = &mut string;
-            f.write_str(&::std::string::ToString::to_string(&("")))?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&("")))?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
@@ -125,15 +132,18 @@ fn empty_string() {
 #[oxiplate_inline("\x00 \x0F \x0f \x7F")]
 struct SevenBitEscapes;
 impl ::std::fmt::Display for SevenBitEscapes {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(7usize);
-            let f = &mut string;
-            f.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
+            let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;

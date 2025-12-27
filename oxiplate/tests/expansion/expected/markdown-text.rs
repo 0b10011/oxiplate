@@ -11,24 +11,30 @@ struct Data<'a> {
     messages: Vec<&'a str>,
 }
 impl<'a> ::std::fmt::Display for Data<'a> {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::oxiplate::Render::render_into(self, f)
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl<'a> ::oxiplate::Render for Data<'a> {
     const ESTIMATED_LENGTH: usize = 6usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(&self, f: &mut W) -> ::std::fmt::Result {
+    fn render_into<W: ::std::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::std::fmt::Result {
         use ::std::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         for message in &self.messages {
-            f.write_str("\n")?;
+            oxiplate_formatter.write_str("\n")?;
             (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
                 .oxiplate_escape(
-                    f,
+                    oxiplate_formatter,
                     &::oxiplate::escapers::markdown::MarkdownEscaper::text,
                 )?;
-            f.write_str("\n")?;
+            oxiplate_formatter.write_str("\n")?;
         }
         Ok(())
     }

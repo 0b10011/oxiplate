@@ -17,20 +17,25 @@ struct Data {
     r#else: &'static str,
 }
 impl ::std::fmt::Display for Data {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(1usize);
-            let f = &mut string;
+            let oxiplate_formatter = &mut string;
             if !self.r#ref.is_empty() {
-                f.write_str("Referee: ")?;
-                f.write_str(&::std::string::ToString::to_string(&(self.r#ref)))?;
+                oxiplate_formatter.write_str("Referee: ")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.r#ref)))?;
             } else {
-                f.write_str(&::std::string::ToString::to_string(&(self.r#else)))?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.r#else)))?;
             }
             string
         };
-        f.write_str(&string)
+        oxiplate_formatter.write_str(&string)
     }
 }
 extern crate test;
