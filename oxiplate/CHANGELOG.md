@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.7...oxiplate-v0.15.8) - 2025-12-31
+
+### Added
+
+- added support for `let` statements
+
 ## [0.15.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.6...oxiplate-v0.15.7) - 2025-12-27
 
 ### Added
