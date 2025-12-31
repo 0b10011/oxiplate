@@ -8,7 +8,7 @@ use serde::Deserialize;
 use syn::DeriveInput;
 use syn::spanned::Spanned;
 
-use crate::syntax::Template;
+use crate::Tokens;
 
 #[cfg(all(feature = "built-in-escapers", not(feature = "oxiplate")))]
 compile_error!(
@@ -120,25 +120,83 @@ fn config_path() -> PathBuf {
     root.join("oxiplate.toml")
 }
 
+/// Local variables available for usage within templates.
+pub(crate) struct LocalVariables {
+    /// Currently active variables.
+    active: HashSet<String>,
+
+    /// Groups of variables added in each statement/branch.
+    stack: Vec<Vec<String>>,
+}
+
+impl LocalVariables {
+    /// Create a new instance of local variables.
+    pub fn new() -> Self {
+        Self {
+            active: HashSet::new(),
+            stack: vec![vec![]],
+        }
+    }
+
+    /// Whether the provided variable name exists as a local variable.
+    #[must_use]
+    pub fn contains(&self, var: &str) -> bool {
+        self.active.contains(var)
+    }
+
+    /// Add one or more variables to the current stack.
+    pub fn add(&mut self, vars: HashSet<String>) {
+        let existing: Vec<String> = vars
+            .difference(&self.active)
+            .collect::<HashSet<&String>>()
+            .into_iter()
+            .map(ToOwned::to_owned)
+            .collect();
+        let Some(stack) = self.stack.last_mut() else {
+            unreachable!("Attempted to add variable to stack, but no stack present");
+        };
+        for var in existing {
+            stack.push(var);
+        }
+        self.active.extend(vars);
+    }
+
+    /// Push a stack for a new statement or branch.
+    pub fn push_stack(&mut self) {
+        self.stack.push(vec![]);
+    }
+
+    /// Pop the latest stack of variables
+    /// and remove all variables added in it.
+    pub fn pop_stack(&mut self) {
+        let Some(vars) = self.stack.pop() else {
+            unreachable!("Attempted to pop stack, but no stack remained");
+        };
+
+        for var in vars {
+            self.active.remove(&var);
+        }
+    }
+}
+
 /// Macro state containing the configuration and any local variables.
-#[derive(Clone)]
 pub(crate) struct State<'a> {
-    pub(crate) local_variables: &'a HashSet<&'a str>,
-    pub(crate) config: &'a Config,
-    pub(crate) inferred_escaper_group: Option<(&'a str, &'a EscaperGroup)>,
+    /// Storage for local variable names when building tokens.
+    pub(crate) local_variables: LocalVariables,
+    pub(crate) config: Config,
+    pub(crate) inferred_escaper_group: Option<(String, EscaperGroup)>,
 
     /// Default escaper group for a template.
     /// Overrides any inferred escaping group that's already set.
-    pub(crate) default_escaper_group: Option<(&'a str, &'a EscaperGroup)>,
+    pub(crate) default_escaper_group: Option<(String, EscaperGroup)>,
 
     /// Flag to track when setting the default escaper group fails.
     /// Because this can change which escapers are available,
     /// it can result in a different error for every writ that escapes values.
     /// This allows for reducing it to a single error per template.
-    pub(crate) failed_to_set_default_escaper_group: &'a bool,
-    pub(crate) blocks:
-        &'a VecDeque<&'a HashMap<&'a str, (&'a Template<'a>, Option<&'a Template<'a>>)>>,
-    pub(crate) has_content: &'a bool,
+    pub(crate) failed_to_set_default_escaper_group: bool,
+    pub(crate) blocks: &'a VecDeque<&'a HashMap<&'a str, (Tokens, Option<Tokens>)>>,
+    pub(crate) has_content: bool,
 }
 
 #[cfg_attr(feature = "config", derive(Deserialize))]
@@ -236,6 +294,7 @@ impl Default for Config {
 #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
 #[cfg_attr(feature = "config", derive(Deserialize))]
 #[cfg_attr(feature = "config", serde(deny_unknown_fields))]
+#[derive(Clone)]
 pub(crate) struct EscaperGroup {
     pub(crate) escaper: String,
 }

@@ -5,6 +5,7 @@ mod r#for;
 mod helpers;
 mod r#if;
 mod include;
+mod r#let;
 mod r#match;
 
 use block::Block;
@@ -14,7 +15,6 @@ use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::combinator::{cut, into, opt};
 use nom::error::context;
-use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
 pub(crate) use self::escaper::DefaultEscaper;
@@ -25,9 +25,10 @@ use super::r#static::StaticType;
 use super::{Item, Res};
 use crate::syntax::item::tag_end;
 use crate::syntax::statement::r#for::{Break, Continue};
+use crate::syntax::statement::r#let::Let;
 use crate::syntax::statement::r#match::{Case, Match};
 use crate::syntax::template::{is_whitespace, parse_item, whitespace};
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug)]
 pub(crate) struct Statement<'a> {
@@ -59,6 +60,8 @@ pub(crate) enum StatementKind<'a> {
     Match(Match<'a>),
     Case(Case<'a>),
     EndMatch,
+
+    Let(Let<'a>),
 }
 
 impl<'a> Statement<'a> {
@@ -82,7 +85,7 @@ impl<'a> Statement<'a> {
             For(statement) => statement.is_ended,
             Match(statement) => statement.is_ended(),
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch => true,
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) => true,
         }
     }
 
@@ -96,32 +99,19 @@ impl<'a> Statement<'a> {
             .merge(item.source(), "Item should follow previous item");
 
         match &mut self.kind {
-            Extends(statement) => {
-                statement.add_item(item);
-            }
-            Block(statement) => {
-                statement.add_item(item);
-            }
-            If(statement) => {
-                statement.add_item(item);
-            }
-            For(statement) => {
-                statement.add_item(item);
-            }
-            Match(statement) => {
-                statement.add_item(item);
-            }
+            Extends(statement) => statement.add_item(item),
+            Block(statement) => statement.add_item(item),
+            If(statement) => statement.add_item(item),
+            For(statement) => statement.add_item(item),
+            Match(statement) => statement.add_item(item),
             DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
-            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch => {
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
         }
     }
 
-    pub(crate) fn to_tokens(
-        &self,
-        state: &State,
-    ) -> Result<(TokenStream, usize), (TokenStream, usize)> {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Result<Tokens, Tokens> {
         macro_rules! unexpected {
             ($tag:literal) => {{
                 let span = self.source.span();
@@ -132,12 +122,14 @@ impl<'a> Statement<'a> {
             }};
         }
 
-        match &self.kind {
+        state.local_variables.push_stack();
+
+        let tokens = match &self.kind {
             StatementKind::DefaultEscaper(default_escaper) => {
                 default_escaper.to_tokens(state, &self.source)
             }
             StatementKind::Extends(statement) => {
-                if *state.has_content {
+                if state.has_content {
                     let span = self.source.span();
                     Err((
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
@@ -162,7 +154,12 @@ impl<'a> Statement<'a> {
             StatementKind::Match(statement) => Ok(statement.to_tokens(state)),
             StatementKind::Case(_) => unexpected!("case"),
             StatementKind::EndMatch => unexpected!("endmatch"),
-        }
+            StatementKind::Let(statement) => Ok(statement.to_tokens(state)),
+        };
+
+        state.local_variables.pop_stack();
+
+        tokens
     }
 }
 
@@ -183,7 +180,7 @@ pub(super) fn statement<'a>(
         // Parse statements
         let (input, mut statement) = context(
             "Expected one of: block, endblock, if, elseif, else, endif, for, continue, break, \
-             endfor, match, case, endmatch",
+             endfor, match, case, endmatch, let",
             cut(alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
@@ -202,6 +199,7 @@ pub(super) fn statement<'a>(
                 r#match::Match::parse,
                 r#match::Case::parse,
                 r#match::Match::parse_end,
+                into(Let::parse),
             ))),
         )
         .parse(input)?;
@@ -259,7 +257,8 @@ pub(super) fn statement<'a>(
                             | StatementKind::Break(_)
                             | StatementKind::EndFor
                             | StatementKind::Case(_)
-                            | StatementKind::EndMatch => unreachable!(
+                            | StatementKind::EndMatch
+                            | StatementKind::Let(_) => unreachable!(
                                 "These blocks should never fail to be closed because of EOF"
                             ),
                         };

@@ -3,19 +3,18 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_till1, take_while, take_while1};
 use nom::combinator::{eof, fail, peek, recognize};
 use nom::multi::many_till;
-use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
 use super::item::tag_start;
 use super::template::{adjusted_whitespace, is_whitespace};
 use super::{Item, Res};
-use crate::Source;
+use crate::{Source, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
 impl Static<'_> {
-    pub fn to_token(&self) -> (TokenStream, usize) {
+    pub fn to_token(&self) -> Tokens {
         let text = &self.0;
         let span = self.1.span();
         (quote_spanned! { span => #text }, text.len())

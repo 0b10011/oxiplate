@@ -3,13 +3,12 @@ use nom::bytes::complete::tag;
 use nom::combinator::{cut, fail, opt};
 use nom::error::context;
 use nom::multi::many1;
-use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::Res;
 use crate::syntax::expression::{Expression, ExpressionAccess, expression};
 use crate::syntax::template::whitespace;
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Concat<'a> {
@@ -18,7 +17,7 @@ pub(crate) struct Concat<'a> {
 }
 
 impl Concat<'_> {
-    pub(super) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub(super) fn to_tokens(&self, state: &State) -> Tokens {
         {
             let mut format_tokens = vec![];
             let mut argument_tokens = vec![];

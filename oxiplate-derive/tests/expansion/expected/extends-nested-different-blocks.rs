@@ -22,15 +22,21 @@ impl ::std::fmt::Display for AbsoluteData {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n</head>\n<body>")?;
-            oxiplate_formatter.write_str("<main>")?;
-            oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
-            oxiplate_formatter.write_str("</main>")?;
+            {
+                oxiplate_formatter.write_str("<main>")?;
+                {
+                    oxiplate_formatter.write_str("<h1>")?;
+                    oxiplate_formatter
+                        .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                    oxiplate_formatter.write_str("</h1>\n  <p>")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &::std::string::ToString::to_string(&(self.message)),
+                        )?;
+                    oxiplate_formatter.write_str("</p>")?;
+                }
+                oxiplate_formatter.write_str("</main>")?;
+            }
             oxiplate_formatter.write_str("</body>\n")?;
             string
         };

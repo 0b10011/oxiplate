@@ -9,7 +9,7 @@ use quote::{quote, quote_spanned};
 use super::{Expression, Res, expression};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::template::whitespace;
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Tuple<'a> {
@@ -64,7 +64,7 @@ impl<'a> Tuple<'a> {
         &self.source
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> Tokens {
         let mut items = vec![];
         let span = self.source.span();
         let mut expression_length = usize::MAX;
@@ -121,7 +121,7 @@ impl TupleItem<'_> {
         }
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> Tokens {
         let (expression, expression_length) = self.expression.to_tokens(state);
         let comma = self.comma.clone().map_or_else(TokenStream::new, |comma| {
             let span = comma.span();

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<header>{{ value }}</header>
+<main>
+    {%- block content %}
+        {{- value }}
+        {%- let value = 19 %}
+        {{_ value }}
+    {%- endblock %}
+    {{_ value -}}
+</main>
+{% let value = 42 -%}
+<footer>
+    {%- block footer %}
+        {{- value }}
+        {%- let value = 89 %}
+        {{_ value }}
+    {%- endblock %}
+    {{_ value -}}
+</footer>

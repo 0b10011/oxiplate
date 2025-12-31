@@ -5,11 +5,10 @@ use nom::combinator::{cut, into, not, opt, peek};
 use nom::sequence::{pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
 use proc_macro::Diagnostic;
-use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::Source;
 use crate::syntax::expression::{Expression, Res};
+use crate::{Source, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Integer<'a>(Source<'a>);
@@ -90,7 +89,7 @@ impl<'a> Integer<'a> {
         &self.0
     }
 
-    pub(crate) fn to_tokens(&self) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self) -> Tokens {
         let literal = ::syn::LitInt::new(self.0.as_str(), self.0.span());
         (quote! { #literal }, self.0.as_str().len())
     }
@@ -110,7 +109,7 @@ impl<'a> Float<'a> {
         &self.0
     }
 
-    pub(crate) fn to_tokens(&self) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self) -> Tokens {
         let literal = ::syn::LitFloat::new(self.0.as_str(), self.0.span());
         (quote! { #literal }, self.0.as_str().len())
     }

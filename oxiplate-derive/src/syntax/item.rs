@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -65,12 +67,12 @@ impl<'a> Item<'a> {
         }
     }
 
-    pub(super) fn to_token(&'a self, state: &mut State<'a>) -> ItemToken {
+    pub(super) fn to_token<'b: 'a>(&'a self, state: &mut State<'b>) -> ItemToken {
         match self {
             Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
                 let (text, estimated_length) = writ.to_token(state);
-                state.has_content = &true;
+                state.has_content = true;
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
@@ -78,13 +80,13 @@ impl<'a> Item<'a> {
                     Ok(result) => result,
                     Err(result) => {
                         if let StatementKind::DefaultEscaper(_) = statement.kind {
-                            state.failed_to_set_default_escaper_group = &true;
+                            state.failed_to_set_default_escaper_group = true;
                         }
 
                         result
                     }
                 };
-                state.has_content = &true;
+                state.has_content = true;
 
                 if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind
                     && let Some(default_escaper_group) = state
@@ -92,15 +94,23 @@ impl<'a> Item<'a> {
                         .escaper_groups
                         .get(default_escaper.escaper.as_str())
                 {
-                    state.default_escaper_group =
-                        Some((default_escaper.escaper.as_str(), default_escaper_group));
+                    state.default_escaper_group = Some((
+                        default_escaper.escaper.as_str().to_owned(),
+                        default_escaper_group.clone(),
+                    ));
+                }
+
+                if let StatementKind::Let(statement) = &statement.kind {
+                    state
+                        .local_variables
+                        .add(HashSet::from([statement.variable().to_string()]));
                 }
 
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
             }
             Item::Static(text, _static_type) => {
                 let (text, estimated_length) = text.to_token();
-                state.has_content = &true;
+                state.has_content = true;
                 ItemToken::StaticText(text, estimated_length)
             }
             Item::Whitespace(whitespace) => {

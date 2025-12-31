@@ -2,11 +2,10 @@ use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use proc_macro::Diagnostic;
-use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::Source;
 use crate::syntax::expression::{Expression, Res};
+use crate::{Source, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Bool<'a> {
@@ -47,7 +46,7 @@ impl<'a> Bool<'a> {
         &self.source
     }
 
-    pub(crate) fn to_tokens(&self) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self) -> Tokens {
         let literal = ::syn::LitBool::new(self.value, self.source.span());
         (quote! { #literal }, 0)
     }

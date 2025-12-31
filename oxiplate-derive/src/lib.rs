@@ -10,7 +10,7 @@ mod source;
 mod state;
 mod syntax;
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use std::io;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
@@ -27,11 +27,13 @@ use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
+type Tokens = (proc_macro2::TokenStream, usize);
+
 pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::build_config;
-use crate::state::OptimizedRenderer;
+use crate::state::{LocalVariables, OptimizedRenderer};
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -116,7 +118,7 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 /// Internal derive function that allows for block token streams to be passed in.
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
-    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
+    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
 ) -> (TokenStream, usize) {
     let input = match syn::parse(input) {
         Ok(input) => input,
@@ -130,7 +132,7 @@ pub(crate) fn oxiplate_internal(
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
 fn parse_input(
     input: &DeriveInput,
-    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
+    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
 ) -> (TokenStream, usize) {
     let DeriveInput {
         ident, generics, ..
@@ -225,7 +227,7 @@ type ParsedTemplate = (
 
 fn parse_template_and_data(
     input: &DeriveInput,
-    blocks: &VecDeque<&HashMap<&str, (&syntax::Template, Option<&syntax::Template>)>>,
+    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
 ) -> Result<ParsedTemplate, (syn::Error, Option<TemplateType>, OptimizedRenderer)> {
     // Build the shared config from the `oxiplate.toml` file.
     let config =
@@ -247,36 +249,32 @@ fn parse_template_and_data(
         }
     }
 
-    let mut state = State {
-        local_variables: &HashSet::new(),
-        inferred_escaper_group: None,
-        default_escaper_group: None,
-        failed_to_set_default_escaper_group: &false,
-        config: &config,
-        blocks,
-        has_content: &false,
-    };
-
-    // Parse the template type and code literal.
     let (attr, template_type) = parse_template_type(attrs, ident.span())
         .map_err(|err: syn::Error| (err, None, config.optimized_renderer.clone()))?;
+
+    let optimized_renderer = config.optimized_renderer.clone();
+
+    let mut state = State {
+        local_variables: LocalVariables::new(),
+        inferred_escaper_group: None,
+        default_escaper_group: None,
+        failed_to_set_default_escaper_group: false,
+        config,
+        blocks,
+        has_content: false,
+    };
+
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
-    let (template, estimated_length): (proc_macro2::TokenStream, usize) =
-        process_parsed_tokens(parsed_tokens, &template_type, &state).map_err(
-            |err: syn::Error| {
-                (
-                    err,
-                    Some(template_type.clone()),
-                    config.optimized_renderer.clone(),
-                )
-            },
+    let (template, estimated_length): Tokens =
+        process_parsed_tokens(parsed_tokens, &template_type, &mut state).map_err(
+            |err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()),
         )?;
 
     Ok((
         template,
         estimated_length,
         template_type,
-        state.config.optimized_renderer.clone(),
+        optimized_renderer,
     ))
 }
 
@@ -290,11 +288,11 @@ type ParsedTokens = Result<
     ParsedEscaperError,
 >;
 
-fn process_parsed_tokens(
+fn process_parsed_tokens<'a>(
     parsed_tokens: ParsedTokens,
     template_type: &TemplateType,
-    state: &State,
-) -> Result<(proc_macro2::TokenStream, usize), syn::Error> {
+    state: &'a mut State<'a>,
+) -> Result<Tokens, syn::Error> {
     match parsed_tokens {
         #[cfg(feature = "oxiplate")]
         Err(ParsedEscaperError::EscaperNotFound((escaper, span))) => {
@@ -333,21 +331,17 @@ fn process_parsed_tokens(
         Ok((span, input, origin, inferred_escaper_group_name)) => {
             let (code, literal) = parse_code_literal(template_type, &input.into(), span)?;
 
-            let state = if let Some(inferred_escaper_group_name) = &inferred_escaper_group_name {
-                &State {
-                    inferred_escaper_group: Some((
-                        inferred_escaper_group_name,
-                        state
-                            .config
-                            .escaper_groups
-                            .get(inferred_escaper_group_name)
-                            .expect("Escaper group should have already been checked for existence"),
-                    )),
-                    ..*state
-                }
-            } else {
-                state
-            };
+            if let Some(inferred_escaper_group_name) = &inferred_escaper_group_name {
+                state.inferred_escaper_group = Some((
+                    inferred_escaper_group_name.to_owned(),
+                    state
+                        .config
+                        .escaper_groups
+                        .get(inferred_escaper_group_name)
+                        .expect("Escaper group should have already been checked for existence")
+                        .clone(),
+                ));
+            }
 
             // Build the source.
             let owned_source = SourceOwned {

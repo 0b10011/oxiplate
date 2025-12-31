@@ -12,14 +12,14 @@ use super::super::Source;
 use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
-use crate::State;
 use crate::syntax::item::{WhitespacePreference, parse_trailing_whitespace};
+use crate::{State, Tokens};
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
-impl Template<'_> {
+impl<'a> Template<'a> {
     #[cfg(coverage_nightly)]
     pub fn source(&self) -> Option<Source<'_>> {
         let mut source: Option<Source<'_>> = None;
@@ -43,14 +43,13 @@ impl Template<'_> {
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
 
-    pub fn to_tokens(&self, state: &State<'_>) -> (TokenStream, usize) {
+    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> Tokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
 
         let mut str_tokens = vec![];
-        let mut state = state.clone();
         for item in &self.0 {
-            match item.to_token(&mut state) {
+            match item.to_token(state) {
                 ItemToken::Comment => (),
                 ItemToken::StaticText(token_stream, item_length) => {
                     estimated_length += item_length;
@@ -83,7 +82,7 @@ impl Template<'_> {
     }
 }
 
-pub(crate) fn parse(state: &State, source: Source) -> (TokenStream, usize) {
+pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> Tokens {
     match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
@@ -151,7 +150,7 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
     }
 }
 
-fn try_parse<'a>(state: &State, source: Source<'a>) -> Res<Source<'a>, (TokenStream, usize)> {
+fn try_parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> Res<Source<'a>, Tokens> {
     let (input, items_vec) = many0(parse_item).parse(source)?;
 
     // Return error if there's any input remaining.

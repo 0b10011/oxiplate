@@ -16,11 +16,17 @@ impl ::std::fmt::Display for Data {
             let mut string = String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-            oxiplate_formatter.write_str("header")?;
+            {
+                oxiplate_formatter.write_str("header")?;
+            }
             oxiplate_formatter.write_str("</header>\n<main>")?;
-            oxiplate_formatter.write_str("main")?;
+            {
+                oxiplate_formatter.write_str("main")?;
+            }
             oxiplate_formatter.write_str("</main>\n<footer>")?;
-            oxiplate_formatter.write_str("footer")?;
+            {
+                oxiplate_formatter.write_str("footer")?;
+            }
             oxiplate_formatter.write_str("</footer>")?;
             string
         };

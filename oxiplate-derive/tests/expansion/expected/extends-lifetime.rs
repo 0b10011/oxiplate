@@ -22,13 +22,15 @@ impl<'a> ::std::fmt::Display for AbsoluteData<'a> {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("<h2>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h2>\n  <div>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</div>")?;
+            {
+                oxiplate_formatter.write_str("<h2>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                oxiplate_formatter.write_str("</h2>\n  <div>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</div>")?;
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };

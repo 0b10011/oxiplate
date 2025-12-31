@@ -15,11 +15,11 @@ use super::item::tag_end;
 use super::template::is_whitespace;
 use super::{Item, Res};
 use crate::state::EscaperGroup;
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 enum EscaperType<'a> {
     Default,
-    Specified((&'a str, &'a EscaperGroup), Span, &'a Identifier<'a>),
+    Specified((String, &'a EscaperGroup), Span, &'a Identifier<'a>),
     Raw,
 }
 
@@ -44,7 +44,7 @@ impl<'a> Writ<'a> {
         &self.source
     }
 
-    pub(crate) fn to_token(&self, state: &State<'_>) -> (TokenStream, usize) {
+    pub(crate) fn to_token(&self, state: &State<'_>) -> Tokens {
         let mut estimated_length = 0;
 
         let (text, text_length) = &self.expression.to_tokens(state);
@@ -61,7 +61,7 @@ impl<'a> Writ<'a> {
             EscaperType::Default => Self::escaper_default(state, span, text, estimated_length),
             EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
                 state,
-                group,
+                &group,
                 group_span,
                 escaper,
                 span,
@@ -72,7 +72,7 @@ impl<'a> Writ<'a> {
         }
     }
 
-    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, (TokenStream, usize)> {
+    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, Tokens> {
         match &self.escaper {
             Some(Escaper {
                 group: Some(group),
@@ -80,7 +80,7 @@ impl<'a> Writ<'a> {
             }) => {
                 if let Some(escaper_group) = state.config.escaper_groups.get(group.as_str()) {
                     Ok(EscaperType::Specified(
-                        (group.as_str(), escaper_group),
+                        (group.as_str().to_owned(), escaper_group),
                         group.source().span(),
                         escaper,
                     ))
@@ -100,20 +100,20 @@ impl<'a> Writ<'a> {
             }) => {
                 if escaper.as_str() == "raw" {
                     Ok(EscaperType::Raw)
-                } else if let Some(default_group) = state.default_escaper_group {
+                } else if let Some((name, group)) = &state.default_escaper_group {
                     Ok(EscaperType::Specified(
-                        default_group,
+                        (name.clone(), group),
                         escaper.source().span(),
                         escaper,
                     ))
-                } else if *state.failed_to_set_default_escaper_group {
+                } else if state.failed_to_set_default_escaper_group {
                     Err((
                         quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
                         0,
                     ))
-                } else if let Some(inferred_group) = state.inferred_escaper_group {
+                } else if let Some((name, group)) = &state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
-                        inferred_group,
+                        (name.clone(), group),
                         escaper.source().span(),
                         escaper,
                     ))
@@ -122,7 +122,7 @@ impl<'a> Writ<'a> {
                         state.config.escaper_groups.get(fallback_group.as_str())
                     {
                         Ok(EscaperType::Specified(
-                            (fallback_group.as_str(), escaper_group),
+                            (fallback_group.to_owned(), escaper_group),
                             escaper.source().span(),
                             escaper,
                         ))
@@ -181,24 +181,24 @@ impl<'a> Writ<'a> {
         span: Span,
         text: &TokenStream,
         estimated_length: usize,
-    ) -> (TokenStream, usize) {
+    ) -> Tokens {
         if state.config.require_specifying_escaper {
             return token_error!(
                 span,
                 r"Escapers must be specified on all writs due to `require_specifying_escaper` config setting being set to `true` in `/oxiplate.toml`."
             );
-        } else if *state.failed_to_set_default_escaper_group {
+        } else if state.failed_to_set_default_escaper_group {
             return (
                 quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
                 0,
             );
         }
 
-        let default_group: (&str, &EscaperGroup) = if let Some(default_group) =
-            state.default_escaper_group
+        let default_group: &(String, EscaperGroup) = if let Some(default_group) =
+            &state.default_escaper_group
         {
             default_group
-        } else if let Some(inferred_group) = state.inferred_escaper_group {
+        } else if let Some(inferred_group) = &state.inferred_escaper_group {
             inferred_group
         } else if let Some(fallback_group_name) = &state.config.fallback_escaper_group {
             if fallback_group_name == "raw" {
@@ -227,7 +227,7 @@ impl<'a> Writ<'a> {
                 );
             };
 
-            (fallback_group_name, fallback_group)
+            &(fallback_group_name.clone(), fallback_group.clone())
         } else {
             #[cfg(not(feature = "config"))]
             return token_error!(
@@ -263,14 +263,14 @@ impl<'a> Writ<'a> {
 
     fn escaper_specified(
         state: &State,
-        group: (&str, &EscaperGroup),
+        group: &(String, &EscaperGroup),
         group_span: Span,
         escaper: &Identifier,
         span: Span,
         text: &TokenStream,
         estimated_length: usize,
-    ) -> (TokenStream, usize) {
-        if *state.failed_to_set_default_escaper_group {
+    ) -> Tokens {
+        if state.failed_to_set_default_escaper_group {
             return (
                 quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
                 0,
@@ -301,7 +301,7 @@ impl<'a> Writ<'a> {
         token_error!(span, r"Failed to build escape function call")
     }
 
-    fn escaper_raw(text: &TokenStream, estimated_length: usize) -> (TokenStream, usize) {
+    fn escaper_raw(text: &TokenStream, estimated_length: usize) -> Tokens {
         let span = text.span();
 
         #[cfg(not(feature = "oxiplate"))]

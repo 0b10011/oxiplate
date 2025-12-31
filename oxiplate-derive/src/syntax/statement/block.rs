@@ -13,7 +13,7 @@ use super::super::expression::{Identifier, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug)]
 pub struct Block<'a> {
@@ -68,20 +68,28 @@ impl<'a> Block<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+        state.local_variables.push_stack();
         let mut block_stack = state.blocks.clone();
-        let block = HashMap::from([(self.name.as_str(), (&self.prefix, self.suffix.as_ref()))]);
+        let block = HashMap::from([(
+            self.name.as_str(),
+            (
+                self.prefix.to_tokens(state),
+                self.suffix.as_ref().map(|suffix| suffix.to_tokens(state)),
+            ),
+        )]);
         block_stack.push_back(&block);
-        self.build_block((quote! {}, 0), (Some(quote! {}), 0), state, block_stack)
+        let tokens = self.build_block((quote! {}, 0), (Some(quote! {}), 0), block_stack);
+        state.local_variables.pop_stack();
+        tokens
     }
 
-    fn build_block(
+    fn build_block<'b: 'a>(
         &self,
-        (child_prefix, child_prefix_length): (TokenStream, usize),
+        (child_prefix, child_prefix_length): Tokens,
         (child_suffix, child_suffix_length): (Option<TokenStream>, usize),
-        state: &State,
-        mut block_stack: VecDeque<&HashMap<&str, (&Template, Option<&Template>)>>,
-    ) -> (TokenStream, usize) {
+        mut block_stack: VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
+    ) -> Tokens {
         let mut estimated_length = child_prefix_length + child_suffix_length;
         let mut tokens = TokenStream::new();
 
@@ -103,13 +111,13 @@ impl<'a> Block<'a> {
             unreachable!("Internal Oxiplate error. See previous error for more information.");
         };
 
-        if let Some(&(prefix, suffix)) = blocks.get(self.name.as_str()) {
-            let (prefix, prefix_length) = prefix.to_tokens(state);
+        if let Some((prefix, suffix)) = blocks.get(self.name.as_str()) {
+            let (prefix, prefix_length) = prefix;
 
             if let Some(child_suffix) = child_suffix {
                 let (suffix, suffix_length) = suffix.as_ref().map_or((None, 0), |template| {
-                    let (template, estimated_length) = template.to_tokens(state);
-                    (Some(template), estimated_length)
+                    let (template, estimated_length) = template;
+                    (Some(template), *estimated_length)
                 });
 
                 if !block_stack.is_empty() {
@@ -123,7 +131,6 @@ impl<'a> Block<'a> {
                                 Some(quote! { #suffix #child_suffix }),
                                 suffix_length + child_suffix_length,
                             ),
-                            state,
                             block_stack,
                         )
                     } else {
@@ -133,22 +140,21 @@ impl<'a> Block<'a> {
                                 child_prefix_length + prefix_length + child_suffix_length,
                             ),
                             (None, 0),
-                            state,
                             block_stack,
                         )
                     };
                 }
 
                 estimated_length += prefix_length + suffix_length;
-                tokens.append_all(quote! {
-                    #child_prefix
-                    #prefix
-                    #suffix
-                    #child_suffix
-                });
+                tokens.append_all(quote! {{
+                    { #child_prefix }
+                    { #prefix }
+                    { #suffix }
+                    { #child_suffix }
+                }});
             } else {
                 tokens.append_all(quote! {
-                    #child_prefix
+                    { #child_prefix }
                 });
             }
         } else {
@@ -156,14 +162,13 @@ impl<'a> Block<'a> {
                 return self.build_block(
                     (child_prefix, child_prefix_length),
                     (child_suffix, child_suffix_length),
-                    state,
                     block_stack,
                 );
             }
 
             tokens.append_all(quote! {
-                #child_prefix
-                #child_suffix
+                { #child_prefix }
+                { #child_suffix }
             });
         }
         (tokens, estimated_length)

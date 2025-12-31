@@ -12,7 +12,7 @@ use super::{Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
@@ -88,12 +88,14 @@ impl<'a> If<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = usize::MAX;
 
         let mut is_elseif = false;
         for (expression, template) in &self.ifs {
+            state.local_variables.push_stack();
+
             match expression {
                 IfType::If(expression) => {
                     let (expression, _expression_length) = expression.to_tokens(state);
@@ -108,18 +110,17 @@ impl<'a> If<'a> {
                 IfType::IfLet(pattern, expression) => {
                     let (expression, _expression_length) = expression.to_tokens(state);
 
-                    let mut local_variables = pattern.get_variables();
-                    for value in state.local_variables {
-                        local_variables.insert(value);
-                    }
-                    let branch_state = &State {
-                        local_variables: &local_variables,
-                        ..*state
-                    };
-                    let (template, template_length) = template.to_tokens(branch_state);
+                    state.local_variables.add(
+                        pattern
+                            .get_variables()
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect(),
+                    );
+                    let (template, template_length) = template.to_tokens(state);
                     estimated_length = estimated_length.min(template_length);
 
-                    let pattern = pattern.to_tokens(branch_state);
+                    let pattern = pattern.to_tokens(state);
 
                     if is_elseif {
                         tokens.append_all(
@@ -131,12 +132,17 @@ impl<'a> If<'a> {
                 }
             }
 
+            state.local_variables.pop_stack();
             is_elseif = true;
         }
         if let Some(template) = &self.otherwise {
+            state.local_variables.push_stack();
+
             let (template, template_length) = template.to_tokens(state);
             estimated_length = estimated_length.min(template_length);
             tokens.append_all(quote! { else { #template } });
+
+            state.local_variables.pop_stack();
         }
 
         (tokens, estimated_length)

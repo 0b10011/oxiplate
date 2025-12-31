@@ -4,11 +4,10 @@ use nom::combinator::cut;
 use nom::error::context;
 use nom::multi::many_till;
 use nom::sequence::pair;
-use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::Source;
 use crate::syntax::expression::{Expression, Res};
+use crate::{Source, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct String<'a> {
@@ -57,7 +56,7 @@ impl<'a> String<'a> {
         &self.source
     }
 
-    pub(crate) fn to_tokens(&self) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self) -> Tokens {
         let literal = ::syn::LitStr::new(self.value.as_str(), self.source.span());
         (quote! { #literal }, self.value.as_str().len())
     }

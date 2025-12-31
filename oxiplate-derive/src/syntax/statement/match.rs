@@ -15,7 +15,7 @@ use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, expression};
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug)]
 pub(crate) struct Match<'a> {
@@ -84,7 +84,7 @@ impl<'a> Match<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens(&self, state: &mut State) -> Tokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = usize::MAX;
 
@@ -235,8 +235,10 @@ impl<'a> Case<'a> {
         vars
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
         let mut tokens = self.first_pattern.to_tokens(state);
+
+        state.local_variables.push_stack();
 
         for (operator, pattern) in &self.additional_patterns {
             let span = operator.span();
@@ -244,19 +246,21 @@ impl<'a> Case<'a> {
             tokens.append_all(quote_spanned! {span=> | #pattern });
         }
 
-        let mut local_variables = self.get_variables();
-        local_variables.extend(state.local_variables);
-        let branch_state = &State {
-            local_variables: &local_variables,
-            ..*state
-        };
+        state.local_variables.add(
+            self.get_variables()
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+        );
 
         if let Some(guard) = &self.guard {
-            tokens.append_all(guard.to_tokens(branch_state));
+            tokens.append_all(guard.to_tokens(state));
         }
 
-        let (template, estimated_length) = self.template.to_tokens(branch_state);
+        let (template, estimated_length) = self.template.to_tokens(state);
         tokens.append_all(quote! { => { #template } });
+
+        state.local_variables.pop_stack();
 
         (tokens, estimated_length)
     }

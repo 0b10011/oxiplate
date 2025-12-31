@@ -14,7 +14,7 @@ use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
 use crate::syntax::statement::helpers::pattern::Path;
 use crate::syntax::template::whitespace;
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Struct<'a> {
@@ -265,7 +265,7 @@ impl<'a> Field<'a> {
         value.get_variables()
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> Tokens {
         let name = &self.name;
 
         if let Some(value) = &self.value {

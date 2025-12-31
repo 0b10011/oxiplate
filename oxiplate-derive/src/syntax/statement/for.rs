@@ -11,9 +11,9 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 use super::super::expression::{Identifier, Keyword, expression, keyword};
 use super::super::{Item, Res};
 use super::{State, Statement, StatementKind};
-use crate::Source;
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::template::{Template, whitespace};
+use crate::{Source, Tokens};
 
 #[derive(Debug)]
 pub struct For<'a> {
@@ -78,7 +78,7 @@ impl<'a> For<'a> {
         HashSet::from([self.ident.as_str()])
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
 
@@ -94,15 +94,15 @@ impl<'a> For<'a> {
 
         let (expression, _expression_length) = expression.to_tokens(state);
 
-        let mut local_variables = self.get_active_variables();
-        for value in state.local_variables {
-            local_variables.insert(value);
-        }
-        let loop_state = &State {
-            local_variables: &local_variables,
-            ..*state
-        };
-        let (template, template_length) = template.to_tokens(loop_state);
+        state.local_variables.push_stack();
+
+        state.local_variables.add(
+            self.get_active_variables()
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+        );
+        let (template, template_length) = template.to_tokens(state);
 
         // Loops will very likely run at least twice.
         estimated_length += template_length * 2;
@@ -125,6 +125,8 @@ impl<'a> For<'a> {
         } else {
             tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
         }
+
+        state.local_variables.pop_stack();
 
         (tokens, estimated_length)
     }
@@ -205,7 +207,7 @@ impl<'a> Break<'a> {
         &self.0.0
     }
 
-    pub fn to_tokens(&self) -> (TokenStream, usize) {
+    pub fn to_tokens(&self) -> Tokens {
         let span = self.0.0.span();
         let keyword = &self.0;
 
@@ -240,7 +242,7 @@ impl<'a> Continue<'a> {
         &self.0.0
     }
 
-    pub fn to_tokens(&self) -> (TokenStream, usize) {
+    pub fn to_tokens(&self) -> Tokens {
         let span = self.0.0.span();
         let keyword = &self.0;
 

@@ -22,13 +22,15 @@ impl ::std::fmt::Display for Include {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
+            {
+                oxiplate_formatter.write_str("<h1>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                oxiplate_formatter.write_str("</h1>\n  <p>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };

@@ -13,7 +13,7 @@ use super::super::expression::{Identifier, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::whitespace;
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug)]
 pub struct DefaultEscaper<'a> {
@@ -33,7 +33,7 @@ impl DefaultEscaper<'_> {
         &self,
         state: &State,
         statement_source: &Source<'_>,
-    ) -> Result<(TokenStream, usize), (TokenStream, usize)> {
+    ) -> Result<Tokens, Tokens> {
         if state.default_escaper_group.is_some() {
             let span = statement_source.span();
             let tag = self.tag.0.as_str();
@@ -43,7 +43,7 @@ impl DefaultEscaper<'_> {
                 quote_spanned! {span=> compile_error!(concat!("Unexpected '", #tag, "' statement after already setting the default escaper group")); },
                 0,
             ))
-        } else if *state.has_content {
+        } else if state.has_content {
             let span = statement_source.span();
             let tag = self.tag.0.as_str();
             let tag_span = self.tag.span();
@@ -58,7 +58,7 @@ impl DefaultEscaper<'_> {
                 && inferred_escaper_group.0 != self.escaper.as_str()
             {
                 let default_escaper = LitStr::new(self.escaper.as_str(), self.escaper.span());
-                let inferred_escaper_group = inferred_escaper_group.0;
+                let inferred_escaper_group = &inferred_escaper_group.0;
                 let span = self.escaper.source().span();
                 Err((
                     quote_spanned! {span=>

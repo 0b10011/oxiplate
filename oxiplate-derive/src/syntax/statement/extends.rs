@@ -14,7 +14,7 @@ use super::super::expression::keyword;
 use super::{Statement, StatementKind, StaticType};
 use crate::syntax::Item;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State};
+use crate::{Source, State, Tokens};
 
 #[derive(Debug)]
 pub struct Extends<'a> {
@@ -76,7 +76,7 @@ impl<'a> Extends<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
         let span = self.path.span();
         let path = LitStr::new(self.path.as_str(), span);
 
@@ -97,7 +97,15 @@ impl<'a> Extends<'a> {
         let mut block_stack = state.blocks.clone();
         let mut blocks = HashMap::new();
         for (name, block) in &self.blocks {
-            blocks.insert(*name, (&block.0, block.1.as_ref()));
+            state.local_variables.push_stack();
+            let prefix = block.0.to_tokens(state);
+            state.local_variables.pop_stack();
+
+            state.local_variables.push_stack();
+            let suffix = block.1.as_ref().map(|suffix| suffix.to_tokens(state));
+            state.local_variables.pop_stack();
+
+            blocks.insert(*name, (prefix, suffix));
         }
         block_stack.push_back(&blocks);
 

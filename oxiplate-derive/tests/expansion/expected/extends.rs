@@ -22,13 +22,15 @@ impl ::std::fmt::Display for AbsoluteData {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
+            {
+                oxiplate_formatter.write_str("<h1>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                oxiplate_formatter.write_str("</h1>\n  <p>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };
@@ -153,11 +155,21 @@ impl ::std::fmt::Display for Prefix {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("<p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
-            oxiplate_formatter.write_str("test")?;
+            {
+                {
+                    oxiplate_formatter.write_str("<p>")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &::std::string::ToString::to_string(&(self.message)),
+                        )?;
+                    oxiplate_formatter.write_str("</p>")?;
+                }
+                {
+                    oxiplate_formatter.write_str("test")?;
+                }
+                {}
+                {}
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };
@@ -232,10 +244,12 @@ impl ::std::fmt::Display for Replace {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("<p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
+            {
+                oxiplate_formatter.write_str("<p>")?;
+                oxiplate_formatter
+                    .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };
@@ -311,11 +325,21 @@ impl ::std::fmt::Display for Suffix {
             oxiplate_formatter
                 .write_str(&::std::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</title>\n")?;
-            oxiplate_formatter.write_str("test")?;
-            oxiplate_formatter.write_str("<p>")?;
-            oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>")?;
+            {
+                {}
+                {
+                    oxiplate_formatter.write_str("test")?;
+                }
+                {}
+                {
+                    oxiplate_formatter.write_str("<p>")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &::std::string::ToString::to_string(&(self.message)),
+                        )?;
+                    oxiplate_formatter.write_str("</p>")?;
+                }
+            }
             oxiplate_formatter.write_str("\n")?;
             string
         };
