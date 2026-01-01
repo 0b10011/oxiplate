@@ -11,7 +11,21 @@ To adjust whitespace after the tag, the whitespace control character must be add
 
 If no whitespace control character is present, the matched whitespace will be left as-is.
 
-For example, `a {{- "b" _}}     c` would become `ab c`.
+For example:
+
+```html.oxip
+<h1>
+    {{- title _}}
+    -
+    {{_ site_name -}}
+</h1>
+```
+
+will become:
+
+```html
+<h1>Whitespace control - Oxiplate Documentation</h1>
+```
 
 ## Short tags
 
