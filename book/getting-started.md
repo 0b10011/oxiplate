@@ -8,7 +8,7 @@ cargo add oxiplate
 
 Create a couple templates in the `/template` directory:
 
-```html:/template/layout.html.oxip
+```html:/templates/layout.html.oxip
 <!DOCTYPE html>
 <html>
     <head>
@@ -25,7 +25,7 @@ Create a couple templates in the `/template` directory:
 </html>
 ```
 
-```html:/template/index.html.oxip
+```html:/templates/index.html.oxip
 {% extends "layout.html.oxip" %}
 
 {% block content %}
