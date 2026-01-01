@@ -17,32 +17,32 @@ where `raw` output in conjuction with known valid output is better.
 
 ## An example
 
-```html.oxip
-Hello {{ name }}!
+```html:html.oxip
+<p>Hello {{ name }}!</p>
 ```
 
 HTML escaping is on by default for `.html` and `.html.oxip` files,
 so if a user provides this as their name in the example above:
 
-```html
+```html:name
 <script>alert('oh no');</script>
 ```
 
 It would be safely escaped (even if it may look pretty strange):
 
 ```html
-Hello &lt;script>alert('oh no');&lt;/script>!
+<p>Hello &lt;script>alert('oh no');&lt;/script>!</p>
 ```
 
-You can use a different escape method whenever you want, like for HTML attributes:
+You can use a different escape method when appropriate, like for HTML attributes:
 
-```html.oxip
+```html:html.oxip
 <a href="/{{ attr: handle }}" title="{{ attr: name }}">{{ name }}</a>
 ```
 
 If you need to skip escaping, you can do that:
 
-```html.oxip
+```html:html.oxip
 <aside>{{ raw: your_html }}</aside>
 ```
 
