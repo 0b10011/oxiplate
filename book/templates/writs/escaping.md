@@ -67,23 +67,7 @@ You can also set a fallback escaper for any of your templates that don't specify
 fallback_escaper_group = "html"
 ```
 
-And finally, you can set the escaper group for the template you're in:
-
-```json.oxip
-{% default_escaper_group json %}
-{
-    "greeting": "Hello {{ name }}!",
-}
-```
-
-If an escaper group was inferred from the extension, you can still override it:
-
-```json.oxip:json.html
-{% replace_escaper_group json %}
-{
-    "greeting": "Hello {{ name }}!",
-}
-```
+And finally, you can set the escaper group for the template you're in with the [default escaper group statement](../statements/default-escaper-group.md).
 
 ### Require specifying the escaper
 
