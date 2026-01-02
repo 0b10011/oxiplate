@@ -22,7 +22,7 @@ Oxiplate supports many of the same literals Rust itself does:
 
 <div class="warning">
 
-Variables cannot be named `self` or `super`.
+Variables cannot be named `self`, `super`, or `oxiplate_formatter`.
 
 </div>
 
