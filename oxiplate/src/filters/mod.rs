@@ -49,8 +49,10 @@
 //! }
 //! ```
 
+mod default;
 mod lower;
 mod upper;
 
+pub use default::default;
 pub use lower::lower;
 pub use upper::upper;
