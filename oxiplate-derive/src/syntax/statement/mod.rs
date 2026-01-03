@@ -179,8 +179,9 @@ pub(super) fn statement<'a>(
 
         // Parse statements
         let (input, mut statement) = context(
-            "Expected one of: block, endblock, if, elseif, else, endif, for, continue, break, \
-             endfor, match, case, endmatch, let",
+            "Expected one of: default_escaper_group, replace_escaper_group, extends, block, \
+             endblock, include, if, elseif, else, endif, for, continue, break, endfor, match, \
+             case, endmatch, let",
             cut(alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
