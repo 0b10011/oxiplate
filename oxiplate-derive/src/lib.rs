@@ -509,7 +509,7 @@ fn parse_source_tokens_for_inline(
     attr: &Attribute,
     #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> ParsedTokens {
-    match attr.meta.clone() {
+    match &attr.meta {
         syn::Meta::Path(path) => {
             let span = path.span();
             Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
@@ -522,7 +522,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
             path: _,
             delimiter: _,
             tokens,
-        }) => match syn::parse2::<Template>(tokens) {
+        }) => match syn::parse2::<Template>(tokens.clone()) {
             #[cfg(not(feature = "oxiplate"))]
             Ok(Template::WithEscaper(template)) => {
                 let span = template.escaper.span();
@@ -716,7 +716,7 @@ fn parse_source_tokens_for_path(
             attrs: _,
             lit: Lit::Str(path),
         }),
-    }) = attr.meta.clone()
+    }) = &attr.meta
     else {
         let span = attr.span();
         return Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
@@ -724,7 +724,7 @@ fn parse_source_tokens_for_path(
         }));
     };
 
-    let full_path = template_path(&path, attr.span())?;
+    let full_path = template_path(path, attr.span())?;
 
     let span = path.span();
     let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
