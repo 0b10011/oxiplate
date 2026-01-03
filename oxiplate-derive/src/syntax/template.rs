@@ -1,11 +1,11 @@
+use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
 use nom::multi::many0;
-use nom::{Input, Parser as _};
 use nom_language::error::{VerboseError, VerboseErrorKind};
 use proc_macro::Diagnostic;
-use proc_macro2::{LineColumn, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
 use super::super::Source;
@@ -88,7 +88,7 @@ pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> To
         Err(
             nom::Err::Error(VerboseError { errors }) | nom::Err::Failure(VerboseError { errors }),
         ) => {
-            let template = Template(vec![convert_error(errors)]);
+            let template = Template(convert_error(errors));
             template.to_tokens(state)
         }
         Err(nom::Err::Incomplete(_)) => {
@@ -97,57 +97,35 @@ pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> To
     }
 }
 
-fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Item {
-    use std::fmt::Write;
-
-    let mut converted_error = String::from("Backtrace:\n");
-    let mut last_source = None;
-
+fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Vec<Item> {
+    let mut items: Vec<Item> = vec![];
     for (source, kind) in errors {
         match kind {
             VerboseErrorKind::Char(expected_char) => {
-                let LineColumn { line, column } = source.span().start();
-                writeln!(
-                    &mut converted_error,
-                    "[line {}, column {}] Expected '{}', found '{}'",
-                    line,
-                    column,
-                    expected_char,
-                    source.as_str()
-                )
-                .unwrap();
+                items.push(Item::CompileError {
+                    message: format!("Expected `{expected_char}`"),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
             }
             VerboseErrorKind::Context(error) => {
-                let source = <Source as Input>::take_from(&source, 0);
-                return Item::CompileError {
+                return vec![Item::CompileError {
                     message: error.to_string(),
                     error_source: source.clone(),
                     consumed_source: source,
-                };
+                }];
             }
             VerboseErrorKind::Nom(nom_error) => {
-                let LineColumn { line, column } = source.span().start();
-                writeln!(
-                    &mut converted_error,
-                    r#"[line {}, column {}] {:?} in "{}""#,
-                    line,
-                    column,
-                    nom_error,
-                    source.as_str()
-                )
-                .unwrap();
+                items.push(Item::CompileError {
+                    message: format!("Error when parsing with `{nom_error:?}`"),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
             }
         }
-        last_source = Some(source);
     }
 
-    let consumed_source =
-        last_source.expect("There should be at least one source listed in an error");
-    Item::CompileError {
-        message: converted_error,
-        error_source: consumed_source.clone(),
-        consumed_source,
-    }
+    items
 }
 
 fn try_parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> Res<Source<'a>, Tokens> {
