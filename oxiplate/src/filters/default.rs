@@ -9,7 +9,7 @@
 /// #[oxiplate_inline(html: r#"{{ value | default("Bar") }}"#)]
 /// struct Data {
 ///     value: Option<&'static str>,
-/// };
+/// }
 ///
 /// fn main() -> Result<(), Error> {
 ///     assert_eq!(Data { value: None }.render()?, "Bar");
