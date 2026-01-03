@@ -14,12 +14,14 @@ extern crate test;
 pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("clippy"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
+        ignore: true,
+        ignore_message: ::core::option::Option::Some(
+            "Clippy tests are expensive, can fail on slight wording changes, and produce hard-to-read errors when the package fails to build, so they should be run separately.",
+        ),
         source_file: "oxiplate-derive/tests/clippy.rs",
-        start_line: 8usize,
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 10usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -28,6 +30,8 @@ pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(clippy())),
 };
+#[ignore = "Clippy tests are expensive, can fail on slight wording changes, and produce \
+            hard-to-read errors when the package fails to build, so they should be run separately."]
 fn clippy() -> Result<(), Box<dyn Error>> {
     let Output { status, stdout: _stdout, stderr } = Command::new("cargo")
         .args(["build", "--manifest-path", "tests/clippy/Cargo.toml"])

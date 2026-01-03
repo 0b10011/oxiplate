@@ -91,6 +91,7 @@ run-against-all command:
     {{ command }} --package oxiplate-test-slow-escape-ints
     {{ command }} --package oxiplate --test broken -- --ignored
     {{ command }} --package oxiplate-derive --test broken -- --ignored
+    {{ command }} --package oxiplate-derive --test clippy -- --ignored
     {{ command }} --package oxiplate-unreachable
     {{ command }} --package oxiplate-derive-unreachable
 

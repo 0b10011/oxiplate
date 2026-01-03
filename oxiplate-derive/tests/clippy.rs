@@ -5,6 +5,8 @@ use std::path::Path;
 use std::process::{Command, Output};
 
 #[test]
+#[ignore = "Clippy tests are expensive, can fail on slight wording changes, and produce \
+            hard-to-read errors when the package fails to build, so they should be run separately."]
 fn clippy() -> Result<(), Box<dyn Error>> {
     // Build before running tests for consistent test output
     let Output {
