@@ -370,11 +370,14 @@ pub(super) fn writ<'a>(
 
         let (input, output) =
             context("Expected an expression.", cut(expression(true, true))).parse(input)?;
-        let (input, (whitespace_in_tag, (trailing_whitespace, end_tag))) = context(
-            "Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
-            cut((take_while(is_whitespace), cut(tag_end("}}")))),
+        let (input, (whitespace_in_tag, (trailing_whitespace, end_tag))) = (
+            take_while(is_whitespace),
+            context(
+                "Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
+                cut(tag_end("}}")),
+            ),
         )
-        .parse(input)?;
+            .parse(input)?;
 
         let source = open_tag_source
             .clone()

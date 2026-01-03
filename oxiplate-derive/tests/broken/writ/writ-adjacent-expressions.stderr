@@ -1,5 +1,5 @@
-error: Expecting the writ tag to be closed with `_}}`, `-}}`, or `}}`.
- --> tests/broken/writ/writ-adjacent-expressions.rs:4:26
+error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+ --> tests/broken/writ/writ-adjacent-expressions.rs:4:27
   |
 4 | #[oxiplate_inline("{{ foo bar }}")]
-  |                          ^^^^^^^
+  |                           ^^^^^^
