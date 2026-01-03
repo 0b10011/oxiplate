@@ -9,12 +9,14 @@ extern crate test;
 pub const broken: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("broken"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
+        ignore: true,
+        ignore_message: ::core::option::Option::Some(
+            "Broken tests are expensive and can fail on slight wording changes, so they should be run separately.",
+        ),
         source_file: "oxiplate/tests/broken.rs",
-        start_line: 2usize,
+        start_line: 4usize,
         start_col: 4usize,
-        end_line: 2usize,
+        end_line: 4usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -23,6 +25,8 @@ pub const broken: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(broken())),
 };
+#[ignore = "Broken tests are expensive and can fail on slight wording changes, so they should be \
+            run separately."]
 fn broken() {
     unsafe {
         std::env::set_var(
