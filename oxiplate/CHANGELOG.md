@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.9](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.8...oxiplate-v0.15.9) - 2026-01-03
+
+### Added
+
+- added `default` filter (for #73)
+
+### Fixed
+
+- fixed doc test failing due to semicolon
+- improved error messages a bit and reduced features of `proc-macro2` in the process
+- added missing statements to error message
+- stopped including whitespace in unclosed writ tag error and reworded to match other errors
+- removed unnecessarily specified feature
+- reduced `toml` features to only those that are required
+- reduced `syn` features to only those that are required
+
+### Other
+
+- `cargo update`
+- split broken tests out to run them after the rest of the tests
+- fixed a couple tests
+- removed `criterion` and simple benchmarks
+- split clippy tests out to run after the rest of the tests
+
 ## [0.15.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.7...oxiplate-v0.15.8) - 2025-12-31
 
 ### Added
