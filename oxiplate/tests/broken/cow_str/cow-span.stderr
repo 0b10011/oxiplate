@@ -1,13 +1,13 @@
 error[E0308]: mismatched types
  --> tests/broken/cow_str/cow-span.rs:4:43
   |
-  4 | #[oxiplate_inline(r#"{{ raw: "foo".repeat(> 19) }}"#)]
-    |                                    ------ ^^^^ expected `usize`, found `CowStrWrapper<'_>`
-    |                                    |
-    |                                    arguments to this method are incorrect
-    |
+4 | #[oxiplate_inline(r#"{{ raw: "foo".repeat(> 19) }}"#)]
+  |                                    ------ ^^^^ expected `usize`, found `CowStrWrapper<'_>`
+  |                                    |
+  |                                    arguments to this method are incorrect
+  |
 note: method defined here
-   --> $RUST/alloc/src/str.rs
-    |
-    |     pub fn repeat(&self, n: usize) -> String {
-    |            ^^^^^^
+ --> $RUST/alloc/src/str.rs
+  |
+  |     pub fn repeat(&self, n: usize) -> String {
+  |            ^^^^^^

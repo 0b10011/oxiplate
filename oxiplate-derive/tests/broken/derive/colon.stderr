@@ -5,7 +5,7 @@ error: Failed to parse inline template. Should look something like:
 4 | #[oxiplate_inline(:)]
   |                   ^
 
-error: unsupported expression; enable syn's features=["full"]
+error: expected an expression
  --> tests/broken/derive/colon.rs:4:19
   |
 4 | #[oxiplate_inline(:)]

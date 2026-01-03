@@ -1,6 +1,6 @@
 error: Expected a space
- --> tests/broken/if/if-let-missing-space-after-elseif.rs:8:11
-  |
+  --> tests/broken/if/if-let-missing-space-after-elseif.rs:8:11
+   |
  8 |   {%- elseifvalue < 0 -%}
    |  ___________^
  9 | |     Less than 0.
