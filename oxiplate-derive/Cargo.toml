@@ -22,7 +22,7 @@ nom = "8.0.0"
 nom-language = "0.1.0"
 proc-macro2 = { version = "1.0.92", features = ["nightly", "span-locations"] }
 quote = "1.0.37"
-serde = { version = "1.0.217", default-features = false, features = ["derive", "serde_derive"], optional = true}
+serde = { version = "1.0.217", default-features = false, features = ["derive"], optional = true}
 syn = { version = "2.0.91", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
 toml = {version = "0.9.2", default-features = false, features = ["std", "serde", "parse"], optional = true}
 
