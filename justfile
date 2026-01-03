@@ -13,7 +13,7 @@ dev: format coverage clippy expansion-tests doc
 # Build documentation for libraries.
 [group("General Commands")]
 doc:
-    cargo doc --lib --no-deps
+    cargo doc --locked --lib --no-deps
 
 # Generate the book and open in your default browser.
 [group("General Commands")]
@@ -34,11 +34,11 @@ format-broken:
 # Run `cargo clippy` against all packages.
 [group("Lint")]
 clippy:
-    cargo clippy --workspace
+    cargo clippy --locked --workspace
 
 # Run tests without coverage.
 [group("Test")]
-test: (run-against-all "cargo test") expansion-tests
+test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") expansion-tests
 
 # Build HTML and LCOV reports from running tests with coverage.
 [group("Test")]
@@ -68,18 +68,18 @@ coverage-lcov-package package other-packages: coverage-no-report
 
 # Run tests with coverage without building a report. Typically used with `cargo llvm-cov report`.
 [group("Test")]
-coverage-no-report: clean-coverage (run-against-all "cargo llvm-cov --no-report")
+coverage-no-report: clean-coverage (run-against-all "cargo llvm-cov --no-report --locked") (run-against-libs "cargo llvm-cov --no-report --locked --doc")
 
 [private]
 expansion-tests:
-    cargo test --test expansion -- --ignored
+    cargo test --locked --test expansion -- --ignored
 
 [private]
 clean-coverage:
     cargo llvm-cov clean --workspace
 
 [private]
-run-against-all command:
+run-against-libs command:
     {{ command }} --package oxiplate-derive
     {{ command }} --workspace \
         --exclude oxiplate-derive \
@@ -87,6 +87,9 @@ run-against-all command:
         --exclude oxiplate-derive-unreachable \
         --exclude oxiplate-test-fast-escape-type-priority \
         --exclude oxiplate-test-slow-escape-ints
+
+[private]
+run-against-all command: (run-against-libs command)
     {{ command }} --package oxiplate-test-fast-escape-type-priority
     {{ command }} --package oxiplate-test-slow-escape-ints
     {{ command }} --package oxiplate --test broken -- --ignored
