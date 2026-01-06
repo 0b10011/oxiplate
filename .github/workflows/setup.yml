@@ -24,7 +24,7 @@ jobs:
           path: &cache_path |
             ~/.cargo/
             target/
-          key: &cache_key setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: &cache_restore_keys |
             setup-
           lookup-only: true
@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: *cache_path
-          key: *cache_key
+          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: *cache_restore_keys
 
       - name: Install Rust toolchain
@@ -73,4 +73,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: *cache_path
-          key: *cache_key
+          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
