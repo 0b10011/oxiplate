@@ -42,7 +42,7 @@ jobs:
           key: ${{ needs.setup.outputs.cache-key }}
 
       - name: Run tests and coverage
-        run: just coverage-lcov
+        run: just setup-coverage coverage-lcov
 
       - name: Coveralls upload
         uses: coverallsapp/github-action@v2.3.6
@@ -60,7 +60,7 @@ jobs:
       - *install-rust
       - *restore-setup
       - name: Expansion tests
-        run: just expansion-tests
+        run: just setup-expansion expansion-tests
 
   check-format:
     needs: setup
