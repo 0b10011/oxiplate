@@ -27,7 +27,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: *toolchain
-          components: rust-src
+          components: clippy, rust-src
 
       - &checkout
         name: Checkout repository
