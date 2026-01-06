@@ -48,7 +48,7 @@ jobs:
             book-
 
       - name: Setup for book
-        run: just setup-book book
+        run: just setup-book book-build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
