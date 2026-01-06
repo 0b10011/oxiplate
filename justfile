@@ -20,6 +20,11 @@ doc:
 book:
     mdbook serve --open
 
+# Generate the book.
+[group("General Commands")]
+book-build:
+    mdbook build
+
 # Format code.
 [group("Lint")]
 format: && (format-broken "rustfmt")

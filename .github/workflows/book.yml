@@ -5,35 +5,59 @@ on:
       - main
 
 jobs:
+  setup:
+    uses: ./.github/workflows/setup.yml
+    with:
+      # Should match value in `/rust-toolchain.toml`
+      toolchain: &toolchain "nightly-2025-08-07"
+
   deploy:
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: write  # To push a branch 
       pages: write  # To push to a GitHub Pages site
       id-token: write # To update the deployment status
     steps:
-      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          fetch-depth: 0
-      - name: Install mdbook
-        run: |
-          tag="v0.4.52"
-          url="https://github.com/rust-lang/mdbook/releases/download/${tag}/mdbook-${tag}-x86_64-unknown-linux-gnu.tar.gz"
-          mkdir mdbook
-          curl -sSL $url | tar -xz --directory=./mdbook
-          echo `pwd`/mdbook >> $GITHUB_PATH
-      - name: Build Book
-        run: |
-          # This assumes your book is in the root of your repository.
-          # Just add a `cd` here if you need to change to another directory.
-          mdbook build
+          toolchain: *toolchain
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore setup cache
+        uses: actions/cache/restore@v4
+        id: setup-cache
+        with:
+          path: |
+            ~/.cargo/
+            target/
+          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          fail-on-cache-miss: true
+
+      - name: Cache book setup
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/
+            target/
+          key: book-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys:
+            book-
+
+      - name: Setup for book
+        run: just setup-book book
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: 'book-output'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
