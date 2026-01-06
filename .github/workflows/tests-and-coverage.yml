@@ -23,15 +23,15 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - &checkout
-        name: Checkout repository
-        uses: actions/checkout@v4
-
-      - &install-rust
-        name: Install Rust toolchain
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: *toolchain
+          components: rust-src
+
+      - &checkout
+        name: Checkout repository
+        uses: actions/checkout@v4
 
       - &restore-setup
         name: Restore setup cache
@@ -59,9 +59,14 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: *toolchain
+
       - *checkout
-      - *install-rust
       - *restore-setup
+
       - name: Expansion tests
         run: just setup-expansion expansion-tests
 
@@ -69,9 +74,15 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: *toolchain
+          components: rustfmt
+
       - *checkout
-      - *install-rust
       - *restore-setup
+
       - name: Check formatting
         run: just format-check
 
@@ -79,8 +90,14 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: *toolchain
+          components: clippy
+
       - *checkout
-      - *install-rust
       - *restore-setup
+
       - name: Check formatting
         run: just clippy
