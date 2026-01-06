@@ -38,6 +38,7 @@ jobs:
         uses: actions/cache/restore@v4
         id: setup-cache
         with:
+          path: "*"
           key: ${{ needs.setup.outputs.cache-key }}
 
       - name: Run tests and coverage
