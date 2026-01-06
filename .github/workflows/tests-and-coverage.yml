@@ -40,6 +40,7 @@ jobs:
         with:
           path: "*"
           key: ${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
 
       - name: Run tests and coverage
         run: just setup-coverage coverage-lcov
