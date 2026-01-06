@@ -32,21 +32,6 @@ jobs:
             setup-
           lookup-only: true
 
-      - name: Debug cache (exact)
-        if: steps.lookup.outputs.cache-hit == 'true'
-        run: echo "exact match"
-
-      - name: Debug cache (partial)
-        if: steps.lookup.outputs.cache-hit == 'false'
-        run: echo "partial match"
-
-      - name: Debug cache (miss)
-        if: steps.lookup.outputs.cache-hit == ''
-        run: echo "miss"
-
-      - name: Debug cache
-        run: echo ${{ steps.lookup.outputs.cache-hit }}
-
       - name: Restore cache
         if: steps.lookup.outputs.cache-hit != 'true'
         uses: actions/cache/restore@v4
