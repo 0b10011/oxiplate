@@ -18,12 +18,14 @@ Test coverage reports can be found in `./target/llvm-cov/`.
 
 ## File organization
 
-- [`/docs/`](./docs/) is the source for https://0b10011.io/oxiplate/
-- [`/src/`](./src/) is where Oxiplate code lives; this is what processes `.oxip` templates and generates Rust code from them
+- [`/book/`](./book/) is the source for https://0b10011.io/oxiplate/
+- [`/oxiplate/`](./oxiplate/) is where the main library lives; this pulls in `oxiplate-derive` and `oxiplate-traits` into a single place
+- [`/oxiplate-derive/`](./oxiplate-derive/) is the procedural macro that processes `.oxip` templates and generates Rust code from them
+- [`/oxiplate-traits/`](./oxiplate-traits/) is a helper library that contains all of the public traits used by templates
 - `/target/` will be created when you build the project for the first time; this is where the binaries and intermediate build files live
-- [`/tests/`](./tests/) contains all of the tests to ensure Oxiplate continues to work as expected
-- [`/tests/broken/`](./tests/broken/) contains tests specific to failures and the associated error messages
-- [`/tests/expansion/`](./tests/expansion/) verifies macro expansion for all base tests.
+- `/**/tests/` contains all of the tests to ensure Oxiplate continues to work as expected
+- `/**/tests/broken/` contains tests specific to failures and the associated error messages
+- `/**/tests/expansion/` verifies macro expansion for all base tests
 
 ## Testing
 
