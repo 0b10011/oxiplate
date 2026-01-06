@@ -22,14 +22,19 @@ book:
 
 # Format code.
 [group("Lint")]
-format: && format-broken
+format: && (format-broken "rustfmt")
     cargo fmt
+
+# Check if code is formatted properly. Use `just format` to format automatically.
+[group("Lint")]
+format-check: && (format-broken "rustfmt --check")
+    cargo fmt --check
 
 # Format Rust files in each `/broken/` directory
 [private]
 [group("Lint")]
-format-broken:
-    find -type d -name broken -print0 | xargs -0 -I{} find '{}' -name '*.rs' -print0 | xargs -0 -n 999 rustfmt
+format-broken command:
+    find -type d -name broken -print0 | xargs -0 -I{} find '{}' -name '*.rs' -print0 | xargs -0 -n 999 {{ command }}
 
 # Run `cargo clippy` against all packages.
 [group("Lint")]
@@ -68,7 +73,9 @@ coverage-lcov-package package other-packages: coverage-no-report
 
 # Run tests with coverage without building a report. Typically used with `cargo llvm-cov report`.
 [group("Test")]
-coverage-no-report: clean-coverage (run-against-all "cargo llvm-cov --no-report --locked") (run-against-libs "cargo llvm-cov --no-report --locked --doc")
+coverage-no-report: clean-coverage \
+    (run-against-all "cargo llvm-cov --no-report --locked") \
+    (run-against-libs "cargo llvm-cov --no-report --locked --doc")
 
 [private]
 expansion-tests:

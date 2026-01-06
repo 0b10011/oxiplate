@@ -5,20 +5,44 @@ on:
     branches:
       - main
 
+  pull_request:
+    branches:
+      - main
+
+env:
+  RUSTUP_AUTO_INSTALL: "0"
+
 jobs:
+  setup:
+    uses: ./.github/workflows/setup.yml
+    with:
+      # Should match value in `/rust-toolchain.toml`
+      toolchain: &toolchain "nightly-2025-08-07"
+
   tests-and-coverage:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
+      - &checkout
+        name: Checkout repository
+        uses: actions/checkout@v4
+
+      - &install-rust
+        name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2025-08-07
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Dependencies
-        run: cargo install just && just setup-coverage setup-expansion
+          toolchain: *toolchain
+
+      - &restore-setup
+        name: Restore setup cache
+        uses: actions/cache/restore@v4
+        id: setup-cache
+        with:
+          key: ${{ needs.setup.outputs.cache-key }}
+
       - name: Run tests and coverage
-        run: just coverage-lcov expansion-tests
+        run: just coverage-lcov
+
       - name: Coveralls upload
         uses: coverallsapp/github-action@v2.3.6
         with:
@@ -26,3 +50,33 @@ jobs:
           format: lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  expansion-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *install-rust
+      - *restore-setup
+      - name: Expansion tests
+        run: just expansion-tests
+
+  check-format:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *install-rust
+      - *restore-setup
+      - name: Check formatting
+        run: just format-check
+
+  clippy:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *install-rust
+      - *restore-setup
+      - name: Check formatting
+        run: just clippy

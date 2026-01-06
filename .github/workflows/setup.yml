@@ -1,0 +1,70 @@
+name: setup
+
+on:
+  workflow_call:
+    inputs:
+      toolchain:
+        description: "Rust toolchain to use"
+        type: string
+    outputs:
+      cache-key:
+        description: "Cache key for initial setup"
+        value: ${{ jobs.tests-and-coverage.outputs.cache-key }}
+
+concurrency:
+  group: "setup"
+
+env:
+  RUSTUP_AUTO_INSTALL: "0"
+
+jobs:
+  tests-and-coverage:
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.lookup.outputs.cache-primary-key }}
+    steps:
+      - name: Lookup cache
+        id: lookup
+        uses: actions/cache/restore@v4
+        with:
+          path: &cache_path |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: &cache_key ${{ runner.os }}-setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: &cache_restore_keys |
+            ${{ runner.os }}-setup-
+          lookup-only: true
+
+      - name: Restore cache
+        if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: *cache_path
+          key: *cache_key
+          restore-keys: *cache_restore_keys
+
+      - name: Install Rust toolchain
+        if: steps.lookup.outputs.cache-hit != 'true'
+        id: install-rust-toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ inputs.toolchain }}
+
+      - name: Checkout repository
+        if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+
+      - name: Dependencies
+        if: steps.lookup.outputs.cache-hit != 'true'
+        run: cargo install just && just setup
+
+      - name: Save cache
+        if: steps.lookup.outputs.cache-hit != 'true'
+        id: save
+        uses: actions/cache/save@v4
+        with:
+          path: *cache_path
+          key: *cache_key
