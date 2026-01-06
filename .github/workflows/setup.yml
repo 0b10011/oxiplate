@@ -17,6 +17,9 @@ jobs:
   tests-and-coverage:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Lookup cache
         id: lookup
         uses: actions/cache/restore@v4
@@ -24,7 +27,7 @@ jobs:
           path: &cache_path |
             ~/.cargo/
             target/
-          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: &cache_key setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: &cache_restore_keys |
             setup-
           lookup-only: true
@@ -49,7 +52,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: *cache_path
-          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: *cache_key
           restore-keys: *cache_restore_keys
 
       - name: Install Rust toolchain
@@ -58,10 +61,6 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ inputs.toolchain }}
-
-      - name: Checkout repository
-        if: steps.lookup.outputs.cache-hit != 'true'
-        uses: actions/checkout@v4
 
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
@@ -73,4 +72,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: *cache_path
-          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: *cache_key
