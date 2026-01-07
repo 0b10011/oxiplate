@@ -25,6 +25,11 @@ book:
 book-build:
     mdbook build
 
+# Run book tests.
+book-tests:
+    cargo build --package oxiplate --target-dir target/book/
+    RUSTUP_TOOLCHAIN="nightly-2025-08-07" CARGO_MANIFEST_DIR=`pwd`/book-lib mdbook test --library-path target/book/debug/deps
+
 # Format code.
 [group("Lint")]
 format: && (format-broken "rustfmt")
@@ -48,7 +53,7 @@ clippy:
 
 # Run tests without coverage.
 [group("Test")]
-test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") expansion-tests
+test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
 
 # Build HTML and LCOV reports from running tests with coverage.
 [group("Test")]
