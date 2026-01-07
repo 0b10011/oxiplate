@@ -25,6 +25,7 @@ runnable = false
 "/statements/if-else.html" = "../templates/statements/if-else.html"
 "/statements/for.html" = "../templates/statements/for.html"
 "/whitespace-control.html" = "./templates/whitespace-control.html"
-"/expressions.html" = "./templates/expressions.html"
+"/expressions.html" = "./templates/expressions/index.html"
+"/templates/expressions.html" = "./expressions/index.html"
 
 [preprocessor.codename]

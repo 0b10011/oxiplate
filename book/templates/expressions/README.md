@@ -43,21 +43,9 @@ it will be implied when a local variable of the same name doesn't exist.
 
 ## Filters
 
-Filters modify expressions that precede them:
+{{#include filters.md:intro}}
 
-```oxip
-{{ "foo" | upper }}
-```
-
-> FOO
-
-Behind the scenes, filters are functions in the `filters_for_oxiplate` module at the root of _your_ crate that are passed the result of the expression as the first argument. Additional arguments can be passed to the filter directly:
-
-```oxip
-{{ "hello world" | replace("hello", "goodbye") }}
-```
-
-> goodbye world
+Read more in the [filters chapter](./filters.md).
 
 ## Cow prefix for more efficient string conversion
 

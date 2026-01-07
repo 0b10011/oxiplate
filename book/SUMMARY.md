@@ -21,4 +21,5 @@
     - [for / continue / break / else](templates/statements/for.md)
     - [match / case](templates/statements/match.md)
     - [let](templates/statements/let.md)
-- [Expressions](templates/expressions.md)
+- [Expressions](templates/expressions/README.md)
+    - [Filters](templates/expressions/filters.md)
