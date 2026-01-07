@@ -14,7 +14,7 @@ env:
   RUSTUP_AUTO_INSTALL: "0"
 
 jobs:
-  tests-and-coverage:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
