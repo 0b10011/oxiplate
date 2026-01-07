@@ -28,8 +28,6 @@ jobs:
             ~/.cargo/
             target/
           key: &cache_key setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
-          restore-keys: &cache_restore_keys |
-            setup-
           lookup-only: true
 
       - name: Restore cache
@@ -38,7 +36,6 @@ jobs:
         with:
           path: *cache_path
           key: *cache_key
-          restore-keys: *cache_restore_keys
 
       - name: Install Rust toolchain
         if: steps.lookup.outputs.cache-hit != 'true'

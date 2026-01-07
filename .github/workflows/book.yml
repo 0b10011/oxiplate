@@ -45,8 +45,6 @@ jobs:
             ~/.cargo/
             target/
           key: &cache_key book-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
-          restore-keys: |
-            book-
 
       - name: Setup book
         if: steps.book-setup-cache.outputs.cache-hit != 'true'

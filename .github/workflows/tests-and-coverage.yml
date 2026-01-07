@@ -51,8 +51,6 @@ jobs:
             ~/.cargo/
             target/
           key: tests-and-coverage-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
-          restore-keys:
-            tests-and-coverage-
 
       - name: Run tests and coverage
         run: just setup-coverage coverage-lcov
@@ -84,8 +82,6 @@ jobs:
             ~/.cargo/
             target/
           key: expansion-tests-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
-          restore-keys:
-            expansion-tests-
 
       - name: Expansion tests
         run: just setup-expansion expansion-tests
