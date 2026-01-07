@@ -41,7 +41,7 @@ jobs:
           path: |
             ~/.cargo/
             target/
-          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: setup-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
@@ -50,7 +50,7 @@ jobs:
           path: |
             ~/.cargo/
             target/
-          key: tests-and-coverage-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: tests-and-coverage-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Run tests and coverage
         run: just setup-coverage coverage-lcov
@@ -81,7 +81,7 @@ jobs:
           path: |
             ~/.cargo/
             target/
-          key: expansion-tests-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: expansion-tests-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Expansion tests
         run: just setup-expansion expansion-tests

@@ -27,7 +27,7 @@ jobs:
           path: &cache_path |
             ~/.cargo/
             target/
-          key: &cache_key setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: &cache_key setup-${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           lookup-only: true
 
       - name: Restore cache

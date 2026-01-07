@@ -34,7 +34,7 @@ jobs:
           path: |
             ~/.cargo/
             target/
-          key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: setup-${{ hashFiles('.github/workflows/book.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           fail-on-cache-miss: true
 
       - name: Restore book setup cache
@@ -44,7 +44,7 @@ jobs:
           path: &cache_path |
             ~/.cargo/
             target/
-          key: &cache_key book-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: &cache_key book-${{ hashFiles('.github/workflows/book.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Setup book
         if: steps.book-setup-cache.outputs.cache-hit != 'true'
