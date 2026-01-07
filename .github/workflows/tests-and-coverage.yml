@@ -41,7 +41,7 @@ jobs:
           path: |
             ~/.cargo/
             target/
-          key: setup-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          key: setup-${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
