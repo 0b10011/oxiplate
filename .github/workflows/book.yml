@@ -47,8 +47,14 @@ jobs:
           restore-keys:
             book-
 
-      - name: Setup for book
-        run: just setup-book book-build
+      - name: Setup book
+        run: just setup-book 
+
+      - name: Test examples in book
+        run: just book-tests 
+
+      - name: Build book
+        run: just book-build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
