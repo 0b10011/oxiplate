@@ -87,8 +87,8 @@ fn test_for() {
 }
 #[oxiplate_inline(
     "
-{%- for person in &people -%}
-    {{ person.get_name() }}<br>
+{%- for Person { name } in &people -%}
+    {{ name }}<br>
 {%- endfor %}"
 )]
 struct Accounts {
@@ -103,11 +103,9 @@ impl ::std::fmt::Display for Accounts {
             use ::std::fmt::Write;
             let mut string = String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
-            for person in &self.people {
+            for Person { name } in &self.people {
                 oxiplate_formatter
-                    .write_str(
-                        &::std::string::ToString::to_string(&(person.get_name())),
-                    )?;
+                    .write_str(&::std::string::ToString::to_string(&(name)))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
             string
@@ -118,11 +116,6 @@ impl ::std::fmt::Display for Accounts {
 struct Person {
     name: &'static str,
 }
-impl Person {
-    pub fn get_name(&self) -> &'static str {
-        self.name
-    }
-}
 extern crate test;
 #[rustc_test_marker = "test_method_calls"]
 #[doc(hidden)]
@@ -132,9 +125,9 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 49usize,
+        start_line: 44usize,
         start_col: 4usize,
-        end_line: 49usize,
+        end_line: 44usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
@@ -217,9 +210,9 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 72usize,
+        start_line: 67usize,
         start_col: 4usize,
-        end_line: 72usize,
+        end_line: 67usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
@@ -296,9 +289,9 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 100usize,
+        start_line: 95usize,
         start_col: 4usize,
-        end_line: 100usize,
+        end_line: 95usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -379,9 +372,9 @@ pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 122usize,
+        start_line: 117usize,
         start_col: 4usize,
-        end_line: 122usize,
+        end_line: 117usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -460,9 +453,9 @@ pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 144usize,
+        start_line: 139usize,
         start_col: 4usize,
-        end_line: 144usize,
+        end_line: 139usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -541,9 +534,9 @@ pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 168usize,
+        start_line: 163usize,
         start_col: 4usize,
-        end_line: 168usize,
+        end_line: 163usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -622,9 +615,9 @@ pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 190usize,
+        start_line: 185usize,
         start_col: 4usize,
-        end_line: 190usize,
+        end_line: 185usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,

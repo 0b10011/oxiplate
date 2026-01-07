@@ -28,8 +28,8 @@ fn test_for() {
 #[derive(Oxiplate)]
 #[oxiplate_inline(
     "
-{%- for person in &people -%}
-    {{ person.get_name() }}<br>
+{%- for Person { name } in &people -%}
+    {{ name }}<br>
 {%- endfor %}"
 )]
 struct Accounts {
@@ -38,11 +38,6 @@ struct Accounts {
 
 struct Person {
     name: &'static str,
-}
-impl Person {
-    pub fn get_name(&self) -> &'static str {
-        self.name
-    }
 }
 
 #[test]

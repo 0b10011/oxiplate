@@ -8,10 +8,11 @@ use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
-use super::super::expression::{Identifier, Keyword, expression, keyword};
+use super::super::expression::{Keyword, expression, keyword};
 use super::super::{Item, Res};
 use super::{State, Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
+use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
 use crate::{Source, Tokens};
 
@@ -19,7 +20,7 @@ use crate::{Source, Tokens};
 pub struct For<'a> {
     #[allow(clippy::struct_field_names)]
     for_keyword: Keyword<'a>,
-    ident: Identifier<'a>,
+    pattern: Pattern<'a>,
     in_keyword: Keyword<'a>,
     expression: ExpressionAccess<'a>,
     template: Template<'a>,
@@ -74,8 +75,8 @@ impl<'a> For<'a> {
         }
     }
 
-    pub(crate) fn get_active_variables(&self) -> HashSet<&'a str> {
-        HashSet::from([self.ident.as_str()])
+    pub(crate) fn get_active_variables(&'a self) -> HashSet<&'a str> {
+        self.pattern.get_variables()
     }
 
     pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
@@ -84,7 +85,7 @@ impl<'a> For<'a> {
 
         let For {
             for_keyword,
-            ident,
+            pattern,
             in_keyword,
             expression,
             template,
@@ -107,13 +108,14 @@ impl<'a> For<'a> {
         // Loops will very likely run at least twice.
         estimated_length += template_length * 2;
 
+        let pattern = pattern.to_tokens(state);
         if let Some(otherwise) = otherwise {
             let (otherwise, otherwise_length) = otherwise.to_tokens(state);
             estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
                     let mut loop_ran = false;
-                    #for_keyword #ident #in_keyword #expression {
+                    #for_keyword #pattern #in_keyword #expression {
                         loop_ran = true;
                         #template
                     }
@@ -123,7 +125,8 @@ impl<'a> For<'a> {
                 }
             });
         } else {
-            tokens.append_all(quote! { #for_keyword #ident #in_keyword #expression { #template } });
+            tokens
+                .append_all(quote! { #for_keyword #pattern #in_keyword #expression { #template } });
         }
 
         state.local_variables.pop_stack();
@@ -141,10 +144,10 @@ impl<'a> From<For<'a>> for StatementKind<'a> {
 pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
     let (input, for_keyword) = keyword("for").parse(input)?;
 
-    let (input, (for_whitespace, ident, ident_whitespace, in_keyword, in_whitespace, expression)) =
+    let (input, (for_whitespace, pattern, ident_whitespace, in_keyword, in_whitespace, expression)) =
         cut((
             context("Expected space after 'for'", whitespace),
-            context("Expected an identifier", Identifier::parse),
+            context("Expected a pattern", Pattern::parse),
             context("Expected space after identifier", whitespace),
             context("Expected 'in'", keyword("in")),
             context("Expected space after 'in'", whitespace),
@@ -159,7 +162,7 @@ pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
         .0
         .clone()
         .merge(&for_whitespace, "Whitespace expected after `for`")
-        .merge(ident.source(), "Ident expected after whitespace")
+        .merge(pattern.source(), "Ident expected after whitespace")
         .merge(&ident_whitespace, "Whitespace expected after ident")
         .merge(&in_keyword.0, "`in` expected after whitespace")
         .merge(&in_whitespace, "Whitespace expected after `in`")
@@ -170,7 +173,7 @@ pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
         Statement {
             kind: For {
                 for_keyword,
-                ident,
+                pattern,
                 in_keyword,
                 expression,
                 template: Template(vec![]),
