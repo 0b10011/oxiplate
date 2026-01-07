@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.10](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.9...oxiplate-derive-v0.15.10) - 2026-01-07
+
+### Added
+
+- added support for patterns instead of just identifiers in for statements
+
+### Fixed
+
+- switched to `expect()` from `unwrap()` for `CARGO_MANIFEST_DIR` access
+
 ## [0.15.9](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.8...oxiplate-derive-v0.15.9) - 2026-01-03
 
 ### Fixed
