@@ -4,8 +4,13 @@ error[E0277]: `Message` doesn't implement `std::fmt::Display`
 22 | #[oxiplate_inline(r#"{{ message | respond() }} {{ message | respond_string() }}"#)]
    |                         ^^^^^^^   ------- required by a bound introduced by this call
    |                         |
-   |                         the trait `std::fmt::Display` is not implemented for `Message`
+   |                         unsatisfied trait bound
    |
+help: the trait `std::fmt::Display` is not implemented for `Message`
+  --> tests/broken/filters/wrong-type.rs:19:1
+   |
+19 | struct Message(String);
+   | ^^^^^^^^^^^^^^
 note: required by a bound in `respond`
   --> tests/broken/filters/wrong-type.rs:6:37
    |
@@ -16,8 +21,13 @@ error[E0277]: `Message` doesn't implement `std::fmt::Display`
   --> tests/broken/filters/wrong-type.rs:22:22
    |
 22 | #[oxiplate_inline(r#"{{ message | respond() }} {{ message | respond_string() }}"#)]
-   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `std::fmt::Display` is not implemented for `Message`
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
    |
+help: the trait `std::fmt::Display` is not implemented for `Message`
+  --> tests/broken/filters/wrong-type.rs:19:1
+   |
+19 | struct Message(String);
+   | ^^^^^^^^^^^^^^
 note: required by a bound in `respond`
   --> tests/broken/filters/wrong-type.rs:6:37
    |

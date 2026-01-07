@@ -248,8 +248,6 @@ impl<'a> Expression<'a> {
 
             let mut group =
                 proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            let mut arguments_source = arguments.open_paren.clone();
-            arguments_source.range.end = arguments.close_paren.range.end;
             group.set_span(source.span());
             group.to_token_stream()
         } else {

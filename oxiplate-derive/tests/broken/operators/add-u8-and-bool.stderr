@@ -5,8 +5,23 @@ error[E0277]: cannot add `bool` to `u8`
   |                         ^ no implementation for `u8 + bool`
   |
   = help: the trait `Add<bool>` is not implemented for `u8`
-  = help: the following other types implement trait `Add<Rhs>`:
-            `&u8` implements `Add<u8>`
-            `&u8` implements `Add`
-            `u8` implements `Add<&u8>`
-            `u8` implements `Add`
+help: the following other types implement trait `Add<Rhs>`
+ --> $RUST/core/src/ops/arith.rs
+  |
+  |         impl const Add for $t {
+  |         ^^^^^^^^^^^^^^^^^^^^^ `u8` implements `Add`
+...
+  | add_impl! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 f16 f32 f64 f128 }
+  | ---------------------------------------------------------------------------------- in this macro invocation
+  |
+ ::: $RUST/core/src/internal_macros.rs
+  |
+  |         impl const $imp<$u> for &$t {
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `&u8` implements `Add<u8>`
+...
+  |         impl const $imp<&$u> for $t {
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `u8` implements `Add<&u8>`
+...
+  |         impl const $imp<&$u> for &$t {
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `&u8` implements `Add`
+  = note: this error originates in the macro `add_impl` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -2,7 +2,7 @@ error: equality checks against false can be replaced by a negation
  --> src/bin/equals-bool.rs:7:8
   |
 7 | {%- if foo == false -%}
-  |        ^^^^^^^^^^^^ help: try simplifying it as shown: `!foo`
+  |        ^^^^^^^^^^^^ help: try: `!foo`
   |
   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#bool_comparison
 note: the lint level is defined here

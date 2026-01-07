@@ -10,4 +10,10 @@ error: cannot find attribute `oxiplatee` in this scope
  --> tests/broken/derive/attribute-typo.rs:4:3
   |
 4 | #[oxiplatee = ""]
-  |   ^^^^^^^^^ help: a derive helper attribute with a similar name exists: `oxiplate`
+  |   ^^^^^^^^^
+  |
+help: a derive helper attribute with a similar name exists
+  |
+4 - #[oxiplatee = ""]
+4 + #[oxiplate = ""]
+  |
