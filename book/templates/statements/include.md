@@ -1,22 +1,35 @@
 # Including contents of a template with `include`
 
 ```rust
+# extern crate oxiplate;
+#
+use oxiplate::prelude::*;
+
 #[derive(Oxiplate)]
 #[oxiplate = "template.html.oxip"]
 struct YourStruct {
-    menu_links: [(&'static str, &'static str)],
+    menu_links: [(&'static str, &'static str); 2],
     title: &'static str,
 }
-```
 
-```rust
-print!("{}", YourStruct {
-    menu_links: [
-        ("/", "Home"),
-        ("/about/", "About"),
-    ],
-    title: "Oxiplate",
-});
+assert_eq!(
+    YourStruct {
+        menu_links: [
+            ("/", "Home"),
+            ("/about/", "About"),
+        ],
+        title: "Oxiplate",
+    }.render()?,
+    r#"<!DOCTYPE html>
+<nav><ul><li><a href="/">Home</a><li><a href="/about/">About</a></ul></nav>
+<main>
+    <h1>Oxiplate</h1>
+    ...
+</main>
+"#,
+);
+#
+# Ok::<(), ::core::fmt::Error>(())
 ```
 
 ```html:template.html.oxip
@@ -31,16 +44,7 @@ print!("{}", YourStruct {
 ```html:menu.html.oxip
 <ul>
     {%- for (href, text) in menu_links -%}
-        <li><a href="{{ attr: link.href }}">{{ link.text }}</a>
+        <li><a href="{{ attr: href }}">{{ text }}</a>
     {%- endfor -%}
 </ul>
-```
-
-```html
-<!DOCTYPE html>
-<nav><ul><li><a href="/">Home</a><a href="/about/">About</a></ul></nav>
-<main>
-    <h1>Oxiplate</h1>
-    ...
-</main>
 ```

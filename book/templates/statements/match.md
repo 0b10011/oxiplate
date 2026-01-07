@@ -1,30 +1,30 @@
 # Pattern matching with `match` and `case`
 
 ```rust
+# extern crate oxiplate;
+#
+use oxiplate::prelude::*;
+
 #[derive(Oxiplate)]
-#[oxiplate = "page.oxip"]
-struct YourStruct {
-    value: isize,
-}
-```
-
-```rust
-print!("{}", YourStruct {
-    value: -19
-});
-```
-
-```oxip:page.oxip
-{% match value %}
+#[oxiplate_inline(r#"
+{%- match value %}
 {%- case ..0 -%}
     Less than zero
 {%- case 0 -%}
     Zero
-{%- case .. -%}
+{%- case _ -%}
     Greater than zero
-{%- endmatch %}
-```
+{%- endmatch %}"#)]
+struct YourStruct {
+    value: isize,
+}
 
-```page.txt
-Less than zero
+assert_eq!(
+    YourStruct {
+        value: -19
+    }.render()?,
+    "Less than zero"
+);
+#
+# Ok::<(), ::core::fmt::Error>(())
 ```

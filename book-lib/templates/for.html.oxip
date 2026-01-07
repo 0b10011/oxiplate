@@ -1,0 +1,7 @@
+<ul>
+  {%- for name in &names %}
+    <li>{{ name }}
+  {%- else %}
+    <li><em>No names found</em>
+  {%- endfor %}
+</ul>{-}

@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<nav>{% include "menu.html.oxip" %}</nav>
+<main>
+    <h1>{{ title }}</h1>
+    ...
+</main>

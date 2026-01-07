@@ -1,0 +1,5 @@
+<ul>
+    {%- for (href, text) in menu_links -%}
+        <li><a href="{{ attr: href }}">{{ text }}</a>
+    {%- endfor -%}
+</ul>{-}

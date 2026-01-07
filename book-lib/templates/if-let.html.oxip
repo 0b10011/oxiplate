@@ -1,0 +1,7 @@
+<p>
+    {%- if let Some(count) = count -%}
+        The count is {{ count }}.
+    {%- else -%}
+        No count provided.
+    {%- endif -%}
+</p>{-}

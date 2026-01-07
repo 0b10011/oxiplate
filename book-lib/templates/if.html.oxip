@@ -1,0 +1,9 @@
+<p>
+    {%- if count < 0 -%}
+        {{ count }} is negative
+    {%- elseif count > 0 -%}
+        {{ count }} is positive
+    {%- else -%}
+        {{ count }} is zero
+    {%- endif -%}
+</p>{-}
