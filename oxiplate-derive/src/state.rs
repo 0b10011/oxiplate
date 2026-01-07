@@ -115,7 +115,7 @@ fn config_path() -> PathBuf {
     let root = PathBuf::from(
         env::var("CARGO_MANIFEST_DIR_OVERRIDE")
             .or(env::var("CARGO_MANIFEST_DIR"))
-            .unwrap(),
+            .expect("`CARGO_MANFIEST_DIR` should be present for setting up state"),
     );
     root.join("oxiplate.toml")
 }

@@ -592,7 +592,7 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
     let root = PathBuf::from(
         ::std::env::var("CARGO_MANIFEST_DIR_OVERRIDE")
             .or(::std::env::var("CARGO_MANIFEST_DIR"))
-            .unwrap(),
+            .expect("`CARGO_MANIFEST_DIR` should be present"),
     );
 
     // Path::join() doesn't play well with absolute paths (for our use case).
