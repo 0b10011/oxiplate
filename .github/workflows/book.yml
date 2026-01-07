@@ -37,21 +37,30 @@ jobs:
           key: setup-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
           fail-on-cache-miss: true
 
-      - name: Cache book setup
-        uses: actions/cache@v4
+      - name: Restore book setup cache
+        id: book-setup-cache
+        uses: actions/cache/restore@v4
         with:
-          path: |
+          path: &cache_path |
             ~/.cargo/
             target/
-          key: book-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
-          restore-keys:
+          key: &cache_key book-${{ hashFiles('justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: |
             book-
 
       - name: Setup book
-        run: just setup-book 
+        if: steps.book-setup-cache.outputs.cache-hit != 'true'
+        run: just setup-book
+
+      - name: Save book setup cache
+        if: steps.book-setup-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: *cache_path
+          key: *cache_key
 
       - name: Test examples in book
-        run: just book-tests 
+        run: just book-tests
 
       - name: Build book
         run: just book-build
