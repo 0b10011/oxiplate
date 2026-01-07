@@ -20,7 +20,7 @@ proc-macro = true
 [dependencies]
 nom = "8.0.0"
 nom-language = "0.1.0"
-proc-macro2 = { version = "1.0.92", default-features = false, features = ["proc-macro"] }
+proc-macro2 = { version = "1.0.105", default-features = false, features = ["proc-macro"] }
 quote = { version = "1.0.43", default-features = false, features = ["proc-macro"] }
 serde = { version = "1.0.217", default-features = false, features = ["derive"], optional = true}
 syn = { version = "2.0.114", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
