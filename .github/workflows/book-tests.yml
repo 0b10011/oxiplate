@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Restore book setup cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ needs.book-setup.outputs.cache-path }}
           key: ${{ needs.book-setup.outputs.cache-key }}

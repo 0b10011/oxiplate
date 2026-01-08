@@ -53,7 +53,7 @@ jobs:
       # If the item already exists, skip to end
       - name: Lookup cache
         id: lookup
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ steps.key.outputs.cache-path }}
           key: ${{ steps.key.outputs.cache-key }}
@@ -72,7 +72,7 @@ jobs:
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
         id: save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ${{ steps.key.outputs.cache-path }}
           key: ${{ steps.key.outputs.cache-key }}
