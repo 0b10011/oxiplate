@@ -41,12 +41,12 @@ jobs:
         run: |
           {
             echo 'cache-path<<EOF'
-            echo $CACHE_PATH
+            echo "$CACHE_PATH"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
           {
             echo 'cache-key<<EOF'
-            echo $CACHE_KEY
+            echo "$CACHE_KEY"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
