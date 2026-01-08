@@ -38,14 +38,14 @@ jobs:
 
       - &restore-setup
         name: Restore setup cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ needs.setup.outputs.cache-path }}
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/
@@ -81,7 +81,7 @@ jobs:
       - *restore-setup
 
       - name: Cache expansion tests setup
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/
