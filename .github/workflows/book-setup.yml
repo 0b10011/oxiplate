@@ -1,4 +1,4 @@
-name: setup
+name: book-setup
 
 on:
   workflow_call:
@@ -9,19 +9,25 @@ on:
     outputs:
       cache-path:
         description: "Path for restoring cache item"
-        value: ${{ jobs.setup.outputs.cache-path }}
+        value: ${{ jobs.book-setup.outputs.cache-path }}
       cache-key:
         description: "Key for restoring cache item"
-        value: ${{ jobs.setup.outputs.cache-key }}
+        value: ${{ jobs.book-setup.outputs.cache-key }}
 
 concurrency:
-  group: "setup"
+  group: "book-setup"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
 
 jobs:
   setup:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ inputs.toolchain }}
+
+  book-setup:
+    needs: setup
     runs-on: ubuntu-latest
     outputs:
       cache-path: ${{ steps.key.outputs.cache-path }}
@@ -37,7 +43,7 @@ jobs:
           CACHE_PATH: |
             ~/.cargo/
             target/
-          CACHE_KEY: setup-${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          CACHE_KEY: book-setup-${{ hashFiles('.github/workflows/book-setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
         run: |
           echo "cache-path=${{ env.CACHE_PATH }}" >> "$GITHUB_OUTPUT"
           echo "cache-key=${{ env.CACHE_KEY }}" >> "$GITHUB_OUTPUT"
@@ -47,7 +53,7 @@ jobs:
         id: lookup
         uses: actions/cache/restore@v4
         with:
-          path: ${{ steps.key.outputs.cache-path }}
+          path: ${{ steps.key.outputs.cache-path }} 
           key: ${{ steps.key.outputs.cache-key }}
           lookup-only: true
 
@@ -57,14 +63,21 @@ jobs:
         with:
           toolchain: ${{ inputs.toolchain }}
 
-      - name: Install `just`
+      - name: Restore setup cache
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo install just
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ needs.setup.outputs.cache-path }}
+          key: ${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
 
-      - name: Save cache
+      - name: Setup book
         if: steps.lookup.outputs.cache-hit != 'true'
-        id: save
+        run: just setup-book
+
+      - name: Save book setup cache
+        if: steps.lookup.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: ${{ steps.key.outputs.cache-path }}
+          path: ${{ steps.key.outputs.cache-path }} 
           key: ${{ steps.key.outputs.cache-key }}

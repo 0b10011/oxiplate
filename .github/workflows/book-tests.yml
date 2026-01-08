@@ -1,0 +1,42 @@
+name: book-tests
+
+on:
+  workflow_call:
+    inputs:
+      toolchain:
+        description: "Rust toolchain to use"
+        type: string
+
+concurrency:
+  group: "book-tests"
+
+env:
+  RUSTUP_AUTO_INSTALL: "0"
+
+jobs:
+  book-setup:
+    uses: ./.github/workflows/book-setup.yml
+    with:
+      toolchain: ${{ inputs.toolchain }}
+
+  test:
+    needs: book-setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ inputs.toolchain }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore book setup cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ needs.book-setup.outputs.cache-path }}
+          key: ${{ needs.book-setup.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - name: Test examples in book
+        run: just book-tests

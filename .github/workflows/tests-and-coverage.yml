@@ -36,12 +36,9 @@ jobs:
       - &restore-setup
         name: Restore setup cache
         uses: actions/cache/restore@v4
-        id: setup-cache
         with:
-          path: |
-            ~/.cargo/
-            target/
-          key: setup-${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          path: ${{ needs.setup.outputs.cache-path }}
+          key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
@@ -62,6 +59,11 @@ jobs:
           format: lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  book-tests:
+    uses: ./.github/workflows/book-tests.yml
+    with:
+      toolchain: *toolchain
 
   expansion-tests:
     needs: setup
