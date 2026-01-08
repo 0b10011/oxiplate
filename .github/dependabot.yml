@@ -17,3 +17,8 @@ updates:
       prefix: "chore"
       prefix-development: "build"
       include: "scope"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
