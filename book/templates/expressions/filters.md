@@ -37,6 +37,8 @@ along with importing the `Oxiplate` macro and `Render` trait.
 Alternatively, a custom set of filters can be built once:
 
 ```rust:all built-in filters plus additional
+# extern crate oxiplate;
+#
 mod filters_for_oxiplate {
     use ::oxiplate::filters::*;
 
@@ -45,6 +47,8 @@ mod filters_for_oxiplate {
 ```
 
 ```rust:subset of built-in filters plus additional
+# extern crate oxiplate;
+#
 mod filters_for_oxiplate {
     use ::oxiplate::filters::{lower, upper};
 
@@ -55,10 +59,16 @@ mod filters_for_oxiplate {
 And then used throughout the package:
 
 ```rust
+# extern crate oxiplate;
+#
+# mod filters_for_oxiplate {}
+#
+# fn main() {
 use ::oxiplate::{Oxiplate, Render};
 use crate::filters_for_oxiplate;
 
 // Template structs and functions to call `render()`
+# }
 ```
 
 ### `CowStr` filters
