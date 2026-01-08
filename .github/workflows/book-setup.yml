@@ -15,7 +15,7 @@ on:
         value: ${{ jobs.book-setup.outputs.cache-key }}
 
 concurrency:
-  group: "book-setup"
+  group: "${{ github.workflow }}-${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"

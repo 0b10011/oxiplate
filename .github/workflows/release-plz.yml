@@ -36,8 +36,7 @@ jobs:
     name: Release-plz PR
     runs-on: ubuntu-latest
     concurrency:
-      group: release-plz-${{ github.ref }}
-      cancel-in-progress: false
+      group: "${{ github.workflow }}-${{ github.ref }}"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

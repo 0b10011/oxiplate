@@ -8,7 +8,7 @@ on:
         type: string
 
 concurrency:
-  group: "book-tests"
+  group: "${{ github.workflow }}-${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
