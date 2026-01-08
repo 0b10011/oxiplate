@@ -12,7 +12,7 @@ updates:
   - package-ecosystem: "rust-toolchain"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore"
       prefix-development: "build"
