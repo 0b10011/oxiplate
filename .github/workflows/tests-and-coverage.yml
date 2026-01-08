@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       # Should match value in `/rust-toolchain.toml`
-      toolchain: &toolchain "nightly-2026-01-07"
+      toolchain: &toolchain "nightly-2026-01-08"
 
   tests-and-coverage:
     needs: setup
