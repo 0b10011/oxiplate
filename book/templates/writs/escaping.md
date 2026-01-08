@@ -56,8 +56,6 @@ or templates that don't use file extensions that cleanly match up with escapers?
 You can specify the escaper from the attribute:
 
 ```rust
-# extern crate oxiplate;
-#
 use oxiplate::prelude::*;
 
 #[derive(Oxiplate)]
