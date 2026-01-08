@@ -10,7 +10,7 @@ on:
       - main
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
+  group: "${{ github.workflow }}:${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
