@@ -29,7 +29,7 @@ jobs:
     steps:
       # Checkout immediately so file hashing works
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Save cache path and key to output
         id: key

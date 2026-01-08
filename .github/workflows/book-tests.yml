@@ -29,7 +29,7 @@ jobs:
           toolchain: ${{ inputs.toolchain }}
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Restore book setup cache
         uses: actions/cache/restore@v5
