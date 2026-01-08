@@ -24,15 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # master
         with:
           toolchain: ${{ inputs.toolchain }}
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Restore book setup cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
         with:
           path: ${{ needs.book-setup.outputs.cache-path }}
           key: ${{ needs.book-setup.outputs.cache-key }}
