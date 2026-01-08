@@ -51,8 +51,10 @@
 
 mod default;
 mod lower;
+mod trim;
 mod upper;
 
 pub use default::default;
 pub use lower::lower;
+pub use trim::{trim, trim_end, trim_start};
 pub use upper::upper;

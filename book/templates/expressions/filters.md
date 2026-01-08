@@ -68,6 +68,9 @@ use crate::filters_for_oxiplate;
 | Filter | Description |
 |-|-|
 | `lower` | Converts to lowercase |
+| `trim` | Trims leading and trailing whitespace |
+| `trim_end` | Trims trailing whitespace |
+| `trim_start` | Trims leading whitespace |
 | `upper` | Converts to uppercase |
 
 ### `Option` filters
