@@ -45,8 +45,16 @@ jobs:
             target/
           CACHE_KEY: book-setup-${{ hashFiles('.github/workflows/book-setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
         run: |
-          echo "cache-path=${{ env.CACHE_PATH }}" >> "$GITHUB_OUTPUT"
-          echo "cache-key=${{ env.CACHE_KEY }}" >> "$GITHUB_OUTPUT"
+          {
+            echo 'cache-path=<<EOF'
+            echo ${{ env.CACHE_PATH }}
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo 'cache-key=<<EOF'
+            echo ${{ env.CACHE_KEY }}
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
 
       # If the item already exists, skip to end
       - name: Lookup cache
