@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.11](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.10...oxiplate-v0.15.11) - 2026-01-10
+
+### Fixed
+
+- improved error messages for unexpected statements
+- improved error message for unnecessary parentheses
+
+### Other
+
+- added tests for unexpected statements in `block` and `if` statements
+- update to latest nightly
+- *(deps)* bump proc-macro2 from 1.0.104 to 1.0.105
+- *(deps)* bump quote from 1.0.42 to 1.0.43
+- *(deps)* bump syn from 2.0.112 to 2.0.114
+
 ## [0.15.10](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.9...oxiplate-v0.15.10) - 2026-01-07
 
 ### Added
