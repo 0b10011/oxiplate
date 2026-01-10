@@ -46,24 +46,28 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
 
     Ok((input, operator))
 }
-pub(super) fn parse_prefixed_expression(input: Source) -> Res<Source, Expression> {
-    let (input, (_leading_whitespace, prefix_operator, _trailing_whitespace)) =
-        (opt(whitespace), parse_prefix_operator, opt(whitespace)).parse(input)?;
+pub(super) fn parse_prefixed_expression(
+    allow_generic_nesting: bool,
+) -> impl Fn(Source) -> Res<Source, Expression> {
+    move |input| {
+        let (input, (prefix_operator, _middle_whitespace)) =
+            (parse_prefix_operator, opt(whitespace)).parse(input)?;
 
-    let (input, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
-        context(
-            "Expected an expression after prefix operator",
-            cut(expression(true, true)),
-        )
-        .parse(input)?
-    } else {
-        expression(true, true).parse(input)?
-    };
+        let (input, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
+            context(
+                "Expected an expression after prefix operator",
+                cut(expression(allow_generic_nesting, true)),
+            )
+            .parse(input)?
+        } else {
+            expression(allow_generic_nesting, true).parse(input)?
+        };
 
-    Ok((
-        input,
-        Expression::Prefixed(prefix_operator, Box::new(expression)),
-    ))
+        Ok((
+            input,
+            Expression::Prefixed(prefix_operator, Box::new(expression)),
+        ))
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

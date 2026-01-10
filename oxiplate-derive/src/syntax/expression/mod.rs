@@ -1,16 +1,17 @@
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{cut, fail, into, not, opt};
+use nom::combinator::{cut, fail, into, not, opt, peek};
 use nom::error::context;
 use nom::multi::{many0, many1};
-use nom::sequence::pair;
+use nom::sequence::{pair, terminated};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::token::Dot;
 
 mod arguments;
 mod concat;
+mod group;
 mod ident;
 mod keyword;
 mod literal;
@@ -30,6 +31,7 @@ use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use super::item::tag_end;
 use super::template::whitespace;
+use crate::syntax::expression::group::Group;
 use crate::syntax::expression::tuple::Tuple;
 use crate::{Source, State, Tokens};
 
@@ -65,7 +67,7 @@ pub(crate) enum Expression<'a> {
     Integer(Integer<'a>),
     Float(Float<'a>),
     Bool(Bool<'a>),
-    Group(Source<'a>, Box<ExpressionAccess<'a>>, Source<'a>),
+    Group(Group<'a>),
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
     Calc {
@@ -109,7 +111,6 @@ pub(crate) enum Expression<'a> {
 }
 
 impl<'a> Expression<'a> {
-    #[allow(clippy::too_many_lines)]
     pub(crate) fn to_tokens(&self, state: &State) -> Tokens {
         match self {
             Expression::Identifier(identifier) => match &identifier {
@@ -132,11 +133,7 @@ impl<'a> Expression<'a> {
                     }
                 }
             },
-            Expression::Group(open_paren, expression, _close_paren) => {
-                let (expression, expression_length) = expression.to_tokens(state);
-                let span = open_paren.span();
-                (quote_spanned! {span=> ( #expression ) }, expression_length)
-            }
+            Expression::Group(group) => group.to_tokens(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
             Expression::Calc {
@@ -305,16 +302,7 @@ impl<'a> Expression<'a> {
             | Expression::FullRange(source)
             | Expression::Filter { source, .. }
             | Expression::Cow { source, .. } => source.clone(),
-            Expression::Group(open_paren, expression_access, close_paren) => open_paren
-                .clone()
-                .merge(
-                    &expression_access.source(),
-                    "Expression should immediately follow open parentheses",
-                )
-                .merge(
-                    close_paren,
-                    "Closing parenthese should immediately follow the contained expression",
-                ),
+            Expression::Group(group) => group.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source.clone(),
             Expression::Prefixed(prefix_operator, expression) => prefix_operator
@@ -365,18 +353,18 @@ pub(super) fn expression<'a>(
     move |input| {
         let (input, (expression, fields)) = pair(
             alt((
+                filters(allow_generic_nesting),
                 Concat::parser(allow_concat_nesting),
                 calc(allow_generic_nesting),
                 index(allow_generic_nesting),
-                filters(allow_generic_nesting),
                 parse_cow_prefix,
                 into(Char::parse),
                 into(String::parse),
                 into(Number::parse),
                 into(Bool::parse),
                 identifier,
-                parse_prefixed_expression,
-                group,
+                parse_prefixed_expression(allow_generic_nesting),
+                into(Group::parse),
                 Tuple::parse,
                 full_range,
             )),
@@ -460,19 +448,6 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
     }
 }
 
-fn group(input: Source) -> Res<Source, Expression> {
-    let (input, (open, _leading_whitespace, inner, _trailing_whitespace, close)) = (
-        tag("("),
-        opt(whitespace),
-        context("Expected an expression", expression(true, true)),
-        opt(whitespace),
-        context("Expected `)` after expression", tag(")")),
-    )
-        .parse(input)?;
-
-    Ok((input, Expression::Group(open, Box::new(inner), close)))
-}
-
 /// Parses a full range expression (`..`).
 /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
 fn full_range(input: Source) -> Res<Source, Expression> {
@@ -517,7 +492,7 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
             expression(false, false),
             many1((
                 opt(whitespace),
-                tag("|"),
+                terminated(tag("|"), not(peek(tag("|")))),
                 opt(whitespace),
                 opt(tag(">")),
                 opt(whitespace),
