@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.11](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.10...oxiplate-v0.15.11) - 2026-01-10
+
+### Other
+
+- update to latest nightly
+
 ## [0.15.10](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.15.9...oxiplate-v0.15.10) - 2026-01-07
 
 ### Added
