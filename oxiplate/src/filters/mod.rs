@@ -50,11 +50,13 @@
 //! ```
 
 mod default;
+mod r#loop;
 mod lower;
 mod trim;
 mod upper;
 
 pub use default::default;
+pub use r#loop::r#loop;
 pub use lower::lower;
 pub use trim::{trim, trim_end, trim_start};
 pub use upper::upper;
