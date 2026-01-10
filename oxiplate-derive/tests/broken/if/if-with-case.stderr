@@ -1,0 +1,7 @@
+error: Unexpected 'case' statement
+ --> tests/broken/if/if-with-case.rs:7:10
+  |
+7 |       Found
+  |  __________^
+8 | | {%- case None -%}
+  | |_________________^
