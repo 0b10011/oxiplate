@@ -64,6 +64,36 @@ pub(crate) enum StatementKind<'a> {
     Let(Let<'a>),
 }
 
+impl StatementKind<'_> {
+    /// Whether this kind of statement is expected to appear in most statements.
+    /// Useful for improving error messages
+    /// when statements that are specially handled in some kinds of statements
+    /// appear in other kinds of statements.
+    pub fn expected_in_statements(&self) -> bool {
+        match self {
+            Self::Extends(_)
+            | Self::Parent
+            | Self::EndBlock
+            | Self::DefaultEscaper(_)
+            | Self::ElseIf(_)
+            | Self::Else
+            | Self::EndIf
+            | Self::EndFor
+            | Self::Case(_)
+            | Self::EndMatch => false,
+
+            Self::Block(_)
+            | Self::Include(_)
+            | Self::If(_)
+            | Self::For(_)
+            | Self::Continue(_)
+            | Self::Break(_)
+            | Self::Match(_)
+            | Self::Let(_) => true,
+        }
+    }
+}
+
 impl<'a> Statement<'a> {
     pub(super) fn source(&self) -> &Source<'a> {
         &self.source

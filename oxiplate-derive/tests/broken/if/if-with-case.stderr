@@ -1,4 +1,4 @@
-error: Unexpected 'case' statement
+error: Unexpected statement in `if` statement; is an `endif` statement missing or `if` used instead of `elseif`?
  --> tests/broken/if/if-with-case.rs:7:10
   |
 7 |       Found

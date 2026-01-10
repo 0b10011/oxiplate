@@ -65,6 +65,21 @@ impl<'a> For<'a> {
             }) => {
                 self.is_ended = true;
             }
+            Item::Statement(Statement { kind, source }) if !kind.expected_in_statements() => {
+                if let Some(ref mut template) = self.otherwise {
+                    template
+                } else {
+                    &mut self.template
+                }
+                .0
+                .push(Item::CompileError {
+                    message: "Unexpected statement in `for` statement; is an `endfor` statement \
+                              missing?"
+                        .to_string(),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
+            }
             _ => {
                 if let Some(otherwise) = &mut self.otherwise {
                     otherwise.0.push(item);

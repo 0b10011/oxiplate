@@ -78,6 +78,21 @@ impl<'a> If<'a> {
             }) => {
                 self.is_ended = true;
             }
+            Item::Statement(Statement { kind, source }) if !kind.expected_in_statements() => {
+                if let Some(ref mut ifs) = self.otherwise {
+                    ifs
+                } else {
+                    &mut self.ifs.last_mut().unwrap().1
+                }
+                .0
+                .push(Item::CompileError {
+                    message: "Unexpected statement in `if` statement; is an `endif` statement \
+                              missing or `if` used instead of `elseif`?"
+                        .to_string(),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
+            }
             _ => {
                 if let Some(template) = &mut self.otherwise {
                     template.0.push(item);

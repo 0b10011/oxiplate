@@ -1,4 +1,4 @@
-error: Unexpected 'endif' statement
+error: Unexpected statement in `for` statement; is an `endfor` statement missing?
  --> tests/broken/for/for-closed-by-endif.rs:4:61
   |
 4 | #[oxiplate_inline("{%- for number in numbers -%}{{ number }}{% endif %}")]

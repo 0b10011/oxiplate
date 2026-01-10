@@ -58,6 +58,21 @@ impl<'a> Block<'a> {
                     self.suffix = Some(Template(vec![]));
                 }
             }
+            Item::Statement(Statement { kind, source }) if !kind.expected_in_statements() => {
+                if let Some(ref mut suffix) = self.suffix {
+                    suffix
+                } else {
+                    &mut self.prefix
+                }
+                .0
+                .push(Item::CompileError {
+                    message: "Unexpected statement in `block` statement; is an `endblock` \
+                              statement missing?"
+                        .to_string(),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
+            }
             _ => {
                 if let Some(template) = &mut self.suffix {
                     template.0.push(item);

@@ -1,10 +1,10 @@
-error: Unexpected 'else' statement
+error: Unexpected statement in `block` statement; is an `endblock` statement missing?
  --> tests/broken/extends/block-with-else.rs:4:74
   |
 4 | #[oxiplate_inline(r#"{% extends "extends.html.oxip" %}{% block content %}{% else %}{% parent %}{% else %}{% endblock %}"#)]
   |                                                                          ^^^^^^^^^^
 
-error: Unexpected 'else' statement
+error: Unexpected statement in `block` statement; is an `endblock` statement missing?
  --> tests/broken/extends/block-with-else.rs:4:96
   |
 4 | #[oxiplate_inline(r#"{% extends "extends.html.oxip" %}{% block content %}{% else %}{% parent %}{% else %}{% endblock %}"#)]
