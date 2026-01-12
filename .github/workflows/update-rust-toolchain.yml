@@ -113,14 +113,13 @@ jobs:
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN" \
           --body 'Automatic toolchain update by "update-rust-toolchain" action.' \
           --assignee '0b10011' \
-          --label $LABEL \
+          --label "$LABEL" \
           --no-maintainer-edit
 
       - name: Update PR
         if: steps.pr_check.outputs.pr_exists == 'true'
         env:
           PR_TYPE: ${{ steps.create-branch.outputs.pr-type }}
-          LABEL: *label
         run: |
           gh pr edit \
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN" \
