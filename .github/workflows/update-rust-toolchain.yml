@@ -66,6 +66,7 @@ jobs:
             ./rust-toolchain.toml
 
       - name: Commit and push
+        id: commit
         env:
           FEATURE_BRANCH: *feature_branch
         run: |
@@ -74,8 +75,13 @@ jobs:
           git add .
           git status
           git diff --staged
-          git commit --message "chore: updated toolchain to $TO_TOOLCHAIN"
-          git push --force-with-lease --set-upstream origin "$FEATURE_BRANCH"
+          if git diff --staged --quiet; then
+            echo 'up-to-date=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'up-to-date=false' >> "$GITHUB_OUTPUT"
+            git commit --message "chore: updated toolchain to $TO_TOOLCHAIN"
+            git push --force-with-lease --set-upstream origin "$FEATURE_BRANCH"
+          fi
 
       - name: Check if PR exists for branch
         id: pr_check
@@ -99,7 +105,7 @@ jobs:
           fi
 
       - name: Open PR
-        if: steps.pr_check.outputs.pr_exists == 'false'
+        if: steps.commit.outputs.up-to-date == 'false' && steps.pr_check.outputs.pr_exists == 'false'
         env:
           PR_TYPE: ${{ steps.create-branch.outputs.pr-type }}
           LABEL: &label "rust toolchain update"
@@ -112,7 +118,7 @@ jobs:
           --no-maintainer-edit
 
       - name: Update PR
-        if: steps.pr_check.outputs.pr_exists == 'true'
+        if: steps.commit.outputs.up-to-date == 'false' && steps.pr_check.outputs.pr_exists == 'true'
         env:
           PR_TYPE: ${{ steps.create-branch.outputs.pr-type }}
         run: |
@@ -120,6 +126,7 @@ jobs:
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN"
       
       - name: Trigger checks
+        if: steps.commit.outputs.up-to-date == 'false'
         env:
           # Token generated from (narrow down to just `0b10011/oxiplate`):
           # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&pull_requests=write>
@@ -129,3 +136,9 @@ jobs:
           gh pr close "$(git branch --show-current)" --comment 'Automatically closing and reopening to trigger checks.'
           echo "Reopening PR to trigger checks..."
           gh pr reopen "$(git branch --show-current)"
+      
+      - name: Close outdated PR
+        if: steps.commit.outputs.up-to-date == 'true'
+        run: |
+          echo "Closing PR..."
+          gh pr close "$(git branch --show-current)" --comment 'Automatically closing since the toolchain is already up-to-date.'
