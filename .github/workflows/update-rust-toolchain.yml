@@ -16,7 +16,7 @@ env:
   FROM_TOOLCHAIN: "nightly-2026-01-08"
 
   # Token generated from (narrow down to just `0b10011/oxiplate`):
-  # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write>
+  # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write&workflows=write>
   GITHUB_TOKEN: ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
 
 jobs:
