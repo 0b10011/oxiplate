@@ -91,7 +91,7 @@ jobs:
           git status
           git diff --staged
           git commit --message "chore: updated toolchain to $TO_TOOLCHAIN"
-          git push --force-with-lease
+          git push --force-with-lease --set-upstream origin
 
       - name: Check if PR exists for branch
         id: pr_check
