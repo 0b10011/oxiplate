@@ -4,16 +4,16 @@ use nom::Parser as _;
 use nom::bytes::complete::tag;
 use nom::combinator::cut;
 use nom::error::context;
-use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
+#[cfg(feature = "better-internal-errors")]
 use syn::spanned::Spanned;
 
 use super::super::expression::{Identifier, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens};
+use crate::{Source, State, Tokens, internal_error};
 
 #[derive(Debug)]
 pub struct Block<'a> {
@@ -26,15 +26,10 @@ pub struct Block<'a> {
 impl<'a> Block<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            Diagnostic::spanned(
+            internal_error!(
                 item.source().span().unwrap(),
-                Level::Error,
-                "Internal Oxiplate error: Attempted to add item to ended `block` statement.",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+block+statement")
-            .help("Include template that caused the issue and the associated note.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+                "Attempted to add item to ended `block` statement",
+            );
         }
 
         match item {
@@ -115,15 +110,10 @@ impl<'a> Block<'a> {
         }
 
         let Some(blocks) = block_stack.pop_front() else {
-            Diagnostic::spanned(
+            internal_error!(
                 child_prefix.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: `build_block()` should not be called with an empty block stack.",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=%60build_block()%60+should+not+be+called+with+an+empty+block")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+                "`build_block()` should not be called with an empty block stack",
+            );
         };
 
         if let Some((prefix, suffix)) = blocks.get(self.name.as_str()) {

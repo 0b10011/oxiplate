@@ -4,11 +4,10 @@ use nom::character::complete::char as nom_char;
 use nom::combinator::{cut, into, not, opt, peek};
 use nom::sequence::{pair, preceded, terminated};
 use nom::{AsChar as _, Parser as _};
-use proc_macro::Diagnostic;
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens};
+use crate::{Source, Tokens, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Integer<'a>(Source<'a>);
@@ -50,17 +49,7 @@ impl<'a> Integer<'a> {
             "b" => ("0b", char::is_bin_digit as fn(char) -> bool),
             "x" => ("0x", char::is_hex_digit as fn(char) -> bool),
             "o" => ("0o", char::is_oct_digit as fn(char) -> bool),
-            _ => {
-                Diagnostic::spanned(
-                    prefix.span().unwrap(),
-                    proc_macro::Level::Error,
-                    "Internal Oxiplate error. Unhandled alternative base prefix.",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+alternative+base+prefix")
-                .help("Include template that caused the issue.")
-                .emit();
-                unreachable!("Internal Oxiplate error. See previous error for more information.");
-            }
+            _ => internal_error!(prefix.span().unwrap(), "Unhandled alternative base prefix"),
         };
 
         let (input, number) = pair(

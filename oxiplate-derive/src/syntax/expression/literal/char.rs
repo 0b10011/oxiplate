@@ -5,11 +5,10 @@ use nom::character::complete::none_of;
 use nom::combinator::{cut, peek};
 use nom::error::context;
 use nom::sequence::preceded;
-use proc_macro::Diagnostic;
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens};
+use crate::{Source, Tokens, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Char<'a> {
@@ -63,29 +62,12 @@ impl<'a> Char<'a> {
             str => {
                 let mut chars = str.chars();
                 let Some(char) = chars.next() else {
-                    Diagnostic::spanned(
-                    source.span().unwrap(),
-                    proc_macro::Level::Error,
-                    "No char present in char expression",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=No+char+present+in+char+expression")
-                .help("Include template that caused the issue.")
-                .emit();
-                    unreachable!(
-                        "Internal Oxiplate error. See previous error for more information."
-                    );
+                    internal_error!(source.span().unwrap(), "No char present in char expression");
                 };
                 if chars.count() > 0 {
-                    Diagnostic::spanned(
-                    source.span().unwrap(),
-                    proc_macro::Level::Error,
-                    "More than one char present in char expression",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=More+than+one+char+present+in+char+expression")
-                .help("Include template that caused the issue.")
-                .emit();
-                    unreachable!(
-                        "Internal Oxiplate error. See previous error for more information."
+                    internal_error!(
+                        source.span().unwrap(),
+                        "More than one char present in char expression",
                     );
                 }
                 char

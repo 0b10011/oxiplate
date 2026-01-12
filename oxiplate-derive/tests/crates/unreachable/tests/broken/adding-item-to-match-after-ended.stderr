@@ -1,11 +1,10 @@
-error: Internal Oxiplate error: Attempted to add item to ended `match` statement.
+error: Internal Oxiplate error: Attempted to add item to ended `match` statement
  --> tests/broken/adding-item-to-match-after-ended.rs:4:62
   |
 4 | #[oxiplate_inline(r#"{% match 19 %}{% case _ %}{% endmatch %}{{ "b" }}"#)]
   |                                                              ^^^^^^^^^
   |
-  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+match+statement
-  = help: Include template that caused the issue and the associated note.
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+%60match%60+statement&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
 
 error: proc-macro derive panicked
  --> tests/broken/adding-item-to-match-after-ended.rs:3:10

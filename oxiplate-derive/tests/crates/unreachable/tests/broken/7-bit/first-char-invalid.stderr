@@ -1,11 +1,10 @@
-error: Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-7]`.
+error: Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-7]`
  --> tests/broken/7-bit/first-char-invalid.rs:5:22
   |
 5 | #[oxiplate_inline("/x8f")]
   |                      ^
   |
-  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code
-  = help: Include template that caused the issue.
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code.+Expected+%60%5B0-7%5D%60&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
 
 error: proc-macro derive panicked
  --> tests/broken/7-bit/first-char-invalid.rs:4:10

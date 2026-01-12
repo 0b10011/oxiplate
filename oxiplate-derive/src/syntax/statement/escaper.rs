@@ -2,7 +2,6 @@ use nom::Parser as _;
 use nom::branch::alt;
 use nom::combinator::cut;
 use nom::error::context;
-use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 use syn::LitStr;
@@ -13,7 +12,7 @@ use super::super::expression::{Identifier, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::whitespace;
-use crate::{Source, State, Tokens};
+use crate::{Source, State, Tokens, internal_error};
 
 #[derive(Debug)]
 pub struct DefaultEscaper<'a> {
@@ -124,17 +123,7 @@ pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statemen
     let can_replace_inferred_escaper = match tag.0.as_str() {
         "default_escaper_group" => false,
         "replace_escaper_group" => true,
-        _ => {
-            Diagnostic::spanned(
-                tag.0.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: Unhandled default escaper group tag",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+default+escaper+group+tag")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
-        }
+        _ => internal_error!(tag.0.span().unwrap(), "Unhandled default escaper group tag"),
     };
 
     let source = tag
