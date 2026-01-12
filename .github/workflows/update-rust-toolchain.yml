@@ -85,11 +85,11 @@ jobs:
         env:
           TO_TOOLCHAIN: *to_toolchain
         run: |
-          git status
-          git diff
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
+          git status
+          git diff --staged
           git commit --message "chore: updated toolchain to $TO_TOOLCHAIN"
           git push --force-with-lease
 
