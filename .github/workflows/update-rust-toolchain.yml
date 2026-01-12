@@ -84,6 +84,7 @@ jobs:
       - name: Commit and push
         env:
           TO_TOOLCHAIN: *to_toolchain
+          FEATURE_BRANCH: &feature_branch
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -91,7 +92,7 @@ jobs:
           git status
           git diff --staged
           git commit --message "chore: updated toolchain to $TO_TOOLCHAIN"
-          git push --force-with-lease --set-upstream origin
+          git push --force-with-lease --set-upstream origin "$FEATURE_BRANCH"
 
       - name: Check if PR exists for branch
         id: pr_check
