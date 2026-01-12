@@ -1,0 +1,25 @@
+name: newest-toolchain
+
+on:
+  workflow_call:
+    outputs:
+      toolchain:
+        description: "Latest rust toolchain that could be used"
+        value: ${{ jobs.toolchain.outputs.toolchain }}
+
+jobs:
+  toolchain:
+    runs-on: ubuntu-latest
+    outputs:
+      toolchain: ${{ steps.toolchain.outputs.toolchain }}
+    steps:
+      - name: Build name of latest possible toolchain
+        id: toolchain
+        run: echo 'toolchain=nightly-'$(date +'%Y-%m-%d') >> "$GITHUB_OUTPUT"
+
+  # Ensure generated toolchain is valid
+  validate-from-toolchain-format:
+    needs: toolchain
+    uses: ./.github/workflows/validate-toolchain-format.yml
+    with:
+      toolchain: ${{ needs.toolchain.outputs.toolchain }}

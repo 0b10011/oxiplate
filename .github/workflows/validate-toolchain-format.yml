@@ -1,0 +1,26 @@
+name: validate-toolchain-format
+
+on:
+  workflow_call:
+    inputs:
+      toolchain:
+        description: "Rust toolchain to validate the format of"
+        type: string
+
+env:
+  TOOLCHAIN_REGEX: "^nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate toolchain format
+        env:
+          TOOLCHAIN: ${{ inputs.toolchain }}
+        run: |
+          echo "Checking toolchain '$TOOLCHAIN' format..."
+          if [[ ! $TOOLCHAIN =~ $TOOLCHAIN_REGEX ]]; then
+            echo "'$TOOLCHAIN' is not in the expected format '$TOOLCHAIN_REGEX'" 1>&2
+            exit 1
+          fi
+          echo "Toolchain '$TOOLCHAIN' is in a valid format"

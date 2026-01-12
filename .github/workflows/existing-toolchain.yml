@@ -1,0 +1,31 @@
+name: existing-toolchain
+
+on:
+  workflow_call:
+    outputs:
+      toolchain:
+        description: "Rust toolchain currently in use"
+        value: ${{ jobs.toolchain.outputs.toolchain }}
+
+jobs:
+  toolchain:
+    runs-on: ubuntu-latest
+    outputs:
+      toolchain: ${{ steps.toolchain.outputs.toolchain }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Get current toolchain
+        id: toolchain
+        run: |
+          TOOLCHAIN=cat ./.github/TOOLCHAIN
+          echo "version=$(cat ./.github/TOOLCHAIN)" >> $GITHUB_OUTPUT
+
+  # Toolchain should already be validated if updated by the action,
+  # but it could be updated manually.
+  validate-from-toolchain-format:
+    needs: toolchain
+    uses: ./.github/workflows/validate-toolchain-format.yml
+    with:
+      toolchain: ${{ needs.toolchain.outputs.toolchain }}

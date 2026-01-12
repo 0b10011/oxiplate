@@ -11,20 +11,28 @@ concurrency:
 env:
   RUSTUP_AUTO_INSTALL: "0"
 
-  # DO NOT CHANGE MANUALLY
-  # This is automatically updated via this action.
-  FROM_TOOLCHAIN: "nightly-2026-01-08"
-
   # Token generated from (narrow down to just `0b10011/oxiplate`):
   # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write&workflows=write>
   GITHUB_TOKEN: ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
 
 jobs:
+  build-from-toolchain:
+    uses: ./.github/workflows/existing-toolchain.yml
+
+  build-to-toolchain:
+    uses: ./.github/workflows/newest-toolchain.yml
+
   open-pr-with-updated-toolchain:
+    needs: [
+      build-from-toolchain,
+      build-to-toolchain,
+    ]
     permissions:
-      actions: write
       contents: write
       pull-requests: write
+    env:
+      FROM_TOOLCHAIN: ${{ needs.build-from-toolchain.outputs.toolchain }}
+      TO_TOOLCHAIN: ${{ needs.build-to-toolchain.outputs.toolchain }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,27 +42,6 @@ jobs:
 
       - name: Enable color output in git
         run: git config --global color.ui always
-
-      - name: Build name of latest possible toolchain
-        id: toolchain
-        run: echo 'toolchain=nightly-'$(date +'%Y-%m-%d') >> "$GITHUB_OUTPUT"
-
-      # FROM_TOOLCHAIN should already be validated if updated by this action,
-      # but it could be updated manually.
-      - name: Validate toolchain names
-        env:
-          TO_TOOLCHAIN: &to_toolchain ${{ steps.toolchain.outputs.toolchain }}
-          TOOLCHAIN_REGEX: "^nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-        run: |
-          if [[ ! $FROM_TOOLCHAIN =~ $TOOLCHAIN_REGEX ]]; then
-            echo "'$FROM_TOOLCHAIN' is not in the expected format '$TOOLCHAIN_REGEX'" 1>&2
-            exit 1
-          fi
-
-          if [[ ! $TO_TOOLCHAIN =~ $TOOLCHAIN_REGEX ]]; then
-            echo "'$TO_TOOLCHAIN' is not in the expected format '$TOOLCHAIN_REGEX'" 1>&2
-            exit 1
-          fi
 
       - name: Create branch
         id: create-branch
@@ -75,8 +62,6 @@ jobs:
           fi
 
       - name: Update toolchain in files
-        env:
-          TO_TOOLCHAIN: *to_toolchain
         run: |
           sed --in-place --expression "s/$FROM_TOOLCHAIN/$TO_TOOLCHAIN/g" \
             ./justfile \
@@ -87,7 +72,6 @@ jobs:
 
       - name: Commit and push
         env:
-          TO_TOOLCHAIN: *to_toolchain
           FEATURE_BRANCH: *feature_branch
         run: |
           git config --local user.name "github-actions[bot]"
@@ -122,7 +106,6 @@ jobs:
       - name: Open PR
         if: steps.pr_check.outputs.pr_exists == 'false'
         env:
-          TO_TOOLCHAIN: *to_toolchain
           PR_TYPE: ${{ steps.create-branch.outputs.pr-type }}
           LABEL: &label "rust toolchain update"
         run: |
@@ -136,7 +119,6 @@ jobs:
       - name: Update PR
         if: steps.pr_check.outputs.pr_exists == 'true'
         env:
-          TO_TOOLCHAIN: *to_toolchain
           PR_TYPE: ${{ steps.create-branch.outputs.pr-type }}
           LABEL: *label
         run: |
