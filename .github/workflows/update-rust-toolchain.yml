@@ -31,6 +31,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enable color output in git
+        run: git config --global color.ui always
+
       - name: Build name of latest possible toolchain
         id: toolchain
         run: echo 'toolchain=nightly-'$(date +'%Y-%m-%d') >> "$GITHUB_OUTPUT"
