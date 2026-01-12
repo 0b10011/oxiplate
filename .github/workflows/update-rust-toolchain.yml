@@ -126,6 +126,6 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
         run: |
           echo "Closing PR..."
-          gh pr close "$(git branch --show-current)"
+          gh pr close "$(git branch --show-current)" --message 'Automatically closing and reopening to trigger checks.'
           echo "Reopening PR to trigger checks..."
           gh pr reopen "$(git branch --show-current)"
