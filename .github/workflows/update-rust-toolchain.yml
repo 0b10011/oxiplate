@@ -111,7 +111,7 @@ jobs:
         run: |
           gh pr create \
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN" \
-          --body "Automatic toolchain update by `update-rust-nightly` action." \
+          --body 'Automatic toolchain update by "update-rust-toolchain" action.' \
           --assignee '0b10011' \
           --label $LABEL \
           --no-maintainer-edit
@@ -124,4 +124,4 @@ jobs:
         run: |
           gh pr edit \
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN" \
-          --body "Automatic toolchain update by `update-rust-nightly` action."
+          --body 'Automatic toolchain update by "update-rust-nightly" action.'
