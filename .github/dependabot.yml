@@ -8,6 +8,7 @@ updates:
       prefix: "chore"
       prefix-development: "build"
       include: "scope"
+    versioning-strategy: widen
 
   - package-ecosystem: "github-actions"
     directory: "/"
