@@ -1,4 +1,4 @@
-name: Book Deploy
+name: deploy-book
 
 on:
   push:
@@ -9,19 +9,24 @@ concurrency:
   group: "${{ github.workflow }}:${{ github.ref }}"
 
 jobs:
+  get-toolchain:
+    uses: ./.github/workflows/existing-toolchain.yml
+
   book-setup:
+    needs: get-toolchain
     uses: ./.github/workflows/book-setup.yml
     with:
       # Should match value in `/rust-toolchain.toml`
-      toolchain: &toolchain "nightly-2026-01-08"
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   book-tests:
+    needs: get-toolchain
     uses: ./.github/workflows/book-tests.yml
     with:
-      toolchain: *toolchain
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   deploy:
-    needs: [book-setup, book-tests]
+    needs: [get-toolchain, book-setup, book-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write  # To push a branch 
@@ -31,7 +36,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # master
         with:
-          toolchain: *toolchain
+          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
