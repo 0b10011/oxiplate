@@ -24,7 +24,7 @@ proc-macro2 = { version = "1.0.105", default-features = false, features = ["proc
 quote = { version = "1.0.43", default-features = false, features = ["proc-macro"] }
 serde = { version = "1.0.217", default-features = false, features = ["derive"], optional = true}
 syn = { version = "2.0.114", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
-toml = {version = "0.9.2", default-features = false, features = ["std", "serde", "parse"], optional = true}
+toml = {version = "0.9.11", default-features = false, features = ["std", "serde", "parse"], optional = true}
 
 [dev-dependencies]
 rustversion = "1.0.19"
