@@ -79,7 +79,7 @@ jobs:
             ./rust-toolchain.toml \
             ./.github/workflows/book.yml \
             ./.github/workflows/tests-and-coverage.yml \
-            ./.github/workflows/update-rust-nightly.yml
+            ./.github/workflows/update-rust-toolchain.yml
 
       - name: Commit and push
         env:
