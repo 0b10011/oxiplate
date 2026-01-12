@@ -91,11 +91,11 @@ jobs:
           
           if echo $PR_URLS | grep -q "."; then
             echo 'pr_exists=true' >> "$GITHUB_OUTPUT"
-            echo 'Pull request already exists:'
+            echo 'An open pull request already exists:'
             echo $PR_URLS
           else
             echo 'pr_exists=false' >> "$GITHUB_OUTPUT"
-            echo 'No pull request currently exists'
+            echo 'No open pull request currently exists'
           fi
 
       - name: Open PR
