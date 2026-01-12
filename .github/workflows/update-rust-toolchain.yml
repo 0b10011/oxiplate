@@ -126,7 +126,7 @@ jobs:
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN"
       
       - name: Trigger checks
-        if: steps.commit.outputs.up-to-date == 'false' && steps.pr_check.outputs.pr_exists == 'true'
+        if: steps.commit.outputs.up-to-date == 'false'
         env:
           # Token generated from (narrow down to just `0b10011/oxiplate`):
           # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&pull_requests=write>
@@ -138,7 +138,7 @@ jobs:
           gh pr reopen "$(git branch --show-current)"
       
       - name: Close outdated PR
-        if: steps.commit.outputs.up-to-date == 'true'
+        if: steps.commit.outputs.up-to-date == 'true' && steps.pr_check.outputs.pr_exists == 'true'
         run: |
           echo "Closing PR..."
           gh pr close "$(git branch --show-current)" --comment 'Automatically closing since the toolchain is already up-to-date.'
