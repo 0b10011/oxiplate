@@ -84,7 +84,7 @@ jobs:
       - name: Commit and push
         env:
           TO_TOOLCHAIN: *to_toolchain
-          FEATURE_BRANCH: &feature_branch
+          FEATURE_BRANCH: *feature_branch
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -97,8 +97,8 @@ jobs:
       - name: Check if PR exists for branch
         id: pr_check
         env:
-          BASE_BRANCH: &base_branch
-          FEATURE_BRANCH: &feature_branch
+          BASE_BRANCH: *base_branch
+          FEATURE_BRANCH: *feature_branch
         run: |
           PR_URLS=$(gh pr list \
             --base "$BASE_BRANCH" \
