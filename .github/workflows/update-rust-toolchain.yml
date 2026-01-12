@@ -122,8 +122,8 @@ jobs:
       - name: Trigger checks
         env:
           # Token generated from (narrow down to just `0b10011/oxiplate`):
-          # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write&workflows=write>
-          GH_TOKEN: ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
+          # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&pull_requests=write>
+          GH_TOKEN: ${{ secrets.PAT_TO_MANAGE_PRS }}
         run: |
           echo "Closing PR..."
           gh pr close "$(git branch --show-current)" --comment 'Automatically closing and reopening to trigger checks.'
