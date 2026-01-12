@@ -144,4 +144,4 @@ jobs:
         if: steps.commit.outputs.up-to-date == 'true' && steps.pr_check.outputs.pr_exists == 'true'
         run: |
           echo "Closing PR..."
-          gh pr close "$(git branch --show-current)" --comment 'Automatically closing since the toolchain is already up-to-date.'
+          gh pr close "$(git branch --show-current)" --delete-branch --comment 'Automatically closing since the toolchain is already up-to-date.'
