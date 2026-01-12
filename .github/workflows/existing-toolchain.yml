@@ -19,8 +19,7 @@ jobs:
       - name: Get current toolchain
         id: toolchain
         run: |
-          TOOLCHAIN=cat ./.github/TOOLCHAIN
-          echo "version=$(cat ./.github/TOOLCHAIN)" >> $GITHUB_OUTPUT
+          echo "toolchain=$(cat ./.current-toolchain)" >> $GITHUB_OUTPUT
 
   # Toolchain should already be validated if updated by the action,
   # but it could be updated manually.
