@@ -64,11 +64,9 @@ jobs:
       - name: Update toolchain in files
         run: |
           sed --in-place --expression "s/$FROM_TOOLCHAIN/$TO_TOOLCHAIN/g" \
+            ./.current-toolchain \
             ./justfile \
-            ./rust-toolchain.toml \
-            ./.github/workflows/book.yml \
-            ./.github/workflows/tests-and-coverage.yml \
-            ./.github/workflows/update-rust-toolchain.yml
+            ./rust-toolchain.toml
 
       - name: Commit and push
         env:
