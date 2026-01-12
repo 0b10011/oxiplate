@@ -19,7 +19,15 @@ jobs:
       - name: Get current toolchain
         id: toolchain
         run: |
-          echo "toolchain=$(cat ./.current-toolchain)" >> $GITHUB_OUTPUT
+          TOOLCHAIN="$(cat ./.current-toolchain)"
+
+          SAFE_REGEX='^[a-z0-9-]+$'
+          if [[ ! $TOOLCHAIN =~ $SAFE_REGEX ]]; then
+            echo 'Toolchain value in "./.current-toolchain" contains unexpected characters and further checks have been abandoned'
+            exit 1
+          fi
+
+          echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
 
   # Toolchain should already be validated if updated by the action,
   # but it could be updated manually.
