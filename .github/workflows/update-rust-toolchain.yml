@@ -44,11 +44,14 @@ jobs:
         id: create-branch
         env:
           BASE_BRANCH: &base_branch ${{ github.event.repository.default_branch }}
-          # Branch name built from FROM_TOOLCHAIN
+
+          # Branch name is the same for each run
           # to ensure multiple PRs don't get opened
-          # if the first PR doens't get merged
-          # before this action runs again.
-          FEATURE_BRANCH: &feature_branch "toolchain-update-from-${{ env.FROM_TOOLCHAIN }}"
+          # if the first PR doesn't get merged
+          # before this action runs again,
+          # and to close an open PR
+          # if the toolchain gets updated another way.
+          FEATURE_BRANCH: &feature_branch "automatic-toolchain-update"
         run: |
           if git checkout $FEATURE_BRANCH; then
             echo "Branch '$FEATURE_BRANCH' found; resetting to '$BASE_BRANCH' branch..."
