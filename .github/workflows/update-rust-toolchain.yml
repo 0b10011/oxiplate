@@ -10,10 +10,7 @@ concurrency:
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
-
-  # Token generated from (narrow down to just `0b10011/oxiplate`):
-  # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write&workflows=write>
-  GITHUB_TOKEN: ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build-from-toolchain:
@@ -39,7 +36,10 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0
-          token: ${{ env.GITHUB_TOKEN }}
+
+          # Token generated from (narrow down to just `0b10011/oxiplate`):
+          # <https://github.com/settings/personal-access-tokens/new?name=oxiplate-toolchain-updater&description=Used%20to%20update%20the%20toolchain%20automatically%20in%20%60oxiplate%60%20via%20an%20Action.&expires_in=365&contents=write&pull_requests=write&workflows=write>
+          token: &pat ${{ secrets.PAT_TO_OPEN_PR_FOR_TOOLCHAIN_UPDATES }}
 
       - name: Enable color output in git
         run: git config --global color.ui always
