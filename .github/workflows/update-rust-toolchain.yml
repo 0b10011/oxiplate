@@ -128,4 +128,4 @@ jobs:
           echo "Closing PR..."
           gh pr close "$(git branch --show-current)"
           echo "Reopening PR to trigger checks..."
-          gh pr open "$(git branch --show-current)"
+          gh pr reopen "$(git branch --show-current)"
