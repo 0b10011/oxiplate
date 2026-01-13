@@ -23,7 +23,7 @@ rustversion = "1.0.19"
 trybuild = "1.0.101"
 
 [features]
-default = ["better-internal-errors", "built-in-escapers", "config", "fast-escape-ints"]
+default = ["better-internal-errors", "built-in-escapers", "config", "external-template-spans", "fast-escape-ints"]
 
 # Improved error messages for internal Oxiplate errors,
 # but requires nightly.
@@ -39,6 +39,13 @@ config = ["oxiplate-derive/config"]
 # Feature only meant to be turned on for tests.
 # Changes the output for various types to 
 debug-fast-escape-type-priority = ["oxiplate-traits/debug-fast-escape-type-priority"]
+
+# Turns on spans for external templates,
+# considerably improving error messages
+# by pointing to the exact code
+# that caused an issue,
+# but requires nightly.
+external-template-spans = ["oxiplate-derive/external-template-spans"]
 
 # Includes the `itoa` dependency
 # and speeds up integer escaping.

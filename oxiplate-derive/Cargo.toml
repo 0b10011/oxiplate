@@ -32,11 +32,18 @@ rustversion = "1.0.19"
 trybuild = "1.0.101"
 
 [features]
-default = ["config", "better-internal-errors"]
+default = ["config", "better-internal-errors", "external-template-spans"]
 
 # Improved error messages for internal Oxiplate errors,
 # but requires nightly.
 better-internal-errors = ["dep:percent-encoding"]
+
+# Turns on spans for external templates,
+# considerably improving error messages
+# by pointing to the exact code
+# that caused an issue,
+# but requires nightly.
+external-template-spans = []
 
 # Turns on some built-in escapers in the `oxiplate` package.
 # Requires the use of `oxiplate` rather than `oxiplate-derive` directly.

@@ -1,5 +1,5 @@
 #![cfg_attr(feature = "better-internal-errors", feature(proc_macro_diagnostic))]
-#![feature(proc_macro_expand)]
+#![cfg_attr(feature = "external-template-spans", feature(proc_macro_expand))]
 #![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/Oxiplate/issues/")]
 #![doc(test(no_crate_inject))]
@@ -11,6 +11,8 @@ mod state;
 mod syntax;
 
 use std::collections::{HashMap, VecDeque};
+#[cfg(not(feature = "external-template-spans"))]
+use std::fs;
 use std::io;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
@@ -265,10 +267,13 @@ fn parse_template_and_data(
     };
 
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
-    let (template, estimated_length): Tokens =
-        process_parsed_tokens(parsed_tokens, &template_type, &mut state).map_err(
-            |err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()),
-        )?;
+    let (template, estimated_length): Tokens = process_parsed_tokens(
+        parsed_tokens,
+        &mut state,
+        #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
+        &template_type,
+    )
+    .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
 
     Ok((
         template,
@@ -290,8 +295,9 @@ type ParsedTokens = Result<
 
 fn process_parsed_tokens<'a>(
     parsed_tokens: ParsedTokens,
-    template_type: &TemplateType,
     state: &'a mut State<'a>,
+    #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
+    template_type: &TemplateType,
 ) -> Result<Tokens, syn::Error> {
     match parsed_tokens {
         #[cfg(feature = "oxiplate")]
@@ -322,7 +328,13 @@ fn process_parsed_tokens<'a>(
         }
         Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
         Ok((span, input, origin, inferred_escaper_group_name)) => {
-            let (code, literal) = parse_code_literal(template_type, &input.into(), span)?;
+            let (code, literal) = parse_code_literal(
+                &input.into(),
+                #[cfg(feature = "external-template-spans")]
+                template_type,
+                #[cfg(feature = "external-template-spans")]
+                span,
+            )?;
 
             if let Some(inferred_escaper_group_name) = &inferred_escaper_group_name {
                 state.inferred_escaper_group = Some((
@@ -397,30 +409,36 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
 }
 
 fn parse_code_literal(
-    template_type: &TemplateType,
     input: &TokenStream,
-    span: Span,
+    #[cfg(feature = "external-template-spans")] template_type: &TemplateType,
+    #[cfg(feature = "external-template-spans")] span: Span,
 ) -> Result<(String, Literal), syn::Error> {
-    let invalid_attribute_message = match template_type {
-        TemplateType::Path | TemplateType::Inline => {
-            r#"Must provide either an external or internal template:
+    #[cfg(feature = "external-template-spans")]
+    let input = {
+        let invalid_attribute_message = match template_type {
+            TemplateType::Path | TemplateType::Inline => {
+                r#"Must provide either an external or internal template:
 External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
 Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
+            }
+            TemplateType::Extends => {
+                r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
+            }
+            TemplateType::Include => {
+                r#"Must provide a path to a template that exists. E.g., `{% include "path/to/template.html.oxip" %}`"#
+            }
+        };
+
+        // Expand macros
+        let input = input.expand_expr();
+        if input.is_err() {
+            return Err(syn::Error::new(span, invalid_attribute_message));
         }
-        TemplateType::Extends => {
-            r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
-        }
-        TemplateType::Include => {
-            r#"Must provide a path to a template that exists. E.g., `{% include "path/to/template.html.oxip" %}`"#
-        }
+        input.unwrap()
     };
 
-    // Expand any macros, or fallback to the unexpanded input
-    let input = input.expand_expr();
-    if input.is_err() {
-        return Err(syn::Error::new(span, invalid_attribute_message));
-    }
-    let input = input.unwrap();
+    #[cfg(not(feature = "external-template-spans"))]
+    let input = input.clone();
 
     // Parse the string and token out of the expanded expression
     let parser = |input: syn::parse::ParseStream| input.parse::<LitStr>();
@@ -491,6 +509,7 @@ impl Parse for TemplateWithoutEscaper {
     }
 }
 
+#[cfg_attr(not(feature = "external-template-spans"), derive(Debug))]
 enum ParsedEscaperError {
     #[cfg(feature = "oxiplate")]
     EscaperNotFound((String, Span)),
@@ -720,7 +739,6 @@ fn parse_source_tokens_for_path(
     let full_path = template_path(path, attr.span())?;
 
     let span = path.span();
-    let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
 
     #[cfg(feature = "oxiplate")]
     let mut escaper_name: Option<String> = None;
@@ -731,7 +749,7 @@ fn parse_source_tokens_for_path(
     if *state.config.infer_escaper_group_from_file_extension {
         // Get the template's file extension,
         // but ignore `.oxip`.
-        let path_value = path.value();
+        let path_value = full_path.to_string_lossy();
         let mut extensions = path_value.split('.');
         let mut extension = extensions.next_back();
         if extension == Some("oxip") {
@@ -759,21 +777,25 @@ fn parse_source_tokens_for_path(
         }
     }
 
+    #[cfg(feature = "external-template-spans")]
+    let tokens = {
+        let path = syn::LitStr::new(&full_path.to_string_lossy(), span);
+        quote::quote_spanned!(span=> include_str!(#path))
+    };
+
+    #[cfg(not(feature = "external-template-spans"))]
+    let tokens = {
+        let template_string = fs::read_to_string(&full_path)
+            .expect("Template has already been checked to exist; perhaps a permissions issue?");
+
+        quote_spanned! {span=> #template_string }
+    };
+
     #[cfg(feature = "oxiplate")]
-    return Ok((
-        span,
-        quote::quote_spanned!(span=> include_str!(#path)),
-        Some(full_path),
-        escaper_name,
-    ));
+    return Ok((span, tokens, Some(full_path), escaper_name));
 
     #[cfg(not(feature = "oxiplate"))]
-    Ok((
-        span,
-        quote::quote_spanned!(span=> include_str!(#path)),
-        Some(full_path),
-        None,
-    ))
+    Ok((span, tokens, Some(full_path), None))
 }
 
 /// Error when attempting to append one path onto another one.
