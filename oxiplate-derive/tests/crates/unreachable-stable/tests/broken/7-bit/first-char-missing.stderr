@@ -1,0 +1,31 @@
+error: Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string
+ --> tests/broken/7-bit/first-char-missing.rs:5:21
+  |
+5 | #[oxiplate_inline("/x")]
+  |                     ^
+  |
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code.+Unexpected+end+of+string&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
+
+error: proc-macro derive panicked
+ --> tests/broken/7-bit/first-char-missing.rs:4:10
+  |
+4 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/broken/7-bit/first-char-missing.rs:9:18
+  |
+9 |     print!("{}", Data);
+  |             --   ^^^^ `Data` cannot be formatted with the default formatter
+  |             |
+  |             required by this formatting parameter
+  |
+help: the trait `std::fmt::Display` is not implemented for `Data`
+ --> tests/broken/7-bit/first-char-missing.rs:6:1
+  |
+6 | struct Data;
+  | ^^^^^^^^^^^
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)

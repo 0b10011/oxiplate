@@ -101,7 +101,9 @@ run-against-libs command:
     {{ command }} --workspace \
         --exclude oxiplate-derive \
         --exclude oxiplate-unreachable \
+        --exclude oxiplate-unreachable-stable \
         --exclude oxiplate-derive-unreachable \
+        --exclude oxiplate-derive-unreachable-stable \
         --exclude oxiplate-test-fast-escape-type-priority \
         --exclude oxiplate-test-slow-escape-ints
 
@@ -113,7 +115,9 @@ run-against-all command: (run-against-libs command)
     {{ command }} --package oxiplate-derive --test broken -- --ignored
     {{ command }} --package oxiplate-derive --test clippy -- --ignored
     {{ command }} --package oxiplate-unreachable
+    {{ command }} --package oxiplate-unreachable-stable
     {{ command }} --package oxiplate-derive-unreachable
+    {{ command }} --package oxiplate-derive-unreachable-stable
 
 # Initial setup. Run once to install all necessary binaries. Run again to ensure they are all up-to-date.
 [group("Setup"), group("General Commands")]

@@ -103,6 +103,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-unreachable-stable"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-config-malformed"
 version = "0.0.0"
 dependencies = [
@@ -239,6 +247,14 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-unreachable"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-unreachable-stable"
 version = "0.0.0"
 dependencies = [
  "oxiplate",
