@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.11...oxiplate-derive-v0.15.12) - 2026-01-13
+
+### Added
+
+- moved the `proc_macro_diagnostic` toggle behind the feature `better-internal-errors` and improved error messages
+
+### Other
+
+- added correct output for unreachable internal errors with `better-internal-errors` feature turned off
+- duplicated tests for unreachable internal errors for testing without nightly-only `better-internal-errors` feature
+- *(deps)* bump toml from 0.9.10+spec-1.1.0 to 0.9.11+spec-1.1.0
+
 ## [0.15.11](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.10...oxiplate-derive-v0.15.11) - 2026-01-10
 
 ### Fixed
