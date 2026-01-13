@@ -23,7 +23,11 @@ rustversion = "1.0.19"
 trybuild = "1.0.101"
 
 [features]
-default = ["built-in-escapers", "config", "fast-escape-ints"]
+default = ["better-internal-errors", "built-in-escapers", "config", "fast-escape-ints"]
+
+# Improved error messages for internal Oxiplate errors,
+# but requires nightly.
+better-internal-errors = ["oxiplate-derive/better-internal-errors"]
 
 # Automatically adds the built-in escapers to the list of available escapers,
 # and uses "html" as the default escaper if a different one isn't specified.

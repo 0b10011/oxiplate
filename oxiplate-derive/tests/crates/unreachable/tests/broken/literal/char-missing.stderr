@@ -1,11 +1,10 @@
-error: No char present in char expression
+error: Internal Oxiplate error: No char present in char expression
  --> tests/broken/literal/char-missing.rs:4:23
   |
 4 | #[oxiplate_inline("{{ '' }}")]
   |                       ^^
   |
-  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=No+char+present+in+char+expression
-  = help: Include template that caused the issue.
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=No+char+present+in+char+expression&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
 
 error: proc-macro derive panicked
  --> tests/broken/literal/char-missing.rs:3:10

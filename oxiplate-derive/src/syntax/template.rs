@@ -4,7 +4,6 @@ use nom::bytes::complete::{tag, take_while1};
 use nom::combinator::{eof, opt};
 use nom::multi::many0;
 use nom_language::error::{VerboseError, VerboseErrorKind};
-use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
@@ -13,7 +12,7 @@ use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
 use crate::syntax::item::{WhitespacePreference, parse_trailing_whitespace};
-use crate::{State, Tokens};
+use crate::{State, Tokens, internal_error};
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
@@ -169,15 +168,7 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
         "{-}" => WhitespacePreference::Remove,
         "{_}" => WhitespacePreference::Replace,
         _ => {
-            Diagnostic::spanned(
-                tag.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: Unhandled whitespace adjustment tag",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+adjustment+tag")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+            internal_error!(tag.span().unwrap(), "Unhandled whitespace adjustment tag");
         }
     };
 

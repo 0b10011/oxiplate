@@ -4,8 +4,9 @@ use std::path::PathBuf;
 use std::str::{CharIndices, Chars};
 
 use nom::{Compare, Input, Needed, Offset};
-use proc_macro::Diagnostic;
 use proc_macro2::{Literal, Span};
+
+use crate::internal_error;
 
 type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 
@@ -34,25 +35,24 @@ pub(crate) struct Source<'a> {
 }
 
 macro_rules! bail {
-    ($message:expr, $help:literal, $original:ident, $debug_range:ident) => {{
-        let span = $original
-            .literal
-            .subspan($debug_range.clone())
-            .unwrap_or_else(proc_macro2::Span::call_site)
-            .resolved_at($original.span_hygiene);
-        Diagnostic::spanned(span.unwrap(), proc_macro::Level::Error, $message)
-            .help($help)
-            .help("Include template that caused the issue.")
-            .emit();
-        unreachable!("Internal Oxiplate error. See previous error for more information.");
+    ($message:expr, $original:ident, $debug_range:ident) => {{
+        crate::internal_error!(
+            $original
+                .literal
+                .subspan($debug_range.clone())
+                .unwrap_or_else(proc_macro2::Span::call_site)
+                .resolved_at($original.span_hygiene)
+                .unwrap(),
+            $message,
+        );
     }};
 }
 
 macro_rules! bail_eof {
-    ($message:expr, $help:literal, $original:ident, $debug_range:ident) => {{
+    ($message:expr, $original:ident, $debug_range:ident) => {{
         $debug_range.start -= 1;
         $debug_range.end -= 1;
-        bail!($message, $help, $original, $debug_range);
+        bail!($message, $original, $debug_range);
     }};
 }
 
@@ -88,11 +88,18 @@ impl<'a> Source<'a> {
         let mut debug_range = self.range.clone();
         debug_range.start = 0;
         debug_range.end = 1;
-        let hash_count = Self::parse_open(&mut chars, &mut range, self.original, &mut debug_range);
+        let hash_count = Self::parse_open(
+            &mut chars,
+            &mut range,
+            #[cfg(feature = "better-internal-errors")]
+            self.original,
+            &mut debug_range,
+        );
         Self::parse_interior(
             &mut chars,
             &mut range,
             hash_count,
+            #[cfg(feature = "better-internal-errors")]
             self.original,
             &mut debug_range,
         );
@@ -107,21 +114,15 @@ impl<'a> Source<'a> {
     #[must_use]
     pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
         if self.range.end != source_to_merge.range.start {
-            Diagnostic::spanned(
+            internal_error!(
                 vec![self.span().unwrap(), source_to_merge.span().unwrap()],
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: Disjointed ranges cannot be merged",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged")
-            .help("Include template that caused the issue and the associated note.")
-            .note(format!("Error: {error_message}"))
+                format!("Disjointed ranges cannot be merged. Error: {error_message}"),
 
-            // Spans are sometimes overlapping,
-            // so having them split into separate messages is helpful sometimes.
-            .span_help(self.span().unwrap(), "First range here")
-            .span_help(source_to_merge.span().unwrap(), "Second range here")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+                // Spans are sometimes overlapping,
+                // so having them split into separate messages is helpful sometimes.
+                .span_help(self.span().unwrap(), "First range here")
+                .span_help(source_to_merge.span().unwrap(), "Second range here")
+            );
         }
 
         let mut range = self.range;
@@ -154,13 +155,12 @@ impl<'a> Source<'a> {
     fn parse_open(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
-        owned_source: &SourceOwned,
+        #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) -> Option<usize> {
         let Some((pos, char)) = chars.next() else {
             bail_eof!(
-                r"Internal Oxiplate error: Failed to parse start of string. Unexpected end of string.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+string",
+                r"Failed to parse start of string. Unexpected end of string",
                 owned_source,
                 debug_range
             )
@@ -174,8 +174,7 @@ impl<'a> Source<'a> {
                 return None;
             }
             _ => bail!(
-                r#"Internal Oxiplate error: Failed to parse start of string. Expected `r` or `"`."#,
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+string",
+                r#"Failed to parse start of string. Expected `r` or `"`"#,
                 owned_source,
                 debug_range
             ),
@@ -194,8 +193,7 @@ impl<'a> Source<'a> {
                     break;
                 }
                 _ => bail!(
-                    r#"Internal Oxiplate error: Failed to parse start of raw string. Expected `#` or `"`."#,
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+start+of+raw+string",
+                    r#"Failed to parse start of raw string. Expected `#` or `"`"#,
                     owned_source,
                     debug_range
                 ),
@@ -220,7 +218,7 @@ impl<'a> Source<'a> {
     fn parse_7_bit_character_code(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
-        owned_source: &SourceOwned,
+        #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
         #[cfg(feature = "unreachable")]
@@ -231,14 +229,12 @@ impl<'a> Source<'a> {
         match chars.next() {
             Some((pos, '0'..='7')) => Self::update_range(range, pos),
             Some(_) => bail!(
-                r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-7]`.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                r"Failed to parse 7-bit character code. Expected `[0-7]`",
                 owned_source,
                 debug_range
             ),
             None => bail_eof!(
-                r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                r"Failed to parse 7-bit character code. Unexpected end of string",
                 owned_source,
                 debug_range
             ),
@@ -252,14 +248,12 @@ impl<'a> Source<'a> {
         match chars.next() {
             Some((pos, '0'..='9' | 'a'..='f' | 'A'..='F')) => Self::update_range(range, pos),
             Some(_) => bail!(
-                r"Internal Oxiplate error: Failed to parse 7-bit character code. Expected `[0-9a-f]`.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                r"Failed to parse 7-bit character code. Expected `[0-9a-f]`",
                 owned_source,
                 debug_range
             ),
             None => bail_eof!(
-                r"Internal Oxiplate error: Failed to parse 7-bit character code. Unexpected end of string.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+7-bit+character+code",
+                r"Failed to parse 7-bit character code. Unexpected end of string",
                 owned_source,
                 debug_range
             ),
@@ -271,7 +265,7 @@ impl<'a> Source<'a> {
     fn parse_unicode_escape(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
-        owned_source: &SourceOwned,
+        #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
         let mut unicode_chars_parsed = -1;
@@ -282,8 +276,7 @@ impl<'a> Source<'a> {
 
             let Some((pos, char)) = chars.next() else {
                 bail_eof!(
-                    r"Internal Oxiplate error: Failed to parse unicode escape. Unexpected end of string.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    r"Failed to parse unicode escape. Unexpected end of string",
                     owned_source,
                     debug_range
                 )
@@ -306,16 +299,18 @@ impl<'a> Source<'a> {
                     let code = match u32::from_str_radix(&unicode_code, 16) {
                         Ok(code) => code,
                         Err(err) => bail!(
-                            format!(r"Internal Oxiplate error: Failed to parse unicode escape. Expected a u32, found `{unicode_code}`. Error: {err}"),
-                            "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                            format!(
+                                r"Failed to parse unicode escape. Expected a u32, found `{unicode_code}`. Error: {err}"
+                            ),
                             owned_source,
                             debug_range
                         ),
                     };
                     let Some(char) = char::from_u32(code) else {
                         bail!(
-                            format!(r"Internal Oxiplate error: Failed to parse unicode escape. `{unicode_code}` did not map to a char."),
-                            "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                            format!(
+                                r"Failed to parse unicode escape. `{unicode_code}` did not map to a char"
+                            ),
                             owned_source,
                             debug_range
                         );
@@ -334,32 +329,29 @@ impl<'a> Source<'a> {
                     return;
                 }
                 (-1, _) => bail!(
-                    r"Internal Oxiplate error: Failed to parse unicode escape. Expected `{`.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    r"Failed to parse unicode escape. Expected `{`",
                     owned_source,
                     debug_range
                 ),
                 (0, _) => bail!(
-                    r"Internal Oxiplate error: Failed to parse unicode escape. Expected `[0-9a-f]`.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    r"Failed to parse unicode escape. Expected `[0-9a-f]`",
                     owned_source,
                     debug_range
                 ),
                 (1..=3, _) => bail!(
-                    r"Internal Oxiplate error: Failed to parse unicode escape. Expected `[0-9a-f]` or `}`.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    r"Failed to parse unicode escape. Expected `[0-9a-f]` or `}`",
                     owned_source,
                     debug_range
                 ),
                 (4, _) => bail!(
-                    r"Internal Oxiplate error: Failed to parse unicode escape. Expected `}`.",
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    r"Failed to parse unicode escape. Expected `}`",
                     owned_source,
                     debug_range
                 ),
                 (_, _) => bail!(
-                    format!(r"Internal Oxiplate error: Failed to parse unicode escape. All possible cases should be covered. Found {char} with count {unicode_chars_parsed}."),
-                    "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+unicode+escape",
+                    format!(
+                        r"Failed to parse unicode escape. All possible cases should be covered. Found {char} with count {unicode_chars_parsed}"
+                    ),
                     owned_source,
                     debug_range
                 ),
@@ -390,7 +382,7 @@ impl<'a> Source<'a> {
     fn parse_escape(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
-        owned_source: &SourceOwned,
+        #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
         #[cfg(feature = "unreachable")]
@@ -398,8 +390,7 @@ impl<'a> Source<'a> {
 
         let Some((pos, char)) = chars.next() else {
             bail_eof!(
-                r"Internal Oxiplate error: Failed to parse escape. Unexpected end of string.",
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+escape",
+                r"Failed to parse escape. Unexpected end of string",
                 owned_source,
                 debug_range
             )
@@ -415,13 +406,25 @@ impl<'a> Source<'a> {
             'x' => {
                 debug_range.start += 1;
                 debug_range.end += 1;
-                Self::parse_7_bit_character_code(chars, range, owned_source, debug_range);
+                Self::parse_7_bit_character_code(
+                    chars,
+                    range,
+                    #[cfg(feature = "better-internal-errors")]
+                    owned_source,
+                    debug_range,
+                );
             }
             // https://doc.rust-lang.org/reference/tokens.html#unicode-escapes
             'u' => {
                 debug_range.start += 1;
                 debug_range.end += 1;
-                Self::parse_unicode_escape(chars, range, owned_source, debug_range);
+                Self::parse_unicode_escape(
+                    chars,
+                    range,
+                    #[cfg(feature = "better-internal-errors")]
+                    owned_source,
+                    debug_range,
+                );
             }
             // https://doc.rust-lang.org/reference/expressions/literal-expr.html#string-continuation-escapes
             '\n' => {
@@ -431,8 +434,7 @@ impl<'a> Source<'a> {
                 Self::parse_string_continuation(chars, range, debug_range);
             }
             _ => bail!(
-                r#"Internal Oxiplate error: Failed to parse escape. Expected ', ", n, r, t, \, 0, x, u, or \n."#,
-                "Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Failed+to+parse+escape",
+                r#"Failed to parse escape. Expected ', ", n, r, t, \, 0, x, u, or \n"#,
                 owned_source,
                 debug_range
             ),
@@ -443,7 +445,7 @@ impl<'a> Source<'a> {
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
         hash_count: Option<usize>,
-        owned_source: &SourceOwned,
+        #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
         while let Some((pos, char)) = chars.next() {
@@ -457,11 +459,23 @@ impl<'a> Source<'a> {
                 #[cfg(feature = "unreachable")]
                 ('/', None) => {
                     Self::update_range(range, pos);
-                    Self::parse_escape(chars, range, owned_source, debug_range);
+                    Self::parse_escape(
+                        chars,
+                        range,
+                        #[cfg(feature = "better-internal-errors")]
+                        owned_source,
+                        debug_range,
+                    );
                 }
                 ('\\', None) => {
                     Self::update_range(range, pos);
-                    Self::parse_escape(chars, range, owned_source, debug_range);
+                    Self::parse_escape(
+                        chars,
+                        range,
+                        #[cfg(feature = "better-internal-errors")]
+                        owned_source,
+                        debug_range,
+                    );
                 }
                 _ => (),
             }

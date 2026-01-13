@@ -1,11 +1,10 @@
-error: Internal Oxiplate error: `build_block()` should not be called with an empty block stack.
+error: Internal Oxiplate error: `build_block()` should not be called with an empty block stack
  --> tests/broken/block/empty-block-stack.rs:3:10
   |
 3 | #[derive(Oxiplate)]
   |          ^^^^^^^^
   |
-  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=%60build_block()%60+should+not+be+called+with+an+empty+block
-  = help: Include template that caused the issue.
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=%60build_block%28%29%60+should+not+be+called+with+an+empty+block+stack&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
   = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: proc-macro derive panicked

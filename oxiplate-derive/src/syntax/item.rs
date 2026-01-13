@@ -4,7 +4,6 @@ use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt, peek};
-use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
@@ -15,7 +14,7 @@ use super::template::whitespace;
 use super::writ::writ;
 use super::{Res, Statement, Static, Writ};
 use crate::syntax::statement::StatementKind;
-use crate::{Source, State};
+use crate::{Source, State, internal_error};
 
 pub(super) enum ItemToken {
     StaticText(TokenStream, usize),
@@ -226,15 +225,10 @@ pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, So
             }
             "-" => (None, whitespace),
             _ => {
-                Diagnostic::spanned(
+                internal_error!(
                     command.span().unwrap(),
-                    proc_macro::Level::Error,
-                    "Internal Oxiplate error: Unhandled whitespace command in tag start",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+start")
-                .help("Include template that caused the issue.")
-                .emit();
-                unreachable!("Internal Oxiplate error. See previous error for more information.");
+                    "Unhandled whitespace command in tag start"
+                );
             }
         }
     } else {
@@ -296,15 +290,10 @@ fn parse_next_whitespace_preference_statement(
             "-" => WhitespacePreference::Remove,
             "_" => WhitespacePreference::Replace,
             _ => {
-                Diagnostic::spanned(
+                internal_error!(
                     command.span().unwrap(),
-                    proc_macro::Level::Error,
-                    "Internal Oxiplate error: Unhandled whitespace command in next tag start",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+next+tag+start")
-                .help("Include template that caused the issue.")
-                .emit();
-                unreachable!("Internal Oxiplate error. See previous error for more information.");
+                    "Unhandled whitespace command in next tag start"
+                );
             }
         }
     } else {
@@ -340,17 +329,10 @@ fn parse_next_whitespace_preference_adjustment_tag(
     let next_whitespace_preference = match tag.as_str() {
         "{-}" => WhitespacePreference::Remove,
         "{_}" => WhitespacePreference::Replace,
-        _ => {
-            Diagnostic::spanned(
-                tag.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: Unhandled next whitespace adjustment tag",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+next+whitespace+adjustment+tag")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
-        }
+        _ => internal_error!(
+            tag.span().unwrap(),
+            "Unhandled next whitespace adjustment tag"
+        ),
     };
 
     Ok((
@@ -472,15 +454,13 @@ pub(crate) fn tag_end<'a>(
             Some("-") => WhitespacePreference::Remove,
             Some("_") => WhitespacePreference::Replace,
             Some(_) => {
-                Diagnostic::spanned(
-                    command.expect("Command is already matched as `Some(_)`").span().unwrap(),
-                    proc_macro::Level::Error,
-                    "Internal Oxiplate error: Unhandled whitespace command in tag end",
-                )
-                .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+whitespace+command+in+tag+end")
-                .help("Include template that caused the issue.")
-                .emit();
-                unreachable!("Internal Oxiplate error. See previous error for more information.");
+                internal_error!(
+                    command
+                        .expect("Command is already matched as `Some(_)`")
+                        .span()
+                        .unwrap(),
+                    "Unhandled whitespace command in tag end"
+                );
             }
         };
 
@@ -506,15 +486,7 @@ pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
         "{%" => Ok((input, TagOpen::Statement(output))),
         "{#" => Ok((input, TagOpen::Comment(output))),
         _ => {
-            Diagnostic::spanned(
-                output.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error: Unsupported open tag encountered",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unsupported+open+tag+encountered")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+            internal_error!(output.span().unwrap(), "Unsupported open tag encountered");
         }
     }
 }

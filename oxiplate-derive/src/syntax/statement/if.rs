@@ -2,7 +2,6 @@ use nom::Parser as _;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, opt};
 use nom::error::context;
-use proc_macro::{Diagnostic, Level};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
@@ -12,7 +11,7 @@ use super::{Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens};
+use crate::{Source, State, Tokens, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
@@ -30,15 +29,10 @@ pub(crate) struct If<'a> {
 impl<'a> If<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
-            Diagnostic::spanned(
+            internal_error!(
                 item.source().span().unwrap(),
-                Level::Error,
-                "Internal Oxiplate error: Attempted to add item to ended `if` statement.",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Attempted+to+add+item+to+ended+if+statement")
-            .help("Include template that caused the issue and the associated note.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+                "Attempted to add item to ended `if` statement",
+            );
         }
 
         match item {

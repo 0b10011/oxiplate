@@ -1,0 +1,8 @@
+[package]
+name = "oxiplate-derive-unreachable-stable"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate-derive = { path = "../../../", default-features = false, features = ["config", "unreachable"] }

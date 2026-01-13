@@ -1,12 +1,11 @@
 use nom::Parser as _;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use proc_macro::Diagnostic;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::super::Res;
-use crate::Source;
+use crate::{Source, internal_error};
 
 pub(super) fn parse_operator(input: Source) -> Res<Source, Operator> {
     let (input, operator) = alt((
@@ -51,15 +50,7 @@ pub(super) fn parse_operator(input: Source) -> Res<Source, Operator> {
         ".." => Operator::RangeExclusive(operator),
 
         _ => {
-            Diagnostic::spanned(
-                operator.span().unwrap(),
-                proc_macro::Level::Error,
-                "Internal Oxiplate error. Unhandled operator.",
-            )
-            .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unhandled+operator")
-            .help("Include template that caused the issue.")
-            .emit();
-            unreachable!("Internal Oxiplate error. See previous error for more information.");
+            internal_error!(operator.span().unwrap(), "Unhandled operator");
         }
     };
 

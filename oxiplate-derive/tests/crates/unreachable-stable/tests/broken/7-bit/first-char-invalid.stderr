@@ -1,0 +1,23 @@
+error: proc-macro derive panicked
+ --> tests/broken/7-bit/first-char-invalid.rs:4:10
+  |
+4 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. Enable `better-internal-errors` feature for an easier-to-debug error message. Error: Failed to parse 7-bit character code. Expected `[0-7]`
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/broken/7-bit/first-char-invalid.rs:9:18
+  |
+9 |     print!("{}", Data);
+  |             --   ^^^^ `Data` cannot be formatted with the default formatter
+  |             |
+  |             required by this formatting parameter
+  |
+help: the trait `std::fmt::Display` is not implemented for `Data`
+ --> tests/broken/7-bit/first-char-invalid.rs:6:1
+  |
+6 | struct Data;
+  | ^^^^^^^^^^^
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::format_args` which comes from the expansion of the macro `print` (in Nightly builds, run with -Z macro-backtrace for more info)

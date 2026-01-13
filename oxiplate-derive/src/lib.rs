@@ -1,4 +1,4 @@
-#![feature(proc_macro_diagnostic)]
+#![cfg_attr(feature = "better-internal-errors", feature(proc_macro_diagnostic))]
 #![feature(proc_macro_expand)]
 #![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/Oxiplate/issues/")]
@@ -15,8 +15,8 @@ use std::io;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
-#[cfg(feature = "oxiplate")]
-use proc_macro::Diagnostic;
+#[cfg(feature = "better-internal-errors")]
+use percent_encoding::percent_encode_byte;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::{quote, quote_spanned};
@@ -306,18 +306,11 @@ fn process_parsed_tokens<'a>(
             let available_escaper_groups = available_escaper_groups.join(", ");
             let template = match template_type {
                 TemplateType::Path | TemplateType::Extends | TemplateType::Include => {
-                    Diagnostic::spanned(
+                    internal_error!(
                         span.unwrap(),
-                        proc_macro::Level::Error,
-                        "Internal Oxiplate error. Unregistered file extension causing `EscaperNotFound` error.",
-                    )
-                    .help(format!("Extension found: {escaper}"))
-                    .help(format!("Registered escaper groups: {available_escaper_groups}"))
-                    .help("Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Unregistered+file+extension+causing+%60EscaperNotFound%60+error")
-                    .help("Include template that caused the issue.")
-                    .emit();
-                    unreachable!(
-                        "Internal Oxiplate error. See previous error for more information."
+                        "Unregistered file extension causing `EscaperNotFound` error",
+                        .help(format!("Extension found: {escaper}"))
+                        .help(format!("Registered escaper groups: {available_escaper_groups}"))
                     );
                 }
                 TemplateType::Inline => {
@@ -766,14 +759,19 @@ fn parse_source_tokens_for_path(
         }
     }
 
-    // Change the `syn::Expr` into a `proc_macro2::TokenStream`
+    #[cfg(feature = "oxiplate")]
+    return Ok((
+        span,
+        quote::quote_spanned!(span=> include_str!(#path)),
+        Some(full_path),
+        escaper_name,
+    ));
+
+    #[cfg(not(feature = "oxiplate"))]
     Ok((
         span,
         quote::quote_spanned!(span=> include_str!(#path)),
         Some(full_path),
-        #[cfg(feature = "oxiplate")]
-        escaper_name,
-        #[cfg(not(feature = "oxiplate"))]
         None,
     ))
 }
@@ -846,3 +844,72 @@ impl<P: AsRef<Path>> AppendPath<P> for PathBuf {
         Ok(new_path)
     }
 }
+
+macro_rules! internal_error {
+    ($span:expr, $message:expr) => {{
+        internal_error!($span, $message, );
+    }};
+    ($span:expr, $message:expr, $($help:tt)*) => {{
+        let message = $message;
+
+        #[cfg(not(feature = "better-internal-errors"))]
+        unreachable!(
+            "Internal Oxiplate error. Enable `better-internal-errors` feature for an \
+             easier-to-debug error message. Error: {}",
+            message
+        );
+
+        #[cfg(feature = "better-internal-errors")]
+        {
+            let url = format!(
+                "https://github.com/0b10011/oxiplate/issues/new?title={}&labels=internal+error&body={}",
+                crate::encode_query_value(&message),
+                crate::encode_query_value(
+                    r"Error:
+
+```text
+PASTE_FULL_ERROR_HERE
+```
+
+Template:
+
+```
+PASTE_TEMPLATE_HERE
+```"
+                ),
+            );
+
+            ::proc_macro::Diagnostic::spanned(
+                $span,
+                ::proc_macro::Level::Error,
+                format!("Internal Oxiplate error: {}", &message),
+            )
+            .help(format!("Please open an issue: {url}"))
+            $($help)*
+            .emit();
+
+            unreachable!("Internal Oxiplate error. See previous error for more information.");
+        }
+    }};
+}
+
+/// Hacky URL query value encoder for internal errors based on:
+/// <https://github.com/servo/rust-url/blob/b381851473a5a516f58f2cfc9db300abf7a4eaa7/form_urlencoded/src/lib.rs#L138-L163>
+#[cfg(feature = "better-internal-errors")]
+pub(crate) fn encode_query_value(input: &str) -> String {
+    let mut output = String::with_capacity(input.len());
+
+    for byte in input.as_bytes() {
+        match byte {
+            b' ' => output.push('+'),
+            b'*' | b'-' | b'.' | b'0'..=b'9' | b'A'..=b'Z' | b'_' | b'a'..=b'z' => output.push_str(
+                str::from_utf8(&[*byte]).expect("Error messages should always be UTF8-safe"),
+            ),
+            _ => output.push_str(percent_encode_byte(*byte)),
+        }
+    }
+
+    output
+}
+
+pub(crate) use internal_error;

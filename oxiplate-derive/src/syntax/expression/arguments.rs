@@ -5,12 +5,12 @@ use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::pair;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote_spanned};
+use quote::{ToTokens, TokenStreamExt};
 
 use super::Res;
 use crate::syntax::expression::{ExpressionAccess, expression};
 use crate::syntax::template::whitespace;
-use crate::{Source, State};
+use crate::{Source, State, quote_spanned};
 
 pub(crate) type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
 pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;
