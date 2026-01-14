@@ -601,8 +601,9 @@ mod tests {
 
     use super::Source;
 
+    #[cfg(not(feature = "better-internal-errors"))]
     #[test]
-    #[should_panic = "proc_macro::Span is only available in procedural macros"]
+    #[should_panic = "Disjointed ranges cannot be merged. Error: B does not follow A"]
     fn disjointed_ranges() {
         let a = Source {
             original: &crate::SourceOwned {
@@ -625,8 +626,9 @@ mod tests {
         let _ = a.merge(&b, "B does not follow A");
     }
 
+    #[cfg(not(feature = "better-internal-errors"))]
     #[test]
-    #[should_panic = "proc_macro::Span is only available in procedural macros"]
+    #[should_panic = "Failed to parse start of string. Expected `r` or `"]
     fn non_string_literal() {
         let a = Source {
             original: &crate::SourceOwned {

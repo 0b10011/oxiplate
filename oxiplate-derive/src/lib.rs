@@ -925,7 +925,7 @@ pub(crate) fn encode_query_value(input: &str) -> String {
         match byte {
             b' ' => output.push('+'),
             b'*' | b'-' | b'.' | b'0'..=b'9' | b'A'..=b'Z' | b'_' | b'a'..=b'z' => output.push_str(
-                str::from_utf8(&[*byte]).expect("Error messages should always be UTF8-safe"),
+                ::std::str::from_utf8(&[*byte]).expect("Error messages should always be UTF8-safe"),
             ),
             _ => output.push_str(percent_encode_byte(*byte)),
         }

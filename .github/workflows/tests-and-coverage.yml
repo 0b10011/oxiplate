@@ -66,6 +66,58 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  setup-stable:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: stable
+
+  test-stable:
+    needs: [setup-stable]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # master
+        with:
+          toolchain: stable
+
+      - *checkout
+
+      - name: Restore setup cache
+        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        with:
+          path: ${{ needs.setup-stable.outputs.cache-path }}
+          key: ${{ needs.setup-stable.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - name: Run tests
+        run: just test-toolchain stable
+
+  setup-beta:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: beta
+
+  test-beta:
+    needs: [setup-beta]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # master
+        with:
+          toolchain: beta
+
+      - *checkout
+
+      - name: Restore setup cache
+        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        with:
+          path: ${{ needs.setup-beta.outputs.cache-path }}
+          key: ${{ needs.setup-beta.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - name: Run tests
+        run: just test-toolchain beta
+
   book-tests:
     needs: get-toolchain
     uses: ./.github/workflows/book-tests.yml

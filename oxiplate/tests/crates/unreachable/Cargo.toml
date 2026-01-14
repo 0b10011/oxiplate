@@ -1,8 +1,8 @@
 [package]
-name = "oxiplate-unreachable"
+name = "oxiplate-test-unreachable"
 edition = "2024"
 publish = false
 
 [dev-dependencies]
 trybuild = "1.0.101"
-oxiplate = { path = "../../../", features = ["unreachable"] }
+oxiplate = { path = "../../../", features = ["unreachable", "better-errors"] }

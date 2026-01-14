@@ -1,5 +1,5 @@
 [package]
-name = "oxiplate-derive-optimized-renderer"
+name = "oxiplate-derive-test-optimized-renderer"
 edition = "2024"
 publish = false
 

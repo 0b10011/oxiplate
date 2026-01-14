@@ -37,7 +37,7 @@ jobs:
           CACHE_PATH: |
             ~/.cargo/
             target/
-          CACHE_KEY: setup-${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
         run: |
           {
             echo 'cache-path<<EOF'

@@ -23,7 +23,11 @@ rustversion = "1.0.19"
 trybuild = "1.0.101"
 
 [features]
-default = ["better-internal-errors", "built-in-escapers", "config", "external-template-spans", "fast-escape-ints"]
+default = ["built-in-escapers", "config", "fast-escape-ints"]
+
+# Improved error messages requiring nightly.
+# Highly recommended during development.
+better-errors = ["better-internal-errors", "external-template-spans"]
 
 # Improved error messages for internal Oxiplate errors,
 # but requires nightly.

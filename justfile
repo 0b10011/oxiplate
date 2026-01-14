@@ -55,6 +55,12 @@ clippy:
 [group("Test")]
 test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
 
+# Run stable tests against specified toolchain (target triples not supported).
+[group("Test")]
+[arg("toolchain", pattern='(stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?')]
+test-toolchain toolchain: && (run-against-stable f"cargo +{{ toolchain }} test --locked")
+    @echo "Running tests against {{ toolchain }} toolchain..."
+
 # Build HTML and LCOV reports from running tests with coverage.
 [group("Test")]
 coverage: coverage-lcov coverage-html
@@ -89,35 +95,48 @@ coverage-no-report: clean-coverage \
 
 [private]
 expansion-tests:
-    cargo test --locked --test expansion -- --ignored
+    cargo test --locked --test expansion --features better-errors -- --ignored
 
 [private]
 clean-coverage:
     cargo llvm-cov clean --workspace
 
 [private]
-run-against-libs command:
-    {{ command }} --package oxiplate-derive
+run-against-libs command test-arguments="":
+    {{ command }} --package oxiplate-derive -- {{ test-arguments }}
     {{ command }} --workspace \
         --exclude oxiplate-derive \
-        --exclude oxiplate-unreachable \
-        --exclude oxiplate-unreachable-stable \
-        --exclude oxiplate-derive-unreachable \
-        --exclude oxiplate-derive-unreachable-stable \
+        --exclude oxiplate-derive-test-unreachable \
+        --exclude oxiplate-derive-test-unreachable-stable \
         --exclude oxiplate-test-fast-escape-type-priority \
-        --exclude oxiplate-test-slow-escape-ints
+        --exclude oxiplate-test-file-extension-inferrence-off \
+        --exclude oxiplate-test-slow-escape-ints \
+        --exclude oxiplate-test-unreachable \
+        --exclude oxiplate-test-unreachable-stable -- {{ test-arguments }}
 
 [private]
-run-against-all command: (run-against-libs command)
-    {{ command }} --package oxiplate-test-fast-escape-type-priority
-    {{ command }} --package oxiplate-test-slow-escape-ints
-    {{ command }} --package oxiplate --test broken -- --ignored
-    {{ command }} --package oxiplate-derive --test broken -- --ignored
-    {{ command }} --package oxiplate-derive --test clippy -- --ignored
-    {{ command }} --package oxiplate-unreachable
-    {{ command }} --package oxiplate-unreachable-stable
-    {{ command }} --package oxiplate-derive-unreachable
-    {{ command }} --package oxiplate-derive-unreachable-stable
+run-against-all command test-arguments="": (run-against-stable command test-arguments) (run-against-unstable command test-arguments) (run-against-broken command)
+
+# Tests that can be run against the MSRV in `/Cargo.toml`
+# and the nightly specified in `/rust-toolchain.toml`.
+[private]
+run-against-stable command test-arguments="": (run-against-libs command test-arguments)
+    {{ command }} --package oxiplate-test-fast-escape-type-priority -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-slow-escape-ints -- {{ test-arguments }}
+
+# Tests requiring unstable features that cannot be run against the MSRV.
+[private]
+run-against-unstable command test-arguments="":
+    {{ command }} --package oxiplate-derive --test clippy -- --ignored -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-unreachable -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-unreachable-stable -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-file-extension-inferrence-off -- {{ test-arguments }}
+    {{ command }} --package oxiplate-derive-test-unreachable -- {{ test-arguments }}
+    {{ command }} --package oxiplate-derive-test-unreachable-stable -- {{ test-arguments }}
+
+# Tests for broken compilations.
+[private]
+run-against-broken command: (run-against-libs f"{{ command }} --test broken --features external-template-spans" "--ignored") (run-against-unstable f"{{ command }} --test broken" "--ignored")
 
 # Initial setup. Run once to install all necessary binaries. Run again to ensure they are all up-to-date.
 [group("Setup"), group("General Commands")]
