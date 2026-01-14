@@ -8,13 +8,26 @@ on:
         value: ${{ jobs.msrv.outputs.msrv }}
 
 jobs:
+  setup:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: stable
+
   msrv:
+    needs: setup
     runs-on: ubuntu-latest
     outputs:
       msrv: ${{ steps.msrv.outputs.msrv }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      
+      - name: Restore setup cache
+        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        with:
+          path: ${{ needs.setup.outputs.cache-path }}
+          key: ${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
 
       - name: Get `rust-version` from `/Cargo.toml`
         id: msrv
