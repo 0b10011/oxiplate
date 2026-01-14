@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.12...oxiplate-derive-v0.16.0) - 2026-01-14
+
+### Added
+
+- [**breaking**] added support for `stable` by default by removing nightly-only features from `default` feature; new `better-errors` feature contains all hidden-by-default functionality
+- moved the `proc_macro_expand` toggle behind the feature `external-template-spans`
+
+### Other
+
+- specified MSRV and started testing it in CI
+- removed if let chaining to be able to use a lower MSRV
+
 ## [0.15.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.11...oxiplate-derive-v0.15.12) - 2026-01-13
 
 ### Added
