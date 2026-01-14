@@ -2,23 +2,23 @@ name: msrv
 
 on:
   workflow_call:
+    inputs:
+      toolchain:
+        description: "Rust toolchain to use"
+        type: string
+      cache-path:
+        description: "Path to restore from cache"
+        type: string
+      cache-key:
+        description: "Key to lookup cache item"
+        type: string
     outputs:
       msrv:
         description: "Minimum stable Rust version for Oxiplate"
         value: ${{ jobs.msrv.outputs.msrv }}
 
 jobs:
-  get-toolchain:
-    uses: ./.github/workflows/existing-toolchain.yml
-
-  setup:
-    needs: get-toolchain
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-
   msrv:
-    needs: setup
     runs-on: ubuntu-latest
     outputs:
       msrv: ${{ steps.msrv.outputs.msrv }}
@@ -29,8 +29,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
         with:
-          path: ${{ needs.setup.outputs.cache-path }}
-          key: ${{ needs.setup.outputs.cache-key }}
+          path: ${{ inputs.cache-path }}
+          key: ${{ inputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Get `rust-version` from `/Cargo.toml`
