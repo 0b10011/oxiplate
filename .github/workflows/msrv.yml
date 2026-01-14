@@ -8,10 +8,14 @@ on:
         value: ${{ jobs.msrv.outputs.msrv }}
 
 jobs:
+  get-toolchain:
+    uses: ./.github/workflows/existing-toolchain.yml
+
   setup:
+    needs: get-toolchain
     uses: ./.github/workflows/setup.yml
     with:
-      toolchain: stable
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   msrv:
     needs: setup
