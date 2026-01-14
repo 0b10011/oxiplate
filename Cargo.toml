@@ -10,6 +10,8 @@ categories = ["template-engine"]
 keywords = ["escaping", "whitespace-control", "compile-time"]
 license = "MIT"
 edition = "2024"
+# Found with `cargo msrv --workspace find --no-default-features --features config,built-in-escapers,fast-escape-ints`
+rust-version = "1.85.1"
 
 [workspace.lints.clippy]
 

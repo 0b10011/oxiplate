@@ -66,6 +66,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  get-msrv:
+    uses: ./.github/workflows/msrv.yml
+
+  setup-msrv:
+    needs: get-msrv
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-msrv.outputs.msrv }}
+
+  test-msrv:
+    needs: [get-msrv, setup-msrv]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # master
+        with:
+          toolchain: ${{ needs.get-msrv.outputs.msrv }}
+
+      - *checkout
+
+      - name: Restore setup cache
+        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        with:
+          path: ${{ needs.setup-msrv.outputs.cache-path }}
+          key: ${{ needs.setup-msrv.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - name: Run tests
+        run: just test-msrv
+
   setup-stable:
     uses: ./.github/workflows/setup.yml
     with:

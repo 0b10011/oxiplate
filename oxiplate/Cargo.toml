@@ -10,6 +10,7 @@ categories.workspace = true
 keywords.workspace = true
 license.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 
 [lints]
 workspace = true

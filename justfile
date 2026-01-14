@@ -61,6 +61,15 @@ test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --lo
 test-toolchain toolchain: && (run-against-stable f"cargo +{{ toolchain }} test --locked")
     @echo "Running tests against {{ toolchain }} toolchain..."
 
+# Run stable tests against `rust-version` listed in `/Cargo.toml`.
+[group("Test")]
+test-msrv: (test-toolchain `just get-msrv`)
+
+[private]
+get-msrv:
+    @cargo metadata --no-deps --format-version 1 \
+    | jq --join-output '.packages[] | select(.name == "oxiplate") | .rust_version'
+
 # Build HTML and LCOV reports from running tests with coverage.
 [group("Test")]
 coverage: coverage-lcov coverage-html

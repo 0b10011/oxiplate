@@ -1,0 +1,30 @@
+name: msrv
+
+on:
+  workflow_call:
+    outputs:
+      msrv:
+        description: "Minimum stable Rust version for Oxiplate"
+        value: ${{ jobs.msrv.outputs.msrv }}
+
+jobs:
+  msrv:
+    runs-on: ubuntu-latest
+    outputs:
+      msrv: ${{ steps.msrv.outputs.msrv }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Get `rust-version` from `/Cargo.toml`
+        id: msrv
+        run: |
+          MSRV="$(just get-msrv)"
+
+          SAFE_REGEX='^[0-9]+\.[0-9]+\.[0-9]+$'
+          if [[ ! $MSRV =~ $SAFE_REGEX ]]; then
+            echo '`rust-version` value in "/Cargo.toml" is not in `#.#.#` format'
+            exit 1
+          fi
+
+          echo "msrv=$MSRV" >> $GITHUB_OUTPUT
