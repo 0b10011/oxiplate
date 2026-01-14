@@ -94,7 +94,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tests
-        run: just test-msrv
+        run: just test-toolchain "${{ needs.get-msrv.outputs.msrv }}"
 
   setup-stable:
     uses: ./.github/workflows/setup.yml
