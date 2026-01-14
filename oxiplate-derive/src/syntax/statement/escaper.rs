@@ -52,25 +52,27 @@ impl DefaultEscaper<'_> {
                 0,
             ))
         } else {
-            if !self.can_replace_inferred_escaper
-                && let Some(inferred_escaper_group) = &state.inferred_escaper_group
-                && inferred_escaper_group.0 != self.escaper.as_str()
-            {
-                let default_escaper = LitStr::new(self.escaper.as_str(), self.escaper.span());
-                let inferred_escaper_group = &inferred_escaper_group.0;
-                let span = self.escaper.source().span();
-                Err((
-                    quote_spanned! {span=>
-                        compile_error!(concat!(
-                            "Setting the default escaper group to `",
-                            #default_escaper,
-                            "` failed due to the inferred escaper group already being set to `",
-                            #inferred_escaper_group,
-                            "`. If this was intentional, consider using `replace_escaper_group` instead."
-                        ));
-                    },
-                    0,
-                ))?;
+            if !self.can_replace_inferred_escaper {
+                if let Some(inferred_escaper_group) = &state.inferred_escaper_group {
+                    if inferred_escaper_group.0 != self.escaper.as_str() {
+                        let default_escaper =
+                            LitStr::new(self.escaper.as_str(), self.escaper.span());
+                        let inferred_escaper_group = &inferred_escaper_group.0;
+                        let span = self.escaper.source().span();
+                        Err((
+                            quote_spanned! {span=>
+                                compile_error!(concat!(
+                                    "Setting the default escaper group to `",
+                                    #default_escaper,
+                                    "` failed due to the inferred escaper group already being set to `",
+                                    #inferred_escaper_group,
+                                    "`. If this was intentional, consider using `replace_escaper_group` instead."
+                                ));
+                            },
+                            0,
+                        ))?;
+                    }
+                }
             }
             if !state
                 .config

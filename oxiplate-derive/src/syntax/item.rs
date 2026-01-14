@@ -87,16 +87,17 @@ impl<'a> Item<'a> {
                 };
                 state.has_content = true;
 
-                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind
-                    && let Some(default_escaper_group) = state
+                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
+                    if let Some(default_escaper_group) = state
                         .config
                         .escaper_groups
                         .get(default_escaper.escaper.as_str())
-                {
-                    state.default_escaper_group = Some((
-                        default_escaper.escaper.as_str().to_owned(),
-                        default_escaper_group.clone(),
-                    ));
+                    {
+                        state.default_escaper_group = Some((
+                            default_escaper.escaper.as_str().to_owned(),
+                            default_escaper_group.clone(),
+                        ));
+                    }
                 }
 
                 if let StatementKind::Let(statement) = &statement.kind {

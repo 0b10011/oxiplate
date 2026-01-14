@@ -250,15 +250,25 @@ impl<'a> Writ<'a> {
             );
         };
 
-        (
-            quote_spanned! {span=>
-                (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                    oxiplate_formatter,
-                    &<#group as ::oxiplate::Escaper>::DEFAULT,
-                )?
-            },
-            estimated_length,
-        )
+        if cfg!(not(feature = "oxiplate")) {
+            let default_group = &default_group.0;
+            (
+                quote_spanned! {span=>
+                    compile_error!("Default escaper set without using `oxiplate`: {}" #default_group)
+                },
+                estimated_length,
+            )
+        } else {
+            (
+                quote_spanned! {span=>
+                    (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
+                        oxiplate_formatter,
+                        &<#group as ::oxiplate::Escaper>::DEFAULT,
+                    )?
+                },
+                estimated_length,
+            )
+        }
     }
 
     fn escaper_specified(
@@ -279,22 +289,24 @@ impl<'a> Writ<'a> {
 
         if let Ok(escaper) =
             syn::LitStr::new(escaper.as_str(), escaper.span()).parse::<PathSegment>()
-            && let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>()
-            && let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>()
         {
-            let path = syn::parse2::<Path>(quote! {
-                #group #sep #escaper
-            });
-            if let Ok(path) = path {
-                return (
-                    quote_spanned! {span=>
-                        (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                            oxiplate_formatter,
-                            &#path,
-                        )?
-                    },
-                    estimated_length,
-                );
+            if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
+                if let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>() {
+                    let path = syn::parse2::<Path>(quote! {
+                        #group #sep #escaper
+                    });
+                    if let Ok(path) = path {
+                        return (
+                            quote_spanned! {span=>
+                                (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
+                                    oxiplate_formatter,
+                                    &#path,
+                                )?
+                            },
+                            estimated_length,
+                        );
+                    }
+                }
             }
         }
 

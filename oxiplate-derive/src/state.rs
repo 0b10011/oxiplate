@@ -38,23 +38,25 @@ pub(crate) fn build_config(input: &DeriveInput) -> Result<Config, (syn::Error, O
 
     let config = config.map_err(|err| (err, OptimizedRenderer::unoptimized()))?;
 
-    if let Some(ref fallback_escaper_group) = config.fallback_escaper_group
-        && fallback_escaper_group != "raw"
-        && !config
-            .escaper_groups
-            .contains_key(fallback_escaper_group.as_str())
-    {
-        return Err((
-            syn::Error::new(
-                input.span(),
-                format!(
-                    "The `fallback_escaper_group` that was provided (`{fallback_escaper_group}`) \
-                     does not match any of the `escaper_groups` specified in `/oxiplate.toml`. \
-                     Fix `fallback_escaper_group` or add the missing group to `escaper_groups`."
+    if let Some(ref fallback_escaper_group) = config.fallback_escaper_group {
+        if fallback_escaper_group != "raw"
+            && !config
+                .escaper_groups
+                .contains_key(fallback_escaper_group.as_str())
+        {
+            return Err((
+                syn::Error::new(
+                    input.span(),
+                    format!(
+                        "The `fallback_escaper_group` that was provided \
+                         (`{fallback_escaper_group}`) does not match any of the `escaper_groups` \
+                         specified in `/oxiplate.toml`. Fix `fallback_escaper_group` or add the \
+                         missing group to `escaper_groups`."
+                    ),
                 ),
-            ),
-            config.optimized_renderer,
-        ));
+                config.optimized_renderer,
+            ));
+        }
     }
 
     Ok(config)
