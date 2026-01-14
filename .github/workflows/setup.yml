@@ -15,7 +15,7 @@ on:
         value: ${{ jobs.setup.outputs.cache-key }}
 
 concurrency:
-  group: "setup:${{ github.workflow }}:${{ github.ref }}"
+  group: "setup:${{ github.workflow }}:${{ inputs.toolchain }}:${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
