@@ -88,3 +88,9 @@ use crate::filters_for_oxiplate;
 | Filter | Arguments | Description |
 |-|-|-|
 | `default` | `default_value` | Unwraps `Some` value or uses `default_value` |
+
+### `Iterator` filters
+
+| Filter | Description |
+|-|-|
+| `loop` | Groups an iterator with a `Loop` struct containing additional loop iteration info. |
