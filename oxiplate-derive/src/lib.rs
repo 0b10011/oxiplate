@@ -20,7 +20,7 @@ use std::path::{Path, PathBuf};
 #[cfg(feature = "better-internal-errors")]
 use percent_encoding::percent_encode_byte;
 use proc_macro::TokenStream;
-use proc_macro2::{Literal, Span};
+use proc_macro2::Span;
 use quote::{quote, quote_spanned};
 use syn::parse::Parse;
 use syn::spanned::Spanned;
@@ -328,7 +328,7 @@ fn process_parsed_tokens<'a>(
         }
         Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
         Ok((span, input, origin, inferred_escaper_group_name)) => {
-            let (code, literal) = parse_code_literal(
+            let code = parse_code_literal(
                 &input.into(),
                 #[cfg(feature = "external-template-spans")]
                 template_type,
@@ -349,12 +349,7 @@ fn process_parsed_tokens<'a>(
             }
 
             // Build the source.
-            let owned_source = SourceOwned {
-                code,
-                literal,
-                span_hygiene: span,
-                origin,
-            };
+            let owned_source = SourceOwned::new(&code, span, origin);
             let source = Source {
                 original: &owned_source,
                 range: Range {
@@ -412,7 +407,7 @@ fn parse_code_literal(
     input: &TokenStream,
     #[cfg(feature = "external-template-spans")] template_type: &TemplateType,
     #[cfg(feature = "external-template-spans")] span: Span,
-) -> Result<(String, Literal), syn::Error> {
+) -> Result<LitStr, syn::Error> {
     #[cfg(feature = "external-template-spans")]
     let input = {
         let invalid_attribute_message = match template_type {
@@ -443,7 +438,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
     // Parse the string and token out of the expanded expression
     let parser = |input: syn::parse::ParseStream| input.parse::<LitStr>();
     let code = syn::parse::Parser::parse(parser, input)?;
-    Ok((code.value(), code.token()))
+    Ok(code)
 }
 
 fn parse_source_tokens(

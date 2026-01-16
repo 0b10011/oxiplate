@@ -5,6 +5,7 @@ use std::str::{CharIndices, Chars};
 
 use nom::{Compare, Input, Needed, Offset};
 use proc_macro2::{Literal, Span};
+use syn::LitStr;
 
 use crate::internal_error;
 
@@ -17,6 +18,9 @@ pub(crate) struct SourceOwned {
     /// The template code.
     pub(crate) code: String,
 
+    /// The template code without unescaping applied.
+    code_escaped: String,
+
     /// The template code's literal.
     pub(crate) literal: Literal,
 
@@ -25,6 +29,20 @@ pub(crate) struct SourceOwned {
 
     /// The file path for external templates.
     pub(crate) origin: Option<PathBuf>,
+}
+
+impl SourceOwned {
+    pub fn new(code: &LitStr, span: Span, path: Option<PathBuf>) -> Self {
+        let literal = code.token();
+
+        Self {
+            code: code.value(),
+            code_escaped: literal.to_string(),
+            literal,
+            span_hygiene: span,
+            origin: path,
+        }
+    }
 }
 
 /// A clonable range within a template.
@@ -86,7 +104,7 @@ impl<'a> Source<'a> {
         }
 
         Self::fix_range(
-            &self.original.literal,
+            &self.original.code_escaped,
             &mut range,
             #[cfg(feature = "better-internal-errors")]
             self.original,
@@ -141,12 +159,11 @@ impl<'a> Source<'a> {
     }
 
     fn fix_range(
-        literal: &Literal,
+        code_unescaped: &str,
         range: &mut Range<usize>,
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
     ) {
-        let literal_string = literal.to_string();
-        let mut chars: CharIterator = literal_string.chars().enumerate().peekable();
+        let mut chars: CharIterator = code_unescaped.chars().enumerate().peekable();
 
         let mut debug_range = range.clone();
         debug_range.start = 0;
@@ -600,19 +617,23 @@ mod tests {
     #[test]
     #[should_panic = "Disjointed ranges cannot be merged. Error: B does not follow A"]
     fn disjointed_ranges() {
+        let literal = Literal::string("hello world");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
             range: Range { start: 0, end: 1 },
         };
+        let literal = Literal::string("hello world");
         let b = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -625,10 +646,12 @@ mod tests {
     #[test]
     #[should_panic = "Failed to parse start of string. Expected `r` or `"]
     fn non_string_literal() {
+        let literal = Literal::usize_unsuffixed(0);
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::usize_unsuffixed(0),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -640,10 +663,12 @@ mod tests {
     #[test]
     #[should_panic = "End greater than end of string"]
     fn take_too_many() {
+        let literal = Literal::string("hello world");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -655,10 +680,12 @@ mod tests {
     #[test]
     #[should_panic = "Start greater than end of string"]
     fn take_from_too_many() {
+        let literal = Literal::string("hello world");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -670,10 +697,12 @@ mod tests {
     #[test]
     #[should_panic = "Split point greater than end of string"]
     fn take_split_too_many() {
+        let literal = Literal::string("hello world");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -684,29 +713,35 @@ mod tests {
 
     #[test]
     fn take_split() {
+        let literal = Literal::string("hello world");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
             range: Range { start: 0, end: 11 },
         };
 
+        let literal = Literal::string("hello world");
         let b = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
             range: Range { start: 0, end: 5 },
         };
+        let literal = Literal::string("hello world");
         let c = Source {
             original: &crate::SourceOwned {
                 code: "hello world".to_string(),
-                literal: Literal::string("hello world"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -718,10 +753,12 @@ mod tests {
 
     #[test]
     fn iter_indices() {
+        let literal = Literal::string("hi");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "hi".to_string(),
-                literal: Literal::string("hi"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
@@ -738,10 +775,12 @@ mod tests {
 
     #[test]
     fn compare_no_case() {
+        let literal = Literal::string("Hello World");
         let a = Source {
             original: &crate::SourceOwned {
                 code: "Hello World".to_string(),
-                literal: Literal::string("Hello World"),
+                code_escaped: literal.to_string(),
+                literal,
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
