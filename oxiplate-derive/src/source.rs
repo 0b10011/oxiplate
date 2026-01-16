@@ -50,8 +50,11 @@ macro_rules! bail {
 
 macro_rules! bail_eof {
     ($message:expr, $original:ident, $debug_range:ident) => {{
-        $debug_range.start -= 1;
-        $debug_range.end -= 1;
+        #[cfg(feature = "better-internal-errors")]
+        {
+            $debug_range.start -= 1;
+            $debug_range.end -= 1;
+        }
         bail!($message, $original, $debug_range);
     }};
 }
@@ -82,26 +85,11 @@ impl<'a> Source<'a> {
                 .resolved_at(self.original.span_hygiene);
         }
 
-        let literal = self.original.literal.to_string();
-        let mut chars: CharIterator = literal.chars().enumerate().peekable();
-
-        let mut debug_range = self.range.clone();
-        debug_range.start = 0;
-        debug_range.end = 1;
-        let hash_count = Self::parse_open(
-            &mut chars,
+        Self::fix_range(
+            &self.original.literal,
             &mut range,
             #[cfg(feature = "better-internal-errors")]
             self.original,
-            &mut debug_range,
-        );
-        Self::parse_interior(
-            &mut chars,
-            &mut range,
-            hash_count,
-            #[cfg(feature = "better-internal-errors")]
-            self.original,
-            &mut debug_range,
         );
 
         self.original
@@ -152,12 +140,18 @@ impl<'a> Source<'a> {
         }
     }
 
-    fn parse_open(
-        chars: &mut CharIterator<'_>,
+    fn fix_range(
+        literal: &Literal,
         range: &mut Range<usize>,
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
-        debug_range: &mut Range<usize>,
-    ) -> Option<usize> {
+    ) {
+        let literal_string = literal.to_string();
+        let mut chars: CharIterator = literal_string.chars().enumerate().peekable();
+
+        let mut debug_range = range.clone();
+        debug_range.start = 0;
+        debug_range.end = 1;
+
         let Some((pos, char)) = chars.next() else {
             bail_eof!(
                 r"Failed to parse start of string. Unexpected end of string",
@@ -171,7 +165,16 @@ impl<'a> Source<'a> {
                 Self::update_range(range, pos);
                 debug_range.start += 1;
                 debug_range.end += 1;
-                return None;
+
+                Self::fix_range_for_interior(
+                    &mut chars,
+                    range,
+                    #[cfg(feature = "better-internal-errors")]
+                    owned_source,
+                    &mut debug_range,
+                );
+
+                return;
             }
             _ => bail!(
                 r#"Failed to parse start of string. Expected `r` or `"`"#,
@@ -181,13 +184,10 @@ impl<'a> Source<'a> {
         }
 
         Self::update_range(range, pos);
-        debug_range.start += 1;
-        debug_range.end += 1;
 
-        let mut hash_count = 0;
         for (pos, char) in chars.by_ref() {
             match char {
-                '#' => hash_count += 1,
+                '#' => (),
                 '"' => {
                     Self::update_range(range, pos);
                     break;
@@ -199,11 +199,7 @@ impl<'a> Source<'a> {
                 ),
             }
             Self::update_range(range, pos);
-            debug_range.start += 1;
-            debug_range.end += 1;
         }
-
-        Some(hash_count)
     }
 
     /// Consume `"` if present. For testing unreachable match arms.
@@ -441,23 +437,22 @@ impl<'a> Source<'a> {
         }
     }
 
-    fn parse_interior(
+    fn fix_range_for_interior(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
-        hash_count: Option<usize>,
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
         while let Some((pos, char)) = chars.next() {
             debug_range.start += 1;
             debug_range.end += 1;
-            match (char, hash_count) {
-                ('"', _) => return,
+            match char {
+                '"' => return,
                 // Escapes are parsed by Rust first,
                 // so invalid escape sequences are only reachable
                 // if the code is reached without a `\` before them.
                 #[cfg(feature = "unreachable")]
-                ('/', None) => {
+                '/' => {
                     Self::update_range(range, pos);
                     Self::parse_escape(
                         chars,
@@ -467,7 +462,7 @@ impl<'a> Source<'a> {
                         debug_range,
                     );
                 }
-                ('\\', None) => {
+                '\\' => {
                     Self::update_range(range, pos);
                     Self::parse_escape(
                         chars,
