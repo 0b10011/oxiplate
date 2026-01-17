@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.16.0...oxiplate-derive-v0.16.1) - 2026-01-17
+
+### Fixed
+
+- stopped rebuilding literal string each time `span()` is called
+
+### Other
+
+- cleaned up span range code to make it a single call
+- Merge pull request #130 from 0b10011/toolchain-nightly-2026-01-14
+- bump toolchain to `nightly-2026-01-14`
+
 ## [0.16.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.12...oxiplate-derive-v0.16.0) - 2026-01-14
 
 ### Added
