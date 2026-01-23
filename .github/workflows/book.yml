@@ -39,7 +39,7 @@ jobs:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Restore book setup cache
         uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
