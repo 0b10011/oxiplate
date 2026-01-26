@@ -14,7 +14,7 @@ use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, expression};
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens, internal_error};
+use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
 pub(crate) struct Match<'a> {
@@ -78,7 +78,7 @@ impl<'a> Match<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &mut State) -> Tokens {
+    pub(crate) fn to_tokens(&self, state: &mut State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = usize::MAX;
 
@@ -229,7 +229,7 @@ impl<'a> Case<'a> {
         vars
     }
 
-    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = self.first_pattern.to_tokens(state);
 
         state.local_variables.push_stack();

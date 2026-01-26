@@ -15,7 +15,7 @@ use super::item::tag_end;
 use super::template::is_whitespace;
 use super::{Item, Res};
 use crate::state::EscaperGroup;
-use crate::{Source, State, Tokens};
+use crate::{BuiltTokens, Source, State};
 
 enum EscaperType<'a> {
     Default,
@@ -44,7 +44,7 @@ impl<'a> Writ<'a> {
         &self.source
     }
 
-    pub(crate) fn to_token(&self, state: &State<'_>) -> Tokens {
+    pub(crate) fn to_token(&self, state: &State<'_>) -> BuiltTokens {
         let mut estimated_length = 0;
 
         let (text, text_length) = &self.expression.to_tokens(state);
@@ -72,7 +72,7 @@ impl<'a> Writ<'a> {
         }
     }
 
-    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, Tokens> {
+    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, BuiltTokens> {
         match &self.escaper {
             Some(Escaper {
                 group: Some(group),
@@ -181,7 +181,7 @@ impl<'a> Writ<'a> {
         span: Span,
         text: &TokenStream,
         estimated_length: usize,
-    ) -> Tokens {
+    ) -> BuiltTokens {
         if state.config.require_specifying_escaper {
             return token_error!(
                 span,
@@ -279,7 +279,7 @@ impl<'a> Writ<'a> {
         span: Span,
         text: &TokenStream,
         estimated_length: usize,
-    ) -> Tokens {
+    ) -> BuiltTokens {
         if state.failed_to_set_default_escaper_group {
             return (
                 quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
@@ -313,7 +313,7 @@ impl<'a> Writ<'a> {
         token_error!(span, r"Failed to build escape function call")
     }
 
-    fn escaper_raw(text: &TokenStream, estimated_length: usize) -> Tokens {
+    fn escaper_raw(text: &TokenStream, estimated_length: usize) -> BuiltTokens {
         let span = text.span();
 
         #[cfg(not(feature = "oxiplate"))]

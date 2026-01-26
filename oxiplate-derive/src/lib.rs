@@ -29,7 +29,7 @@ use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
-type Tokens = (proc_macro2::TokenStream, usize);
+type BuiltTokens = (proc_macro2::TokenStream, usize);
 
 pub(crate) use self::source::Source;
 use self::source::SourceOwned;
@@ -120,7 +120,7 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 /// Internal derive function that allows for block token streams to be passed in.
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
-    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
+    blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
 ) -> (TokenStream, usize) {
     let input = match syn::parse(input) {
         Ok(input) => input,
@@ -134,7 +134,7 @@ pub(crate) fn oxiplate_internal(
 /// Returns the token stream for the `::std::fmt::Display` implementation for the struct.
 fn parse_input(
     input: &DeriveInput,
-    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
+    blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
 ) -> (TokenStream, usize) {
     let DeriveInput {
         ident, generics, ..
@@ -229,7 +229,7 @@ type ParsedTemplate = (
 
 fn parse_template_and_data(
     input: &DeriveInput,
-    blocks: &VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
+    blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
 ) -> Result<ParsedTemplate, (syn::Error, Option<TemplateType>, OptimizedRenderer)> {
     // Build the shared config from the `oxiplate.toml` file.
     let config =
@@ -267,7 +267,7 @@ fn parse_template_and_data(
     };
 
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
-    let (template, estimated_length): Tokens = process_parsed_tokens(
+    let (template, estimated_length): BuiltTokens = process_parsed_tokens(
         parsed_tokens,
         &mut state,
         #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
@@ -298,7 +298,7 @@ fn process_parsed_tokens<'a>(
     state: &'a mut State<'a>,
     #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
     template_type: &TemplateType,
-) -> Result<Tokens, syn::Error> {
+) -> Result<BuiltTokens, syn::Error> {
     match parsed_tokens {
         #[cfg(feature = "oxiplate")]
         Err(ParsedEscaperError::EscaperNotFound((escaper, span))) => {

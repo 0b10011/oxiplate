@@ -12,7 +12,7 @@ use super::super::expression::{Identifier, keyword};
 use super::{Statement, StatementKind};
 use crate::syntax::expression::Keyword;
 use crate::syntax::template::whitespace;
-use crate::{Source, State, Tokens, internal_error};
+use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
 pub struct DefaultEscaper<'a> {
@@ -32,7 +32,7 @@ impl DefaultEscaper<'_> {
         &self,
         state: &State,
         statement_source: &Source<'_>,
-    ) -> Result<Tokens, Tokens> {
+    ) -> Result<BuiltTokens, BuiltTokens> {
         if state.default_escaper_group.is_some() {
             let span = statement_source.span();
             let tag = self.tag.0.as_str();

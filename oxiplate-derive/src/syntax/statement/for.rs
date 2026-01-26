@@ -13,7 +13,7 @@ use super::{State, Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, Tokens, internal_error};
+use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug)]
 pub struct For<'a> {
@@ -88,7 +88,7 @@ impl<'a> For<'a> {
         self.pattern.get_variables()
     }
 
-    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
 
@@ -219,7 +219,7 @@ impl<'a> Break<'a> {
         &self.0.0
     }
 
-    pub fn to_tokens(&self) -> Tokens {
+    pub fn to_tokens(&self) -> BuiltTokens {
         let span = self.0.0.span();
         let keyword = &self.0;
 
@@ -254,7 +254,7 @@ impl<'a> Continue<'a> {
         &self.0.0
     }
 
-    pub fn to_tokens(&self) -> Tokens {
+    pub fn to_tokens(&self) -> BuiltTokens {
         let span = self.0.0.span();
         let keyword = &self.0;
 

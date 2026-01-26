@@ -12,7 +12,7 @@ use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
 use crate::syntax::item::{WhitespacePreference, parse_trailing_whitespace};
-use crate::{State, Tokens, internal_error};
+use crate::{BuiltTokens, State, internal_error};
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
@@ -42,7 +42,7 @@ impl<'a> Template<'a> {
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
 
-    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> Tokens {
+    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
 
@@ -81,7 +81,7 @@ impl<'a> Template<'a> {
     }
 }
 
-pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> Tokens {
+pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> BuiltTokens {
     match try_parse(state, source) {
         Ok((_, template)) => template,
         Err(
@@ -127,7 +127,10 @@ fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Vec<Item> {
     items
 }
 
-fn try_parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> Res<Source<'a>, Tokens> {
+fn try_parse<'a, 'b: 'a>(
+    state: &mut State<'b>,
+    source: Source<'a>,
+) -> Res<Source<'a>, BuiltTokens> {
     let (input, items_vec) = many0(parse_item).parse(source)?;
 
     // Return error if there's any input remaining.

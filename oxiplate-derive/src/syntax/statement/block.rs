@@ -13,7 +13,7 @@ use super::super::expression::{Identifier, keyword};
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens, internal_error};
+use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
 pub struct Block<'a> {
@@ -78,7 +78,7 @@ impl<'a> Block<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         state.local_variables.push_stack();
         let mut block_stack = state.blocks.clone();
         let block = HashMap::from([(
@@ -96,10 +96,10 @@ impl<'a> Block<'a> {
 
     fn build_block<'b: 'a>(
         &self,
-        (child_prefix, child_prefix_length): Tokens,
+        (child_prefix, child_prefix_length): BuiltTokens,
         (child_suffix, child_suffix_length): (Option<TokenStream>, usize),
-        mut block_stack: VecDeque<&HashMap<&str, (Tokens, Option<Tokens>)>>,
-    ) -> Tokens {
+        mut block_stack: VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
+    ) -> BuiltTokens {
         let mut estimated_length = child_prefix_length + child_suffix_length;
         let mut tokens = TokenStream::new();
 

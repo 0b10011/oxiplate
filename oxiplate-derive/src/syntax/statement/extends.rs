@@ -14,7 +14,7 @@ use super::super::expression::keyword;
 use super::{Statement, StatementKind, StaticType};
 use crate::syntax::Item;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens};
+use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub struct Extends<'a> {
@@ -76,7 +76,7 @@ impl<'a> Extends<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let span = self.path.span();
         let path = LitStr::new(self.path.as_str(), span);
 

@@ -4,7 +4,7 @@ use nom::bytes::complete::tag;
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens, internal_error};
+use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Bool<'a> {
@@ -37,7 +37,7 @@ impl<'a> Bool<'a> {
         &self.source
     }
 
-    pub(crate) fn to_tokens(&self) -> Tokens {
+    pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitBool::new(self.value, self.source.span());
         (quote! { #literal }, 0)
     }

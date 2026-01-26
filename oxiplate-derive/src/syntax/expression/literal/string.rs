@@ -7,7 +7,7 @@ use nom::sequence::pair;
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens};
+use crate::{BuiltTokens, Source};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct String<'a> {
@@ -56,7 +56,7 @@ impl<'a> String<'a> {
         &self.source
     }
 
-    pub(crate) fn to_tokens(&self) -> Tokens {
+    pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitStr::new(self.value.as_str(), self.source.span());
         (quote! { #literal }, self.value.as_str().len())
     }

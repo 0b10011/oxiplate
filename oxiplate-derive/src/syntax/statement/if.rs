@@ -11,7 +11,7 @@ use super::{Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::{Template, whitespace};
-use crate::{Source, State, Tokens, internal_error};
+use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum IfType<'a> {
@@ -97,7 +97,7 @@ impl<'a> If<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Tokens {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = usize::MAX;
 

@@ -28,7 +28,7 @@ use crate::syntax::statement::r#for::{Break, Continue};
 use crate::syntax::statement::r#let::Let;
 use crate::syntax::statement::r#match::{Case, Match};
 use crate::syntax::template::{is_whitespace, parse_item, whitespace};
-use crate::{Source, State, Tokens};
+use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) struct Statement<'a> {
@@ -141,7 +141,10 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> Result<Tokens, Tokens> {
+    pub(crate) fn to_tokens<'b: 'a>(
+        &self,
+        state: &mut State<'b>,
+    ) -> Result<BuiltTokens, BuiltTokens> {
         macro_rules! unexpected {
             ($tag:literal) => {{
                 let span = self.source.span();

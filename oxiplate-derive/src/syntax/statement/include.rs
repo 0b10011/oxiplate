@@ -13,7 +13,7 @@ use super::super::Res;
 use super::super::expression::keyword;
 use super::{Statement, StatementKind};
 use crate::syntax::template::whitespace;
-use crate::{Source, Tokens, oxiplate_internal};
+use crate::{BuiltTokens, Source, oxiplate_internal};
 
 #[derive(Debug)]
 pub struct Include<'a> {
@@ -27,7 +27,7 @@ impl<'a> From<Include<'a>> for StatementKind<'a> {
 }
 
 impl Include<'_> {
-    pub fn to_tokens(&self) -> Tokens {
+    pub fn to_tokens(&self) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
         let span = self.path.span();

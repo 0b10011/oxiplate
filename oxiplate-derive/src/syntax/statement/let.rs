@@ -8,7 +8,7 @@ use super::super::expression::{Identifier, Keyword, expression, keyword};
 use super::{State, Statement, StatementKind};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::template::whitespace;
-use crate::{Source, Tokens};
+use crate::{BuiltTokens, Source};
 
 /// `let` statement for saving values to variables.
 #[derive(Debug)]
@@ -96,7 +96,7 @@ impl<'a> Let<'a> {
     }
 
     /// Build token stream for the statement.
-    pub fn to_tokens(&self, state: &State) -> Tokens {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let span = self.source.span();
         let keyword = &self.keyword;
         let ident = &self.ident;

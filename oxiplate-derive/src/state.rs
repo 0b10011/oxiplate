@@ -8,7 +8,7 @@ use serde::Deserialize;
 use syn::DeriveInput;
 use syn::spanned::Spanned;
 
-use crate::Tokens;
+use crate::BuiltTokens;
 
 #[cfg(all(feature = "built-in-escapers", not(feature = "oxiplate")))]
 compile_error!(
@@ -197,7 +197,7 @@ pub(crate) struct State<'a> {
     /// it can result in a different error for every writ that escapes values.
     /// This allows for reducing it to a single error per template.
     pub(crate) failed_to_set_default_escaper_group: bool,
-    pub(crate) blocks: &'a VecDeque<&'a HashMap<&'a str, (Tokens, Option<Tokens>)>>,
+    pub(crate) blocks: &'a VecDeque<&'a HashMap<&'a str, (BuiltTokens, Option<BuiltTokens>)>>,
     pub(crate) has_content: bool,
 }
 

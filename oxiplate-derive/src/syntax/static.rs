@@ -8,13 +8,13 @@ use quote::quote_spanned;
 use super::item::tag_start;
 use super::template::{adjusted_whitespace, is_whitespace};
 use super::{Item, Res};
-use crate::{Source, Tokens};
+use crate::{BuiltTokens, Source};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
 impl Static<'_> {
-    pub fn to_token(&self) -> Tokens {
+    pub fn to_token(&self) -> BuiltTokens {
         let text = &self.0;
         let span = self.1.span();
         (quote_spanned! { span => #text }, text.len())

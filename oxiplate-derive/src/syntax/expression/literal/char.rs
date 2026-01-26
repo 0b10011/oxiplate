@@ -8,7 +8,7 @@ use nom::sequence::preceded;
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens, internal_error};
+use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Char<'a> {
@@ -81,7 +81,7 @@ impl<'a> Char<'a> {
         &self.source
     }
 
-    pub(crate) fn to_tokens(&self) -> Tokens {
+    pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitChar::new(self.value, self.source.span());
         (quote! { #literal }, 1)
     }

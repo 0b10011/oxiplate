@@ -7,7 +7,7 @@ use nom::{AsChar as _, Parser as _};
 use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
-use crate::{Source, Tokens, internal_error};
+use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Integer<'a>(Source<'a>);
@@ -78,7 +78,7 @@ impl<'a> Integer<'a> {
         &self.0
     }
 
-    pub(crate) fn to_tokens(&self) -> Tokens {
+    pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitInt::new(self.0.as_str(), self.0.span());
         (quote! { #literal }, self.0.as_str().len())
     }
@@ -98,7 +98,7 @@ impl<'a> Float<'a> {
         &self.0
     }
 
-    pub(crate) fn to_tokens(&self) -> Tokens {
+    pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitFloat::new(self.0.as_str(), self.0.span());
         (quote! { #literal }, self.0.as_str().len())
     }

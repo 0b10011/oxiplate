@@ -8,7 +8,7 @@ use quote::{quote, quote_spanned};
 use super::Res;
 use crate::syntax::expression::{Expression, ExpressionAccess, expression};
 use crate::syntax::template::whitespace;
-use crate::{Source, State, Tokens};
+use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Concat<'a> {
@@ -17,7 +17,7 @@ pub(crate) struct Concat<'a> {
 }
 
 impl Concat<'_> {
-    pub(super) fn to_tokens(&self, state: &State) -> Tokens {
+    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
         {
             let mut format_tokens = vec![];
             let mut argument_tokens = vec![];

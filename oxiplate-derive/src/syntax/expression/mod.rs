@@ -33,7 +33,7 @@ use super::item::tag_end;
 use super::template::whitespace;
 use crate::syntax::expression::group::Group;
 use crate::syntax::expression::tuple::Tuple;
-use crate::{Source, State, Tokens};
+use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Field<'a> {
@@ -111,7 +111,7 @@ pub(crate) enum Expression<'a> {
 }
 
 impl<'a> Expression<'a> {
-    pub(crate) fn to_tokens(&self, state: &State) -> Tokens {
+    pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
@@ -224,7 +224,7 @@ impl<'a> Expression<'a> {
         cow_prefix: Option<&Source>,
         arguments: Option<&ArgumentsGroup>,
         source: &Source,
-    ) -> Tokens {
+    ) -> BuiltTokens {
         let (expression, estimated_length) = expression.to_tokens(state);
         let mut argument_tokens = expression;
 
@@ -323,7 +323,7 @@ pub(crate) struct ExpressionAccess<'a> {
     fields: Vec<Field<'a>>,
 }
 impl<'a> ExpressionAccess<'a> {
-    pub(crate) fn to_tokens(&self, state: &State) -> Tokens {
+    pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let (expression, estimated_length) = self.expression.to_tokens(state);
         tokens.append_all(expression);
