@@ -1,0 +1,5 @@
+error: Expected `\'`, `\\`, or a single char followed by `'`.
+ --> tests/broken/char/unescapable.rs:4:25
+  |
+4 | #[oxiplate_inline(r"{{ '\%' }}")]
+  |                         ^^^^^^

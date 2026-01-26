@@ -1,0 +1,5 @@
+error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+ --> tests/broken/writ/closed-like-statement.rs:4:27
+  |
+4 | #[oxiplate_inline("{{ foo %}")]
+  |                           ^^

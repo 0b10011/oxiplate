@@ -20,7 +20,7 @@ fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
         tag("..="),
         tag(".."),
         #[cfg(feature = "unreachable")]
-        tag("@"),
+        tag("="),
     ))
     .parse(input)?;
     let operator = match operator.as_str() {

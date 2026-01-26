@@ -1,0 +1,5 @@
+error: Expected `'`.
+ --> tests/broken/char/multiple-chars.rs:4:26
+  |
+4 | #[oxiplate_inline(r"{{ 'hi' }}")]
+  |                          ^^^^^

@@ -1,0 +1,5 @@
+error: "%}" expected
+ --> tests/broken/statements/closed-like-writ.rs:4:32
+  |
+4 | #[oxiplate_inline("{% continue }}")]
+  |                                ^^

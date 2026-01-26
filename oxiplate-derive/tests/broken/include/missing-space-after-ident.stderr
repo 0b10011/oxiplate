@@ -1,5 +1,0 @@
-error: Expected space after 'include'
- --> tests/broken/include/missing-space-after-ident.rs:4:32
-  |
-4 | #[oxiplate_inline(r#"{% include"include.html.oxip" %}"#)]
-  |                                ^^^^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,5 @@
+error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+ --> tests/broken/strings/more-closing-hashes-than-opening.rs:4:42
+  |
+4 | #[oxiplate_inline(r###"{{ #"hello world"## }}"###)]
+  |                                          ^^^^

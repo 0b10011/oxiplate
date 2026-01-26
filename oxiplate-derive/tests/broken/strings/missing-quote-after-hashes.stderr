@@ -1,0 +1,5 @@
+error: Expected an expression.
+ --> tests/broken/strings/missing-quote-after-hashes.rs:4:27
+  |
+4 | #[oxiplate_inline(r###"{{ ##hello world"## }}"###)]
+  |                           ^^^^^^^^^^^^^^^^^^^

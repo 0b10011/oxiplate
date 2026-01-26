@@ -1,0 +1,5 @@
+error: Expected `'`.
+ --> tests/broken/char/eof-instead-of-quote.rs:4:25
+  |
+4 | #[oxiplate_inline(r"{{ 'h")]
+  |                         ^

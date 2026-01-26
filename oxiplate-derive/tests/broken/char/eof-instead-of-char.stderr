@@ -1,0 +1,5 @@
+error: Expected `\'`, `\\`, or a single char followed by `'`.
+ --> tests/broken/char/eof-instead-of-char.rs:4:24
+  |
+4 | #[oxiplate_inline(r"{{ '")]
+  |                        ^

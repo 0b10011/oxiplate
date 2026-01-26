@@ -1,0 +1,5 @@
+error: Expected an expression.
+ --> tests/broken/numbers/float-exponent-without-digit.rs:4:23
+  |
+4 | #[oxiplate_inline("{{ 19.89e }}")]
+  |                       ^^^^^^^^^
