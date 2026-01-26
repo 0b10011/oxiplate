@@ -2,4 +2,16 @@ error: Expected `case` or `endmatch` statement
  --> tests/broken/match/item-before-case.rs:5:20
   |
 5 |     "{% match 19 %}Value is 19{% case 19 %}Value is something else{% case _ %}{% endmatch %}"
-  |                    ^^^^^^^^^^^
+  |                    ^^^^^
+
+error: Expected `case` or `endmatch` statement
+ --> tests/broken/match/item-before-case.rs:5:26
+  |
+5 |     "{% match 19 %}Value is 19{% case 19 %}Value is something else{% case _ %}{% endmatch %}"
+  |                          ^^
+
+error: Expected `case` or `endmatch` statement
+ --> tests/broken/match/item-before-case.rs:5:29
+  |
+5 |     "{% match 19 %}Value is 19{% case 19 %}Value is something else{% case _ %}{% endmatch %}"
+  |                             ^^

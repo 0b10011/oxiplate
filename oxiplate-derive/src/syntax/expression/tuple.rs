@@ -1,63 +1,52 @@
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt};
-use nom::error::context;
-use nom::multi::many1;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::{Expression, Res, expression};
 use crate::syntax::expression::ExpressionAccess;
-use crate::syntax::template::whitespace;
+use crate::syntax::parser::{Parser as _, context, many1, opt, take};
+use crate::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Tuple<'a> {
     items: Vec<TupleItem<'a>>,
     source: Source<'a>,
 }
 
 impl<'a> Tuple<'a> {
-    pub fn parse(input: Source) -> Res<Source, Expression> {
-        let (
-            input,
-            (open, leading_whitespace, leading_items, trailing_item, trailing_whitespace, close),
-        ) = (
-            tag("("),
-            opt(whitespace),
-            cut(many1((TupleItem::parse(true), opt(whitespace)))),
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+        let (tokens, (open, leading_items, trailing_item, close)) = (
+            take(TokenKind::OpenParenthese),
+            context(
+                "Expected at least one tuple item",
+                many1(TupleItem::parse(true)),
+            ),
             // Last tuple item doesn't need a comma after it,
             // but the first one does.
             opt(TupleItem::parse(false)),
-            opt(whitespace),
-            cut(context("Expected `)` after expression", tag(")"))),
+            context(
+                "Expected `)` after tuple item",
+                take(TokenKind::CloseParenthese),
+            ),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
-        let mut source =
-            open.merge_some(leading_whitespace.as_ref(), "Whitespace should follow `(`");
+        let mut source = open.source().clone();
 
         let mut items = vec![];
-        for (item, whitespace) in leading_items {
-            source = source
-                .merge(&item.source, "Item should follow whitespace")
-                .merge_some(whitespace.as_ref(), "Whitespace should follow item");
+        for item in leading_items {
+            source = source.merge(&item.source, "Item should follow previous");
             items.push(item);
         }
 
         if let Some(trailing_item) = trailing_item {
-            source = source
-                .merge(&trailing_item.source, "Item should follow whitespace")
-                .merge_some(
-                    trailing_whitespace.as_ref(),
-                    "Whitespace should follow item",
-                );
+            source = source.merge(&trailing_item.source, "Item should follow previous");
             items.push(trailing_item);
         }
 
-        source = source.merge(&close, "`)` should follow whitespace");
+        source = source.merge(close.source(), "`)` should follow item");
 
-        Ok((input, Expression::Tuple(Tuple { items, source })))
+        Ok((tokens, Expression::Tuple(Tuple { items, source })))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -66,7 +55,7 @@ impl<'a> Tuple<'a> {
 
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut items = vec![];
-        let span = self.source.span();
+        let span = self.source.span_token();
         let mut expression_length = usize::MAX;
         for item in &self.items {
             let (item, item_length) = item.to_tokens(state);
@@ -77,44 +66,41 @@ impl<'a> Tuple<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 struct TupleItem<'a> {
     expression: ExpressionAccess<'a>,
     comma: Option<Source<'a>>,
     source: Source<'a>,
 }
 
-impl TupleItem<'_> {
-    pub fn parse(require_comma: bool) -> impl Fn(Source) -> Res<Source, TupleItem> {
-        move |input| {
-            let (input, (expression, whitespace, comma)) = if require_comma {
-                let (input, (expression, whitespace, comma)) = (
+impl<'a> TupleItem<'a> {
+    pub fn parse(require_comma: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, TupleItem<'a>> {
+        move |tokens| {
+            let (tokens, (expression, comma)) = if require_comma {
+                let (tokens, (expression, comma)) = (
                     context("Expected an expression", expression(true, true)),
-                    opt(whitespace),
-                    context("Expected `,` after expression", tag(",")),
+                    context("Expected `,` after expression", take(TokenKind::Comma)),
                 )
-                    .parse(input)?;
+                    .parse(tokens)?;
 
-                (input, (expression, whitespace, Some(comma)))
+                (tokens, (expression, Some(comma)))
             } else {
                 (
                     context("Expected an expression", expression(true, true)),
-                    opt(whitespace),
-                    opt(tag(",")),
+                    opt(take(TokenKind::Comma)),
                 )
-                    .parse(input)?
+                    .parse(tokens)?
             };
 
             let source = expression
                 .source()
-                .merge_some(whitespace.as_ref(), "Whitespace expected after expression")
-                .merge_some(comma.as_ref(), "Comma expected after whitespace");
+                .merge_some(comma.map(Token::source), "Comma expected after expression");
 
             Ok((
-                input,
+                tokens,
                 TupleItem {
                     expression,
-                    comma,
+                    comma: comma.map(|token| token.source().clone()),
                     source,
                 },
             ))
@@ -124,7 +110,7 @@ impl TupleItem<'_> {
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let (expression, expression_length) = self.expression.to_tokens(state);
         let comma = self.comma.clone().map_or_else(TokenStream::new, |comma| {
-            let span = comma.span();
+            let span = comma.span_token();
             quote_spanned! {span=> , }
         });
         (quote! { #expression #comma }, expression_length)

@@ -1,15 +1,26 @@
 use std::iter::{Enumerate, Peekable};
 use std::ops::Range;
 use std::path::PathBuf;
-use std::str::{CharIndices, Chars};
+use std::str::Chars;
 
-use nom::{Compare, Input, Needed, Offset};
 use proc_macro2::{Literal, Span};
 use syn::LitStr;
 
 use crate::internal_error;
 
 type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
+
+#[cfg(test)]
+macro_rules! test_source {
+    ($var:ident = $string:literal) => {
+        let span = ::proc_macro2::Span::mixed_site();
+        let owned = crate::SourceOwned::new(&::syn::LitStr::new($string, span), span, None);
+        let $var = crate::Source::new(&owned);
+    };
+}
+
+#[cfg(test)]
+pub(crate) use test_source;
 
 /// Source of a single template.
 /// Does not contain the source of parent/children templates.
@@ -49,7 +60,15 @@ impl SourceOwned {
 #[derive(Clone, Debug)]
 pub(crate) struct Source<'a> {
     pub(crate) original: &'a SourceOwned,
-    pub(crate) range: Range<usize>,
+
+    /// Range start for whitespace + token.
+    start_full: usize,
+
+    /// Range start for token (excludes whitespace).
+    start_token: usize,
+
+    /// Range end for token (with or without whitespace).
+    end: usize,
 }
 
 macro_rules! bail {
@@ -78,23 +97,78 @@ macro_rules! bail_eof {
 }
 
 impl<'a> Source<'a> {
+    pub fn new(owned_source: &'a SourceOwned) -> Self {
+        Self {
+            original: owned_source,
+            start_full: 0,
+            start_token: 0,
+            end: owned_source.code.len(),
+        }
+    }
+
+    pub fn new_with_range(owned_source: &'a SourceOwned, range: Range<usize>) -> Self {
+        if range.end > owned_source.code.len() {
+            panic!(
+                "Range end {} must be less than or equal to the code length {}",
+                range.end,
+                owned_source.code.len()
+            );
+        }
+
+        Self {
+            original: owned_source,
+            start_full: range.start,
+            start_token: range.start,
+            end: range.end,
+        }
+    }
+
+    pub fn range_full(&self) -> Range<usize> {
+        Range {
+            start: self.start_full,
+            end: self.end,
+        }
+    }
+
+    pub fn range_token(&self) -> Range<usize> {
+        Range {
+            start: self.start_token,
+            end: self.end,
+        }
+    }
+
     pub fn as_str(&self) -> &'a str {
-        &self.original.code[self.range.clone()]
+        &self.original.code[self.range_token()]
+    }
+
+    #[cfg(feature = "better-internal-errors")]
+    fn span_full(&self) -> Span {
+        self.span(self.start_full)
     }
 
     #[must_use]
-    pub fn span(&self) -> Span {
-        let mut start = self.range.start;
-        let end = self.range.end;
-        if start == end && start > 1 {
-            start -= 1;
-        }
+    pub fn span_token(&self) -> Span {
+        self.span(self.start_token)
+    }
+
+    #[must_use]
+    fn span(&self, start: usize) -> Span {
+        let end = self.end;
 
         // Customize the range to map properly to the literal.
         let mut range = Range { start, end };
 
         // Uses the span from the included file.
         if self.original.origin.is_some() {
+            if range.start == range.end && range.start > 1 {
+                let last_char_byte_count = self.original.code[0..range.end]
+                    .chars()
+                    .last()
+                    .map_or(0, char::len_utf8);
+
+                range.start -= last_char_byte_count;
+            }
+
             return self
                 .original
                 .literal
@@ -110,6 +184,15 @@ impl<'a> Source<'a> {
             self.original,
         );
 
+        if range.start == range.end && range.start > 1 {
+            let last_char_byte_count = self.original.code_escaped[0..range.end]
+                .chars()
+                .last()
+                .map_or(0, char::len_utf8);
+
+            range.start -= last_char_byte_count;
+        }
+
         self.original
             .literal
             .subspan(range)
@@ -118,30 +201,94 @@ impl<'a> Source<'a> {
     }
 
     #[must_use]
-    pub fn merge(self, source_to_merge: &Source, error_message: &str) -> Self {
-        if self.range.end != source_to_merge.range.start {
-            internal_error!(
-                vec![self.span().unwrap(), source_to_merge.span().unwrap()],
-                format!("Disjointed ranges cannot be merged. Error: {error_message}"),
+    pub fn with_collapsed_to_start_full(&self) -> Self {
+        let mut source = self.clone();
 
-                // Spans are sometimes overlapping,
-                // so having them split into separate messages is helpful sometimes.
-                .span_help(self.span().unwrap(), "First range here")
-                .span_help(source_to_merge.span().unwrap(), "Second range here")
-            );
-        }
+        source.start_token = source.start_full;
+        source.end = source.start_full;
 
-        let mut range = self.range;
-        range.end = source_to_merge.range.end;
+        source
+    }
 
-        Source {
-            original: self.original,
-            range,
+    #[must_use]
+    pub fn with_collapsed_to_end(&self) -> Self {
+        let mut source = self.clone();
+
+        source.start_full = source.end;
+        source.start_token = source.end;
+
+        source
+    }
+
+    #[must_use]
+    pub fn with_start(&self, other: &Self) -> Self {
+        let mut source = self.clone();
+
+        source.start_full = other.start_full;
+        source.start_token = other.start_token;
+
+        source
+    }
+
+    #[must_use]
+    pub fn append_to_leading_whitespace(
+        &self,
+        leading_whitespace: Option<Source<'a>>,
+        error_message: &str,
+    ) -> Self {
+        if let Some(leading_whitespace) = leading_whitespace {
+            // Save the start of the token for later
+            let token_start = self.start_token;
+
+            // Merge the whitespace and token together
+            let mut new_source = leading_whitespace.merge(self, error_message);
+
+            // Set the start of the token to match where the token actually starts
+            new_source.start_token = token_start;
+
+            new_source
+        } else {
+            self.clone()
         }
     }
 
     #[must_use]
-    pub fn merge_some(self, source_to_merge: Option<&Source>, error_message: &str) -> Self {
+    pub fn append_to_some(
+        &self,
+        source_to_append_to: Option<Source<'a>>,
+        error_message: &str,
+    ) -> Self {
+        if let Some(source) = source_to_append_to {
+            source.merge(self, error_message)
+        } else {
+            self.clone()
+        }
+    }
+
+    #[must_use]
+    pub fn merge(self, source_to_merge: &Source<'a>, error_message: &str) -> Self {
+        if self.end != source_to_merge.start_full {
+            internal_error!(
+                vec![self.span_full().unwrap(), source_to_merge.span_full().unwrap()],
+                format!("Disjointed ranges cannot be merged. Error: {error_message}"),
+
+                // Spans are sometimes overlapping,
+                // so having them split into separate messages is helpful sometimes.
+                .span_help(self.span_full().unwrap(), "First range here")
+                .span_help(source_to_merge.span_full().unwrap(), "Second range here")
+            );
+        }
+
+        Source {
+            original: self.original,
+            start_full: self.start_full,
+            start_token: self.start_token,
+            end: source_to_merge.end,
+        }
+    }
+
+    #[must_use]
+    pub fn merge_some(self, source_to_merge: Option<&Source<'a>>, error_message: &str) -> Self {
         if let Some(source_to_merge) = source_to_merge {
             self.merge(source_to_merge, error_message)
         } else {
@@ -495,120 +642,10 @@ impl<'a> Source<'a> {
     }
 }
 
-impl<'a> Input for Source<'a> {
-    type Item = char;
-    type Iter = Chars<'a>;
-    type IterIndices = CharIndices<'a>;
-
-    fn input_len(&self) -> usize {
-        self.as_str().input_len()
-    }
-
-    fn take(&self, index: usize) -> Self {
-        let end = self.range.start + index;
-        if end > self.range.end {
-            panic!("End greater than end of string");
-        }
-        Source {
-            original: self.original,
-            range: Range {
-                start: self.range.start,
-                end,
-            },
-        }
-    }
-
-    fn take_from(&self, index: usize) -> Self {
-        let start = self.range.start + index;
-        if start > self.range.end {
-            panic!("Start greater than end of string");
-        }
-
-        Source {
-            original: self.original,
-            range: Range {
-                start,
-                end: self.range.end,
-            },
-        }
-    }
-
-    fn take_split(&self, index: usize) -> (Self, Self) {
-        let split_point = self.range.start + index;
-        if split_point > self.range.end {
-            panic!("Split point greater than end of string");
-        }
-
-        (
-            Source {
-                original: self.original,
-                range: Range {
-                    start: split_point,
-                    end: self.range.end,
-                },
-            },
-            Source {
-                original: self.original,
-                range: Range {
-                    start: self.range.start,
-                    end: split_point,
-                },
-            },
-        )
-    }
-
-    fn position<P>(&self, predicate: P) -> Option<usize>
-    where
-        P: Fn(Self::Item) -> bool,
-    {
-        self.as_str().position(predicate)
-    }
-
-    fn iter_elements(&self) -> Self::Iter {
-        self.as_str().iter_elements()
-    }
-
-    fn iter_indices(&self) -> Self::IterIndices {
-        self.as_str().iter_indices()
-    }
-
-    fn slice_index(&self, count: usize) -> Result<usize, Needed> {
-        self.as_str().slice_index(count)
-    }
-}
-
-impl<'a> PartialEq<Source<'a>> for Source<'a> {
-    fn eq(&self, other: &Source) -> bool {
-        self.range == other.range
-            && self.original.origin == other.original.origin
-            && self.original.code == other.original.code
-    }
-}
-
-impl Eq for Source<'_> {}
-
-impl Compare<&str> for Source<'_> {
-    fn compare(&self, string: &str) -> nom::CompareResult {
-        self.as_str().compare(string)
-    }
-
-    fn compare_no_case(&self, string: &str) -> nom::CompareResult {
-        self.as_str().compare_no_case(string)
-    }
-}
-
-impl Offset for Source<'_> {
-    fn offset(&self, offset: &Self) -> usize {
-        self.as_str().offset(offset.as_str())
-    }
-}
-
+#[cfg(not(feature = "better-internal-errors"))]
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use std::ops::Range;
-
-    use nom::{Compare, CompareResult, Input};
     use proc_macro2::{Literal, Span};
 
     use super::Source;
@@ -626,7 +663,9 @@ mod tests {
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
-            range: Range { start: 0, end: 1 },
+            start_full: 0,
+            start_token: 0,
+            end: 1,
         };
         let literal = Literal::string("hello world");
         let b = Source {
@@ -637,7 +676,9 @@ mod tests {
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
-            range: Range { start: 2, end: 3 },
+            start_full: 2,
+            start_token: 2,
+            end: 3,
         };
         let _ = a.merge(&b, "B does not follow A");
     }
@@ -655,139 +696,10 @@ mod tests {
                 span_hygiene: Span::call_site(),
                 origin: None,
             },
-            range: Range { start: 0, end: 1 },
+            start_full: 0,
+            start_token: 0,
+            end: 1,
         };
-        let _ = a.span();
-    }
-
-    #[test]
-    #[should_panic = "End greater than end of string"]
-    fn take_too_many() {
-        let literal = Literal::string("hello world");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 1 },
-        };
-        a.take(5);
-    }
-
-    #[test]
-    #[should_panic = "Start greater than end of string"]
-    fn take_from_too_many() {
-        let literal = Literal::string("hello world");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 1 },
-        };
-        a.take_from(5);
-    }
-
-    #[test]
-    #[should_panic = "Split point greater than end of string"]
-    fn take_split_too_many() {
-        let literal = Literal::string("hello world");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 1 },
-        };
-        a.take_split(5);
-    }
-
-    #[test]
-    fn take_split() {
-        let literal = Literal::string("hello world");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 11 },
-        };
-
-        let literal = Literal::string("hello world");
-        let b = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 5 },
-        };
-        let literal = Literal::string("hello world");
-        let c = Source {
-            original: &crate::SourceOwned {
-                code: "hello world".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 5, end: 11 },
-        };
-
-        assert_eq!((c, b), a.take_split(5));
-    }
-
-    #[test]
-    fn iter_indices() {
-        let literal = Literal::string("hi");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "hi".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 2 },
-        };
-        let mut indices = vec![];
-        let mut chars = vec![];
-        for (index, char) in a.iter_indices() {
-            indices.push(index);
-            chars.push(char);
-        }
-        assert_eq!((vec![0, 1], vec!['h', 'i']), (indices, chars));
-    }
-
-    #[test]
-    fn compare_no_case() {
-        let literal = Literal::string("Hello World");
-        let a = Source {
-            original: &crate::SourceOwned {
-                code: "Hello World".to_string(),
-                code_escaped: literal.to_string(),
-                literal,
-                span_hygiene: Span::call_site(),
-                origin: None,
-            },
-            range: Range { start: 0, end: 11 },
-        };
-        assert_eq!(CompareResult::Ok, a.compare_no_case("hElLo wOrLd"));
-        assert_eq!(CompareResult::Error, a.compare_no_case("goodbye world"));
-        assert_eq!(CompareResult::Incomplete, a.compare_no_case("hello world!"));
+        let _ = a.span_token();
     }
 }

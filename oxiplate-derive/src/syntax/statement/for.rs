@@ -1,18 +1,17 @@
 use std::collections::HashSet;
 
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, into};
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
-use super::super::expression::{Keyword, expression, keyword};
-use super::super::{Item, Res};
+use super::super::Item;
+use super::super::expression::{Keyword, expression};
 use super::{State, Statement, StatementKind};
-use crate::syntax::expression::ExpressionAccess;
+use crate::syntax::Res;
+use crate::syntax::expression::{ExpressionAccess, KeywordParser};
+use crate::syntax::parser::{Parser as _, cut, into};
 use crate::syntax::statement::helpers::pattern::Pattern;
-use crate::syntax::template::{Template, whitespace};
+use crate::syntax::template::Template;
+use crate::tokenizer::TokenSlice;
 use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug)]
@@ -31,7 +30,7 @@ impl<'a> For<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             internal_error!(
-                item.source().span().unwrap(),
+                item.source().span_token().unwrap(),
                 "Attempted to add item to ended `for` statement",
             );
         }
@@ -150,35 +149,28 @@ impl<'a> From<For<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
-    let (input, for_keyword) = keyword("for").parse(input)?;
+pub(super) fn parse_for(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, for_keyword) = KeywordParser::new("for").parse(tokens)?;
 
-    let (input, (for_whitespace, pattern, ident_whitespace, in_keyword, in_whitespace, expression)) =
-        cut((
-            context("Expected space after 'for'", whitespace),
-            context("Expected a pattern", Pattern::parse),
-            context("Expected space after identifier", whitespace),
-            context("Expected 'in'", keyword("in")),
-            context("Expected space after 'in'", whitespace),
-            context(
-                "Expected an expression that is iterable",
-                expression(true, true),
-            ),
-        ))
-        .parse(input)?;
+    let (tokens, (pattern, in_keyword, expression)) = (
+        cut("Expected a pattern", Pattern::parse),
+        cut("Expected 'in'", KeywordParser::new("in")),
+        cut(
+            "Expected an expression that is iterable",
+            expression(true, true),
+        ),
+    )
+        .parse(tokens)?;
 
     let source = for_keyword
-        .0
+        .source()
         .clone()
-        .merge(&for_whitespace, "Whitespace expected after `for`")
         .merge(pattern.source(), "Ident expected after whitespace")
-        .merge(&ident_whitespace, "Whitespace expected after ident")
-        .merge(&in_keyword.0, "`in` expected after whitespace")
-        .merge(&in_whitespace, "Whitespace expected after `in`")
+        .merge(in_keyword.source(), "`in` expected after whitespace")
         .merge(&expression.source(), "Expression expected after whitespace");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: For {
                 for_keyword,
@@ -195,14 +187,14 @@ pub(super) fn parse_for(input: Source) -> Res<Source, Statement> {
     ))
 }
 
-pub(super) fn parse_endfor(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endfor").parse(input)?;
+pub(super) fn parse_endfor(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, output) = KeywordParser::new("endfor").parse(tokens)?;
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: StatementKind::EndFor,
-            source: output,
+            source: output.source().clone(),
         },
     ))
 }
@@ -211,16 +203,16 @@ pub(super) fn parse_endfor(input: Source) -> Res<Source, Statement> {
 pub(crate) struct Break<'a>(Keyword<'a>);
 
 impl<'a> Break<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        into(keyword("break")).parse(input)
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Break<'a>> {
+        into(KeywordParser::new("break")).parse(tokens)
     }
 
     pub fn source(&self) -> &Source<'a> {
-        &self.0.0
+        self.0.source()
     }
 
     pub fn to_tokens(&self) -> BuiltTokens {
-        let span = self.0.0.span();
+        let span = self.0.source().span_token();
         let keyword = &self.0;
 
         (quote_spanned! {span=> #keyword; }, 0)
@@ -246,16 +238,16 @@ impl<'a> From<Break<'a>> for Statement<'a> {
 pub(crate) struct Continue<'a>(Keyword<'a>);
 
 impl<'a> Continue<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        into(keyword("continue")).parse(input)
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Continue<'a>> {
+        into(KeywordParser::new("continue")).parse(tokens)
     }
 
     pub fn source(&self) -> &Source<'a> {
-        &self.0.0
+        self.0.source()
     }
 
     pub fn to_tokens(&self) -> BuiltTokens {
-        let span = self.0.0.span();
+        let span = self.0.source().span_token();
         let keyword = &self.0;
 
         (quote_spanned! {span=> #keyword; }, 0)

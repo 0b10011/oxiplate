@@ -1,5 +1,5 @@
-error: Expected path to the template to include
- --> tests/broken/include/missing-filename.rs:4:34
+error: Path is not a file: `$DIR/templates`
+ --> tests/broken/include/missing-filename.rs:4:33
   |
 4 | #[oxiplate_inline(r#"{% include "" %}"#)]
-  |                                  ^^^^
+  |                                 ^^

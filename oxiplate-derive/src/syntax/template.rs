@@ -1,17 +1,14 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::{tag, take_while1};
-use nom::combinator::{eof, opt};
-use nom::multi::many0;
-use nom_language::error::{VerboseError, VerboseErrorKind};
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
-use super::super::Source;
 use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
 use super::{Item, Res, Static};
-use crate::syntax::item::{WhitespacePreference, parse_trailing_whitespace};
+#[cfg(coverage_nightly)]
+use crate::Source;
+use crate::syntax::item::parse_trailing_whitespace;
+use crate::syntax::parser::{Parser as _, alt, opt, parse_all, take};
+use crate::tokenizer::{TokenKind, TokenSlice, WhitespacePreference};
 use crate::{BuiltTokens, State, internal_error};
 
 /// Collection of items in the template and estimated output length.
@@ -42,7 +39,7 @@ impl<'a> Template<'a> {
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
 
-    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
+    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> (TokenStream, usize) {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
 
@@ -81,61 +78,18 @@ impl<'a> Template<'a> {
     }
 }
 
-pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, source: Source<'a>) -> BuiltTokens {
-    match try_parse(state, source) {
+pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -> BuiltTokens {
+    match try_parse(state, tokens) {
         Ok((_, template)) => template,
-        Err(
-            nom::Err::Error(VerboseError { errors }) | nom::Err::Failure(VerboseError { errors }),
-        ) => {
-            let template = Template(convert_error(errors));
-            template.to_tokens(state)
-        }
-        Err(nom::Err::Incomplete(_)) => {
-            unreachable!("This should only happen in nom streams which aren't used by Oxiplate.")
-        }
+        Err(error) => Into::<Template>::into(error).to_tokens(state),
     }
 }
 
-fn convert_error(errors: Vec<(Source, VerboseErrorKind)>) -> Vec<Item> {
-    let mut items: Vec<Item> = vec![];
-    for (source, kind) in errors {
-        match kind {
-            VerboseErrorKind::Char(expected_char) => {
-                items.push(Item::CompileError {
-                    message: format!("Expected `{expected_char}`"),
-                    error_source: source.clone(),
-                    consumed_source: source,
-                });
-            }
-            VerboseErrorKind::Context(error) => {
-                return vec![Item::CompileError {
-                    message: error.to_string(),
-                    error_source: source.clone(),
-                    consumed_source: source,
-                }];
-            }
-            VerboseErrorKind::Nom(nom_error) => {
-                items.push(Item::CompileError {
-                    message: format!("Error when parsing with `{nom_error:?}`"),
-                    error_source: source.clone(),
-                    consumed_source: source,
-                });
-            }
-        }
-    }
-
-    items
-}
-
-fn try_parse<'a, 'b: 'a>(
+pub fn try_parse<'a, 'b: 'a>(
     state: &mut State<'b>,
-    source: Source<'a>,
-) -> Res<Source<'a>, BuiltTokens> {
-    let (input, items_vec) = many0(parse_item).parse(source)?;
-
-    // Return error if there's any input remaining.
-    // Successful value is `("", "")`, so no need to capture.
-    let (input, _) = eof(input)?;
+    tokens: TokenSlice<'a>,
+) -> Res<'a, BuiltTokens> {
+    let (tokens, items_vec) = parse_all(parse_item).parse(tokens)?;
 
     let mut items = Vec::new();
     for mut item_vec in items_vec {
@@ -148,58 +102,61 @@ fn try_parse<'a, 'b: 'a>(
     #[cfg(coverage_nightly)]
     let _ = template.source();
 
-    Ok((input, template.to_tokens(state)))
+    Ok((tokens, template.to_tokens(state)))
 }
 
-pub(crate) fn parse_item(input: Source) -> Res<Source, Vec<Item>> {
-    alt((parse_tag, parse_static, adjusted_whitespace)).parse(input)
+pub(crate) fn parse_item(tokens: TokenSlice) -> Res<Vec<Item>> {
+    alt((parse_tag, adjusted_whitespace, parse_static)).parse(tokens)
 }
 
-pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, tag)) = (
-        opt(whitespace),
+pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
+    let (tokens, (leading_whitespace, tag)) = (
+        opt(take(TokenKind::StaticWhitespace)),
         alt((
-            tag("{_}"),
-            tag("{-}"),
-            #[cfg(feature = "unreachable")]
-            tag("{$}"),
+            take(TokenKind::WhitespaceAdjustmentTag {
+                whitespace_preference: WhitespacePreference::Remove,
+            }),
+            take(TokenKind::WhitespaceAdjustmentTag {
+                whitespace_preference: WhitespacePreference::Replace,
+            }),
         )),
     )
-        .parse(input)?;
+        .parse(tokens)?;
 
-    let whitespace_preference = match tag.as_str() {
-        "{-}" => WhitespacePreference::Remove,
-        "{_}" => WhitespacePreference::Replace,
-        _ => {
-            internal_error!(tag.span().unwrap(), "Unhandled whitespace adjustment tag");
-        }
+    let TokenKind::WhitespaceAdjustmentTag {
+        whitespace_preference,
+    } = tag.kind()
+    else {
+        internal_error!(
+            tag.source().span_token().unwrap(),
+            "Unhandled whitespace adjustment tag"
+        );
     };
 
-    let (input, trailing_whitespace) = parse_trailing_whitespace(
-        tag.clone(),
+    let (tokens, trailing_whitespace) = parse_trailing_whitespace(
+        tag.source(),
         whitespace_preference,
         leading_whitespace.is_some(),
     )
-    .parse(input)?;
+    .parse(tokens)?;
 
     let has_whitespace =
         leading_whitespace.is_some() || matches!(&trailing_whitespace, Some(Item::Whitespace(_)));
-    let tag_str = tag.as_str();
 
-    let source = if let Some(leading_whitespace) = &leading_whitespace {
-        leading_whitespace
-            .clone()
-            .merge(&tag, "Tag expected after leading whitespace")
-    } else {
-        tag.clone()
-    }
-    .merge_some(
-        trailing_whitespace.as_ref().map(Item::source),
-        "Whitespace expected after tag",
-    );
+    let source = tag
+        .source()
+        .clone()
+        .append_to_some(
+            leading_whitespace.map(|token| token.source().clone()),
+            "Whitespace adjustment tag expected after whitespace",
+        )
+        .merge_some(
+            trailing_whitespace.as_ref().map(Item::source),
+            "Whitespace expected after tag",
+        );
 
-    let whitespace = match (has_whitespace, tag_str) {
-        (true, "{_}") => {
+    let whitespace = match (has_whitespace, whitespace_preference) {
+        (true, WhitespacePreference::Replace) => {
             let space = if leading_whitespace.is_some()
                 || matches!(&trailing_whitespace, Some(Item::Whitespace(Static(" ", _))))
             {
@@ -209,7 +166,7 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
             };
             vec![Item::Whitespace(Static(space, source))]
         }
-        (false, "{_}") => vec![Item::CompileError {
+        (false, WhitespacePreference::Replace) => vec![Item::CompileError {
             message: "Whitespace replace tag `{_}` used between non-whitespace. Either add \
                       whitespace or remove this tag."
                 .to_string(),
@@ -218,33 +175,11 @@ pub(crate) fn adjusted_whitespace(input: Source) -> Res<Source, Vec<Item>> {
         }],
         // Return the tag as a comment to keep contiguous source
         // without actually outputting anything.
-        (_, "{-}") => {
+        (_, WhitespacePreference::Remove) => {
             vec![Item::Whitespace(Static("", source))]
         }
         _ => unreachable!("Only whitespace control tags should be matched"),
     };
 
-    Ok((input, whitespace))
-}
-
-// https://doc.rust-lang.org/reference/whitespace.html
-pub fn is_whitespace(char: char) -> bool {
-    matches!(
-        char,
-        '\u{0009}' // (horizontal tab, '\t')
-        | '\u{000A}' // (line feed, '\n')
-        | '\u{000B}' // (vertical tab)
-        | '\u{000C}' // (form feed)
-        | '\u{000D}' // (carriage return, '\r')
-        | '\u{0020}' // (space, ' ')
-        | '\u{0085}' // (next line)
-        | '\u{200E}' // (left-to-right mark)
-        | '\u{200F}' // (right-to-left mark)
-        | '\u{2028}' // (line separator)
-        | '\u{2029}' // (paragraph separator)
-    )
-}
-
-pub(crate) fn whitespace(input: Source) -> Res<Source, Source> {
-    take_while1(is_whitespace).parse(input)
+    Ok((tokens, whitespace))
 }

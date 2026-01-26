@@ -1,23 +1,19 @@
 use std::collections::{HashMap, VecDeque};
 
-use nom::Parser as _;
-use nom::bytes::complete::{escaped, is_not, tag};
-use nom::character::complete::one_of;
-use nom::combinator::cut;
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::LitStr;
 
-use super::super::Res;
-use super::super::expression::keyword;
 use super::{Statement, StatementKind};
-use crate::syntax::template::whitespace;
-use crate::{BuiltTokens, Source, oxiplate_internal};
+use crate::syntax::Res;
+use crate::syntax::expression::{KeywordParser, String};
+use crate::syntax::parser::{Parser as _, cut};
+use crate::tokenizer::TokenSlice;
+use crate::{BuiltTokens, oxiplate_internal};
 
 #[derive(Debug)]
 pub struct Include<'a> {
-    path: Source<'a>,
+    path: String<'a>,
 }
 
 impl<'a> From<Include<'a>> for StatementKind<'a> {
@@ -30,7 +26,7 @@ impl Include<'_> {
     pub fn to_tokens(&self) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
-        let span = self.path.span();
+        let span = self.path.source().span_token();
 
         #[cfg(feature = "oxiplate")]
         let oxiplate = quote_spanned! {span=> ::oxiplate::Oxiplate };
@@ -48,7 +44,7 @@ impl Include<'_> {
         // and the spans in the generated code
         // will point the user to the correct place in the code
         // to fix things.
-        let include_path = LitStr::new(self.path.as_str(), self.path.span());
+        let include_path = LitStr::new(self.path.as_str(), self.path.source().span_token());
         let template = quote_spanned! {span=>
             #[derive(#oxiplate)]
             #[oxiplate_include = #include_path]
@@ -64,29 +60,20 @@ impl Include<'_> {
     }
 }
 
-pub(super) fn parse_include(input: Source) -> Res<Source, Statement> {
-    let (input, include_keyword) = keyword("include").parse(input)?;
-
-    let (input, (leading_whitespace, start_quote, path, end_quote)) = cut((
-        context("Expected space after 'include'", whitespace),
-        context(r#"Expected ""#, tag(r#"""#)),
-        context(
-            "Expected path to the template to include",
-            escaped(is_not(r#"""#), '\\', one_of(r#"""#)),
-        ),
-        context(r#"Expected ""#, tag(r#"""#)),
-    ))
-    .parse(input)?;
+pub(super) fn parse_include(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, (include_keyword, path)) = (
+        KeywordParser::new("include"),
+        cut("Expected path to the template to include", String::parse),
+    )
+        .parse(tokens)?;
 
     let source = include_keyword
-        .0
-        .merge(&leading_whitespace, "Whitespace expected after `include`")
-        .merge(&start_quote, "`\"` expected after whitespace")
-        .merge(&path, "Path expected after `\"`")
-        .merge(&end_quote, "`\"` expected after path");
+        .source()
+        .clone()
+        .merge(path.source(), "Path expected after `include`");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: Include { path }.into(),
             source,

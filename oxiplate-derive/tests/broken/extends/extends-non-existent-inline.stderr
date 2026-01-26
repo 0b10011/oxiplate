@@ -1,5 +1,5 @@
 error: Path does not exist: `$DIR/templates/extends-non-existent.html.oxip`
- --> tests/broken/extends/extends-non-existent-inline.rs:4:34
+ --> tests/broken/extends/extends-non-existent-inline.rs:4:33
   |
 4 | #[oxiplate_inline(r#"{% extends "extends-non-existent.html.oxip" %}"#)]
-  |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

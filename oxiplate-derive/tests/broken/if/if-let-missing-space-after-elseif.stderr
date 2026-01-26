@@ -1,9 +1,5 @@
-error: Expected a space
-  --> tests/broken/if/if-let-missing-space-after-elseif.rs:8:11
-   |
- 8 |   {%- elseifvalue < 0 -%}
-   |  ___________^
- 9 | |     Less than 0.
-10 | | {%- endif -%}
-11 | | "#
-   | |_^
+error: Expected one of: default_escaper_group, replace_escaper_group, extends, block, endblock, include, if, elseif, else, endif, for, continue, break, endfor, match, case, endmatch, let
+ --> tests/broken/if/if-let-missing-space-after-elseif.rs:8:5
+  |
+8 | {%- elseifvalue < 0 -%}
+  |     ^^^^^^^^^^^

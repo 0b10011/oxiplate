@@ -1,4 +1,4 @@
-error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+error: Expected `}}`, `-}}`, or `_}}`
  --> tests/broken/writ/closed-like-comment-whitespace-remove.rs:4:27
   |
 4 | #[oxiplate_inline("{{ foo -#}")]

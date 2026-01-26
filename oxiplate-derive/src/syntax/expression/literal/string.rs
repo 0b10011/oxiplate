@@ -1,63 +1,48 @@
-use nom::Parser as _;
-use nom::bytes::complete::{tag, take, take_while};
-use nom::combinator::cut;
-use nom::error::context;
-use nom::multi::many_till;
-use nom::sequence::pair;
 use quote::quote;
 
+use crate::syntax::Error;
 use crate::syntax::expression::{Expression, Res};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct String<'a> {
-    value: Source<'a>,
-    source: Source<'a>,
+    value: std::string::String,
+    source: &'a Source<'a>,
 }
 
 impl<'a> String<'a> {
-    pub(crate) fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (opening_hashes, opening_quote)) =
-            pair(take_while(|c| c == '#'), tag("\"")).parse(input)?;
+    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, token) = tokens.take()?;
 
-        let closing = pair(tag("\""), tag(opening_hashes.as_str()));
-        let (input, (string, (closing_quote, closing_hashes))) = context(
-        r#"String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening."#,
-        cut(many_till(take(1u32), closing)),
-    ).parse(input)?;
-
-        let value = if let Some(value) = string.first() {
-            let mut value = value.clone();
-            value.range.end = string.last().unwrap().range.end;
-            value
-        } else {
-            let mut value = opening_quote.clone();
-            value.range.start = value.range.end;
-            value
+        let (TokenKind::String(value) | TokenKind::RawString(value)) = token.kind() else {
+            return Err(Error::Recoverable {
+                message: "Expected a string or raw string".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
         };
 
-        let source = opening_hashes
-            .merge(&opening_quote, "Opening quote should follow opening hashes")
-            .merge(&value, "Value should follow opening quote")
-            .merge(&closing_quote, "Closing quote should follow value")
-            .merge(
-                &closing_hashes,
-                "Closing hashes should follow closing quote",
-            );
-
-        Ok((input, Self { value, source }))
+        Ok((
+            tokens,
+            Self {
+                value: *value.clone(),
+                source: token.source(),
+            },
+        ))
     }
 
-    pub(crate) fn as_str(&self) -> &'a str {
-        self.value.as_str()
+    pub(crate) fn as_str(&'a self) -> &'a str {
+        &self.value
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
-        &self.source
+        self.source
     }
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
-        let literal = ::syn::LitStr::new(self.value.as_str(), self.source.span());
+        let literal = ::syn::LitStr::new(&self.value, self.source.span_token());
         (quote! { #literal }, self.value.as_str().len())
     }
 }

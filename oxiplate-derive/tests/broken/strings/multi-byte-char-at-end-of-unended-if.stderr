@@ -1,0 +1,5 @@
+error: "if" statement is never closed (unexpected end of template)
+ --> tests/broken/strings/multi-byte-char-at-end-of-unended-if.rs:4:35
+  |
+4 | #[oxiplate_inline(r#"{% if true %}❯"#)]
+  |                                   ^

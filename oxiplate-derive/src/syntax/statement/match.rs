@@ -1,19 +1,17 @@
 use std::collections::HashSet;
 
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt};
-use nom::error::context;
-use nom::multi::many0;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
 use crate::syntax::Res;
-use crate::syntax::expression::{ExpressionAccess, expression};
+use crate::syntax::expression::{ExpressionAccess, KeywordParser, expression};
+use crate::syntax::parser::{Parser as _, cut, many0, opt, take};
 use crate::syntax::statement::helpers::pattern::Pattern;
-use crate::syntax::template::{Template, whitespace};
+use crate::syntax::r#static::StaticType;
+use crate::syntax::template::Template;
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
@@ -34,7 +32,7 @@ impl<'a> Match<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             internal_error!(
-                item.source().span().unwrap(),
+                item.source().span_token().unwrap(),
                 "Attempted to add item to ended `match` statement",
             );
         }
@@ -52,7 +50,7 @@ impl<'a> Match<'a> {
             }) => {
                 self.is_ended = true;
             }
-            Item::Comment(_) | Item::Whitespace(_) => {
+            Item::Comment(_) | Item::Whitespace(_) | Item::Static(_, StaticType::Whitespace) => {
                 if let Some(case) = self.cases.last_mut() {
                     case.add_item(item);
                 } else {
@@ -97,26 +95,23 @@ impl<'a> Match<'a> {
         (tokens, estimated_length)
     }
 
-    pub fn parse(input: Source) -> Res<Source, Statement> {
-        let (input, (statement, leading_whitespace, expression)) = (
-            tag("match"),
-            opt(whitespace),
-            context(
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
+        let (tokens, (statement, expression)) = (
+            KeywordParser::new("match"),
+            cut(
                 r#"Expected an expression after "match""#,
-                cut(expression(true, true)),
+                expression(true, true),
             ),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let source = statement
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after `match`",
-            )
-            .merge(&expression.source(), "Expression expected after whitespace");
+            .source()
+            .clone()
+            .merge(&expression.source(), "Expression expected after `match`");
 
         Ok((
-            input,
+            tokens,
             Statement {
                 kind: StatementKind::Match(Match {
                     expression,
@@ -129,14 +124,14 @@ impl<'a> Match<'a> {
         ))
     }
 
-    pub(super) fn parse_end(input: Source) -> Res<Source, Statement> {
-        let (input, output) = tag("endmatch").parse(input)?;
+    pub(super) fn parse_end(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
+        let (tokens, output) = KeywordParser::new("endmatch").parse(tokens)?;
 
         Ok((
-            input,
+            tokens,
             Statement {
                 kind: StatementKind::EndMatch,
-                source: output,
+                source: output.source().clone(),
             },
         ))
     }
@@ -151,62 +146,43 @@ pub(crate) struct Case<'a> {
 }
 
 impl<'a> Case<'a> {
-    pub fn parse(input: Source) -> Res<Source, Statement> {
-        let (
-            input,
-            (
-                statement,
-                leading_whitespace,
-                (first_pattern, additional_patterns_and_whitespace, guard),
-            ),
-        ) = (
-            tag("case"),
-            opt(whitespace),
-            context(
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
+        let (tokens, (statement, (first_pattern, additional_patterns_and_separators, guard))) = (
+            KeywordParser::new("case"),
+            cut(
                 "Expected a match pattern after `case`",
-                cut((
+                (
                     Pattern::parse,
-                    many0((opt(whitespace), tag("|"), opt(whitespace), Pattern::parse)),
-                    opt((whitespace, Guard::parse)),
-                )),
+                    many0((take(TokenKind::VerticalBar), Pattern::parse)),
+                    opt(Guard::parse),
+                ),
             ),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let mut source = statement
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after `match`",
-            )
+            .source()
+            .clone()
             .merge(first_pattern.source(), "Type expected after whitespace");
 
-        let mut additional_patterns = Vec::with_capacity(additional_patterns_and_whitespace.len());
-        for (leading_whitespace, operator, middle_whitespace, pattern) in
-            additional_patterns_and_whitespace
-        {
+        let mut additional_patterns = Vec::with_capacity(additional_patterns_and_separators.len());
+        for (operator, pattern) in additional_patterns_and_separators {
             source = source
-                .merge_some(
-                    leading_whitespace.as_ref(),
-                    "Whitespace expected after pattern",
-                )
-                .merge(&operator, "`|` expected after whitespace")
-                .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `|`")
-                .merge(pattern.source(), "Pattern expected after whitespace");
+                .merge(operator.source(), "`|` expected after previous pattern")
+                .merge(pattern.source(), "Pattern expected after `|`");
 
-            additional_patterns.push((operator, pattern));
+            additional_patterns.push((operator.source().clone(), pattern));
         }
 
-        let guard = if let Some((leading_whitespace, guard)) = guard {
-            source = source
-                .merge(&leading_whitespace, "Whitespace expected after patterns")
-                .merge(guard.source(), "Guard expected after whitespace");
+        let guard = if let Some(guard) = guard {
+            source = source.merge(guard.source(), "Guard expected after whitespace");
             Some(guard)
         } else {
             None
         };
 
         Ok((
-            input,
+            tokens,
             Statement {
                 kind: StatementKind::Case(Case {
                     first_pattern,
@@ -235,7 +211,7 @@ impl<'a> Case<'a> {
         state.local_variables.push_stack();
 
         for (operator, pattern) in &self.additional_patterns {
-            let span = operator.span();
+            let span = operator.span_token();
             let pattern = pattern.to_tokens(state);
             tokens.append_all(quote_spanned! {span=> | #pattern });
         }
@@ -273,26 +249,22 @@ struct Guard<'a> {
 }
 
 impl<'a> Guard<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (if_tag, middle_whitespace, expression)) = (
-            tag("if"),
-            whitespace,
-            context(
-                "Expected expression after `if`",
-                cut(expression(true, true)),
-            ),
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (if_tag, expression)) = (
+            KeywordParser::new("if"),
+            cut("Expected expression after `if`", expression(true, true)),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let source = if_tag
+            .source()
             .clone()
-            .merge(&middle_whitespace, "Whitespace expected after `if`")
             .merge(&expression.source(), "Expression expected after whitespace");
 
         Ok((
-            input,
+            tokens,
             Self {
-                if_tag,
+                if_tag: if_tag.source().clone(),
                 expression,
                 source,
             },
@@ -304,7 +276,7 @@ impl<'a> Guard<'a> {
     }
 
     pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let if_span = self.if_tag.span();
+        let if_span = self.if_tag.span_token();
         let (expression, _estimated_length) = self.expression.to_tokens(state);
 
         quote_spanned! {if_span=> if #expression }

@@ -1,17 +1,15 @@
-use nom::Parser as _;
-use nom::bytes::complete::take_while1;
-use nom::combinator::{cut, fail, opt, peek};
-use nom::error::context;
-use nom::sequence::pair;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
+use crate::syntax::Error;
 use crate::syntax::expression::arguments::{ArgumentsGroup, arguments};
+use crate::syntax::parser::{Parser as _, opt, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
-pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
-    let (input, (ident, arguments)) = pair(Identifier::parse, opt(arguments)).parse(input)?;
+pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
+    let (tokens, (ident, arguments)) = (Identifier::parse, opt(arguments)).parse(tokens)?;
 
     let field = if let Some(arguments) = arguments {
         IdentifierOrFunction::Function(ident, arguments)
@@ -19,53 +17,48 @@ pub(crate) fn identifier(input: Source) -> Res<Source, Expression> {
         IdentifierOrFunction::Identifier(ident)
     };
 
-    Ok((input, Expression::Identifier(field)))
+    Ok((tokens, Expression::Identifier(field)))
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Identifier<'a>(Source<'a>);
+#[derive(Debug)]
+pub(crate) struct Identifier<'a> {
+    source: &'a Source<'a>,
+}
 
 impl<'a> Identifier<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        // Ignore if it starts with a number
-        let (input, _) = peek(take_while1(
-            |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'),
-        ))
-        .parse(input)?;
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
+        let source = token.source();
 
-        let (input, ident) = cut(take_while1(
-            |char: char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'),
-        ))
-        .parse(input)?;
+        let error_message = match source.as_str() {
+            "oxiplate_formatter" => "`oxiplate_formatter` is a reserved name",
+            "self" => "`self` is a reserved keyword",
+            "super" => "`super` is a reserved keyword",
+            _ => {
+                return Ok((tokens, Self { source }));
+            }
+        };
 
-        match ident.as_str() {
-            "oxiplate_formatter" => {
-                return context("`oxiplate_formatter` is a reserved name", fail()).parse(ident);
-            }
-            "self" => {
-                return context("`self` is a reserved keyword", fail()).parse(ident);
-            }
-            "super" => {
-                return context("`super` is a reserved keyword", fail()).parse(ident);
-            }
-            _ => (),
-        }
-
-        Ok((input, Self(ident)))
+        Err(Error::Unrecoverable {
+            message: error_message.to_string(),
+            source: source.clone(),
+            previous_error: None,
+            is_eof: false,
+        })
     }
 
     pub fn as_str(&self) -> &'a str {
-        self.0.as_str()
+        self.source.as_str()
     }
 
-    pub fn source(&self) -> &Source<'a> {
-        &self.0
+    pub fn source(&self) -> &'a Source<'a> {
+        self.source
     }
 }
 
 impl ToTokens for Identifier<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = match self.0.as_str().to_ascii_lowercase().as_str() {
+        let ident = match self.source.as_str().to_ascii_lowercase().as_str() {
             // Keywords from <https://doc.rust-lang.org/reference/keywords.html>.
             // Prefix with `r#` so Rust will accept them as idents.
             "abstract" | "as" | "async" | "await" | "become" | "box" | "break" | "const"
@@ -74,20 +67,20 @@ impl ToTokens for Identifier<'_> {
             | "macro_rules" | "match" | "mod" | "move" | "mut" | "override" | "priv" | "pub"
             | "ref" | "return" | "static" | "struct" | "trait" | "true" | "try" | "type"
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
-            | "yield" => syn::Ident::new_raw(self.0.as_str(), self.0.span()),
+            | "yield" => syn::Ident::new_raw(self.source.as_str(), self.source.span_token()),
 
             reserved_name @ ("self" | "super" | "oxiplate_formatter") => {
                 unreachable!("`{}` should have generated an error instead", reserved_name);
             }
 
-            _ => syn::Ident::new(self.0.as_str(), self.0.span()),
+            _ => syn::Ident::new(self.source.as_str(), self.source.span_token()),
         };
 
         tokens.append_all(quote! { #ident });
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum IdentifierOrFunction<'a> {
     Identifier(Identifier<'a>),
     Function(Identifier<'a>, ArgumentsGroup<'a>),

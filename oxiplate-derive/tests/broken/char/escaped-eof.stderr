@@ -1,5 +1,5 @@
-error: Expected `\'`, `\\`, or a single char followed by `'`.
- --> tests/broken/char/escaped-eof.rs:4:25
+error: End of file encountered while parsing a character literal
+ --> tests/broken/char/escaped-eof.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ '\")]
-  |                         ^
+  |                        ^^

@@ -1,9 +1,5 @@
 error: Expected type name and optional fields
   --> tests/broken/if/if-let-bad-type-name.rs:10:26
    |
-10 |   {%- if let std::option:: -%}
-   |  __________________________^
-11 | |     No value provided.
-12 | | {%- endif -%}
-13 | | "#
-   | |_^
+10 | {%- if let std::option:: -%}
+   |                          ^^^

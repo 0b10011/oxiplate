@@ -1,4 +1,4 @@
-error: Expected "
+error: Expected string containing path to template to extend
  --> tests/broken/extends/missing-template-name.rs:4:33
   |
 4 | #[oxiplate_inline(r#"{% extends %}"#)]

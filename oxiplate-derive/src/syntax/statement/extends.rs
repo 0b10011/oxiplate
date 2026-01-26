@@ -1,25 +1,21 @@
 use std::collections::HashMap;
 
-use nom::Parser as _;
-use nom::bytes::complete::{escaped, is_not, tag};
-use nom::character::complete::one_of;
-use nom::combinator::cut;
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::LitStr;
 
-use super::super::Res;
-use super::super::expression::keyword;
 use super::{Statement, StatementKind, StaticType};
-use crate::syntax::Item;
-use crate::syntax::template::{Template, whitespace};
-use crate::{BuiltTokens, Source, State};
+use crate::syntax::expression::{KeywordParser, String};
+use crate::syntax::parser::{Parser as _, cut};
+use crate::syntax::template::Template;
+use crate::syntax::{Item, Res};
+use crate::tokenizer::TokenSlice;
+use crate::{BuiltTokens, State};
 
 #[derive(Debug)]
 pub struct Extends<'a> {
     blocks: HashMap<&'a str, (Template<'a>, Option<Template<'a>>)>,
-    path: Source<'a>,
+    path: String<'a>,
     template: Template<'a>,
 }
 
@@ -35,6 +31,7 @@ impl<'a> Extends<'a> {
 
             // Whitespace should be ignored
             Item::Whitespace(_) => (),
+            Item::Static(_, StaticType::Whitespace) => (),
 
             // Block statements are allowed, but other statements should fail
             Item::Statement(Statement {
@@ -53,16 +50,14 @@ impl<'a> Extends<'a> {
             }),
 
             // No static text or writs allowed
-            Item::Static(text, static_type) => {
-                if static_type != StaticType::Whitespace {
-                    self.template.0.push(Item::CompileError {
-                        message: "Text is not allowed here. Only comments, whitespace, and block \
-                                  statements are allowed."
-                            .to_owned(),
-                        error_source: text.1.clone(),
-                        consumed_source: text.1.clone(),
-                    });
-                }
+            Item::Static(text, StaticType::Text) => {
+                self.template.0.push(Item::CompileError {
+                    message: "Text is not allowed here. Only comments, whitespace, and block \
+                              statements are allowed."
+                        .to_owned(),
+                    error_source: text.1.clone(),
+                    consumed_source: text.1.clone(),
+                });
             }
             Item::Writ(writ) => {
                 self.template.0.push(Item::CompileError {
@@ -77,7 +72,7 @@ impl<'a> Extends<'a> {
     }
 
     pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
-        let span = self.path.span();
+        let span = self.path.source().span_token();
         let path = LitStr::new(self.path.as_str(), span);
 
         #[cfg(feature = "oxiplate")]
@@ -126,29 +121,23 @@ impl<'a> From<Extends<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_extends(input: Source) -> Res<Source, Statement> {
-    let (input, extends_keyword) = keyword("extends").parse(input)?;
-
-    let (input, (leading_whitespace, start_quote, path, end_quote)) = cut((
-        context("Expected space after 'extends'", whitespace),
-        context(r#"Expected ""#, tag(r#"""#)),
-        context(
-            "Expected path to the template to extend",
-            escaped(is_not(r#"""#), '\\', one_of(r#"""#)),
+pub(super) fn parse_extends(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, (extends_keyword, path)) = (
+        KeywordParser::new("extends"),
+        cut(
+            "Expected string containing path to template to extend",
+            String::parse,
         ),
-        context(r#"Expected ""#, tag(r#"""#)),
-    ))
-    .parse(input)?;
+    )
+        .parse(tokens)?;
 
     let source = extends_keyword
-        .0
-        .merge(&leading_whitespace, "Whitespace expected after `extends`")
-        .merge(&start_quote, "`\"` expected after whitespace")
-        .merge(&path, "Path expected after `\"`")
-        .merge(&end_quote, "`\"` expected after path");
+        .source()
+        .clone()
+        .merge(path.source(), "Path expected after `\"`");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: Extends {
                 blocks: HashMap::new(),

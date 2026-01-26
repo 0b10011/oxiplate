@@ -1,19 +1,18 @@
 use std::collections::{HashMap, VecDeque};
 
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::cut;
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 #[cfg(feature = "better-internal-errors")]
 use syn::spanned::Spanned;
 
-use super::super::expression::{Identifier, keyword};
+use super::super::expression::Identifier;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::syntax::template::{Template, whitespace};
-use crate::{BuiltTokens, Source, State, internal_error};
+use crate::syntax::expression::KeywordParser;
+use crate::syntax::parser::{Parser as _, cut};
+use crate::syntax::template::Template;
+use crate::tokenizer::TokenSlice;
+use crate::{BuiltTokens, State, internal_error};
 
 #[derive(Debug)]
 pub struct Block<'a> {
@@ -27,7 +26,7 @@ impl<'a> Block<'a> {
     pub(crate) fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             internal_error!(
-                item.source().span().unwrap(),
+                item.source().span_token().unwrap(),
                 "Attempted to add item to ended `block` statement",
             );
         }
@@ -186,22 +185,18 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
-    let (input, block_keyword) = keyword("block")(input)?;
+pub(super) fn parse_block(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, block_keyword) = KeywordParser::new("block").parse(tokens)?;
 
-    let (input, (leading_whitespace, name)) = cut((
-        context("Expected space after 'block'", whitespace),
-        context("Expected an identifier", Identifier::parse),
-    ))
-    .parse(input)?;
+    let (tokens, name) = cut("Expected an identifier", Identifier::parse).parse(tokens)?;
 
     let source = block_keyword
-        .0
-        .merge(&leading_whitespace, "Whitespace expected after `block`")
+        .source()
+        .clone()
         .merge(name.source(), "Block name expected after whitespace");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: Block {
                 name,
@@ -215,26 +210,26 @@ pub(super) fn parse_block(input: Source) -> Res<Source, Statement> {
     ))
 }
 
-pub(super) fn parse_parent(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("parent").parse(input)?;
+pub(super) fn parse_parent(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, output) = KeywordParser::new("parent").parse(tokens)?;
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: StatementKind::Parent,
-            source: output,
+            source: output.source().clone(),
         },
     ))
 }
 
-pub(super) fn parse_endblock(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endblock").parse(input)?;
+pub(super) fn parse_endblock(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, output) = KeywordParser::new("endblock").parse(tokens)?;
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: StatementKind::EndBlock,
-            source: output,
+            source: output.source().clone(),
         },
     ))
 }

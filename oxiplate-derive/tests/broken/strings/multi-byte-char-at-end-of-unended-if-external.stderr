@@ -1,0 +1,5 @@
+error: "if" statement is never closed (unexpected end of template)
+ --> templates/multi-byte-char-at-end-of-unended-if.oxip
+  |
+  | {% if true %}❯
+  |              ^

@@ -1,4 +1,4 @@
-error: Expected `\'`, `\\`, or a single char followed by `'`.
+error: End of file encountered while parsing a character literal
  --> tests/broken/char/eof-instead-of-char.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ '")]

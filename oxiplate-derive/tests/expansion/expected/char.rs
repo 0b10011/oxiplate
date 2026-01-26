@@ -235,7 +235,7 @@ fn slash() {
         }
     };
 }
-#[oxiplate_inline(r"{{ '\n' }}")]
+#[oxiplate_inline("{{ '\n' }} {{ '\\n' }}")]
 struct NewLine;
 impl ::std::fmt::Display for NewLine {
     fn fmt(
@@ -244,8 +244,10 @@ impl ::std::fmt::Display for NewLine {
     ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            let mut string = String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\n')))?;
+            oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\n')))?;
             string
         };
@@ -277,7 +279,7 @@ fn new_line() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", NewLine))
         }),
-        &"\n",
+        &"\n \n",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -292,7 +294,7 @@ fn new_line() {
         }
     };
 }
-#[oxiplate_inline(r"{{ '\r' }}")]
+#[oxiplate_inline("{{ '\r' }} {{ '\\r' }}")]
 struct CarriageReturn;
 impl ::std::fmt::Display for CarriageReturn {
     fn fmt(
@@ -301,8 +303,10 @@ impl ::std::fmt::Display for CarriageReturn {
     ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            let mut string = String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\r')))?;
+            oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\r')))?;
             string
         };
@@ -337,7 +341,7 @@ fn carriage_return() {
         &::alloc::__export::must_use({
             ::alloc::fmt::format(format_args!("{0}", CarriageReturn))
         }),
-        &"\r",
+        &"\r \r",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {
@@ -352,7 +356,7 @@ fn carriage_return() {
         }
     };
 }
-#[oxiplate_inline(r"{{ '\t' }}")]
+#[oxiplate_inline("{{ '\t' }} {{ '\\t' }}")]
 struct Tab;
 impl ::std::fmt::Display for Tab {
     fn fmt(
@@ -361,8 +365,10 @@ impl ::std::fmt::Display for Tab {
     ) -> ::std::fmt::Result {
         let string = {
             use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            let mut string = String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
+            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\t')))?;
+            oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\t')))?;
             string
         };
@@ -392,7 +398,7 @@ pub const tab: test::TestDescAndFn = test::TestDescAndFn {
 fn tab() {
     match (
         &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Tab)) }),
-        &"\t",
+        &"\t \t",
     ) {
         (left_val, right_val) => {
             if !(*left_val == *right_val) {

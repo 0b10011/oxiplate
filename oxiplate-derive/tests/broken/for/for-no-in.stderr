@@ -1,8 +1,5 @@
 error: Expected 'in'
  --> tests/broken/for/for-no-in.rs:6:16
   |
-6 |   {%- for number numbers -%}
-  |  ________________^
-7 | |     {{ number }} + {{ number_to_add }} = {{ numb + number_to_add }}
-8 | | {% endfor %}"
-  | |____________^
+6 | {%- for number numbers -%}
+  |                ^^^^^^^
