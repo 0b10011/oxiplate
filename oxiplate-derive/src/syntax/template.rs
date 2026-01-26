@@ -78,8 +78,12 @@ impl<'a> Template<'a> {
     }
 }
 
-pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -> BuiltTokens {
-    match try_parse(state, tokens) {
+pub(crate) fn parse<'a, 'b: 'a>(
+    state: &mut State<'b>,
+    tokens: TokenSlice<'a>,
+    output_tokens: bool,
+) -> BuiltTokens {
+    match try_parse(state, tokens, output_tokens) {
         Ok((_, template)) => template,
         Err(error) => Into::<Template>::into(error).to_tokens(state),
     }
@@ -88,7 +92,12 @@ pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -
 pub fn try_parse<'a, 'b: 'a>(
     state: &mut State<'b>,
     tokens: TokenSlice<'a>,
+    output_tokens: bool,
 ) -> Res<'a, BuiltTokens> {
+    if output_tokens {
+        panic!("{tokens:#?}");
+    }
+
     let (tokens, items_vec) = parse_all(parse_item).parse(tokens)?;
 
     let mut items = Vec::new();
