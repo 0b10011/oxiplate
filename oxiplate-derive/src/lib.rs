@@ -24,7 +24,7 @@ use proc_macro2::Span;
 use quote::{quote, quote_spanned};
 use syn::parse::Parse;
 use syn::spanned::Spanned;
-use syn::token::Colon;
+use syn::token::{Colon, Question};
 use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
@@ -290,6 +290,7 @@ type ParsedTokens = Result<
         proc_macro2::TokenStream,
         Option<PathBuf>,
         Option<String>,
+        bool,
     ),
     ParsedEscaperError,
 >;
@@ -328,7 +329,7 @@ fn process_parsed_tokens<'a>(
             Ok((template, 0))
         }
         Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
-        Ok((span, input, origin, inferred_escaper_group_name)) => {
+        Ok((span, input, origin, inferred_escaper_group_name, output_tokens)) => {
             let code = parse_code_literal(
                 &input.into(),
                 #[cfg(feature = "external-template-spans")]
@@ -357,7 +358,7 @@ fn process_parsed_tokens<'a>(
 
             // Build the `::std::fmt::Display` implementation for the struct.
             // (This is where the template is actually parsed.)
-            Ok(syntax::parse(state, tokens))
+            Ok(syntax::parse(state, tokens, output_tokens))
         }
     }
 }
@@ -476,6 +477,8 @@ struct TemplateWithEscaper {
     colon: Colon,
     #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
     template: Expr,
+    #[allow(dead_code)]
+    output_tokens: bool,
 }
 
 impl Parse for TemplateWithEscaper {
@@ -483,6 +486,7 @@ impl Parse for TemplateWithEscaper {
         Ok(TemplateWithEscaper {
             escaper: input.parse()?,
             colon: input.parse()?,
+            output_tokens: input.parse::<Question>().is_ok(),
             template: input.parse()?,
         })
     }
@@ -491,11 +495,14 @@ impl Parse for TemplateWithEscaper {
 /// An inline template without escaper information.
 struct TemplateWithoutEscaper {
     template: Expr,
+    #[allow(dead_code)]
+    output_tokens: bool,
 }
 
 impl Parse for TemplateWithoutEscaper {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         Ok(TemplateWithoutEscaper {
+            output_tokens: input.parse::<Question>().is_ok(),
             template: input.parse()?,
         })
     }
@@ -542,6 +549,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                 escaper,
                 colon: _,
                 template,
+                output_tokens,
             })) => {
                 let span = template.span();
 
@@ -558,11 +566,21 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                     quote::quote_spanned!(span=> #template),
                     None,
                     Some(escaper_name),
+                    output_tokens,
                 ))
             }
-            Ok(Template::WithoutEscaper(TemplateWithoutEscaper { template })) => {
+            Ok(Template::WithoutEscaper(TemplateWithoutEscaper {
+                template,
+                output_tokens,
+            })) => {
                 let span = template.span();
-                Ok((span, quote::quote_spanned!(span=> #template), None, None))
+                Ok((
+                    span,
+                    quote::quote_spanned!(span=> #template),
+                    None,
+                    None,
+                    output_tokens,
+                ))
             }
             Err(error) => {
                 let span = error.span();
@@ -784,10 +802,10 @@ fn parse_source_tokens_for_path(
     };
 
     #[cfg(feature = "oxiplate")]
-    return Ok((span, tokens, Some(full_path), escaper_name));
+    return Ok((span, tokens, Some(full_path), escaper_name, false));
 
     #[cfg(not(feature = "oxiplate"))]
-    Ok((span, tokens, Some(full_path), None))
+    Ok((span, tokens, Some(full_path), None, false))
 }
 
 /// Error when attempting to append one path onto another one.
