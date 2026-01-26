@@ -99,8 +99,8 @@ coverage-lcov-package package other-packages: coverage-no-report
 # Run tests with coverage without building a report. Typically used with `cargo llvm-cov report`.
 [group("Test")]
 coverage-no-report: clean-coverage \
-    (run-against-all "cargo llvm-cov --no-report --locked") \
-    (run-against-libs "cargo llvm-cov --no-report --locked --doc")
+    (run-against-all "cargo llvm-cov --no-report --locked --no-rustc-wrapper") \
+    (run-against-libs "cargo llvm-cov --no-report --locked --no-rustc-wrapper --doc")
 
 [private]
 expansion-tests:
