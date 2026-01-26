@@ -1,5 +1,5 @@
-error: Expected `'`.
- --> tests/broken/char/multiple-chars-eof.rs:4:26
+error: Unclosed character literal. Expected `'` after first character
+ --> tests/broken/char/multiple-chars-eof.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ 'hello")]
-  |                          ^^^^
+  |                        ^^^^^^

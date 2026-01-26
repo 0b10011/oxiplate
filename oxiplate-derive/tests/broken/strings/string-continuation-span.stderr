@@ -1,4 +1,4 @@
-error: Expected an expression.
+error: End of file encountered while parsing a writ. Expected `}}`, `-}}`, or `_}}`
  --> tests/broken/strings/string-continuation-span.rs:6:6
   |
 6 |     {{")]

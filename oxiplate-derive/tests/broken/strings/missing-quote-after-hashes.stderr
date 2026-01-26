@@ -1,5 +1,5 @@
-error: Expected an expression.
+error: Malformed raw string. Expected `"` after opening hashes
  --> tests/broken/strings/missing-quote-after-hashes.rs:4:27
   |
 4 | #[oxiplate_inline(r###"{{ ##hello world"## }}"###)]
-  |                           ^^^^^^^^^^^^^^^^^^^
+  |                           ^^

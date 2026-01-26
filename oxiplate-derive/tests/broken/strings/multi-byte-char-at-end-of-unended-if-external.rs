@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{{ maybe }}")]
+#[oxiplate = "multi-byte-char-at-end-of-unended-if.oxip"]
 struct Data;
 
 fn main() {

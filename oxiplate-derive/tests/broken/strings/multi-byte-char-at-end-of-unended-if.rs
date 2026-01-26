@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{{ maybe }}")]
+#[oxiplate_inline(r#"{% if true %}❯"#)]
 struct Data;
 
 fn main() {

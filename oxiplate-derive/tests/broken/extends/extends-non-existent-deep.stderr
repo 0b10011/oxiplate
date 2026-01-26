@@ -2,4 +2,4 @@ error: Path does not exist: `$DIR/templates/extends-non-existent.html.oxip`
  --> templates/extends-missing.html.oxip
   |
   | {% extends "extends-non-existent.html.oxip" %}
-  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

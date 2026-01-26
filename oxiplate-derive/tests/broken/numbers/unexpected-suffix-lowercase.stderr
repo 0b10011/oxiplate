@@ -1,5 +1,5 @@
-error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
- --> tests/broken/numbers/unexpected-suffix-lowercase.rs:4:24
+error: Unexpected suffix
+ --> tests/broken/numbers/unexpected-suffix-lowercase.rs:4:23
   |
 4 | #[oxiplate_inline("{{ 0not_supported }}")]
-  |                        ^^^^^^^^^^^^^^^^
+  |                       ^^^^^^^^^^^^^^

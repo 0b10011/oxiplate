@@ -1,201 +1,162 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::super::Res;
+use crate::syntax::parser::{Parser as _, alt, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, internal_error};
 
-pub(super) fn parse_operator(input: Source) -> Res<Source, Operator> {
-    let (input, operator) = alt((
-        tag("+"),
-        tag("-"),
-        tag("*"),
-        tag("/"),
-        tag("%"),
-        tag("=="),
-        tag("!="),
-        tag(">="),
-        tag("<="),
-        tag(">"),
-        tag("<"),
-        tag("||"),
-        tag("&&"),
-        tag("..="),
-        tag(".."),
+pub(super) fn parse_operator(tokens: TokenSlice) -> Res<Operator> {
+    let (tokens, token) = alt((
+        take(TokenKind::Plus),
+        take(TokenKind::Minus),
+        take(TokenKind::Asterisk),
+        take(TokenKind::ForwardSlash),
+        take(TokenKind::Percent),
+        take(TokenKind::Eq),
+        take(TokenKind::NotEq),
+        take(TokenKind::GreaterThanOrEqualTo),
+        take(TokenKind::LessThanOrEqualTo),
+        take(TokenKind::GreaterThan),
+        take(TokenKind::LessThan),
+        take(TokenKind::Or),
+        take(TokenKind::And),
+        take(TokenKind::RangeInclusive),
+        take(TokenKind::RangeExclusive),
         #[cfg(feature = "unreachable")]
-        tag("!"),
+        take(TokenKind::Exclamation),
     ))
-    .parse(input)?;
+    .parse(tokens)?;
 
+    macro_rules! op {
+        ($variant:ident, $operator:ident, $token:ident) => {
+            Operator {
+                source: $token.source(),
+                kind: OperatorKind::$variant,
+            }
+        };
+    }
+
+    let operator = token.source().clone();
     let operator = match operator.as_str() {
-        "+" => Operator::Addition(operator),
-        "-" => Operator::Subtraction(operator),
-        "*" => Operator::Multiplication(operator),
-        "/" => Operator::Division(operator),
-        "%" => Operator::Remainder(operator),
+        "+" => op!(Addition, operator, token),
+        "-" => op!(Subtraction, operator, token),
+        "*" => op!(Multiplication, operator, token),
+        "/" => op!(Division, operator, token),
+        "%" => op!(Remainder, operator, token),
 
-        "==" => Operator::Equal(operator),
-        "!=" => Operator::NotEqual(operator),
-        ">" => Operator::GreaterThan(operator),
-        "<" => Operator::LessThan(operator),
-        ">=" => Operator::GreaterThanOrEqual(operator),
-        "<=" => Operator::LessThanOrEqual(operator),
+        "==" => op!(Equal, operator, token),
+        "!=" => op!(NotEqual, operator, token),
+        ">" => op!(GreaterThan, operator, token),
+        "<" => op!(LessThan, operator, token),
+        ">=" => op!(GreaterThanOrEqual, operator, token),
+        "<=" => op!(LessThanOrEqual, operator, token),
 
-        "||" => Operator::Or(operator),
-        "&&" => Operator::And(operator),
+        "||" => op!(Or, operator, token),
+        "&&" => op!(And, operator, token),
 
-        "..=" => Operator::RangeInclusive(operator),
-        ".." => Operator::RangeExclusive(operator),
+        "..=" => op!(RangeInclusive, operator, token),
+        ".." => op!(RangeExclusive, operator, token),
 
         _ => {
-            internal_error!(operator.span().unwrap(), "Unhandled operator");
+            internal_error!(operator.span_token().unwrap(), "Unhandled operator");
         }
     };
 
-    Ok((input, operator))
+    Ok((tokens, operator))
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum Operator<'a> {
-    Addition(Source<'a>),
-    Subtraction(Source<'a>),
-    Multiplication(Source<'a>),
-    Division(Source<'a>),
-    Remainder(Source<'a>),
+#[derive(Debug)]
+pub(crate) struct Operator<'a> {
+    source: &'a Source<'a>,
+    kind: OperatorKind,
+}
 
-    Equal(Source<'a>),
-    NotEqual(Source<'a>),
-    GreaterThan(Source<'a>),
-    LessThan(Source<'a>),
-    GreaterThanOrEqual(Source<'a>),
-    LessThanOrEqual(Source<'a>),
+#[derive(Debug)]
+enum OperatorKind {
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Remainder,
 
-    Or(Source<'a>),
-    And(Source<'a>),
+    Equal,
+    NotEqual,
+    GreaterThan,
+    LessThan,
+    GreaterThanOrEqual,
+    LessThanOrEqual,
+
+    Or,
+    And,
 
     /// `start..=end` that matches all values where `start <= x <= end`.
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeInclusive.html>
-    RangeInclusive(Source<'a>),
+    RangeInclusive,
 
     /// `start..end` that matches all values where `start <= x < end`.
     /// `start..` that matches all values where `start <= x`.
     /// See: <https://doc.rust-lang.org/core/ops/struct.Range.html>
-    RangeExclusive(Source<'a>),
+    RangeExclusive,
 }
 
 impl<'a> Operator<'a> {
     pub(super) fn requires_expression_after(&self) -> bool {
-        match self {
-            Operator::Addition(_)
-            | Operator::Subtraction(_)
-            | Operator::Multiplication(_)
-            | Operator::Division(_)
-            | Operator::Remainder(_)
-            | Operator::Equal(_)
-            | Operator::NotEqual(_)
-            | Operator::GreaterThan(_)
-            | Operator::LessThan(_)
-            | Operator::GreaterThanOrEqual(_)
-            | Operator::LessThanOrEqual(_)
-            | Operator::Or(_)
-            | Operator::And(_)
-            | Operator::RangeInclusive(_) => true,
+        match self.kind {
+            OperatorKind::Addition
+            | OperatorKind::Subtraction
+            | OperatorKind::Multiplication
+            | OperatorKind::Division
+            | OperatorKind::Remainder
+            | OperatorKind::Equal
+            | OperatorKind::NotEqual
+            | OperatorKind::GreaterThan
+            | OperatorKind::LessThan
+            | OperatorKind::GreaterThanOrEqual
+            | OperatorKind::LessThanOrEqual
+            | OperatorKind::Or
+            | OperatorKind::And
+            | OperatorKind::RangeInclusive => true,
 
             // `expr..` is valid as well as `expr..expr`.
-            Operator::RangeExclusive(_) => false,
+            OperatorKind::RangeExclusive => false,
         }
     }
 
-    /// Get the `Source` for the operator.
-    pub fn source<'b>(&'b self) -> &'b Source<'a> {
-        match self {
-            Operator::Addition(source)
-            | Operator::Subtraction(source)
-            | Operator::Multiplication(source)
-            | Operator::Division(source)
-            | Operator::Remainder(source)
-            | Operator::Equal(source)
-            | Operator::NotEqual(source)
-            | Operator::GreaterThan(source)
-            | Operator::LessThan(source)
-            | Operator::GreaterThanOrEqual(source)
-            | Operator::LessThanOrEqual(source)
-            | Operator::Or(source)
-            | Operator::And(source)
-            | Operator::RangeInclusive(source)
-            | Operator::RangeExclusive(source) => source,
-        }
+    /// Get the `Source` for the operator and any leading whitespace.
+    pub fn source(&self) -> &'a Source<'a> {
+        self.source
     }
 }
 
 impl ToTokens for Operator<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.append_all(match self {
-            Operator::Addition(source) => {
-                let span = source.span();
-                quote_spanned!(span=> +)
-            }
-            Operator::Subtraction(source) => {
-                let span = source.span();
-                quote_spanned!(span=> -)
-            }
-            Operator::Multiplication(source) => {
-                let span = source.span();
-                quote_spanned!(span=> *)
-            }
-            Operator::Division(source) => {
-                let span = source.span();
-                quote_spanned!(span=> /)
-            }
-            Operator::Remainder(source) => {
-                let span = source.span();
-                quote_spanned!(span=> %)
-            }
+        macro_rules! quote_op {
+            ($token:tt) => {{
+                let span = self.source.span_token();
+                quote_spanned!(span=> $token)
+            }};
+        }
 
-            Operator::Equal(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ==)
-            }
-            Operator::NotEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> !=)
-            }
-            Operator::GreaterThan(source) => {
-                let span = source.span();
-                quote_spanned!(span=> >)
-            }
-            Operator::LessThan(source) => {
-                let span = source.span();
-                quote_spanned!(span=> <)
-            }
-            Operator::GreaterThanOrEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> >=)
-            }
-            Operator::LessThanOrEqual(source) => {
-                let span = source.span();
-                quote_spanned!(span=> <=)
-            }
+        tokens.append_all(match self.kind {
+            OperatorKind::Addition => quote_op!(+),
+            OperatorKind::Subtraction => quote_op!(-),
+            OperatorKind::Multiplication => quote_op!(*),
+            OperatorKind::Division => quote_op!(/),
+            OperatorKind::Remainder => quote_op!(%),
 
-            Operator::Or(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ||)
-            }
-            Operator::And(source) => {
-                let span = source.span();
-                quote_spanned!(span=> &&)
-            }
+            OperatorKind::Equal => quote_op!(==),
+            OperatorKind::NotEqual => quote_op!(!=),
+            OperatorKind::GreaterThan => quote_op!(>),
+            OperatorKind::LessThan => quote_op!(<),
+            OperatorKind::GreaterThanOrEqual => quote_op!(>=),
+            OperatorKind::LessThanOrEqual => quote_op!(<=),
 
-            Operator::RangeInclusive(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ..=)
-            }
-            Operator::RangeExclusive(source) => {
-                let span = source.span();
-                quote_spanned!(span=> ..)
-            }
+            OperatorKind::Or => quote_op!(||),
+            OperatorKind::And => quote_op!(&&),
+
+            OperatorKind::RangeInclusive => quote_op!(..=),
+            OperatorKind::RangeExclusive => quote_op!(..),
         });
     }
 }

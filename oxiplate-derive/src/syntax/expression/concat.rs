@@ -1,22 +1,18 @@
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, fail, opt};
-use nom::error::context;
-use nom::multi::many1;
 use quote::{quote, quote_spanned};
 
 use super::Res;
 use crate::syntax::expression::{Expression, ExpressionAccess, expression};
-use crate::syntax::template::whitespace;
+use crate::syntax::parser::{Parser as _, context, cut, fail, many1, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct Concat<'a> {
     pub expressions: Vec<ExpressionAccess<'a>>,
-    pub source: Source<'a>,
+    source: Source<'a>,
 }
 
-impl Concat<'_> {
+impl<'a> Concat<'a> {
     pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
         {
             let mut format_tokens = vec![];
@@ -29,11 +25,12 @@ impl Concat<'_> {
                         fields,
                     } if fields.is_empty() => {
                         estimated_length += string.as_str().len();
-                        let string = syn::LitStr::new(string.as_str(), string.source().span());
+                        let string =
+                            syn::LitStr::new(string.as_str(), string.source().span_token());
                         format_tokens.push(quote! { #string });
                     }
                     _ => {
-                        let span = expression.source().span();
+                        let span = expression.source().span_token();
                         format_tokens.push(quote_spanned! {span=> "{}" });
                         let (expression, expression_length) = expression.to_tokens(state);
                         estimated_length += expression_length;
@@ -42,7 +39,7 @@ impl Concat<'_> {
                 }
             }
 
-            let span = self.source.span();
+            let span = self.source.span_token();
             let format_concat_tokens = quote_spanned! {span=> concat!(#(#format_tokens),*) };
             format_tokens.clear();
 
@@ -58,39 +55,27 @@ impl Concat<'_> {
     }
 
     /// Parser for concat expressions.
-    pub(super) fn parser<'a>(
-        allow_concat: bool,
-    ) -> impl Fn(Source<'a>) -> Res<Source<'a>, Expression<'a>> {
-        move |input| {
+    pub(super) fn parser(allow_concat: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+        move |tokens| {
             if !allow_concat {
-                return fail().parse(input);
+                return context("Concat not allowed in this context", fail()).parse(tokens);
             }
-            let (input, (left, concats)) = (
+            let (tokens, (left, concats)) = (
                 expression(false, false),
                 many1((
-                    opt(whitespace),
-                    tag("~"),
-                    opt(whitespace),
-                    context("Expected an expression", cut(expression(true, false))),
+                    take(TokenKind::Tilde),
+                    cut("Expected an expression", expression(true, false)),
                 )),
             )
-                .parse(input)?;
+                .parse(tokens)?;
 
             let mut expressions = Vec::with_capacity(concats.len() + 1);
             expressions.push(left);
             let mut source: Source<'a> = expressions[0].source();
 
-            for (leading_whitespace, tilde, trailing_whitespace, expression) in concats {
+            for (tilde, expression) in concats {
                 source = source
-                    .merge_some(
-                        leading_whitespace.as_ref(),
-                        "Leading whitespace should follow previous expressions",
-                    )
-                    .merge(&tilde, "Tilde should follow leading whitespace")
-                    .merge_some(
-                        trailing_whitespace.as_ref(),
-                        "Trailing whitespace should follow tilde",
-                    )
+                    .merge(tilde.source(), "Tilde should follow leading whitespace")
                     .merge(
                         &expression.source(),
                         "Expression should follow trailing whitespace",
@@ -98,13 +83,18 @@ impl Concat<'_> {
 
                 expressions.push(expression);
             }
+
             Ok((
-                input,
+                tokens,
                 Expression::Concat(Concat {
                     expressions,
                     source,
                 }),
             ))
         }
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
     }
 }

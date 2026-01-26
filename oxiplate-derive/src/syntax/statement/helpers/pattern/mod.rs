@@ -1,18 +1,12 @@
-use std::collections::HashSet;
-
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, into, opt};
-use nom::error::context;
-use nom::multi::many1;
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-
 mod literal;
 mod range;
 mod r#struct;
 mod tuple;
+
+use std::collections::HashSet;
+
+use proc_macro2::TokenStream;
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
 use self::literal::Literal;
 use self::range::Range;
@@ -20,10 +14,11 @@ use self::r#struct::Struct;
 use self::tuple::Tuple;
 use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
-use crate::syntax::template::whitespace;
+use crate::syntax::parser::{Parser as _, alt, cut, into, many1, opt, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Pattern<'a> {
     Literal(Literal<'a>),
     Ident(Identifier<'a>),
@@ -34,7 +29,7 @@ pub(crate) enum Pattern<'a> {
 }
 
 impl<'a> Pattern<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(Range::parse),
             into(Literal::parse),
@@ -42,7 +37,7 @@ impl<'a> Pattern<'a> {
             into(Struct::parse),
             into(Identifier::parse),
         ))
-        .parse(input)
+        .parse(tokens)
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -81,7 +76,7 @@ impl<'a> From<Identifier<'a>> for Pattern<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct Path<'a> {
     segments: Vec<(Identifier<'a>, Source<'a>)>,
     name: Identifier<'a>,
@@ -89,16 +84,16 @@ pub(crate) struct Path<'a> {
 }
 
 impl<'a> Path<'a> {
-    pub fn parse_include_ident(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, path) = opt(Self::parse_exclude_ident).parse(input)?;
+    pub fn parse_include_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, path) = opt(Self::parse_exclude_ident).parse(tokens)?;
 
         if let Some(path) = path {
-            Ok((input, path))
+            Ok((tokens, path))
         } else {
-            let (input, name) = Identifier::parse.parse(input)?;
+            let (tokens, name) = Identifier::parse.parse(tokens)?;
             let source = name.source().clone();
             Ok((
-                input,
+                tokens,
                 Self {
                     segments: vec![],
                     name,
@@ -108,56 +103,32 @@ impl<'a> Path<'a> {
         }
     }
 
-    pub fn parse_exclude_ident(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (segments_with_whitespace, name)) = (
-            many1((
-                Identifier::parse,
-                opt(whitespace),
-                tag("::"),
-                opt(whitespace),
-            )),
-            context(
-                "Expected type name and optional fields",
-                cut(Identifier::parse),
-            ),
+    pub fn parse_exclude_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (segments_with_whitespace, name)) = (
+            many1((Identifier::parse, take(TokenKind::PathSeparator))),
+            cut("Expected type name and optional fields", Identifier::parse),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let mut segments = vec![];
         let mut source: Option<Source<'a>> = None;
-        for (segment, leading_whitespace, colons, trailing_whitespace) in segments_with_whitespace {
+        for (segment, colons) in segments_with_whitespace {
             if let Some(existing_source) = source {
                 source = Some(
                     existing_source
                         .merge(segment.source(), "Segment expected")
-                        .merge_some(
-                            leading_whitespace.as_ref(),
-                            "Whitespace expected after segment",
-                        )
-                        .merge(&colons, "Colons expected after whitespace")
-                        .merge_some(
-                            trailing_whitespace.as_ref(),
-                            "Whitespace expected after colons",
-                        ),
+                        .merge(colons.source(), "Colons expected after whitespace"),
                 );
             } else {
                 source = Some(
                     segment
                         .source()
                         .clone()
-                        .merge_some(
-                            leading_whitespace.as_ref(),
-                            "Whitespace expected after segment",
-                        )
-                        .merge(&colons, "Colons expected after whitespace")
-                        .merge_some(
-                            trailing_whitespace.as_ref(),
-                            "Whitespace expected after colons",
-                        ),
+                        .merge(colons.source(), "Colons expected after whitespace"),
                 );
             }
 
-            segments.push((segment, colons));
+            segments.push((segment, colons.source().clone()));
         }
 
         let source = source
@@ -165,7 +136,7 @@ impl<'a> Path<'a> {
             .merge(name.source(), "Name expected after segments");
 
         Ok((
-            input,
+            tokens,
             Self {
                 segments,
                 name,
@@ -174,7 +145,7 @@ impl<'a> Path<'a> {
         ))
     }
 
-    pub fn source<'b>(&'b self) -> &'b Source<'a> {
+    pub fn source(&self) -> &Source<'a> {
         &self.source
     }
 
@@ -182,7 +153,7 @@ impl<'a> Path<'a> {
         let mut tokens = TokenStream::new();
 
         for (segment, colons) in &self.segments {
-            let colons_span = colons.span();
+            let colons_span = colons.span_token();
             let colons = quote_spanned! {colons_span=> :: };
             tokens.append_all(quote! { #segment #colons });
         }

@@ -5,7 +5,7 @@ error[E0599]: the method `to_cow_str` exists for reference `&&ToCowStrWrapper<'_
    | ---------- doesn't satisfy `Foo: FastCowStr<'_>` or `Foo: ToString`
 ...
 22 | #[oxiplate_inline(r#"{{ raw: >message | respond(>"world") }}"#)]
-   |                              ^^^^^^^^ method cannot be called on `&&ToCowStrWrapper<'_, Foo>` due to unsatisfied trait bounds
+   |                              ^ method cannot be called on `&&ToCowStrWrapper<'_, Foo>` due to unsatisfied trait bounds
    |
    = note: the following trait bounds were not satisfied:
            `Foo: FastCowStr<'_>`

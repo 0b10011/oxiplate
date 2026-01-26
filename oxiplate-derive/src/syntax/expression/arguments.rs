@@ -1,25 +1,18 @@
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt};
-use nom::error::context;
-use nom::multi::many0;
-use nom::sequence::pair;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 
 use super::Res;
 use crate::syntax::expression::{ExpressionAccess, expression};
-use crate::syntax::template::whitespace;
+use crate::syntax::parser::{Parser as _, cut, many0, opt, take};
+use crate::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{Source, State, quote_spanned};
 
 pub(crate) type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
 pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct ArgumentsGroup<'a> {
-    pub(crate) open_paren: Source<'a>,
     pub(crate) arguments: Option<(FirstArgument<'a>, RemainingArguments<'a>)>,
-    pub(crate) close_paren: Source<'a>,
     source: Source<'a>,
 }
 
@@ -33,13 +26,15 @@ impl<'a> ArgumentsGroup<'a> {
 
             // Remaining arguments
             for (comma, expression) in remaining_arguments {
-                let comma_span = comma.span();
+                let comma_span = comma.span_token();
                 tokens.append_all(quote_spanned! {comma_span=> , });
                 tokens.append_all(expression.to_tokens(state).0);
             }
         }
 
-        proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, tokens).to_token_stream()
+        let mut group = proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, tokens);
+        group.set_span(self.source.span_token());
+        group.to_token_stream()
     }
 
     /// Get the `Source` for the entire arguments group.
@@ -48,92 +43,53 @@ impl<'a> ArgumentsGroup<'a> {
     }
 }
 
-pub(crate) fn arguments(input: Source) -> Res<Source, ArgumentsGroup> {
-    let (input, (open_paren, (leading_whitespace, parsed_arguments, close_paren))) = pair(
-        tag("("),
-        context(
+pub(crate) fn arguments(tokens: TokenSlice) -> Res<ArgumentsGroup> {
+    let (tokens, (open_paren, (parsed_arguments, close_paren))) = (
+        take(TokenKind::OpenParenthese),
+        cut(
             "Expected comma-separated list of arguments followed by `)`",
-            cut((
-                opt(whitespace),
+            (
                 opt((
                     expression(true, true),
-                    opt(whitespace),
-                    many0(pair(
-                        (tag(","), opt(whitespace), expression(true, true)),
-                        opt(whitespace),
-                    )),
-                    opt(tag(",")),
-                    opt(whitespace),
+                    many0((take(TokenKind::Comma), expression(true, true))),
+                    opt(take(TokenKind::Comma)),
                 )),
-                context("Expected closing `)`", cut(tag(")"))),
-            )),
+                take(TokenKind::CloseParenthese),
+            ),
         ),
     )
-    .parse(input)?;
+        .parse(tokens)?;
 
-    let mut source = open_paren.clone().merge_some(
-        leading_whitespace.as_ref(),
-        "Whitespace expected after open parenthese",
-    );
+    let mut source = open_paren.source().clone();
 
-    let arguments = if let Some((
-        first_argument,
-        whitespace,
-        parsed_remaining_arguments,
-        trailing_comma,
-        trailing_whitespace,
-    )) = parsed_arguments
+    let arguments = if let Some((first_argument, parsed_remaining_arguments, trailing_comma)) =
+        parsed_arguments
     {
-        source = source
-            .merge(
-                &first_argument.source(),
-                "First argument expected after whitespace",
-            )
-            .merge_some(
-                whitespace.as_ref(),
-                "Whitespace expected after first argument",
-            );
+        source = source.merge(&first_argument.source(), "Argument expected after previous");
 
         let mut remaining_arguments = Vec::new();
-        for ((comma, whitespace_after_comma, expression), whitespace_after_expression) in
-            parsed_remaining_arguments
-        {
+        for (comma, expression) in parsed_remaining_arguments {
             source = source
-                .merge(&comma, "Comma expected after whitespace")
-                .merge_some(
-                    whitespace_after_comma.as_ref(),
-                    "Whitespace expected after comma",
-                )
-                .merge(&expression.source(), "Expression expected after whitespace")
-                .merge_some(
-                    whitespace_after_expression.as_ref(),
-                    "Whitespace expected after expression",
-                );
+                .merge(comma.source(), "Comma expected after expression")
+                .merge(&expression.source(), "Expression expected after comma");
 
-            remaining_arguments.push((comma, expression));
+            remaining_arguments.push((comma.source().clone(), expression));
         }
 
-        source = source
-            .merge_some(trailing_comma.as_ref(), "Comma expected after whitespace")
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after comma",
-            );
+        source = source.merge_some(
+            trailing_comma.map(Token::source),
+            "Comma expected after expression",
+        );
 
         Some((Box::new(first_argument), remaining_arguments))
     } else {
         None
     };
 
-    source = source.merge(&close_paren, "Closing parenthese expected after whitespace");
+    source = source.merge(
+        close_paren.source(),
+        "Closing parenthese expected after arguments",
+    );
 
-    Ok((
-        input,
-        ArgumentsGroup {
-            open_paren,
-            arguments,
-            close_paren,
-            source,
-        },
-    ))
+    Ok((tokens, ArgumentsGroup { arguments, source }))
 }

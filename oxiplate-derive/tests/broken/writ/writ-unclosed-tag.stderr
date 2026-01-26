@@ -1,4 +1,4 @@
-error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+error: End of file encountered while parsing a writ. Expected `}}`, `-}}`, or `_}}`
  --> tests/broken/writ/writ-unclosed-tag.rs:4:25
   |
 4 | #[oxiplate_inline("{{ foo")]

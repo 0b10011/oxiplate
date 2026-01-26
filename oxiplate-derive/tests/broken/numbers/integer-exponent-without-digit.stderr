@@ -1,5 +1,5 @@
-error: Expected an expression.
+error: Expected at least one digit in exponent
  --> tests/broken/numbers/integer-exponent-without-digit.rs:4:23
   |
 4 | #[oxiplate_inline("{{ 19e }}")]
-  |                       ^^^^^^
+  |                       ^^^

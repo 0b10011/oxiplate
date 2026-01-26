@@ -1,22 +1,20 @@
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt};
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote};
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::syntax::expression::ExpressionAccess;
+use crate::syntax::expression::{ExpressionAccess, KeywordParser};
+use crate::syntax::parser::{Parser as _, cut, opt, take};
 use crate::syntax::statement::helpers::pattern::Pattern;
-use crate::syntax::template::{Template, whitespace};
+use crate::syntax::template::Template;
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State, internal_error};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum IfType<'a> {
     If(ExpressionAccess<'a>),
-    IfLet(Pattern<'a>, ExpressionAccess<'a>),
+    IfLet(Pattern<'a>, Box<ExpressionAccess<'a>>),
 }
 
 #[derive(Debug)]
@@ -30,7 +28,7 @@ impl<'a> If<'a> {
     pub fn add_item(&mut self, item: Item<'a>) {
         if self.is_ended {
             internal_error!(
-                item.source().span().unwrap(),
+                item.source().span_token().unwrap(),
                 "Attempted to add item to ended `if` statement",
             );
         }
@@ -164,15 +162,20 @@ impl<'a> From<If<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
-    let (input, statement_source) = tag("if")(input)?;
+pub(super) fn parse_if(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, (keyword, (if_type, if_type_source))) = (
+        KeywordParser::new("if"),
+        cut("Expected an if expression", parse_if_generic),
+    )
+        .parse(tokens)?;
 
-    let (input, (if_type, if_type_source)) = cut(parse_if_generic).parse(input)?;
-
-    let source = statement_source.merge(&if_type_source, "Type source expected after if");
+    let source = keyword
+        .source()
+        .clone()
+        .merge(&if_type_source, "Type source expected after if");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: If {
                 ifs: vec![(if_type, Template(vec![]))],
@@ -185,66 +188,52 @@ pub(super) fn parse_if(input: Source) -> Res<Source, Statement> {
     ))
 }
 
-fn parse_if_generic(input: Source) -> Res<Source, (IfType, Source)> {
-    // Consume at least one whitespace.
-    let (input, leading_whitespace) = context("Expected a space", whitespace).parse(input)?;
+fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
+    let (tokens, keyword) = opt(KeywordParser::new("let")).parse(tokens)?;
 
-    let mut source = leading_whitespace;
-
-    let (input, r#let) = opt((tag("let"), whitespace)).parse(input)?;
-
-    if let Some((let_tag, let_whitespace)) = r#let {
-        let (input, ty) =
-            context(r#"Expected a type after "let""#, cut(Pattern::parse)).parse(input)?;
-        let (input, (leading_whitespace, equal, trailing_whitespace, expression)) = (
-            opt(whitespace),
-            context("Expected `=`", cut(tag("="))),
-            opt(whitespace),
-            context(
-                "Expected an expression after `=`",
-                cut(expression(true, true)),
-            ),
+    if let Some(keyword) = keyword {
+        let (tokens, (pattern, equal, expression)) = (
+            cut(r#"Expected a pattern after "let""#, Pattern::parse),
+            cut("Expected `=`", take(TokenKind::Equal)),
+            cut("Expected an expression after `=`", expression(true, true)),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
-        source = source
-            .merge(&let_tag, "`let` expected after whitespace")
-            .merge(&let_whitespace, "Whitespace expected after `let`")
-            .merge(ty.source(), "Type expected after whitespace")
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after type",
-            )
-            .merge(&equal, "`=` expected after whitespace")
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `=`",
-            )
-            .merge(&expression.source(), "Expression expected after whitespace");
+        let source = keyword
+            .source()
+            .clone()
+            .merge(pattern.source(), "Pattern expected after `let`")
+            .merge(equal.source(), "`=` expected after pattern")
+            .merge(&expression.source(), "Expression expected after `=`");
 
-        Ok((input, (IfType::IfLet(ty, expression), source)))
+        Ok((
+            tokens,
+            (IfType::IfLet(pattern, Box::new(expression)), source),
+        ))
     } else {
-        let (input, output) = context(
-            "Expected an expression after `if`",
-            cut(expression(true, true)),
-        )
-        .parse(input)?;
+        let (tokens, output) =
+            cut("Expected an expression after `if`", expression(true, true)).parse(tokens)?;
 
-        source = source.merge(&output.source(), "Expression expected after whitespace");
+        let source = output.source().clone();
 
-        Ok((input, (IfType::If(output), source)))
+        Ok((tokens, (IfType::If(output), source)))
     }
 }
 
-pub(super) fn parse_elseif(input: Source) -> Res<Source, Statement> {
-    let (input, statement_source) = tag("elseif").parse(input)?;
+pub(super) fn parse_elseif(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, (keyword, (if_type, if_source))) = (
+        KeywordParser::new("elseif"),
+        cut("Expected an if expression", parse_if_generic),
+    )
+        .parse(tokens)?;
 
-    let (input, (if_type, if_source)) = cut(parse_if_generic).parse(input)?;
-
-    let source = statement_source.merge(&if_source, "Expression expected after `elseif`");
+    let source = keyword
+        .source()
+        .clone()
+        .merge(&if_source, "Expression expected after `elseif`");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: ElseIf(if_type).into(),
             source,
@@ -252,32 +241,32 @@ pub(super) fn parse_elseif(input: Source) -> Res<Source, Statement> {
     ))
 }
 
-pub(super) fn parse_else(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("else").parse(input)?;
+pub(super) fn parse_else(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, output) = KeywordParser::new("else").parse(tokens)?;
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: StatementKind::Else,
-            source: output,
+            source: output.source().clone(),
         },
     ))
 }
 
-pub(super) fn parse_endif(input: Source) -> Res<Source, Statement> {
-    let (input, output) = tag("endif").parse(input)?;
+pub(super) fn parse_endif(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, output) = KeywordParser::new("endif").parse(tokens)?;
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: StatementKind::EndIf,
-            source: output,
+            source: output.source().clone(),
         },
     ))
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct ElseIf<'a>(IfType<'a>);
 
 impl<'a> From<ElseIf<'a>> for StatementKind<'a> {

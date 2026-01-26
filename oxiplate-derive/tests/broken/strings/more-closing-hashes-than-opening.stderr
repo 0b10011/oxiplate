@@ -1,5 +1,5 @@
-error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
- --> tests/broken/strings/more-closing-hashes-than-opening.rs:4:42
+error: The number of hashes (`#`) before and after the string should be the same
+ --> tests/broken/strings/more-closing-hashes-than-opening.rs:4:27
   |
 4 | #[oxiplate_inline(r###"{{ #"hello world"## }}"###)]
-  |                                          ^^^^
+  |                           ^^^^^^^^^^^^^^^^

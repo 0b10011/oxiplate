@@ -1,20 +1,18 @@
 use std::collections::HashSet;
 
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt, peek};
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::comment::comment;
 use super::statement::statement;
 use super::r#static::StaticType;
-use super::template::whitespace;
 use super::writ::writ;
 use super::{Res, Statement, Static, Writ};
+use crate::syntax::Error;
+use crate::syntax::parser::{Parser as _, cut, opt, take};
 use crate::syntax::statement::StatementKind;
-use crate::{Source, State, internal_error};
+use crate::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
+use crate::{Source, State};
 
 pub(super) enum ItemToken {
     StaticText(TokenStream, usize),
@@ -126,7 +124,7 @@ impl<'a> Item<'a> {
                 error_source,
                 consumed_source: _,
             } => {
-                let span = error_source.span();
+                let span = error_source.span_token();
                 ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
             }
         }
@@ -134,27 +132,25 @@ impl<'a> Item<'a> {
 }
 
 #[derive(Debug)]
-pub enum TagOpen<'a> {
-    Writ(Source<'a>),
-    Statement(Source<'a>),
-    Comment(Source<'a>),
+pub struct TagOpen<'a> {
+    source: Source<'a>,
+    kind: TagKind,
+    whitespace_preference: WhitespacePreference,
 }
 
 impl<'a> TagOpen<'a> {
     fn source(&self) -> &Source<'a> {
-        match self {
-            TagOpen::Writ(source) | TagOpen::Statement(source) | TagOpen::Comment(source) => source,
-        }
+        &self.source
     }
 }
 
-pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
-    let (input, (leading_whitespace, open, source)) = tag_start(input)?;
+pub(crate) fn parse_tag(tokens: TokenSlice) -> Res<Vec<Item>> {
+    let (tokens, (leading_whitespace, open, source)) = tag_start.parse(tokens)?;
 
-    let (input, (tag, trailing_whitespace)) = match open {
-        TagOpen::Writ(_source) => cut(writ(source)).parse(input)?,
-        TagOpen::Statement(_source) => cut(statement(source)).parse(input)?,
-        TagOpen::Comment(_source) => cut(comment(source)).parse(input)?,
+    let (tokens, (tag, trailing_whitespace)) = match open.kind {
+        TagKind::Writ => cut("Expected a writ expression", writ(source)).parse(tokens)?,
+        TagKind::Statement => cut("Expected a statement", statement(source)).parse(tokens)?,
+        TagKind::Comment => cut("Expected a comment", comment(source)).parse(tokens)?,
     };
 
     let mut items = vec![];
@@ -169,207 +165,103 @@ pub(crate) fn parse_tag(input: Source) -> Res<Source, Vec<Item>> {
         items.push(trailing_whitespace);
     }
 
-    Ok((input, items))
+    Ok((tokens, items))
 }
 
-pub(crate) fn tag_start(input: Source) -> Res<Source, (Option<Item>, TagOpen, Source)> {
-    let (input, (whitespace, open, command)) = (
-        // Whitespace is optional, but tracked because it could be altered by tag.
-        opt(whitespace),
-        // Check if this is actually a tag; if it's not, that's fine, just return early.
-        tag_open,
-        // Whitespace control characters are optional.
-        opt(alt((
-            collapse_whitespace_command,
-            trim_whitespace_command,
-            #[cfg(feature = "unreachable")]
-            tag("$"),
-        ))),
-    )
-        .parse(input)?;
+pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Source)> {
+    let (tokens, (leading_whitespace, open)) =
+        (opt(take(TokenKind::StaticWhitespace)), tag_open).parse(tokens)?;
 
-    let (whitespace, removed_whitespace) = if let Some(command) = &command {
-        match command.as_str() {
-            "_" => {
-                if whitespace
-                    .as_ref()
-                    .is_none_or(|whitespace| whitespace.as_str().is_empty())
-                {
-                    let source = match &open {
-                        TagOpen::Writ(source)
-                        | TagOpen::Statement(source)
-                        | TagOpen::Comment(source) => source.clone(),
-                    }
-                    .merge(command, "Command expected after tag open");
-                    let mut consumed_source = source.clone();
-                    consumed_source.range.end = consumed_source.range.start;
-                    let mut error_source = source.clone();
-                    error_source.range.end = command.range.end;
-                    return Ok((
-                        input,
-                        (
-                            Some(Item::CompileError {
-                                message: "Whitespace replace character `_` used after \
-                                          non-whitespace. Either add whitespace or change how \
-                                          whitespace is handled before this tag."
-                                    .to_owned(),
-                                error_source,
-                                consumed_source,
-                            }),
-                            open,
-                            source,
-                        ),
-                    ));
-                }
+    let (whitespace, removed_whitespace) = match open.whitespace_preference {
+        WhitespacePreference::Replace => {
+            if leading_whitespace
+                .as_ref()
+                .is_none_or(|whitespace| whitespace.source().as_str().is_empty())
+            {
+                let source = open.source().clone();
+                let consumed_source = source.with_collapsed_to_start_full();
+                let error_source = source.clone();
+                return Ok((
+                    tokens,
+                    (
+                        Some(Item::CompileError {
+                            message: "Whitespace replace character `_` used after non-whitespace. \
+                                      Either add whitespace or change how whitespace is handled \
+                                      before this tag."
+                                .to_owned(),
+                            error_source,
+                            consumed_source,
+                        }),
+                        open,
+                        source,
+                    ),
+                ));
+            }
 
-                (whitespace.map(|whitespace| Static(" ", whitespace)), None)
-            }
-            "-" => (None, whitespace),
-            _ => {
-                internal_error!(
-                    command.span().unwrap(),
-                    "Unhandled whitespace command in tag start"
-                );
-            }
+            (
+                leading_whitespace.map(|whitespace| Static(" ", whitespace.source().clone())),
+                None,
+            )
         }
-    } else {
-        (
-            whitespace.map(|whitespace| Static(whitespace.as_str(), whitespace)),
+        WhitespacePreference::Remove => (None, leading_whitespace),
+        WhitespacePreference::Indifferent => (
+            leading_whitespace.map(|whitespace| {
+                Static(whitespace.source().as_str(), whitespace.source().clone())
+            }),
             None,
-        )
+        ),
     };
 
-    let source = if let Some(removed_whitespace) = removed_whitespace {
-        removed_whitespace.merge(open.source(), "Open tag expected after whitespace")
-    } else {
-        open.source().clone()
-    }
-    .merge_some(
-        command.as_ref(),
-        "Expected whitespace control character after open tag",
+    let source = open.source().clone().append_to_some(
+        removed_whitespace.map(|whitespace| whitespace.source().clone()),
+        "Open tag expected after whitespace",
     );
 
-    Ok((input, (whitespace.map(Item::Whitespace), open, source)))
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(super) enum WhitespacePreference {
-    /// Remove all matched whitespace.
-    /// Tags that suggest this: `{{- foo -}}` and `{-}`
-    Remove,
-
-    /// Replace all matched whitespace with a single space.
-    /// Tags that suggest this: `{{_ foo _}}` and `{_}`
-    Replace,
-
-    /// Rely on surrounding tags to make a decision,
-    /// otherwise leave the whitespace unchanged.
-    /// Tag that suggests this: `{{ foo }}`
-    Indifferent,
-}
-
-fn parse_next_whitespace_preference_statement(
-    input: Source,
-) -> Res<Source, (WhitespacePreference, Source, bool)> {
-    let (input, (trailing_whitespace, (tag, command))) = peek((
-        opt(whitespace),
-        // The group below should match the checks in `tag_start()` after the whitespace check.
-        (
-            tag_open,
-            opt(alt((
-                collapse_whitespace_command,
-                trim_whitespace_command,
-                #[cfg(feature = "unreachable")]
-                tag("$"),
-            ))),
-        ),
-    ))
-    .parse(input)?;
-
-    let next_whitespace_preference = if let Some(command) = &command {
-        match command.as_str() {
-            "-" => WhitespacePreference::Remove,
-            "_" => WhitespacePreference::Replace,
-            _ => {
-                internal_error!(
-                    command.span().unwrap(),
-                    "Unhandled whitespace command in next tag start"
-                );
-            }
-        }
-    } else {
-        WhitespacePreference::Indifferent
-    };
-    Ok((
-        input,
-        (
-            next_whitespace_preference,
-            tag.source()
-                .clone()
-                .merge_some(command.as_ref(), "Command expected after start tag"),
-            trailing_whitespace.is_some(),
-        ),
-    ))
-}
-
-fn parse_next_whitespace_preference_adjustment_tag(
-    input: Source,
-) -> Res<Source, (WhitespacePreference, Source, bool)> {
-    let (input, (trailing_whitespace, tag)) = peek((
-        opt(whitespace),
-        // The group below should match the checks in `adjusted_whitespace()` after the whitespace check.
-        alt((
-            tag("{_}"),
-            tag("{-}"),
-            #[cfg(feature = "unreachable")]
-            tag("{$}"),
-        )),
-    ))
-    .parse(input)?;
-
-    let next_whitespace_preference = match tag.as_str() {
-        "{-}" => WhitespacePreference::Remove,
-        "{_}" => WhitespacePreference::Replace,
-        _ => internal_error!(
-            tag.span().unwrap(),
-            "Unhandled next whitespace adjustment tag"
-        ),
-    };
-
-    Ok((
-        input,
-        (
-            next_whitespace_preference,
-            tag,
-            trailing_whitespace.is_some(),
-        ),
-    ))
+    Ok((tokens, (whitespace.map(Item::Whitespace), open, source)))
 }
 
 pub(super) fn parse_trailing_whitespace<'a>(
-    end_tag: Source<'a>,
-    whitespace_preference: WhitespacePreference,
+    end_tag: &'a Source<'a>,
+    whitespace_preference: &'a WhitespacePreference,
     allow_skipping_replacement: bool,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, Option<Item<'a>>> + 'a {
-    move |input| {
-        let (input, next_tag_and_preference) = opt(alt((
-            parse_next_whitespace_preference_statement,
-            parse_next_whitespace_preference_adjustment_tag,
-        )))
-        .parse(input)?;
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, Option<Item<'a>>> + 'a {
+    move |tokens| {
+        // Clone tokens to prevent taking anything until later
+        let peek_tokens = tokens.clone();
 
-        if let Some((next_whitespace_preference, next_tag_with_command, followed_by_whitespace)) =
-            next_tag_and_preference
-        {
-            match (&whitespace_preference, next_whitespace_preference) {
+        let (peek_tokens, trailing_whitespace) =
+            opt(take(TokenKind::StaticWhitespace)).parse(peek_tokens)?;
+
+        let next_token = match peek_tokens.take() {
+            Ok((_peek_tokens, next_token)) => Some(next_token),
+            Err(err) => {
+                if err.is_eof() {
+                    None
+                } else {
+                    return Err(err.into());
+                }
+            }
+        };
+
+        if let Some(next_token) = next_token {
+            let next_whitespace_preference = match next_token.kind() {
+                TokenKind::TagStart {
+                    whitespace_preference,
+                    ..
+                }
+                | TokenKind::WhitespaceAdjustmentTag {
+                    whitespace_preference,
+                } => whitespace_preference,
+                _ => &WhitespacePreference::Indifferent,
+            };
+
+            match (whitespace_preference, next_whitespace_preference) {
                 (WhitespacePreference::Remove, WhitespacePreference::Replace)
                 | (WhitespacePreference::Replace, WhitespacePreference::Remove) => {
-                    let mut consumed_source = end_tag.clone();
-                    consumed_source.range.start = consumed_source.range.end;
-                    let mut error_source = next_tag_with_command;
-                    error_source.range.start = end_tag.range.start;
+                    let consumed_source = end_tag.with_collapsed_to_end();
+                    let error_source = next_token.source().with_start(end_tag);
                     return Ok((
-                        input,
+                        tokens,
                         Some(Item::CompileError {
                             message: "Mismatched whitespace adjustment characters".to_owned(),
                             error_source,
@@ -381,28 +273,27 @@ pub(super) fn parse_trailing_whitespace<'a>(
                     // Whitesplace adjustment will be handled by the next tag,
                     // but empty whitespace needs to be returned
                     // so the caller knows not to return an error.
-                    if followed_by_whitespace {
-                        let mut source = end_tag.clone();
-                        source.range.start = source.range.end;
+                    if trailing_whitespace.is_some() {
+                        let source = end_tag.with_collapsed_to_end();
 
-                        return Ok((input, Some(Item::Whitespace(Static("", source)))));
+                        return Ok((tokens, Some(Item::Whitespace(Static("", source)))));
                     }
                 }
                 _ => (),
             }
         }
 
-        match &whitespace_preference {
+        match whitespace_preference {
             WhitespacePreference::Replace => {
-                let (input, trailing_whitespace) = opt(whitespace).parse(input)?;
+                let (tokens, trailing_whitespace) =
+                    opt(take(TokenKind::StaticWhitespace)).parse(tokens)?;
 
                 let item = if let Some(trailing_whitespace) = trailing_whitespace {
-                    Item::Whitespace(Static(" ", trailing_whitespace))
+                    Item::Whitespace(Static(" ", trailing_whitespace.source().clone()))
                 } else if allow_skipping_replacement {
-                    return Ok((input, None));
+                    return Ok((tokens, None));
                 } else {
-                    let mut consumed_source = end_tag.clone();
-                    consumed_source.range.start = consumed_source.range.end;
+                    let consumed_source = end_tag.with_collapsed_to_end();
                     let error_source = end_tag.clone();
                     Item::CompileError {
                         message: "Whitespace replace character `_` used before non-whitespace. \
@@ -414,88 +305,81 @@ pub(super) fn parse_trailing_whitespace<'a>(
                     }
                 };
 
-                Ok((input, Some(item)))
+                Ok((tokens, Some(item)))
             }
             WhitespacePreference::Remove => {
-                let (input, trailing_whitespace) = opt(whitespace).parse(input)?;
+                let (tokens, trailing_whitespace) =
+                    opt(take(TokenKind::StaticWhitespace)).parse(tokens)?;
                 Ok((
-                    input,
-                    trailing_whitespace.map(|whitespace| Item::Whitespace(Static("", whitespace))),
+                    tokens,
+                    trailing_whitespace.map(|whitespace| {
+                        Item::Whitespace(Static("", whitespace.source().clone()))
+                    }),
                 ))
             }
-            WhitespacePreference::Indifferent => Ok((input, None)),
+            WhitespacePreference::Indifferent => Ok((tokens, None)),
         }
     }
 }
 
 pub(crate) fn tag_end<'a>(
-    tag_close: &'static str,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, (Option<Item<'a>>, Source<'a>)> + 'a {
-    move |input| {
-        let (input, (command, close_tag)) = (
-            opt(alt((
-                collapse_whitespace_command,
-                trim_whitespace_command,
-                #[cfg(feature = "unreachable")]
-                tag("$"),
-            ))),
-            tag(tag_close),
-        )
-            .parse(input)?;
+    expected_kind: TagKind,
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Option<Item<'a>>, Source<'a>)> {
+    move |tokens| {
+        let (tokens, token) = tokens.take()?;
 
-        let source = command.clone().map_or(close_tag.clone(), |source| {
-            source.merge(
-                &close_tag,
-                "Tag close expected after whitespace control character",
-            )
-        });
-
-        let whitespace_preference = match command.clone().map(|source| source.as_str()) {
-            None => WhitespacePreference::Indifferent,
-            Some("-") => WhitespacePreference::Remove,
-            Some("_") => WhitespacePreference::Replace,
-            Some(_) => {
-                internal_error!(
-                    command
-                        .expect("Command is already matched as `Some(_)`")
-                        .span()
-                        .unwrap(),
-                    "Unhandled whitespace command in tag end"
-                );
-            }
+        let TokenKind::TagEnd {
+            kind,
+            whitespace_preference,
+        } = token.kind()
+        else {
+            return Err(Error::Recoverable {
+                message: format!("Expected `TagEnd`, found `{:?}`", token.kind()),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
         };
 
-        let (input, trailing_whitespace) =
-            parse_trailing_whitespace(source.clone(), whitespace_preference, false).parse(input)?;
-
-        Ok((input, (trailing_whitespace, source)))
-    }
-}
-
-pub(crate) fn tag_open(input: Source) -> Res<Source, TagOpen> {
-    let (input, output) = alt((
-        tag("{{"), // writ
-        tag("{%"), // statement
-        tag("{#"), // comment
-        #[cfg(feature = "unreachable")]
-        tag("{&"),
-    ))
-    .parse(input)?;
-
-    match output.as_str() {
-        "{{" => Ok((input, TagOpen::Writ(output))),
-        "{%" => Ok((input, TagOpen::Statement(output))),
-        "{#" => Ok((input, TagOpen::Comment(output))),
-        _ => {
-            internal_error!(output.span().unwrap(), "Unsupported open tag encountered");
+        if *kind != expected_kind {
+            return Err(Error::Unrecoverable {
+                message: format!("Expected `{expected_kind:?}`, found `{kind:?}`"),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
         }
+
+        let (tokens, trailing_whitespace) =
+            parse_trailing_whitespace(token.source(), whitespace_preference, false)
+                .parse(tokens)?;
+
+        Ok((tokens, (trailing_whitespace, token.source().clone())))
     }
 }
 
-pub(super) fn collapse_whitespace_command(input: Source) -> Res<Source, Source> {
-    tag("_").parse(input)
-}
+pub(crate) fn tag_open(tokens: TokenSlice) -> Res<TagOpen> {
+    let (tokens, token) = tokens.take()?;
 
-pub(super) fn trim_whitespace_command(input: Source) -> Res<Source, Source> {
-    tag("-").parse(input)
+    let TokenKind::TagStart {
+        kind,
+        whitespace_preference,
+    } = token.kind()
+    else {
+        return Err(Error::Recoverable {
+            message: "Not `TagStart` token".to_string(),
+            source: token.source().clone(),
+            previous_error: None,
+            is_eof: false,
+        });
+    };
+
+    Ok((
+        tokens,
+        TagOpen {
+            source: token.source().clone(),
+            kind: kind.clone(),
+            whitespace_preference: whitespace_preference.clone(),
+        },
+    ))
 }

@@ -1,44 +1,45 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
 use quote::quote;
 
+use crate::syntax::Error;
 use crate::syntax::expression::{Expression, Res};
-use crate::{BuiltTokens, Source, internal_error};
+use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::{BuiltTokens, Source};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct Bool<'a> {
     value: bool,
-    source: Source<'a>,
+    source: &'a Source<'a>,
 }
 
 impl<'a> Bool<'a> {
     /// Parses a bool value: `true` or `false`
-    pub(crate) fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, source) = alt((
-            tag("true"),
-            tag("false"),
-            #[cfg(feature = "unreachable")]
-            tag("maybe"),
-        ))
-        .parse(input)?;
-        let value = match source.as_str() {
-            "true" => true,
-            "false" => false,
-            _ => {
-                internal_error!(source.span().unwrap(), "Unhandled bool");
-            }
+    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, token) = tokens.take()?;
+
+        let TokenKind::Bool(value) = token.kind() else {
+            return Err(Error::Recoverable {
+                message: "Not `Bool` token kind".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
         };
 
-        Ok((input, Self { value, source }))
+        Ok((
+            tokens,
+            Self {
+                value: *value,
+                source: token.source(),
+            },
+        ))
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
-        &self.source
+        self.source
     }
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
-        let literal = ::syn::LitBool::new(self.value, self.source.span());
+        let literal = ::syn::LitBool::new(self.value, self.source.span_token());
         (quote! { #literal }, 0)
     }
 }

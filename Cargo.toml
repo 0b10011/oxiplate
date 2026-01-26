@@ -20,6 +20,8 @@ rust-version = "1.85.1"
 cargo = { level = "deny", priority = -1 }
 pedantic = { level = "deny", priority = -1 }
 
+double_must_use = { level = "allow" }
+
 # Lints
 manual_assert = "allow"
 

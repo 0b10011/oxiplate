@@ -1,5 +1,5 @@
-error: Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.
+error: Malformed raw string. Expected `"` after opening hashes
  --> tests/broken/writ/closed-like-comment.rs:4:27
   |
 4 | #[oxiplate_inline("{{ foo #}")]
-  |                           ^^
+  |                           ^

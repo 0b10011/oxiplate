@@ -1,7 +1,7 @@
-error: String is opened but never closed. The string ending must be a double quote (") followed by the same number of hashes (#) as the string opening.
- --> tests/broken/strings/raw-string.rs:6:8
+error: Raw string never closed
+ --> tests/broken/strings/raw-string.rs:6:5
   |
 6 |   {{- ##"hello world"# -}}
-  |  ________^
+  |  _____^
 7 | |  "#####
   | |_^

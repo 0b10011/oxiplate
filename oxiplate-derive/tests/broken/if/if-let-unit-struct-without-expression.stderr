@@ -1,9 +1,5 @@
 error: Expected `=`
  --> tests/broken/if/if-let-unit-struct-without-expression.rs:6:17
   |
-6 |   {%- if let None -%}
-  |  _________________^
-7 | |     No value provided.
-8 | | {%- endif -%}
-9 | | "#
-  | |_^
+6 | {%- if let None -%}
+  |                 ^^^

@@ -1,17 +1,14 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{into, opt};
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::Pattern;
 use crate::syntax::Res;
 use crate::syntax::expression::{Char, Float, Integer, Number};
-use crate::syntax::template::whitespace;
+use crate::syntax::parser::{Parser as _, alt, into, opt, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Range<'a> {
     /// start..
     From {
@@ -52,38 +49,28 @@ pub(crate) enum Range<'a> {
 }
 
 impl<'a> Range<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             Self::parse_inclusive,
             Self::parse_from_or_exclusive,
             Self::parse_exclusive_to,
             Self::parse_inclusive_to,
         ))
-        .parse(input)
+        .parse(tokens)
     }
 
-    pub fn parse_from_or_exclusive(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (from, leading_whitespace, operator, trailing_whitespace, to)) = (
+    pub fn parse_from_or_exclusive(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (from, operator, to)) = (
             Value::parse,
-            opt(whitespace),
-            tag(".."),
-            opt(whitespace),
+            take(TokenKind::RangeExclusive),
             opt(Value::parse),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let source = from
             .source()
             .clone()
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after value",
-            )
-            .merge(&operator, "`..` operator expected after whitespace")
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `..` operator",
-            )
+            .merge(operator.source(), "`..` operator expected after whitespace")
             .merge_some(
                 to.as_ref().map(Value::source),
                 "Value expected after whitespace",
@@ -91,99 +78,79 @@ impl<'a> Range<'a> {
 
         if let Some(to) = to {
             Ok((
-                input,
+                tokens,
                 Self::Exclusive {
                     from,
-                    operator,
+                    operator: operator.source().clone(),
                     to,
                     source,
                 },
             ))
         } else {
             Ok((
-                input,
+                tokens,
                 Self::From {
                     from,
-                    operator,
+                    operator: operator.source().clone(),
                     source,
                 },
             ))
         }
     }
 
-    pub fn parse_inclusive(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (from, leading_whitespace, operator, trailing_whitespace, to)) = (
-            Value::parse,
-            opt(whitespace),
-            tag("..="),
-            opt(whitespace),
-            Value::parse,
-        )
-            .parse(input)?;
+    pub fn parse_inclusive(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (from, operator, to)) =
+            (Value::parse, take(TokenKind::RangeInclusive), Value::parse).parse(tokens)?;
 
         let source = from
             .source()
             .clone()
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after value",
-            )
-            .merge(&operator, "`..` operator expected after whitespace")
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `..` operator",
-            )
+            .merge(operator.source(), "`..` operator expected after whitespace")
             .merge(to.source(), "Value expected after whitespace");
 
         Ok((
-            input,
+            tokens,
             Self::Inclusive {
                 from,
-                operator,
+                operator: operator.source().clone(),
                 to,
                 source,
             },
         ))
     }
 
-    pub fn parse_exclusive_to(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (operator, trailing_whitespace, to)) =
-            (tag(".."), opt(whitespace), Value::parse).parse(input)?;
+    pub fn parse_exclusive_to(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (operator, to)) =
+            (take(TokenKind::RangeExclusive), Value::parse).parse(tokens)?;
 
         let source = operator
+            .source()
             .clone()
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `..` operator",
-            )
             .merge(to.source(), "Value expected after whitespace");
 
         Ok((
-            input,
+            tokens,
             Self::ExclusiveTo {
-                operator,
+                operator: operator.source().clone(),
                 to,
                 source,
             },
         ))
     }
 
-    pub fn parse_inclusive_to(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (operator, trailing_whitespace, to)) =
-            (tag("..="), opt(whitespace), Value::parse).parse(input)?;
+    pub fn parse_inclusive_to(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (operator, to)) =
+            (take(TokenKind::RangeInclusive), Value::parse).parse(tokens)?;
 
         let source = operator
+            .source()
             .clone()
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `..` operator",
-            )
             .merge(to.source(), "Value expected after whitespace");
 
         Ok((
-            input,
+            tokens,
             Self::InclusiveTo {
-                operator,
+                operator: operator.source().clone(),
                 to,
                 source,
             },
@@ -207,7 +174,7 @@ impl<'a> Range<'a> {
                 operator,
                 source: _,
             } => {
-                let operator_span = operator.span();
+                let operator_span = operator.span_token();
                 (Some(from), quote_spanned! {operator_span=> .. }, None)
             }
             Self::Exclusive {
@@ -216,7 +183,7 @@ impl<'a> Range<'a> {
                 to,
                 source: _,
             } => {
-                let operator_span = operator.span();
+                let operator_span = operator.span_token();
                 (Some(from), quote_spanned! {operator_span=> .. }, Some(to))
             }
             Self::Inclusive {
@@ -225,7 +192,7 @@ impl<'a> Range<'a> {
                 to,
                 source: _,
             } => {
-                let operator_span = operator.span();
+                let operator_span = operator.span_token();
                 (Some(from), quote_spanned! {operator_span=> ..= }, Some(to))
             }
             Self::ExclusiveTo {
@@ -233,7 +200,7 @@ impl<'a> Range<'a> {
                 to,
                 source: _,
             } => {
-                let operator_span = operator.span();
+                let operator_span = operator.span_token();
                 (None, quote_spanned! {operator_span=> .. }, Some(to))
             }
             Self::InclusiveTo {
@@ -241,7 +208,7 @@ impl<'a> Range<'a> {
                 to,
                 source: _,
             } => {
-                let operator_span = operator.span();
+                let operator_span = operator.span_token();
                 (None, quote_spanned! {operator_span=> ..= }, Some(to))
             }
         };
@@ -259,7 +226,7 @@ impl<'a> From<Range<'a>> for Pattern<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Value<'a> {
     Integer(Integer<'a>),
     Float(Float<'a>),
@@ -267,8 +234,8 @@ pub(crate) enum Value<'a> {
 }
 
 impl<'a> Value<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        alt((into(Number::parse), into(Char::parse))).parse(input)
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        alt((into(Number::parse), into(Char::parse))).parse(tokens)
     }
 
     pub fn source(&self) -> &Source<'a> {

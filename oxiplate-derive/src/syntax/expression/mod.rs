@@ -1,10 +1,3 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, fail, into, not, opt, peek};
-use nom::error::context;
-use nom::multi::{many0, many1};
-use nom::sequence::{pair, terminated};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::token::Dot;
@@ -23,26 +16,26 @@ use self::arguments::arguments;
 use self::concat::Concat;
 use self::ident::IdentifierOrFunction;
 pub(super) use self::ident::{Identifier, identifier};
-pub(super) use self::keyword::{Keyword, keyword};
+pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use super::item::tag_end;
-use super::template::whitespace;
 use crate::syntax::expression::group::Group;
 use crate::syntax::expression::tuple::Tuple;
+use crate::syntax::parser::{Parser as _, alt, context, cut, fail, into, many0, many1, opt, take};
+use crate::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct Field<'a> {
     dot: Source<'a>,
     ident_or_fn: IdentifierOrFunction<'a>,
 }
 impl<'a> Field<'a> {
     pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let span = self.dot.span();
+        let span = self.dot.span_token();
         let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
             .expect("Dot should be able to be parsed properly here");
 
@@ -59,7 +52,7 @@ impl<'a> Field<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Expression<'a> {
     Identifier(IdentifierOrFunction<'a>),
     Char(Char<'a>),
@@ -86,7 +79,9 @@ pub(crate) enum Expression<'a> {
     /// `..` that represents a range
     /// where the start/end matches whatever it is applied to.
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
-    FullRange(Source<'a>),
+    FullRange {
+        source: Source<'a>,
+    },
 
     /// `expr[expr]`
     /// See:
@@ -115,7 +110,7 @@ impl<'a> Expression<'a> {
         match self {
             Expression::Identifier(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
-                    let span = identifier.source().span();
+                    let span = identifier.source().span_token();
                     if state.local_variables.contains(identifier.as_str()) {
                         (quote! { #identifier }, 1)
                     } else {
@@ -125,7 +120,7 @@ impl<'a> Expression<'a> {
                 IdentifierOrFunction::Function(identifier, arguments) => {
                     let arguments = arguments.to_tokens(state);
 
-                    let span = identifier.source().span();
+                    let span = identifier.source().span_token();
                     if state.local_variables.contains(identifier.as_str()) {
                         (quote! { #identifier #arguments }, 1)
                     } else {
@@ -140,7 +135,7 @@ impl<'a> Expression<'a> {
                 left,
                 operator,
                 right,
-                source: _,
+                ..
             } => {
                 let (left, left_length) = left.to_tokens(state);
                 let (right, right_length) = if let Some(right) = right.as_ref() {
@@ -158,13 +153,11 @@ impl<'a> Expression<'a> {
                 (quote! { #operator #expression }, expression_length)
             }
             Expression::Cow {
-                prefix: _,
-                expression,
-                source,
+                prefix, expression, ..
             } => {
                 #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
                 let (expression, expression_length) = expression.to_tokens(state);
-                let span = source.span();
+                let span = prefix.span_token();
 
                 #[cfg(feature = "oxiplate")]
                 let expression = quote_spanned! {span=>
@@ -183,12 +176,12 @@ impl<'a> Expression<'a> {
             Expression::Integer(number) => number.to_tokens(),
             Expression::Float(number) => number.to_tokens(),
             Expression::Bool(bool) => bool.to_tokens(),
-            Expression::FullRange(operator) => {
-                let span = operator.span();
+            Expression::FullRange { source, .. } => {
+                let span = source.span_token();
                 (quote_spanned! {span=> .. }, 0)
             }
             Expression::Index(expression, open_bracket, range, _close_bracket) => {
-                let span = open_bracket.span();
+                let span = open_bracket.span_token();
                 let (expression, estimated_length) = expression.to_tokens(state);
                 let (range, _range_length) = range.to_tokens(state);
                 (
@@ -231,13 +224,13 @@ impl<'a> Expression<'a> {
         let arguments = if let Some(arguments) = arguments {
             if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
                 // First argument
-                let comma_span = vertical_bar.span();
+                let comma_span = vertical_bar.span_token();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
                 argument_tokens.append_all(first_argument.to_tokens(state).0);
 
                 // Remaining arguments
                 for (comma, expression) in remaining_arguments {
-                    let comma_span = comma.span();
+                    let comma_span = comma.span_token();
                     argument_tokens.append_all(quote_spanned! {comma_span=> , });
                     argument_tokens.append_all(expression.to_tokens(state).0);
                 }
@@ -245,18 +238,18 @@ impl<'a> Expression<'a> {
 
             let mut group =
                 proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            group.set_span(source.span());
+            group.set_span(source.span_token());
             group.to_token_stream()
         } else {
             let mut group =
                 proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            group.set_span(name.source().span());
+            group.set_span(name.source().span_token());
             group.to_token_stream()
         };
 
-        let span = name.source().span();
+        let span = name.source().span_token();
         if let Some(cow_prefix) = cow_prefix {
-            let span = cow_prefix.span();
+            let span = cow_prefix.span_token();
 
             if cfg!(feature = "oxiplate") {
                 (
@@ -289,7 +282,7 @@ impl<'a> Expression<'a> {
         }
     }
 
-    /// Get the `Source` for the entire expression.
+    /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
             Expression::Identifier(identifier_or_function) => identifier_or_function.source(),
@@ -299,14 +292,15 @@ impl<'a> Expression<'a> {
             Expression::Float(value) => value.source().clone(),
             Expression::Bool(value) => value.source().clone(),
             Expression::Calc { source, .. }
-            | Expression::FullRange(source)
+            | Expression::FullRange { source, .. }
             | Expression::Filter { source, .. }
             | Expression::Cow { source, .. } => source.clone(),
             Expression::Group(group) => group.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
-            Expression::Concat(concat) => concat.source.clone(),
+            Expression::Concat(concat) => concat.source().clone(),
             Expression::Prefixed(prefix_operator, expression) => prefix_operator
                 .source()
+                .clone()
                 .merge(&expression.source(), "Expression should follow operator"),
             Expression::Index(left, open_bracket, index, close_bracket) => left
                 .source()
@@ -317,7 +311,7 @@ impl<'a> Expression<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct ExpressionAccess<'a> {
     expression: Expression<'a>,
     fields: Vec<Field<'a>>,
@@ -349,9 +343,9 @@ impl<'a> ExpressionAccess<'a> {
 pub(super) fn expression<'a>(
     allow_generic_nesting: bool,
     allow_concat_nesting: bool,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, ExpressionAccess<'a>> {
-    move |input| {
-        let (input, (expression, fields)) = pair(
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, ExpressionAccess<'a>> {
+    move |tokens| {
+        let (tokens, (expression, fields)) = (
             alt((
                 filters(allow_generic_nesting),
                 Concat::parser(allow_concat_nesting),
@@ -370,16 +364,16 @@ pub(super) fn expression<'a>(
             )),
             many0(field()),
         )
-        .parse(input)?;
+            .parse(tokens)?;
 
-        Ok((input, ExpressionAccess { expression, fields }))
+        Ok((tokens, ExpressionAccess { expression, fields }))
     }
 }
 
-fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
-    |input| {
-        let (input, (dot, ident, arguments)) =
-            (tag("."), Identifier::parse, opt(arguments)).parse(input)?;
+fn field<'a>() -> impl Fn(TokenSlice<'a>) -> Res<'a, Field<'a>> + 'a {
+    |tokens| {
+        let (tokens, (dot, ident, arguments)) =
+            (take(TokenKind::Period), Identifier::parse, opt(arguments)).parse(tokens)?;
 
         let ident_or_fn = if let Some(arguments) = arguments {
             IdentifierOrFunction::Function(ident, arguments)
@@ -387,57 +381,50 @@ fn field<'a>() -> impl Fn(Source) -> Res<Source, Field> + 'a {
             IdentifierOrFunction::Identifier(ident)
         };
 
-        Ok((input, Field { dot, ident_or_fn }))
+        Ok((
+            tokens,
+            Field {
+                dot: dot.source().clone(),
+                ident_or_fn,
+            },
+        ))
     }
 }
 
-fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expression> + 'a {
-    move |input| {
+fn calc<'a>(
+    allow_generic_nesting: bool,
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> + 'a {
+    move |tokens| {
         if !allow_generic_nesting {
-            return fail().parse(input);
+            return context(
+                "Generic nesting of calc not allowed in this context",
+                fail(),
+            )
+            .parse(tokens);
         }
 
-        let (input, (left, leading_whitespace, (), operator, trailing_whitespace)) = (
-            expression(false, false),
-            opt(whitespace),
-            // End tags like `-}}` and `%}` could be matched by operator; this ensures we can use `cut()` later.
-            not(alt((tag_end("}}"), tag_end("%}"), tag_end("#}")))),
-            parse_operator,
-            opt(whitespace),
-        )
-            .parse(input)?;
+        let (tokens, (left, operator)) =
+            (expression(false, false), parse_operator).parse(tokens)?;
 
-        let (input, right) = if operator.requires_expression_after() {
-            let (input, expression) =
-                context("Expected an expression", cut(expression(true, true))).parse(input)?;
-            (input, Some(expression))
+        let (tokens, right) = if operator.requires_expression_after() {
+            let (tokens, expression) =
+                cut("Expected an expression", expression(true, true)).parse(tokens)?;
+            (tokens, Some(expression))
         } else {
-            opt(expression(true, true)).parse(input)?
+            opt(expression(true, true)).parse(tokens)?
         };
 
         let source = if let Some(right) = &right {
             left.source()
-                .merge_some(
-                    leading_whitespace.as_ref(),
-                    "Whitespace expected after left expression",
-                )
                 .merge(operator.source(), "Operator should follow whitespace")
-                .merge_some(
-                    trailing_whitespace.as_ref(),
-                    "Whitespace expected after operator",
-                )
                 .merge(&right.source(), "Right expression should follow whitespace")
         } else {
             left.source()
-                .merge_some(
-                    leading_whitespace.as_ref(),
-                    "Whitespace expected after left expression",
-                )
                 .merge(operator.source(), "Operator should follow left expression")
         };
 
         Ok((
-            input,
+            tokens,
             Expression::Calc {
                 left: Box::new(left),
                 operator,
@@ -450,95 +437,86 @@ fn calc<'a>(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expre
 
 /// Parses a full range expression (`..`).
 /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
-fn full_range(input: Source) -> Res<Source, Expression> {
-    let (input, operator) = tag("..").parse(input)?;
+fn full_range(tokens: TokenSlice) -> Res<Expression> {
+    let (tokens, token) = take(TokenKind::RangeExclusive).parse(tokens)?;
 
-    Ok((input, Expression::FullRange(operator)))
+    Ok((
+        tokens,
+        Expression::FullRange {
+            source: token.source().clone(),
+        },
+    ))
 }
 
 /// Parses an index expression (`expr[expr]`).
 /// See: <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
-fn index(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expression> {
-    move |input| {
+fn index<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+    move |tokens| {
         if !allow_generic_nesting {
-            return fail().parse(input);
+            return context(
+                "Generic nesting of index not allowed in this context",
+                fail(),
+            )
+            .parse(tokens);
         }
 
-        let (input, (expression, open, (range, close))) = (
+        let (tokens, (expression, open, (range, close))) = (
             expression(false, false),
-            tag("["),
-            context(
+            take(TokenKind::OpenBracket),
+            cut(
                 "Expected an expression",
-                cut((expression(true, true), tag("]"))),
+                (expression(true, true), take(TokenKind::CloseBracket)),
             ),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         Ok((
-            input,
-            Expression::Index(Box::new(expression), open, Box::new(range), close),
+            tokens,
+            Expression::Index(
+                Box::new(expression),
+                open.source().clone(),
+                Box::new(range),
+                close.source().clone(),
+            ),
         ))
     }
 }
 
 /// Parses filters (`expr | filter()`).
-fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expression> {
-    move |input| {
+fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+    move |tokens| {
         if !allow_generic_nesting {
-            return fail().parse(input);
+            return context(
+                "Generic nesting of filters not allowed in this context",
+                fail(),
+            )
+            .parse(tokens);
         }
 
-        let (input, (expression, filters)) = (
+        let (tokens, (expression, filters)) = (
             expression(false, false),
             many1((
-                opt(whitespace),
-                terminated(tag("|"), not(peek(tag("|")))),
-                opt(whitespace),
-                opt(tag(">")),
-                opt(whitespace),
-                context("Expected a filter name", cut(Identifier::parse)),
-                opt(whitespace),
+                take(TokenKind::VerticalBar),
+                opt(take(TokenKind::GreaterThan)),
+                cut("Expected a filter name", Identifier::parse),
                 opt(arguments),
             )),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let mut source = expression.source();
         let mut expression_access = expression;
-        for (
-            leading_ws,
-            vertical_bar,
-            cow_prefix_leading_ws,
-            cow_prefix,
-            cow_prefix_trailing_ws,
-            name,
-            trailing_ws,
-            arguments,
-        ) in filters
-        {
+        for (vertical_bar, cow_prefix, name, arguments) in filters {
             source = source
-                .merge_some(
-                    leading_ws.as_ref(),
-                    "Leading whitespace should follow expression",
-                )
                 .merge(
-                    &vertical_bar,
+                    vertical_bar.source(),
                     "Vertical bar should follow leading whitespace",
                 )
                 .merge_some(
-                    cow_prefix_leading_ws.as_ref(),
-                    "Whitespace should follow vertical bar",
-                )
-                .merge_some(cow_prefix.as_ref(), "Cow prefix should follow whitespace")
-                .merge_some(
-                    cow_prefix_trailing_ws.as_ref(),
-                    "Whitespace should follow cow prefix",
+                    cow_prefix.map(Token::source),
+                    "Cow prefix should follow whitespace",
                 )
                 .merge(name.source(), "Filter name should follow whitespace")
-                .merge_some(
-                    trailing_ws.as_ref(),
-                    "Trailing whitespace should follow filter name",
-                )
                 .merge_some(
                     arguments.as_ref().map(ArgumentsGroup::source),
                     "Arguments should follow trailing whitespace",
@@ -548,8 +526,8 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
                 expression: Expression::Filter {
                     name,
                     expression: Box::new(expression_access),
-                    vertical_bar,
-                    cow_prefix,
+                    vertical_bar: vertical_bar.source().clone(),
+                    cow_prefix: cow_prefix.map(|token| token.source().clone()),
                     arguments,
                     source: source.clone(),
                 },
@@ -557,29 +535,29 @@ fn filters(allow_generic_nesting: bool) -> impl Fn(Source) -> Res<Source, Expres
             }
         }
 
-        Ok((input, expression_access.expression))
+        Ok((tokens, expression_access.expression))
     }
 }
 
-fn parse_cow_prefix(input: Source) -> Res<Source, Expression> {
-    let (input, (prefix, (whitespace, expression))) = (
-        tag(">"),
-        context(
+fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
+    let (tokens, (prefix, expression)) = (
+        take(TokenKind::GreaterThan),
+        cut(
             "Expected an expression after cow prefix",
-            cut((opt(whitespace), expression(false, false))),
+            expression(false, false),
         ),
     )
-        .parse(input)?;
+        .parse(tokens)?;
 
     let source = prefix
+        .source()
         .clone()
-        .merge_some(whitespace.as_ref(), "Whitespace should follow cow prefix")
         .merge(&expression.source(), "Expression should follow whitespace");
 
     Ok((
-        input,
+        tokens,
         Expression::Cow {
-            prefix,
+            prefix: prefix.source().clone(),
             expression: Box::new(expression),
             source,
         },

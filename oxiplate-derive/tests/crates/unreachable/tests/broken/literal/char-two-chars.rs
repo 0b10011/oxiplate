@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{{ ''1' }}")]
+#[oxiplate_inline("{{ 'hi' }}")]
 struct Data;
 
 fn main() {

@@ -1,5 +1,5 @@
-error: "%}" expected
+error: Malformed raw string. Expected `"` after opening hashes
  --> tests/broken/statements/closed-like-comment.rs:4:32
   |
 4 | #[oxiplate_inline("{% continue #}")]
-  |                                ^^
+  |                                ^

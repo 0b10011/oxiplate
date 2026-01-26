@@ -8,26 +8,17 @@ mod include;
 mod r#let;
 mod r#match;
 
-use block::Block;
-use extends::Extends;
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::take_while;
-use nom::combinator::{cut, into, opt};
-use nom::error::context;
 use quote::quote_spanned;
 
 pub(crate) use self::escaper::DefaultEscaper;
-use self::r#for::For;
-use self::r#if::{ElseIf, If};
-use self::include::Include;
 use super::r#static::StaticType;
 use super::{Item, Res};
+use crate::syntax::Error;
 use crate::syntax::item::tag_end;
-use crate::syntax::statement::r#for::{Break, Continue};
+use crate::syntax::parser::{Parser as _, alt, cut, into};
 use crate::syntax::statement::r#let::Let;
-use crate::syntax::statement::r#match::{Case, Match};
-use crate::syntax::template::{is_whitespace, parse_item, whitespace};
+use crate::syntax::template::parse_item;
+use crate::tokenizer::{TagKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
@@ -40,25 +31,25 @@ pub(crate) struct Statement<'a> {
 pub(crate) enum StatementKind<'a> {
     DefaultEscaper(DefaultEscaper<'a>),
 
-    Extends(Extends<'a>),
-    Block(Block<'a>),
+    Extends(extends::Extends<'a>),
+    Block(block::Block<'a>),
     Parent,
     EndBlock,
 
-    Include(Include<'a>),
+    Include(include::Include<'a>),
 
-    If(If<'a>),
-    ElseIf(ElseIf<'a>),
+    If(r#if::If<'a>),
+    ElseIf(r#if::ElseIf<'a>),
     Else,
     EndIf,
 
-    For(For<'a>),
-    Continue(Continue<'a>),
-    Break(Break<'a>),
+    For(r#for::For<'a>),
+    Continue(r#for::Continue<'a>),
+    Break(r#for::Break<'a>),
     EndFor,
 
-    Match(Match<'a>),
-    Case(Case<'a>),
+    Match(r#match::Match<'a>),
+    Case(r#match::Case<'a>),
     EndMatch,
 
     Let(Let<'a>),
@@ -147,7 +138,7 @@ impl<'a> Statement<'a> {
     ) -> Result<BuiltTokens, BuiltTokens> {
         macro_rules! unexpected {
             ($tag:literal) => {{
-                let span = self.source.span();
+                let span = self.source.span_token();
                 Err((
                     quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
                     0,
@@ -163,7 +154,7 @@ impl<'a> Statement<'a> {
             }
             StatementKind::Extends(statement) => {
                 if state.has_content {
-                    let span = self.source.span();
+                    let span = self.source.span_token();
                     Err((
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
                         0,
@@ -205,17 +196,14 @@ impl<'a> From<Statement<'a>> for Item<'a> {
 #[allow(clippy::too_many_lines)]
 pub(super) fn statement<'a>(
     open_tag_source: Source<'a>,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, (Item<'a>, Option<Item<'a>>)> {
-    move |input| {
-        // Ignore any leading inner whitespace
-        let (input, leading_whitespace) = take_while(is_whitespace).parse(input)?;
-
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
+    move |tokens| {
         // Parse statements
-        let (input, mut statement) = context(
+        let (tokens, mut statement): (TokenSlice<'a>, Statement<'a>) = cut(
             "Expected one of: default_escaper_group, replace_escaper_group, extends, block, \
              endblock, include, if, elseif, else, endif, for, continue, break, endfor, match, \
              case, endmatch, let",
-            cut(alt((
+            alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
                 include::parse_include,
@@ -227,34 +215,25 @@ pub(super) fn statement<'a>(
                 r#if::parse_else,
                 r#if::parse_endif,
                 r#for::parse_for,
-                into(Continue::parse),
-                into(Break::parse),
+                into(r#for::Continue::parse),
+                into(r#for::Break::parse),
                 r#for::parse_endfor,
                 r#match::Match::parse,
                 r#match::Case::parse,
                 r#match::Match::parse_end,
                 into(Let::parse),
-            ))),
+            )),
         )
-        .parse(input)?;
+        .parse(tokens)?;
 
         // Parse the closing tag and any trailing whitespace
-        let (mut input, (whitespace, (mut trailing_whitespace, close_tag))) = (
-            opt(whitespace),
-            context(r#""%}" expected"#, cut(tag_end("%}"))),
-        )
-            .parse(input)?;
+        let (tokens, (mut trailing_whitespace, close_tag)) =
+            cut(r#""%}" expected"#, tag_end(TagKind::Statement)).parse(tokens)?;
 
-        statement.wrap_source(
-            open_tag_source
-                .clone()
-                .merge(&leading_whitespace, "Whitespace expected after open tag"),
-            &whitespace.map_or(close_tag.clone(), |source| {
-                source.merge(&close_tag, "Close tag expected after whitespace")
-            }),
-        );
+        statement.wrap_source(open_tag_source.clone(), &close_tag);
 
-        if !statement.is_ended(input.as_str().is_empty()) {
+        let mut tokens = tokens;
+        if !statement.is_ended(tokens.is_empty()) {
             // Append trailing whitespace
             if let Some(trailing_whitespace) = trailing_whitespace {
                 statement.add_item(trailing_whitespace);
@@ -262,53 +241,18 @@ pub(super) fn statement<'a>(
             trailing_whitespace = None;
 
             loop {
-                {
-                    let is_eof = input.as_str().is_empty();
-                    if is_eof {
-                        macro_rules! context_message {
-                            ($lit:literal) => {
-                                concat!(
-                                    r#"""#,
-                                    $lit,
-                                    r#"" statement is never closed (unexpected end of template)"#
-                                )
-                            };
-                        }
-                        let context_message = match statement.kind {
-                            StatementKind::Block(_) => context_message!("block"),
-                            StatementKind::If(_) => context_message!("if"),
-                            StatementKind::For(_) => context_message!("for"),
-                            StatementKind::Match(_) => context_message!("match"),
-                            StatementKind::DefaultEscaper(_)
-                            | StatementKind::Extends(_)
-                            | StatementKind::Parent
-                            | StatementKind::EndBlock
-                            | StatementKind::Include(_)
-                            | StatementKind::ElseIf(_)
-                            | StatementKind::Else
-                            | StatementKind::EndIf
-                            | StatementKind::Continue(_)
-                            | StatementKind::Break(_)
-                            | StatementKind::EndFor
-                            | StatementKind::Case(_)
-                            | StatementKind::EndMatch
-                            | StatementKind::Let(_) => unreachable!(
-                                "These blocks should never fail to be closed because of EOF"
-                            ),
-                        };
-                        statement.add_item(Item::CompileError {
-                            message: context_message.to_string(),
-                            error_source: input.clone(),
-                            consumed_source: input.clone(),
-                        });
-                        return Ok((input, (statement.into(), trailing_whitespace)));
-                    }
+                if tokens.is_empty() {
+                    return Ok(eof(tokens, statement, trailing_whitespace));
                 }
 
-                let (new_input, items) =
-                    context("Failed to parse contents of statement", cut(parse_item))
-                        .parse(input)?;
-                input = new_input;
+                let (new_tokens, items) = match statement_item(tokens)? {
+                    (new_tokens, Some(items)) => (new_tokens, items),
+                    (tokens, None) => {
+                        return Ok(eof(tokens, statement, trailing_whitespace));
+                    }
+                };
+                tokens = new_tokens;
+
                 for item in items {
                     if statement.is_ended(false) {
                         match item {
@@ -327,7 +271,7 @@ pub(super) fn statement<'a>(
                     statement.add_item(item);
                 }
 
-                let is_eof = input.as_str().is_empty();
+                let is_eof = tokens.is_empty();
                 #[cfg(not(feature = "unreachable"))]
                 if statement.is_ended(is_eof) {
                     break;
@@ -340,6 +284,65 @@ pub(super) fn statement<'a>(
         }
 
         // Return the statement and trailing whitespace
-        Ok((input, (statement.into(), trailing_whitespace)))
+        Ok((tokens, (statement.into(), trailing_whitespace)))
     }
+}
+
+fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Option<Vec<Item>>), Error> {
+    let eof = tokens.eof();
+    match cut("Failed to parse contents of statement", parse_item).parse(tokens) {
+        Ok((tokens, items)) => Ok((tokens, Some(items))),
+        Err(err) => {
+            if err.is_eof() {
+                Ok((TokenSlice::new(&[], eof), None))
+            } else {
+                Err(err)
+            }
+        }
+    }
+}
+
+fn eof<'a>(
+    tokens: TokenSlice<'a>,
+    mut statement: Statement<'a>,
+    trailing_whitespace: Option<Item<'a>>,
+) -> (TokenSlice<'a>, (Item<'a>, Option<Item<'a>>)) {
+    macro_rules! context_message {
+        ($lit:literal) => {
+            concat!(
+                r#"""#,
+                $lit,
+                r#"" statement is never closed (unexpected end of template)"#
+            )
+        };
+    }
+    let context_message = match statement.kind {
+        StatementKind::Block(_) => context_message!("block"),
+        StatementKind::If(_) => context_message!("if"),
+        StatementKind::For(_) => context_message!("for"),
+        StatementKind::Match(_) => context_message!("match"),
+        StatementKind::DefaultEscaper(_)
+        | StatementKind::Extends(_)
+        | StatementKind::Parent
+        | StatementKind::EndBlock
+        | StatementKind::Include(_)
+        | StatementKind::ElseIf(_)
+        | StatementKind::Else
+        | StatementKind::EndIf
+        | StatementKind::Continue(_)
+        | StatementKind::Break(_)
+        | StatementKind::EndFor
+        | StatementKind::Case(_)
+        | StatementKind::EndMatch
+        | StatementKind::Let(_) => {
+            unreachable!("These blocks should never fail to be closed because of EOF")
+        }
+    };
+    statement.add_item(Item::CompileError {
+        message: context_message.to_string(),
+        error_source: tokens.next_source().clone(),
+        consumed_source: tokens.next_source().clone(),
+    });
+
+    (tokens, (statement.into(), trailing_whitespace))
 }

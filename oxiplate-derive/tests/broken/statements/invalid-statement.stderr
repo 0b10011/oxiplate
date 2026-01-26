@@ -2,4 +2,4 @@ error: Expected one of: default_escaper_group, replace_escaper_group, extends, b
  --> tests/broken/statements/invalid-statement.rs:4:23
   |
 4 | #[oxiplate_inline("{% thisdoesntexist %}")]
-  |                       ^^^^^^^^^^^^^^^^^^
+  |                       ^^^^^^^^^^^^^^^

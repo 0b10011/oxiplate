@@ -1,16 +1,15 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::combinator::into;
 use proc_macro2::TokenStream;
 
 use crate::Source;
 use crate::syntax::Res;
 use crate::syntax::expression::{Bool, Char, Float, Integer, Number, String};
+use crate::syntax::parser::{Parser as _, alt, into};
 use crate::syntax::statement::helpers::pattern::Pattern;
+use crate::tokenizer::TokenSlice;
 
 /// A literal value to match against.
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#matching-literals>
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Literal<'a> {
     Bool(Bool<'a>),
     Integer(Integer<'a>),
@@ -21,17 +20,17 @@ pub enum Literal<'a> {
 
 impl<'a> Literal<'a> {
     /// Parse a `Literal` from the input.
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(Bool::parse),
             into(Number::parse),
             into(String::parse),
             into(Char::parse),
         ))
-        .parse(input)
+        .parse(tokens)
     }
 
-    /// Get the underlying `Source` from the template for the literal.
+    /// Get the underlying `Source` from the template for the literal and leading whitespace.
     pub fn source(&self) -> &Source<'a> {
         match self {
             Self::Bool(bool) => bool.source(),

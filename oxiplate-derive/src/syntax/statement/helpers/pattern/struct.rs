@@ -1,22 +1,17 @@
 use std::collections::HashSet;
 
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, into, opt};
-use nom::error::context;
-use nom::multi::many0;
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::Pattern;
 use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
+use crate::syntax::parser::{Parser as _, alt, context, cut, into, many0, take};
 use crate::syntax::statement::helpers::pattern::Path;
-use crate::syntax::template::whitespace;
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum Struct<'a> {
     Named(NamedStruct<'a>),
     Tuple(TupleStruct<'a>),
@@ -24,13 +19,13 @@ pub(crate) enum Struct<'a> {
 }
 
 impl<'a> Struct<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(NamedStruct::parse),
             into(TupleStruct::parse),
             into(Path::parse_exclude_ident),
         ))
-        .parse(input)
+        .parse(tokens)
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -70,89 +65,63 @@ impl<'a> From<Path<'a>> for Struct<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct NamedStruct<'a> {
     path: Path<'a>,
     first_field: Field<'a>,
     /// `Source` is the comma.
     additional_fields: Vec<(Source<'a>, Field<'a>)>,
     /// `..`
+    #[allow(dead_code)]
     remaining: Option<Source<'a>>,
     source: Source<'a>,
 }
 
 impl<'a> NamedStruct<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (
-            input,
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (path, open_brace, (first_field, additional_fields_and_commas, close_brace))) =
             (
-                path,
-                leading_whitespace,
-                open_brace,
-                middle_whitespace,
-                (first_field, additional_fields_and_whitespace, trailing_whitespace, close_brace),
-            ),
-        ) = (
-            Path::parse_include_ident,
-            opt(whitespace),
-            tag("{"),
-            opt(whitespace),
-            cut((
-                Field::parse,
-                many0((opt(whitespace), tag(","), opt(whitespace), Field::parse)),
-                opt(whitespace),
-                tag("}"),
-            )),
-        )
-            .parse(input)?;
+                Path::parse_include_ident,
+                take(TokenKind::OpenBrace),
+                (
+                    cut("Expected a field", Field::parse),
+                    many0((
+                        cut("Expected `,`", take(TokenKind::Comma)),
+                        cut("Expected a field", Field::parse),
+                    )),
+                    cut("Expected `}`", take(TokenKind::CloseBrace)),
+                ),
+            )
+                .parse(tokens)?;
 
         let mut source = path
             .source
             .clone()
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after path",
-            )
-            .merge(&open_brace, "Open brace expected after whitespace")
-            .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `{`")
+            .merge(open_brace.source(), "Open brace expected after path")
             .merge(
                 first_field.source(),
                 "First field expected after whitespace",
             );
 
-        let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
-        for (leading_whitespace, comma, trailing_whitespace, field) in
-            additional_fields_and_whitespace
-        {
-            let comma_source = if let Some(source) = leading_whitespace {
-                source.merge(&comma, "Comma expected after whitespace")
-            } else {
-                comma.clone()
-            }
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after comma",
-            );
-
+        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
+        for (comma, field) in additional_fields_and_commas {
             source = source
                 .merge(
-                    &comma_source,
+                    comma.source(),
                     "Comma and whitespace expected after whitespace",
                 )
                 .merge(field.source(), "Field expected after whitespace");
 
-            additional_fields.push((comma_source, field));
+            additional_fields.push((comma.source().clone(), field));
         }
 
-        source = source
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after last field",
-            )
-            .merge(&close_brace, "Closing brace expected after whitespace");
+        source = source.merge(
+            close_brace.source(),
+            "Closing brace expected after whitespace",
+        );
 
         Ok((
-            input,
+            tokens,
             Self {
                 path,
                 first_field,
@@ -183,13 +152,13 @@ impl<'a> NamedStruct<'a> {
         let (mut tokens, _expected_length) = self.first_field.to_tokens(state);
 
         for (comma, value) in &self.additional_fields {
-            let comma_span = comma.span();
+            let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
             let (value, _expected_length) = value.to_tokens(state);
             tokens.append_all([comma, value]);
         }
 
-        let span = self.source.span();
+        let span = self.source.span_token();
 
         quote_spanned! {span=> #path { #tokens } }
     }
@@ -201,7 +170,7 @@ impl<'a> From<NamedStruct<'a>> for Struct<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 struct Field<'a> {
     name: Identifier<'a>,
     value: Option<Box<Pattern<'a>>>,
@@ -209,48 +178,45 @@ struct Field<'a> {
 }
 
 impl<'a> Field<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (input, (name, value)) = (
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        alt((Self::parse_with_value, Self::parse_without_value)).parse(tokens)
+    }
+
+    pub fn parse_with_value(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (name, colon, pattern)) = (
             context("Expected field name", Identifier::parse),
-            opt((
-                opt(whitespace),
-                context("Expected `:`", tag(":")),
-                opt(whitespace),
-                context("Expected type or ident", cut(Pattern::parse)),
-            )),
+            context("Expected `:`", take(TokenKind::Colon)),
+            cut("Expected pattern", Pattern::parse),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
-        let field = if let Some((leading_whitespace, colon, trailing_whitespace, ty)) = value {
-            let source = name
-                .source()
-                .clone()
-                .merge_some(
-                    leading_whitespace.as_ref(),
-                    "Whitespace expected after name",
-                )
-                .merge(&colon, "Colon expected after whitespace")
-                .merge_some(
-                    trailing_whitespace.as_ref(),
-                    "Whitespace expected after colon",
-                )
-                .merge(ty.source(), "Type expected after whitespace");
+        let source = name
+            .source()
+            .clone()
+            .merge(colon.source(), "Colon expected after name")
+            .merge(pattern.source(), "Pattern expected after colon");
 
+        Ok((
+            tokens,
             Self {
                 name,
-                value: Some(Box::new(ty)),
+                value: Some(Box::new(pattern)),
                 source,
-            }
-        } else {
-            let source = name.source().clone();
+            },
+        ))
+    }
+
+    pub fn parse_without_value(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, name) = context("Expected field name", Identifier::parse).parse(tokens)?;
+
+        Ok((
+            tokens,
             Self {
+                source: name.source().clone(),
                 name,
                 value: None,
-                source,
-            }
-        };
-
-        Ok((input, field))
+            },
+        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -269,7 +235,7 @@ impl<'a> Field<'a> {
         let name = &self.name;
 
         if let Some(value) = &self.value {
-            let span = self.source.span();
+            let span = self.source.span_token();
             let value = value.to_tokens(state);
             (quote_spanned! {span=> #name: #value }, 0)
         } else {
@@ -278,89 +244,60 @@ impl<'a> Field<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct TupleStruct<'a> {
     path: Path<'a>,
     first_field: Box<Pattern<'a>>,
     /// `Source` is the comma.
     additional_fields: Vec<(Source<'a>, Pattern<'a>)>,
     /// `..`
+    #[allow(dead_code)]
     remaining: Option<Source<'a>>,
     source: Source<'a>,
 }
 
 impl<'a> TupleStruct<'a> {
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (
-            input,
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (path, open_paren, (first_field, additional_fields_and_commas, close_brace))) =
             (
-                path,
-                leading_whitespace,
-                open_brace,
-                middle_whitespace,
-                (first_field, additional_fields_and_whitespace, trailing_whitespace, close_brace),
-            ),
-        ) = (
-            Path::parse_include_ident,
-            opt(whitespace),
-            tag("("),
-            opt(whitespace),
-            cut((
-                context("Expected pattern", Pattern::parse),
-                many0((opt(whitespace), tag(","), opt(whitespace), Pattern::parse)),
-                opt(whitespace),
-                context("Expected `)`", tag(")")),
-            )),
-        )
-            .parse(input)?;
+                Path::parse_include_ident,
+                take(TokenKind::OpenParenthese),
+                (
+                    cut("Expected pattern", Pattern::parse),
+                    many0((
+                        cut("Expected `,`", take(TokenKind::Comma)),
+                        cut("Expected a pattern", Pattern::parse),
+                    )),
+                    cut("Expected `)`", take(TokenKind::CloseParenthese)),
+                ),
+            )
+                .parse(tokens)?;
 
         let mut source = path
             .source
             .clone()
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after path",
-            )
-            .merge(&open_brace, "Open brace expected after whitespace")
-            .merge_some(middle_whitespace.as_ref(), "Whitespace expected after `{`")
+            .merge(open_paren.source(), "Open parenthese expected after path")
             .merge(
                 first_field.source(),
-                "First field expected after whitespace",
+                "First field expected after open parenthese",
             );
 
-        let mut additional_fields = Vec::with_capacity(additional_fields_and_whitespace.len());
-        for (leading_whitespace, comma, trailing_whitespace, field) in
-            additional_fields_and_whitespace
-        {
-            let comma_source = if let Some(source) = leading_whitespace {
-                source.merge(&comma, "Comma expected after whitespace")
-            } else {
-                comma.clone()
-            }
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after comma",
-            );
-
+        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
+        for (comma, field) in additional_fields_and_commas {
             source = source
-                .merge(
-                    &comma_source,
-                    "Comma and whitespace expected after whitespace",
-                )
-                .merge(field.source(), "Field expected after whitespace");
+                .merge(comma.source(), "Comma expected after previous field")
+                .merge(field.source(), "Field expected after comma");
 
-            additional_fields.push((comma_source, field));
+            additional_fields.push((comma.source().clone(), field));
         }
 
-        source = source
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after last field",
-            )
-            .merge(&close_brace, "Closing brace expected after whitespace");
+        source = source.merge(
+            close_brace.source(),
+            "Closing brace expected after previous field",
+        );
 
         Ok((
-            input,
+            tokens,
             Self {
                 path,
                 first_field: Box::new(first_field),
@@ -391,13 +328,13 @@ impl<'a> TupleStruct<'a> {
         let mut tokens = self.first_field.to_tokens(state);
 
         for (comma, value) in &self.additional_fields {
-            let comma_span = comma.span();
+            let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
             let value = value.to_tokens(state);
             tokens.append_all([comma, value]);
         }
 
-        let span = self.source.span();
+        let span = self.source.span_token();
 
         quote_spanned! {span=> #path(#tokens) }
     }

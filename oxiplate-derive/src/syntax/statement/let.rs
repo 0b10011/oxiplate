@@ -1,13 +1,11 @@
-use nom::Parser as _;
-use nom::bytes::complete::tag;
-use nom::combinator::opt;
 use quote::quote_spanned;
 
-use super::super::Res;
-use super::super::expression::{Identifier, Keyword, expression, keyword};
+use super::super::expression::{Identifier, Keyword, expression};
 use super::{State, Statement, StatementKind};
-use crate::syntax::expression::ExpressionAccess;
-use crate::syntax::template::whitespace;
+use crate::syntax::Res;
+use crate::syntax::expression::{ExpressionAccess, KeywordParser};
+use crate::syntax::parser::{Parser as _, cut, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
 /// `let` statement for saving values to variables.
@@ -31,54 +29,28 @@ pub(crate) struct Let<'a> {
 
 impl<'a> Let<'a> {
     /// Attempt to parse a `let` statement from the current input.
-    pub fn parse(input: Source<'a>) -> Res<Source<'a>, Self> {
-        let (
-            input,
-            (
-                keyword,
-                leading_whitespace,
-                ident,
-                middle_whitespace,
-                operator,
-                trailing_whitespace,
-                expr,
-            ),
-        ) = (
-            keyword("let"),
-            opt(whitespace),
-            Identifier::parse,
-            opt(whitespace),
-            tag("="),
-            opt(whitespace),
-            expression(true, true),
+    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (keyword, ident, operator, expr)) = (
+            KeywordParser::new("let"),
+            cut("Expected a variable name", Identifier::parse),
+            cut("Expected `=`", take(TokenKind::Equal)),
+            cut("Expected an expression", expression(true, true)),
         )
-            .parse(input)?;
+            .parse(tokens)?;
 
         let source = keyword
-            .0
+            .source()
             .clone()
-            .merge_some(
-                leading_whitespace.as_ref(),
-                "Whitespace expected after `let`",
-            )
-            .merge(ident.source(), "Variable name expected after whitespace")
-            .merge_some(
-                middle_whitespace.as_ref(),
-                "Whitespace expected after variable name",
-            )
-            .merge(&operator, "`=` expected after whitespace")
-            .merge_some(
-                trailing_whitespace.as_ref(),
-                "Whitespace expected after `=`",
-            )
-            .merge(&expr.source(), "Expression expected after whitespace");
+            .merge(ident.source(), "Variable name expected after `let`")
+            .merge(operator.source(), "`=` expected after variable name")
+            .merge(&expr.source(), "Expression expected after expression");
 
         Ok((
-            input,
+            tokens,
             Self {
                 keyword,
                 ident,
-                operator,
+                operator: operator.source().clone(),
                 expr,
                 source,
             },
@@ -97,10 +69,10 @@ impl<'a> Let<'a> {
 
     /// Build token stream for the statement.
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let span = self.source.span();
+        let span = self.source.span_token();
         let keyword = &self.keyword;
         let ident = &self.ident;
-        let operator_span = self.operator.span();
+        let operator_span = self.operator.span_token();
         let operator = quote_spanned! {operator_span=> = };
         let (expr, _estimated_length) = self.expr.to_tokens(state);
 

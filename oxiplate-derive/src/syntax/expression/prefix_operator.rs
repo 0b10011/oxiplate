@@ -1,130 +1,135 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{cut, opt};
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::super::Res;
-use super::super::template::whitespace;
 use crate::syntax::expression::{Expression, expression};
+use crate::syntax::parser::{Parser as _, alt, cut, take};
+use crate::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, internal_error};
 
-fn parse_prefix_operator(input: Source) -> Res<Source, PrefixOperator> {
-    let (input, operator) = alt((
-        tag("&"),
-        tag("*"),
-        tag("!"),
-        tag("-"),
-        tag("..="),
-        tag(".."),
+fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
+    let (tokens, token) = alt((
+        take(TokenKind::Ampersand),
+        take(TokenKind::Asterisk),
+        take(TokenKind::Exclamation),
+        take(TokenKind::Minus),
+        take(TokenKind::RangeInclusive),
+        take(TokenKind::RangeExclusive),
         #[cfg(feature = "unreachable")]
-        tag("="),
+        take(TokenKind::Equal),
     ))
-    .parse(input)?;
-    let operator = match operator.as_str() {
-        "&" => PrefixOperator::Borrow(operator),
-        "*" => PrefixOperator::Dereference(operator),
-        "!" => PrefixOperator::Not(operator),
-        "-" => PrefixOperator::Negative(operator),
-        "..=" => PrefixOperator::RangeInclusive(operator),
-        ".." => PrefixOperator::RangeExclusive(operator),
+    .parse(tokens)?;
+
+    let kind = match token.kind() {
+        TokenKind::Ampersand => PrefixOperatorKind::Borrow,
+        TokenKind::Asterisk => PrefixOperatorKind::Dereference,
+        TokenKind::Exclamation => PrefixOperatorKind::Not,
+        TokenKind::Minus => PrefixOperatorKind::Negative,
+        TokenKind::RangeInclusive => PrefixOperatorKind::RangeInclusive,
+        TokenKind::RangeExclusive => PrefixOperatorKind::RangeExclusive,
         _ => {
-            internal_error!(operator.span().unwrap(), "Unhandled prefix operator");
+            internal_error!(
+                token.source().span_token().unwrap(),
+                "Unhandled prefix operator"
+            );
         }
     };
 
-    Ok((input, operator))
+    Ok((
+        tokens,
+        PrefixOperator {
+            source: token.source(),
+            kind,
+        },
+    ))
 }
-pub(super) fn parse_prefixed_expression(
+pub(super) fn parse_prefixed_expression<'a>(
     allow_generic_nesting: bool,
-) -> impl Fn(Source) -> Res<Source, Expression> {
-    move |input| {
-        let (input, (prefix_operator, _middle_whitespace)) =
-            (parse_prefix_operator, opt(whitespace)).parse(input)?;
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+    move |tokens| {
+        let (tokens, prefix_operator) = parse_prefix_operator.parse(tokens)?;
 
-        let (input, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
-            context(
+        let (tokens, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
+            cut(
                 "Expected an expression after prefix operator",
-                cut(expression(allow_generic_nesting, true)),
+                expression(allow_generic_nesting, true),
             )
-            .parse(input)?
+            .parse(tokens)?
         } else {
-            expression(allow_generic_nesting, true).parse(input)?
+            expression(allow_generic_nesting, true).parse(tokens)?
         };
 
         Ok((
-            input,
+            tokens,
             Expression::Prefixed(prefix_operator, Box::new(expression)),
         ))
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub enum PrefixOperator<'a> {
-    Borrow(Source<'a>),
-    Dereference(Source<'a>),
-    Not(Source<'a>),
+#[derive(Debug)]
+pub struct PrefixOperator<'a> {
+    source: &'a Source<'a>,
+    kind: PrefixOperatorKind,
+}
+
+#[derive(Debug)]
+enum PrefixOperatorKind {
+    Borrow,
+    Dereference,
+    Not,
 
     /// `-` results in a negative value in the following expression.
     /// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#negation-operators>
-    Negative(Source<'a>),
+    Negative,
 
     /// `..=end` that matches all values where `x <= end`.
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeToInclusive.html>
-    RangeInclusive(Source<'a>),
+    RangeInclusive,
 
     /// `..end` that matches all values where `x < end`.
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeTo.html>
-    RangeExclusive(Source<'a>),
+    RangeExclusive,
 }
 
 impl<'a> PrefixOperator<'a> {
     fn cut_if_not_followed_by_expression(&self) -> bool {
-        match self {
-            PrefixOperator::Borrow(_)
-            | PrefixOperator::Dereference(_)
-            | PrefixOperator::Not(_)
-            | PrefixOperator::Negative(_)
-            | PrefixOperator::RangeInclusive(_) => true,
+        match self.kind {
+            PrefixOperatorKind::Borrow
+            | PrefixOperatorKind::Dereference
+            | PrefixOperatorKind::Not
+            | PrefixOperatorKind::Negative
+            | PrefixOperatorKind::RangeInclusive => true,
 
             // The full range expression is this operator
             // without an expression after it
             // so this has to be recoverable
             // for that expression to be matched later.
-            PrefixOperator::RangeExclusive(_) => false,
+            PrefixOperatorKind::RangeExclusive => false,
         }
     }
 
     /// Get the `Source` for the prefix operator.
-    pub fn source(&self) -> Source<'a> {
-        match self {
-            PrefixOperator::Borrow(source)
-            | PrefixOperator::Dereference(source)
-            | PrefixOperator::Not(source)
-            | PrefixOperator::Negative(source)
-            | PrefixOperator::RangeInclusive(source)
-            | PrefixOperator::RangeExclusive(source) => source.clone(),
-        }
+    pub fn source(&self) -> &Source<'a> {
+        self.source
     }
 }
 
 impl ToTokens for PrefixOperator<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         macro_rules! op {
-            ($source:ident, $op:tt) => {{
-                let span = $source.span();
+            ($op:tt) => {{
+                let span = self.source.span_token();
                 quote_spanned! {span=> $op }
             }};
         }
-        tokens.append_all(match self {
-            Self::Borrow(source) => op!(source, &),
-            Self::Dereference(source) => op!(source, *),
-            Self::Not(source) => op!(source, !),
-            Self::Negative(source) => op!(source, -),
-            Self::RangeInclusive(source) => op!(source, ..=),
-            Self::RangeExclusive(source) => op!(source, ..),
+
+        tokens.append_all(match self.kind {
+            PrefixOperatorKind::Borrow => op!(&),
+            PrefixOperatorKind::Dereference => op!(*),
+            PrefixOperatorKind::Not => op!(!),
+            PrefixOperatorKind::Negative => op!(-),
+            PrefixOperatorKind::RangeInclusive => op!(..=),
+            PrefixOperatorKind::RangeExclusive => op!(..),
         });
     }
 }

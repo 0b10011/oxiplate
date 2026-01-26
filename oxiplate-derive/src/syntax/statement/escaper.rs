@@ -1,17 +1,14 @@
-use nom::Parser as _;
-use nom::branch::alt;
-use nom::combinator::cut;
-use nom::error::context;
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 use syn::LitStr;
 use syn::spanned::Spanned as _;
 
-use super::super::Res;
-use super::super::expression::{Identifier, keyword};
+use super::super::expression::Identifier;
 use super::{Statement, StatementKind};
-use crate::syntax::expression::Keyword;
-use crate::syntax::template::whitespace;
+use crate::syntax::Res;
+use crate::syntax::expression::{Keyword, KeywordParser};
+use crate::syntax::parser::{Parser as _, alt, cut};
+use crate::tokenizer::TokenSlice;
 use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
@@ -34,8 +31,8 @@ impl DefaultEscaper<'_> {
         statement_source: &Source<'_>,
     ) -> Result<BuiltTokens, BuiltTokens> {
         if state.default_escaper_group.is_some() {
-            let span = statement_source.span();
-            let tag = self.tag.0.as_str();
+            let span = statement_source.span_token();
+            let tag = self.tag.source().as_str();
             let tag_span = self.tag.span();
             let tag = quote_spanned! {tag_span=> #tag };
             Err((
@@ -43,8 +40,8 @@ impl DefaultEscaper<'_> {
                 0,
             ))
         } else if state.has_content {
-            let span = statement_source.span();
-            let tag = self.tag.0.as_str();
+            let span = statement_source.span_token();
+            let tag = self.tag.source().as_str();
             let tag_span = self.tag.span();
             let tag = quote_spanned! {tag_span=> #tag };
             Err((
@@ -58,7 +55,7 @@ impl DefaultEscaper<'_> {
                         let default_escaper =
                             LitStr::new(self.escaper.as_str(), self.escaper.span());
                         let inferred_escaper_group = &inferred_escaper_group.0;
-                        let span = self.escaper.source().span();
+                        let span = self.escaper.source().span_token();
                         Err((
                             quote_spanned! {span=>
                                 compile_error!(concat!(
@@ -107,35 +104,34 @@ impl DefaultEscaper<'_> {
     }
 }
 
-pub(super) fn parse_default_escaper_group(input: Source) -> Res<Source, Statement> {
-    let (input, tag) = alt((
-        keyword("default_escaper_group"),
-        keyword("replace_escaper_group"),
+pub(super) fn parse_default_escaper_group(tokens: TokenSlice) -> Res<Statement> {
+    let (tokens, tag) = alt((
+        KeywordParser::new("default_escaper_group"),
+        KeywordParser::new("replace_escaper_group"),
         #[cfg(feature = "unreachable")]
-        keyword("unreachable_escaper_group"),
+        KeywordParser::new("unreachable_escaper_group"),
     ))
-    .parse(input)?;
+    .parse(tokens)?;
 
-    let (input, (leading_whitespace, escaper)) = cut((
-        context("Expected space", whitespace),
-        context("Expected an escaper group name", Identifier::parse),
-    ))
-    .parse(input)?;
+    let (tokens, escaper) =
+        cut("Expected an escaper group name", Identifier::parse).parse(tokens)?;
 
-    let can_replace_inferred_escaper = match tag.0.as_str() {
+    let can_replace_inferred_escaper = match tag.source().as_str() {
         "default_escaper_group" => false,
         "replace_escaper_group" => true,
-        _ => internal_error!(tag.0.span().unwrap(), "Unhandled default escaper group tag"),
+        _ => internal_error!(
+            tag.source().span_token().unwrap(),
+            "Unhandled default escaper group tag"
+        ),
     };
 
     let source = tag
-        .0
+        .source()
         .clone()
-        .merge(&leading_whitespace, "Whitespace expected after tag name")
         .merge(escaper.source(), "Escaper name expected after whitespace");
 
     Ok((
-        input,
+        tokens,
         Statement {
             kind: DefaultEscaper {
                 tag,

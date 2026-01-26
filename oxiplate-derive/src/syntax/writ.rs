@@ -1,9 +1,5 @@
 use std::fmt::Debug;
 
-use nom::Parser as _;
-use nom::bytes::complete::{tag, take_while};
-use nom::combinator::{cut, opt};
-use nom::error::context;
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
@@ -12,9 +8,10 @@ use syn::{Path, PathSegment};
 
 use super::expression::{ExpressionAccess, Identifier, expression};
 use super::item::tag_end;
-use super::template::is_whitespace;
 use super::{Item, Res};
 use crate::state::EscaperGroup;
+use crate::syntax::parser::{Parser as _, cut, opt, take};
+use crate::tokenizer::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 enum EscaperType<'a> {
@@ -50,7 +47,7 @@ impl<'a> Writ<'a> {
         let (text, text_length) = &self.expression.to_tokens(state);
         estimated_length += text_length;
 
-        let span = self.source.span();
+        let span = self.source.span_token();
 
         let escaper_type: EscaperType = match self.escaper_type(state) {
             Ok(escaper_type) => escaper_type,
@@ -81,7 +78,7 @@ impl<'a> Writ<'a> {
                 if let Some(escaper_group) = state.config.escaper_groups.get(group.as_str()) {
                     Ok(EscaperType::Specified(
                         (group.as_str().to_owned(), escaper_group),
-                        group.source().span(),
+                        group.source().span_token(),
                         escaper,
                     ))
                 } else {
@@ -103,7 +100,7 @@ impl<'a> Writ<'a> {
                 } else if let Some((name, group)) = &state.default_escaper_group {
                     Ok(EscaperType::Specified(
                         (name.clone(), group),
-                        escaper.source().span(),
+                        escaper.source().span_token(),
                         escaper,
                     ))
                 } else if state.failed_to_set_default_escaper_group {
@@ -114,7 +111,7 @@ impl<'a> Writ<'a> {
                 } else if let Some((name, group)) = &state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
                         (name.clone(), group),
-                        escaper.source().span(),
+                        escaper.source().span_token(),
                         escaper,
                     ))
                 } else if let Some(fallback_group) = &state.config.fallback_escaper_group {
@@ -123,13 +120,13 @@ impl<'a> Writ<'a> {
                     {
                         Ok(EscaperType::Specified(
                             (fallback_group.to_owned(), escaper_group),
-                            escaper.source().span(),
+                            escaper.source().span_token(),
                             escaper,
                         ))
                     } else {
                         // This should have been caught during initial parsing of the config,
                         // but leaving a helpful error message just in case.
-                        let span = escaper.source().span();
+                        let span = escaper.source().span_token();
                         let fallback_group = fallback_group.as_str();
                         Err((
                             quote_spanned! {span=>
@@ -348,59 +345,50 @@ struct Escaper<'a> {
 
 pub(super) fn writ<'a>(
     open_tag_source: Source<'a>,
-) -> impl Fn(Source<'a>) -> Res<Source<'a>, (Item<'a>, Option<Item<'a>>)> {
-    move |input| {
-        let (input, leading_whitespace) = take_while(is_whitespace)(input)?;
-
-        let (input, escaper_info) = opt((
-            opt((Identifier::parse, tag("."))),
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
+    move |tokens| {
+        let (tokens, escaper_info) = opt((
+            opt((Identifier::parse, take(TokenKind::Period))),
             Identifier::parse,
-            tag(":"),
-            take_while(is_whitespace),
+            take(TokenKind::Colon),
         ))
-        .parse(input)?;
+        .parse(tokens)?;
 
         let escaper_source = escaper_info.as_ref().map(|escaper_info| {
             if let Some((escaper_group, dot)) = &escaper_info.0 {
                 escaper_group
                     .source()
                     .clone()
-                    .merge(dot, "Dot expected after escaper group")
+                    .merge(dot.source(), "Dot expected after escaper group")
                     .merge(escaper_info.1.source(), "Escaper name expected after group")
             } else {
                 escaper_info.1.source().clone()
             }
-            .merge(&escaper_info.2, "Colon expected after escaper name")
-            .merge(&escaper_info.3, "Whitespace expected after colon")
+            .merge(escaper_info.2.source(), "Colon expected after escaper name")
         });
 
         #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
-        let escaper = escaper_info.map(|(escaper_group, escaper, _colon, _whitespace)| Escaper {
+        let escaper = escaper_info.map(|(escaper_group, escaper, _colon)| Escaper {
             group: escaper_group.map(|(escaper_group, _dot)| escaper_group),
             escaper,
         });
 
-        let (input, output) =
-            context("Expected an expression.", cut(expression(true, true))).parse(input)?;
-        let (input, (whitespace_in_tag, (trailing_whitespace, end_tag))) = (
-            take_while(is_whitespace),
-            context(
-                "Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
-                cut(tag_end("}}")),
-            ),
+        let (tokens, output) =
+            cut("Expected an expression.", expression(true, true)).parse(tokens)?;
+        let (tokens, (trailing_whitespace, end_tag)) = cut(
+            "Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
+            tag_end(TagKind::Writ),
         )
-            .parse(input)?;
+        .parse(tokens)?;
 
         let source = open_tag_source
             .clone()
-            .merge(&leading_whitespace, "Whitespace expected after opening tag")
             .merge_some(escaper_source.as_ref(), "Escaper expected after whitespace")
             .merge(&output.source(), "Expression expected after escaper")
-            .merge(&whitespace_in_tag, "Whitespace expected after expression")
             .merge(&end_tag, "End tag expected after whitespace");
 
         Ok((
-            input,
+            tokens,
             (
                 Writ {
                     escaper,

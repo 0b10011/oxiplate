@@ -1,5 +1,5 @@
-error: Expected an expression.
+error: At least one digit expected after alternative base prefix
  --> tests/broken/numbers/bad-binary.rs:4:23
   |
 4 | #[oxiplate_inline("{{ 0b }}")]
-  |                       ^^^^^
+  |                       ^^

@@ -19,8 +19,6 @@ workspace = true
 proc-macro = true
 
 [dependencies]
-nom = "8.0.0"
-nom-language = "0.1.0"
 percent-encoding = { version = "2.3.2", default-features = false, features = ["std"], optional = true }
 proc-macro2 = { version = "1.0.106", default-features = false, features = ["proc-macro"] }
 quote = { version = "1.0.44", default-features = false, features = ["proc-macro"] }

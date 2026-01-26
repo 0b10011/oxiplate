@@ -37,30 +37,30 @@ fn slash() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r"{{ '\n' }}")]
+#[oxiplate_inline("{{ '\n' }} {{ '\\n' }}")]
 struct NewLine;
 
 #[test]
 fn new_line() {
-    assert_eq!(format!("{}", NewLine), "\n");
+    assert_eq!(format!("{}", NewLine), "\n \n");
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r"{{ '\r' }}")]
+#[oxiplate_inline("{{ '\r' }} {{ '\\r' }}")]
 struct CarriageReturn;
 
 #[test]
 fn carriage_return() {
-    assert_eq!(format!("{}", CarriageReturn), "\r");
+    assert_eq!(format!("{}", CarriageReturn), "\r \r");
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r"{{ '\t' }}")]
+#[oxiplate_inline("{{ '\t' }} {{ '\\t' }}")]
 struct Tab;
 
 #[test]
 fn tab() {
-    assert_eq!(format!("{}", Tab), "\t");
+    assert_eq!(format!("{}", Tab), "\t \t");
 }
 
 #[derive(Oxiplate)]

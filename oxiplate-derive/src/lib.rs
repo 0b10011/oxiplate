@@ -9,12 +9,12 @@
 mod source;
 mod state;
 mod syntax;
+mod tokenizer;
 
 use std::collections::{HashMap, VecDeque};
 #[cfg(not(feature = "external-template-spans"))]
 use std::fs;
 use std::io;
-use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 #[cfg(feature = "better-internal-errors")]
@@ -36,6 +36,7 @@ use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::build_config;
 use crate::state::{LocalVariables, OptimizedRenderer};
+use crate::tokenizer::{TokenSlice, Tokens};
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -156,7 +157,7 @@ fn parse_input(
     };
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
-    if template_type == TemplateType::Extends || template_type == TemplateType::Include {
+    if let TemplateType::Extends | TemplateType::Include = template_type {
         return (template.into(), estimated_length);
     }
 
@@ -350,22 +351,18 @@ fn process_parsed_tokens<'a>(
 
             // Build the source.
             let owned_source = SourceOwned::new(&code, span, origin);
-            let source = Source {
-                original: &owned_source,
-                range: Range {
-                    start: 0,
-                    end: owned_source.code.len(),
-                },
-            };
+            let source = Source::new(&owned_source);
+            let (tokens, eof) = Tokens::new(source).tokens_and_eof();
+            let tokens = TokenSlice::new(&tokens, &eof);
 
             // Build the `::std::fmt::Display` implementation for the struct.
             // (This is where the template is actually parsed.)
-            Ok(syntax::parse(state, source))
+            Ok(syntax::parse(state, tokens))
         }
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone)]
 enum TemplateType {
     Path,
     Inline,
