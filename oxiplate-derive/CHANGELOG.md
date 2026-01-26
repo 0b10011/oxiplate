@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.16.0...oxiplate-derive-v0.16.1) - 2026-01-26
+
+### Added
+
+- replaced `nom` with in-tree tokenizer and parser, improving error messages and whitespace handling considerably
+
+### Fixed
+
+- stopped rebuilding literal string each time `span()` is called
+
+### Other
+
+- renamed `Tokens` type to `BuiltTokens`
+- added/adjusted several tests to cover more edge cases
+- *(deps)* bump quote from 1.0.43 to 1.0.44
+- *(deps)* bump proc-macro2 from 1.0.105 to 1.0.106
+- cleaned up span range code to make it a single call
+- Merge pull request #130 from 0b10011/toolchain-nightly-2026-01-14
+- bump toolchain to `nightly-2026-01-14`
+
 ## [0.16.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.15.12...oxiplate-derive-v0.16.0) - 2026-01-14
 
 ### Added
