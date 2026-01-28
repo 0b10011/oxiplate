@@ -5,9 +5,9 @@ use syn::spanned::Spanned as _;
 
 use super::super::expression::Identifier;
 use super::{Statement, StatementKind};
+use crate::parser::{Parser as _, alt, cut};
 use crate::syntax::Res;
 use crate::syntax::expression::{Keyword, KeywordParser};
-use crate::syntax::parser::{Parser as _, alt, cut};
 use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, Source, State, internal_error};
 

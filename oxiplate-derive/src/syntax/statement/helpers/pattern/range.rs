@@ -2,9 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::Pattern;
+use crate::parser::{Parser as _, alt, into, opt, take};
 use crate::syntax::Res;
 use crate::syntax::expression::{Char, Float, Integer, Number};
-use crate::syntax::parser::{Parser as _, alt, into, opt, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 

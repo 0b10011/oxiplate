@@ -1,8 +1,7 @@
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use crate::syntax::Res;
-use crate::syntax::parser::Parser;
-use crate::tokenizer::parser::TokenSlice;
+use super::{Parser, Res, TokenSlice};
 
 /// Builds a parser that matches the provided parser 0 or more times.
 ///
@@ -12,9 +11,10 @@ use crate::tokenizer::parser::TokenSlice;
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn many0<'a, P>(parser: P) -> Many0<'a, P>
+pub fn many0<'a, K, P>(parser: P) -> Many0<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     Many0 {
         parser,
@@ -22,21 +22,23 @@ where
     }
 }
 
-pub struct Many0<'a, P>
+pub struct Many0<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     parser: P,
-    phantom_data: PhantomData<&'a ()>,
+    phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, P> Parser<'a> for Many0<'a, P>
+impl<'a, K, P> Parser<'a, K> for Many0<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
-    type Output = Vec<<P as Parser<'a>>::Output>;
+    type Output = Vec<<P as Parser<'a, K>>::Output>;
 
-    fn parse(&self, mut tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+    fn parse(&self, mut tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         let mut values = vec![];
         while let Ok((remaining_tokens, output)) = self.parser.parse(tokens.clone()) {
             tokens = remaining_tokens;

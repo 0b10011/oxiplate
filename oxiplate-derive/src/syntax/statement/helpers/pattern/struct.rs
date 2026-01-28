@@ -4,9 +4,9 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::Pattern;
+use crate::parser::{Parser as _, alt, context, cut, into, many0, take};
 use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
-use crate::syntax::parser::{Parser as _, alt, context, cut, into, many0, take};
 use crate::syntax::statement::helpers::pattern::Path;
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};

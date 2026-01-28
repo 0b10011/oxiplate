@@ -1,8 +1,7 @@
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use crate::syntax::parser::Parser;
-use crate::syntax::{Error, Res};
-use crate::tokenizer::parser::TokenSlice;
+use super::{Error, Parser, Res, TokenSlice};
 
 /// Builds a parser that adds context to the error, if present.
 ///
@@ -13,9 +12,10 @@ use crate::tokenizer::parser::TokenSlice;
 /// ))
 /// .parse(tokens)?;
 /// ```
-pub fn context<'a, P>(message: &'static str, parser: P) -> Context<'a, P>
+pub fn context<'a, K, P>(message: &'static str, parser: P) -> Context<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     Context {
         message,
@@ -24,22 +24,24 @@ where
     }
 }
 
-pub struct Context<'a, P>
+pub struct Context<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     message: &'static str,
     parser: P,
-    phantom_data: PhantomData<&'a ()>,
+    phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, P> Parser<'a> for Context<'a, P>
+impl<'a, P, K> Parser<'a, K> for Context<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
-    type Output = <P as Parser<'a>>::Output;
+    type Output = <P as Parser<'a, K>>::Output;
 
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens) {
             value @ Ok(_) => value,
             Err(err @ Error::Unrecoverable { is_eof, .. }) => Err(Error::Unrecoverable {

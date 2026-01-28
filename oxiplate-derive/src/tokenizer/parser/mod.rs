@@ -16,7 +16,7 @@ use crate::Source;
 use crate::syntax::UnexpectedTokenError;
 
 pub type Token<'a> = super::token::Token<'a, TokenKind>;
-pub type TokenSlice<'a> = super::slice::TokenSlice<'a, Token<'a>>;
+pub type TokenSlice<'a> = super::slice::TokenSlice<'a, TokenKind>;
 
 type Res<'a> = (Option<Context>, Result<Token<'a>, UnexpectedTokenError<'a>>);
 

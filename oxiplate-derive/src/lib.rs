@@ -6,6 +6,7 @@
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
 
+mod parser;
 mod source;
 mod state;
 mod syntax;

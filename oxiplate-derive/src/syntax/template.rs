@@ -3,11 +3,12 @@ use quote::{TokenStreamExt, quote};
 
 use super::item::{ItemToken, parse_tag};
 use super::r#static::parse_static;
-use super::{Item, Res, Static};
+use super::{Item, Static};
 #[cfg(coverage_nightly)]
 use crate::Source;
+use crate::parser::{Parser as _, alt, opt, parse_all, take};
+use crate::syntax::Res;
 use crate::syntax::item::parse_trailing_whitespace;
-use crate::syntax::parser::{Parser as _, alt, opt, parse_all, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice, WhitespacePreference};
 use crate::{BuiltTokens, State, internal_error};
 

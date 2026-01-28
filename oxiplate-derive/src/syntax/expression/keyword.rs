@@ -3,10 +3,10 @@ use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::Res;
 use crate::Source;
+use crate::parser::Parser;
 use crate::syntax::Error;
 use crate::syntax::expression::Identifier;
-use crate::syntax::parser::Parser;
-use crate::tokenizer::parser::TokenSlice;
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 
 #[derive(Debug)]
 pub(crate) struct Keyword<'a> {
@@ -37,7 +37,7 @@ impl KeywordParser {
     }
 }
 
-impl<'a> Parser<'a> for KeywordParser {
+impl<'a> Parser<'a, TokenKind> for KeywordParser {
     type Output = Keyword<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {

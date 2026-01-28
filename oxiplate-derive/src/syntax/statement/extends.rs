@@ -5,8 +5,8 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::LitStr;
 
 use super::{Statement, StatementKind, StaticType};
+use crate::parser::{Parser as _, cut};
 use crate::syntax::expression::{KeywordParser, String};
-use crate::syntax::parser::{Parser as _, cut};
 use crate::syntax::template::Template;
 use crate::syntax::{Item, Res};
 use crate::tokenizer::parser::TokenSlice;

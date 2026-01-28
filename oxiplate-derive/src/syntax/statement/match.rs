@@ -5,9 +5,9 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
+use crate::parser::{Parser as _, cut, many0, opt, take};
 use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, KeywordParser, expression};
-use crate::syntax::parser::{Parser as _, cut, many0, opt, take};
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::r#static::StaticType;
 use crate::syntax::template::Template;

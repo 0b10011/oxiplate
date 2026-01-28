@@ -9,6 +9,8 @@ mod opt;
 mod parse_all;
 mod take;
 
+use std::fmt::Debug;
+
 pub use alt::alt;
 pub use context::context;
 pub use cut::cut;
@@ -20,23 +22,44 @@ pub use opt::opt;
 pub use parse_all::parse_all;
 pub use take::take;
 
-use crate::syntax::Res;
-use crate::tokenizer::parser::TokenSlice;
+use crate::Source;
+use crate::tokenizer::TokenSlice;
 
-pub trait Parser<'a> {
+pub type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
+
+#[derive(Debug)]
+pub enum Error<'a> {
+    Recoverable {
+        message: String,
+        source: Source<'a>,
+        #[allow(dead_code)]
+        previous_error: Option<Box<Self>>,
+        is_eof: bool,
+    },
+    Unrecoverable {
+        message: String,
+        source: Source<'a>,
+        #[allow(dead_code)]
+        previous_error: Option<Box<Self>>,
+        is_eof: bool,
+    },
+    Multiple(Vec<Self>),
+}
+
+pub trait Parser<'a, K: Debug + PartialEq + Eq> {
     type Output;
 
     #[must_use]
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output>;
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output>;
 }
 
-impl<'a, O, F> Parser<'a> for F
+impl<'a, K: Debug + PartialEq + Eq + 'a, O, F> Parser<'a, K> for F
 where
-    F: Fn(TokenSlice<'a>) -> Res<'a, O>,
+    F: Fn(TokenSlice<'a, K>) -> Res<'a, K, O>,
 {
     type Output = O;
 
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         self(tokens)
     }
 }
@@ -66,14 +89,15 @@ macro_rules! tuple {
 
     // Implement for the provided members
     (impl $($id:tt $var:ident $generic:ident),+) => {
-        impl<'a, $($generic),+> Parser<'a> for ($($generic,)+)
+        impl<'a, K, $($generic),+> Parser<'a, K> for ($($generic,)+)
         where
-            $($generic: Parser<'a>),+
+            K: Debug + PartialEq + Eq,
+            $($generic: Parser<'a, K>),+
         {
-            type Output = ($(<$generic as Parser<'a>>::Output,)+);
+            type Output = ($(<$generic as Parser<'a, K>>::Output,)+);
 
             #[inline]
-            fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+            fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
                 $(let (tokens, $var) = self.$id.parse(tokens)?;)+
 
                 Ok((tokens, ($($var,)+)))
@@ -89,15 +113,16 @@ macro_rules! tuple {
         tuple!(impl $($id1 $var1 $generic1),+);
 
         // Implement for all tokens
-        impl<'a, $($generic1,)+ $generic2> Parser<'a> for ($($generic1,)+ $generic2)
+        impl<'a, K, $($generic1,)+ $generic2> Parser<'a, K> for ($($generic1,)+ $generic2)
         where
-            $($generic1: Parser<'a>,)+
-            $generic2: Parser<'a>
+            K: Debug + PartialEq + Eq,
+            $($generic1: Parser<'a, K>,)+
+            $generic2: Parser<'a, K>
         {
-            type Output = ($(<$generic1 as Parser<'a>>::Output,)+ <$generic2 as Parser<'a>>::Output);
+            type Output = ($(<$generic1 as Parser<'a, K>>::Output,)+ <$generic2 as Parser<'a, K>>::Output);
 
             #[inline]
-            fn parse(&self, _tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+            fn parse(&self, _tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
                 unimplemented!(
                     "Attempting to use a tuple with {} values for parsing, but only {} values are currently supported. Consider adding additional member tokens to the `tuple!()` invocation, or reducing the number of items in the tuple.",
                     $id2 + 1,
@@ -119,22 +144,21 @@ tuple!(
                   invocation, or reducing the number of items in the tuple."]
 fn max_tuple_values() {
     use crate::source::test_source;
-    use crate::syntax::expression::KeywordParser;
-    use crate::tokenizer::parser::Eof;
+    use crate::tokenizer::parser::{Eof, TokenKind};
 
     test_source!(source = "Hello world");
 
     (
-        KeywordParser::new("keyword_1"),
-        KeywordParser::new("keyword_2"),
-        KeywordParser::new("keyword_3"),
-        KeywordParser::new("keyword_4"),
-        KeywordParser::new("keyword_5"),
-        KeywordParser::new("keyword_6"),
-        KeywordParser::new("keyword_7"),
-        KeywordParser::new("keyword_8"),
-        KeywordParser::new("keyword_9"),
-        KeywordParser::new("keyword_10"),
+        take(TokenKind::Plus),
+        take(TokenKind::Minus),
+        take(TokenKind::Asterisk),
+        take(TokenKind::ForwardSlash),
+        take(TokenKind::Percent),
+        take(TokenKind::Tilde),
+        take(TokenKind::Comma),
+        take(TokenKind::Ampersand),
+        take(TokenKind::Exclamation),
+        take(TokenKind::Period),
     )
         .parse(TokenSlice::new(&[], &Eof::for_test(source)))
         .unwrap();

@@ -1,8 +1,7 @@
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use crate::syntax::parser::Parser;
-use crate::syntax::{Error, Res};
-use crate::tokenizer::parser::TokenSlice;
+use super::{Error, Parser, Res, TokenSlice};
 
 /// Builds a parser that turns a recoverable error into an unrecoverable one.
 ///
@@ -16,9 +15,10 @@ use crate::tokenizer::parser::TokenSlice;
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn cut<'a, P>(message: &'static str, parser: P) -> Cut<'a, P>
+pub fn cut<'a, K, P>(message: &'static str, parser: P) -> Cut<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     Cut {
         message,
@@ -27,22 +27,24 @@ where
     }
 }
 
-pub struct Cut<'a, P>
+pub struct Cut<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     message: &'static str,
     parser: P,
-    phantom_data: PhantomData<&'a ()>,
+    phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, P> Parser<'a> for Cut<'a, P>
+impl<'a, K, P> Parser<'a, K> for Cut<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
-    type Output = <P as Parser<'a>>::Output;
+    type Output = <P as Parser<'a, K>>::Output;
 
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens) {
             Err(err @ (Error::Recoverable { .. } | Error::Multiple(_))) => {
                 Err(Error::Unrecoverable {

@@ -1,5 +1,6 @@
-use crate::syntax::parser::{Parser, TokenSlice};
-use crate::syntax::{Error, Res};
+use std::fmt::Debug;
+
+use super::{Error, Parser, Res, TokenSlice};
 
 /// Builds a parser that returns the first `Ok()` result
 /// from the parsers in the tuple.
@@ -51,14 +52,15 @@ macro_rules! alt {
 
     // Implement for the provided members
     (impl $($id:tt $generic:ident),+) => {
-        impl<'a, O, $($generic),+> Parser<'a> for Alt<($($generic,)+)>
+        impl<'a, K, O, $($generic),+> Parser<'a, K> for Alt<($($generic,)+)>
         where
-            $($generic: Parser<'a, Output = O>),+
+            K: Debug + PartialEq + Eq,
+            $($generic: Parser<'a, K, Output = O>),+
         {
             type Output = O;
 
             #[inline]
-            fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+            fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
                 let mut errors = vec![];
                 $(
                     match self.parsers.$id.parse(tokens.clone()) {
@@ -80,15 +82,16 @@ macro_rules! alt {
         alt!(impl $($id1 $generic1),+);
 
         // Implement for all tokens
-        impl<'a, O, $($generic1,)+ $generic2> Parser<'a> for Alt<($($generic1,)+ $generic2)>
+        impl<'a, K, O, $($generic1,)+ $generic2> Parser<'a, K> for Alt<($($generic1,)+ $generic2)>
         where
-            $($generic1: Parser<'a, Output = O>,)+
-            $generic2: Parser<'a, Output = O>
+            K: Debug + PartialEq + Eq,
+            $($generic1: Parser<'a, K, Output = O>,)+
+            $generic2: Parser<'a, K, Output = O>
         {
             type Output = O;
 
             #[inline]
-            fn parse(&self, _tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+            fn parse(&self, _tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
                 unimplemented!(
                     "Attempting to use `alt()` with {} variants, but only {} variants are currently supported. Consider adding additional member tokens to the `alt!()` invocation, or reducing the number of items passed into `alt()`.",
                     $id2 + 1,
@@ -109,33 +112,33 @@ alt!(
                   supported. Consider adding additional member tokens to the `alt!()` invocation, \
                   or reducing the number of items passed into `alt()`."]
 fn max_alt_variants() {
+    use super::take;
     use crate::source::test_source;
-    use crate::syntax::expression::KeywordParser;
-    use crate::tokenizer::parser::Eof;
+    use crate::tokenizer::parser::{Eof, TokenKind};
 
     test_source!(source = "Hello world");
 
     alt((
-        KeywordParser::new("keyword_1"),
-        KeywordParser::new("keyword_2"),
-        KeywordParser::new("keyword_3"),
-        KeywordParser::new("keyword_4"),
-        KeywordParser::new("keyword_5"),
-        KeywordParser::new("keyword_6"),
-        KeywordParser::new("keyword_7"),
-        KeywordParser::new("keyword_8"),
-        KeywordParser::new("keyword_9"),
-        KeywordParser::new("keyword_10"),
-        KeywordParser::new("keyword_11"),
-        KeywordParser::new("keyword_12"),
-        KeywordParser::new("keyword_13"),
-        KeywordParser::new("keyword_14"),
-        KeywordParser::new("keyword_15"),
-        KeywordParser::new("keyword_16"),
-        KeywordParser::new("keyword_17"),
-        KeywordParser::new("keyword_18"),
-        KeywordParser::new("keyword_19"),
-        KeywordParser::new("keyword_20"),
+        take(TokenKind::Eq),
+        take(TokenKind::LessThanOrEqualTo),
+        take(TokenKind::LessThan),
+        take(TokenKind::GreaterThanOrEqualTo),
+        take(TokenKind::GreaterThan),
+        take(TokenKind::Plus),
+        take(TokenKind::Minus),
+        take(TokenKind::Asterisk),
+        take(TokenKind::ForwardSlash),
+        take(TokenKind::Percent),
+        take(TokenKind::Tilde),
+        take(TokenKind::Comma),
+        take(TokenKind::Ampersand),
+        take(TokenKind::Exclamation),
+        take(TokenKind::Period),
+        take(TokenKind::VerticalBar),
+        take(TokenKind::Colon),
+        take(TokenKind::Equal),
+        take(TokenKind::RangeExclusive),
+        take(TokenKind::RangeInclusive),
     ))
     .parse(TokenSlice::new(&[], &Eof::for_test(source)))
     .unwrap();

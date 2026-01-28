@@ -100,6 +100,7 @@ fn read_config(_input: &DeriveInput) -> Result<Config, syn::Error> {
 /// otherwise generate a default `Config`.
 #[cfg(feature = "config")]
 fn read_config(input: &DeriveInput) -> Result<Config, syn::Error> {
+    // let _toml = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/oxiplate.toml"));
     if let Ok(toml) = fs::read_to_string(config_path().clone()) {
         toml::from_str(&toml).map_err(|error| {
             syn::Error::new(

@@ -1,8 +1,7 @@
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use crate::syntax::Res;
-use crate::syntax::parser::Parser;
-use crate::tokenizer::parser::TokenSlice;
+use super::{Parser, Res, TokenSlice};
 
 /// Builds a parser that matches the provided parser 0 or 1 times.
 ///
@@ -12,9 +11,10 @@ use crate::tokenizer::parser::TokenSlice;
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn opt<'a, P>(parser: P) -> Opt<'a, P>
+pub fn opt<'a, K, P>(parser: P) -> Opt<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     Opt {
         parser,
@@ -22,21 +22,23 @@ where
     }
 }
 
-pub struct Opt<'a, P>
+pub struct Opt<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
     parser: P,
-    phantom_data: PhantomData<&'a ()>,
+    phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, P> Parser<'a> for Opt<'a, P>
+impl<'a, K, P> Parser<'a, K> for Opt<'a, K, P>
 where
-    P: Parser<'a>,
+    K: Debug + PartialEq + Eq,
+    P: Parser<'a, K>,
 {
-    type Output = Option<<P as Parser<'a>>::Output>;
+    type Output = Option<<P as Parser<'a, K>>::Output>;
 
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens.clone()) {
             Ok((tokens, output)) => Ok((tokens, Some(output))),
             Err(_) => Ok((tokens, None)),

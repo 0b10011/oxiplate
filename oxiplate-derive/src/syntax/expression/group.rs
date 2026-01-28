@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
+use crate::parser::{Parser as _, context, take};
 use crate::syntax::Res;
 use crate::syntax::expression::{Expression, ExpressionAccess, expression};
-use crate::syntax::parser::{Parser as _, context, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 

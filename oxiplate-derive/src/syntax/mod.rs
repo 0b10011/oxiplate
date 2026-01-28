@@ -1,7 +1,6 @@
 mod comment;
 mod expression;
 mod item;
-mod parser;
 mod statement;
 mod r#static;
 mod template;
@@ -13,29 +12,12 @@ use r#static::Static;
 pub(crate) use template::parse;
 use writ::Writ;
 
+use crate::Source;
+use crate::parser::Error;
 use crate::syntax::template::Template;
-use crate::{Source, TokenSlice};
+use crate::tokenizer::parser::TokenKind;
 
-type Res<'a, T> = Result<(TokenSlice<'a>, T), Error<'a>>;
-
-#[derive(Debug)]
-enum Error<'a> {
-    Recoverable {
-        message: String,
-        source: Source<'a>,
-        #[allow(dead_code)]
-        previous_error: Option<Box<Self>>,
-        is_eof: bool,
-    },
-    Unrecoverable {
-        message: String,
-        source: Source<'a>,
-        #[allow(dead_code)]
-        previous_error: Option<Box<Self>>,
-        is_eof: bool,
-    },
-    Multiple(Vec<Self>),
-}
+type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
 
 impl<'a> Error<'a> {
     pub fn source(&self) -> &Source<'a> {

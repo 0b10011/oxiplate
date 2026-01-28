@@ -12,9 +12,9 @@ use self::literal::Literal;
 use self::range::Range;
 use self::r#struct::Struct;
 use self::tuple::Tuple;
+use crate::parser::{Parser as _, alt, cut, into, many1, opt, take};
 use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
-use crate::syntax::parser::{Parser as _, alt, cut, into, many1, opt, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 

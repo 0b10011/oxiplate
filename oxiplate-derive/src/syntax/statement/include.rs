@@ -5,9 +5,9 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::LitStr;
 
 use super::{Statement, StatementKind};
+use crate::parser::{Parser as _, cut};
 use crate::syntax::Res;
 use crate::syntax::expression::{KeywordParser, String};
-use crate::syntax::parser::{Parser as _, cut};
 use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, oxiplate_internal};
 

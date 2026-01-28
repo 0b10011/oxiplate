@@ -6,11 +6,12 @@ use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
+use super::Item;
 use super::expression::{ExpressionAccess, Identifier, expression};
 use super::item::tag_end;
-use super::{Item, Res};
+use crate::parser::{Parser as _, cut, opt, take};
 use crate::state::EscaperGroup;
-use crate::syntax::parser::{Parser as _, cut, opt, take};
+use crate::syntax::Res;
 use crate::tokenizer::parser::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 

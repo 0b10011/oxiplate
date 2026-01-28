@@ -2,9 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
+use crate::parser::{Parser as _, opt, take};
 use crate::syntax::Error;
 use crate::syntax::expression::arguments::{ArgumentsGroup, arguments};
-use crate::syntax::parser::{Parser as _, opt, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 

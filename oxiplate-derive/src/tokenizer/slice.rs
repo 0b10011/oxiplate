@@ -1,22 +1,27 @@
-use super::{Eof, Tokens};
+use std::fmt::Debug;
+
+use super::{Eof, Token, Tokens};
 use crate::syntax::UnexpectedTokenError;
 
 #[derive(Debug)]
-pub struct TokenSlice<'a, T>(&'a [Result<T, UnexpectedTokenError<'a>>], &'a Eof<'a>);
+pub struct TokenSlice<'a, K: Debug + PartialEq + Eq>(
+    &'a [Result<Token<'a, K>, UnexpectedTokenError<'a>>],
+    &'a Eof<'a>,
+);
 
-impl<T> Clone for TokenSlice<'_, T> {
+impl<K: Debug + PartialEq + Eq> Clone for TokenSlice<'_, K> {
     fn clone(&self) -> Self {
         Self(self.0, self.1)
     }
 }
 
-impl<'a, T> TokenSlice<'a, T> {
-    pub fn new(tokens: Tokens<'a, T>, eof: &'a Eof<'a>) -> Self {
+impl<'a, K: Debug + PartialEq + Eq> TokenSlice<'a, K> {
+    pub fn new(tokens: Tokens<'a, K>, eof: &'a Eof<'a>) -> Self {
         Self(tokens, eof)
     }
 
     /// Returns first `Token` and remaining tokens.
-    pub fn take(self) -> Result<(Self, &'a T), UnexpectedTokenError<'a>> {
+    pub fn take(self) -> Result<(Self, &'a Token<'a, K>), UnexpectedTokenError<'a>> {
         match self.0.split_first() {
             Some((Ok(token), tokens)) => Ok((Self(tokens, self.1), token)),
             Some((Err(err), _tokens)) => Err(err.clone()),

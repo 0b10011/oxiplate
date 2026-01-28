@@ -2,12 +2,12 @@ use std::fmt::Debug;
 
 use super::Source;
 
-pub struct Token<'a, K> {
+pub struct Token<'a, K: Debug + PartialEq + Eq> {
     source: Source<'a>,
     kind: K,
 }
 
-impl<'a, K> Token<'a, K> {
+impl<'a, K: Debug + PartialEq + Eq> Token<'a, K> {
     pub fn new(kind: K, source: &Source<'a>, leading_whitespace: Option<Source<'a>>) -> Self {
         Self {
             source: source.append_to_leading_whitespace(
@@ -27,7 +27,7 @@ impl<'a, K> Token<'a, K> {
     }
 }
 
-impl<K: Debug> Debug for Token<'_, K> {
+impl<K: Debug + PartialEq + Eq> Debug for Token<'_, K> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}[{}]", self.kind, self.source.as_str())
     }

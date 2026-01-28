@@ -2,9 +2,9 @@ use quote::quote_spanned;
 
 use super::super::expression::{Identifier, Keyword, expression};
 use super::{State, Statement, StatementKind};
+use crate::parser::{Parser as _, cut, take};
 use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, KeywordParser};
-use crate::syntax::parser::{Parser as _, cut, take};
 use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
