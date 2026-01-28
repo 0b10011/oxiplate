@@ -13,9 +13,8 @@ use r#static::Static;
 pub(crate) use template::parse;
 use writ::Writ;
 
-use crate::Source;
 use crate::syntax::template::Template;
-use crate::tokenizer::TokenSlice;
+use crate::{Source, TokenSlice};
 
 type Res<'a, T> = Result<(TokenSlice<'a>, T), Error<'a>>;
 
@@ -68,6 +67,7 @@ impl<'a> Error<'a> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct UnexpectedTokenError<'a> {
     message: &'a str,
     source: Source<'a>,
@@ -75,12 +75,24 @@ pub struct UnexpectedTokenError<'a> {
 }
 
 impl<'a> UnexpectedTokenError<'a> {
-    pub fn new(message: &'a str, source: Source<'a>, is_eof: bool) -> Self {
+    pub fn new(message: &'a str, source: Source<'a>) -> Self {
         Self {
             message,
             source,
-            is_eof,
+            is_eof: false,
         }
+    }
+
+    pub fn eof(source: Source<'a>) -> Self {
+        Self {
+            message: "End of file encountered",
+            source,
+            is_eof: true,
+        }
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
     }
 
     pub fn is_eof(&self) -> bool {

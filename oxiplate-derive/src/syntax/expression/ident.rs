@@ -5,7 +5,7 @@ use super::{Expression, Res};
 use crate::syntax::Error;
 use crate::syntax::expression::arguments::{ArgumentsGroup, arguments};
 use crate::syntax::parser::{Parser as _, opt, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {

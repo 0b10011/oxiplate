@@ -11,7 +11,7 @@ use super::item::tag_end;
 use super::{Item, Res};
 use crate::state::EscaperGroup;
 use crate::syntax::parser::{Parser as _, cut, opt, take};
-use crate::tokenizer::{TagKind, TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 enum EscaperType<'a> {

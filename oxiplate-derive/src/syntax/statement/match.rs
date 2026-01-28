@@ -11,7 +11,7 @@ use crate::syntax::parser::{Parser as _, cut, many0, opt, take};
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::r#static::StaticType;
 use crate::syntax::template::Template;
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]

@@ -111,7 +111,7 @@ alt!(
 fn max_alt_variants() {
     use crate::source::test_source;
     use crate::syntax::expression::KeywordParser;
-    use crate::tokenizer::Eof;
+    use crate::tokenizer::parser::Eof;
 
     test_source!(source = "Hello world");
 

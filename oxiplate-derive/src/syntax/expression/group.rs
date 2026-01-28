@@ -4,7 +4,7 @@ use quote::quote_spanned;
 use crate::syntax::Res;
 use crate::syntax::expression::{Expression, ExpressionAccess, expression};
 use crate::syntax::parser::{Parser as _, context, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 /// A parenthesized group.

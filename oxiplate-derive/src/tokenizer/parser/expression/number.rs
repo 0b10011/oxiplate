@@ -1,6 +1,9 @@
+use super::Token;
 use crate::Source;
+use crate::syntax::UnexpectedTokenError;
+use crate::tokenizer::ParseError;
 use crate::tokenizer::buffered_source::BufferedSource;
-use crate::tokenizer::{Context, ParseError, Token, TokenKind};
+use crate::tokenizer::parser::{Res, TokenKind};
 
 /// Parse decimal and floating-point literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
@@ -8,7 +11,7 @@ use crate::tokenizer::{Context, ParseError, Token, TokenKind};
 pub fn consume_decimal<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     // Match the rest of the integer
     source.next_while(|char| matches!(char, '_' | '0'..='9'));
 
@@ -26,7 +29,7 @@ pub fn consume_decimal<'a>(
                 .expect("At least one digit and `.` already consumed");
             return (
                 None,
-                Token::new(TokenKind::Float, &source, leading_whitespace),
+                Ok(Token::new(TokenKind::Float, &source, leading_whitespace)),
             );
         }
         source.next_while(|char| matches!(char, '_' | '0'..='9'));
@@ -36,11 +39,16 @@ pub fn consume_decimal<'a>(
             Err(parse_error) => {
                 return (
                     None,
-                    Token::new(
-                        TokenKind::Unexpected(Box::new(parse_error)),
-                        &source.consume().expect("At least one digit was parsed"),
-                        leading_whitespace,
-                    ),
+                    Err(UnexpectedTokenError::new(
+                        parse_error.message(),
+                        source
+                            .consume()
+                            .expect("At least one digit was parsed")
+                            .append_to_leading_whitespace(
+                                leading_whitespace,
+                                "Number expected after whitespace",
+                            ),
+                    )),
                 );
             }
         }
@@ -53,11 +61,16 @@ pub fn consume_decimal<'a>(
             Err(parse_error) => {
                 return (
                     None,
-                    Token::new(
-                        TokenKind::Unexpected(Box::new(parse_error)),
-                        &source.consume().expect("At least one digit was parsed"),
-                        leading_whitespace,
-                    ),
+                    Err(UnexpectedTokenError::new(
+                        parse_error.message(),
+                        source
+                            .consume()
+                            .expect("At least one digit was parsed")
+                            .append_to_leading_whitespace(
+                                leading_whitespace,
+                                "Number expected after leading whitespace",
+                            ),
+                    )),
                 );
             }
         }
@@ -65,11 +78,11 @@ pub fn consume_decimal<'a>(
 
     (
         None,
-        Token::new(
+        Ok(Token::new(
             kind,
             &source.consume().expect("At least one digit was parsed"),
             leading_whitespace,
-        ),
+        )),
     )
 }
 
@@ -97,12 +110,12 @@ fn parse_exponent(source: &mut BufferedSource) -> Result<bool, ParseError> {
 pub fn consume_alternative_base<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     let Some(char) = source.peek() else {
         let source = source.consume().expect("Buffer should contain `0`");
         return (
             None,
-            Token::new(TokenKind::Integer, &source, leading_whitespace),
+            Ok(Token::new(TokenKind::Integer, &source, leading_whitespace)),
         );
     };
 
@@ -121,18 +134,20 @@ pub fn consume_alternative_base<'a>(
 
             return (
                 None,
-                Token::new(
-                    TokenKind::Unexpected(ParseError::boxed("Unexpected suffix")),
-                    &source,
-                    leading_whitespace,
-                ),
+                Err(UnexpectedTokenError::new(
+                    "Unexpected suffix",
+                    source.append_to_leading_whitespace(
+                        leading_whitespace,
+                        "Number expected after leading whitespace",
+                    ),
+                )),
             );
         }
         _ => {
             let source = source.consume().expect("Buffer should contain `0`");
             return (
                 None,
-                Token::new(TokenKind::Integer, &source, leading_whitespace),
+                Ok(Token::new(TokenKind::Integer, &source, leading_whitespace)),
             );
         }
     };
@@ -152,13 +167,13 @@ pub fn consume_alternative_base<'a>(
 
         return (
             None,
-            Token::new(
-                TokenKind::Unexpected(ParseError::boxed(
-                    "At least one digit expected after alternative base prefix",
-                )),
-                &number,
-                leading_whitespace,
-            ),
+            Err(UnexpectedTokenError::new(
+                "At least one digit expected after alternative base prefix",
+                number.append_to_leading_whitespace(
+                    leading_whitespace,
+                    "Number expected after leading whitespace",
+                ),
+            )),
         );
     }
 
@@ -171,7 +186,7 @@ pub fn consume_alternative_base<'a>(
 
     (
         None,
-        Token::new(TokenKind::Integer, &number, leading_whitespace),
+        Ok(Token::new(TokenKind::Integer, &number, leading_whitespace)),
     )
 }
 

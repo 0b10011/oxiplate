@@ -11,7 +11,7 @@ use crate::syntax::expression::{ExpressionAccess, KeywordParser};
 use crate::syntax::parser::{Parser as _, cut, into};
 use crate::syntax::statement::helpers::pattern::Pattern;
 use crate::syntax::template::Template;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug)]

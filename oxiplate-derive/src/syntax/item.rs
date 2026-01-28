@@ -11,7 +11,7 @@ use super::{Res, Statement, Static, Writ};
 use crate::syntax::Error;
 use crate::syntax::parser::{Parser as _, cut, opt, take};
 use crate::syntax::statement::StatementKind;
-use crate::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
+use crate::tokenizer::parser::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
 use crate::{Source, State};
 
 pub(super) enum ItemToken {

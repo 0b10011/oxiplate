@@ -6,7 +6,7 @@ use crate::Source;
 use crate::syntax::Error;
 use crate::syntax::expression::Identifier;
 use crate::syntax::parser::Parser;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 #[derive(Debug)]
 pub(crate) struct Keyword<'a> {

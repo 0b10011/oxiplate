@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::syntax::parser::Parser;
 use crate::syntax::{Error, Res};
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 /// Builds a parser that always returns an error.
 ///
@@ -27,9 +27,14 @@ impl<'a, P> Parser<'a> for Fail<'a, P> {
     type Output = P;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let source = match tokens.clone().take() {
+            Ok((_tokens, token)) => token.source().clone(),
+            Err(token_error) => token_error.source().clone(),
+        };
+
         Err(Error::Recoverable {
             message: "`fail()` called".to_string(),
-            source: tokens.next_source().clone(),
+            source,
             previous_error: None,
             is_eof: false,
         })

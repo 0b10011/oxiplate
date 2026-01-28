@@ -1,6 +1,10 @@
+use super::Token;
 use crate::Source;
+use crate::syntax::UnexpectedTokenError;
+use crate::tokenizer::ParseError;
 use crate::tokenizer::buffered_source::BufferedSource;
-use crate::tokenizer::{Context, ParseError, Token, TokenKind};
+use crate::tokenizer::parser::Res;
+use crate::tokenizer::parser::kind::TokenKind;
 
 /// Parse char literal (e.g., `'a'`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
@@ -80,7 +84,7 @@ fn parse_char_end(source: &mut BufferedSource) -> Result<(), ParseError> {
 pub fn consume_char<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     match parse_char(source) {
         Ok(char) => {
             let source = source
@@ -89,7 +93,11 @@ pub fn consume_char<'a>(
 
             (
                 None,
-                Token::new(TokenKind::Char(char), &source, leading_whitespace),
+                Ok(Token::new(
+                    TokenKind::Char(char),
+                    &source,
+                    leading_whitespace,
+                )),
             )
         }
         Err(parse_error) => {
@@ -99,11 +107,7 @@ pub fn consume_char<'a>(
 
             (
                 None,
-                Token::new(
-                    TokenKind::Unexpected(Box::new(parse_error)),
-                    &source,
-                    leading_whitespace,
-                ),
+                Err(UnexpectedTokenError::new(parse_error.message(), source)),
             )
         }
     }

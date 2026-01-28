@@ -2,7 +2,7 @@ use quote::quote;
 
 use crate::syntax::expression::{Expression, Res};
 use crate::syntax::parser::{Parser as _, alt, into, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
 #[derive(Debug)]

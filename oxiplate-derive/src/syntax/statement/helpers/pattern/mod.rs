@@ -15,7 +15,7 @@ use self::tuple::Tuple;
 use crate::syntax::Res;
 use crate::syntax::expression::Identifier;
 use crate::syntax::parser::{Parser as _, alt, cut, into, many1, opt, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 #[derive(Debug)]

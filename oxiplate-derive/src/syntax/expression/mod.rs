@@ -25,7 +25,7 @@ use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expressi
 use crate::syntax::expression::group::Group;
 use crate::syntax::expression::tuple::Tuple;
 use crate::syntax::parser::{Parser as _, alt, context, cut, fail, into, many0, many1, opt, take};
-use crate::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::tokenizer::parser::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]

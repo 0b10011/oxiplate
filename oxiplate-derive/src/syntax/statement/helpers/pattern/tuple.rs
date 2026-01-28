@@ -6,7 +6,7 @@ use quote::{TokenStreamExt, quote_spanned};
 use super::Pattern;
 use crate::syntax::Res;
 use crate::syntax::parser::{Parser as _, cut, many1, opt, take};
-use crate::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::tokenizer::parser::{Token, TokenKind, TokenSlice};
 use crate::{Source, State};
 
 #[derive(Debug)]

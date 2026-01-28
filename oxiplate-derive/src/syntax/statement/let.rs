@@ -5,7 +5,7 @@ use super::{State, Statement, StatementKind};
 use crate::syntax::Res;
 use crate::syntax::expression::{ExpressionAccess, KeywordParser};
 use crate::syntax::parser::{Parser as _, cut, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
 /// `let` statement for saving values to variables.

@@ -21,7 +21,7 @@ pub use parse_all::parse_all;
 pub use take::take;
 
 use crate::syntax::Res;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 pub trait Parser<'a> {
     type Output;
@@ -120,7 +120,7 @@ tuple!(
 fn max_tuple_values() {
     use crate::source::test_source;
     use crate::syntax::expression::KeywordParser;
-    use crate::tokenizer::Eof;
+    use crate::tokenizer::parser::Eof;
 
     test_source!(source = "Hello world");
 

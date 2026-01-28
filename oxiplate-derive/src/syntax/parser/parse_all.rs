@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::syntax::Res;
 use crate::syntax::parser::Parser;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 /// Builds a parser that matches the provided parser repeatedly
 /// until all tokens are consumed.

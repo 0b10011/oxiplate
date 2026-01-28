@@ -8,7 +8,7 @@ use super::{Statement, StatementKind};
 use crate::syntax::Res;
 use crate::syntax::expression::{KeywordParser, String};
 use crate::syntax::parser::{Parser as _, cut};
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, oxiplate_internal};
 
 #[derive(Debug)]

@@ -2,24 +2,25 @@ mod char;
 mod number;
 mod string;
 
+use super::Token;
 use crate::Source;
+use crate::syntax::UnexpectedTokenError;
 use crate::tokenizer::buffered_source::BufferedSource;
 use crate::tokenizer::parser::expression::char::consume_char;
 use crate::tokenizer::parser::expression::number::{consume_alternative_base, consume_decimal};
 use crate::tokenizer::parser::expression::string::{consume_raw_string, consume_string};
 use crate::tokenizer::parser::{
-    consume_possible_tag_end, consume_possible_tag_end_whitespace_adjustment,
+    Context, Res, TagKind, TokenKind, WhitespacePreference, consume_possible_tag_end,
+    consume_possible_tag_end_whitespace_adjustment,
 };
-use crate::tokenizer::{
-    Context, ParseError, TagKind, Token, TokenKind, WhitespacePreference, whitespace,
-};
+use crate::tokenizer::whitespace;
 
 #[allow(clippy::too_many_lines)]
 pub fn consume_expression_token<'a>(
     source: &mut BufferedSource<'a>,
     has_unclosed_char_pairs: bool,
     in_tag_kind: &TagKind,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     let leading_whitespace = source
         .consume_while(|char| matches!(char, whitespace!()))
         .ok();
@@ -101,7 +102,18 @@ pub fn consume_expression_token<'a>(
         Some('a'..='z' | 'A'..='Z') => return consume_ident(source, leading_whitespace),
         Some('0') => return consume_alternative_base(source, leading_whitespace),
         Some('1'..='9') => return consume_decimal(source, leading_whitespace),
-        Some(_) => TokenKind::Unexpected(ParseError::boxed("Unexpected character in expression")),
+        Some(_) => {
+            let source = source
+                .consume()
+                .expect("Buffer should contain at least one char");
+            return (
+                None,
+                Err(UnexpectedTokenError::new(
+                    "Unexpected character in expression",
+                    source,
+                )),
+            );
+        }
         None => {
             let message = match in_tag_kind {
                 TagKind::Writ => {
@@ -118,11 +130,10 @@ pub fn consume_expression_token<'a>(
 
             return (
                 Some(Context::Static),
-                Token::new(
-                    TokenKind::Unexpected(ParseError::boxed(message)),
-                    source.eof().source(),
-                    None,
-                ),
+                Err(UnexpectedTokenError::new(
+                    message,
+                    source.eof().source().clone(),
+                )),
             );
         }
     };
@@ -131,13 +142,13 @@ pub fn consume_expression_token<'a>(
         .consume()
         .expect("Buffer should contain at least one character");
 
-    (None, Token::new(kind, &source, leading_whitespace))
+    (None, Ok(Token::new(kind, &source, leading_whitespace)))
 }
 
 pub fn consume_ident<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     let source = source
         .consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
         .expect("Buffer should contain at least one character");
@@ -148,5 +159,5 @@ pub fn consume_ident<'a>(
         _ => TokenKind::Ident,
     };
 
-    (None, Token::new(kind, &source, leading_whitespace))
+    (None, Ok(Token::new(kind, &source, leading_whitespace)))
 }

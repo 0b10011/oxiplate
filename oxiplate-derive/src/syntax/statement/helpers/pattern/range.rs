@@ -5,7 +5,7 @@ use super::Pattern;
 use crate::syntax::Res;
 use crate::syntax::expression::{Char, Float, Integer, Number};
 use crate::syntax::parser::{Parser as _, alt, into, opt, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 #[derive(Debug)]

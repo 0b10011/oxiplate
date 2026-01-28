@@ -9,7 +9,7 @@ use crate::syntax::expression::{KeywordParser, String};
 use crate::syntax::parser::{Parser as _, cut};
 use crate::syntax::template::Template;
 use crate::syntax::{Item, Res};
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, State};
 
 #[derive(Debug)]

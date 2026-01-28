@@ -4,7 +4,7 @@ use quote::{ToTokens, TokenStreamExt, quote_spanned};
 use super::super::Res;
 use crate::syntax::expression::{Expression, expression};
 use crate::syntax::parser::{Parser as _, alt, cut, take};
-use crate::tokenizer::{TokenKind, TokenSlice};
+use crate::tokenizer::parser::{TokenKind, TokenSlice};
 use crate::{Source, internal_error};
 
 fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {

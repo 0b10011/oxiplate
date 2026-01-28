@@ -14,7 +14,7 @@ pub struct BufferedSource<'a> {
 
 impl<'a> BufferedSource<'a> {
     #[must_use]
-    pub fn eof(&mut self) -> Eof<'a> {
+    pub fn eof(&self) -> Eof<'a> {
         Eof {
             source: Source::new_with_range(
                 self.original,

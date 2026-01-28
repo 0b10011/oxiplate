@@ -1,7 +1,7 @@
 use super::item::tag_end;
 use super::{Item, Res};
 use crate::syntax::parser::{Parser as _, cut, many0, take};
-use crate::tokenizer::{TagKind, TokenKind};
+use crate::tokenizer::parser::{TagKind, TokenKind};
 use crate::{Source, TokenSlice};
 
 pub(super) fn comment<'a>(

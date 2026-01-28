@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::syntax::parser::Parser;
 use crate::syntax::{Error, Res};
-use crate::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::tokenizer::parser::{Token, TokenKind, TokenSlice};
 
 /// Builds a parser that matches the next token's kind.
 ///

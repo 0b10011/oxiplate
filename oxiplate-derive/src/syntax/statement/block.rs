@@ -11,7 +11,7 @@ use super::{Statement, StatementKind};
 use crate::syntax::expression::KeywordParser;
 use crate::syntax::parser::{Parser as _, cut};
 use crate::syntax::template::Template;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 use crate::{BuiltTokens, State, internal_error};
 
 #[derive(Debug)]

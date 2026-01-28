@@ -4,7 +4,7 @@ use quote::{quote, quote_spanned};
 use super::{Expression, Res, expression};
 use crate::syntax::expression::ExpressionAccess;
 use crate::syntax::parser::{Parser as _, context, many1, opt, take};
-use crate::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::tokenizer::parser::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]

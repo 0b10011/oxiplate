@@ -8,7 +8,7 @@ use super::{Item, Res, Static};
 use crate::Source;
 use crate::syntax::item::parse_trailing_whitespace;
 use crate::syntax::parser::{Parser as _, alt, opt, parse_all, take};
-use crate::tokenizer::{TokenKind, TokenSlice, WhitespacePreference};
+use crate::tokenizer::parser::{TokenKind, TokenSlice, WhitespacePreference};
 use crate::{BuiltTokens, State, internal_error};
 
 /// Collection of items in the template and estimated output length.

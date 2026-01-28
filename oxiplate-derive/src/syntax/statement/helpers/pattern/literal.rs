@@ -5,7 +5,7 @@ use crate::syntax::Res;
 use crate::syntax::expression::{Bool, Char, Float, Integer, Number, String};
 use crate::syntax::parser::{Parser as _, alt, into};
 use crate::syntax::statement::helpers::pattern::Pattern;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 /// A literal value to match against.
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#matching-literals>

@@ -1,6 +1,9 @@
+use super::Token;
 use crate::Source;
+use crate::syntax::UnexpectedTokenError;
+use crate::tokenizer::ParseError;
 use crate::tokenizer::buffered_source::BufferedSource;
-use crate::tokenizer::{Context, ParseError, Token, TokenKind};
+use crate::tokenizer::parser::{Res, TokenKind};
 
 fn parse_string(source: &mut BufferedSource) -> Result<String, ParseError> {
     let mut string = String::new();
@@ -18,7 +21,7 @@ fn parse_string(source: &mut BufferedSource) -> Result<String, ParseError> {
 pub fn consume_string<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     match parse_string(source) {
         Ok(string) => {
             let source = source
@@ -27,25 +30,25 @@ pub fn consume_string<'a>(
 
             (
                 None,
-                Token::new(
+                Ok(Token::new(
                     TokenKind::String(Box::new(string)),
                     &source,
                     leading_whitespace,
-                ),
+                )),
             )
         }
         Err(parse_error) => {
             let source = source
                 .consume()
-                .expect("Buffer should contain `\"` at least");
+                .expect("Buffer should contain `\"` at least")
+                .append_to_leading_whitespace(
+                    leading_whitespace,
+                    "String expected after whitespace",
+                );
 
             (
                 None,
-                Token::new(
-                    TokenKind::Unexpected(Box::new(parse_error)),
-                    &source,
-                    leading_whitespace,
-                ),
+                Err(UnexpectedTokenError::new(parse_error.message(), source)),
             )
         }
     }
@@ -54,7 +57,7 @@ pub fn consume_string<'a>(
 pub fn consume_raw_string<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> (Option<Context>, Token<'a>) {
+) -> Res<'a> {
     let mut string = String::new();
 
     let opening_hashes = 1 + source.next_while(|char| char == '#');
@@ -62,16 +65,18 @@ pub fn consume_raw_string<'a>(
     if !source.next_if(|char| char == '"') {
         let source = source
             .consume()
-            .expect("At least one `#` should be in the buffer");
+            .expect("At least one `#` should be in the buffer")
+            .append_to_leading_whitespace(
+                leading_whitespace,
+                "Hashes should follow leading whitespace",
+            );
+
         return (
             None,
-            Token::new(
-                TokenKind::Unexpected(ParseError::boxed(
-                    "Malformed raw string. Expected `\"` after opening hashes",
-                )),
-                &source,
-                leading_whitespace,
-            ),
+            Err(UnexpectedTokenError::new(
+                "Malformed raw string. Expected `\"` after opening hashes",
+                source,
+            )),
         );
     }
 
@@ -87,25 +92,27 @@ pub fn consume_raw_string<'a>(
                         .expect("Full string should be in the buffer");
                     return (
                         None,
-                        Token::new(
+                        Ok(Token::new(
                             TokenKind::RawString(Box::new(string)),
                             &source,
                             leading_whitespace,
-                        ),
+                        )),
                     );
                 } else if closing_hashes > opening_hashes {
                     let source = source
                         .consume()
-                        .expect("Full string plus extra hashes should be in the buffer");
+                        .expect("Full string plus extra hashes should be in the buffer")
+                        .append_to_leading_whitespace(
+                            leading_whitespace,
+                            "Raw string should follow leading whitespace",
+                        );
+
                     return (
                         None,
-                        Token::new(
-                            TokenKind::Unexpected(ParseError::boxed(
-                                r"The number of hashes (`#`) before and after the string should be the same",
-                            )),
-                            &source,
-                            leading_whitespace,
-                        ),
+                        Err(UnexpectedTokenError::new(
+                            r"The number of hashes (`#`) before and after the string should be the same",
+                            source,
+                        )),
                     );
                 }
 
@@ -121,14 +128,14 @@ pub fn consume_raw_string<'a>(
 
     let source = source
         .consume()
-        .expect("At least one `#` should be in the buffer");
+        .expect("At least one `#` should be in the buffer")
+        .append_to_leading_whitespace(
+            leading_whitespace,
+            "Raw string should follow leading whitespace",
+        );
 
     (
         None,
-        Token::new(
-            TokenKind::Unexpected(ParseError::boxed("Raw string never closed")),
-            &source,
-            leading_whitespace,
-        ),
+        Err(UnexpectedTokenError::new("Raw string never closed", source)),
     )
 }

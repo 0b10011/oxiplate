@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::syntax::parser::Parser;
 use crate::syntax::{Error, Res};
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::parser::TokenSlice;
 
 /// Builds a parser that turns a recoverable error into an unrecoverable one.
 ///

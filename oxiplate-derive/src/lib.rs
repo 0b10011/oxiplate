@@ -36,7 +36,7 @@ use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::build_config;
 use crate::state::{LocalVariables, OptimizedRenderer};
-use crate::tokenizer::{TokenSlice, Tokens};
+use crate::tokenizer::parser::{TokenSlice, tokens_and_eof};
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -352,7 +352,7 @@ fn process_parsed_tokens<'a>(
             // Build the source.
             let owned_source = SourceOwned::new(&code, span, origin);
             let source = Source::new(&owned_source);
-            let (tokens, eof) = Tokens::new(source).tokens_and_eof();
+            let (tokens, eof) = tokens_and_eof(source);
             let tokens = TokenSlice::new(&tokens, &eof);
 
             // Build the `::std::fmt::Display` implementation for the struct.

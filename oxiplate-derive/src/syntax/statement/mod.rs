@@ -18,7 +18,7 @@ use crate::syntax::item::tag_end;
 use crate::syntax::parser::{Parser as _, alt, cut, into};
 use crate::syntax::statement::r#let::Let;
 use crate::syntax::template::parse_item;
-use crate::tokenizer::{TagKind, TokenSlice};
+use crate::tokenizer::parser::{TagKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
@@ -340,8 +340,8 @@ fn eof<'a>(
     };
     statement.add_item(Item::CompileError {
         message: context_message.to_string(),
-        error_source: tokens.next_source().clone(),
-        consumed_source: tokens.next_source().clone(),
+        error_source: tokens.eof().source().clone(),
+        consumed_source: tokens.eof().source().clone(),
     });
 
     (tokens, (statement.into(), trailing_whitespace))
