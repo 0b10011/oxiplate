@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use super::{Eof, Token, Tokens};
-use crate::syntax::UnexpectedTokenError;
+use crate::tokenizer::UnexpectedTokenError;
 
 #[derive(Debug)]
 pub struct TokenSlice<'a, K: Debug + PartialEq + Eq>(

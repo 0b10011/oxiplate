@@ -23,7 +23,7 @@ pub use parse_all::parse_all;
 pub use take::take;
 
 use crate::Source;
-use crate::tokenizer::TokenSlice;
+use crate::tokenizer::{TokenSlice, UnexpectedTokenError};
 
 pub type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
 
@@ -44,6 +44,27 @@ pub enum Error<'a> {
         is_eof: bool,
     },
     Multiple(Vec<Self>),
+}
+
+impl<'a> From<UnexpectedTokenError<'a>> for Error<'a> {
+    fn from(value: UnexpectedTokenError<'a>) -> Self {
+        let is_eof = value.is_eof();
+        if is_eof {
+            Self::Recoverable {
+                message: value.message().to_string(),
+                source: value.source().clone(),
+                previous_error: None,
+                is_eof,
+            }
+        } else {
+            Self::Unrecoverable {
+                message: value.message().to_string(),
+                source: value.source().clone(),
+                previous_error: None,
+                is_eof,
+            }
+        }
+    }
 }
 
 pub trait Parser<'a, K: Debug + PartialEq + Eq> {
@@ -144,7 +165,8 @@ tuple!(
                   invocation, or reducing the number of items in the tuple."]
 fn max_tuple_values() {
     use crate::source::test_source;
-    use crate::tokenizer::parser::{Eof, TokenKind};
+    use crate::template::TokenKind;
+    use crate::tokenizer::Eof;
 
     test_source!(source = "Hello world");
 

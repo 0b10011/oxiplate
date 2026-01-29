@@ -9,7 +9,7 @@
 mod parser;
 mod source;
 mod state;
-mod syntax;
+mod template;
 mod tokenizer;
 
 use std::collections::{HashMap, VecDeque};
@@ -30,14 +30,13 @@ use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
-type BuiltTokens = (proc_macro2::TokenStream, usize);
+pub(crate) use crate::source::Source;
+use crate::source::SourceOwned;
+pub(crate) use crate::state::State;
+use crate::state::{LocalVariables, OptimizedRenderer, build_config};
+use crate::template::{TokenSlice, parse, tokens_and_eof};
 
-pub(crate) use self::source::Source;
-use self::source::SourceOwned;
-pub(crate) use self::state::State;
-use self::state::build_config;
-use crate::state::{LocalVariables, OptimizedRenderer};
-use crate::tokenizer::parser::{TokenSlice, tokens_and_eof};
+type BuiltTokens = (proc_macro2::TokenStream, usize);
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -358,7 +357,7 @@ fn process_parsed_tokens<'a>(
 
             // Build the `::std::fmt::Display` implementation for the struct.
             // (This is where the template is actually parsed.)
-            Ok(syntax::parse(state, tokens))
+            Ok(parse(state, tokens))
         }
     }
 }
