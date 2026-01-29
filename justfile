@@ -25,10 +25,23 @@ book:
 book-build:
     mdbook build
 
+# Update expected output for broken and expansion tests to the current output.
+[group("General Commands")]
+update-test-output:
+    # Update broken test results
+    TRYBUILD=overwrite just run-against-broken "cargo test --locked"
+
+    # Update expansion test results
+    cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
+    [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
+    [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
+
+    echo "Test output updated successfully!"
+
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-01-27" CARGO_MANIFEST_DIR=`pwd`/book-lib mdbook test --library-path target/book/debug/deps
+    RUSTUP_TOOLCHAIN="nightly-2026-01-28" CARGO_MANIFEST_DIR=`pwd`/book-lib mdbook test --library-path target/book/debug/deps
 
 # Format code.
 [group("Lint")]

@@ -18,5 +18,3 @@ error: attribute value must be a literal
   |
 8 | #[oxiplate = format!("oops")]
   |              ^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)

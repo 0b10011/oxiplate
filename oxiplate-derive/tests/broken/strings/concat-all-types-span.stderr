@@ -15,5 +15,3 @@ error[E0308]: mismatched types
 14 | |     ~ 1_9_e_0_ ~ 19e-1 ~ 19E+1
 15 | |     ~ 1_.9_
    | |___________^ expected `usize`, found `String`
-   |
-   = note: this error originates in the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)
