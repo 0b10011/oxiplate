@@ -41,7 +41,7 @@ update-test-output:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-01-29" CARGO_MANIFEST_DIR=`pwd`/book-lib mdbook test --library-path target/book/debug/deps
+    RUSTUP_TOOLCHAIN="nightly-2026-01-30" CARGO_MANIFEST_DIR=`pwd`/book-lib mdbook test --library-path target/book/debug/deps
 
 # Format code.
 [group("Lint")]
