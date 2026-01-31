@@ -1,6 +1,6 @@
 use crate::config::tokenizer::TokenKind;
-use crate::config::{Config, InferEscaperGroupFromFileExtension, TokenSlice};
-use crate::parser::{Error, Parser as _, alt, cut, into, opt, parse_all, take};
+use crate::config::{Config, EscaperGroup, InferEscaperGroupFromFileExtension, TokenSlice};
+use crate::parser::{Error, Parser as _, alt, cut, into, many0, opt, parse_all, take};
 use crate::{OptimizedRenderer, Source};
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
@@ -32,29 +32,94 @@ pub fn parse<'a>(tokens: TokenSlice<'a>) -> Res<'a, Config> {
                     };
                 }
 
-                match expression.key.value {
-                    "fallback_escaper_group" => set_field!(
-                        fallback_escaper_group,
-                        String,
-                        "Boolean value not allowed for `fallback_escaper_group`",
-                    ),
-                    "require_specifying_escaper" => set_field!(
-                        require_specifying_escaper,
-                        Bool,
-                        "String value not allowed for `require_specifying_escaper`",
-                    ),
-                    "infer_escaper_group_from_file_extension" => set_field!(
-                        infer_escaper_group_from_file_extension,
-                        Bool,
-                        "String value not allowed for `infer_escaper_group_from_file_extension`",
-                    ),
-                    "optimized_renderer" => set_field!(
-                        optimized_renderer,
-                        Bool,
-                        "String value not allowed for `optimized_renderer`",
-                    ),
-                    _ => todo!("handle escaper groups hashmap"),
+                let remaining_keys = match expression.ancestor_keys.split_first() {
+                    Some((
+                        Key {
+                            value: "escaper_groups",
+                            ..
+                        },
+                        remaining_keys,
+                    )) => remaining_keys,
+                    Some(_) => todo!("handle unexpected ancestor key"),
+                    None => {
+                        match expression.key.value {
+                            "fallback_escaper_group" => set_field!(
+                                fallback_escaper_group,
+                                String,
+                                "Boolean value not allowed for `fallback_escaper_group`",
+                            ),
+                            "require_specifying_escaper" => set_field!(
+                                require_specifying_escaper,
+                                Bool,
+                                "String value not allowed for `require_specifying_escaper`",
+                            ),
+                            "infer_escaper_group_from_file_extension" => set_field!(
+                                infer_escaper_group_from_file_extension,
+                                Bool,
+                                "String value not allowed for \
+                                 `infer_escaper_group_from_file_extension`",
+                            ),
+                            "optimized_renderer" => set_field!(
+                                optimized_renderer,
+                                Bool,
+                                "String value not allowed for `optimized_renderer`",
+                            ),
+                            _ => todo!("handle escaper groups hashmap"),
+                        }
+
+                        continue;
+                    }
+                };
+
+                let escaper_group = match remaining_keys.split_first() {
+                    Some((
+                        Key {
+                            value: escaper_group,
+                            ..
+                        },
+                        [],
+                    )) => escaper_group,
+                    Some(_) => todo!("Handle extra ancestor keys"),
+                    None => todo!("Handle missing escaper group"),
+                };
+
+                if !escaper_group.starts_with(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'))
+                    || !escaper_group
+                        .chars()
+                        .all(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
+                {
+                    todo!("Handle non-ident escaper group name");
                 }
+
+                if expression.key.value != "escaper" {
+                    todo!("Handle unexpected key");
+                }
+
+                let path = match expression.value {
+                    Value::Bool(_) => todo!("Handle bool when path expected"),
+                    Value::String(ref value) => value.value,
+                };
+                if !path.starts_with("::") {
+                    todo!("Handle path value that doesn't start with `::`");
+                }
+                let mut split_path = path.split("::");
+                split_path.next();
+                if !split_path.all(|ident| {
+                    ident.starts_with(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'))
+                        && ident
+                            .chars()
+                            .all(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
+                }) {
+                    todo!("Handle non-path value");
+                }
+
+                let path = EscaperGroup {
+                    escaper: path.to_owned(),
+                };
+
+                config
+                    .escaper_groups
+                    .insert(escaper_group.to_string(), path);
             }
         }
     }
@@ -74,7 +139,11 @@ impl<'a> Item<'a> {
     }
 
     fn expression(tokens: TokenSlice<'a>) -> Res<'a, Item<'a>> {
-        let (tokens, (key, equal, value, comment, newline)): (_, (Key, _, _, _, _)) = (
+        let (tokens, (ancestors, key, equal, value, comment, newline)): (
+            _,
+            (Vec<(Key, _)>, Key, _, _, _, _),
+        ) = (
+            many0((into(string), take(TokenKind::DotSeparator))),
             into(string),
             cut("`=` expected after key", take(TokenKind::Equal)),
             cut("Boolean or string value expected after `=`", value),
@@ -85,6 +154,22 @@ impl<'a> Item<'a> {
             ),
         )
             .parse(tokens)?;
+
+        let mut ancestor_keys = Vec::with_capacity(ancestors.len());
+        let mut ancestor_source = None;
+        for (ancestor, dot) in ancestors {
+            ancestor_source = Some(
+                ancestor
+                    .source()
+                    .append_to_some(
+                        ancestor_source,
+                        "Ancestor expected after previous ancestory",
+                    )
+                    .merge(dot.source(), "`.` expected after ancestor"),
+            );
+
+            ancestor_keys.push(ancestor);
+        }
 
         let source = key
             .source()
@@ -97,7 +182,12 @@ impl<'a> Item<'a> {
             )
             .merge(newline, "Newline or end of file expected after comment");
 
-        let expression = Expression { key, value, source };
+        let expression = Expression {
+            ancestor_keys,
+            key,
+            value,
+            source,
+        };
 
         Ok((tokens, Self::Expression(expression)))
     }
@@ -200,6 +290,7 @@ fn newline_or_eof<'a>(tokens: TokenSlice<'a>) -> Res<'a, &'a Source<'a>> {
 }
 
 struct Expression<'a> {
+    ancestor_keys: Vec<Key<'a>>,
     key: Key<'a>,
     value: Value<'a>,
     source: Source<'a>,
