@@ -8,7 +8,7 @@ watch command:
 
 # Format code, run tests, generate coverage, and run clippy. Typically used via `just watch dev`.
 [group("General Commands")]
-dev: format coverage clippy expansion-tests doc
+dev: format check coverage clippy expansion-tests doc
 
 # Build documentation for libraries.
 [group("General Commands")]
@@ -64,9 +64,18 @@ format-broken command:
 clippy:
     cargo clippy --locked --workspace
 
+# Run check against all packages.
+[group("Test")]
+check: (run-against-stable "cargo check --locked" "") (run-against-unstable "cargo check --locked" "")
+
+# Run check against all packages, denying warnings.
+[group("Test")]
+check-strict: (run-against-stable "RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "RUSTFLAGS='-D warnings' cargo check --locked" "")
+
 # Run tests without coverage.
 [group("Test")]
 test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
+    cargo test --package oxiplate-derive --test clippy -- --ignored
 
 # Run stable tests against specified toolchain (target triples not supported).
 [group("Test")]
@@ -114,6 +123,7 @@ coverage-lcov-package package other-packages: coverage-no-report
 coverage-no-report: clean-coverage \
     (run-against-all "cargo llvm-cov --no-report --locked --no-rustc-wrapper") \
     (run-against-libs "cargo llvm-cov --no-report --locked --no-rustc-wrapper --doc")
+    cargo test --package oxiplate-derive --test clippy -- --ignored
 
 [private]
 expansion-tests:
@@ -137,7 +147,7 @@ run-against-libs command test-arguments="":
         --exclude oxiplate-test-unreachable-stable -- {{ test-arguments }}
 
 [private]
-run-against-all command test-arguments="": (run-against-stable command test-arguments) (run-against-unstable command test-arguments) (run-against-broken command)
+run-against-all command test-arguments="": (run-against-stable command test-arguments) (run-against-unstable command test-arguments) check-strict (run-against-broken command)
 
 # Tests that can be run against the MSRV in `/Cargo.toml`
 # and the nightly specified in `/rust-toolchain.toml`.
@@ -149,7 +159,6 @@ run-against-stable command test-arguments="": (run-against-libs command test-arg
 # Tests requiring unstable features that cannot be run against the MSRV.
 [private]
 run-against-unstable command test-arguments="":
-    {{ command }} --package oxiplate-derive --test clippy -- --ignored -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-stable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-file-extension-inferrence-off -- {{ test-arguments }}
