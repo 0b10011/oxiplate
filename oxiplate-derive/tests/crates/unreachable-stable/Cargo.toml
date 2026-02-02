@@ -4,5 +4,5 @@ edition = "2024"
 publish = false
 
 [dev-dependencies]
-trybuild = "1.0.101"
+trybuild = "1.0.115"
 oxiplate-derive = { path = "../../../", features = ["unreachable"] }

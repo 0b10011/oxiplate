@@ -28,7 +28,7 @@ toml = {version = "0.9.11", default-features = false, features = ["std", "serde"
 
 [dev-dependencies]
 rustversion = "1.0.19"
-trybuild = "1.0.101"
+trybuild = "1.0.115"
 
 [features]
 default = ["config"]
