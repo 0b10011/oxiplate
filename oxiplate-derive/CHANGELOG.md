@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.16.1...oxiplate-derive-v0.16.2) - 2026-02-05
+
+### Added
+
+- replaced `toml` and `serde` with in-tree tokenizer and parser for `oxiplate.toml`
+
+### Other
+
+- added tests for `oxiplate.toml` parsing
+- *(deps)* bump trybuild from 1.0.114 to 1.0.115
+- moved `syntax` to `template/parser` and `tokenizer/parser` to `template/tokenizer`
+- update toolchain to `nightly-2026-01-28`
+- made parser more generic
+- made tokenizer more generic
+
 ## [0.16.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.16.0...oxiplate-derive-v0.16.1) - 2026-01-26
 
 ### Added
