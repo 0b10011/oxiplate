@@ -1,5 +1,5 @@
-error: Failed to parse `/oxiplate.toml`: `fallback_escaper_group` is already set
- --> tests/broken/double-assign.rs:3:10
+error: Failed to parse `/oxiplate.toml`: Expected path `package::HtmlEscaper` to start with `::`
+ --> tests/broken/escaper-group-relative.rs:3:10
   |
 3 | #[derive(Oxiplate)]
   |          ^^^^^^^^

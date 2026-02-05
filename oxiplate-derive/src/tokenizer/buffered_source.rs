@@ -40,6 +40,38 @@ impl<'a> BufferedSource<'a> {
         Some([iterator.next()?, iterator.next()?])
     }
 
+    #[cfg(feature = "config")]
+    #[must_use]
+    pub fn peek_4(&self) -> Option<[char; 4]> {
+        let start = self.range.start + self.buffer_length;
+        let mut iterator = self.original.code[start..self.range.end].chars();
+
+        Some([
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+        ])
+    }
+
+    #[cfg(feature = "config")]
+    #[must_use]
+    pub fn peek_8(&self) -> Option<[char; 8]> {
+        let start = self.range.start + self.buffer_length;
+        let mut iterator = self.original.code[start..self.range.end].chars();
+
+        Some([
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+            iterator.next()?,
+        ])
+    }
+
     #[must_use]
     pub fn next(&mut self) -> Option<char> {
         let char = self.peek();

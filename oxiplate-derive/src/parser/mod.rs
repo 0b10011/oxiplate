@@ -46,6 +46,28 @@ pub enum Error<'a> {
     Multiple(Vec<Self>),
 }
 
+impl<'a> Error<'a> {
+    #[cfg_attr(not(feature = "config"), expect(dead_code))]
+    pub fn recoverable(message: String, source: Source<'a>) -> Self {
+        Self::Recoverable {
+            message,
+            source,
+            previous_error: None,
+            is_eof: false,
+        }
+    }
+
+    #[cfg_attr(not(feature = "config"), expect(dead_code))]
+    pub fn unrecoverable(message: String, source: Source<'a>) -> Self {
+        Self::Unrecoverable {
+            message,
+            source,
+            previous_error: None,
+            is_eof: false,
+        }
+    }
+}
+
 impl<'a> From<UnexpectedTokenError<'a>> for Error<'a> {
     fn from(value: UnexpectedTokenError<'a>) -> Self {
         let is_eof = value.is_eof();

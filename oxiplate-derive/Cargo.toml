@@ -22,9 +22,7 @@ proc-macro = true
 percent-encoding = { version = "2.3.2", default-features = false, features = ["std"], optional = true }
 proc-macro2 = { version = "1.0.106", default-features = false, features = ["proc-macro"] }
 quote = { version = "1.0.44", default-features = false, features = ["proc-macro"] }
-serde = { version = "1.0.217", default-features = false, features = ["derive"], optional = true}
 syn = { version = "2.0.114", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
-toml = {version = "0.9.11", default-features = false, features = ["std", "serde", "parse"], optional = true}
 
 [dev-dependencies]
 rustversion = "1.0.19"
@@ -53,7 +51,7 @@ external-template-spans = []
 built-in-escapers = []
 
 # Makes it possible to configure Oxiplate via `/oxiplate.toml`.
-config = ["dep:serde", "dep:toml"]
+config = []
 
 # Feature only meant to be turned on by the `oxiplate` package.
 # Tells `oxiplate-derive` that the `oxiplate` library is present
