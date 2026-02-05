@@ -1,6 +1,7 @@
-error: Failed to parse `/oxiplate.toml`: invalid type: string "::markdown::Markdown", expected struct EscaperGroup
- --> tests/broken/escaper-group-value.rs:4:1
+error: Failed to parse `/oxiplate.toml`: Expected escaper group `Markdown` to be a table, found a value
+ --> tests/broken/escaper-group-value.rs:3:10
   |
-4 | / #[oxiplate_inline("hello world!")]
-5 | | struct Data;
-  | |____________^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

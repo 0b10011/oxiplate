@@ -1,6 +1,7 @@
-error: Failed to parse `/oxiplate.toml`: key with no value, expected `=`
- --> tests/broken/config.rs:4:1
+error: Failed to parse `/oxiplate.toml`: Unexpected token found
+ --> tests/broken/config.rs:3:10
   |
-4 | / #[oxiplate_inline("hello world!")]
-5 | | struct Data;
-  | |____________^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

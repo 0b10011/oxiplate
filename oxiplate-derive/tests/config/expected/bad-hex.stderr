@@ -1,6 +1,7 @@
-error: Failed to parse `/oxiplate.toml`: too few unicode value digits, expected unicode hexadecimal value
- --> tests/broken/bad-hex.rs:4:1
+error: Failed to parse `/oxiplate.toml`: 2 hex characters (`[0-9a-fA-f]{2}`) expected after `\x`
+ --> tests/broken/bad-hex.rs:3:10
   |
-4 | / #[oxiplate_inline("hello world!")]
-5 | | struct Data;
-  | |____________^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

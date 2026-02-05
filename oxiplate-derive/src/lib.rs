@@ -6,6 +6,7 @@
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
 
+mod config;
 mod parser;
 mod source;
 mod state;
@@ -30,10 +31,11 @@ use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
+use crate::config::OptimizedRenderer;
 pub(crate) use crate::source::Source;
 use crate::source::SourceOwned;
 pub(crate) use crate::state::State;
-use crate::state::{LocalVariables, OptimizedRenderer, build_config};
+use crate::state::{LocalVariables, build_config};
 use crate::template::{TokenSlice, parse, tokens_and_eof};
 
 type BuiltTokens = (proc_macro2::TokenStream, usize);

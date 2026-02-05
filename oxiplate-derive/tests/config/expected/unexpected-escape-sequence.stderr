@@ -1,6 +1,7 @@
-error: Failed to parse `/oxiplate.toml`: missing escaped value, expected `b`, `e`, `f`, `n`, `r`, `\`, `"`, `x`, `u`, `U`
- --> tests/broken/unexpected-escape-sequence.rs:4:1
+error: Failed to parse `/oxiplate.toml`: Unexpected escape sequence. Expected `\"`, `\\`, `\b`, `\e`, `\f`, `\n`, `\r`, `\t`, `\x[0-9a-fA-F]{2}`, `\u[0-9a-fA-F]{4}`, or `\U[0-9a-fA-F]{8}`
+ --> tests/broken/unexpected-escape-sequence.rs:3:10
   |
-4 | / #[oxiplate_inline("hello world!")]
-5 | | struct Data;
-  | |____________^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

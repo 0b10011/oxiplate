@@ -1,9 +1,10 @@
-error: Failed to parse `/oxiplate.toml`: key with no value, expected `=`
- --> tests/broken/malformed-config.rs:4:1
+error: Failed to parse `/oxiplate.toml`: `=` expected after key
+ --> tests/broken/malformed-config.rs:3:10
   |
-4 | / #[oxiplate_inline(html: "hello world")]
-5 | | struct Data;
-  | |____________^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no method named `render` found for struct `Data` in the current scope
  --> tests/broken/malformed-config.rs:8:21
