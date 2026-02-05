@@ -1,0 +1,3 @@
+escaper_groups = "huh"
+
+escaper_groups.html.escaper = "::package::HtmlEscaper"

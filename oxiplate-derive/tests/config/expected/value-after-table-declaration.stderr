@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: unexpected key or value, expected newline, `#`
+ --> tests/broken/value-after-table-declaration.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

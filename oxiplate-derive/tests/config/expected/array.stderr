@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: invalid type: sequence, expected a map
+ --> tests/broken/array.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

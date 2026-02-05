@@ -31,12 +31,21 @@ update-test-output:
     # Update broken test results
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 
+    # Update config test output
+    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/expected/
+
     # Update expansion test results
     cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
     [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
     [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
 
     echo "Test output updated successfully!"
+
+# Build (or rebuild) test crates for config via `oxiplate.toml`
+[group("General Commands")]
+build-config-test-crates:
+    cargo run --bin oxiplate-derive-test-config
+    cargo update --workspace
 
 # Run book tests.
 book-tests:
@@ -171,12 +180,16 @@ run-against-broken command: (run-against-libs f"{{ command }} --test broken --fe
 
 # Initial setup. Run once to install all necessary binaries. Run again to ensure they are all up-to-date.
 [group("Setup"), group("General Commands")]
-setup: setup-dev setup-expansion setup-coverage setup-book
+setup: setup-dev setup-test setup-expansion setup-coverage setup-book
 
 # Initial setup for general development.
 [group("Setup")]
 setup-dev:
     cargo install just watchexec-cli
+
+# Initial setup for testing
+[group("Setup")]
+setup-test: build-config-test-crates
 
 # Initial setup for expansion tests and debugging.
 [group("Setup")]
@@ -185,7 +198,7 @@ setup-expansion:
 
 # Initial setup for test coverage.
 [group("Setup")]
-setup-coverage:
+setup-coverage: setup-test
     cargo install cargo-llvm-cov
 
 # Initial setup for generating the book.

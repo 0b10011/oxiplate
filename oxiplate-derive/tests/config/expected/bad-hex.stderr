@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: too few unicode value digits, expected unicode hexadecimal value
+ --> tests/broken/bad-hex.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

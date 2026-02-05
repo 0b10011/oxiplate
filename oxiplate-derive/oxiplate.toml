@@ -5,7 +5,7 @@
 # will usually rely on inferring the escaper from file extensions,
 # but they may also specify their own fallback escaper,
 # possibly even "raw" for plain text use cases.
-fallback_escaper_group = "raw"
+fallback_escaper_group = 'raw'
 
 # The macro by itself doesn't support escaping,
 # and due to feature unification,

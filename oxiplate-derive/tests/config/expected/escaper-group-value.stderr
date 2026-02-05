@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: invalid type: string "::markdown::Markdown", expected struct EscaperGroup
+ --> tests/broken/escaper-group-value.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

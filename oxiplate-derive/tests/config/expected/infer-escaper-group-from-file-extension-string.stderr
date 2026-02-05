@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: invalid type: string "true", expected a boolean
+ --> tests/broken/infer-escaper-group-from-file-extension-string.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

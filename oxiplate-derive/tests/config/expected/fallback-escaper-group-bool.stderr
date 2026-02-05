@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: invalid type: boolean `true`, expected a string
+ --> tests/broken/fallback-escaper-group-bool.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

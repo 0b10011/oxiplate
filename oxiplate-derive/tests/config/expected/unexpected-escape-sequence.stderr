@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: missing escaped value, expected `b`, `e`, `f`, `n`, `r`, `\`, `"`, `x`, `u`, `U`
+ --> tests/broken/unexpected-escape-sequence.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

@@ -1,0 +1,6 @@
+error: Failed to parse `/oxiplate.toml`: invalid type: integer `19`, expected a string
+ --> tests/broken/number-escaper.rs:4:1
+  |
+4 | / #[oxiplate_inline("hello world!")]
+5 | | struct Data;
+  | |____________^

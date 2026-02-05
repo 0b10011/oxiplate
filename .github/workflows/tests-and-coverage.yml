@@ -99,7 +99,9 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tests
-        run: just test-toolchain "${{ needs.get-msrv.outputs.msrv }}"
+        env:
+          RUSTUP_TOOLCHAIN: ${{ needs.get-msrv.outputs.msrv }}
+        run: just setup-test test-toolchain "${{ needs.get-msrv.outputs.msrv }}"
 
   setup-stable:
     uses: ./.github/workflows/setup.yml
@@ -125,7 +127,9 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tests
-        run: just test-toolchain stable
+        env:
+          RUSTUP_TOOLCHAIN: stable
+        run: just setup-test test-toolchain stable
 
   setup-beta:
     uses: ./.github/workflows/setup.yml
@@ -151,7 +155,9 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tests
-        run: just test-toolchain beta
+        env:
+          RUSTUP_TOOLCHAIN: beta
+        run: just setup-test test-toolchain beta
 
   book-tests:
     needs: get-toolchain

@@ -1,0 +1,9 @@
+[package]
+name = "oxiplate-derive-test-config"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+trybuild = "1.0.101"
+oxiplate-derive = { path = "../../../" }
+colored = "3.1.1"
