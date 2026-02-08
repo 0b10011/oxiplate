@@ -1,8 +1,0 @@
-[package]
-name = "oxiplate-test-config-malformed"
-edition = "2024"
-publish = false
-
-[dev-dependencies]
-trybuild = "1.0.115"
-oxiplate = { path = "../../../" }
