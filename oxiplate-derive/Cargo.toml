@@ -19,7 +19,6 @@ workspace = true
 proc-macro = true
 
 [dependencies]
-percent-encoding = { version = "2.3.2", default-features = false, features = ["std"], optional = true }
 proc-macro2 = { version = "1.0.106", default-features = false, features = ["proc-macro"] }
 quote = { version = "1.0.44", default-features = false, features = ["proc-macro"] }
 syn = { version = "2.0.114", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
@@ -37,7 +36,7 @@ better-errors = ["better-internal-errors", "external-template-spans"]
 
 # Improved error messages for internal Oxiplate errors,
 # but requires nightly.
-better-internal-errors = ["dep:percent-encoding"]
+better-internal-errors = []
 
 # Turns on spans for external templates,
 # considerably improving error messages
