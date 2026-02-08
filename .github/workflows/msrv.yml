@@ -3,9 +3,6 @@ name: msrv
 on:
   workflow_call:
     inputs:
-      toolchain:
-        description: "Rust toolchain to use"
-        type: string
       cache-path:
         description: "Path to restore from cache"
         type: string
