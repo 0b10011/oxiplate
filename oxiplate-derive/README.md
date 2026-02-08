@@ -37,39 +37,38 @@ even when issues are caught by Rust instead of Oxiplate.
 
 ```html.oxip
 <h1>{{ title }}</h1>
-<p>{{ messages }}</p>
+<p>{{ message }}</p>
 ```
 
 ```rust,compile_fail
-use oxiplate::Oxiplate;
+use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate = "external.html.oxip"]
 struct HelloWorld {
     title: &'static str,
-    message: &'static str,
+    messages: &'static str,
 }
 
 let hello_world = HelloWorld {
-    title: "Hello world",
+    title: "Oxiplate error handling",
+    messages: "Hello world!",
 };
 
-print!("{}", hello_world.render()?);
-
-Ok::<(), ::core::fmt::Error>(())
+format!("{}", hello_world);
 ```
 
 ```text
 error[E0609]: no field `messages` on type `&HelloWorld`
  --> /templates/external.html.oxip:2:7
   |
-2 | <p>{{ messages }}</p>
-  |       ^^^^^^^^ unknown field
+2 | <p>{{ message }}</p>
+  |       ^^^^^^^ unknown field
   |
 help: a field with a similar name exists
   |
-2 - <p>{{ messages }}</p>
-2 + <p>{{ message }}</p>
+2 - <p>{{ message }}</p>
+2 + <p>{{ messages }}</p>
   |
 ```
 
@@ -77,46 +76,6 @@ Check out the broken tests directory of
 [`oxiplate`](https://github.com/0b10011/oxiplate/tree/main/oxiplate/tests/broken) and 
 [`oxiplate-derive`](https://github.com/0b10011/oxiplate/tree/main/oxiplate-derive/tests/broken)
 for (tested) example error messages.
-
-## Escaping
-
-Escaping is arguably the most important feature of a template system.
-The escaper name appears first to make it easier to spot,
-and always runs last to ensure the output is always safe.
-Creating templates in a language not supported by Oxiplate?
-You can add your own escapers!
-
-```html.oxip
-<!-- Profile link for {{ comment: name }} -->
-<a href="{{ attr: url }}">{{ text: name }}</a>
-```
-
-```rust,compile_fail
-use oxiplate::Oxiplate;
-
-#[derive(Oxiplate)]
-#[oxiplate = "external.html.oxip"]
-struct ProfileLink {
-    url: &'static str,
-    name: &'static str,
-}
-
-let profile_link = ProfileLink {
-    url: r#""><script>alert("hacked!");</script>"#,
-    name: r#"<!-- --><script>alert("hacked!");</script><!-- -->"#
-};
-
-print!("{}", profile_link.render()?);
-
-Ok::<(), ::core::fmt::Error>(())
-```
-
-```html
-<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
-<a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
-```
-
-Read the full [escaping chapter](https://0b10011.io/oxiplate/templates/writs/escaping.html) for more information.
 
 ## Whitespace control
 

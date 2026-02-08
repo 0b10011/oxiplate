@@ -1,0 +1,2 @@
+<!-- Profile link for {{ comment: name }} -->
+<a href="{{ attr: url }}">{{ text: name }}</a>

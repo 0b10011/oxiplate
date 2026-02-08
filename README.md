@@ -37,39 +37,40 @@ even when issues are caught by Rust instead of Oxiplate.
 
 ```html.oxip
 <h1>{{ title }}</h1>
-<p>{{ messages }}</p>
+<p>{{ message }}</p>
 ```
 
 ```rust,compile_fail
-use oxiplate::{Oxiplate, Result};
+use oxiplate::prelude::*;
 
 #[derive(Oxiplate)]
 #[oxiplate = "external.html.oxip"]
 struct HelloWorld {
     title: &'static str,
-    message: &'static str,
+    messages: &'static str,
 }
 
 let hello_world = HelloWorld {
-    title: "Hello world",
+    title: "Oxiplate error handling",
+    messages: "Hello world!",
 };
 
 print!("{}", hello_world.render()?);
 
-Ok::<(), ::core::fmt::Error>(())
+Ok::<(), ::std::fmt::Error>(())
 ```
 
 ```text
 error[E0609]: no field `messages` on type `&HelloWorld`
  --> /templates/external.html.oxip:2:7
   |
-2 | <p>{{ messages }}</p>
-  |       ^^^^^^^^ unknown field
+2 | <p>{{ message }}</p>
+  |       ^^^^^^^ unknown field
   |
 help: a field with a similar name exists
   |
-2 - <p>{{ messages }}</p>
-2 + <p>{{ message }}</p>
+2 - <p>{{ message }}</p>
+2 + <p>{{ messages }}</p>
   |
 ```
 
@@ -86,16 +87,16 @@ and always runs last to ensure the output is always safe.
 Creating templates in a language not supported by Oxiplate?
 You can add your own escapers!
 
-```html.oxip
+```html.oxip:profile-link.html.oxip
 <!-- Profile link for {{ comment: name }} -->
 <a href="{{ attr: url }}">{{ text: name }}</a>
 ```
 
-```rust,compile_fail
-use oxiplate::Oxiplate;
+```rust
+use oxiplate::prelude::*;
 
 #[derive(Oxiplate)]
-#[oxiplate = "external.html.oxip"]
+#[oxiplate = "profile-link.html.oxip"]
 struct ProfileLink {
     url: &'static str,
     name: &'static str,
@@ -106,9 +107,14 @@ let profile_link = ProfileLink {
     name: r#"<!-- --><script>alert("hacked!");</script><!-- -->"#
 };
 
-print!("{}", profile_link.render()?);
+assert_eq!(
+    profile_link.render()?,
+    r#"<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
+<a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
+"#,
+);
 
-Ok::<(), ::core::fmt::Error>(())
+Ok::<(), ::std::fmt::Error>(())
 ```
 
 ```html
