@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: Unexpected character in basic string
+ --> tests/broken/newline-in-string.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

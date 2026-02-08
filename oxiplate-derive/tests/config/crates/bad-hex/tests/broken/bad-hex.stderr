@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: 2 hex characters (`[0-9a-fA-f]{2}`) expected after `\x`
+ --> tests/broken/bad-hex.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

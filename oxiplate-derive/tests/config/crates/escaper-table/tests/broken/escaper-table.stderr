@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: `escaper_groups.html.escaper` should be a path to an escaper enum (e.g., `::your_package::Escaper`; table found
+ --> tests/broken/escaper-table.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

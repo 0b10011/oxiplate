@@ -1,0 +1,1 @@
+foo = "\" \\ \b \e \f \n \r \t \x0f \u00ff \U0000ffff \w"

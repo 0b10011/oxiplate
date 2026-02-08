@@ -41,9 +41,9 @@ update-test-output:
 
     echo "Test output updated successfully!"
 
-# Build (or rebuild) test crates for config via `oxiplate.toml`
+# Rebuild test crates for config
 [group("General Commands")]
-build-config-test-crates:
+rebuild-config-test-crates:
     cargo run --bin oxiplate-derive-test-config
     cargo update --workspace
 
@@ -189,7 +189,8 @@ setup-dev:
 
 # Initial setup for testing
 [group("Setup")]
-setup-test: build-config-test-crates
+setup-test:
+    # Nothing to do
 
 # Initial setup for expansion tests and debugging.
 [group("Setup")]

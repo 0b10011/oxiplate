@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: String value not allowed for `infer_escaper_group_from_file_extension`
+ --> tests/broken/infer-escaper-group-from-file-extension-string.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

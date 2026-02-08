@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: Invalid key: `fallback_escape_group`
+ --> tests/broken/unrecognized-key.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

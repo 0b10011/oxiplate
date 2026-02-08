@@ -1,0 +1,7 @@
+error: Failed to parse `/oxiplate.toml`: `escaper_groups` in `escaper_groups.html` is already set to a value and cannot be made into a table
+ --> tests/broken/overwriting-value-with-table.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

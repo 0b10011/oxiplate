@@ -64,9 +64,6 @@ pub fn main() -> Result<(), Box<dyn Error>> {
             )?;
         }
 
-        // Add `.gitignore`
-        fs::write(package_dir.join(".gitignore"), "*\n")?;
-
         // Update package name
         let package_config = fs::read_to_string(package_dir.join("Cargo.toml"))?.replace(
             "oxiplate-derive-test-config-template",

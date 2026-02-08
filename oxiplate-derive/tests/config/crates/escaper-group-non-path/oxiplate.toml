@@ -1,0 +1,2 @@
+[escaper_groups]
+html.escaper = "::package/HtmlEscaper"
