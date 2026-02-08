@@ -101,7 +101,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: ${{ needs.get-msrv.outputs.msrv }}
-        run: just setup-test test-toolchain "${{ needs.get-msrv.outputs.msrv }}"
+        run: just setup-test test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
   setup-stable:
     uses: ./.github/workflows/setup.yml
