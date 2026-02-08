@@ -67,10 +67,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-msrv:
-    needs: [get-toolchain, setup]
+    needs: [setup]
     uses: ./.github/workflows/msrv.yml
     with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
       cache-path: ${{ needs.setup.outputs.cache-path }}
       cache-key: ${{ needs.setup.outputs.cache-key }}
 
