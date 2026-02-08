@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("
 {%- if let (a,) = (a,) -%}
@@ -11,17 +14,18 @@ use oxiplate_derive::Oxiplate;
 struct Single {
     a: usize,
 }
-impl ::std::fmt::Display for Single {
+impl ::core::fmt::Display for Single {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             if let (a,) = (self.a,) {
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
             }
             string
         };
@@ -37,9 +41,9 @@ pub const single: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 16usize,
+        start_line: 22usize,
         start_col: 4usize,
-        end_line: 16usize,
+        end_line: 22usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -79,22 +83,23 @@ struct Double {
     a: usize,
     b: usize,
 }
-impl ::std::fmt::Display for Double {
+impl ::core::fmt::Display for Double {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(9usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(9usize);
             let oxiplate_formatter = &mut string;
             if let (a, b) = (self.b, self.a) {
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
                 oxiplate_formatter.write_str(" + ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
                 oxiplate_formatter.write_str(" = ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(a + b)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(a + b)))?;
             }
             string
         };
@@ -110,9 +115,9 @@ pub const double: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 34usize,
+        start_line: 40usize,
         start_col: 4usize,
-        end_line: 34usize,
+        end_line: 40usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -159,25 +164,26 @@ struct Several {
     d: usize,
     e: usize,
 }
-impl ::std::fmt::Display for Several {
+impl ::core::fmt::Display for Several {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(9usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(9usize);
             let oxiplate_formatter = &mut string;
             if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(c)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(c)))?;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(d)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(d)))?;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(e)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(e)))?;
             }
             string
         };
@@ -193,9 +199,9 @@ pub const several: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/tuple.rs",
-        start_line: 59usize,
+        start_line: 65usize,
         start_col: 4usize,
-        end_line: 59usize,
+        end_line: 65usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

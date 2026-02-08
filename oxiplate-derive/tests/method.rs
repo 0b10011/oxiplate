@@ -1,3 +1,10 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+use alloc::string::String;
+
 use oxiplate_derive::Oxiplate;
 
 struct User {

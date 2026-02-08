@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{{ c * (a + b) }}")]
 struct GroupCalc {
@@ -9,18 +12,19 @@ struct GroupCalc {
     b: usize,
     c: usize,
 }
-impl ::std::fmt::Display for GroupCalc {
+impl ::core::fmt::Display for GroupCalc {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(&(self.c * (self.a + self.b))),
+                    &alloc::string::ToString::to_string(&(self.c * (self.a + self.b))),
                 )?;
             string
         };
@@ -36,9 +40,9 @@ pub const group_calc: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/group.rs",
-        start_line: 12usize,
+        start_line: 18usize,
         start_col: 4usize,
-        end_line: 12usize,
+        end_line: 18usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,

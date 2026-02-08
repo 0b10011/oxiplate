@@ -1,3 +1,10 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::vec::Vec;
+use alloc::{format, vec};
+
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]

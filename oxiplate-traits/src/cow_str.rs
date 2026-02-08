@@ -1,5 +1,8 @@
-use std::borrow::Cow;
-use std::fmt;
+extern crate alloc;
+
+use alloc::borrow::Cow;
+use alloc::fmt;
+use alloc::string::ToString;
 
 use crate::{Escaper, FastEscape};
 

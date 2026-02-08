@@ -1,25 +1,29 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r#"{{ name ~ " (" ~ company ~ ")" }}"#)]
 struct User {
     name: &'static str,
     company: &'static str,
 }
-impl ::std::fmt::Display for User {
+impl ::core::fmt::Display for User {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(5usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(
                                 format_args!("{0} ({1})", self.name, self.company),
@@ -41,9 +45,9 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/concat.rs",
-        start_line: 11usize,
+        start_line: 17usize,
         start_col: 4usize,
-        end_line: 11usize,
+        end_line: 17usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -78,17 +82,18 @@ fn variable() {
 }
 #[oxiplate_inline(r#"{{ "hello" ~ " " ~ "world" }}"#)]
 struct ConcatStrings;
-impl ::std::fmt::Display for ConcatStrings {
+impl ::core::fmt::Display for ConcatStrings {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(11usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(11usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("hello world")))?;
+                .write_str(&alloc::string::ToString::to_string(&("hello world")))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -103,9 +108,9 @@ pub const concat_strings: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/concat.rs",
-        start_line: 25usize,
+        start_line: 31usize,
         start_col: 4usize,
-        end_line: 25usize,
+        end_line: 31usize,
         end_col: 18usize,
         compile_fail: false,
         no_run: false,

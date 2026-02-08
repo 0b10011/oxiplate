@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -16,14 +19,15 @@ use oxiplate_derive::Oxiplate;
 struct RangeToExclusive {
     b: isize,
 }
-impl ::std::fmt::Display for RangeToExclusive {
+impl ::core::fmt::Display for RangeToExclusive {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(81usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             if (..3).contains(&-1) {
@@ -64,9 +68,9 @@ pub const range_to_exclusive: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 19usize,
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 19usize,
+        end_line: 25usize,
         end_col: 22usize,
         compile_fail: false,
         no_run: false,
@@ -118,14 +122,15 @@ b contains -1
 struct RangeToInclusive {
     b: isize,
 }
-impl ::std::fmt::Display for RangeToInclusive {
+impl ::core::fmt::Display for RangeToInclusive {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(81usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             if (..=3).contains(&-1) {
@@ -166,9 +171,9 @@ pub const range_to_inclusive: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 49usize,
+        start_line: 55usize,
         start_col: 4usize,
-        end_line: 49usize,
+        end_line: 55usize,
         end_col: 22usize,
         compile_fail: false,
         no_run: false,
@@ -220,14 +225,15 @@ b contains 3
 struct RangeFrom {
     a: i8,
 }
-impl ::std::fmt::Display for RangeFrom {
+impl ::core::fmt::Display for RangeFrom {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(83usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(83usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             if (4..).contains(&3) {
@@ -268,9 +274,9 @@ pub const range_from: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 79usize,
+        start_line: 85usize,
         start_col: 4usize,
-        end_line: 79usize,
+        end_line: 85usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -327,14 +333,15 @@ struct RangeExclusive {
     a: i8,
     b: i8,
 }
-impl ::std::fmt::Display for RangeExclusive {
+impl ::core::fmt::Display for RangeExclusive {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(142usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(142usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             if (3..19).contains(&2) {
@@ -391,9 +398,9 @@ pub const range_exclusive: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 114usize,
+        start_line: 120usize,
         start_col: 4usize,
-        end_line: 114usize,
+        end_line: 120usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -454,14 +461,15 @@ struct RangeInclusive {
     a: i8,
     b: i8,
 }
-impl ::std::fmt::Display for RangeInclusive {
+impl ::core::fmt::Display for RangeInclusive {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(142usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(142usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             if (3..=19).contains(&2) {
@@ -518,9 +526,9 @@ pub const range_inclusive: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 153usize,
+        start_line: 159usize,
         start_col: 4usize,
-        end_line: 153usize,
+        end_line: 159usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -576,32 +584,33 @@ ab contains 19
 struct RangeFull {
     a: &'static str,
 }
-impl ::std::fmt::Display for RangeFull {
+impl ::core::fmt::Display for RangeFull {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(11usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(11usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[..])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[..])))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[2..])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[2..])))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[..2])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[..2])))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[..=2])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[..=2])))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[2..4])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[2..4])))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.a[2..=4])))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -616,9 +625,9 @@ pub const range_full: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/range.rs",
-        start_line: 187usize,
+        start_line: 193usize,
         start_col: 4usize,
-        end_line: 187usize,
+        end_line: 193usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,

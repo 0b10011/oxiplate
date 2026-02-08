@@ -1,22 +1,26 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r###"{{ ##"jane #"the deer"# doe"## }}"###)]
 struct RawString {}
-impl ::std::fmt::Display for RawString {
+impl ::core::fmt::Display for RawString {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(21usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(21usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(&("jane #\"the deer\"# doe")),
+                    &alloc::string::ToString::to_string(&("jane #\"the deer\"# doe")),
                 )?;
             string
         };
@@ -32,9 +36,9 @@ pub const raw_string: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/string.rs",
-        start_line: 8usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 14usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -69,16 +73,17 @@ fn raw_string() {
 }
 #[oxiplate_inline(r#"{{ "" }}"#)]
 struct EmptyString {}
-impl ::std::fmt::Display for EmptyString {
+impl ::core::fmt::Display for EmptyString {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(0usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&("")))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -93,9 +98,9 @@ pub const empty_string: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/string.rs",
-        start_line: 19usize,
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 19usize,
+        end_line: 25usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -130,14 +135,15 @@ fn empty_string() {
 }
 #[oxiplate_inline("\x00 \x0F \x0f \x7F")]
 struct SevenBitEscapes;
-impl ::std::fmt::Display for SevenBitEscapes {
+impl ::core::fmt::Display for SevenBitEscapes {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(7usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(7usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
             string
@@ -154,9 +160,9 @@ pub const seven_bit_escapes: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/string.rs",
-        start_line: 30usize,
+        start_line: 36usize,
         start_col: 4usize,
-        end_line: 30usize,
+        end_line: 36usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,

@@ -1,29 +1,33 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate::Oxiplate;
 #[oxiplate_inline(r#"{% include "extends.html.oxip" %}"#)]
 struct Include {
     title: &'static str,
     message: &'static str,
 }
-impl ::std::fmt::Display for Include {
+impl ::core::fmt::Display for Include {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Include {
     const ESTIMATED_LENGTH: usize = 55usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
@@ -60,9 +64,9 @@ pub const include: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/include.rs",
-        start_line: 11usize,
+        start_line: 17usize,
         start_col: 4usize,
-        end_line: 11usize,
+        end_line: 17usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -101,22 +105,23 @@ struct IncludeDeep {
     title: &'static str,
     message: &'static str,
 }
-impl ::std::fmt::Display for IncludeDeep {
+impl ::core::fmt::Display for IncludeDeep {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for IncludeDeep {
     const ESTIMATED_LENGTH: usize = 32usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("<h1>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
@@ -145,9 +150,9 @@ pub const include_deep: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/include.rs",
-        start_line: 32usize,
+        start_line: 38usize,
         start_col: 4usize,
-        end_line: 32usize,
+        end_line: 38usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,

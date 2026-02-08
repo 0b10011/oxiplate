@@ -1,18 +1,22 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "./multiple-blocks-inner.html.oxip"]
 struct Data;
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(81usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
             {
@@ -41,9 +45,9 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/multiple-blocks.rs",
-        start_line: 8usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 14usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,

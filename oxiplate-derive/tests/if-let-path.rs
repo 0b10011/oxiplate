@@ -1,3 +1,9 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 
 enum Type {

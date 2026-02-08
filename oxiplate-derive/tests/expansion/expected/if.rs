@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("
 {%- if do_this -%}
@@ -11,19 +14,20 @@ struct Data {
     do_this: bool,
     action: &'static str,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(14usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(14usize);
             let oxiplate_formatter = &mut string;
             if self.do_this {
                 oxiplate_formatter.write_str("This then ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
                 oxiplate_formatter.write_str(" :D")?;
             }
             string
@@ -40,9 +44,9 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if.rs",
-        start_line: 16usize,
+        start_line: 22usize,
         start_col: 4usize,
-        end_line: 16usize,
+        end_line: 22usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

@@ -1,4 +1,9 @@
-use std::fmt::Display;
+#![no_std]
+
+extern crate alloc;
+
+use alloc::string::String;
+use core::fmt::{self, Display};
 
 use oxiplate::{Oxiplate, Render};
 
@@ -11,7 +16,7 @@ impl HelloWorld {
 }
 
 impl Display for HelloWorld {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("Hello world &lt;<script><!--")
     }
 }

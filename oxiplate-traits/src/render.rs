@@ -1,4 +1,7 @@
-use core::fmt::{Error, Write};
+extern crate alloc;
+
+use alloc::string::String;
+use core::fmt::{self, Error, Write};
 
 /// Optimized render function trait.
 pub trait Render {
@@ -21,5 +24,5 @@ pub trait Render {
     /// # Errors
     ///
     /// If strings cannot be written to the formatter.
-    fn render_into<W: Write>(&self, writer: &mut W) -> ::std::fmt::Result;
+    fn render_into<W: Write>(&self, writer: &mut W) -> fmt::Result;
 }

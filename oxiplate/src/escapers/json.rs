@@ -9,7 +9,12 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use std::fmt::{Result, Write};
+#[cfg(test)]
+extern crate alloc;
+
+#[cfg(test)]
+use alloc::string::String;
+use core::fmt::{Result, Write};
 
 use oxiplate_traits::Escaper;
 

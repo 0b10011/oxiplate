@@ -1,28 +1,30 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(html:"<!--{{ comment: comment }}-->")]
 struct Data<'a> {
     comment: &'a str,
 }
-impl<'a> ::std::fmt::Display for Data<'a> {
+impl<'a> ::core::fmt::Display for Data<'a> {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl<'a> ::oxiplate::Render for Data<'a> {
     const ESTIMATED_LENGTH: usize = 8usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("<!--")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment)))
@@ -43,9 +45,9 @@ pub const comment: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/comment-escaping.rs",
-        start_line: 10usize,
+        start_line: 12usize,
         start_col: 4usize,
-        end_line: 10usize,
+        end_line: 12usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
