@@ -2,6 +2,7 @@
 name = "oxiplate-derive-test-config-newline-in-string-unclosed-string"
 edition = "2021"
 publish = false
+version = "0.1.0"
 
 [dev-dependencies]
 trybuild = "1.0.101"

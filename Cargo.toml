@@ -18,7 +18,7 @@ keywords = ["escaping", "whitespace-control", "compile-time"]
 license = "MIT"
 edition = "2021"
 # Found with `cargo msrv --workspace find --ignore-lockfile`
-rust-version = "1.75.0"
+rust-version = "1.74.1"
 
 [workspace.lints.clippy]
 

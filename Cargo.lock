@@ -74,7 +74,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "colored",
  "oxiplate-derive",
@@ -83,7 +83,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-array"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -91,7 +91,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-array-of-tables"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -99,7 +99,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-bad-hex"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -107,7 +107,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-double-assign"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -115,7 +115,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-double-table"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -123,7 +123,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-eof-in-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -131,7 +131,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-bool"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -139,7 +139,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-group-non-ident"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -147,7 +147,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-group-non-path"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -155,7 +155,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-group-relative"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -163,7 +163,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-group-value"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -171,7 +171,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-escaper-table"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -179,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-fallback-escaper-group-bool"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -187,7 +187,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -195,7 +195,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-missing-value"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -203,7 +203,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-newline-in-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -211,7 +211,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-newline-in-string-unclosed-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-newline-instead-of-value"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-number-escaper"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -235,7 +235,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-optimized-renderer-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -243,7 +243,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-overwriting-value-with-table"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-overwriting-value-with-table-via-ancestor"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -259,7 +259,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-require-specifying-escaper-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-template"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -275,7 +275,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-unexpected-escape-sequence"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -283,7 +283,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-unexpected-escape-sequence-unclosed-string"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -291,7 +291,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-unmatched-bracket"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-unrecognized-key"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -307,7 +307,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-unsupported-brace"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -315,7 +315,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-value-after-table-declaration"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -323,7 +323,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-optimized-renderer"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-unreachable"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -339,7 +339,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-unreachable-stable"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate-derive",
  "trybuild",
@@ -347,7 +347,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-config-with-feature-turned-off"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -355,7 +355,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-default-html"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -363,7 +363,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-default-json"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -371,7 +371,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-default-raw"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -379,7 +379,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-escaper-without-config"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -387,7 +387,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-escaper-without-default-escaper-group"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -395,7 +395,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-fallback-group-malformed"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -403,7 +403,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-fast-escape-type-priority"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -411,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-file-extension-inferrence-off"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -419,7 +419,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-require-specifying-escaper"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -427,7 +427,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-slow-escape-ints"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -435,7 +435,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-template-dir-absolute"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -443,7 +443,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-template-dir-file"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-template-dir-missing"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -459,7 +459,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-template-dir-symlink"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -467,7 +467,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-unreachable"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
@@ -475,7 +475,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-unreachable-stable"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "oxiplate",
  "trybuild",
