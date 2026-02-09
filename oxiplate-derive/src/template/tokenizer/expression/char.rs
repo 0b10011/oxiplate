@@ -1,8 +1,8 @@
 use super::Token;
-use crate::Source;
-use crate::template::tokenizer::Res;
 use crate::template::tokenizer::kind::TokenKind;
+use crate::template::tokenizer::Res;
 use crate::tokenizer::{BufferedSource, ParseError, UnexpectedTokenError};
+use crate::Source;
 
 /// Parse char literal (e.g., `'a'`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>

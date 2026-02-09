@@ -22,8 +22,8 @@ pub use opt::opt;
 pub use parse_all::parse_all;
 pub use take::take;
 
-use crate::Source;
 use crate::tokenizer::{TokenSlice, UnexpectedTokenError};
+use crate::Source;
 
 pub type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
 

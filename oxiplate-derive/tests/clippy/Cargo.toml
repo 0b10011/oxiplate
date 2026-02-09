@@ -1,6 +1,6 @@
 [package]
 name = "clippy-tests"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 oxiplate-derive = { path = "../../" }

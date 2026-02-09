@@ -1,15 +1,15 @@
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote};
+use quote::{quote, TokenStreamExt};
 
 use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut, opt, take};
+use crate::parser::{cut, opt, take, Parser as _};
 use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::template::Template;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source, State, internal_error};
+use crate::{internal_error, BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) enum IfType<'a> {
@@ -89,7 +89,7 @@ impl<'a> If<'a> {
                 if let Some(template) = &mut self.otherwise {
                     template.0.push(item);
                 } else {
-                    self.ifs.last_mut().unwrap().1.0.push(item);
+                    self.ifs.last_mut().unwrap().1 .0.push(item);
                 }
             }
         }

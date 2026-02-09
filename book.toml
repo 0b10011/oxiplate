@@ -6,7 +6,7 @@ src = "book"
 title = "Oxiplate Documentation"
 
 [rust]
-edition = "2024"
+edition = "2021"
 
 [build]
 build-dir = "book-output"

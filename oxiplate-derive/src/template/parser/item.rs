@@ -4,13 +4,13 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::comment::comment;
-use super::statement::statement;
 use super::r#static::StaticType;
+use super::statement::statement;
 use super::writ::writ;
 use super::{Statement, Static, Writ};
-use crate::parser::{Error, Parser as _, cut, opt, take};
-use crate::template::parser::Res;
+use crate::parser::{cut, opt, take, Error, Parser as _};
 use crate::template::parser::statement::StatementKind;
+use crate::template::parser::Res;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
 use crate::{Source, State};
 

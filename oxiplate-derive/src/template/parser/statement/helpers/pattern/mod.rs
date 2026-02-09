@@ -6,15 +6,15 @@ mod tuple;
 use std::collections::HashSet;
 
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 
 use self::literal::Literal;
-use self::range::Range;
 use self::r#struct::Struct;
+use self::range::Range;
 use self::tuple::Tuple;
-use crate::parser::{Parser as _, alt, cut, into, many1, opt, take};
-use crate::template::parser::Res;
+use crate::parser::{alt, cut, into, many1, opt, take, Parser as _};
 use crate::template::parser::expression::Identifier;
+use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 

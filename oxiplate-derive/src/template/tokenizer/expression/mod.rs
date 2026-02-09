@@ -3,15 +3,15 @@ mod number;
 mod string;
 
 use super::Token;
-use crate::Source;
 use crate::template::tokenizer::expression::char::consume_char;
 use crate::template::tokenizer::expression::number::{consume_alternative_base, consume_decimal};
 use crate::template::tokenizer::expression::string::{consume_raw_string, consume_string};
 use crate::template::tokenizer::{
-    Context, Res, TagKind, TokenKind, WhitespacePreference, consume_possible_tag_end,
-    consume_possible_tag_end_whitespace_adjustment, whitespace,
+    consume_possible_tag_end, consume_possible_tag_end_whitespace_adjustment, whitespace, Context,
+    Res, TagKind, TokenKind, WhitespacePreference,
 };
 use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
+use crate::Source;
 
 #[allow(clippy::too_many_lines)]
 pub fn consume_expression_token<'a>(

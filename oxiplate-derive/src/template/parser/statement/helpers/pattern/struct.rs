@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
+use quote::{quote, quote_spanned, TokenStreamExt};
 
 use super::Pattern;
-use crate::parser::{Parser as _, alt, context, cut, into, many0, take};
-use crate::template::parser::Res;
+use crate::parser::{alt, context, cut, into, many0, take, Parser as _};
 use crate::template::parser::expression::Identifier;
 use crate::template::parser::statement::helpers::pattern::Path;
+use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 

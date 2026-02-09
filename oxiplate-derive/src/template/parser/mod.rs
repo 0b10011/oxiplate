@@ -7,15 +7,15 @@ mod template;
 mod writ;
 
 use item::Item;
-use statement::Statement;
 use r#static::Static;
+use statement::Statement;
 pub(crate) use template::parse;
 use writ::Writ;
 
-use crate::Source;
 use crate::parser::Error;
 use crate::template::parser::template::Template;
 use crate::template::tokenizer::TokenKind;
+use crate::Source;
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
 

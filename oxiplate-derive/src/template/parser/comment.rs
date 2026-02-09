@@ -1,6 +1,6 @@
-use super::Item;
 use super::item::tag_end;
-use crate::parser::{Parser as _, cut, many0, take};
+use super::Item;
+use crate::parser::{cut, many0, take, Parser as _};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TagKind, TokenKind};
 use crate::{Source, TokenSlice};

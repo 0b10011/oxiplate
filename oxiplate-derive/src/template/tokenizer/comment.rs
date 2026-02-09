@@ -1,6 +1,6 @@
 use super::Token;
-use crate::template::tokenizer::Res;
 use crate::template::tokenizer::kind::TokenKind;
+use crate::template::tokenizer::Res;
 use crate::tokenizer::BufferedSource;
 
 pub fn consume_comment<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {

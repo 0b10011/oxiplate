@@ -1,6 +1,6 @@
 [package]
 name = "oxiplate-derive-test-config-overwriting-value-with-table-via-ancestor"
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dev-dependencies]

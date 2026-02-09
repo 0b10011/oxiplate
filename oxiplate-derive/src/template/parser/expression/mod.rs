@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+use quote::{quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::token::Dot;
 
 mod arguments;
@@ -15,14 +15,14 @@ mod tuple;
 use self::arguments::arguments;
 use self::concat::Concat;
 use self::ident::IdentifierOrFunction;
-pub(super) use self::ident::{Identifier, identifier};
+pub(super) use self::ident::{identifier, Identifier};
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
-use super::Res;
 use super::expression::arguments::ArgumentsGroup;
-use super::expression::operator::{Operator, parse_operator};
-use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{Parser as _, alt, context, cut, fail, into, many0, many1, opt, take};
+use super::expression::operator::{parse_operator, Operator};
+use super::expression::prefix_operator::{parse_prefixed_expression, PrefixOperator};
+use super::Res;
+use crate::parser::{alt, context, cut, fail, into, many0, many1, opt, take, Parser as _};
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};

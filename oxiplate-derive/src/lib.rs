@@ -33,8 +33,8 @@ use crate::config::OptimizedRenderer;
 pub(crate) use crate::source::Source;
 use crate::source::SourceOwned;
 pub(crate) use crate::state::State;
-use crate::state::{LocalVariables, build_config};
-use crate::template::{TokenSlice, parse, tokens_and_eof};
+use crate::state::{build_config, LocalVariables};
+use crate::template::{parse, tokens_and_eof, TokenSlice};
 
 type BuiltTokens = (proc_macro2::TokenStream, usize);
 

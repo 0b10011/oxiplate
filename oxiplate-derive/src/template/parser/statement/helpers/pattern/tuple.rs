@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote_spanned};
+use quote::{quote_spanned, TokenStreamExt};
 
 use super::Pattern;
-use crate::parser::{Parser as _, cut, many1, opt, take};
+use crate::parser::{cut, many1, opt, take, Parser as _};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{Source, State};

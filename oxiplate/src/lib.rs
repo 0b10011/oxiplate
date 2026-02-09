@@ -53,5 +53,5 @@ pub use oxiplate_traits::{
 /// # }
 /// ```
 pub mod prelude {
-    pub use super::{Oxiplate, Render, filters as filters_for_oxiplate};
+    pub use super::{filters as filters_for_oxiplate, Oxiplate, Render};
 }

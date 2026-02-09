@@ -2,10 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 
 use super::Res;
-use crate::parser::{Parser as _, cut, many0, opt, take};
-use crate::template::parser::expression::{ExpressionAccess, expression};
+use crate::parser::{cut, many0, opt, take, Parser as _};
+use crate::template::parser::expression::{expression, ExpressionAccess};
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
-use crate::{Source, State, quote_spanned};
+use crate::{quote_spanned, Source, State};
 
 pub(crate) type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
 pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;

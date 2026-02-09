@@ -1,7 +1,7 @@
 pub use self::kind::TokenKind;
 use super::Token;
-use crate::Source;
 use crate::tokenizer::{BufferedSource, Eof, UnexpectedTokenError};
+use crate::Source;
 
 type Res<'a> = Result<Token<'a>, UnexpectedTokenError<'a>>;
 

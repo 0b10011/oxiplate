@@ -1,8 +1,8 @@
 use quote::{quote, quote_spanned};
 
 use super::Res;
-use crate::parser::{Parser as _, context, cut, fail, many1, take};
-use crate::template::parser::expression::{Expression, ExpressionAccess, expression};
+use crate::parser::{context, cut, fail, many1, take, Parser as _};
+use crate::template::parser::expression::{expression, Expression, ExpressionAccess};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 

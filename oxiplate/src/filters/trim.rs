@@ -8,7 +8,7 @@ use core::fmt::Display;
 
 use oxiplate_traits::CowStr;
 #[cfg(test)]
-use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+use oxiplate_traits::{cow_str_wrapper, ToCowStr};
 
 /// Trims the leading and trailing whitespace from the input.
 ///

@@ -1,6 +1,6 @@
 [package]
 name = "oxiplate-derive-test-config-array"
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dev-dependencies]

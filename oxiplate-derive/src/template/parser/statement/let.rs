@@ -1,10 +1,10 @@
 use quote::quote_spanned;
 
-use super::super::expression::{Identifier, Keyword, expression};
+use super::super::expression::{expression, Identifier, Keyword};
 use super::{State, Statement, StatementKind};
-use crate::parser::{Parser as _, cut, take};
-use crate::template::parser::Res;
+use crate::parser::{cut, take, Parser as _};
 use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
+use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 

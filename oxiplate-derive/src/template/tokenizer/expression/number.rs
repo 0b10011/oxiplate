@@ -1,7 +1,7 @@
 use super::Token;
-use crate::Source;
 use crate::template::tokenizer::{Res, TokenKind};
 use crate::tokenizer::{BufferedSource, ParseError, UnexpectedTokenError};
+use crate::Source;
 
 /// Parse decimal and floating-point literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>

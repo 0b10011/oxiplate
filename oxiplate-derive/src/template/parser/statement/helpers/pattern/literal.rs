@@ -1,11 +1,11 @@
 use proc_macro2::TokenStream;
 
-use crate::Source;
-use crate::parser::{Parser as _, alt, into};
-use crate::template::parser::Res;
+use crate::parser::{alt, into, Parser as _};
 use crate::template::parser::expression::{Bool, Char, Float, Integer, Number, String};
 use crate::template::parser::statement::helpers::pattern::Pattern;
+use crate::template::parser::Res;
 use crate::template::tokenizer::TokenSlice;
+use crate::Source;
 
 /// A literal value to match against.
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#matching-literals>

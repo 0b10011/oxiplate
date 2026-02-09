@@ -1,7 +1,7 @@
 use quote::quote_spanned;
 
 use super::Item;
-use crate::parser::{Parser as _, alt, take};
+use crate::parser::{alt, take, Parser as _};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};

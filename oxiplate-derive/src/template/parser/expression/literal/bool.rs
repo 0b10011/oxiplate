@@ -1,7 +1,7 @@
 use quote::quote;
 
-use crate::template::parser::Error;
 use crate::template::parser::expression::{Expression, Res};
+use crate::template::parser::Error;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 

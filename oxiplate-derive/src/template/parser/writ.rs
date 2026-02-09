@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fmt::Debug;
 
 use proc_macro2::{Span, TokenStream};
@@ -6,11 +7,11 @@ use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
-use super::Item;
-use super::expression::{ExpressionAccess, Identifier, expression};
+use super::expression::{expression, ExpressionAccess, Identifier};
 use super::item::tag_end;
+use super::Item;
 use crate::config::EscaperGroup;
-use crate::parser::{Parser as _, cut, opt, take};
+use crate::parser::{cut, opt, take, Parser as _};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};

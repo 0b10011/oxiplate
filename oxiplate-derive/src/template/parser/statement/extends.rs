@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
+use quote::{quote, quote_spanned, TokenStreamExt};
 use syn::LitStr;
 
 use super::{Statement, StatementKind, StaticType};
-use crate::parser::{Parser as _, cut};
+use crate::parser::{cut, Parser as _};
 use crate::template::parser::expression::{KeywordParser, String};
 use crate::template::parser::template::Template;
 use crate::template::parser::{Item, Res};

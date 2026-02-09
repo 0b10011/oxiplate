@@ -1,18 +1,18 @@
 use std::collections::HashSet;
 
 use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
+use quote::{quote, quote_spanned, TokenStreamExt};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut, many0, opt, take};
-use crate::template::parser::Res;
-use crate::template::parser::expression::{ExpressionAccess, KeywordParser, expression};
-use crate::template::parser::statement::helpers::pattern::Pattern;
+use crate::parser::{cut, many0, opt, take, Parser as _};
+use crate::template::parser::expression::{expression, ExpressionAccess, KeywordParser};
 use crate::template::parser::r#static::StaticType;
+use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::template::Template;
+use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source, State, internal_error};
+use crate::{internal_error, BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) struct Match<'a> {

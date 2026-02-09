@@ -2,13 +2,13 @@ use std::collections::{HashMap, HashSet, VecDeque};
 #[cfg(not(feature = "config"))]
 use std::fs;
 
-use syn::DeriveInput;
 use syn::spanned::Spanned;
+use syn::DeriveInput;
 
-use crate::BuiltTokens;
 #[cfg(not(feature = "config"))]
 use crate::config::config_path;
-use crate::config::{Config, EscaperGroup, OptimizedRenderer, read_config};
+use crate::config::{read_config, Config, EscaperGroup, OptimizedRenderer};
+use crate::BuiltTokens;
 
 #[cfg(all(feature = "built-in-escapers", not(feature = "oxiplate")))]
 compile_error!(

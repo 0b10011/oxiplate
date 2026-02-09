@@ -29,7 +29,7 @@ pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 /// use oxiplate_traits::CowStr;
 /// #[cfg(test)]
 /// # compile_error!("tests don't run in docs");
-/// use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+/// use oxiplate_traits::{cow_str_wrapper, ToCowStr};
 ///
 /// pub fn upper<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
 ///     match expression.cow_str() {

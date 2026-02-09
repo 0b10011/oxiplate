@@ -13,11 +13,11 @@ use quote::quote_spanned;
 pub(crate) use self::escaper::DefaultEscaper;
 use super::r#static::StaticType;
 use super::{Item, Res};
-use crate::parser::{Parser as _, alt, cut, into};
-use crate::template::parser::Error;
+use crate::parser::{alt, cut, into, Parser as _};
 use crate::template::parser::item::tag_end;
 use crate::template::parser::statement::r#let::Let;
 use crate::template::parser::template::parse_item;
+use crate::template::parser::Error;
 use crate::template::tokenizer::{TagKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 

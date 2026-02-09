@@ -1,6 +1,6 @@
 use quote::quote;
 
-use crate::parser::{Parser as _, alt, into, take};
+use crate::parser::{alt, into, take, Parser as _};
 use crate::template::parser::expression::{Expression, Res};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};

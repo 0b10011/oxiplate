@@ -1,11 +1,11 @@
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote_spanned};
+use quote::{quote_spanned, ToTokens, TokenStreamExt};
 
 use super::super::Res;
-use crate::parser::{Parser as _, alt, cut, take};
-use crate::template::parser::expression::{Expression, expression};
+use crate::parser::{alt, cut, take, Parser as _};
+use crate::template::parser::expression::{expression, Expression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, internal_error};
+use crate::{internal_error, Source};
 
 fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
     let (tokens, token) = alt((

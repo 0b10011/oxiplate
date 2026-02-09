@@ -16,9 +16,9 @@ repository = "https://github.com/0b10011/oxiplate"
 categories = ["template-engine"]
 keywords = ["escaping", "whitespace-control", "compile-time"]
 license = "MIT"
-edition = "2024"
-# Found with `cargo msrv --workspace find --no-default-features --features config,built-in-escapers,fast-escape-ints`
-rust-version = "1.85.1"
+edition = "2021"
+# Found with `cargo msrv --workspace find --ignore-lockfile`
+rust-version = "1.82.0"
 
 [workspace.lints.clippy]
 

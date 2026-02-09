@@ -1,5 +1,5 @@
 use crate::template::tokenizer::kind::WhitespacePreference;
-use crate::template::tokenizer::{Context, Res, TagKind, TokenKind, whitespace};
+use crate::template::tokenizer::{whitespace, Context, Res, TagKind, TokenKind};
 use crate::tokenizer::{BufferedSource, Token};
 
 pub fn consume_static_whitespace<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {

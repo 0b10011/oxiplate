@@ -1,6 +1,6 @@
 [package]
 name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-string"
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dev-dependencies]

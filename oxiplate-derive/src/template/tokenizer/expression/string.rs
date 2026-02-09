@@ -1,7 +1,7 @@
 use super::Token;
-use crate::Source;
 use crate::template::tokenizer::{Res, TokenKind};
 use crate::tokenizer::{BufferedSource, ParseError, UnexpectedTokenError};
+use crate::Source;
 
 fn parse_string(source: &mut BufferedSource) -> Result<String, ParseError> {
     let mut string = String::new();

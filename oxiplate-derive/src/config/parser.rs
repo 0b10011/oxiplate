@@ -3,7 +3,7 @@ use std::mem;
 
 use crate::config::tokenizer::TokenKind;
 use crate::config::{Config, EscaperGroup, InferEscaperGroupFromFileExtension, Token, TokenSlice};
-use crate::parser::{Error, Parser as _, alt, cut, into, many0, opt, parse_all, take};
+use crate::parser::{alt, cut, into, many0, opt, parse_all, take, Error, Parser as _};
 use crate::{OptimizedRenderer, Source};
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
