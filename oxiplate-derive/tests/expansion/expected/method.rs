@@ -1,7 +1,11 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
+use alloc::string::String;
 use oxiplate_derive::Oxiplate;
 struct User {
     name: &'static str,
@@ -18,18 +22,19 @@ impl User {
 struct Data {
     user: User,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(&(self.user.display_name())),
+                    &alloc::string::ToString::to_string(&(self.user.display_name())),
                 )?;
             string
         };
@@ -45,9 +50,9 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/method.rs",
-        start_line: 20usize,
+        start_line: 27usize,
         start_col: 4usize,
-        end_line: 20usize,
+        end_line: 27usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
@@ -86,14 +91,15 @@ fn field() {
 struct Argument {
     user: User,
 }
-impl ::std::fmt::Display for Argument {
+impl ::core::fmt::Display for Argument {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(4usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             if self.user.display_name().contains("i") {
                 oxiplate_formatter.write_str("yup!")?;
@@ -112,9 +118,9 @@ pub const field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/method.rs",
-        start_line: 38usize,
+        start_line: 45usize,
         start_col: 4usize,
-        end_line: 38usize,
+        end_line: 45usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,
@@ -158,25 +164,26 @@ fn field_with_argument() {
 struct Arguments {
     user: User,
 }
-impl ::std::fmt::Display for Arguments {
+impl ::core::fmt::Display for Arguments {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(self.user.display_name().replace("a", "@")),
                     ),
                 )?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(self.user.display_name().replace("a", "@")),
                     ),
                 )?;
@@ -194,9 +201,9 @@ pub const field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/method.rs",
-        start_line: 58usize,
+        start_line: 65usize,
         start_col: 4usize,
-        end_line: 58usize,
+        end_line: 65usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
@@ -238,17 +245,18 @@ fn field_with_arguments() {
 struct Callback {
     foo: fn() -> &'static str,
 }
-impl ::std::fmt::Display for Callback {
+impl ::core::fmt::Display for Callback {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&((self.foo)())))?;
+                .write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -263,9 +271,9 @@ pub const callback: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/method.rs",
-        start_line: 79usize,
+        start_line: 86usize,
         start_col: 4usize,
-        end_line: 79usize,
+        end_line: 86usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,

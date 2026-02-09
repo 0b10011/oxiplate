@@ -1,10 +1,14 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
-    use std::borrow::Cow;
+    use alloc::borrow::{Cow, ToOwned};
+    use alloc::format;
     use oxiplate::CowStr;
     pub fn respond<'a, E: CowStr<'a>, R: CowStr<'a>>(
         expression: E,
@@ -50,22 +54,23 @@ mod filters_for_oxiplate {
 struct Respond {
     message: &'static str,
 }
-impl ::std::fmt::Display for Respond {
+impl ::core::fmt::Display for Respond {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Respond {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(::oxiplate::CowStrWrapper::new(
@@ -96,9 +101,9 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/filters.rs",
-        start_line: 43usize,
+        start_line: 50usize,
         start_col: 4usize,
-        end_line: 43usize,
+        end_line: 50usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -150,22 +155,23 @@ struct Shorten {
     message: &'static str,
     max_length: usize,
 }
-impl ::std::fmt::Display for Shorten {
+impl ::core::fmt::Display for Shorten {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Shorten {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::shorten(
@@ -188,9 +194,9 @@ pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/filters.rs",
-        start_line: 59usize,
+        start_line: 66usize,
         start_col: 4usize,
-        end_line: 59usize,
+        end_line: 66usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -258,22 +264,23 @@ struct Pad {
     number: usize,
     length: usize,
 }
-impl ::std::fmt::Display for Pad {
+impl ::core::fmt::Display for Pad {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Pad {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::pad(self.number, self.length)),
@@ -291,9 +298,9 @@ pub const pad: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/filters.rs",
-        start_line: 90usize,
+        start_line: 97usize,
         start_col: 4usize,
-        end_line: 90usize,
+        end_line: 97usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -345,22 +352,23 @@ struct Multiple {
     message: &'static str,
     length: usize,
 }
-impl ::std::fmt::Display for Multiple {
+impl ::core::fmt::Display for Multiple {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Multiple {
     const ESTIMATED_LENGTH: usize = 1usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::shorten(
@@ -395,9 +403,9 @@ pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/filters.rs",
-        start_line: 121usize,
+        start_line: 128usize,
         start_col: 4usize,
-        end_line: 121usize,
+        end_line: 128usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,

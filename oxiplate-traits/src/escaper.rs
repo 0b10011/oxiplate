@@ -1,4 +1,4 @@
-use std::fmt::{Result, Write};
+use core::fmt::{Result, Write};
 
 /// Trait for an Oxiplate-compatible escaper group.
 pub trait Escaper {

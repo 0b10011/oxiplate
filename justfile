@@ -37,7 +37,7 @@ update-test-output:
     # Update expansion test results
     cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
     [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
-    [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
+    [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
 
     echo "Test output updated successfully!"
 
@@ -83,18 +83,24 @@ check-strict: (run-against-stable "RUSTFLAGS='-D warnings' cargo check --locked"
 
 # Run tests without coverage.
 [group("Test")]
-test: (run-against-all "cargo test --locked") (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
+test: (run-against-all "cargo test --locked") build-no-std (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
     cargo test --package oxiplate-derive --test clippy -- --ignored
 
 # Run stable tests against specified toolchain (target triples not supported).
 [group("Test")]
 [arg("toolchain", pattern='(stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?')]
-test-toolchain toolchain: && (run-against-stable f"cargo +{{ toolchain }} test --locked")
+test-toolchain toolchain: && (run-against-stable f"cargo +{{ toolchain }} test --locked") (build-no-std toolchain)
     @echo "Running tests against {{ toolchain }} toolchain..."
 
 # Run stable tests against `rust-version` listed in `/Cargo.toml`.
 [group("Test")]
 test-msrv: (test-toolchain `just get-msrv`)
+
+# Build `oxiplate` against a target with no `std`
+[group("Test")]
+[arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]
+build-no-std toolchain="":
+    RUSTFLAGS='-D warnings' cargo {{ if toolchain != "" { '+' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
 
 [private]
 get-msrv:

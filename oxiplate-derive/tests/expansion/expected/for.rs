@@ -1,7 +1,11 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::vec::Vec;
+use alloc::{format, vec};
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     r#"
@@ -14,20 +18,21 @@ use oxiplate_derive::Oxiplate;
 struct Data {
     values: Vec<&'static str>,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(36usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(36usize);
             let oxiplate_formatter = &mut string;
             for a in &self.values {
                 for b in &self.values {
                     oxiplate_formatter
                         .write_str(
-                            &::std::string::ToString::to_string(
+                            &alloc::string::ToString::to_string(
                                 &(::alloc::__export::must_use({
                                     ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
                                 })),
@@ -50,9 +55,9 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 17usize,
+        start_line: 24usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 24usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -93,18 +98,19 @@ fn test_for() {
 struct Accounts {
     people: Vec<Person>,
 }
-impl ::std::fmt::Display for Accounts {
+impl ::core::fmt::Display for Accounts {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(10usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             for Person { name } in &self.people {
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(name)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(name)))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
             string
@@ -124,9 +130,9 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 44usize,
+        start_line: 51usize,
         start_col: 4usize,
-        end_line: 44usize,
+        end_line: 51usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
@@ -175,25 +181,26 @@ struct ShadowVariable {
     values: Vec<&'static str>,
     value: &'static str,
 }
-impl ::std::fmt::Display for ShadowVariable {
+impl ::core::fmt::Display for ShadowVariable {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(17usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(17usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.value)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             oxiplate_formatter.write_str("!\n")?;
             for value in &self.values {
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("\n")?;
             }
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.value)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             oxiplate_formatter.write_str(" again :D")?;
             string
         };
@@ -209,9 +216,9 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 67usize,
+        start_line: 74usize,
         start_col: 4usize,
-        end_line: 67usize,
+        end_line: 74usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
@@ -260,18 +267,19 @@ hello world again :D",
 struct Functions {
     functions: Vec<fn() -> i32>,
 }
-impl ::std::fmt::Display for Functions {
+impl ::core::fmt::Display for Functions {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(4usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for function in &self.functions {
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(function())))?;
+                    .write_str(&alloc::string::ToString::to_string(&(function())))?;
                 oxiplate_formatter.write_str("\n")?;
             }
             string
@@ -288,9 +296,9 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 95usize,
+        start_line: 102usize,
         start_col: 4usize,
-        end_line: 95usize,
+        end_line: 102usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -336,21 +344,22 @@ fn test_function_variables() {
 struct ForElse {
     values: Vec<&'static str>,
 }
-impl ::std::fmt::Display for ForElse {
+impl ::core::fmt::Display for ForElse {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(10usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             {
                 let mut loop_ran = false;
                 for value in &self.values {
                     loop_ran = true;
                     oxiplate_formatter
-                        .write_str(&::std::string::ToString::to_string(&(value)))?;
+                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
                     oxiplate_formatter.write_str("<br>")?;
                 }
                 if !loop_ran {
@@ -371,9 +380,9 @@ pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 117usize,
+        start_line: 124usize,
         start_col: 4usize,
-        end_line: 117usize,
+        end_line: 124usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -421,21 +430,22 @@ fn test_for_else() {
 struct Continue {
     values: Vec<usize>,
 }
-impl ::std::fmt::Display for Continue {
+impl ::core::fmt::Display for Continue {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(4usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for value in &self.values {
                 if *value == 23 {
                     continue;
                 }
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str(" ")?;
             }
             string
@@ -452,9 +462,9 @@ pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 139usize,
+        start_line: 146usize,
         start_col: 4usize,
-        end_line: 139usize,
+        end_line: 146usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -502,21 +512,22 @@ fn test_continue() {
 struct Break {
     values: Vec<usize>,
 }
-impl ::std::fmt::Display for Break {
+impl ::core::fmt::Display for Break {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(4usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for value in &self.values {
                 if *value > 42 {
                     break;
                 }
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(value)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str(" ")?;
             }
             string
@@ -533,9 +544,9 @@ pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 163usize,
+        start_line: 170usize,
         start_col: 4usize,
-        end_line: 163usize,
+        end_line: 170usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -581,14 +592,15 @@ fn test_break() {
 struct BreakElse {
     values: Vec<usize>,
 }
-impl ::std::fmt::Display for BreakElse {
+impl ::core::fmt::Display for BreakElse {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(0usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
             {
                 let mut loop_ran = false;
@@ -614,9 +626,9 @@ pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 185usize,
+        start_line: 192usize,
         start_col: 4usize,
-        end_line: 185usize,
+        end_line: 192usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,

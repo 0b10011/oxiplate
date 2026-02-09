@@ -1,10 +1,17 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
-    use std::fmt::Display;
+    extern crate alloc;
+    use alloc::borrow::ToOwned as _;
+    use alloc::format;
+    use alloc::string::ToString as _;
+    use core::fmt::Display;
     pub fn respond(expression: impl Display, yell: bool) -> impl Display {
         let expression = expression.to_string();
         match expression.as_str() {
@@ -43,18 +50,19 @@ struct Respond {
     message: &'static str,
     respond: &'static bool,
 }
-impl ::std::fmt::Display for Respond {
+impl ::core::fmt::Display for Respond {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::respond(
                             self.message,
                             *self.respond,
@@ -64,7 +72,7 @@ impl ::std::fmt::Display for Respond {
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::respond(
                             self.message,
                             !*self.respond,
@@ -85,9 +93,9 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 47usize,
+        start_line: 58usize,
         start_col: 4usize,
-        end_line: 47usize,
+        end_line: 58usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -155,18 +163,19 @@ struct Shorten {
     message: &'static str,
     max_length: usize,
 }
-impl ::std::fmt::Display for Shorten {
+impl ::core::fmt::Display for Shorten {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::shorten(
                             self.message,
                             self.max_length,
@@ -187,9 +196,9 @@ pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 78usize,
+        start_line: 89usize,
         start_col: 4usize,
-        end_line: 78usize,
+        end_line: 89usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -257,18 +266,19 @@ struct Pad {
     number: usize,
     length: usize,
 }
-impl ::std::fmt::Display for Pad {
+impl ::core::fmt::Display for Pad {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::pad(self.number, self.length)),
                     ),
                 )?;
@@ -286,9 +296,9 @@ pub const pad: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 109usize,
+        start_line: 120usize,
         start_col: 4usize,
-        end_line: 109usize,
+        end_line: 120usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -340,18 +350,19 @@ struct Multiple {
     message: &'static str,
     length: usize,
 }
-impl ::std::fmt::Display for Multiple {
+impl ::core::fmt::Display for Multiple {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::shorten(
                             crate::filters_for_oxiplate::respond(self.message, false),
                             self.length,
@@ -372,9 +383,9 @@ pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 140usize,
+        start_line: 151usize,
         start_col: 4usize,
-        end_line: 140usize,
+        end_line: 151usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -467,25 +478,26 @@ fn multiple() {
 struct Trim {
     value: &'static str,
 }
-impl ::std::fmt::Display for Trim {
+impl ::core::fmt::Display for Trim {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::trim(self.value)),
                     ),
                 )?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::trim(self.value)),
                     ),
                 )?;
@@ -503,9 +515,9 @@ pub const trim: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 180usize,
+        start_line: 191usize,
         start_col: 4usize,
-        end_line: 180usize,
+        end_line: 191usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
@@ -538,18 +550,19 @@ fn trim() {
 struct Replace {
     value: &'static str,
 }
-impl ::std::fmt::Display for Replace {
+impl ::core::fmt::Display for Replace {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
                 .write_str(
-                    &::std::string::ToString::to_string(
+                    &alloc::string::ToString::to_string(
                         &(crate::filters_for_oxiplate::replace(self.value, "ar", "oo")),
                     ),
                 )?;
@@ -567,9 +580,9 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/filters.rs",
-        start_line: 191usize,
+        start_line: 202usize,
         start_col: 4usize,
-        end_line: 191usize,
+        end_line: 202usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

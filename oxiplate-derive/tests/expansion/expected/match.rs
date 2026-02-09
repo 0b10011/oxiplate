@@ -1,8 +1,14 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
-use std::fmt::Display;
+use core::prelude::rust_2024::*;
+
+extern crate alloc;
+
+use alloc::format;
+use alloc::string::String;
+use core::fmt::Display;
 
 use oxiplate_derive::Oxiplate;
 
@@ -37,48 +43,50 @@ struct Data {
     cats_count: Option<u8>,
     name: Result<Name, ()>,
 }
-impl ::std::fmt::Display for Data {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for Data {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(13usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string =
+                    alloc::string::String::with_capacity(13usize);
                 let oxiplate_formatter = &mut string;
                 match (&self.name, self.cats_count) {
                     (Ok(Name::Actual(name)), Some(cats_count)) => {
                         oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
                         ;
                         oxiplate_formatter.write_str(" cats named ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
                         ;
                         oxiplate_formatter.write_str("!")?;
                     }
                     (Ok(Name::Actual(missing_name)), None) => {
                         oxiplate_formatter.write_str("No cats named ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
                         ;
                         oxiplate_formatter.write_str(" found :(")?;
                     }
                     (Ok(Name::Nickname { name }), Some(cats_count)) => {
                         oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
                         ;
                         oxiplate_formatter.write_str(" cats nicknamed ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(name)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
                         ;
                         oxiplate_formatter.write_str("!")?;
                     }
                     (Ok(Name::Nickname { name: missing_name }), None) => {
                         oxiplate_formatter.write_str("No cats nicknamed ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(missing_name)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
                         ;
                         oxiplate_formatter.write_str(" found :(")?;
                     }
                     (Ok(Name::Missing), Some(cats_count)) => {
                         oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(cats_count)))?;
+                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
                         ;
                         oxiplate_formatter.write_str(" cats!")?;
                     }
@@ -106,9 +114,9 @@ pub const test_count: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 39usize,
+            start_line: 45usize,
             start_col: 4usize,
-            end_line: 39usize,
+            end_line: 45usize,
             end_col: 14usize,
             compile_fail: false,
             no_run: false,
@@ -166,9 +174,9 @@ pub const test_count_name: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 49usize,
+            start_line: 55usize,
             start_col: 4usize,
-            end_line: 49usize,
+            end_line: 55usize,
             end_col: 19usize,
             compile_fail: false,
             no_run: false,
@@ -206,9 +214,9 @@ pub const test_name: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 59usize,
+            start_line: 65usize,
             start_col: 4usize,
-            end_line: 59usize,
+            end_line: 65usize,
             end_col: 13usize,
             compile_fail: false,
             no_run: false,
@@ -246,9 +254,9 @@ pub const test_none: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 71usize,
+            start_line: 77usize,
             start_col: 4usize,
-            end_line: 71usize,
+            end_line: 77usize,
             end_col: 13usize,
             compile_fail: false,
             no_run: false,
@@ -290,13 +298,14 @@ struct Multiple {
 struct MultipleWrapper {
     multiple: Multiple,
 }
-impl ::std::fmt::Display for MultipleWrapper {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for MultipleWrapper {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(2usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(2usize);
                 let oxiplate_formatter = &mut string;
                 if let Multiple { a: 10, b: 'b', c: "19", d: false } =
                         self.multiple {
@@ -320,9 +329,9 @@ pub const test_multiple: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 104usize,
+            start_line: 110usize,
             start_col: 4usize,
-            end_line: 104usize,
+            end_line: 110usize,
             end_col: 17usize,
             compile_fail: false,
             no_run: false,
@@ -371,23 +380,24 @@ struct Outer {
     a: MiddleA<usize, f64>,
     b: MiddleB<usize, f64>,
 }
-impl ::std::fmt::Display for Outer {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for Outer {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(6usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(6usize);
                 let oxiplate_formatter = &mut string;
                 if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } =
                         self.a {
                     oxiplate_formatter.write_str("a.b: ")?;
-                    oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
+                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
                     ;
                 } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) =
                         self.b {
                     oxiplate_formatter.write_str("b.a: ")?;
-                    oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
+                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
                     ;
                 }
                 string
@@ -405,9 +415,9 @@ pub const nested: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 151usize,
+            start_line: 157usize,
             start_col: 4usize,
-            end_line: 151usize,
+            end_line: 157usize,
             end_col: 10usize,
             compile_fail: false,
             no_run: false,
@@ -489,13 +499,14 @@ fn nested() {
 struct RangeInteger {
     value: isize,
 }
-impl ::std::fmt::Display for RangeInteger {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for RangeInteger {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(1usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
                     ..1 => { oxiplate_formatter.write_str("To 1")?; }
@@ -520,9 +531,9 @@ pub const range_integer: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 196usize,
+            start_line: 202usize,
             start_col: 4usize,
-            end_line: 196usize,
+            end_line: 202usize,
             end_col: 17usize,
             compile_fail: false,
             no_run: false,
@@ -626,13 +637,14 @@ fn range_integer() {
 struct RangeFloat {
     value: f64,
 }
-impl ::std::fmt::Display for RangeFloat {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for RangeFloat {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(1usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
                     ..1. => { oxiplate_formatter.write_str("To 1")?; }
@@ -658,9 +670,9 @@ pub const range_float: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 224usize,
+            start_line: 230usize,
             start_col: 4usize,
-            end_line: 224usize,
+            end_line: 230usize,
             end_col: 15usize,
             compile_fail: false,
             no_run: false,
@@ -775,13 +787,14 @@ fn range_float() {
 struct RangeChar {
     value: char,
 }
-impl ::std::fmt::Display for RangeChar {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for RangeChar {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(1usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
                     ..'b' => { oxiplate_formatter.write_str("To b")?; }
@@ -808,9 +821,9 @@ pub const range_char: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 251usize,
+            start_line: 257usize,
             start_col: 4usize,
-            end_line: 251usize,
+            end_line: 257usize,
             end_col: 14usize,
             compile_fail: false,
             no_run: false,
@@ -911,13 +924,15 @@ fn range_char() {
 struct MultipleCases {
     value: usize,
 }
-impl ::std::fmt::Display for MultipleCases {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for MultipleCases {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(10usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string =
+                    alloc::string::String::with_capacity(10usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
                     19 => { oxiplate_formatter.write_str("The best number")?; }
@@ -942,9 +957,9 @@ pub const multiple_cases: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 276usize,
+            start_line: 282usize,
             start_col: 4usize,
-            end_line: 276usize,
+            end_line: 282usize,
             end_col: 18usize,
             compile_fail: false,
             no_run: false,
@@ -1031,13 +1046,14 @@ fn multiple_cases() {
 struct Guard {
     value: Option<usize>,
 }
-impl ::std::fmt::Display for Guard {
-    fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>)
-        -> ::std::fmt::Result {
+impl ::core::fmt::Display for Guard {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
+        -> ::core::fmt::Result {
         let string =
             {
-                use ::std::fmt::Write;
-                let mut string = String::with_capacity(3usize);
+                extern crate alloc;
+                use ::core::fmt::Write;
+                let mut string = alloc::string::String::with_capacity(3usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
                     Some(number) if number % 2 == 0 => {
@@ -1061,9 +1077,9 @@ pub const guard: test::TestDescAndFn =
             ignore: false,
             ignore_message: ::core::option::Option::None,
             source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 308usize,
+            start_line: 314usize,
             start_col: 4usize,
-            end_line: 308usize,
+            end_line: 314usize,
             end_col: 9usize,
             compile_fail: false,
             no_run: false,

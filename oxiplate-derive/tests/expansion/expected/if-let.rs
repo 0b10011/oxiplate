@@ -1,7 +1,11 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
+use alloc::string::String;
 use oxiplate_derive::Oxiplate;
 enum Name {
     Actual(String),
@@ -21,7 +25,7 @@ enum Name {
         {%- else -%}
             Found {{ cats_count }} cats!
         {%- endif -%}
-    {%- elseif let std::option::Option::None = cats_count -%}
+    {%- elseif let core::option::Option::None = cats_count -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
         {%- elseif let Name::Nickname { name: missing_name } = &name -%}
@@ -38,14 +42,15 @@ struct Data {
     cats_count: Option<u8>,
     name: Result<Name, ()>,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(13usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(13usize);
             let oxiplate_formatter = &mut string;
             if let Ok(name) = &self.name {
                 if let Some(cats_count) = self.cats_count {
@@ -53,43 +58,43 @@ impl ::std::fmt::Display for Data {
                         oxiplate_formatter.write_str("Found ")?;
                         oxiplate_formatter
                             .write_str(
-                                &::std::string::ToString::to_string(&(cats_count)),
+                                &alloc::string::ToString::to_string(&(cats_count)),
                             )?;
                         oxiplate_formatter.write_str(" cats named ")?;
                         oxiplate_formatter
-                            .write_str(&::std::string::ToString::to_string(&(name)))?;
+                            .write_str(&alloc::string::ToString::to_string(&(name)))?;
                         oxiplate_formatter.write_str("!")?;
                     } else if let Name::Nickname { name } = name {
                         oxiplate_formatter.write_str("Found ")?;
                         oxiplate_formatter
                             .write_str(
-                                &::std::string::ToString::to_string(&(cats_count)),
+                                &alloc::string::ToString::to_string(&(cats_count)),
                             )?;
                         oxiplate_formatter.write_str(" cats nicknamed ")?;
                         oxiplate_formatter
-                            .write_str(&::std::string::ToString::to_string(&(name)))?;
+                            .write_str(&alloc::string::ToString::to_string(&(name)))?;
                         oxiplate_formatter.write_str("!")?;
                     } else {
                         oxiplate_formatter.write_str("Found ")?;
                         oxiplate_formatter
                             .write_str(
-                                &::std::string::ToString::to_string(&(cats_count)),
+                                &alloc::string::ToString::to_string(&(cats_count)),
                             )?;
                         oxiplate_formatter.write_str(" cats!")?;
                     }
-                } else if let std::option::Option::None = self.cats_count {
+                } else if let core::option::Option::None = self.cats_count {
                     if let Name::Actual(missing_name) = &name {
                         oxiplate_formatter.write_str("No cats named ")?;
                         oxiplate_formatter
                             .write_str(
-                                &::std::string::ToString::to_string(&(missing_name)),
+                                &alloc::string::ToString::to_string(&(missing_name)),
                             )?;
                         oxiplate_formatter.write_str(" found :(")?;
                     } else if let Name::Nickname { name: missing_name } = &name {
                         oxiplate_formatter.write_str("No cats nicknamed ")?;
                         oxiplate_formatter
                             .write_str(
-                                &::std::string::ToString::to_string(&(missing_name)),
+                                &alloc::string::ToString::to_string(&(missing_name)),
                             )?;
                         oxiplate_formatter.write_str(" found :(")?;
                     } else {
@@ -113,9 +118,9 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 42usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 42usize,
+        end_line: 49usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -160,9 +165,9 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 52usize,
+        start_line: 59usize,
         start_col: 4usize,
-        end_line: 52usize,
+        end_line: 59usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -207,9 +212,9 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 62usize,
+        start_line: 69usize,
         start_col: 4usize,
-        end_line: 62usize,
+        end_line: 69usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -253,9 +258,9 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 74usize,
+        start_line: 81usize,
         start_col: 4usize,
-        end_line: 74usize,
+        end_line: 81usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -308,14 +313,15 @@ struct Multiple {
 struct MultipleWrapper {
     multiple: Multiple,
 }
-impl ::std::fmt::Display for MultipleWrapper {
+impl ::core::fmt::Display for MultipleWrapper {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(2usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(2usize);
             let oxiplate_formatter = &mut string;
             if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
                 oxiplate_formatter.write_str("bad")?;
@@ -338,9 +344,9 @@ pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 107usize,
+        start_line: 114usize,
         start_col: 4usize,
-        end_line: 107usize,
+        end_line: 114usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -408,21 +414,22 @@ struct Outer {
     a: MiddleA,
     b: MiddleB,
 }
-impl ::std::fmt::Display for Outer {
+impl ::core::fmt::Display for Outer {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(6usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(6usize);
             let oxiplate_formatter = &mut string;
             if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
                 oxiplate_formatter.write_str("a.b: ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(b)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
             } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
                 oxiplate_formatter.write_str("b.a: ")?;
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(a)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
             }
             string
         };
@@ -438,9 +445,9 @@ pub const nested: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 154usize,
+        start_line: 161usize,
         start_col: 4usize,
-        end_line: 154usize,
+        end_line: 161usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,

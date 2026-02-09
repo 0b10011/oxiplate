@@ -1,7 +1,18 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 
 mod filters_for_oxiplate {
-    use std::fmt::Display;
+    extern crate alloc;
+
+    use alloc::borrow::ToOwned as _;
+    use alloc::format;
+    use alloc::string::ToString as _;
+    use core::fmt::Display;
 
     pub fn respond(expression: impl Display, yell: bool) -> impl Display {
         let expression = expression.to_string();

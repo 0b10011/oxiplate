@@ -1,28 +1,30 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
 use oxiplate::{Oxiplate, Render};
 #[oxiplate = "html-with-different-extension.tmpl"]
 struct Html {
     name: &'static str,
 }
-impl ::std::fmt::Display for Html {
+impl ::core::fmt::Display for Html {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Html {
     const ESTIMATED_LENGTH: usize = 66usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
@@ -55,9 +57,9 @@ pub const html: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/different-extensions.rs",
-        start_line: 10usize,
+        start_line: 12usize,
         start_col: 4usize,
-        end_line: 10usize,
+        end_line: 12usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
@@ -95,22 +97,23 @@ fn html() {
 struct Json {
     name: &'static str,
 }
-impl ::std::fmt::Display for Json {
+impl ::core::fmt::Display for Json {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Json {
     const ESTIMATED_LENGTH: usize = 49usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
@@ -137,9 +140,9 @@ pub const json: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/different-extensions.rs",
-        start_line: 31usize,
+        start_line: 33usize,
         start_col: 4usize,
-        end_line: 31usize,
+        end_line: 33usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,

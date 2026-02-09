@@ -1,4 +1,10 @@
-use std::fmt::Display;
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+use alloc::string::String;
+use core::fmt::Display;
 
 use oxiplate_derive::Oxiplate;
 

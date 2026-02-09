@@ -1,6 +1,6 @@
 //! Example escaper used in `crate::escapers` documentation.
 
-use std::fmt::{Result, Write};
+use core::fmt::{Result, Write};
 
 use oxiplate_traits::Escaper;
 

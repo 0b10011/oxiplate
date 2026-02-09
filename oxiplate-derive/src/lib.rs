@@ -168,11 +168,13 @@ fn parse_input(
             compile_error!(
                 "`optimized_renderer` config option specified in `/oxiplate.toml` is only available when using `oxiplate`. It looks like `oxiplate-derive` is being used directly instead."
             );
-            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            impl #generics ::core::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     let string = {
-                        use ::std::fmt::Write;
-                        let mut string = String::with_capacity(#estimated_length);
+                        extern crate alloc;
+
+                        use ::core::fmt::Write;
+                        let mut string = alloc::string::String::with_capacity(#estimated_length);
                         let oxiplate_formatter = &mut string;
                         #template
                         string
@@ -184,8 +186,8 @@ fn parse_input(
 
         #[cfg(feature = "oxiplate")]
         quote! {
-            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            impl #generics ::core::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     ::oxiplate::Render::render_into(self, oxiplate_formatter)
                 }
             }
@@ -193,8 +195,10 @@ fn parse_input(
                 const ESTIMATED_LENGTH: usize = #estimated_length;
 
                 #[inline]
-                fn render_into<W: ::std::fmt::Write>(&self, oxiplate_formatter: &mut W) -> ::std::fmt::Result {
-                    use ::std::fmt::Write;
+                fn render_into<W: ::core::fmt::Write>(&self, oxiplate_formatter: &mut W) -> ::core::fmt::Result {
+                    extern crate alloc;
+
+                    use ::core::fmt::Write;
                     use ::oxiplate::{ToCowStr, UnescapedText};
                     #template
                     Ok(())
@@ -203,11 +207,13 @@ fn parse_input(
         }
     } else {
         quote! {
-            impl #generics ::std::fmt::Display for #ident #generics #where_clause {
-                fn fmt(&self, oxiplate_formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            impl #generics ::core::fmt::Display for #ident #generics #where_clause {
+                fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     let string = {
-                        use ::std::fmt::Write;
-                        let mut string = String::with_capacity(#estimated_length);
+                        extern crate alloc;
+
+                        use ::core::fmt::Write;
+                        let mut string = alloc::string::String::with_capacity(#estimated_length);
                         let oxiplate_formatter = &mut string;
                         #template
                         string

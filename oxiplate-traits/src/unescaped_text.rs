@@ -1,9 +1,13 @@
 //! Specialized text escape calls for more efficient conversions to `&str`.
 //! See [`UnescapedTextWrapper`].
 
-use std::fmt::{Display, Result, Write};
-use std::rc::Rc;
-use std::sync::Arc;
+extern crate alloc;
+
+use alloc::boxed::Box;
+use alloc::rc::Rc;
+use alloc::string::{String, ToString};
+use alloc::sync::Arc;
+use core::fmt::{Display, Result, Write};
 
 use crate::escaper::Escaper;
 
@@ -92,7 +96,7 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
-        escaper.escape(f, &::std::string::ToString::to_string(self.0))?;
+        escaper.escape(f, &ToString::to_string(self.0))?;
 
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str(")")?;
@@ -105,7 +109,7 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
-        f.write_str(&::std::string::ToString::to_string(self.0))?;
+        f.write_str(&ToString::to_string(self.0))?;
 
         #[cfg(feature = "debug-fast-escape-type-priority")]
         f.write_str(")")?;

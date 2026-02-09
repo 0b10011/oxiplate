@@ -1,23 +1,27 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{{ message }}")]
 struct Variable {
     message: &'static str,
 }
-impl ::std::fmt::Display for Variable {
+impl ::core::fmt::Display for Variable {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -32,9 +36,9 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/variables.rs",
-        start_line: 10usize,
+        start_line: 16usize,
         start_col: 4usize,
-        end_line: 10usize,
+        end_line: 16usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -71,20 +75,21 @@ struct Variables {
     title: &'static str,
     message: &'static str,
 }
-impl ::std::fmt::Display for Variables {
+impl ::core::fmt::Display for Variables {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(5usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str(" / ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -99,9 +104,9 @@ pub const variables: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/variables.rs",
-        start_line: 26usize,
+        start_line: 32usize,
         start_col: 4usize,
-        end_line: 26usize,
+        end_line: 32usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

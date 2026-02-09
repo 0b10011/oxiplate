@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -18,29 +21,30 @@ struct Data {
     do_that: bool,
     action: &'static str,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(10usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             if self.do_this {
                 oxiplate_formatter.write_str("This then ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
                 oxiplate_formatter.write_str(" :D")?;
             } else if self.do_that {
                 oxiplate_formatter.write_str("That then ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
                 oxiplate_formatter.write_str(" :D")?;
             } else {
                 oxiplate_formatter.write_str("Can\'t ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(self.action)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
                 oxiplate_formatter.write_str(" :(")?;
             }
             string
@@ -57,9 +61,9 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 21usize,
+        start_line: 27usize,
         start_col: 4usize,
-        end_line: 21usize,
+        end_line: 27usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -102,9 +106,9 @@ pub const test_else_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 32usize,
+        start_line: 38usize,
         start_col: 4usize,
-        end_line: 32usize,
+        end_line: 38usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -150,9 +154,9 @@ pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-elseif-else.rs",
-        start_line: 43usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 43usize,
+        end_line: 49usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,

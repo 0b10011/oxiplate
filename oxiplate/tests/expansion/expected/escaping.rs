@@ -1,8 +1,11 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
-use std::fmt::Display;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::string::String;
+use core::fmt::{self, Display};
 use oxiplate::{Oxiplate, Render};
 struct HelloWorld;
 impl HelloWorld {
@@ -11,7 +14,7 @@ impl HelloWorld {
     }
 }
 impl Display for HelloWorld {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("Hello world &lt;<script><!--")
     }
 }
@@ -63,22 +66,23 @@ struct Types<'a> {
     display_borrowed: &'a HelloWorld,
     fn_string: String,
 }
-impl<'a> ::std::fmt::Display for Types<'a> {
+impl<'a> ::core::fmt::Display for Types<'a> {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl<'a> ::oxiplate::Render for Types<'a> {
     const ESTIMATED_LENGTH: usize = 97usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write;
         use ::oxiplate::{ToCowStr, UnescapedText};
         oxiplate_formatter.write_str("\n# default:\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
@@ -240,9 +244,9 @@ pub const types: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/escaping.rs",
-        start_line: 68usize,
+        start_line: 73usize,
         start_col: 4usize,
-        end_line: 68usize,
+        end_line: 73usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,

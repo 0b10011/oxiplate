@@ -1,6 +1,10 @@
-use std::borrow::Cow;
+extern crate alloc;
+
+use alloc::borrow::Cow;
 #[cfg(test)]
-use std::fmt::Display;
+use alloc::string::String;
+#[cfg(test)]
+use core::fmt::Display;
 
 use oxiplate_traits::CowStr;
 #[cfg(test)]
@@ -48,7 +52,7 @@ fn integer() {
 fn display() {
     struct Data;
     impl Display for Data {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
             f.write_str("Data")
         }
     }

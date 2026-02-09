@@ -1,20 +1,24 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r"{{ 'a' }}")]
 struct A;
-impl ::std::fmt::Display for A {
+impl ::core::fmt::Display for A {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('a')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('a')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -29,9 +33,9 @@ pub const a: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 8usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 14usize,
         end_col: 5usize,
         compile_fail: false,
         no_run: false,
@@ -60,16 +64,17 @@ fn a() {
 }
 #[oxiplate_inline(r"{{ '\'' }}")]
 struct SingleQuote;
-impl ::std::fmt::Display for SingleQuote {
+impl ::core::fmt::Display for SingleQuote {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\'')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\'')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -84,9 +89,9 @@ pub const single_quote: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 17usize,
+        start_line: 23usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 23usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -120,16 +125,17 @@ fn single_quote() {
 }
 #[oxiplate_inline(r#"{{ '\"' }}"#)]
 struct DoubleQuote;
-impl ::std::fmt::Display for DoubleQuote {
+impl ::core::fmt::Display for DoubleQuote {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('"')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('"')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -144,9 +150,9 @@ pub const double_quote: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 26usize,
+        start_line: 32usize,
         start_col: 4usize,
-        end_line: 26usize,
+        end_line: 32usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -180,16 +186,17 @@ fn double_quote() {
 }
 #[oxiplate_inline(r"{{ '\\' }}")]
 struct Slash;
-impl ::std::fmt::Display for Slash {
+impl ::core::fmt::Display for Slash {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\\')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\\')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -204,9 +211,9 @@ pub const slash: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 35usize,
+        start_line: 41usize,
         start_col: 4usize,
-        end_line: 35usize,
+        end_line: 41usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
@@ -237,18 +244,19 @@ fn slash() {
 }
 #[oxiplate_inline("{{ '\n' }} {{ '\\n' }}")]
 struct NewLine;
-impl ::std::fmt::Display for NewLine {
+impl ::core::fmt::Display for NewLine {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\n')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
             oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\n')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -263,9 +271,9 @@ pub const new_line: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 44usize,
+        start_line: 50usize,
         start_col: 4usize,
-        end_line: 44usize,
+        end_line: 50usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -296,18 +304,19 @@ fn new_line() {
 }
 #[oxiplate_inline("{{ '\r' }} {{ '\\r' }}")]
 struct CarriageReturn;
-impl ::std::fmt::Display for CarriageReturn {
+impl ::core::fmt::Display for CarriageReturn {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\r')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
             oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\r')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -322,9 +331,9 @@ pub const carriage_return: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 53usize,
+        start_line: 59usize,
         start_col: 4usize,
-        end_line: 53usize,
+        end_line: 59usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -358,18 +367,19 @@ fn carriage_return() {
 }
 #[oxiplate_inline("{{ '\t' }} {{ '\\t' }}")]
 struct Tab;
-impl ::std::fmt::Display for Tab {
+impl ::core::fmt::Display for Tab {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\t')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
             oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\t')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -384,9 +394,9 @@ pub const tab: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 62usize,
+        start_line: 68usize,
         start_col: 4usize,
-        end_line: 62usize,
+        end_line: 68usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -415,16 +425,17 @@ fn tab() {
 }
 #[oxiplate_inline(r"{{ '\0' }}")]
 struct Null;
-impl ::std::fmt::Display for Null {
+impl ::core::fmt::Display for Null {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&::std::string::ToString::to_string(&('\0')))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\0')))?;
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -439,9 +450,9 @@ pub const null: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/char.rs",
-        start_line: 71usize,
+        start_line: 77usize,
         start_col: 4usize,
-        end_line: 71usize,
+        end_line: 77usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,

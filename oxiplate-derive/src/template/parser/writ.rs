@@ -202,7 +202,7 @@ impl<'a> Writ<'a> {
             if fallback_group_name == "raw" {
                 #[cfg(not(feature = "oxiplate"))]
                 return (
-                    quote_spanned! {span=> oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(#text)))?; },
+                    quote_spanned! {span=> oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(#text)))?; },
                     estimated_length,
                 );
 
@@ -317,7 +317,7 @@ impl<'a> Writ<'a> {
         #[cfg(not(feature = "oxiplate"))]
         return (
             quote_spanned! {span=>
-                oxiplate_formatter.write_str(&::std::string::ToString::to_string(&(#text)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(#text)))?;
             },
             estimated_length,
         );

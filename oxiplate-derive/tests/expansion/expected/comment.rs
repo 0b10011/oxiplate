@@ -1,18 +1,22 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{# Hashes (#) are allowed anywhere in a comment #}")]
 struct Hashes;
-impl ::std::fmt::Display for Hashes {
+impl ::core::fmt::Display for Hashes {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(0usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
             string
         };
@@ -28,9 +32,9 @@ pub const hashes: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comment.rs",
-        start_line: 8usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 14usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -61,14 +65,15 @@ fn hashes() {
 }
 #[oxiplate_inline("{# Other close tokens (`%}` and `}}`) should not affect parsing #}")]
 struct TagEnds;
-impl ::std::fmt::Display for TagEnds {
+impl ::core::fmt::Display for TagEnds {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(0usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
             string
         };
@@ -84,9 +89,9 @@ pub const tag_ends: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comment.rs",
-        start_line: 17usize,
+        start_line: 23usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 23usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,

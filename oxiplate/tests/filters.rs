@@ -1,7 +1,14 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 
 mod filters_for_oxiplate {
-    use std::borrow::Cow;
+    use alloc::borrow::{Cow, ToOwned};
+    use alloc::format;
 
     use oxiplate::CowStr;
 

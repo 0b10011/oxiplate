@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("
 {%- if !foo -%}
@@ -10,14 +13,15 @@ use oxiplate_derive::Oxiplate;
 struct Not {
     foo: bool,
 }
-impl ::std::fmt::Display for Not {
+impl ::core::fmt::Display for Not {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             if !self.foo {
                 oxiplate_formatter.write_str("Yay")?;
@@ -36,9 +40,9 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/not.rs",
-        start_line: 15usize,
+        start_line: 21usize,
         start_col: 4usize,
-        end_line: 15usize,
+        end_line: 21usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,

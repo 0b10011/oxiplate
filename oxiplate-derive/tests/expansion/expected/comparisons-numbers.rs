@@ -1,20 +1,24 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r"{% if value == 5 %}bar{% endif %}")]
 struct Comparison {
     value: u8,
 }
-impl ::std::fmt::Display for Comparison {
+impl ::core::fmt::Display for Comparison {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(3usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             if self.value == 5 {
                 oxiplate_formatter.write_str("bar")?;
@@ -33,9 +37,9 @@ pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comparisons-numbers.rs",
-        start_line: 10usize,
+        start_line: 16usize,
         start_col: 4usize,
-        end_line: 10usize,
+        end_line: 16usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -74,9 +78,9 @@ pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comparisons-numbers.rs",
-        start_line: 17usize,
+        start_line: 23usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 23usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -115,9 +119,9 @@ pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comparisons-numbers.rs",
-        start_line: 24usize,
+        start_line: 30usize,
         start_col: 4usize,
-        end_line: 24usize,
+        end_line: 30usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -156,9 +160,9 @@ pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comparisons-numbers.rs",
-        start_line: 31usize,
+        start_line: 37usize,
         start_col: 4usize,
-        end_line: 31usize,
+        end_line: 37usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,

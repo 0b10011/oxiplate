@@ -1,3 +1,10 @@
+#![no_std]
+
+extern crate alloc;
+
+use alloc::format;
+use alloc::string::String;
+
 use oxiplate_derive::Oxiplate;
 
 enum Name {
@@ -20,7 +27,7 @@ enum Name {
         {%- else -%}
             Found {{ cats_count }} cats!
         {%- endif -%}
-    {%- elseif let std::option::Option::None = cats_count -%}
+    {%- elseif let core::option::Option::None = cats_count -%}
         {%- if let Name::Actual(missing_name) = &name -%}
             No cats named {{ missing_name }} found :(
         {%- elseif let Name::Nickname { name: missing_name } = &name -%}

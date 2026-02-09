@@ -1,28 +1,32 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "external.html.oxip"]
 struct AbsoluteData {
     title: &'static str,
     message: &'static str,
 }
-impl ::std::fmt::Display for AbsoluteData {
+impl ::core::fmt::Display for AbsoluteData {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(20usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(20usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<h1>")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.title)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</h1>\n<p>")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.message)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             oxiplate_formatter.write_str("</p>\n")?;
             string
         };
@@ -38,9 +42,9 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/external.rs",
-        start_line: 11usize,
+        start_line: 17usize,
         start_col: 4usize,
-        end_line: 11usize,
+        end_line: 17usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -82,9 +86,9 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/external.rs",
-        start_line: 24usize,
+        start_line: 30usize,
         start_col: 4usize,
-        end_line: 24usize,
+        end_line: 30usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,

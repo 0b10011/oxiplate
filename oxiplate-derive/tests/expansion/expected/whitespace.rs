@@ -1,18 +1,22 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("Hello  \t\n {_} \r\n\t wor{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
-impl ::std::fmt::Display for AdjustedWhitespace {
+impl ::core::fmt::Display for AdjustedWhitespace {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(12usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(12usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello world!")?;
             string
@@ -29,9 +33,9 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 8usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 8usize,
+        end_line: 14usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,
@@ -72,21 +76,22 @@ struct WritWhitespaceControl {
     username: &'static str,
     name: &'static str,
 }
-impl ::std::fmt::Display for WritWhitespaceControl {
+impl ::core::fmt::Display for WritWhitespaceControl {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(12usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(12usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.username)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.username)))?;
             oxiplate_formatter.write_str(" (")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&(self.name)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.name)))?;
             oxiplate_formatter.write_str(")!")?;
             string
         };
@@ -102,9 +107,9 @@ pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 25usize,
+        start_line: 31usize,
         start_col: 4usize,
-        end_line: 25usize,
+        end_line: 31usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
@@ -145,14 +150,15 @@ fn writ_whitespace_control() {
      comment -#}  \t\t  \r\n\t )!"
 )]
 struct CommentWhitespaceControl {}
-impl ::std::fmt::Display for CommentWhitespaceControl {
+impl ::core::fmt::Display for CommentWhitespaceControl {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(10usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello  ()!")?;
             string
@@ -169,9 +175,9 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 42usize,
+        start_line: 48usize,
         start_col: 4usize,
-        end_line: 42usize,
+        end_line: 48usize,
         end_col: 30usize,
         compile_fail: false,
         no_run: false,
@@ -226,98 +232,99 @@ fn comment_whitespace_control() {
 "#
 )]
 struct AdjacentTags {}
-impl ::std::fmt::Display for AdjacentTags {
+impl ::core::fmt::Display for AdjacentTags {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(231usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(231usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("  ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
             oxiplate_formatter.write_str("\n\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("remove")))?;
+                .write_str(&alloc::string::ToString::to_string(&("remove")))?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("removetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
             oxiplate_formatter.write_str("\n\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("leave")))?;
+                .write_str(&alloc::string::ToString::to_string(&("leave")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replace")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replace")))?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&::std::string::ToString::to_string(&("replacetag")))?;
+                .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
             oxiplate_formatter.write_str("\n")?;
             string
         };
@@ -333,9 +340,9 @@ pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 74usize,
+        start_line: 80usize,
         start_col: 4usize,
-        end_line: 74usize,
+        end_line: 80usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -388,14 +395,15 @@ replace replacetag
 }
 #[oxiplate_inline(" \t\r\n{")]
 struct WhitespaceOnly;
-impl ::std::fmt::Display for WhitespaceOnly {
+impl ::core::fmt::Display for WhitespaceOnly {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(5usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str(" \t\r\n{")?;
             string
@@ -412,9 +420,9 @@ pub const whitespace_only: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/whitespace.rs",
-        start_line: 107usize,
+        start_line: 113usize,
         start_col: 4usize,
-        end_line: 107usize,
+        end_line: 113usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,

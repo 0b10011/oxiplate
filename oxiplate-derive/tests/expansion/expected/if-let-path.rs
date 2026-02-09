@@ -1,7 +1,10 @@
 #![feature(prelude_import)]
-extern crate std;
+#![no_std]
+extern crate core;
 #[prelude_import]
-use std::prelude::rust_2024::*;
+use core::prelude::rust_2024::*;
+extern crate alloc;
+use alloc::format;
 use oxiplate_derive::Oxiplate;
 enum Type {
     Text(&'static str),
@@ -19,27 +22,28 @@ enum Type {
 struct Data {
     ty: Type,
 }
-impl ::std::fmt::Display for Data {
+impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         let string = {
-            use ::std::fmt::Write;
-            let mut string = String::with_capacity(1usize);
+            extern crate alloc;
+            use ::core::fmt::Write;
+            let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             if let Type::Text(text) = self.ty {
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(text)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(text)))?;
             } else if let Type::Numbers(left, right) = self.ty {
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(left)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(left)))?;
                 oxiplate_formatter.write_str(" + ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(right)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(right)))?;
                 oxiplate_formatter.write_str(" = ")?;
                 oxiplate_formatter
-                    .write_str(&::std::string::ToString::to_string(&(left + right)))?;
+                    .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
             }
             string
         };
@@ -55,9 +59,9 @@ pub const text: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let-path.rs",
-        start_line: 23usize,
+        start_line: 29usize,
         start_col: 4usize,
-        end_line: 23usize,
+        end_line: 29usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
@@ -96,9 +100,9 @@ pub const numbers: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let-path.rs",
-        start_line: 32usize,
+        start_line: 38usize,
         start_col: 4usize,
-        end_line: 32usize,
+        end_line: 38usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
