@@ -44,11 +44,11 @@ where
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens) {
             value @ Ok(_) => value,
-            Err(err @ Error::Unrecoverable { is_eof, .. }) => Err(Error::Unrecoverable {
+            Err(err @ Error::Unrecoverable { .. }) => Err(Error::Unrecoverable {
                 message: self.message.to_string(),
                 source: err.source().clone(),
+                is_eof: err.is_eof(),
                 previous_error: Some(Box::new(err)),
-                is_eof,
             }),
             Err(err) => Err(Error::Recoverable {
                 message: self.message.to_string(),

@@ -24,7 +24,7 @@ rustversion = "1.0.19"
 trybuild = "1.0.115"
 
 [features]
-default = ["built-in-escapers", "config", "fast-escape-ints"]
+default = ["built-in-escapers", "config", "fast-escape-ints", "on-unimplemented-cow-string"]
 
 # Improved error messages requiring nightly.
 # Highly recommended during development.
@@ -55,6 +55,10 @@ external-template-spans = ["oxiplate-derive/external-template-spans"]
 # Includes the `itoa` dependency
 # and speeds up integer escaping.
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
+
+# Improved error message for non-stringy-values with the cow prefix.
+# Requires Rust 1.78.0 or higher.
+on-unimplemented-cow-string = ["oxiplate-traits/on-unimplemented-cow-string"]
 
 # Feature for conditional compilation to cover otherwise unreachable code.
 unreachable = ["oxiplate-derive/unreachable"]

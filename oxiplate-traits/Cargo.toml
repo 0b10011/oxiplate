@@ -17,7 +17,7 @@ itoa = { version = "1.0.15", optional = true }
 
 [features]
 
-default = ["fast-escape-ints"]
+default = ["fast-escape-ints", "on-unimplemented-cow-string"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types
@@ -27,6 +27,10 @@ debug-fast-escape-type-priority = []
 # Includes the `itoa` dependency
 # and speeds up integer escaping.
 fast-escape-ints = ["dep:itoa"]
+
+# Improved error message for non-stringy-values with the cow prefix.
+# Requires Rust 1.78.0 or higher.
+on-unimplemented-cow-string = []
 
 [lints]
 workspace = true

@@ -17,20 +17,23 @@ use crate::{Escaper, FastEscape};
 /// ```oxip
 /// {{ >message | append(>"!") }}
 /// ```
-#[diagnostic::on_unimplemented(
-    message = "{Self} is expected to be prefixed by `>` and implement \
-               `::oxiplate_traits::ToCowString`.",
-    label = "Insert `>` prefix before this expression if `{Self}` is a string-like value (`str`, \
-             `impl Display`, etc).",
-    note = "Consider implementing `::oxiplate_traits::ToCowStr` if `{Self}` is owned by your \
-            crate, and then prefix with `>`.",
-    note = "If `{Self}` is not a string-like value, perhaps you meant to pass a different \
-            argument to the filter?",
-    note = "Oxiplate efficiently builds `::std::borrow::Cow<'a, str>` when a `>` prefix is used \
-            on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is used by \
-            filters for string arguments. Because the syntax for doing so is not obvious and \
-            prone to silently breaking, this alternative syntax is used to let Oxiplate handle \
-            the details while ensuring it's tested properly."
+#[cfg_attr(
+    feature = "on-unimplemented-cow-string",
+    diagnostic::on_unimplemented(
+        message = "{Self} is expected to be prefixed by `>` and implement \
+                   `::oxiplate_traits::ToCowString`.",
+        label = "Insert `>` prefix before this expression if `{Self}` is a string-like value \
+                 (`str`, `impl Display`, etc).",
+        note = "Consider implementing `::oxiplate_traits::ToCowStr` if `{Self}` is owned by your \
+                crate, and then prefix with `>`.",
+        note = "If `{Self}` is not a string-like value, perhaps you meant to pass a different \
+                argument to the filter?",
+        note = "Oxiplate efficiently builds `::std::borrow::Cow<'a, str>` when a `>` prefix is \
+                used on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is \
+                used by filters for string arguments. Because the syntax for doing so is not \
+                obvious and prone to silently breaking, this alternative syntax is used to let \
+                Oxiplate handle the details while ensuring it's tested properly."
+    )
 )]
 pub trait CowStr<'a> {
     /// Extract the contained `Cow<str>`.
