@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.8...oxiplate-traits-v0.1.9) - 2026-02-09
+
+### Added
+
+- `no_std` support (fixes #72)
+
 ## [0.1.8](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.7...oxiplate-traits-v0.1.8) - 2026-01-14
 
 ### Other
