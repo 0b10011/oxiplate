@@ -193,12 +193,12 @@ impl<'a> Writ<'a> {
             );
         }
 
-        let default_group: &(String, EscaperGroup) = if let Some(default_group) =
+        let default_group: Cow<(String, EscaperGroup)> = if let Some(default_group) =
             &state.default_escaper_group
         {
-            default_group
+            Cow::Borrowed(default_group)
         } else if let Some(inferred_group) = &state.inferred_escaper_group {
-            inferred_group
+            Cow::Borrowed(inferred_group)
         } else if let Some(fallback_group_name) = &state.config.fallback_escaper_group {
             if fallback_group_name == "raw" {
                 #[cfg(not(feature = "oxiplate"))]
@@ -226,7 +226,7 @@ impl<'a> Writ<'a> {
                 );
             };
 
-            &(fallback_group_name.clone(), fallback_group.clone())
+            Cow::Owned((fallback_group_name.clone(), fallback_group.clone()))
         } else {
             #[cfg(not(feature = "config"))]
             return token_error!(
