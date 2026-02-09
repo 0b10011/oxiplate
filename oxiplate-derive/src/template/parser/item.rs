@@ -174,10 +174,12 @@ pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Sourc
 
     let (whitespace, removed_whitespace) = match open.whitespace_preference {
         WhitespacePreference::Replace => {
-            if leading_whitespace
-                .as_ref()
-                .is_none_or(|whitespace| whitespace.source().as_str().is_empty())
-            {
+            let has_whitespace = if let Some(whitespace) = leading_whitespace.as_ref() {
+                !whitespace.source().as_str().is_empty()
+            } else {
+                false
+            };
+            if !has_whitespace {
                 let source = open.source().clone();
                 let consumed_source = source.with_collapsed_to_start_full();
                 let error_source = source.clone();
