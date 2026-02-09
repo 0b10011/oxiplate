@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.3](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.16.2...oxiplate-v0.16.3) - 2026-02-09
+
+### Added
+
+- `no_std` support (fixes #72)
+
+### Other
+
+- updated READMEs a bit
+- removed a dependency by moving the single function used in-tree
+
 ## [0.16.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.16.1...oxiplate-v0.16.2) - 2026-02-05
 
 ### Added
