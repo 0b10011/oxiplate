@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.9...oxiplate-traits-v0.1.10) - 2026-02-11
+
+### Added
+
+- switched to dual-licensed `MIT OR Apache-2.0` from `MIT` to match rust ecosystem
+
+### Other
+
+- cleaned up READMEs a bit
+- reordered badges to put more important ones earlier
+
 ## [0.1.9](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.8...oxiplate-traits-v0.1.9) - 2026-02-09
 
 ### Added
