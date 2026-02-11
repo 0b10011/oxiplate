@@ -1,4 +1,4 @@
-# Oxiplate 
+# Oxiplate traits
 
 [![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
 
@@ -16,7 +16,7 @@
 [issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate-traits
 
-Crate containing traits to be used by Oxiplate,
+Crate containing traits to be used by [Oxiplate](https://crates.io/crates/oxiplate),
 and libraries looking to expand Oxiplate's functionality.
 
 ## License

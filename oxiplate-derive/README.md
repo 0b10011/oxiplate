@@ -1,4 +1,4 @@
-# Oxiplate 
+# Oxiplate derive macro
 
 [![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
 
@@ -16,7 +16,16 @@
 [issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate-derive
 
-Oxiplate is an *experimental* compile-time template system for Rust with a focus on helpful error messages, escaping, and whitespace control. Use at your own risk.
+Derive macro for [Oxiplate](https://crates.io/crates/oxiplate).
+
+Can be used on its own as a basic compile-time template system for Rust
+with a focus on helpful error messages and whitespace control.
+But for escaping functionality and a considerably more efficient renderer,
+the main library should be used instead.
+
+Using the macro directly works similarly to the main library,
+but `oxiplate_derive::Oxiplate` needs to be imported instead of `oxiplate::prelude::*`
+and `format!("{}", Data { .. })` needs to be used instead of `Data { .. }.render()?`.
 
 ## Using Oxiplate in your project
 

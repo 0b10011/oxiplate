@@ -1,4 +1,4 @@
-# Oxiplate 
+# Oxiplate
 
 [![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
 
