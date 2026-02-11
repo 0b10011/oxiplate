@@ -10,7 +10,7 @@
 [docs]: https://docs.rs/oxiplate/latest/oxiplate/
 [Coverage Status]: https://img.shields.io/coverallsCoverage/github/0b10011/oxiplate
 [coverage]: https://coveralls.io/github/0b10011/oxiplate?branch=main
-[MIT OR Apache-2.0 License]: https://img.shields.io/github/license/0b10011/oxiplate
+[MIT OR Apache-2.0 License]: https://img.shields.io/crates/l/oxiplate
 [license]: https://github.com/0b10011/oxiplate/#license
 [Open Issues]: https://img.shields.io/github/issues-raw/0b10011/oxiplate
 [issues]: https://github.com/0b10011/oxiplate/issues
