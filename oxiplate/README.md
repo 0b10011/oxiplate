@@ -1,6 +1,6 @@
 # Oxiplate 
 
-[![Latest Version]][crate] [![Repository][]][repo] [![Docs Build Status]][docs] [![Coverage Status]][coverage] [![MIT OR Apache-2.0 License]][license] [![Open Issues]][issues] [![MSRV]][crate]
+[![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
 
 [Latest Version]: https://img.shields.io/crates/v/oxiplate
 [crate]: https://crates.io/crates/oxiplate
