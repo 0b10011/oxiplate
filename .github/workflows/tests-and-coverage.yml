@@ -68,6 +68,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check licenses
+        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
+        with:
+          command: check bans licenses sources
+          arguments: --all-features
+          rust-version: ${{ needs.get-toolchain.outputs.toolchain }}
+
   get-msrv:
     needs: [setup]
     uses: ./.github/workflows/msrv.yml
@@ -106,6 +113,13 @@ jobs:
           RUSTUP_TOOLCHAIN: ${{ needs.get-msrv.outputs.msrv }}
         run: just setup-test test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
+      - name: Check licenses
+        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
+        with:
+          command: check bans licenses sources
+          arguments: --all-features
+          rust-version: ${{ needs.get-msrv.outputs.msrv }}
+
   setup-stable:
     uses: ./.github/workflows/setup.yml
     with:
@@ -136,6 +150,13 @@ jobs:
           RUSTUP_TOOLCHAIN: stable
         run: just setup-test test-toolchain stable
 
+      - name: Check licenses
+        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
+        with:
+          command: check bans licenses sources
+          arguments: --all-features
+          rust-version: stable
+
   setup-beta:
     uses: ./.github/workflows/setup.yml
     with:
@@ -165,6 +186,13 @@ jobs:
         env:
           RUSTUP_TOOLCHAIN: beta
         run: just setup-test test-toolchain beta
+
+      - name: Check licenses
+        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
+        with:
+          command: check bans licenses sources
+          arguments: --all-features
+          rust-version: beta
 
   book-tests:
     needs: get-toolchain

@@ -81,6 +81,11 @@ check: (run-against-stable "cargo check --locked" "") (run-against-unstable "car
 [group("Test")]
 check-strict: (run-against-stable "RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "RUSTFLAGS='-D warnings' cargo check --locked" "")
 
+# Check dependencies for licenses, bans, and sources
+[group("Test")]
+check-deps:
+    cargo deny check licenses bans sources
+
 # Run tests without coverage.
 [group("Test")]
 test: (run-against-all "cargo test --locked") build-no-std (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
@@ -191,7 +196,7 @@ setup: setup-dev setup-test setup-expansion setup-coverage setup-book
 # Initial setup for general development.
 [group("Setup")]
 setup-dev:
-    cargo install just watchexec-cli
+    cargo install just watchexec-cli cargo-deny
 
 # Initial setup for testing
 [group("Setup")]

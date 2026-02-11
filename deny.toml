@@ -1,0 +1,26 @@
+# https://embarkstudios.github.io/cargo-deny/checks/cfg.html
+
+[graph]
+all-features = true
+
+[licenses]
+# `MIT` will be included in any MIT/Apache-2.0 dual-licensed packages,
+# and `Apache-2.0` on its own is more restrictive than `MIT`,
+# so checking just for `MIT` is enough.
+allow = [
+    "MIT",
+]
+
+exceptions = [
+    { crate = "unicode-ident", allow = ["Unicode-3.0"] },
+]
+
+unused-allowed-license = "deny"
+confidence-threshold = 1.0
+include-dev = true
+include-build = true
+
+[sources]
+unknown-registry = "deny"
+unused-allowed-source = "deny"
+unknown-git = "deny"

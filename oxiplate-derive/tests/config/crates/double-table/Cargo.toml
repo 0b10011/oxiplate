@@ -1,7 +1,8 @@
 [package]
 name = "oxiplate-derive-test-config-double-table"
-edition = "2024"
 publish = false
+license.workspace = true
+edition.workspace = true
 
 [dev-dependencies]
 trybuild = "1.0.101"
