@@ -1,6 +1,6 @@
 # Oxiplate 
 
-[![Latest Version]][crate] [![Repository][]][repo] [![Docs Build Status]][docs] [![Coverage Status]][coverage] [![MIT License]][license] [![Open Issues]][issues] [![MSRV]][crate]
+[![Latest Version]][crate] [![Repository][]][repo] [![Docs Build Status]][docs] [![Coverage Status]][coverage] [![MIT OR Apache-2.0 License]][license] [![Open Issues]][issues] [![MSRV]][crate]
 
 [Latest Version]: https://img.shields.io/crates/v/oxiplate
 [crate]: https://crates.io/crates/oxiplate
@@ -10,8 +10,8 @@
 [docs]: https://docs.rs/oxiplate/latest/oxiplate/
 [Coverage Status]: https://img.shields.io/coverallsCoverage/github/0b10011/oxiplate
 [coverage]: https://coveralls.io/github/0b10011/oxiplate?branch=main
-[MIT License]: https://img.shields.io/github/license/0b10011/oxiplate
-[license]: https://github.com/0b10011/oxiplate/blob/main/LICENSE
+[MIT OR Apache-2.0 License]: https://img.shields.io/github/license/0b10011/oxiplate
+[license]: https://github.com/0b10011/oxiplate/#license
 [Open Issues]: https://img.shields.io/github/issues-raw/0b10011/oxiplate
 [issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate
@@ -145,3 +145,20 @@ or even collapsing it down to a single space.
 ```
 
 Read the full [whitespace control chapter](https://0b10011.io/oxiplate/templates/whitespace-control.html) for more information.
+
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0
+   ([LICENSE-APACHE](https://github.com/0b10011/oxiplate/blob/main/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+ * MIT license
+   ([LICENSE-MIT](https://github.com/0b10011/oxiplate/blob/main/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+at your option.
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
