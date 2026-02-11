@@ -2,8 +2,6 @@ use std::error::Error;
 use std::path::Path;
 use std::{env, fs};
 
-use colored::Colorize;
-
 #[test]
 fn stderr_matches() -> Result<(), Box<dyn Error>> {
     let expected_destination = Path::new("../../config/expected/");
@@ -54,12 +52,12 @@ fn stderr_matches() -> Result<(), Box<dyn Error>> {
 
         print!("{base_name}.stderr ... ");
         if original == generated {
-            println!("{}", "ok".green());
+            println!("ok");
         } else if generated.is_none() {
-            println!("{}", "missing".yellow());
+            println!("missing");
             mismatched += 1;
         } else {
-            println!("{}", "mismatched".red());
+            println!("mismatched");
             mismatched += 1;
         }
     }
@@ -114,12 +112,12 @@ fn config_matches() -> Result<(), Box<dyn Error>> {
 
         print!("{base_name}.toml ... ");
         if generated.is_none() {
-            println!("{}", "missing".yellow());
+            println!("missing");
             mismatched += 1;
         } else if original == generated {
-            println!("{}", "ok".green());
+            println!("ok");
         } else {
-            println!("{}", "mismatched".red());
+            println!("mismatched");
             mismatched += 1;
         }
     }
