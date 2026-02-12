@@ -21,7 +21,7 @@ oxiplate-traits = { version = "0.1", path = "../oxiplate-traits", default-featur
 
 [dev-dependencies]
 rustversion = "1.0.19"
-trybuild = "1.0.115"
+trybuild = "1.0.116"
 
 [features]
 default = ["built-in-escapers", "config", "fast-escape-ints"]
