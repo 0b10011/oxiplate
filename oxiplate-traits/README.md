@@ -16,7 +16,7 @@
 [issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate-traits
 
-Crate containing traits to be used by [Oxiplate](https://crates.io/crates/oxiplate),
+Crate containing traits used by [Oxiplate](https://crates.io/crates/oxiplate)
 and libraries looking to expand Oxiplate's functionality.
 
 ## License
