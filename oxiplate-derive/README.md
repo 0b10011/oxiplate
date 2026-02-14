@@ -18,10 +18,23 @@
 
 Derive macro for [Oxiplate](https://crates.io/crates/oxiplate).
 
-Can be used on its own as a basic compile-time template system for Rust
+Can technically be used on its own
+as a basic compile-time template system for Rust
 with a focus on helpful error messages and whitespace control.
 But for escaping functionality and a considerably more efficient renderer,
-the main library should be used instead.
+the [main library](https://crates.io/crates/oxiplate) should be used instead.
+
+**Warning**:
+Packages depending on `oxiplate-derive` directly
+cannot be used with packages that depend on `oxiplate`
+due to [feature unification](https://doc.rust-lang.org/cargo/reference/features.html#feature-unification)
+and the `_oxiplate` feature being used
+to generate code specific to `oxiplate` or `oxiplate-derive` usage.
+It may be possible to build a glue layer
+by importing a crate or module as `oxiplate`
+everywhere Oxiplate templates are used
+and gating it to the `_oxiplate` feature,
+but this is not recommended.
 
 Using the macro directly works similarly to the main library,
 but `oxiplate_derive::Oxiplate` needs to be imported instead of `oxiplate::prelude::*`
