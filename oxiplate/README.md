@@ -44,34 +44,37 @@ even when issues are caught by Rust instead of Oxiplate.
 use oxiplate::prelude::*;
 
 #[derive(Oxiplate)]
-#[oxiplate = "external.html.oxip"]
-struct HelloWorld {
-    title: &'static str,
-    messages: &'static str,
+#[oxiplate = "add.html.oxip"]
+struct Add {
+    a: u32,
+    b: u64,
 }
 
-let hello_world = HelloWorld {
-    title: "Oxiplate error handling",
-    messages: "Hello world!",
+let add = Add {
+    a: 10,
+    b: 9,
 };
 
-print!("{}", hello_world.render()?);
+print!("{}", add.render()?);
 #
 # Ok::<(), ::std::fmt::Error>(())
 ```
 
 ```text
-error[E0609]: no field `messages` on type `&HelloWorld`
- --> /templates/external.html.oxip:2:7
+error[E0308]: mismatched types
+ --> ./templates/add.html.oxip:1:28
   |
-2 | <p>{{ message }}</p>
-  |       ^^^^^^^ unknown field
-  |
-help: a field with a similar name exists
-  |
-2 - <p>{{ message }}</p>
-2 + <p>{{ messages }}</p>
-  |
+1 | {{ a }} + {{ b }} = {{ a + b }}
+  |                            ^ expected `u32`, found `u64`
+
+error[E0277]: cannot add `u64` to `u32`
+   --> ./templates/add.html.oxip:1:26
+    |
+  1 | {{ a }} + {{ b }} = {{ a + b }}
+    |                          ^ no implementation for `u32 + u64`
+    |
+    = help: the trait `std::ops::Add<u64>` is not implemented for `u32`
+[...]
 ```
 
 Check out the broken tests directory of 
