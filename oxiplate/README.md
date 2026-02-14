@@ -56,8 +56,8 @@ let hello_world = HelloWorld {
 };
 
 print!("{}", hello_world.render()?);
-
-Ok::<(), ::std::fmt::Error>(())
+#
+# Ok::<(), ::std::fmt::Error>(())
 ```
 
 ```text
@@ -107,14 +107,17 @@ let profile_link = ProfileLink {
     name: r#"<!-- --><script>alert("hacked!");</script><!-- -->"#
 };
 
-assert_eq!(
-    profile_link.render()?,
-    r#"<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
-<a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
-"#,
-);
-
-Ok::<(), ::std::fmt::Error>(())
+print!("{}", profile_link.render()?);
+#
+# // Update HTML code block as well if output changes.
+# assert_eq!(
+#     profile_link.render()?,
+#     r#"<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
+# <a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
+# "#,
+# );
+#
+# Ok::<(), ::std::fmt::Error>(())
 ```
 
 ```html
