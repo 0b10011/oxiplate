@@ -5,5 +5,5 @@ license.workspace = true
 edition.workspace = true
 
 [dev-dependencies]
-trybuild = "1.0.115"
+trybuild = "1.0.116"
 oxiplate = { path = "../../../", default-features = false, features = ["config"]}
