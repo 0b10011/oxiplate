@@ -28,9 +28,9 @@ impl Include<'_> {
 
         let span = self.path.source().span_token();
 
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         let oxiplate = quote_spanned! {span=> ::oxiplate::Oxiplate };
-        #[cfg(not(feature = "oxiplate"))]
+        #[cfg(not(feature = "_oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
         // Generate tokens for the included template.

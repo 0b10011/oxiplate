@@ -367,7 +367,7 @@ impl<'a> Source<'a> {
     }
 
     /// Consume `"` if present. For testing unreachable match arms.
-    #[cfg(feature = "unreachable")]
+    #[cfg(feature = "_unreachable")]
     fn consume_quote(chars: &mut CharIterator<'_>, range: &mut Range<usize>) {
         if let Some((_, '"')) = chars.peek() {
             let (pos, _) = chars.next().unwrap();
@@ -381,7 +381,7 @@ impl<'a> Source<'a> {
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         Self::consume_quote(chars, range);
 
         // https://doc.rust-lang.org/reference/tokens.html#ascii-escapes
@@ -402,7 +402,7 @@ impl<'a> Source<'a> {
         debug_range.start += 1;
         debug_range.end += 1;
 
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         Self::consume_quote(chars, range);
 
         match chars.next() {
@@ -431,7 +431,7 @@ impl<'a> Source<'a> {
         let mut unicode_chars_parsed = -1;
         let mut unicode_code = String::new();
         loop {
-            #[cfg(feature = "unreachable")]
+            #[cfg(feature = "_unreachable")]
             Self::consume_quote(chars, range);
 
             let Some((pos, char)) = chars.next() else {
@@ -451,7 +451,7 @@ impl<'a> Source<'a> {
                     unicode_code.push(char);
                 }
                 (1..=4, '}') => {
-                    #[cfg(feature = "unreachable")]
+                    #[cfg(feature = "_unreachable")]
                     {
                         unicode_chars_parsed += 1;
                     }
@@ -485,7 +485,7 @@ impl<'a> Source<'a> {
                     debug_range.start += 1;
                     debug_range.end += 1;
 
-                    #[cfg(not(feature = "unreachable"))]
+                    #[cfg(not(feature = "_unreachable"))]
                     return;
                 }
                 (-1, _) => bail!(
@@ -545,7 +545,7 @@ impl<'a> Source<'a> {
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
         debug_range: &mut Range<usize>,
     ) {
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         Self::consume_quote(chars, range);
 
         let Some((pos, char)) = chars.next() else {
@@ -615,7 +615,7 @@ impl<'a> Source<'a> {
                 // Escapes are parsed by Rust first,
                 // so invalid escape sequences are only reachable
                 // if the code is reached without a `\` before them.
-                #[cfg(feature = "unreachable")]
+                #[cfg(feature = "_unreachable")]
                 '/' => {
                     Self::update_range(range, pos);
                     Self::parse_escape(

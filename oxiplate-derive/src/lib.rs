@@ -101,7 +101,7 @@ type BuiltTokens = (proc_macro2::TokenStream, usize);
     attributes(oxiplate, oxiplate_inline, oxiplate_extends, oxiplate_include)
 )]
 pub fn oxiplate(input: TokenStream) -> TokenStream {
-    #[cfg(feature = "unreachable")]
+    #[cfg(feature = "_unreachable")]
     let input = {
         // Compare tokens as a string to avoid having to parse unnecessarily.
         if input.to_string()
@@ -163,7 +163,7 @@ fn parse_input(
 
     let where_clause = &generics.where_clause;
     let expanded = if *optimized_renderer {
-        #[cfg(not(feature = "oxiplate"))]
+        #[cfg(not(feature = "_oxiplate"))]
         quote! {
             compile_error!(
                 "`optimized_renderer` config option specified in `/oxiplate.toml` is only available when using `oxiplate`. It looks like `oxiplate-derive` is being used directly instead."
@@ -184,7 +184,7 @@ fn parse_input(
             }
         }
 
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         quote! {
             impl #generics ::core::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
@@ -277,7 +277,7 @@ fn parse_template_and_data(
     let (template, estimated_length): BuiltTokens = process_parsed_tokens(
         parsed_tokens,
         &mut state,
-        #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
+        #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
         &template_type,
     )
     .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
@@ -303,11 +303,11 @@ type ParsedTokens = Result<
 fn process_parsed_tokens<'a>(
     parsed_tokens: ParsedTokens,
     state: &'a mut State<'a>,
-    #[cfg(any(feature = "oxiplate", feature = "external-template-spans"))]
+    #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
     template_type: &TemplateType,
 ) -> Result<BuiltTokens, syn::Error> {
     match parsed_tokens {
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         Err(ParsedEscaperError::EscaperNotFound((escaper, span))) => {
             let mut available_escaper_groups = state
                 .config
@@ -447,7 +447,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
 fn parse_source_tokens(
     attr: &Attribute,
     template_type: &TemplateType,
-    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
+    #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> ParsedTokens {
     match template_type {
         TemplateType::Inline => parse_source_tokens_for_inline(attr, state),
@@ -476,11 +476,11 @@ impl Parse for Template {
 
 /// An inline template with escaper information.
 struct TemplateWithEscaper {
-    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
     escaper: Ident,
     #[allow(dead_code)]
     colon: Colon,
-    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
     template: Expr,
 }
 
@@ -509,15 +509,15 @@ impl Parse for TemplateWithoutEscaper {
 
 #[cfg_attr(not(feature = "external-template-spans"), derive(Debug))]
 enum ParsedEscaperError {
-    #[cfg(feature = "oxiplate")]
+    #[cfg(feature = "_oxiplate")]
     EscaperNotFound((String, Span)),
     ParseError(proc_macro2::TokenStream),
 }
 
-#[cfg_attr(not(feature = "oxiplate"), allow(clippy::unnecessary_wraps))]
+#[cfg_attr(not(feature = "_oxiplate"), allow(clippy::unnecessary_wraps))]
 fn parse_source_tokens_for_inline(
     attr: &Attribute,
-    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
+    #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> ParsedTokens {
     match &attr.meta {
         syn::Meta::Path(path) => {
@@ -533,7 +533,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
             delimiter: _,
             tokens,
         }) => match syn::parse2::<Template>(tokens.clone()) {
-            #[cfg(not(feature = "oxiplate"))]
+            #[cfg(not(feature = "_oxiplate"))]
             Ok(Template::WithEscaper(template)) => {
                 let span = template.escaper.span();
                 Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
@@ -543,7 +543,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                  default features if you want it to work the same way.");
                 }))
             }
-            #[cfg(feature = "oxiplate")]
+            #[cfg(feature = "_oxiplate")]
             Ok(Template::WithEscaper(TemplateWithEscaper {
                 escaper,
                 colon: _,
@@ -717,7 +717,7 @@ fn template_path(path: &LitStr, attr_span: Span) -> Result<PathBuf, ParsedEscape
 
 fn parse_source_tokens_for_path(
     attr: &Attribute,
-    #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))] state: &mut State,
+    #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))] state: &mut State,
 ) -> ParsedTokens {
     let syn::Meta::NameValue(MetaNameValue {
         path: _,
@@ -738,12 +738,12 @@ fn parse_source_tokens_for_path(
 
     let span = path.span();
 
-    #[cfg(feature = "oxiplate")]
+    #[cfg(feature = "_oxiplate")]
     let mut escaper_name: Option<String> = None;
 
     // Infer the escaper from the template's file extension.
     // Only works when using `oxiplate` rather than `oxiplate-derive` directly.
-    #[cfg(feature = "oxiplate")]
+    #[cfg(feature = "_oxiplate")]
     if *state.config.infer_escaper_group_from_file_extension {
         // Get the template's file extension,
         // but ignore `.oxip`.
@@ -766,7 +766,7 @@ fn parse_source_tokens_for_path(
             } else {
                 // `None` will normally be returned for the escaper,
                 // but there's a match arm that is unreachable because of it.
-                #[cfg(feature = "unreachable")]
+                #[cfg(feature = "_unreachable")]
                 return Err(ParsedEscaperError::EscaperNotFound((
                     extension.to_string(),
                     span,
@@ -789,10 +789,10 @@ fn parse_source_tokens_for_path(
         quote_spanned! {span=> #template_string }
     };
 
-    #[cfg(feature = "oxiplate")]
+    #[cfg(feature = "_oxiplate")]
     return Ok((span, tokens, Some(full_path), escaper_name));
 
-    #[cfg(not(feature = "oxiplate"))]
+    #[cfg(not(feature = "_oxiplate"))]
     Ok((span, tokens, Some(full_path), None))
 }
 

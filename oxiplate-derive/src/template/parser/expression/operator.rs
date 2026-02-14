@@ -23,7 +23,7 @@ pub(super) fn parse_operator(tokens: TokenSlice) -> Res<Operator> {
         take(TokenKind::And),
         take(TokenKind::RangeInclusive),
         take(TokenKind::RangeExclusive),
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         take(TokenKind::Exclamation),
     ))
     .parse(tokens)?;

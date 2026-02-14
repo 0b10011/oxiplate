@@ -200,13 +200,13 @@ impl<'a> Writ<'a> {
             inferred_group
         } else if let Some(fallback_group_name) = &state.config.fallback_escaper_group {
             if fallback_group_name == "raw" {
-                #[cfg(not(feature = "oxiplate"))]
+                #[cfg(not(feature = "_oxiplate"))]
                 return (
                     quote_spanned! {span=> oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(#text)))?; },
                     estimated_length,
                 );
 
-                #[cfg(feature = "oxiplate")]
+                #[cfg(feature = "_oxiplate")]
                 return (
                     quote_spanned! {span=>
                         (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(oxiplate_formatter)?
@@ -248,7 +248,7 @@ impl<'a> Writ<'a> {
             );
         };
 
-        if cfg!(not(feature = "oxiplate")) {
+        if cfg!(not(feature = "_oxiplate")) {
             let default_group = &default_group.0;
             (
                 quote_spanned! {span=>
@@ -314,7 +314,7 @@ impl<'a> Writ<'a> {
     fn escaper_raw(text: &TokenStream, estimated_length: usize) -> BuiltTokens {
         let span = text.span();
 
-        #[cfg(not(feature = "oxiplate"))]
+        #[cfg(not(feature = "_oxiplate"))]
         return (
             quote_spanned! {span=>
                 oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(#text)))?;
@@ -322,7 +322,7 @@ impl<'a> Writ<'a> {
             estimated_length,
         );
 
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         return (
             quote_spanned! {span=>
                 (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_raw(oxiplate_formatter)?
@@ -368,7 +368,7 @@ pub(super) fn writ<'a>(
             .merge(escaper_info.2.source(), "Colon expected after escaper name")
         });
 
-        #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
+        #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
         let escaper = escaper_info.map(|(escaper_group, escaper, _colon)| Escaper {
             group: escaper_group.map(|(escaper_group, _dot)| escaper_group),
             escaper,

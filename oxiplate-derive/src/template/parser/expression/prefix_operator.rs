@@ -15,7 +15,7 @@ fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
         take(TokenKind::Minus),
         take(TokenKind::RangeInclusive),
         take(TokenKind::RangeExclusive),
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         take(TokenKind::Equal),
     ))
     .parse(tokens)?;

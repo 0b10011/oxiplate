@@ -64,12 +64,12 @@ impl<'a> CowStr<'a> for CowStrWrapper<'a> {
 impl<'a, W: fmt::Write + ?Sized> FastEscape<'a, W> for CowStrWrapper<'a> {
     #[inline]
     fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> fmt::Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         escaper.escape(f, self.0.as_ref())?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -77,12 +77,12 @@ impl<'a, W: fmt::Write + ?Sized> FastEscape<'a, W> for CowStrWrapper<'a> {
 
     #[inline]
     fn oxiplate_fast_raw(&'a self, f: &mut W) -> fmt::Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         f.write_str(self.0.as_ref())?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())

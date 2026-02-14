@@ -16,7 +16,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-oxiplate-derive = { version = "0.16.4", path = "../oxiplate-derive", default-features = false, features = ["oxiplate"] }
+oxiplate-derive = { version = "0.16.4", path = "../oxiplate-derive", default-features = false, features = ["_oxiplate"] }
 oxiplate-traits = { version = "0.1", path = "../oxiplate-traits", default-features = false, features = [] }
 
 [dev-dependencies]
@@ -41,10 +41,6 @@ built-in-escapers = ["oxiplate-derive/built-in-escapers"]
 # Makes it possible to configure Oxiplate via `/oxiplate.toml`.
 config = ["oxiplate-derive/config"]
 
-# Feature only meant to be turned on for tests.
-# Changes the output for various types to 
-debug-fast-escape-type-priority = ["oxiplate-traits/debug-fast-escape-type-priority"]
-
 # Turns on spans for external templates,
 # considerably improving error messages
 # by pointing to the exact code
@@ -56,5 +52,9 @@ external-template-spans = ["oxiplate-derive/external-template-spans"]
 # and speeds up integer escaping.
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
 
+# Feature only meant to be turned on for tests.
+# Changes the output for various types to 
+_debug-fast-escape-type-priority = ["oxiplate-traits/_debug-fast-escape-type-priority"]
+
 # Feature for conditional compilation to cover otherwise unreachable code.
-unreachable = ["oxiplate-derive/unreachable"]
+_unreachable = ["oxiplate-derive/_unreachable"]

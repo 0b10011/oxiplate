@@ -155,16 +155,16 @@ impl<'a> Expression<'a> {
             Expression::Cow {
                 prefix, expression, ..
             } => {
-                #[cfg_attr(not(feature = "oxiplate"), allow(unused_variables))]
+                #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
                 let (expression, expression_length) = expression.to_tokens(state);
                 let span = prefix.span_token();
 
-                #[cfg(feature = "oxiplate")]
+                #[cfg(feature = "_oxiplate")]
                 let expression = quote_spanned! {span=>
                     ::oxiplate::CowStrWrapper::new((&&::oxiplate::ToCowStrWrapper::new(&(#expression))).to_cow_str())
                 };
 
-                #[cfg(not(feature = "oxiplate"))]
+                #[cfg(not(feature = "_oxiplate"))]
                 let expression = quote_spanned! {span=>
                     compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
                 };
@@ -251,7 +251,7 @@ impl<'a> Expression<'a> {
         if let Some(cow_prefix) = cow_prefix {
             let span = cow_prefix.span_token();
 
-            if cfg!(feature = "oxiplate") {
+            if cfg!(feature = "_oxiplate") {
                 (
                     quote_spanned! {span=>
                         ::oxiplate::CowStrWrapper::new(

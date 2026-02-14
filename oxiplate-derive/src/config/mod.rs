@@ -88,7 +88,7 @@ pub fn config_path() -> PathBuf {
 }
 
 /// Macro configuration.
-#[cfg_attr(not(feature = "unreachable"), derive(Default))]
+#[cfg_attr(not(feature = "_unreachable"), derive(Default))]
 pub(crate) struct Config {
     /// The escaper group to use
     /// when one cannot be inferred from the template's file extension.
@@ -97,7 +97,7 @@ pub(crate) struct Config {
     /// List of valid escaper groups,
     /// with the key being the name that is used in templates
     /// and the value being a path to the enum.
-    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
     pub(crate) escaper_groups: HashMap<String, EscaperGroup>,
 
     /// Whether to require escapers to be explicitly specified,
@@ -106,14 +106,14 @@ pub(crate) struct Config {
 
     /// Whether to attempt to infer the escaper group
     /// from the template's file extension.
-    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
     pub(crate) infer_escaper_group_from_file_extension: InferEscaperGroupFromFileExtension,
 
-    #[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+    #[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
     pub(crate) optimized_renderer: OptimizedRenderer,
 }
 
-#[cfg(feature = "unreachable")]
+#[cfg(feature = "_unreachable")]
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -127,7 +127,7 @@ impl Default for Config {
 }
 
 /// Escaper group defined in the configuration.
-#[cfg_attr(not(feature = "oxiplate"), allow(dead_code))]
+#[cfg_attr(not(feature = "_oxiplate"), allow(dead_code))]
 #[derive(Clone)]
 pub(crate) struct EscaperGroup {
     pub(crate) escaper: String,
@@ -160,10 +160,10 @@ impl OptimizedRenderer {
 
 impl Default for OptimizedRenderer {
     fn default() -> Self {
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         return Self(true);
 
-        #[cfg(not(feature = "oxiplate"))]
+        #[cfg(not(feature = "_oxiplate"))]
         Self(false)
     }
 }

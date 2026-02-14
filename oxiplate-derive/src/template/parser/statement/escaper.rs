@@ -108,7 +108,7 @@ pub(super) fn parse_default_escaper_group(tokens: TokenSlice) -> Res<Statement> 
     let (tokens, tag) = alt((
         KeywordParser::new("default_escaper_group"),
         KeywordParser::new("replace_escaper_group"),
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         KeywordParser::new("unreachable_escaper_group"),
     ))
     .parse(tokens)?;

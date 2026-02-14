@@ -102,7 +102,7 @@ impl<'a> Block<'a> {
         let mut estimated_length = child_prefix_length + child_suffix_length;
         let mut tokens = TokenStream::new();
 
-        #[cfg(feature = "unreachable")]
+        #[cfg(feature = "_unreachable")]
         {
             let _ = block_stack;
             block_stack = VecDeque::new();

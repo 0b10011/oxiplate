@@ -63,12 +63,12 @@ impl<'a, T: FastEscape<'a, W>, W: Write + ?Sized> UnescapedText<'a, W>
 {
     #[inline]
     fn oxiplate_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("FastEscape(")?;
 
         self.0.oxiplate_fast_escape(f, escaper)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -76,12 +76,12 @@ impl<'a, T: FastEscape<'a, W>, W: Write + ?Sized> UnescapedText<'a, W>
 
     #[inline]
     fn oxiplate_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("FastEscape(")?;
 
         self.0.oxiplate_fast_raw(f)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -93,12 +93,12 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
 {
     #[inline]
     fn oxiplate_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
         escaper.escape(f, &ToString::to_string(self.0))?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -106,12 +106,12 @@ impl<'a, T: ToString + Display, W: Write + ?Sized> UnescapedText<'a, W>
 
     #[inline]
     fn oxiplate_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("Display(")?;
 
         f.write_str(&ToString::to_string(self.0))?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -201,12 +201,12 @@ impl<'a, T: FastEscape<'a, W> + ?Sized, W: Write + ?Sized> FastEscape<'a, W> for
 impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
     #[inline]
     fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("String(")?;
 
         escaper.escape(f, self)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -214,12 +214,12 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
 
     #[inline]
     fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("String(")?;
 
         f.write_str(self)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -229,12 +229,12 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for String {
 impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
     #[inline]
     fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("str(")?;
 
         escaper.escape(f, self)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -242,12 +242,12 @@ impl<'a, W: Write + ?Sized> FastEscape<'a, W> for str {
 
     #[inline]
     fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str("str(")?;
 
         f.write_str(self)?;
 
-        #[cfg(feature = "debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-escape-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -260,12 +260,12 @@ macro_rules! unescaped_ints {
         impl<'a, W: Write + ?Sized> FastEscape<'a, W> for $ty {
             #[inline]
             fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> Result {
-                #[cfg(feature = "debug-fast-escape-type-priority")]
+                #[cfg(feature = "_debug-fast-escape-type-priority")]
                 f.write_str("int(")?;
 
                 escaper.escape(f, itoa::Buffer::new().format(*self))?;
 
-                #[cfg(feature = "debug-fast-escape-type-priority")]
+                #[cfg(feature = "_debug-fast-escape-type-priority")]
                 f.write_str(")")?;
 
                 Ok(())
@@ -273,12 +273,12 @@ macro_rules! unescaped_ints {
 
             #[inline]
             fn oxiplate_fast_raw(&'a self, f: &mut W) -> Result {
-                #[cfg(feature = "debug-fast-escape-type-priority")]
+                #[cfg(feature = "_debug-fast-escape-type-priority")]
                 f.write_str("int(")?;
 
                 f.write_str(itoa::Buffer::new().format(*self))?;
 
-                #[cfg(feature = "debug-fast-escape-type-priority")]
+                #[cfg(feature = "_debug-fast-escape-type-priority")]
                 f.write_str(")")?;
 
                 Ok(())

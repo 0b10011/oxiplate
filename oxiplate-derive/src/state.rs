@@ -10,7 +10,7 @@ use crate::BuiltTokens;
 use crate::config::config_path;
 use crate::config::{Config, EscaperGroup, OptimizedRenderer, read_config};
 
-#[cfg(all(feature = "built-in-escapers", not(feature = "oxiplate")))]
+#[cfg(all(feature = "built-in-escapers", not(feature = "_oxiplate")))]
 compile_error!(
     "The `built-in-escapers` feature only works when using the `oxiplate` library rather than \
      `oxiplate-derive` directly."

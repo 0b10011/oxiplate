@@ -6,4 +6,4 @@ edition.workspace = true
 
 [dev-dependencies]
 trybuild = "1.0.116"
-oxiplate-derive = { path = "../../../", features = ["unreachable"] }
+oxiplate-derive = { path = "../../../", features = ["_unreachable"] }

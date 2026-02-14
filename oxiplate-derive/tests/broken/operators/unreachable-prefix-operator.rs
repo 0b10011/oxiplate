@@ -1,6 +1,6 @@
 use oxiplate_derive::Oxiplate;
 
-// Prefix operator should be the same one behind the `unreachable` feature.
+// Prefix operator should be the same one behind the `_unreachable` feature.
 #[derive(Oxiplate)]
 #[oxiplate_inline("{{ @a }}")]
 struct Data {

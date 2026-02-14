@@ -6,4 +6,4 @@ edition.workspace = true
 
 [dev-dependencies]
 trybuild = "1.0.116"
-oxiplate = { path = "../../../", default-features = false, features = ["built-in-escapers", "debug-fast-escape-type-priority"] }
+oxiplate = { path = "../../../", default-features = false, features = ["built-in-escapers", "_debug-fast-escape-type-priority"] }

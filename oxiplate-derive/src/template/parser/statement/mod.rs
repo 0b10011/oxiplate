@@ -272,11 +272,11 @@ pub(super) fn statement<'a>(
                 }
 
                 let is_eof = tokens.is_empty();
-                #[cfg(not(feature = "unreachable"))]
+                #[cfg(not(feature = "_unreachable"))]
                 if statement.is_ended(is_eof) {
                     break;
                 }
-                #[cfg(feature = "unreachable")]
+                #[cfg(feature = "_unreachable")]
                 if is_eof {
                     break;
                 }

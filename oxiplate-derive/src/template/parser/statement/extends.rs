@@ -75,9 +75,9 @@ impl<'a> Extends<'a> {
         let span = self.path.source().span_token();
         let path = LitStr::new(self.path.as_str(), span);
 
-        #[cfg(feature = "oxiplate")]
+        #[cfg(feature = "_oxiplate")]
         let oxiplate = quote_spanned! {span=> ::oxiplate::Oxiplate };
-        #[cfg(not(feature = "oxiplate"))]
+        #[cfg(not(feature = "_oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
         let (template, _template_length) = &self.template.to_tokens(state);

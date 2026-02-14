@@ -55,7 +55,7 @@ config = []
 # Feature only meant to be turned on by the `oxiplate` package.
 # Tells `oxiplate-derive` that the `oxiplate` library is present
 # and allows for some additional functionality like escaping.
-oxiplate = []
+_oxiplate = []
 
 # Feature for conditional compilation to cover otherwise unreachable code.
-unreachable = []
+_unreachable = []
