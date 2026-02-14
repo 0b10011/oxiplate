@@ -38,19 +38,19 @@ better-errors = ["better-internal-errors", "external-template-spans"]
 # but requires nightly.
 better-internal-errors = []
 
-# Turns on spans for external templates,
-# considerably improving error messages
-# by pointing to the exact code
-# that caused an issue,
-# but requires nightly.
-external-template-spans = []
-
 # Turns on some built-in escapers in the `oxiplate` package.
 # Requires the use of `oxiplate` rather than `oxiplate-derive` directly.
 built-in-escapers = []
 
 # Makes it possible to configure Oxiplate via `/oxiplate.toml`.
 config = []
+
+# Turns on spans for external templates,
+# considerably improving error messages
+# by pointing to the exact code
+# that caused an issue,
+# but requires nightly.
+external-template-spans = []
 
 # Feature only meant to be turned on by the `oxiplate` package.
 # Tells `oxiplate-derive` that the `oxiplate` library is present
