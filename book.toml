@@ -2,14 +2,14 @@
 authors = ["Brandon Frohs"]
 language = "en"
 multilingual = false
-src = "book"
+src = "book/src"
 title = "Oxiplate Documentation"
 
 [rust]
 edition = "2024"
 
 [build]
-build-dir = "book-output"
+build-dir = "book/output"
 
 [output.html]
 git-repository-url = "https://github.com/0b10011/oxiplate"
