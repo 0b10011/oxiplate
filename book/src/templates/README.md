@@ -1,9 +1,10 @@
 # Template introduction
 
-The syntax for Oxiplate templates is similar to many other systems,
+The syntax for Oxiplate templates
+is similar to many other template engines,
 but the terminology may be slightly different.
 Over the next several chapters,
 you'll be introduced to the terminology Oxiplate uses
-and what functionality templates built with it supports.
+and what functionality templates built with it support.
 
 Templates are made up of two types of data: static text and [tags](tags.md).
