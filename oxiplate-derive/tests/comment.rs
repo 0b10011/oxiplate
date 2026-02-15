@@ -16,7 +16,10 @@ fn hashes() {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("{# Other close tokens (`%}` and `}}`) should not affect parsing #}")]
+#[oxiplate_inline(
+    "{# Other close tokens (`%}`, `-%}`, `_%}`, `}}`, `-}}`, and `_}}`) should not affect parsing \
+     #}"
+)]
 struct TagEnds;
 
 #[test]

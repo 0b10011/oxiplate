@@ -63,7 +63,10 @@ fn hashes() {
         }
     };
 }
-#[oxiplate_inline("{# Other close tokens (`%}` and `}}`) should not affect parsing #}")]
+#[oxiplate_inline(
+    "{# Other close tokens (`%}`, `-%}`, `_%}`, `}}`, `-}}`, and `_}}`) should not affect parsing \
+     #}"
+)]
 struct TagEnds;
 impl ::core::fmt::Display for TagEnds {
     fn fmt(
@@ -89,9 +92,9 @@ pub const tag_ends: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/comment.rs",
-        start_line: 23usize,
+        start_line: 26usize,
         start_col: 4usize,
-        end_line: 23usize,
+        end_line: 26usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,

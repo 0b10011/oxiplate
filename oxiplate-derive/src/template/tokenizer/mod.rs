@@ -267,6 +267,20 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         _ => None,
     };
 
+    // Handle `-`, `_`, and non-comment close tags in comments.
+    if let TagKind::Comment = in_tag_kind
+        && let None | Some(TagKind::Statement | TagKind::Writ) = tag_end_kind
+    {
+        return (
+            None,
+            Ok(Token::new(
+                TokenKind::Comment,
+                &source.consume().expect("Buffer should contain `-` or `_`"),
+                leading_whitespace,
+            )),
+        );
+    }
+
     if has_unclosed_char_pairs || tag_end_kind.is_none() {
         #[allow(clippy::enum_glob_use)]
         use TagKind::*;
