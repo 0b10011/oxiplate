@@ -49,7 +49,7 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(13usize);
             let oxiplate_formatter = &mut string;
             if let Ok(name) = &self.name {
@@ -320,7 +320,7 @@ impl ::core::fmt::Display for MultipleWrapper {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(2usize);
             let oxiplate_formatter = &mut string;
             if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
@@ -421,7 +421,7 @@ impl ::core::fmt::Display for Outer {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(6usize);
             let oxiplate_formatter = &mut string;
             if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {

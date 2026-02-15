@@ -15,7 +15,7 @@ impl ::core::fmt::Display for RawString {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(21usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -80,7 +80,7 @@ impl ::core::fmt::Display for EmptyString {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
@@ -142,7 +142,7 @@ impl ::core::fmt::Display for SevenBitEscapes {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(7usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;

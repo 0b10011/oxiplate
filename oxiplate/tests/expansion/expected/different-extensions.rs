@@ -24,8 +24,8 @@ impl ::oxiplate::Render for Html {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(
@@ -113,8 +113,8 @@ impl ::oxiplate::Render for Json {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
             .oxiplate_escape(

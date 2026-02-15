@@ -25,7 +25,7 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(36usize);
             let oxiplate_formatter = &mut string;
             for a in &self.values {
@@ -105,7 +105,7 @@ impl ::core::fmt::Display for Accounts {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             for Person { name } in &self.people {
@@ -188,7 +188,7 @@ impl ::core::fmt::Display for ShadowVariable {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(17usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -274,7 +274,7 @@ impl ::core::fmt::Display for Functions {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for function in &self.functions {
@@ -351,7 +351,7 @@ impl ::core::fmt::Display for ForElse {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             {
@@ -437,7 +437,7 @@ impl ::core::fmt::Display for Continue {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for value in &self.values {
@@ -519,7 +519,7 @@ impl ::core::fmt::Display for Break {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             for value in &self.values {
@@ -599,7 +599,7 @@ impl ::core::fmt::Display for BreakElse {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(0usize);
             let oxiplate_formatter = &mut string;
             {

@@ -21,7 +21,7 @@ impl ::core::fmt::Display for Single {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             if let (a,) = (self.a,) {
@@ -90,7 +90,7 @@ impl ::core::fmt::Display for Double {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(9usize);
             let oxiplate_formatter = &mut string;
             if let (a, b) = (self.b, self.a) {
@@ -171,7 +171,7 @@ impl ::core::fmt::Display for Several {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(9usize);
             let oxiplate_formatter = &mut string;
             if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {

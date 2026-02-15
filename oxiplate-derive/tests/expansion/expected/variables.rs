@@ -17,7 +17,7 @@ impl ::core::fmt::Display for Variable {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -82,7 +82,7 @@ impl ::core::fmt::Display for Variables {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter

@@ -27,8 +27,8 @@ impl ::oxiplate::Render for Include {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
             .oxiplate_escape(
@@ -121,8 +121,8 @@ impl ::oxiplate::Render for IncludeDeep {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<h1>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
             .oxiplate_escape(

@@ -26,7 +26,7 @@ impl ::core::fmt::Display for Set {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(6usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -116,7 +116,7 @@ impl ::core::fmt::Display for ShadowIf {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(11usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -264,7 +264,7 @@ impl ::core::fmt::Display for ShadowFor {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(20usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -373,7 +373,7 @@ impl ::core::fmt::Display for ShadowMatch {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(8usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -516,7 +516,7 @@ impl ::core::fmt::Display for Extends {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(97usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
@@ -642,7 +642,7 @@ impl ::core::fmt::Display for ExtendsDefault {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(77usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;

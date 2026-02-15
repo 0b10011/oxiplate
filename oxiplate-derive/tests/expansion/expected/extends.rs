@@ -18,7 +18,7 @@ impl ::core::fmt::Display for AbsoluteData {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(55usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
@@ -152,7 +152,7 @@ impl ::core::fmt::Display for Prefix {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(46usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
@@ -242,7 +242,7 @@ impl ::core::fmt::Display for Replace {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(42usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
@@ -324,7 +324,7 @@ impl ::core::fmt::Display for Suffix {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(46usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;

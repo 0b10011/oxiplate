@@ -34,7 +34,7 @@ impl ::core::fmt::Display for Math {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(129usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("1 + 2 = ")?;
@@ -242,7 +242,7 @@ impl ::core::fmt::Display for Comparisons {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(63usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -388,7 +388,7 @@ impl ::core::fmt::Display for OrAnd {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(135usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -600,7 +600,7 @@ impl ::core::fmt::Display for OrderOfOperations {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             if self.a - self.b < self.c + self.b {

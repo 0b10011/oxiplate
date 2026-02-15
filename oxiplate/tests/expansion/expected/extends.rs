@@ -27,8 +27,8 @@ impl ::oxiplate::Render for AbsoluteData {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
             .oxiplate_escape(

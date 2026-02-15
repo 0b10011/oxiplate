@@ -29,8 +29,8 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n<p>")?;
             (&&::oxiplate::UnescapedTextWrapper::new(&(message)))

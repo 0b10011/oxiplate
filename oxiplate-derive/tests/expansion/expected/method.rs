@@ -29,7 +29,7 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -98,7 +98,7 @@ impl ::core::fmt::Display for Argument {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(4usize);
             let oxiplate_formatter = &mut string;
             if self.user.display_name().contains("i") {
@@ -171,7 +171,7 @@ impl ::core::fmt::Display for Arguments {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter
@@ -252,7 +252,7 @@ impl ::core::fmt::Display for Callback {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter

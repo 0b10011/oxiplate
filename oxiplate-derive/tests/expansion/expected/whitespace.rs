@@ -15,7 +15,7 @@ impl ::core::fmt::Display for AdjustedWhitespace {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(12usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello world!")?;
@@ -83,7 +83,7 @@ impl ::core::fmt::Display for WritWhitespaceControl {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(12usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello ")?;
@@ -157,7 +157,7 @@ impl ::core::fmt::Display for CommentWhitespaceControl {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(10usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("Hello  ()!")?;
@@ -239,7 +239,7 @@ impl ::core::fmt::Display for AdjacentTags {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(231usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -402,7 +402,7 @@ impl ::core::fmt::Display for WhitespaceOnly {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(5usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str(" \t\r\n{")?;

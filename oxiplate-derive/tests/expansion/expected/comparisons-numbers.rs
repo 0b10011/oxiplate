@@ -17,7 +17,7 @@ impl ::core::fmt::Display for Comparison {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(3usize);
             let oxiplate_formatter = &mut string;
             if self.value == 5 {

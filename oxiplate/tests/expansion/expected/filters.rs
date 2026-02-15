@@ -70,8 +70,8 @@ impl ::oxiplate::Render for Respond {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(::oxiplate::CowStrWrapper::new(
                 (&&::oxiplate::ToCowStrWrapper::new(
@@ -171,8 +171,8 @@ impl ::oxiplate::Render for Shorten {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(
@@ -280,8 +280,8 @@ impl ::oxiplate::Render for Pad {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::pad(self.number, self.length)),
         ))
@@ -368,8 +368,8 @@ impl ::oxiplate::Render for Multiple {
         oxiplate_formatter: &mut W,
     ) -> ::core::fmt::Result {
         extern crate alloc;
-        use ::core::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(crate::filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(

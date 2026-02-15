@@ -173,7 +173,7 @@ fn parse_input(
                     let string = {
                         extern crate alloc;
 
-                        use ::core::fmt::Write;
+                        use ::core::fmt::Write as _;
                         let mut string = alloc::string::String::with_capacity(#estimated_length);
                         let oxiplate_formatter = &mut string;
                         #template
@@ -198,8 +198,8 @@ fn parse_input(
                 fn render_into<W: ::core::fmt::Write>(&self, oxiplate_formatter: &mut W) -> ::core::fmt::Result {
                     extern crate alloc;
 
-                    use ::core::fmt::Write;
-                    use ::oxiplate::{ToCowStr, UnescapedText};
+                    use ::core::fmt::Write as _;
+                    use ::oxiplate::{ToCowStr as _, UnescapedText as _};
                     #template
                     Ok(())
                 }
@@ -212,7 +212,7 @@ fn parse_input(
                     let string = {
                         extern crate alloc;
 
-                        use ::core::fmt::Write;
+                        use ::core::fmt::Write as _;
                         let mut string = alloc::string::String::with_capacity(#estimated_length);
                         let oxiplate_formatter = &mut string;
                         #template

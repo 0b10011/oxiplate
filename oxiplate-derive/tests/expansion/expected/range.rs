@@ -26,7 +26,7 @@ impl ::core::fmt::Display for RangeToExclusive {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -129,7 +129,7 @@ impl ::core::fmt::Display for RangeToInclusive {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(81usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -232,7 +232,7 @@ impl ::core::fmt::Display for RangeFrom {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(83usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -340,7 +340,7 @@ impl ::core::fmt::Display for RangeExclusive {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(142usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -468,7 +468,7 @@ impl ::core::fmt::Display for RangeInclusive {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(142usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter.write_str("\n")?;
@@ -591,7 +591,7 @@ impl ::core::fmt::Display for RangeFull {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(11usize);
             let oxiplate_formatter = &mut string;
             oxiplate_formatter

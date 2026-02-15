@@ -49,7 +49,7 @@ impl ::core::fmt::Display for Data {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string =
                     alloc::string::String::with_capacity(13usize);
                 let oxiplate_formatter = &mut string;
@@ -304,7 +304,7 @@ impl ::core::fmt::Display for MultipleWrapper {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(2usize);
                 let oxiplate_formatter = &mut string;
                 if let Multiple { a: 10, b: 'b', c: "19", d: false } =
@@ -386,7 +386,7 @@ impl ::core::fmt::Display for Outer {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(6usize);
                 let oxiplate_formatter = &mut string;
                 if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } =
@@ -505,7 +505,7 @@ impl ::core::fmt::Display for RangeInteger {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
@@ -643,7 +643,7 @@ impl ::core::fmt::Display for RangeFloat {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
@@ -793,7 +793,7 @@ impl ::core::fmt::Display for RangeChar {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(1usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {
@@ -930,7 +930,7 @@ impl ::core::fmt::Display for MultipleCases {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string =
                     alloc::string::String::with_capacity(10usize);
                 let oxiplate_formatter = &mut string;
@@ -1052,7 +1052,7 @@ impl ::core::fmt::Display for Guard {
         let string =
             {
                 extern crate alloc;
-                use ::core::fmt::Write;
+                use ::core::fmt::Write as _;
                 let mut string = alloc::string::String::with_capacity(3usize);
                 let oxiplate_formatter = &mut string;
                 match self.value {

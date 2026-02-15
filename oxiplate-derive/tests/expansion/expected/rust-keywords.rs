@@ -25,7 +25,7 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         let string = {
             extern crate alloc;
-            use ::core::fmt::Write;
+            use ::core::fmt::Write as _;
             let mut string = alloc::string::String::with_capacity(1usize);
             let oxiplate_formatter = &mut string;
             if !self.r#ref.is_empty() {
