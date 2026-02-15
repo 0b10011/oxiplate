@@ -1,6 +1,6 @@
 # Getting started
 
-Include Oxiplate in your project:
+Include [Oxiplate](https://crates.io/crates/oxiplate) in your project:
 
 ```bash
 cargo add oxiplate
