@@ -1,7 +1,7 @@
 # The macro by itself (`oxiplate_derive`) doesn't support escaping.
 # This is only for tests directed at the macro.
 # The main library (`oxiplate`) supported and tests escaping.
-# Libraries and binaries using Oxiplate 
+# Libraries and binaries using Oxiplate
 # will usually rely on inferring the escaper from file extensions,
 # but they may also specify their own fallback escaper,
 # possibly even "raw" for plain text use cases.
@@ -14,6 +14,6 @@ fallback_escaper_group = 'raw'
 # resulting in inferrence happening.
 infer_escaper_group_from_file_extension = false
 
-# The macro by itself doesn't have the trait available 
+# The macro by itself doesn't have the trait available
 # for this to be implemented.
 optimized_renderer = false

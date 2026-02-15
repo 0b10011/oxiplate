@@ -61,7 +61,7 @@ jobs:
         id: lookup
         uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
         with:
-          path: ${{ steps.key.outputs.cache-path }} 
+          path: ${{ steps.key.outputs.cache-path }}
           key: ${{ steps.key.outputs.cache-key }}
           lookup-only: true
 
@@ -87,5 +87,5 @@ jobs:
         if: steps.lookup.outputs.cache-hit != 'true'
         uses: actions/cache/save@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
         with:
-          path: ${{ steps.key.outputs.cache-path }} 
+          path: ${{ steps.key.outputs.cache-path }}
           key: ${{ steps.key.outputs.cache-key }}

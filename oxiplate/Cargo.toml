@@ -53,7 +53,7 @@ external-template-spans = ["oxiplate-derive/external-template-spans"]
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
 
 # Feature only meant to be turned on for tests.
-# Changes the output for various types to 
+# Changes the output for various types to
 _debug-fast-escape-type-priority = ["oxiplate-traits/_debug-fast-escape-type-priority"]
 
 # Feature for conditional compilation to cover otherwise unreachable code.

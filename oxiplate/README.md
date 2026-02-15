@@ -77,8 +77,8 @@ error[E0277]: cannot add `u64` to `u32`
 [...]
 ```
 
-Check out the broken tests directory of 
-[`oxiplate`](https://github.com/0b10011/oxiplate/tree/main/oxiplate/tests/broken) and 
+Check out the broken tests directory of
+[`oxiplate`](https://github.com/0b10011/oxiplate/tree/main/oxiplate/tests/broken) and
 [`oxiplate-derive`](https://github.com/0b10011/oxiplate/tree/main/oxiplate-derive/tests/broken)
 for (tested) example error messages.
 

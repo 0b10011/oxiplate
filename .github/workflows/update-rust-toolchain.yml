@@ -97,7 +97,7 @@ jobs:
             --head "$FEATURE_BRANCH" \
             --json url \
             --jq '.[].url')
-          
+
           if echo $PR_URLS | grep -q "."; then
             echo 'pr_exists=true' >> "$GITHUB_OUTPUT"
             echo 'An open pull request already exists:'
@@ -127,7 +127,7 @@ jobs:
         run: |
           gh pr edit \
           --title "Update toolchain to $TO_TOOLCHAIN from $FROM_TOOLCHAIN"
-      
+
       - name: Trigger checks
         if: steps.commit.outputs.up-to-date == 'false'
         env:
@@ -139,7 +139,7 @@ jobs:
           gh pr close "$(git branch --show-current)" --comment 'Automatically closing and reopening to trigger checks.'
           echo "Reopening PR to trigger checks..."
           gh pr reopen "$(git branch --show-current)"
-      
+
       - name: Close outdated PR
         if: steps.commit.outputs.up-to-date == 'true' && steps.pr_check.outputs.pr_exists == 'true'
         run: |
