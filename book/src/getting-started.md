@@ -6,6 +6,15 @@ Include [Oxiplate](https://crates.io/crates/oxiplate) in your project:
 cargo add oxiplate
 ```
 
+<div class="warning">
+
+The `better-errors` feature is turned off by default
+because it depends on nightly-only features.
+However, error messages are vastly improved with this feature on,
+so make sure to turn it on during development at the very least.
+
+</div>
+
 Create a couple templates in the `/template` directory:
 
 ```html:/templates/layout.html.oxip
