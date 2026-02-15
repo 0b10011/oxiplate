@@ -1,10 +1,13 @@
+use std::collections::HashSet;
+
 use quote::quote_spanned;
 
-use super::super::expression::{Identifier, Keyword, expression};
+use super::super::expression::{Keyword, expression};
 use super::{State, Statement, StatementKind};
 use crate::parser::{Parser as _, cut, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
+use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
 
@@ -14,8 +17,8 @@ pub(crate) struct Let<'a> {
     /// `let` keyword
     keyword: Keyword<'a>,
 
-    /// Variable name
-    ident: Identifier<'a>,
+    /// Pattern for destructuring
+    pattern: Pattern<'a>,
 
     /// `=` operator
     operator: Source<'a>,
@@ -30,9 +33,9 @@ pub(crate) struct Let<'a> {
 impl<'a> Let<'a> {
     /// Attempt to parse a `let` statement from the current input.
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (keyword, ident, operator, expr)) = (
+        let (tokens, (keyword, pattern, operator, expr)) = (
             KeywordParser::new("let"),
-            cut("Expected a variable name", Identifier::parse),
+            cut("Expected a pattern", Pattern::parse),
             cut("Expected `=`", take(TokenKind::Equal)),
             cut("Expected an expression", expression(true, true)),
         )
@@ -41,7 +44,7 @@ impl<'a> Let<'a> {
         let source = keyword
             .source()
             .clone()
-            .merge(ident.source(), "Variable name expected after `let`")
+            .merge(pattern.source(), "Variable name expected after `let`")
             .merge(operator.source(), "`=` expected after variable name")
             .merge(&expr.source(), "Expression expected after expression");
 
@@ -49,7 +52,7 @@ impl<'a> Let<'a> {
             tokens,
             Self {
                 keyword,
-                ident,
+                pattern,
                 operator: operator.source().clone(),
                 expr,
                 source,
@@ -62,21 +65,24 @@ impl<'a> Let<'a> {
         &self.source
     }
 
-    /// Get the variable name.
-    pub fn variable(&self) -> &'a str {
-        self.ident.as_str()
+    /// Get variable names.
+    pub fn variables(&'a self) -> HashSet<&'a str> {
+        self.pattern.get_variables()
     }
 
     /// Build token stream for the statement.
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let span = self.source.span_token();
         let keyword = &self.keyword;
-        let ident = &self.ident;
+        let pattern = self.pattern.to_tokens(state);
         let operator_span = self.operator.span_token();
         let operator = quote_spanned! {operator_span=> = };
         let (expr, _estimated_length) = self.expr.to_tokens(state);
 
-        (quote_spanned! {span=> #keyword #ident #operator #expr; }, 0)
+        (
+            quote_spanned! {span=> #keyword #pattern #operator #expr; },
+            0,
+        )
     }
 }
 

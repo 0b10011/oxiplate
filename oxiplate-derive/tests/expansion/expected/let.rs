@@ -736,12 +736,92 @@ fn extends_default() {
         }
     };
 }
+struct DestructureData(usize);
+#[oxiplate_inline(r#"{% let DestructureData(value) = value %}{{ value }}"#)]
+struct Destructure {
+    value: DestructureData,
+}
+impl ::core::fmt::Display for Destructure {
+    fn fmt(
+        &self,
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
+        let string = {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            let mut string = alloc::string::String::with_capacity(1usize);
+            let oxiplate_formatter = &mut string;
+            let DestructureData(value) = self.value;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            string
+        };
+        oxiplate_formatter.write_str(&string)
+    }
+}
+extern crate test;
+#[rustc_test_marker = "destructure"]
+#[doc(hidden)]
+pub const destructure: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("destructure"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/let.rs",
+        start_line: 233usize,
+        start_col: 4usize,
+        end_line: 233usize,
+        end_col: 15usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(destructure()),
+    ),
+};
+fn destructure() {
+    match (
+        &::alloc::__export::must_use({
+            ::alloc::fmt::format(
+                format_args!(
+                    "{0}",
+                    Destructure {
+                        value: DestructureData(19),
+                    },
+                ),
+            )
+        }),
+        &"19",
+    ) {
+        (left_val, right_val) => {
+            if !(*left_val == *right_val) {
+                let kind = ::core::panicking::AssertKind::Eq;
+                ::core::panicking::assert_failed(
+                    kind,
+                    &*left_val,
+                    &*right_val,
+                    ::core::option::Option::None,
+                );
+            }
+        }
+    };
+}
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(
-        &[&extends, &extends_default, &set, &shadow_for, &shadow_if, &shadow_match],
+        &[
+            &destructure,
+            &extends,
+            &extends_default,
+            &set,
+            &shadow_for,
+            &shadow_if,
+            &shadow_match,
+        ],
     )
 }

@@ -220,3 +220,24 @@ fn extends_default() {
 "#
     );
 }
+
+struct DestructureData(usize);
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(r#"{% let DestructureData(value) = value %}{{ value }}"#)]
+struct Destructure {
+    value: DestructureData,
+}
+
+#[test]
+fn destructure() {
+    assert_eq!(
+        format!(
+            "{}",
+            Destructure {
+                value: DestructureData(19)
+            }
+        ),
+        "19"
+    );
+}

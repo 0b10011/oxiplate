@@ -64,8 +64,8 @@
 {% endfor %}
 ```
 
-[Let statements](let.md) assign the result of an expression to a variable:
+[Let statements](let.md) bind the result of an expression to the variable(s) in a pattern:
 
 ```oxip:
-{% let NAME = EXPRESSION %}
+{% let PATTERN = EXPRESSION %}
 ```

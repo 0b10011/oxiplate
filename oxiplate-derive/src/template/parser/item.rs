@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
@@ -99,9 +97,13 @@ impl<'a> Item<'a> {
                 }
 
                 if let StatementKind::Let(statement) = &statement.kind {
-                    state
-                        .local_variables
-                        .add(HashSet::from([statement.variable().to_string()]));
+                    state.local_variables.add(
+                        statement
+                            .variables()
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect(),
+                    );
                 }
 
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
