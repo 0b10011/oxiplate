@@ -1,6 +1,6 @@
 # Statements
 
-[Default escaper statements](default-escaper.md) sets or replaces the default escaper for a template.
+[Default escaper statements](default-escaper.md) set or replace the default escaper for a template:
 
 ```oxip:
 {% default_escaper_group NAME %}
@@ -10,7 +10,7 @@
 {% replace_escaper_group NAME %}
 ```
 
-[Extends statements](extends.md) extend a template with the option to prepend, replace, append, or surround any `block` from the parent template.
+[Extends statements](extends.md) extend a template with the option to prepend, replace, append, or surround any `block` from an ancestor template:
 
 ```oxip:
 {% extends PATH %}
@@ -21,13 +21,13 @@
 {% endblock %}
 ```
 
-[Include statements](include.md) include the contents of a template built using the variables from the current scope.
+[Include statements](include.md) include the contents of a template built using the variables from the current scope:
 
 ```oxip:
 {% include PATH %}
 ```
 
-[If statements](if-else.md) add branching to templates with `if`, `elseif`, and `else`.
+[If statements](if-else.md) add branching to templates with `if`, `elseif`, and `else`:
 
 ```oxip:
 {% if [let PATTERN =] EXPRESSION %}
@@ -39,7 +39,7 @@
 {% endif %}
 ```
 
-[Match statements](match.md) add pattern matching with `match` and `case`.
+[Match statements](match.md) add pattern matching with `match` and `case`:
 
 ```oxip:
 {% match EXPRESSION %}
@@ -48,7 +48,7 @@
 {% endmatch %}
 ```
 
-[For statements](for.md) bring iteration to templates with `for` and `else`.
+[For statements](for.md) bring iteration to templates with `for` and `else`:
 
 ```oxip:
 {% for PATTERN in EXPRESSION %}
@@ -64,7 +64,7 @@
 {% endfor %}
 ```
 
-[Let statements](let.md) assign the result of an expression to a variable.
+[Let statements](let.md) assign the result of an expression to a variable:
 
 ```oxip:
 {% let NAME = EXPRESSION %}
