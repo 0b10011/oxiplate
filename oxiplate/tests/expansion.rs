@@ -13,8 +13,8 @@ fn expansion() -> Result<(), Box<dyn Error>> {
 mod test {
     pub(super) fn expansion() -> Result<(), Box<dyn super::Error>> {
         unimplemented!(
-            "Expansion tests are incorrect on older rust compiler version like this one. Run \
-             `rustup self update && rustup update` to get the latest rust compiler version."
+            "Expansion tests are incorrect on older Rust compiler version like this one. Run \
+             `rustup self update && rustup update` to get the latest Rust compiler version."
         );
     }
 }

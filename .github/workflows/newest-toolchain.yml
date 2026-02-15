@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       toolchain:
-        description: "Latest rust toolchain that could be used"
+        description: "Latest Rust toolchain that could be used"
         value: ${{ jobs.toolchain.outputs.toolchain }}
 
 jobs:

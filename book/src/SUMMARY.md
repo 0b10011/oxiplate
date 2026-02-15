@@ -2,7 +2,7 @@
 
 [Introduction](README.md)
 
-# Setting up the rust project
+# Setting up the Rust project
 
 - [Getting started](getting-started.md)
 

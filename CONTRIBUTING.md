@@ -29,6 +29,6 @@ Test coverage reports can be found in `./target/llvm-cov/`.
 
 ## Testing
 
-`just test` will run all tests without coverage. `just coverage` will run tests with coverage. For more complicated failures, `cargo expand --test if` can be used to output the generated rust code for the `if` tests (replace `if` with the name of the test to expand).
+`just test` will run all tests without coverage. `just coverage` will run tests with coverage. For more complicated failures, `cargo expand --test if` can be used to output the generated Rust code for the `if` tests (replace `if` with the name of the test to expand).
 
 There are three main categories of tests: features, failures, and expansions. Feature tests ensure the core features (e.g., if statements and whitespace control) work as expected. Failure tests use `trybuild` via `broken.rs` to ensure the error messages for broken builds are friendly to humans and actually help with debugging. And expansion tests use `cargo expand` (via [`expansion.rs`](./tests/expansion.rs)) to verify feature test expansion is happening as expected.
