@@ -58,7 +58,7 @@ jobs:
           key: tests-and-coverage-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Run tests and coverage
-        run: just setup-coverage coverage-lcov build-no-std ''
+        run: just setup-test check-deps setup-coverage coverage-lcov build-no-std ''
 
       - name: Coveralls upload
         uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2
@@ -67,13 +67,6 @@ jobs:
           format: lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check licenses
-        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
-        with:
-          command: check bans licenses sources
-          arguments: --all-features
-          rust-version: ${{ needs.get-toolchain.outputs.toolchain }}
 
   get-msrv:
     needs: [setup]
@@ -111,14 +104,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: ${{ needs.get-msrv.outputs.msrv }}
-        run: just setup-test test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
-
-      - name: Check licenses
-        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
-        with:
-          command: check bans licenses sources
-          arguments: --all-features
-          rust-version: ${{ needs.get-msrv.outputs.msrv }}
+        run: just setup-test check-deps test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
   setup-stable:
     uses: ./.github/workflows/setup.yml
@@ -148,14 +134,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: stable
-        run: just setup-test test-toolchain stable
-
-      - name: Check licenses
-        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
-        with:
-          command: check bans licenses sources
-          arguments: --all-features
-          rust-version: stable
+        run: just setup-test check-deps test-toolchain stable
 
   setup-beta:
     uses: ./.github/workflows/setup.yml
@@ -185,14 +164,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: beta
-        run: just setup-test test-toolchain beta
-
-      - name: Check licenses
-        uses: EmbarkStudios/cargo-deny-action@3fd3802e88374d3fe9159b834c7714ec57d6c979 # v2
-        with:
-          command: check bans licenses sources
-          arguments: --all-features
-          rust-version: beta
+        run: just setup-test check-deps test-toolchain beta
 
   book-tests:
     needs: get-toolchain

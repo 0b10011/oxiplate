@@ -196,12 +196,12 @@ setup: setup-dev setup-test setup-expansion setup-coverage setup-book
 # Initial setup for general development.
 [group("Setup")]
 setup-dev:
-    cargo install just watchexec-cli cargo-deny
+    cargo install just watchexec-cli
 
 # Initial setup for testing
 [group("Setup")]
 setup-test:
-    # Nothing to do
+    cargo install cargo-deny
 
 # Initial setup for expansion tests and debugging.
 [group("Setup")]
