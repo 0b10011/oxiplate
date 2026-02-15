@@ -58,7 +58,7 @@ struct Homepage {
 
 fn main() {
     let template = Homepage {
-        site_name: "Oxiplate Documentation"
+        site_name: "Your Site"
         title: "Oxiplate Example",
         message: "Hello world!",
     };
@@ -73,7 +73,7 @@ Which should output something like:
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Oxiplate Example - Oxiplate Documentation</title>
+        <title>Oxiplate Example - Your Site</title>
     </head>
     <body>
         <header>
