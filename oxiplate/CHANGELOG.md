@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.16.4...oxiplate-v0.17.0) - 2026-02-20
+
+### Added
+
+- added support for patterns in let statements
+
+### Fixed
+
+- stopped binding traits in generated code
+- fixed compiling for MSRV (broken with previous commit; was working in most recently released version)
+- fixed compiling comments containing `-`, `_`, or close tags with whitespace control characters
+
+### Other
+
+- updated toolchain to nightly-2026-02-17
+- cleaned up some trailing whitespace
+- fixed capitalization of "Rust"
+- switched to addition for broken example to showcase something that can't be checked in macros
+- hid `Ok()` and assertion from code samples
+- [**breaking**] prefixed test-specific and `oxiplate` features with an underscore to hide on docs.rs and possibly elsewhere
+- *(deps)* bump trybuild from 1.0.115 to 1.0.116
+- *(deps)* bump syn from 2.0.115 to 2.0.116
+- removed escaping and whitespace control docs from derive macro readme
+- added warning about feature unification and using `oxiplate-derive` directly
+- sorted features alphabetically
+- Merge pull request #172 from 0b10011/dependabot/cargo/trybuild-1.0.116
+- adjusted wording of traits readme a bit
+
 ## [0.16.4](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.16.3...oxiplate-v0.16.4) - 2026-02-11
 
 ### Added
