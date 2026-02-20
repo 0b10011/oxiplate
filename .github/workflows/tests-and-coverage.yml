@@ -108,7 +108,7 @@ jobs:
         # An alternate config is used due to newer keys not being supported.
         run: |
           cargo install --locked cargo-deny@0.18.3
-          cargo deny --config deny-0.18.3.toml check licenses bans sources
+          cargo deny check --config deny-0.18.3.toml licenses bans sources
           just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
   setup-stable:
