@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.10...oxiplate-traits-v0.2.0) - 2026-02-20
+
+### Other
+
+- adjusted wording of traits readme a bit
+- [**breaking**] prefixed test-specific and `oxiplate` features with an underscore to hide on docs.rs and possibly elsewhere
+
 ## [0.1.10](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.9...oxiplate-traits-v0.1.10) - 2026-02-11
 
 ### Added
