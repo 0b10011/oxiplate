@@ -325,7 +325,12 @@ fn shadow_for() {
                     "{0}",
                     ShadowFor {
                         value: "Hello world!",
-                        numbers: <[_]>::into_vec(::alloc::boxed::box_new([1, 2, 3])),
+                        numbers: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+                            ::alloc::intrinsics::write_box_via_move(
+                                ::alloc::boxed::Box::new_uninit(),
+                                [1, 2, 3],
+                            ),
+                        ),
                     },
                 ),
             )

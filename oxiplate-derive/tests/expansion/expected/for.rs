@@ -68,7 +68,12 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_for() {
     let data = Data {
-        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar"])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                ["foo", "bar"],
+            ),
+        ),
     };
     match (
         &::alloc::__export::must_use({
@@ -146,8 +151,11 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_method_calls() {
     let data = Accounts {
-        people: <[_]>::into_vec(
-            ::alloc::boxed::box_new([Person { name: "Zoe" }, Person { name: "Alice" }]),
+        people: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [Person { name: "Zoe" }, Person { name: "Alice" }],
+            ),
         ),
     };
     match (
@@ -232,7 +240,12 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_shadow_variable() {
     let data = ShadowVariable {
-        values: <[_]>::into_vec(::alloc::boxed::box_new(["foo", "bar", "baz"])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                ["foo", "bar", "baz"],
+            ),
+        ),
         value: "hello world",
     };
     match (
@@ -312,7 +325,12 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_function_variables() {
     let data = Functions {
-        functions: <[_]>::into_vec(::alloc::boxed::box_new([|| 19, || 89])),
+        functions: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [|| 19, || 89],
+            ),
+        ),
     };
     match (
         &::alloc::__export::must_use({
@@ -478,7 +496,12 @@ pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_continue() {
     let data = Continue {
-        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 23, 89])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [19, 23, 89],
+            ),
+        ),
     };
     match (
         &::alloc::__export::must_use({
@@ -560,7 +583,12 @@ pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_break() {
     let data = Break {
-        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 23, 89])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [19, 23, 89],
+            ),
+        ),
     };
     match (
         &::alloc::__export::must_use({
@@ -642,7 +670,12 @@ pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn test_break_else() {
     let data = BreakElse {
-        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 89])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [19, 89],
+            ),
+        ),
     };
     match (
         &::alloc::__export::must_use({

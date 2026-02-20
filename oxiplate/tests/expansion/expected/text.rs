@@ -66,11 +66,11 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn variable() {
     let data = Data {
-        messages: <[_]>::into_vec(
-            ::alloc::boxed::box_new([
-                "Hello world!",
-                "&reg;</p><script>alert('hey');</script><p>&#153;",
-            ]),
+        messages: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                ["Hello world!", "&reg;</p><script>alert('hey');</script><p>&#153;"],
+            ),
         ),
     };
     match (
