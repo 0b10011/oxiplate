@@ -201,7 +201,7 @@ setup-dev:
 # Initial setup for testing
 [group("Setup")]
 setup-test:
-    cargo install cargo-deny
+    cargo install --locked cargo-deny@0.19.0
 
 # Initial setup for expansion tests and debugging.
 [group("Setup")]

@@ -104,7 +104,12 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: ${{ needs.get-msrv.outputs.msrv }}
-        run: just setup-test check-deps test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
+        # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
+        # An alternate config is used due to newer keys not being supported.
+        run: |
+          cargo install --locked cargo-deny@0.18.3
+          cargo deny --config deny-0.18.3.toml check licenses bans sources
+          just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
   setup-stable:
     uses: ./.github/workflows/setup.yml
