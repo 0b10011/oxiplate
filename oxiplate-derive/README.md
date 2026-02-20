@@ -6,8 +6,8 @@
 [crate]: https://crates.io/crates/oxiplate-derive
 [Repository]: https://img.shields.io/github/commits-since/0b10011/oxiplate/latest?label=unreleased+commits
 [repo]: https://github.com/0b10011/oxiplate
-[Docs Build Status]: https://img.shields.io/docsrs/oxiplate
-[docs]: https://docs.rs/oxiplate/latest/oxiplate/
+[Docs Build Status]: https://img.shields.io/docsrs/oxiplate-derive
+[docs]: https://docs.rs/oxiplate-derive/latest/oxiplate_derive/
 [Coverage Status]: https://img.shields.io/coverallsCoverage/github/0b10011/oxiplate
 [coverage]: https://coveralls.io/github/0b10011/oxiplate?branch=main
 [MIT OR Apache-2.0 License]: https://img.shields.io/crates/l/oxiplate-derive
