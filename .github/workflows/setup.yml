@@ -67,7 +67,7 @@ jobs:
 
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} install just
+        run: cargo +${{ inputs.toolchain }} install --locked just
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
