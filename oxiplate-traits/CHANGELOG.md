@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.2.0...oxiplate-traits-v0.2.1) - 2026-02-22
+
+### Other
+
+- matched docs.rs badges/links to crate name instead of only using `oxiplate`
+
 ## [0.2.0](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.1.10...oxiplate-traits-v0.2.0) - 2026-02-20
 
 ### Other
