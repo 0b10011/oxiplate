@@ -33,7 +33,7 @@ impl<'a> ::core::fmt::Display for AbsoluteData<'a> {
                 oxiplate_formatter
                     .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
                 oxiplate_formatter.write_str("</div>")?;
-            }
+            };
             oxiplate_formatter.write_str("\n")?;
             string
         };

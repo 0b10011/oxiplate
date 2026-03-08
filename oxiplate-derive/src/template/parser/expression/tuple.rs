@@ -58,11 +58,15 @@ impl<'a> Tuple<'a> {
         let span = self.source.span_token();
         let mut expression_length = usize::MAX;
         for item in &self.items {
-            let (item, item_length) = item.to_tokens(state);
+            let (item, item_length, _translations) = item.to_tokens(state);
             items.push(item);
             expression_length = expression_length.min(item_length);
         }
-        (quote_spanned! {span=> ( #(#items)* ) }, expression_length)
+        (
+            quote_spanned! {span=> ( #(#items)* ) },
+            expression_length,
+            vec![],
+        )
     }
 }
 
@@ -108,11 +112,15 @@ impl<'a> TupleItem<'a> {
     }
 
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (expression, expression_length) = self.expression.to_tokens(state);
+        let (expression, expression_length, translations) = self.expression.to_tokens(state);
         let comma = self.comma.clone().map_or_else(TokenStream::new, |comma| {
             let span = comma.span_token();
             quote_spanned! {span=> , }
         });
-        (quote! { #expression #comma }, expression_length)
+        (
+            quote! { #expression #comma },
+            expression_length,
+            translations,
+        )
     }
 }

@@ -149,7 +149,7 @@ impl ::core::fmt::Display for ShadowIf {
                 oxiplate_formatter.write_str(" ")?;
                 oxiplate_formatter
                     .write_str(&alloc::string::ToString::to_string(&(value)))?;
-            }
+            };
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
@@ -418,7 +418,7 @@ impl ::core::fmt::Display for ShadowMatch {
                         .write_str(&alloc::string::ToString::to_string(&(value)))?;
                     oxiplate_formatter.write_str("\n")?;
                 }
-            }
+            };
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             oxiplate_formatter.write_str("\n")?;
@@ -572,7 +572,7 @@ impl ::core::fmt::Display for Extends {
                     oxiplate_formatter
                         .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 }
-            }
+            };
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
@@ -603,7 +603,7 @@ impl ::core::fmt::Display for Extends {
                     oxiplate_formatter
                         .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 }
-            }
+            };
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str("</footer>\n")?;
@@ -689,7 +689,7 @@ impl ::core::fmt::Display for ExtendsDefault {
                 }
                 {}
                 {}
-            }
+            };
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
@@ -708,7 +708,7 @@ impl ::core::fmt::Display for ExtendsDefault {
                 }
                 {}
                 {}
-            }
+            };
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str("</footer>\n")?;

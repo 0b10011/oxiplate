@@ -101,7 +101,8 @@ impl<'a> For<'a> {
             is_ended: _,
         } = self;
 
-        let (expression, _expression_length) = expression.to_tokens(state);
+        let (expression, _expression_length, _expression_translations) =
+            expression.to_tokens(state);
 
         state.local_variables.push_stack();
 
@@ -111,14 +112,14 @@ impl<'a> For<'a> {
                 .map(ToString::to_string)
                 .collect(),
         );
-        let (template, template_length) = template.to_tokens(state);
+        let (template, template_length, mut translations) = template.to_tokens(state);
 
         // Loops will very likely run at least twice.
         estimated_length += template_length * 2;
 
         let pattern = pattern.to_tokens(state);
         if let Some(otherwise) = otherwise {
-            let (otherwise, otherwise_length) = otherwise.to_tokens(state);
+            let (otherwise, otherwise_length, otherwise_translations) = otherwise.to_tokens(state);
             estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
@@ -132,6 +133,7 @@ impl<'a> For<'a> {
                     }
                 }
             });
+            translations.extend(otherwise_translations);
         } else {
             tokens
                 .append_all(quote! { #for_keyword #pattern #in_keyword #expression { #template } });
@@ -139,7 +141,7 @@ impl<'a> For<'a> {
 
         state.local_variables.pop_stack();
 
-        (tokens, estimated_length)
+        (tokens, estimated_length, translations)
     }
 }
 
@@ -215,7 +217,7 @@ impl<'a> Break<'a> {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, 0, vec![])
     }
 }
 
@@ -250,7 +252,7 @@ impl<'a> Continue<'a> {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, 0, vec![])
     }
 }
 

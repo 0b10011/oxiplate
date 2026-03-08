@@ -82,17 +82,17 @@ impl<'a> Match<'a> {
 
         let mut cases = TokenStream::new();
         for case in &self.cases {
-            let (case, case_length) = case.to_tokens(state);
+            let (case, case_length, _translations) = case.to_tokens(state);
             estimated_length = estimated_length.min(case_length);
             cases.append_all(case);
         }
 
-        let (expression, _expression_length) = self.expression.to_tokens(state);
-        let (errors, _errors_length) = self.errors.to_tokens(state);
+        let (expression, _expression_length, _translations) = self.expression.to_tokens(state);
+        let (errors, _errors_length, _translations) = self.errors.to_tokens(state);
 
         tokens.append_all(quote! { #errors match #expression { #cases } });
 
-        (tokens, estimated_length)
+        (tokens, estimated_length, vec![])
     }
 
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
@@ -227,12 +227,12 @@ impl<'a> Case<'a> {
             tokens.append_all(guard.to_tokens(state));
         }
 
-        let (template, estimated_length) = self.template.to_tokens(state);
+        let (template, estimated_length, translations) = self.template.to_tokens(state);
         tokens.append_all(quote! { => { #template } });
 
         state.local_variables.pop_stack();
 
-        (tokens, estimated_length)
+        (tokens, estimated_length, translations)
     }
 
     pub fn add_item(&mut self, item: Item<'a>) {
@@ -277,7 +277,7 @@ impl<'a> Guard<'a> {
 
     pub fn to_tokens(&self, state: &State) -> TokenStream {
         let if_span = self.if_tag.span_token();
-        let (expression, _estimated_length) = self.expression.to_tokens(state);
+        let (expression, _estimated_length, _translations) = self.expression.to_tokens(state);
 
         quote_spanned! {if_span=> if #expression }
     }

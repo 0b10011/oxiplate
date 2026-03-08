@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html
+    {_}lang="{{ attr: request.language }}"
+    {_}dir="{{ attr: request.text_direction }}"
+    {-}>
+<head>
+    <title>
+        {%- translate -%}
+            {{ title }} - Oxiplate
+        {%- endtranslate -%}
+    </title>
+
+    <title>
+        {%- translate "Title of page appearing in web browser's tab or title bar", [
+            "Title of page",
+        ] -%}
+            {{ title }} - Oxiplate
+        {%- endtranslate -%}
+    </title>
+
+    <title>
+        {{- title }} - {% translate %}Oxiplate{% endtranslate -%}
+    </title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p>{-}
+        <abbr title="{%- translate %}Hypertext Markup Language{%- endtranslate %}">
+            {%- translate %}HTML{% endtranslate -%}
+        </abbr>{_}
+        makes translations more difficult.
+    {-}</p>
+
+    <h1>{{ title }}</h1>
+    <p>{-}
+        <abbr title="{? attr: "Hypertext Markup Language" ?}">{? "HTML" ?}</abbr>{_}
+        makes translations more difficult.
+    {-}</p>
+
+    <h1>{{ title }}</h1>
+    <p>{-}
+        <abbr class="tech-term" id="{{ untranslated; attr: "html" }}" title="{{ translate; attr: "Hypertext Markup Language" }}">{{ "HTML" }}</abbr>{_}
+        makes translations more difficult.
+    {-}</p>
+
+    <h1>{{ title }}</h1>
+    <p>{-}
+        <abbr class="tech-term" id="{{ ! attr: "html" }}" title="{{ $ attr: "Hypertext Markup Language" }}">{{ "HTML" }}</abbr>{_}
+        makes translations more difficult.
+    {-}</p>
+
+    {%- translate raw %}
+        <h1>{{ title }}</h1>
+        <p><abbr title="Hypertext Markup Language">HTML</abbr> makes translations more difficult.</p>
+    {%- endtranslate %}
+</body>
+</html>

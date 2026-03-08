@@ -15,6 +15,7 @@ pub(crate) struct Concat<'a> {
 impl<'a> Concat<'a> {
     pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
         {
+            let mut translation = String::new();
             let mut format_tokens = vec![];
             let mut argument_tokens = vec![];
             let mut estimated_length = 0;
@@ -25,14 +26,17 @@ impl<'a> Concat<'a> {
                         fields,
                     } if fields.is_empty() => {
                         estimated_length += string.as_str().len();
+                        translation.push_str(string.as_str());
                         let string =
                             syn::LitStr::new(string.as_str(), string.source().span_token());
                         format_tokens.push(quote! { #string });
                     }
                     _ => {
                         let span = expression.source().span_token();
+                        translation.push_str("{}");
                         format_tokens.push(quote_spanned! {span=> "{}" });
-                        let (expression, expression_length) = expression.to_tokens(state);
+                        let (expression, expression_length, _expression_translations) =
+                            expression.to_tokens(state);
                         estimated_length += expression_length;
                         argument_tokens.push(quote!(#expression));
                     }
@@ -44,11 +48,16 @@ impl<'a> Concat<'a> {
             format_tokens.clear();
 
             if argument_tokens.is_empty() {
-                (format_concat_tokens, estimated_length)
+                (
+                    format_concat_tokens,
+                    estimated_length,
+                    vec![(translation, String::new())],
+                )
             } else {
                 (
                     quote_spanned! {span=> format!(#format_concat_tokens, #(#argument_tokens),*) },
                     estimated_length,
+                    vec![(translation, String::new())],
                 )
             }
         }

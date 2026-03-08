@@ -96,7 +96,7 @@ impl ::core::fmt::Display for Data {
                     (Err(_), _) => {
                         oxiplate_formatter.write_str("Name could not be fetched.")?;
                     }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -325,7 +325,7 @@ impl ::core::fmt::Display for MultipleWrapper {
                 } else if let Multiple { a: 10, b: 'b', c: "19", d: true } =
                         self.multiple {
                     oxiplate_formatter.write_str("yes")?;
-                } else { oxiplate_formatter.write_str("no")?; }
+                } else { oxiplate_formatter.write_str("no")?; };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -414,7 +414,7 @@ impl ::core::fmt::Display for Outer {
                     oxiplate_formatter.write_str("b.a: ")?;
                     oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
                     ;
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -537,7 +537,7 @@ impl ::core::fmt::Display for RangeInteger {
                     3..4 => { oxiplate_formatter.write_str("3 to 4")?; }
                     3..=4 => { oxiplate_formatter.write_str("3 through 4")?; }
                     3.. => { oxiplate_formatter.write_str("3 and up")?; }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -689,7 +689,7 @@ impl ::core::fmt::Display for RangeFloat {
                     3...=4. => { oxiplate_formatter.write_str("3 through 4")?; }
                     3... => { oxiplate_formatter.write_str("3 and up")?; }
                     _ => { oxiplate_formatter.write_str("Something else")?; }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -855,7 +855,7 @@ impl ::core::fmt::Display for RangeChar {
                         oxiplate_formatter.write_str("d through e")?;
                     }
                     'd'.. => { oxiplate_formatter.write_str("d and up")?; }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -1004,7 +1004,7 @@ impl ::core::fmt::Display for MultipleCases {
                         oxiplate_formatter.write_str("Internet number")?;
                     }
                     _ => { oxiplate_formatter.write_str("Boring number")?; }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)
@@ -1135,7 +1135,7 @@ impl ::core::fmt::Display for Guard {
                     }
                     Some(_) => { oxiplate_formatter.write_str("Odd")?; }
                     None => { oxiplate_formatter.write_str("Missing")?; }
-                }
+                };
                 string
             };
         oxiplate_formatter.write_str(&string)

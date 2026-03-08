@@ -395,7 +395,7 @@ impl ::core::fmt::Display for ForElse {
                 if !loop_ran {
                     oxiplate_formatter.write_str("No values :(")?;
                 }
-            }
+            };
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -660,7 +660,7 @@ impl ::core::fmt::Display for BreakElse {
                 if !loop_ran {
                     oxiplate_formatter.write_str("No values :(")?;
                 }
-            }
+            };
             string
         };
         oxiplate_formatter.write_str(&string)

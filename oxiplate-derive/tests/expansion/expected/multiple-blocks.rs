@@ -21,15 +21,15 @@ impl ::core::fmt::Display for Data {
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
             {
                 oxiplate_formatter.write_str("header")?;
-            }
+            };
             oxiplate_formatter.write_str("</header>\n<main>")?;
             {
                 oxiplate_formatter.write_str("main")?;
-            }
+            };
             oxiplate_formatter.write_str("</main>\n<footer>")?;
             {
                 oxiplate_formatter.write_str("footer")?;
-            }
+            };
             oxiplate_formatter.write_str("</footer>")?;
             string
         };

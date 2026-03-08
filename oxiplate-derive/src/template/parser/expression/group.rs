@@ -1,11 +1,10 @@
-use proc_macro2::TokenStream;
 use quote::quote_spanned;
 
 use crate::parser::{Parser as _, context, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{Expression, ExpressionAccess, expression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::{BuiltTokens, Source, State};
 
 /// A parenthesized group.
 /// E.g., `(a + b)`.
@@ -53,10 +52,14 @@ impl<'a> Group<'a> {
     }
 
     /// Build token stream for the group.
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let (expression, expression_length) = self.expression.to_tokens(state);
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+        let (expression, expression_length, translations) = self.expression.to_tokens(state);
         let span = self.source().span_token();
-        (quote_spanned! {span=> ( #expression ) }, expression_length)
+        (
+            quote_spanned! {span=> ( #expression ) },
+            expression_length,
+            translations,
+        )
     }
 }
 

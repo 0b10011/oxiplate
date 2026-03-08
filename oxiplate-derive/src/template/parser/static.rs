@@ -4,16 +4,20 @@ use super::Item;
 use crate::parser::{Parser as _, alt, take};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source};
+use crate::{BuiltStaticTokens, Source};
 
 #[derive(Debug)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
 impl Static<'_> {
-    pub fn to_token(&self) -> BuiltTokens {
+    pub fn to_token(&self) -> BuiltStaticTokens {
         let text = &self.0;
         let span = self.1.span_token();
-        (quote_spanned! { span => #text }, text.len())
+        (
+            quote_spanned! { span => #text },
+            text.len(),
+            text.to_string(),
+        )
     }
 }
 

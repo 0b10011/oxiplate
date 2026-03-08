@@ -38,7 +38,7 @@ impl ::core::fmt::Display for Data {
                 oxiplate_formatter
                     .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
                 oxiplate_formatter.write_str(" :(")?;
-            }
+            };
             string
         };
         oxiplate_formatter.write_str(&string)

@@ -10,13 +10,13 @@ use crate::parser::{Error, Parser as _, cut, opt, take};
 use crate::template::parser::Res;
 use crate::template::parser::statement::StatementKind;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
-use crate::{Source, State};
+use crate::{Source, State, Translations};
 
 pub(super) enum ItemToken {
-    StaticText(TokenStream, usize),
-    DynamicText(TokenStream, usize),
+    StaticText(TokenStream, usize, String),
+    DynamicText(TokenStream, usize, Translations),
     Comment,
-    Statement(TokenStream, usize),
+    Statement(TokenStream, usize, Translations),
 }
 
 /// One piece of a template.
@@ -66,21 +66,22 @@ impl<'a> Item<'a> {
         match self {
             Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
-                let (text, estimated_length) = writ.to_token(state);
+                let (text, estimated_length, translations) = writ.to_token(state);
                 state.has_content = true;
-                ItemToken::DynamicText(text, estimated_length)
+                ItemToken::DynamicText(text, estimated_length, translations)
             }
             Item::Statement(statement) => {
-                let (statement_tokens, estimated_length) = match statement.to_tokens(state) {
-                    Ok(result) => result,
-                    Err(result) => {
-                        if let StatementKind::DefaultEscaper(_) = statement.kind {
-                            state.failed_to_set_default_escaper_group = true;
-                        }
+                let (statement_tokens, estimated_length, translations) =
+                    match statement.to_tokens(state) {
+                        Ok(result) => result,
+                        Err(result) => {
+                            if let StatementKind::DefaultEscaper(_) = statement.kind {
+                                state.failed_to_set_default_escaper_group = true;
+                            }
 
-                        result
-                    }
-                };
+                            result
+                        }
+                    };
                 state.has_content = true;
 
                 if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
@@ -106,19 +107,19 @@ impl<'a> Item<'a> {
                     );
                 }
 
-                ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
+                ItemToken::Statement(quote! { #statement_tokens }, estimated_length, translations)
             }
             Item::Static(text, _static_type) => {
-                let (text, estimated_length) = text.to_token();
+                let (text, estimated_length, string) = text.to_token();
                 state.has_content = true;
-                ItemToken::StaticText(text, estimated_length)
+                ItemToken::StaticText(text, estimated_length, string)
             }
             Item::Whitespace(whitespace) => {
                 if whitespace.0.is_empty() {
                     ItemToken::Comment
                 } else {
-                    let (text, estimated_length) = whitespace.to_token();
-                    ItemToken::StaticText(text, estimated_length)
+                    let (text, estimated_length, string) = whitespace.to_token();
+                    ItemToken::StaticText(text, estimated_length, string)
                 }
             }
             Item::CompileError {
@@ -127,7 +128,11 @@ impl<'a> Item<'a> {
                 consumed_source: _,
             } => {
                 let span = error_source.span_token();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
+                ItemToken::Statement(
+                    quote_spanned! {span=> compile_error!(#message); },
+                    0,
+                    vec![],
+                )
             }
         }
     }

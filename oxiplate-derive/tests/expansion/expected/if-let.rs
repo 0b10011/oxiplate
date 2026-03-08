@@ -81,7 +81,7 @@ impl ::core::fmt::Display for Data {
                                 &alloc::string::ToString::to_string(&(cats_count)),
                             )?;
                         oxiplate_formatter.write_str(" cats!")?;
-                    }
+                    };
                 } else if let core::option::Option::None = self.cats_count {
                     if let Name::Actual(missing_name) = &name {
                         oxiplate_formatter.write_str("No cats named ")?;
@@ -99,11 +99,11 @@ impl ::core::fmt::Display for Data {
                         oxiplate_formatter.write_str(" found :(")?;
                     } else {
                         oxiplate_formatter.write_str("No cats found :(")?;
-                    }
+                    };
                 }
             } else {
                 oxiplate_formatter.write_str("Name could not be fetched.")?;
-            }
+            };
             string
         };
         oxiplate_formatter.write_str(&string)
@@ -341,7 +341,7 @@ impl ::core::fmt::Display for MultipleWrapper {
                 oxiplate_formatter.write_str("yes")?;
             } else {
                 oxiplate_formatter.write_str("no")?;
-            }
+            };
             string
         };
         oxiplate_formatter.write_str(&string)

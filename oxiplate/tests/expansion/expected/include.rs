@@ -50,7 +50,7 @@ impl ::oxiplate::Render for Include {
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
             oxiplate_formatter.write_str("</p>")?;
-        }
+        };
         oxiplate_formatter.write_str("\n")?;
         Ok(())
     }

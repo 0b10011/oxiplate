@@ -40,7 +40,7 @@ impl<'a> Bool<'a> {
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitBool::new(self.value, self.source.span_token());
-        (quote! { #literal }, 0)
+        (quote! { #literal }, 0, vec![])
     }
 }
 

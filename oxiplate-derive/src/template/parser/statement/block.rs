@@ -12,7 +12,7 @@ use crate::parser::{Parser as _, cut};
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::template::Template;
 use crate::template::tokenizer::TokenSlice;
-use crate::{BuiltTokens, State, internal_error};
+use crate::{BuiltTokens, State, Translations, internal_error};
 
 #[derive(Debug)]
 pub struct Block<'a> {
@@ -88,15 +88,23 @@ impl<'a> Block<'a> {
             ),
         )]);
         block_stack.push_back(&block);
-        let tokens = self.build_block((quote! {}, 0), (Some(quote! {}), 0), block_stack);
+        let tokens = self.build_block(
+            (quote! {}, 0, vec![]),
+            (Some(quote! {}), 0, vec![]),
+            block_stack,
+        );
         state.local_variables.pop_stack();
         tokens
     }
 
     fn build_block<'b: 'a>(
         &self,
-        (child_prefix, child_prefix_length): BuiltTokens,
-        (child_suffix, child_suffix_length): (Option<TokenStream>, usize),
+        (child_prefix, child_prefix_length, child_prefix_translations): BuiltTokens,
+        (child_suffix, child_suffix_length, child_suffix_translations): (
+            Option<TokenStream>,
+            usize,
+            Translations,
+        ),
         mut block_stack: VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
     ) -> BuiltTokens {
         let mut estimated_length = child_prefix_length + child_suffix_length;
@@ -115,14 +123,20 @@ impl<'a> Block<'a> {
             );
         };
 
+        let mut translations: Translations = vec![];
         if let Some((prefix, suffix)) = blocks.get(self.name.as_str()) {
-            let (prefix, prefix_length) = prefix;
+            let (prefix, prefix_length, prefix_translations) = prefix;
 
             if let Some(child_suffix) = child_suffix {
-                let (suffix, suffix_length) = suffix.as_ref().map_or((None, 0), |template| {
-                    let (template, estimated_length) = template;
-                    (Some(template), *estimated_length)
-                });
+                let (suffix, suffix_length, suffix_translations) =
+                    suffix.as_ref().map_or((None, 0, vec![]), |template| {
+                        let (template, estimated_length, template_translations) = template;
+                        (
+                            Some(template),
+                            *estimated_length,
+                            template_translations.clone(),
+                        )
+                    });
 
                 if !block_stack.is_empty() {
                     return if suffix.is_some() {
@@ -130,10 +144,12 @@ impl<'a> Block<'a> {
                             (
                                 quote! { #child_prefix #prefix },
                                 child_prefix_length + prefix_length,
+                                child_prefix_translations,
                             ),
                             (
                                 Some(quote! { #suffix #child_suffix }),
                                 suffix_length + child_suffix_length,
+                                suffix_translations,
                             ),
                             block_stack,
                         )
@@ -142,8 +158,9 @@ impl<'a> Block<'a> {
                             (
                                 quote! { #child_prefix #prefix #child_suffix },
                                 child_prefix_length + prefix_length + child_suffix_length,
+                                child_prefix_translations,
                             ),
-                            (None, 0),
+                            (None, 0, vec![]),
                             block_stack,
                         )
                     };
@@ -156,16 +173,21 @@ impl<'a> Block<'a> {
                     { #suffix }
                     { #child_suffix }
                 }});
+                translations.extend(child_prefix_translations);
+                translations.extend_from_slice(prefix_translations);
+                translations.extend(suffix_translations);
+                translations.extend(child_suffix_translations);
             } else {
                 tokens.append_all(quote! {
                     { #child_prefix }
                 });
+                translations.extend(child_prefix_translations);
             }
         } else {
             if !block_stack.is_empty() && child_suffix.is_some() {
                 return self.build_block(
-                    (child_prefix, child_prefix_length),
-                    (child_suffix, child_suffix_length),
+                    (child_prefix, child_prefix_length, child_prefix_translations),
+                    (child_suffix, child_suffix_length, child_suffix_translations),
                     block_stack,
                 );
             }
@@ -174,8 +196,11 @@ impl<'a> Block<'a> {
                 { #child_prefix }
                 { #child_suffix }
             });
+            translations.extend(child_prefix_translations);
+            translations.extend(child_suffix_translations);
         }
-        (tokens, estimated_length)
+
+        (tokens, estimated_length, translations)
     }
 }
 

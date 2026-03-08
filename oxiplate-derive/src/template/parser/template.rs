@@ -10,7 +10,7 @@ use crate::parser::{Parser as _, alt, opt, parse_all, take};
 use crate::template::parser::Res;
 use crate::template::parser::item::parse_trailing_whitespace;
 use crate::template::tokenizer::{TokenKind, TokenSlice, WhitespacePreference};
-use crate::{BuiltTokens, State, internal_error};
+use crate::{BuiltTokens, State, Translations, internal_error};
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
@@ -40,42 +40,46 @@ impl<'a> Template<'a> {
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
 
-    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> (TokenStream, usize) {
+    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let mut estimated_length = 0;
+        let mut translations: Translations = vec![];
 
         let mut str_tokens = vec![];
+        let mut string_parts = vec![];
         for item in &self.0 {
             match item.to_token(state) {
                 ItemToken::Comment => (),
-                ItemToken::StaticText(token_stream, item_length) => {
+                ItemToken::StaticText(token_stream, item_length, string) => {
                     estimated_length += item_length;
                     str_tokens.push(token_stream);
+                    string_parts.push(string);
                 }
-                ItemToken::DynamicText(token_stream, item_length) => {
+                ItemToken::DynamicText(token_stream, item_length, item_translations)
+                | ItemToken::Statement(token_stream, item_length, item_translations) => {
                     estimated_length += item_length;
-                    // Write out static text
-                    if !str_tokens.is_empty() {
-                        Self::write_tokens(&mut str_tokens, &mut tokens);
+
+                    Self::write_tokens(&mut str_tokens, &mut tokens);
+
+                    if !string_parts.is_empty() {
+                        translations.push((string_parts.join(""), String::new()));
+                        string_parts.clear();
                     }
 
                     tokens.append_all(quote! {
                         #token_stream;
                     });
-                }
-                ItemToken::Statement(token_stream, item_length) => {
-                    estimated_length += item_length;
-                    Self::write_tokens(&mut str_tokens, &mut tokens);
-                    tokens.append_all(token_stream);
+                    translations.extend(item_translations);
                 }
             }
         }
 
         if !str_tokens.is_empty() {
             Self::write_tokens(&mut str_tokens, &mut tokens);
+            translations.push((string_parts.join(""), String::new()));
         }
 
-        (tokens, estimated_length)
+        (tokens, estimated_length, translations)
     }
 }
 

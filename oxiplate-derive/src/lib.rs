@@ -36,7 +36,8 @@ pub(crate) use crate::state::State;
 use crate::state::{LocalVariables, build_config};
 use crate::template::{TokenSlice, parse, tokens_and_eof};
 
-type BuiltTokens = (proc_macro2::TokenStream, usize);
+type BuiltTokens = (proc_macro2::TokenStream, usize, Translations);
+type BuiltStaticTokens = (proc_macro2::TokenStream, usize, String);
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -141,20 +142,17 @@ fn parse_input(
         ident, generics, ..
     } = &input;
 
-    let (template, estimated_length, template_type, optimized_renderer): (
-        proc_macro2::TokenStream,
-        usize,
-        TemplateType,
-        OptimizedRenderer,
-    ) = match parse_template_and_data(input, blocks) {
-        Ok(data) => data,
-        Err((err, template_type, optimized_renderer)) => (
-            err.to_compile_error(),
-            0,
-            template_type.unwrap_or(TemplateType::Inline),
-            optimized_renderer,
-        ),
-    };
+    let (template, estimated_length, translations, template_type, optimized_renderer): ParsedTemplate =
+        match parse_template_and_data(input, blocks) {
+            Ok(data) => data,
+            Err((err, template_type, optimized_renderer)) => (
+                err.to_compile_error(),
+                0,
+                vec![],
+                template_type.unwrap_or(TemplateType::Inline),
+                optimized_renderer,
+            ),
+        };
 
     // Internally, the template is used directly instead of via `Display`/`Render`.
     if let TemplateType::Extends | TemplateType::Include = template_type {
@@ -224,12 +222,38 @@ fn parse_input(
         }
     };
 
+    #[cfg(not(feature = "translation"))]
+    let _ = translations;
+
+    #[cfg(feature = "translation")]
+    let expanded = {
+        let (untranslated, context): (Vec<_>, Vec<_>) = translations.into_iter().unzip();
+        quote! {
+            #expanded
+
+            #[::oxiplate::distributed_slice(crate::OXIPLATE_TRANSLATIONS)]
+            static _OXIPLATE_TEMPLATE_TRANSLATIONS: ::oxiplate::TranslationsSignature = <#ident as ::oxiplate::TranslationExtractor>::translations;
+
+            impl #generics ::oxiplate::TranslationExtractor for #ident #generics #where_clause {
+                fn translations() -> Translations {
+                    vec![
+                        #((#untranslated, #context)),*
+                    ]
+                }
+            }
+        }
+    };
+
     (TokenStream::from(expanded), estimated_length)
 }
+
+type Translation = (String, String);
+type Translations = Vec<Translation>;
 
 type ParsedTemplate = (
     proc_macro2::TokenStream,
     usize,
+    Translations,
     TemplateType,
     OptimizedRenderer,
 );
@@ -274,7 +298,7 @@ fn parse_template_and_data(
     };
 
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
-    let (template, estimated_length): BuiltTokens = process_parsed_tokens(
+    let (template, estimated_length, translations): BuiltTokens = process_parsed_tokens(
         parsed_tokens,
         &mut state,
         #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
@@ -285,6 +309,7 @@ fn parse_template_and_data(
     Ok((
         template,
         estimated_length,
+        translations,
         template_type,
         optimized_renderer,
     ))
@@ -331,9 +356,9 @@ fn process_parsed_tokens<'a>(
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
                 }
             };
-            Ok((template, 0))
+            Ok((template, 0, vec![]))
         }
-        Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
+        Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0, vec![])),
         Ok((span, input, origin, inferred_escaper_group_name)) => {
             let code = parse_code_literal(
                 &input.into(),

@@ -33,7 +33,7 @@ impl ::core::fmt::Display for Include {
                 oxiplate_formatter
                     .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
                 oxiplate_formatter.write_str("</p>")?;
-            }
+            };
             oxiplate_formatter.write_str("\n")?;
             string
         };
