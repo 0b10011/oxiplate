@@ -77,11 +77,12 @@ impl<'a> Let<'a> {
         let pattern = self.pattern.to_tokens(state);
         let operator_span = self.operator.span_token();
         let operator = quote_spanned! {operator_span=> = };
-        let (expr, _estimated_length) = self.expr.to_tokens(state);
+        let (expr, _estimated_length, translations) = self.expr.to_tokens(state);
 
         (
             quote_spanned! {span=> #keyword #pattern #operator #expr; },
             0,
+            translations,
         )
     }
 }

@@ -149,12 +149,12 @@ impl<'a> NamedStruct<'a> {
     pub fn to_tokens(&self, state: &State) -> TokenStream {
         let path = self.path.to_tokens();
 
-        let (mut tokens, _expected_length) = self.first_field.to_tokens(state);
+        let (mut tokens, _expected_length, _translations) = self.first_field.to_tokens(state);
 
         for (comma, value) in &self.additional_fields {
             let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
-            let (value, _expected_length) = value.to_tokens(state);
+            let (value, _expected_length, _translations) = value.to_tokens(state);
             tokens.append_all([comma, value]);
         }
 
@@ -237,9 +237,9 @@ impl<'a> Field<'a> {
         if let Some(value) = &self.value {
             let span = self.source.span_token();
             let value = value.to_tokens(state);
-            (quote_spanned! {span=> #name: #value }, 0)
+            (quote_spanned! {span=> #name: #value }, 0, vec![])
         } else {
-            (quote! { #name }, 0)
+            (quote! { #name }, 0, vec![])
         }
     }
 }

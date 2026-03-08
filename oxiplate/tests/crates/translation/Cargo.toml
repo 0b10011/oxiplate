@@ -1,0 +1,10 @@
+[package]
+name = "oxiplate-test-translation"
+publish = false
+license.workspace = true
+edition.workspace = true
+
+[dev-dependencies]
+linkme = { version = "0.3.35" }
+trybuild = "1.0.116"
+oxiplate = { path = "../../../", features = ["translation"]}

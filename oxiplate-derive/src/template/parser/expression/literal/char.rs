@@ -41,7 +41,11 @@ impl<'a> Char<'a> {
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitChar::new(self.value, self.source.span_token());
-        (quote! { #literal }, 1)
+        (
+            quote! { #literal },
+            1,
+            vec![(self.value.to_string(), String::new())],
+        )
     }
 }
 

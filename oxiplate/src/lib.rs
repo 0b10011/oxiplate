@@ -5,14 +5,42 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
+#[cfg(feature = "translation")]
+extern crate alloc;
+
 pub mod escapers;
 pub mod filters;
 
+#[cfg(feature = "translation")]
+pub use linkme::distributed_slice;
 pub use oxiplate_derive::Oxiplate;
 pub use oxiplate_traits::{
     CowStr, CowStrWrapper, Escaper, FastCowStr, FastEscape, Render, ToCowStr, ToCowStrWrapper,
     UnescapedText, UnescapedTextWrapper,
 };
+
+/// Text gathered from a template that should be translated.
+#[cfg(feature = "translation")]
+pub type Translation = (&'static str, &'static str);
+
+/// Collection of text gathered from a template
+/// that should be translated gathered from a template.
+#[cfg(feature = "translation")]
+pub type Translations = alloc::vec::Vec<Translation>;
+
+/// Collection of text gathered from a template
+/// that should be translated gathered from a template.
+#[cfg(feature = "translation")]
+pub type TranslationsSignature = fn() -> Translations;
+
+/// Trait templates implement
+/// to provide the list of translatable text
+/// within the template.
+#[cfg(feature = "translation")]
+pub trait TranslationExtractor {
+    /// Get the list of translatable text and associated context, if any.
+    fn translations() -> Translations;
+}
 
 /// Default Oxiplate experience that uses only built-in filters.
 ///
@@ -54,4 +82,6 @@ pub use oxiplate_traits::{
 /// ```
 pub mod prelude {
     pub use super::{Oxiplate, Render, filters as filters_for_oxiplate};
+    #[cfg(feature = "translation")]
+    pub use super::{Translation, Translations, TranslationsSignature, distributed_slice};
 }

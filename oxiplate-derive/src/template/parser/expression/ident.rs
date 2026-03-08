@@ -1,12 +1,12 @@
 use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote};
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
 use super::{Expression, Res};
 use crate::parser::{Parser as _, opt, take};
 use crate::template::parser::Error;
 use crate::template::parser::expression::arguments::{ArgumentsGroup, arguments};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::{BuiltTokens, Source, State};
 
 pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
     let (tokens, (ident, arguments)) = (Identifier::parse, opt(arguments)).parse(tokens)?;
@@ -86,21 +86,31 @@ pub(crate) enum IdentifierOrFunction<'a> {
     Function(Identifier<'a>, ArgumentsGroup<'a>),
 }
 impl<'a> IdentifierOrFunction<'a> {
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let mut tokens = TokenStream::new();
-
-        match self {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+        match &self {
             IdentifierOrFunction::Identifier(identifier) => {
-                tokens.append_all(quote! { #identifier });
+                let span = identifier.source().span_token();
+                if state.local_variables.contains(identifier.as_str()) {
+                    (quote! { #identifier }, 1, vec![])
+                } else {
+                    (quote_spanned! {span=> self.#identifier }, 1, vec![])
+                }
             }
             IdentifierOrFunction::Function(identifier, arguments) => {
                 let arguments = arguments.to_tokens(state);
 
-                tokens.append_all(quote! { #identifier #arguments });
+                let span = identifier.source().span_token();
+                if state.local_variables.contains(identifier.as_str()) {
+                    (quote! { #identifier #arguments }, 1, vec![])
+                } else {
+                    (
+                        quote_spanned! {span=> (self.#identifier)#arguments },
+                        1,
+                        vec![],
+                    )
+                }
             }
         }
-
-        tokens
     }
 
     /// Get the `Source` for the entire identifier or function call.

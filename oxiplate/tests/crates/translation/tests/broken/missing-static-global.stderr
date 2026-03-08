@@ -1,0 +1,7 @@
+error[E0433]: cannot find `OXIPLATE_TRANSLATIONS` in `crate`
+ --> tests/broken/missing-static-global.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^ could not find `OXIPLATE_TRANSLATIONS` in the crate root
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

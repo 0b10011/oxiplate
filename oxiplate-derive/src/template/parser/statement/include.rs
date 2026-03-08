@@ -56,7 +56,7 @@ impl Include<'_> {
 
         tokens.append_all(quote! { #template });
 
-        (tokens, estimated_length)
+        (tokens, estimated_length, vec![])
     }
 }
 

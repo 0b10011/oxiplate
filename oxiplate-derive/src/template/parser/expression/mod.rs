@@ -39,7 +39,17 @@ impl<'a> Field<'a> {
         let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
             .expect("Dot should be able to be parsed properly here");
 
-        let ident_or_fn = &self.ident_or_fn.to_tokens(state);
+        let ident_or_fn = match &self.ident_or_fn {
+            IdentifierOrFunction::Identifier(identifier) => {
+                quote! { #identifier }
+            }
+            IdentifierOrFunction::Function(identifier, arguments) => {
+                let arguments = arguments.to_tokens(state);
+
+                quote! { #identifier #arguments }
+            }
+        };
+
         quote! { #dot #ident_or_fn }
     }
 
@@ -108,26 +118,7 @@ pub(crate) enum Expression<'a> {
 impl<'a> Expression<'a> {
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
-            Expression::Identifier(identifier) => match &identifier {
-                IdentifierOrFunction::Identifier(identifier) => {
-                    let span = identifier.source().span_token();
-                    if state.local_variables.contains(identifier.as_str()) {
-                        (quote! { #identifier }, 1)
-                    } else {
-                        (quote_spanned! {span=> self.#identifier }, 1)
-                    }
-                }
-                IdentifierOrFunction::Function(identifier, arguments) => {
-                    let arguments = arguments.to_tokens(state);
-
-                    let span = identifier.source().span_token();
-                    if state.local_variables.contains(identifier.as_str()) {
-                        (quote! { #identifier #arguments }, 1)
-                    } else {
-                        (quote_spanned! {span=> (self.#identifier)#arguments }, 1)
-                    }
-                }
-            },
+            Expression::Identifier(identifier) => identifier.to_tokens(state),
             Expression::Group(group) => group.to_tokens(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
@@ -137,26 +128,32 @@ impl<'a> Expression<'a> {
                 right,
                 ..
             } => {
-                let (left, left_length) = left.to_tokens(state);
-                let (right, right_length) = if let Some(right) = right.as_ref() {
+                let (left, left_length, _left_translations) = left.to_tokens(state);
+                let (right, right_length, _right_translations) = if let Some(right) = right.as_ref()
+                {
                     right.to_tokens(state)
                 } else {
-                    (TokenStream::new(), left_length)
+                    (TokenStream::new(), left_length, vec![])
                 };
                 (
                     quote! { #left #operator #right },
                     left_length.min(right_length),
+                    vec![],
                 )
             }
             Expression::Prefixed(operator, expression) => {
-                let (expression, expression_length) = expression.to_tokens(state);
-                (quote! { #operator #expression }, expression_length)
+                let (expression, expression_length, translations) = expression.to_tokens(state);
+                (
+                    quote! { #operator #expression },
+                    expression_length,
+                    translations,
+                )
             }
             Expression::Cow {
                 prefix, expression, ..
             } => {
                 #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
-                let (expression, expression_length) = expression.to_tokens(state);
+                let (expression, expression_length, translations) = expression.to_tokens(state);
                 let span = prefix.span_token();
 
                 #[cfg(feature = "_oxiplate")]
@@ -169,7 +166,7 @@ impl<'a> Expression<'a> {
                     compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
                 };
 
-                (expression, expression_length)
+                (expression, expression_length, translations)
             }
             Expression::Char(char) => char.to_tokens(),
             Expression::String(string) => string.to_tokens(),
@@ -178,15 +175,16 @@ impl<'a> Expression<'a> {
             Expression::Bool(bool) => bool.to_tokens(),
             Expression::FullRange { source, .. } => {
                 let span = source.span_token();
-                (quote_spanned! {span=> .. }, 0)
+                (quote_spanned! {span=> .. }, 0, vec![])
             }
             Expression::Index(expression, open_bracket, range, _close_bracket) => {
                 let span = open_bracket.span_token();
-                let (expression, estimated_length) = expression.to_tokens(state);
-                let (range, _range_length) = range.to_tokens(state);
+                let (expression, estimated_length, translations) = expression.to_tokens(state);
+                let (range, _range_length, _range_translations) = range.to_tokens(state);
                 (
                     quote_spanned! {span=> #expression [ #range ] },
                     estimated_length,
+                    translations,
                 )
             }
             Expression::Filter {
@@ -218,7 +216,7 @@ impl<'a> Expression<'a> {
         arguments: Option<&ArgumentsGroup>,
         source: &Source,
     ) -> BuiltTokens {
-        let (expression, estimated_length) = expression.to_tokens(state);
+        let (expression, estimated_length, translations) = expression.to_tokens(state);
         let mut argument_tokens = expression;
 
         let arguments = if let Some(arguments) = arguments {
@@ -263,6 +261,7 @@ impl<'a> Expression<'a> {
                         )
                     },
                     estimated_length,
+                    translations,
                 )
             } else {
                 (
@@ -270,6 +269,7 @@ impl<'a> Expression<'a> {
                         compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
                     },
                     0,
+                    vec![],
                 )
             }
         } else {
@@ -278,6 +278,7 @@ impl<'a> Expression<'a> {
                     crate::filters_for_oxiplate::#name #arguments
                 },
                 estimated_length,
+                translations,
             )
         }
     }
@@ -319,12 +320,12 @@ pub(crate) struct ExpressionAccess<'a> {
 impl<'a> ExpressionAccess<'a> {
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let (expression, estimated_length) = self.expression.to_tokens(state);
+        let (expression, estimated_length, translations) = self.expression.to_tokens(state);
         tokens.append_all(expression);
         for field in &self.fields {
             tokens.append_all(field.to_tokens(state));
         }
-        (tokens, estimated_length)
+        (tokens, estimated_length, translations)
     }
 
     /// Get the `Source` for expression accesses.

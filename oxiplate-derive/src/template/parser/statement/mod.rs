@@ -142,6 +142,7 @@ impl<'a> Statement<'a> {
                 Err((
                     quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
                     0,
+                    vec![],
                 ))
             }};
         }
@@ -158,6 +159,7 @@ impl<'a> Statement<'a> {
                     Err((
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
                         0,
+                        vec![],
                     ))
                 } else {
                     Ok(statement.to_tokens(state))

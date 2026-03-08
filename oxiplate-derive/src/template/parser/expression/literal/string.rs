@@ -43,7 +43,11 @@ impl<'a> String<'a> {
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitStr::new(&self.value, self.source.span_token());
-        (quote! { #literal }, self.value.as_str().len())
+        (
+            quote! { #literal },
+            self.value.as_str().len(),
+            vec![(self.value.clone(), std::string::String::new())],
+        )
     }
 }
 

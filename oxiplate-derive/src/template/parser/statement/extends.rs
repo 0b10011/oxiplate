@@ -80,7 +80,7 @@ impl<'a> Extends<'a> {
         #[cfg(not(feature = "_oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        let (template, _template_length) = &self.template.to_tokens(state);
+        let (template, _template_length, translations) = self.template.to_tokens(state);
         let mut tokens: TokenStream = quote! { #template };
 
         let template_to_extend = quote_spanned! {span=>
@@ -111,7 +111,7 @@ impl<'a> Extends<'a> {
         tokens.append_all(quote! {
             #template
         });
-        (tokens, estimated_length)
+        (tokens, estimated_length, translations)
     }
 }
 

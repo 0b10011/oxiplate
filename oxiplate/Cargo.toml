@@ -18,6 +18,7 @@ workspace = true
 [dependencies]
 oxiplate-derive = { version = "0.17.0", path = "../oxiplate-derive", default-features = false, features = ["_oxiplate"] }
 oxiplate-traits = { version = "0.2", path = "../oxiplate-traits", default-features = false, features = [] }
+linkme = { version = "0.3.35", optional = true }
 
 [dev-dependencies]
 rustversion = "1.0.19"
@@ -51,6 +52,13 @@ external-template-spans = ["oxiplate-derive/external-template-spans"]
 # Includes the `itoa` dependency
 # and speeds up integer escaping.
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
+
+# Support for translating text in templates to other languages.
+translation = ["dep:linkme", "oxiplate-derive/translation"]
+
+# Support for `raw` context in `translate` statements
+# that automatically extracts text to translate from HTML.
+untranslated-text-extraction-for-html = ["oxiplate-derive/untranslated-text-extraction-for-html"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types to

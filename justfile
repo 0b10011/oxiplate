@@ -163,6 +163,7 @@ run-against-libs command test-arguments="":
         --exclude oxiplate-test-fast-escape-type-priority \
         --exclude oxiplate-test-file-extension-inferrence-off \
         --exclude oxiplate-test-slow-escape-ints \
+        --exclude oxiplate-test-translation \
         --exclude oxiplate-test-unreachable \
         --exclude oxiplate-test-unreachable-stable -- {{ test-arguments }}
 
@@ -179,6 +180,7 @@ run-against-stable command test-arguments="": (run-against-libs command test-arg
 # Tests requiring unstable features that cannot be run against the MSRV.
 [private]
 run-against-unstable command test-arguments="":
+    {{ command }} --package oxiplate-test-translation -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-stable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-file-extension-inferrence-off -- {{ test-arguments }}
