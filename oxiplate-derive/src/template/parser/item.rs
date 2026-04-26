@@ -271,15 +271,14 @@ pub(super) fn parse_trailing_whitespace<'a>(
                         }),
                     ));
                 }
-                (_, WhitespacePreference::Remove | WhitespacePreference::Replace) => {
+                (_, WhitespacePreference::Remove | WhitespacePreference::Replace)
                     // Whitesplace adjustment will be handled by the next tag,
                     // but empty whitespace needs to be returned
                     // so the caller knows not to return an error.
-                    if trailing_whitespace.is_some() {
+                    if trailing_whitespace.is_some() => {
                         let source = end_tag.with_collapsed_to_end();
 
                         return Ok((tokens, Some(Item::Whitespace(Static("", source)))));
-                    }
                 }
                 _ => (),
             }
