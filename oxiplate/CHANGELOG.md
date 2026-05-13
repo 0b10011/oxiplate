@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.17.0...oxiplate-v0.17.1) - 2026-05-13
+
+### Other
+
+- updated toolchain to nightly-2026-03-29
+- Merge branch 'main' into dependabot/cargo/quote-1.0.45
+- updated toolchain to nightly-2026-04-26
+- *(deps)* bump syn from 2.0.116 to 2.0.117
+- matched docs.rs badges/links to crate name instead of only using `oxiplate`
+- *(deps)* bump itoa from 1.0.17 to 1.0.18
+
 ## [0.17.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.16.4...oxiplate-v0.17.0) - 2026-02-20
 
 ### Added
