@@ -43,7 +43,7 @@ jobs:
 
       - &restore-setup
         name: Restore setup cache
-        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
         with:
           path: ${{ needs.setup.outputs.cache-path }}
           key: ${{ needs.setup.outputs.cache-key }}
@@ -95,7 +95,7 @@ jobs:
       - *checkout
 
       - name: Restore setup cache
-        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
         with:
           path: ${{ needs.setup-msrv.outputs.cache-path }}
           key: ${{ needs.setup-msrv.outputs.cache-key }}
@@ -130,7 +130,7 @@ jobs:
       - *checkout
 
       - name: Restore setup cache
-        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
         with:
           path: ${{ needs.setup-stable.outputs.cache-path }}
           key: ${{ needs.setup-stable.outputs.cache-key }}
@@ -160,7 +160,7 @@ jobs:
       - *checkout
 
       - name: Restore setup cache
-        uses: actions/cache/restore@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
         with:
           path: ${{ needs.setup-beta.outputs.cache-path }}
           key: ${{ needs.setup-beta.outputs.cache-key }}
