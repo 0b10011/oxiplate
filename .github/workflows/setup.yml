@@ -72,7 +72,7 @@ jobs:
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
         id: save
-        uses: actions/cache/save@94b89442628ad1d101e352b7ee38f30e1bef108e # v5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
         with:
           path: ${{ steps.key.outputs.cache-path }}
           key: ${{ steps.key.outputs.cache-key }}
