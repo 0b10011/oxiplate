@@ -627,13 +627,13 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                         unreachable!(
                             "Failed to normalize default template directory. Original error: {error}",
                         );
-                    } else {
-                        let path_buf = path_buf.to_string_lossy();
-                        let error = error.to_string();
-                        ParsedEscaperError::ParseError(quote_spanned! {span=>
-                            compile_error!(concat!("Failed to normalize `", #path_buf, "`. Original error: ", #error));
-                        })
                     }
+
+                    let path_buf = path_buf.to_string_lossy();
+                    let error = error.to_string();
+                    ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!(concat!("Failed to normalize `", #path_buf, "`. Original error: ", #error));
+                    })
                 },
                 AppendPathError::PrefixNotPresent { prefix, final_path } => {
                     if using_default_template_dir {
@@ -643,18 +643,18 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                             "`default_template_dir` variable in `oxiplate-derive` code must be a relative \
                             path; example: 'templates' instead of '/templates'. Provided: {specified_templates_dir}",
                         );
-                    } else {
-                        let prefix = prefix.to_string_lossy();
-                        let final_path = final_path.to_string_lossy();
-                        ParsedEscaperError::ParseError(quote_spanned! {span=>
-                            compile_error!(concat!(
-                                "`OXIP_TEMPLATE_DIR` environment variable must be a relative path that resolves under `",
-                                #prefix,
-                                "`; example: 'templates' instead of '/templates'. Provided: ",
-                                #final_path
-                            ));
-                        })
                     }
+
+                    let prefix = prefix.to_string_lossy();
+                    let final_path = final_path.to_string_lossy();
+                    ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!(concat!(
+                            "`OXIP_TEMPLATE_DIR` environment variable must be a relative path that resolves under `",
+                            #prefix,
+                            "`; example: 'templates' instead of '/templates'. Provided: ",
+                            #final_path
+                        ));
+                    })
                 },
                 AppendPathError::NotDirectory(path_buf) => {
                     let path_buf = path_buf.to_string_lossy();
