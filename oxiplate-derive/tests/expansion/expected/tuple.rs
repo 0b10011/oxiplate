@@ -53,21 +53,23 @@ pub const single: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(single())),
 };
 fn single() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", Single { a: 9 }))
-        }),
-        &"9",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Single { a: 9 }))
+            }),
+            &"9",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -127,21 +129,23 @@ pub const double: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(double())),
 };
 fn double() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", Double { a: 10, b: 9 }))
-        }),
-        &"9 + 10 = 19",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Double { a: 10, b: 9 }))
+            }),
+            &"9 + 10 = 19",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -211,32 +215,34 @@ pub const several: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(several())),
 };
 fn several() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    Several {
-                        a: 5,
-                        b: 4,
-                        c: 3,
-                        d: 2,
-                        e: 1,
-                    },
-                ),
-            )
-        }),
-        &"1 2 3 4 5",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        Several {
+                            a: 5,
+                            b: 4,
+                            c: 3,
+                            d: 2,
+                            e: 1,
+                        },
+                    ),
+                )
+            }),
+            &"1 2 3 4 5",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

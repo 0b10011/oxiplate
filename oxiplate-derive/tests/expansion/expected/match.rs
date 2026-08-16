@@ -152,14 +152,16 @@ fn test_count() {
 
 
 
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", data))
-                    }), &"Found 5 cats!") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", data))
+                        }), &"Found 5 cats!") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -192,14 +194,16 @@ fn test_count_name() {
             cats_count: Some(5),
             name: Ok(Name::Actual(String::from("Sam"))),
         };
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", data))
-                    }), &"Found 5 cats named Sam!") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", data))
+                        }), &"Found 5 cats named Sam!") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -232,14 +236,16 @@ fn test_name() {
             cats_count: None,
             name: Ok(Name::Nickname { name: String::from("Sam") }),
         };
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", data))
-                    }), &"No cats nicknamed Sam found :(") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", data))
+                        }), &"No cats nicknamed Sam found :(") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -268,14 +274,16 @@ pub const test_none: test::TestDescAndFn =
     };
 fn test_none() {
     let data = Data { cats_count: None, name: Ok(Name::Missing) };
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}", data))
-                    }), &"No cats found :(") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}", data))
+                        }), &"No cats found :(") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -342,18 +350,20 @@ pub const test_multiple: test::TestDescAndFn =
                 test::assert_test_result(test_multiple())),
     };
 fn test_multiple() {
-    match (&"yes",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleWrapper {
-                                    multiple: Multiple { a: 10, b: 'b', c: "19", d: true },
-                                }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"yes",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleWrapper {
+                                        multiple: Multiple { a: 10, b: 'b', c: "19", d: true },
+                                    }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     }
@@ -440,48 +450,54 @@ fn nested() {
         ($aa:literal, $ab:literal, $ba:literal, $bb:literal) =>
         { Outer { a: a!($aa, $ab), b: b!($ba, $bb), } };
     }
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Outer {
-                                    a: MiddleA { a: InnerA { value: 42 }, b: InnerB(19.89) },
-                                    b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
-                                }))
-                    }), &"a.b: 19.89") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Outer {
+                                        a: MiddleA { a: InnerA { value: 42 }, b: InnerB(19.89) },
+                                        b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
+                                    }))
+                        }), &"a.b: 19.89") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Outer {
-                                    a: MiddleA { a: InnerA { value: 64 }, b: InnerB(19.89) },
-                                    b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
-                                }))
-                    }), &"b.a: 89") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Outer {
+                                        a: MiddleA { a: InnerA { value: 64 }, b: InnerB(19.89) },
+                                        b: MiddleB(InnerA { value: 89 }, InnerB(42.19)),
+                                    }))
+                        }), &"b.a: 89") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Outer {
-                                    a: MiddleA { a: InnerA { value: 64 }, b: InnerB(19.89) },
-                                    b: MiddleB(InnerA { value: 89 }, InnerB(16.19)),
-                                }))
-                    }), &"") {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Outer {
+                                        a: MiddleA { a: InnerA { value: 64 }, b: InnerB(19.89) },
+                                        b: MiddleB(InnerA { value: 89 }, InnerB(16.19)),
+                                    }))
+                        }), &"") {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -544,81 +560,93 @@ pub const range_integer: test::TestDescAndFn =
                 test::assert_test_result(range_integer())),
     };
 fn range_integer() {
-    match (&"To 1",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 0 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"To 1",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 0 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Through 1",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 1 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Through 1",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 1 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"2",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 2 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"2",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 2 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 to 4",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 3 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 to 4",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 3 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 through 4",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 4 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 through 4",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 4 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 and up",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeInteger { value: 5 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 and up",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeInteger { value: 5 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -683,94 +711,108 @@ pub const range_float: test::TestDescAndFn =
                 test::assert_test_result(range_float())),
     };
 fn range_float() {
-    match (&"To 1",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 0. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"To 1",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 0. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Through 1",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 1. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Through 1",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 1. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"2",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 2. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"2",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 2. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Something else",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 2.19 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Something else",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 2.19 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 to 4",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 3. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 to 4",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 3. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 through 4",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 4. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 through 4",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 4. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"3 and up",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeFloat { value: 5. }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"3 and up",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeFloat { value: 5. }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -834,81 +876,93 @@ pub const range_char: test::TestDescAndFn =
                 test::assert_test_result(range_char())),
     };
 fn range_char() {
-    match (&"To b",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'a' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"To b",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'a' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Through b",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'b' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Through b",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'b' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"c",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'c' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"c",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'c' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"d to e",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'd' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"d to e",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'd' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"d through e",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'e' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"d through e",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'e' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"d and up",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                RangeChar { value: 'f' }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"d and up",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    RangeChar { value: 'f' }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -970,68 +1024,78 @@ pub const multiple_cases: test::TestDescAndFn =
                 test::assert_test_result(multiple_cases())),
     };
 fn multiple_cases() {
-    match (&"The best number",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleCases { value: 19 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"The best number",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleCases { value: 19 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"The answer",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleCases { value: 42 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"The answer",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleCases { value: 42 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Internet number",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleCases { value: 69 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Internet number",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleCases { value: 69 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Internet number",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleCases { value: 420 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Internet number",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleCases { value: 420 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Boring number",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                MultipleCases { value: 794 }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Boring number",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    MultipleCases { value: 794 }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
@@ -1090,42 +1154,48 @@ pub const guard: test::TestDescAndFn =
                 test::assert_test_result(guard())),
     };
 fn guard() {
-    match (&"Odd",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Guard { value: Some(19) }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Odd",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Guard { value: Some(19) }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Even",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Guard { value: Some(42) }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Even",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Guard { value: Some(42) }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };
-    match (&"Missing",
-            &::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}",
-                                Guard { value: None }))
-                    })) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(kind, &*left_val,
-                    &*right_val, ::core::option::Option::None);
+    {
+        match (&"Missing",
+                &::alloc::__export::must_use({
+                            ::alloc::fmt::format(format_args!("{0}",
+                                    Guard { value: None }))
+                        })) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(kind, &*left_val,
+                        &*right_val, ::core::option::Option::None);
+                }
             }
         }
     };

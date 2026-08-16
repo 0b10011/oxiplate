@@ -51,21 +51,23 @@ fn variable() {
     let data = Variable {
         message: "Hello world!",
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"Hello world!",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"Hello world!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -120,21 +122,23 @@ fn variables() {
         title: "Foo Bar",
         message: "Hello world!",
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"Foo Bar / Hello world!",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"Foo Bar / Hello world!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

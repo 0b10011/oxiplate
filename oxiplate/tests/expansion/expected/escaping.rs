@@ -265,9 +265,10 @@ fn types() {
         display_borrowed: &HelloWorld,
         fn_string: HelloWorld::hello(),
     };
-    match (
-        &data.render().unwrap(),
-        &r"
+    {
+        match (
+            &data.render().unwrap(),
+            &r"
 # default:
 Hello world &amp;lt;&lt;script>&lt;!--
 Hello world &amp;lt;&lt;script>&lt;!--
@@ -304,16 +305,17 @@ Hello world &lt;<script><!--
 Hello world &lt;<script><!--
 Hello world &lt;<script><!--
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

@@ -60,21 +60,23 @@ fn test_if() {
         do_this: true,
         action: "do something",
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"This then do something :D",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"This then do something :D",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

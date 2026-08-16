@@ -111,16 +111,18 @@ fn comment() {
     ];
     for (comment, expected, reason) in comments {
         let data = Data { comment };
-        match (&data.render().unwrap(), &expected) {
-            (left_val, right_val) => {
-                if !(*left_val == *right_val) {
-                    let kind = ::core::panicking::AssertKind::Eq;
-                    ::core::panicking::assert_failed(
-                        kind,
-                        &*left_val,
-                        &*right_val,
-                        ::core::option::Option::Some(format_args!("{0}", reason)),
-                    );
+        {
+            match (&data.render().unwrap(), &expected) {
+                (left_val, right_val) => {
+                    if !(*left_val == *right_val) {
+                        let kind = ::core::panicking::AssertKind::Eq;
+                        ::core::panicking::assert_failed(
+                            kind,
+                            &*left_val,
+                            &*right_val,
+                            ::core::option::Option::Some(format_args!("{0}", reason)),
+                        );
+                    }
                 }
             }
         };

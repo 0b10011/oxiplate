@@ -56,22 +56,24 @@ pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
 /// Ensure `{}` in a template doesn't break formatting.
 fn format_injection() {
     let data = Data {};
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
          formatting strings. {}",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

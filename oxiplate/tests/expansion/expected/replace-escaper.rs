@@ -69,40 +69,44 @@ pub const html: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(html())),
 };
 fn html() {
-    match (
-        &Html { name: r#"foo bar"# }.render().unwrap(),
-        &r#"
+    {
+        match (
+            &Html { name: r#"foo bar"# }.render().unwrap(),
+            &r#"
 f00 bar
 f00 bar
 foo b@r
 "#,
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
-    match (&Html { name: r#"hello"# }.render().unwrap(), &r#"
+    {
+        match (&Html { name: r#"hello"# }.render().unwrap(), &r#"
 hello
 hello
 hello
 "#) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

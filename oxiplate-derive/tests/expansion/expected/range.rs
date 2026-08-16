@@ -83,11 +83,12 @@ pub const range_to_exclusive: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_to_exclusive() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeToExclusive { b: 3 }))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeToExclusive { b: 3 }))
+            }),
+            &"
 3 contains -1
 b contains -1
 
@@ -95,16 +96,17 @@ b contains -1
 
 
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -186,11 +188,12 @@ pub const range_to_inclusive: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_to_inclusive() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeToInclusive { b: 3 }))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeToInclusive { b: 3 }))
+            }),
+            &"
 3 contains -1
 b contains -1
 3 contains 3
@@ -198,16 +201,17 @@ b contains 3
 
 
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -289,11 +293,12 @@ pub const range_from: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_from() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeFrom { a: 4 }))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeFrom { a: 4 }))
+            }),
+            &"
 
 
 4 contains 4
@@ -301,16 +306,17 @@ a contains 4
 4 contains 127
 a contains 127
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -413,11 +419,12 @@ pub const range_exclusive: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_exclusive() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeExclusive { a: 3, b: 19 }))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeExclusive { a: 3, b: 19 }))
+            }),
+            &"
 
 
 3 contains 3
@@ -429,16 +436,17 @@ ab contains 18
 
 
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -541,11 +549,12 @@ pub const range_inclusive: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_inclusive() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeInclusive { a: 3, b: 19 }))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeInclusive { a: 3, b: 19 }))
+            }),
+            &"
 
 
 3 contains 3
@@ -557,16 +566,17 @@ ab contains 19
 
 
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -640,21 +650,23 @@ pub const range_full: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn range_full() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", RangeFull { a: "abcde" }))
-        }),
-        &"abcde cde ab abc cd cde",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", RangeFull { a: "abcde" }))
+            }),
+            &"abcde cde ab abc cd cde",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

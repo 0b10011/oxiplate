@@ -200,11 +200,12 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn field() {
     let data = Data;
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"
 dec: 0 0 19 19 1234567890
 float: 19 19 19000000000 19 0.0012345678 1234567890
 bin: 0 0 19 19 1
@@ -216,16 +217,17 @@ float: -19 -19 -19 -19 -0.0012345678 -1234567890
 bin: 0 0 -19 -19 -1
 hex: 0 0 -19 -19 -591751049 -28036591
 oct: 0 0 -19 -19 -342391",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

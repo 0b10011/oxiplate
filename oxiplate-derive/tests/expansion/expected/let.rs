@@ -65,21 +65,23 @@ pub const set: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn set() {
     let data = Set { value: "Hello world!" };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &"Hello world!\n19\n89\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &"Hello world!\n19\n89\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -177,64 +179,72 @@ pub const shadow_if: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(shadow_if())),
 };
 fn shadow_if() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", ShadowIf { value: "Hello world!" }))
-        }),
-        &"Hello world!\nif Hello world! 19\nHello world!\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!("{0}", ShadowIf { value: "Hello world!" }),
+                )
+            }),
+            &"Hello world!\nif Hello world! 19\nHello world!\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    ShadowIf {
-                        value: "Goodbye world!",
-                    },
-                ),
-            )
-        }),
-        &"Goodbye world!\nelseif Goodbye world! 89\nGoodbye world!\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        ShadowIf {
+                            value: "Goodbye world!",
+                        },
+                    ),
+                )
+            }),
+            &"Goodbye world!\nelseif Goodbye world! 89\nGoodbye world!\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", ShadowIf { value: "foobar" }))
-        }),
-        &"foobar\nelse foobar 42\nfoobar\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", ShadowIf { value: "foobar" }))
+            }),
+            &"foobar\nelse foobar 42\nfoobar\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -318,35 +328,37 @@ pub const shadow_for: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn shadow_for() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    ShadowFor {
-                        value: "Hello world!",
-                        numbers: ::alloc::boxed::box_assume_init_into_vec_unsafe(
-                            ::alloc::intrinsics::write_box_via_move(
-                                ::alloc::boxed::Box::new_uninit(),
-                                [1, 2, 3],
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        ShadowFor {
+                            value: "Hello world!",
+                            numbers: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+                                ::alloc::intrinsics::write_box_via_move(
+                                    ::alloc::boxed::Box::new_uninit(),
+                                    [1, 2, 3],
+                                ),
                             ),
-                        ),
-                    },
-                ),
-            )
-        }),
-        &"Hello world!\nHello world! 1 19 89\nHello world! 2 19 89\nHello world! 3 19 89\nHello \
+                        },
+                    ),
+                )
+            }),
+            &"Hello world!\nHello world! 1 19 89\nHello world! 2 19 89\nHello world! 3 19 89\nHello \
          world!\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -436,55 +448,59 @@ pub const shadow_match: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn shadow_match() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    ShadowMatch {
-                        value: "Hello world!",
-                        number: 19,
-                    },
-                ),
-            )
-        }),
-        &"Hello world!\nHello world! 19\nHello world!\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        ShadowMatch {
+                            value: "Hello world!",
+                            number: 19,
+                        },
+                    ),
+                )
+            }),
+            &"Hello world!\nHello world! 19\nHello world!\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    ShadowMatch {
-                        value: "Hello world!",
-                        number: 89,
-                    },
-                ),
-            )
-        }),
-        &"Hello world!\n89 Goodbye world!\nHello world!\n",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        ShadowMatch {
+                            value: "Hello world!",
+                            number: 89,
+                        },
+                    ),
+                )
+            }),
+            &"Hello world!\n89 Goodbye world!\nHello world!\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -613,25 +629,27 @@ pub const extends: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(extends())),
 };
 fn extends() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", Extends { value: "foo" }))
-        }),
-        &r#"<!DOCTYPE html>
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Extends { value: "foo" }))
+            }),
+            &r#"<!DOCTYPE html>
 <header>foo</header>
 <main>foo 69 | foo 19 | foo foo</main>
 <footer>foo 420 | 42 89 | foo 42</footer>
 "#,
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -718,25 +736,29 @@ pub const extends_default: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn extends_default() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", ExtendsDefault { value: "foo" }))
-        }),
-        &r#"<!DOCTYPE html>
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!("{0}", ExtendsDefault { value: "foo" }),
+                )
+            }),
+            &r#"<!DOCTYPE html>
 <header>foo</header>
 <main>foo 19 foo</main>
 <footer>42 89 42</footer>
 "#,
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -787,28 +809,30 @@ pub const destructure: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn destructure() {
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(
-                format_args!(
-                    "{0}",
-                    Destructure {
-                        value: DestructureData(19),
-                    },
-                ),
-            )
-        }),
-        &"19",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        Destructure {
+                            value: DestructureData(19),
+                        },
+                    ),
+                )
+            }),
+            &"19",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };

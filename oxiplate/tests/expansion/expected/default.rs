@@ -76,27 +76,29 @@ pub const some: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(some())),
 };
 fn some() {
-    match (
-        &r#"
+    {
+        match (
+            &r#"
 <!DOCTYPE html>
 <title>Hello world!</title>
 <h1>Hello world!</h1>
 "#,
-        &Data {
-            title: Some("Hello world!"),
-        }
-            .render()
-            .unwrap(),
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+            &Data {
+                title: Some("Hello world!"),
+            }
+                .render()
+                .unwrap(),
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     }
@@ -122,22 +124,24 @@ pub const none: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(none())),
 };
 fn none() {
-    match (
-        &r#"
+    {
+        match (
+            &r#"
 <!DOCTYPE html>
 <title>Default title</title>
 "#,
-        &Data { title: None }.render().unwrap(),
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+            &Data { title: None }.render().unwrap(),
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     }

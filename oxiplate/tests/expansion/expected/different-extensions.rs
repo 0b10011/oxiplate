@@ -69,26 +69,28 @@ pub const html: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(html())),
 };
 fn html() {
-    match (
-        &Html {
-            name: r#"Hunt "<html>" Mill"#,
-        }
-            .render()
-            .unwrap(),
-        &r#"<!DOCTYPE html>
+    {
+        match (
+            &Html {
+                name: r#"Hunt "<html>" Mill"#,
+            }
+                .render()
+                .unwrap(),
+            &r#"<!DOCTYPE html>
 <p title="Hello Hunt &#34;<html>&#34; Mill">Hello Hunt "&lt;html>" Mill!</p>
 <p>Goodbye Hunt "&lt;html>" Mill!</p>
 "#,
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
@@ -152,27 +154,29 @@ pub const json: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(json())),
 };
 fn json() {
-    match (
-        &Json {
-            name: r#"Jane "JSON" Sonder"#,
-        }
-            .render()
-            .unwrap(),
-        &r#"{
+    {
+        match (
+            &Json {
+                name: r#"Jane "JSON" Sonder"#,
+            }
+                .render()
+                .unwrap(),
+            &r#"{
     "foo": "hello Jane \"JSON\" Sonder",
     "bar": "goodbye Jane \"JSON\" Sonder"
 }
 "#,
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
