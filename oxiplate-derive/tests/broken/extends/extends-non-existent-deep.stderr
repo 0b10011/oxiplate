@@ -1,5 +1,5 @@
 error: Path does not exist: `$DIR/templates/extends-non-existent.html.oxip`
- --> templates/extends-missing.html.oxip
+ --> tests/broken/extends/extends-non-existent-deep.rs:3:10
   |
-  | {% extends "extends-non-existent.html.oxip" %}
-  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^

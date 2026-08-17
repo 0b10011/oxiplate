@@ -1,5 +1,5 @@
 error: "if" statement is never closed (unexpected end of template)
- --> templates/multi-byte-char-at-end-of-unended-if.oxip
+ --> tests/broken/strings/multi-byte-char-at-end-of-unended-if-external.rs:3:10
   |
-  | {% if true %}❯
-  |              ^
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^

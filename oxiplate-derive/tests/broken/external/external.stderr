@@ -1,7 +1,7 @@
 error[E0609]: no field `message` on type `&Data`
- --> templates/external.html.oxip
+ --> tests/broken/external/external.rs:3:10
   |
-  | <p>{{ message }}</p>
-  |       ^^^^^^^ unknown field
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^ unknown field
   |
   = note: available field is: `title`
