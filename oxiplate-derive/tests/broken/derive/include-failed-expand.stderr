@@ -17,4 +17,4 @@ help: the trait `std::fmt::Display` is not implemented for `Data`
   |
 5 | struct Data;
   | ^^^^^^^^^^^
-  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead
