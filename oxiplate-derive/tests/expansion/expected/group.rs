@@ -54,6 +54,7 @@ pub const group_calc: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(group_calc()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn group_calc() {
     {
         match (

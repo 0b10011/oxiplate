@@ -43,6 +43,7 @@ pub const hashes: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(hashes())),
 };
+#[rustc_test_entrypoint_marker]
 fn hashes() {
     {
         match (
@@ -105,6 +106,7 @@ pub const tag_ends: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(tag_ends())),
 };
+#[rustc_test_entrypoint_marker]
 fn tag_ends() {
     {
         match (

@@ -31,6 +31,7 @@ pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
 };
 #[ignore = "Clippy tests are expensive, can fail on slight wording changes, and produce \
             hard-to-read errors when the package fails to build, so they should be run separately."]
+#[rustc_test_entrypoint_marker]
 fn clippy() -> Result<(), Box<dyn Error>> {
     let Output { status, stdout: _stdout, stderr } = Command::new("cargo")
         .args(["build", "--manifest-path", "tests/clippy/Cargo.toml"])

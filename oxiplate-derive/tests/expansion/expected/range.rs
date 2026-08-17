@@ -82,6 +82,7 @@ pub const range_to_exclusive: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_to_exclusive()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_to_exclusive() {
     {
         match (
@@ -187,6 +188,7 @@ pub const range_to_inclusive: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_to_inclusive()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_to_inclusive() {
     {
         match (
@@ -292,6 +294,7 @@ pub const range_from: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_from()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_from() {
     {
         match (
@@ -418,6 +421,7 @@ pub const range_exclusive: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_exclusive()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_exclusive() {
     {
         match (
@@ -548,6 +552,7 @@ pub const range_inclusive: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_inclusive()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_inclusive() {
     {
         match (
@@ -649,6 +654,7 @@ pub const range_full: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(range_full()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn range_full() {
     {
         match (

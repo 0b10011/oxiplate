@@ -50,6 +50,7 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
 };
+#[rustc_test_entrypoint_marker]
 fn field() {
     let name = "Liv";
     let user = User { name };

@@ -52,6 +52,7 @@ pub const single: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(single())),
 };
+#[rustc_test_entrypoint_marker]
 fn single() {
     {
         match (
@@ -128,6 +129,7 @@ pub const double: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(double())),
 };
+#[rustc_test_entrypoint_marker]
 fn double() {
     {
         match (
@@ -214,6 +216,7 @@ pub const several: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(several())),
 };
+#[rustc_test_entrypoint_marker]
 fn several() {
     {
         match (

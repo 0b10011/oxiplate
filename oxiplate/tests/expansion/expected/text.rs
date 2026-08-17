@@ -64,6 +64,7 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
 };
+#[rustc_test_entrypoint_marker]
 fn variable() {
     let data = Data {
         messages: ::alloc::boxed::box_assume_init_into_vec_unsafe(

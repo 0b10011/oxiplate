@@ -60,6 +60,7 @@ pub const test: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test())),
 };
+#[rustc_test_entrypoint_marker]
 fn test() {
     let data = Data {
         check: false,

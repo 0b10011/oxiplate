@@ -185,6 +185,7 @@ pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_math())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_math() {
     let data = Math {
         min: 19,
@@ -336,6 +337,7 @@ pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_comparisons()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_comparisons() {
     let data = Comparisons { min: 19, max: 89 };
     {
@@ -546,6 +548,7 @@ pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_or_and()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_or_and() {
     let data = OrAnd {
         yes: true,
@@ -650,6 +653,7 @@ pub const test_order_of_operations: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_order_of_operations()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_order_of_operations() {
     let data = OrderOfOperations {
         a: 16,

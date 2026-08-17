@@ -255,6 +255,7 @@ pub const types: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(types())),
 };
+#[rustc_test_entrypoint_marker]
 fn types() {
     let data = Types {
         slice: "Hello world &lt;<script><!--",

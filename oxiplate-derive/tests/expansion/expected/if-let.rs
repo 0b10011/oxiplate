@@ -132,6 +132,7 @@ pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_count()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_count() {
     let data = Data {
         cats_count: Some(5),
@@ -181,6 +182,7 @@ pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_count_name()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_count_name() {
     let data = Data {
         cats_count: Some(5),
@@ -227,6 +229,7 @@ pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_name())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_name() {
     let data = Data {
         cats_count: None,
@@ -275,6 +278,7 @@ pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_none())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_none() {
     let data = Data {
         cats_count: None,
@@ -366,6 +370,7 @@ pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_multiple()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_multiple() {
     {
         match (
@@ -466,6 +471,7 @@ pub const nested: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(nested())),
 };
+#[rustc_test_entrypoint_marker]
 fn nested() {
     {
         match (

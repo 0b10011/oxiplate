@@ -51,6 +51,7 @@ pub const test_equals_string: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_equals_string()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_equals_string() {
     let data = Comparison { value: "foo" };
     {
@@ -97,6 +98,7 @@ pub const test_does_not_equal_string: test::TestDescAndFn = test::TestDescAndFn 
         || test::assert_test_result(test_does_not_equal_string()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn test_does_not_equal_string() {
     let data = Comparison { value: "baz" };
     {

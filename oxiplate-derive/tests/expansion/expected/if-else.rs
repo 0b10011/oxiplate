@@ -64,6 +64,7 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_if() {
     let data = Data {
         do_this: true,
@@ -110,6 +111,7 @@ pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_else())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_else() {
     let data = Data {
         do_this: false,

@@ -54,6 +54,7 @@ pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 /// Ensure `{}` in a template doesn't break formatting.
+#[rustc_test_entrypoint_marker]
 fn format_injection() {
     let data = Data {};
     {

@@ -48,6 +48,7 @@ pub const overridden_std: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(overridden_std()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn overridden_std() {
     let data = Data { foo: "Hello world!" };
     {

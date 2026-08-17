@@ -26,6 +26,7 @@ pub const broken: test::TestDescAndFn = test::TestDescAndFn {
 };
 #[ignore = "Broken tests are expensive and can fail on slight wording changes, so they should be \
             run separately."]
+#[rustc_test_entrypoint_marker]
 fn broken() {
     unsafe {
         std::env::set_var(

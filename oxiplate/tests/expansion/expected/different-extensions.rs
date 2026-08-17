@@ -68,6 +68,7 @@ pub const html: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(html())),
 };
+#[rustc_test_entrypoint_marker]
 fn html() {
     {
         match (
@@ -153,6 +154,7 @@ pub const json: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(json())),
 };
+#[rustc_test_entrypoint_marker]
 fn json() {
     {
         match (

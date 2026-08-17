@@ -70,6 +70,7 @@ pub const text: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(text())),
 };
+#[rustc_test_entrypoint_marker]
 fn text() {
     let data = Data { ty: Type::Text("foo") };
     {
@@ -113,6 +114,7 @@ pub const numbers: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(numbers())),
 };
+#[rustc_test_entrypoint_marker]
 fn numbers() {
     let data = Data { ty: Type::Numbers(10, 9) };
     {

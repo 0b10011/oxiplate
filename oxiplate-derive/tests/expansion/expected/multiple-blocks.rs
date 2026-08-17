@@ -59,6 +59,7 @@ pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(multiple_blocks()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn multiple_blocks() {
     let data = Data;
     {

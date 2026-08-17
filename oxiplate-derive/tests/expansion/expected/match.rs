@@ -126,6 +126,7 @@ pub const test_count: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_count())),
     };
+#[rustc_test_entrypoint_marker]
 fn test_count() {
     let data = Data { cats_count: Some(5), name: Ok(Name::Missing) };
 
@@ -188,6 +189,7 @@ pub const test_count_name: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_count_name())),
     };
+#[rustc_test_entrypoint_marker]
 fn test_count_name() {
     let data =
         Data {
@@ -230,6 +232,7 @@ pub const test_name: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_name())),
     };
+#[rustc_test_entrypoint_marker]
 fn test_name() {
     let data =
         Data {
@@ -272,6 +275,7 @@ pub const test_none: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_none())),
     };
+#[rustc_test_entrypoint_marker]
 fn test_none() {
     let data = Data { cats_count: None, name: Ok(Name::Missing) };
     {
@@ -349,6 +353,7 @@ pub const test_multiple: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_multiple())),
     };
+#[rustc_test_entrypoint_marker]
 fn test_multiple() {
     {
         match (&"yes",
@@ -437,6 +442,7 @@ pub const nested: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(nested())),
     };
+#[rustc_test_entrypoint_marker]
 fn nested() {
     macro_rules! a {
         ($a:literal, $b:literal) =>
@@ -559,6 +565,7 @@ pub const range_integer: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_integer())),
     };
+#[rustc_test_entrypoint_marker]
 fn range_integer() {
     {
         match (&"To 1",
@@ -710,6 +717,7 @@ pub const range_float: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_float())),
     };
+#[rustc_test_entrypoint_marker]
 fn range_float() {
     {
         match (&"To 1",
@@ -875,6 +883,7 @@ pub const range_char: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_char())),
     };
+#[rustc_test_entrypoint_marker]
 fn range_char() {
     {
         match (&"To b",
@@ -1023,6 +1032,7 @@ pub const multiple_cases: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(multiple_cases())),
     };
+#[rustc_test_entrypoint_marker]
 fn multiple_cases() {
     {
         match (&"The best number",
@@ -1153,6 +1163,7 @@ pub const guard: test::TestDescAndFn =
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(guard())),
     };
+#[rustc_test_entrypoint_marker]
 fn guard() {
     {
         match (&"Odd",

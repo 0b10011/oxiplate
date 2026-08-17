@@ -48,6 +48,7 @@ pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5u8())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_5u8() {
     let data = Comparison { value: 5u8 };
     {
@@ -91,6 +92,7 @@ pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_5() {
     let data = Comparison { value: 5 };
     {
@@ -134,6 +136,7 @@ pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4u8())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_4u8() {
     let data = Comparison { value: 4u8 };
     {
@@ -177,6 +180,7 @@ pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_4() {
     let data = Comparison { value: 4 };
     {

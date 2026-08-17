@@ -48,6 +48,7 @@ pub const external_unicode: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(external_unicode()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn external_unicode() {
     let template = Data {};
     {

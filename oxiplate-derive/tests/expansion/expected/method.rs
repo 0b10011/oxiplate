@@ -61,6 +61,7 @@ pub const field: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
 };
+#[rustc_test_entrypoint_marker]
 fn field() {
     let data = Data {
         user: User {
@@ -134,6 +135,7 @@ pub const field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(field_with_argument()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn field_with_argument() {
     let data = Argument {
         user: User {
@@ -219,6 +221,7 @@ pub const field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(field_with_arguments()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn field_with_arguments() {
     let data = Arguments {
         user: User {
@@ -288,6 +291,7 @@ pub const callback: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(callback())),
 };
+#[rustc_test_entrypoint_marker]
 fn callback() {
     {
         match (

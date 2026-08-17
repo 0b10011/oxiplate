@@ -47,6 +47,7 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(adjusted_whitespace()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn adjusted_whitespace() {
     let template = AdjustedWhitespace {};
     {
@@ -123,6 +124,7 @@ pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(writ_whitespace_control()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn writ_whitespace_control() {
     let template = WritWhitespaceControl {
         username: "dia",
@@ -193,6 +195,7 @@ pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn 
         || test::assert_test_result(comment_whitespace_control()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn comment_whitespace_control() {
     let template = CommentWhitespaceControl {};
     {
@@ -360,6 +363,7 @@ pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(adjacent_tags()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn adjacent_tags() {
     let template = AdjacentTags {};
     {
@@ -442,6 +446,7 @@ pub const whitespace_only: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(whitespace_only()),
     ),
 };
+#[rustc_test_entrypoint_marker]
 fn whitespace_only() {
     {
         match (
