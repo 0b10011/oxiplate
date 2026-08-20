@@ -1,5 +1,5 @@
 error[E0609]: no field `title` on type `&AbsoluteData`
- --> tests/broken/extends/extends.rs:3:10
+ --> templates/extends-wrapper.html.oxip
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^ unknown field
+  | <title>{{ title }}</title>
+  |           ^^^^^ unknown field
