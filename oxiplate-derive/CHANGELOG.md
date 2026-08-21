@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.17.1...oxiplate-derive-v0.18.0) - 2026-08-21
+
+### Added
+
+- [**breaking**] switched `filters_for_oxiplate` to be relative to the current module to match documentation
+
+### Other
+
+- Merge pull request #282 from 0b10011/relative-filters
+
 ## [0.17.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.17.0...oxiplate-derive-v0.17.1) - 2026-08-21
 
 ### Fixed
