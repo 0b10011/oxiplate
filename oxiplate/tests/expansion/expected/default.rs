@@ -36,7 +36,7 @@ impl ::oxiplate::Render for Data {
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new(
-            &(crate::filters_for_oxiplate::default(self.title, "Default title")),
+            &(filters_for_oxiplate::default(self.title, "Default title")),
         ))
             .oxiplate_escape(
                 oxiplate_formatter,

@@ -39,6 +39,8 @@ pub use oxiplate_traits::{
 ///
 ///     use oxiplate::{Oxiplate, Render};
 ///
+///     use crate::filters_for_oxiplate;
+///
 ///     #[derive(Oxiplate)]
 ///     #[oxiplate_inline(html: r#"{{ "Hello World" | lower() }}"#)]
 ///     struct Data;

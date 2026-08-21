@@ -75,7 +75,7 @@ impl ::oxiplate::Render for Respond {
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(::oxiplate::CowStrWrapper::new(
                 (&&::oxiplate::ToCowStrWrapper::new(
-                    &(crate::filters_for_oxiplate::respond(
+                    &(filters_for_oxiplate::respond(
                         ::oxiplate::CowStrWrapper::new(
                             (&&::oxiplate::ToCowStrWrapper::new(&(self.message)))
                                 .to_cow_str(),
@@ -179,7 +179,7 @@ impl ::oxiplate::Render for Shorten {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
-            &(crate::filters_for_oxiplate::shorten(
+            &(filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
                 ),
@@ -293,7 +293,7 @@ impl ::oxiplate::Render for Pad {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
-            &(crate::filters_for_oxiplate::pad(self.number, self.length)),
+            &(filters_for_oxiplate::pad(self.number, self.length)),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
         Ok(())
@@ -386,10 +386,10 @@ impl ::oxiplate::Render for Multiple {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         (&&::oxiplate::UnescapedTextWrapper::new(
-            &(crate::filters_for_oxiplate::shorten(
+            &(filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(
-                        &(crate::filters_for_oxiplate::respond(
+                        &(filters_for_oxiplate::respond(
                             ::oxiplate::CowStrWrapper::new(
                                 (&&::oxiplate::ToCowStrWrapper::new(&(self.message)))
                                     .to_cow_str(),
