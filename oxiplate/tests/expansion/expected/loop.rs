@@ -39,7 +39,7 @@ impl ::oxiplate::Render for Loop {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n")?;
-        for (r#loop, value) in crate::filters_for_oxiplate::r#loop(&self.values) {
+        for (r#loop, value) in filters_for_oxiplate::r#loop(&self.values) {
             if r#loop.is_first {
                 oxiplate_formatter.write_str("first: ")?;
             }
