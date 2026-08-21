@@ -257,7 +257,7 @@ impl<'a> Expression<'a> {
                         ::oxiplate::CowStrWrapper::new(
                             (
                                 &&::oxiplate::ToCowStrWrapper::new(
-                                    &(crate::filters_for_oxiplate::#name #arguments)
+                                    &(filters_for_oxiplate::#name #arguments)
                                 )
                             ).to_cow_str()
                         )
@@ -275,7 +275,7 @@ impl<'a> Expression<'a> {
         } else {
             (
                 quote_spanned! {span=>
-                    crate::filters_for_oxiplate::#name #arguments
+                    filters_for_oxiplate::#name #arguments
                 },
                 estimated_length,
             )

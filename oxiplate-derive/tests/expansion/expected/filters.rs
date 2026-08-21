@@ -63,20 +63,14 @@ impl ::core::fmt::Display for Respond {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::respond(
-                            self.message,
-                            *self.respond,
-                        )),
+                        &(filters_for_oxiplate::respond(self.message, *self.respond)),
                     ),
                 )?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::respond(
-                            self.message,
-                            !*self.respond,
-                        )),
+                        &(filters_for_oxiplate::respond(self.message, !*self.respond)),
                     ),
                 )?;
             string
@@ -181,10 +175,7 @@ impl ::core::fmt::Display for Shorten {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::shorten(
-                            self.message,
-                            self.max_length,
-                        )),
+                        &(filters_for_oxiplate::shorten(self.message, self.max_length)),
                     ),
                 )?;
             string
@@ -289,7 +280,7 @@ impl ::core::fmt::Display for Pad {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::pad(self.number, self.length)),
+                        &(filters_for_oxiplate::pad(self.number, self.length)),
                     ),
                 )?;
             string
@@ -378,8 +369,8 @@ impl ::core::fmt::Display for Multiple {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::shorten(
-                            crate::filters_for_oxiplate::respond(self.message, false),
+                        &(filters_for_oxiplate::shorten(
+                            filters_for_oxiplate::respond(self.message, false),
                             self.length,
                         )),
                     ),
@@ -513,14 +504,14 @@ impl ::core::fmt::Display for Trim {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::trim(self.value)),
+                        &(filters_for_oxiplate::trim(self.value)),
                     ),
                 )?;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::trim(self.value)),
+                        &(filters_for_oxiplate::trim(self.value)),
                     ),
                 )?;
             string
@@ -588,7 +579,7 @@ impl ::core::fmt::Display for Replace {
             oxiplate_formatter
                 .write_str(
                     &alloc::string::ToString::to_string(
-                        &(crate::filters_for_oxiplate::replace(self.value, "ar", "oo")),
+                        &(filters_for_oxiplate::replace(self.value, "ar", "oo")),
                     ),
                 )?;
             string
