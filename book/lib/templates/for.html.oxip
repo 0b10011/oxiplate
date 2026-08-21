@@ -1,6 +1,9 @@
 <ul>
-  {%- for name in &names %}
-    <li>{{ name }}
+  {%- for (loop, name) in &names | loop %}
+    <li>
+      {{- loop.index1 }} ({{ loop.index0 }}): {{ name }}
+      {%- if loop.is_first %} (first){% endif %}
+      {%- if loop.is_last %} (last){% endif %}
   {%- else %}
     <li><em>No names found</em>
   {%- endfor %}
