@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.18.0...oxiplate-v0.18.1) - 2026-08-21
+
+### Added
+
+- added `loop` filter for accessing index information in `for` loops
+
 ## [0.18.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.17.1...oxiplate-v0.18.0) - 2026-08-21
 
 ### Added
