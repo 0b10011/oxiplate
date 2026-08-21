@@ -8,6 +8,10 @@ use oxiplate::prelude::*;
     {%_ endif -%}
 
     #{{ loop.index1 }} (#{{ loop.index0 }}) {{ value }}
+
+    {%- if loop.is_last _%}
+        LAST!
+    {%- endif %}
 {% endfor %}"
 )]
 struct Loop {
@@ -25,7 +29,7 @@ fn test_loop() {
         r"
 first: #1 (#0) 19
 #2 (#1) 89
-#3 (#2) 42
+#3 (#2) 42 LAST!
 "
     );
 }

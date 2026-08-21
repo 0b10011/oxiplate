@@ -11,28 +11,33 @@ use oxiplate::prelude::*;
     {%_ endif -%}
 
     #{{ loop.index1 }} (#{{ loop.index0 }}) {{ value }}
+
+    {%- if loop.is_last _%}
+        LAST!
+    {%- endif %}
 {% endfor %}"
 )]
 struct Loop {
     values: Vec<usize>,
 }
-impl ::std::fmt::Display for Loop {
+impl ::core::fmt::Display for Loop {
     fn fmt(
         &self,
-        oxiplate_formatter: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::fmt::Result {
+        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
 impl ::oxiplate::Render for Loop {
-    const ESTIMATED_LENGTH: usize = 35usize;
+    const ESTIMATED_LENGTH: usize = 47usize;
     #[inline]
-    fn render_into<W: ::std::fmt::Write>(
+    fn render_into<W: ::core::fmt::Write>(
         &self,
         oxiplate_formatter: &mut W,
-    ) -> ::std::fmt::Result {
-        use ::std::fmt::Write;
-        use ::oxiplate::{ToCowStr, UnescapedText};
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n")?;
         for (r#loop, value) in crate::filters_for_oxiplate::r#loop(&self.values) {
             if r#loop.is_first {
@@ -56,6 +61,9 @@ impl ::oxiplate::Render for Loop {
                     oxiplate_formatter,
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
+            if r#loop.is_last {
+                oxiplate_formatter.write_str(" LAST!")?;
+            }
             oxiplate_formatter.write_str("\n")?;
         }
         Ok(())
@@ -70,9 +78,9 @@ pub const test_loop: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/loop.rs",
-        start_line: 18usize,
+        start_line: 22usize,
         start_col: 4usize,
-        end_line: 18usize,
+        end_line: 22usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -81,29 +89,37 @@ pub const test_loop: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_loop())),
 };
+#[rustc_test_entrypoint_marker]
 fn test_loop() {
     let data = Loop {
-        values: <[_]>::into_vec(::alloc::boxed::box_new([19, 89, 42])),
+        values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [19, 89, 42],
+            ),
+        ),
     };
-    match (
-        &::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0}", data))
-        }),
-        &r"
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", data))
+            }),
+            &r"
 first: #1 (#0) 19
 #2 (#1) 89
-#3 (#2) 42
+#3 (#2) 42 LAST!
 ",
-    ) {
-        (left_val, right_val) => {
-            if !(*left_val == *right_val) {
-                let kind = ::core::panicking::AssertKind::Eq;
-                ::core::panicking::assert_failed(
-                    kind,
-                    &*left_val,
-                    &*right_val,
-                    ::core::option::Option::None,
-                );
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
             }
         }
     };
