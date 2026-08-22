@@ -2,7 +2,7 @@ error[E0599]: the method `to_cow_str` exists for reference `&&ToCowStrWrapper<'_
   --> tests/broken/cow_str/uncowable.rs:22:30
    |
 19 | struct Foo;
-   | ---------- doesn't satisfy `Foo: FastCowStr<'_>` or `Foo: ToString`
+   | ---------- doesn't satisfy `Foo: FastCowStr<'_>` or `Foo: std::fmt::Display`
 ...
 22 | #[oxiplate_inline(r#"{{ raw: >message | respond(>"world") }}"#)]
    |                              ^ method cannot be called on `&&ToCowStrWrapper<'_, Foo>` due to unsatisfied trait bounds
@@ -10,15 +10,15 @@ error[E0599]: the method `to_cow_str` exists for reference `&&ToCowStrWrapper<'_
    = note: the following trait bounds were not satisfied:
            `Foo: FastCowStr<'_>`
            which is required by `&ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
-           `Foo: ToString`
+           `Foo: std::fmt::Display`
            which is required by `&&ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
-note: the traits `FastCowStr` and `ToString` must be implemented
-  --> $WORKSPACE/oxiplate-traits/src/cow_str.rs
+note: the traits `FastCowStr` and `std::fmt::Display` must be implemented
+  --> $RUST/core/src/fmt/mod.rs
+   |
+   | pub trait Display: PointeeSized {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+  ::: $WORKSPACE/oxiplate-traits/src/cow_str.rs
    |
    | pub trait FastCowStr<'a> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-  ::: $RUST/alloc/src/string.rs
-   |
-   | pub trait ToString {
-   | ^^^^^^^^^^^^^^^^^^
