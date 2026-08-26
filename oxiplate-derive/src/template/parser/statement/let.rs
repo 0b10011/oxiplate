@@ -6,7 +6,7 @@ use super::super::expression::{Keyword, expression};
 use super::{State, Statement, StatementKind};
 use crate::parser::{Parser as _, cut, take};
 use crate::template::parser::Res;
-use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
+use crate::template::parser::expression::{Expression, KeywordParser};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source};
@@ -24,7 +24,7 @@ pub(crate) struct Let<'a> {
     operator: Source<'a>,
 
     /// Value to save to the variable
-    expr: ExpressionAccess<'a>,
+    expr: Expression<'a>,
 
     /// Source for the entire statement
     source: Source<'a>,

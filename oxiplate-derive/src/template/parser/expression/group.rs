@@ -3,7 +3,7 @@ use quote::quote_spanned;
 
 use crate::parser::{Parser as _, context, take};
 use crate::template::parser::Res;
-use crate::template::parser::expression::{Expression, ExpressionAccess, expression};
+use crate::template::parser::expression::{Expression, expression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
@@ -12,7 +12,7 @@ use crate::{Source, State};
 #[derive(Debug)]
 pub struct Group<'a> {
     /// Expression contained by the parentheses.
-    expression: Box<ExpressionAccess<'a>>,
+    expression: Box<Expression<'a>>,
 
     /// Source for the entire group, including the parentheses.
     source: Source<'a>,

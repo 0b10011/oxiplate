@@ -3,7 +3,6 @@ use quote::{quote, quote_spanned};
 
 use super::{Expression, Res, expression};
 use crate::parser::{Parser as _, context, many1, opt, take};
-use crate::template::parser::expression::ExpressionAccess;
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
@@ -68,7 +67,7 @@ impl<'a> Tuple<'a> {
 
 #[derive(Debug)]
 struct TupleItem<'a> {
-    expression: ExpressionAccess<'a>,
+    expression: Expression<'a>,
     comma: Option<Source<'a>>,
     source: Source<'a>,
 }

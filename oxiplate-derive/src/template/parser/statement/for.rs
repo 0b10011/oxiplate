@@ -8,7 +8,7 @@ use super::super::expression::{Keyword, expression};
 use super::{State, Statement, StatementKind};
 use crate::parser::{Parser as _, cut, into};
 use crate::template::parser::Res;
-use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
+use crate::template::parser::expression::{Expression, KeywordParser};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::template::Template;
 use crate::template::tokenizer::TokenSlice;
@@ -20,7 +20,7 @@ pub struct For<'a> {
     for_keyword: Keyword<'a>,
     pattern: Pattern<'a>,
     in_keyword: Keyword<'a>,
-    expression: ExpressionAccess<'a>,
+    expression: Expression<'a>,
     template: Template<'a>,
     otherwise: Option<Template<'a>>,
     pub(super) is_ended: bool,

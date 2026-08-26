@@ -7,7 +7,7 @@ use super::super::Item;
 use super::{Statement, StatementKind};
 use crate::parser::{Parser as _, cut, many0, opt, take};
 use crate::template::parser::Res;
-use crate::template::parser::expression::{ExpressionAccess, KeywordParser, expression};
+use crate::template::parser::expression::{Expression, KeywordParser, expression};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::r#static::StaticType;
 use crate::template::parser::template::Template;
@@ -16,7 +16,7 @@ use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
 pub(crate) struct Match<'a> {
-    expression: ExpressionAccess<'a>,
+    expression: Expression<'a>,
 
     /// Errors for attempting to add items before the first case.
     errors: Template<'a>,
@@ -244,7 +244,7 @@ impl<'a> Case<'a> {
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#adding-conditionals-with-match-guards>
 struct Guard<'a> {
     if_tag: Source<'a>,
-    expression: ExpressionAccess<'a>,
+    expression: Expression<'a>,
     source: Source<'a>,
 }
 

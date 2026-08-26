@@ -3,12 +3,12 @@ use quote::{ToTokens, TokenStreamExt};
 
 use super::Res;
 use crate::parser::{Parser as _, cut, many0, opt, take};
-use crate::template::parser::expression::{ExpressionAccess, expression};
+use crate::template::parser::expression::{Expression, expression};
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{Source, State, quote_spanned};
 
-pub(crate) type FirstArgument<'a> = Box<ExpressionAccess<'a>>;
-pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, ExpressionAccess<'a>)>;
+pub(crate) type FirstArgument<'a> = Box<Expression<'a>>;
+pub(crate) type RemainingArguments<'a> = Vec<(Source<'a>, Expression<'a>)>;
 
 #[derive(Debug)]
 pub(crate) struct ArgumentsGroup<'a> {

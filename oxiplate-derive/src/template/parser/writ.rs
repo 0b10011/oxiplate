@@ -7,7 +7,7 @@ use syn::token::PathSep;
 use syn::{Path, PathSegment};
 
 use super::Item;
-use super::expression::{ExpressionAccess, Identifier, expression};
+use super::expression::{Expression, Identifier, expression};
 use super::item::tag_end;
 use crate::config::EscaperGroup;
 use crate::parser::{Parser as _, cut, opt, take};
@@ -33,7 +33,7 @@ macro_rules! token_error {
 #[derive(Debug)]
 pub(crate) struct Writ<'a> {
     escaper: Option<Escaper<'a>>,
-    expression: ExpressionAccess<'a>,
+    expression: Expression<'a>,
     source: Source<'a>,
 }
 

@@ -2,13 +2,13 @@ use quote::{quote, quote_spanned};
 
 use super::Res;
 use crate::parser::{Parser as _, context, cut, fail, many1, take};
-use crate::template::parser::expression::{Expression, ExpressionAccess, expression};
+use crate::template::parser::expression::{Expression, expression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) struct Concat<'a> {
-    pub expressions: Vec<ExpressionAccess<'a>>,
+    pub expressions: Vec<Expression<'a>>,
     source: Source<'a>,
 }
 
@@ -19,23 +19,16 @@ impl<'a> Concat<'a> {
             let mut argument_tokens = vec![];
             let mut estimated_length = 0;
             for expression in &self.expressions {
-                match expression {
-                    ExpressionAccess {
-                        expression: Expression::String(string),
-                        fields,
-                    } if fields.is_empty() => {
-                        estimated_length += string.as_str().len();
-                        let string =
-                            syn::LitStr::new(string.as_str(), string.source().span_token());
-                        format_tokens.push(quote! { #string });
-                    }
-                    _ => {
-                        let span = expression.source().span_token();
-                        format_tokens.push(quote_spanned! {span=> "{}" });
-                        let (expression, expression_length) = expression.to_tokens(state);
-                        estimated_length += expression_length;
-                        argument_tokens.push(quote!(#expression));
-                    }
+                if let Expression::String(string) = expression {
+                    estimated_length += string.as_str().len();
+                    let string = syn::LitStr::new(string.as_str(), string.source().span_token());
+                    format_tokens.push(quote! { #string });
+                } else {
+                    let span = expression.source().span_token();
+                    format_tokens.push(quote_spanned! {span=> "{}" });
+                    let (expression, expression_length) = expression.to_tokens(state);
+                    estimated_length += expression_length;
+                    argument_tokens.push(quote!(#expression));
                 }
             }
 

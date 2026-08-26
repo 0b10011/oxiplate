@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-use syn::token::Dot;
 
 mod arguments;
 mod concat;
+mod field_or_method;
 mod group;
 mod ident;
 mod keyword;
@@ -22,35 +22,12 @@ use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{Parser as _, alt, context, cut, fail, into, many0, many1, opt, take};
+use crate::parser::{Parser as _, alt, context, cut, fail, into, many1, opt, take};
+use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
-
-#[derive(Debug)]
-pub(crate) struct Field<'a> {
-    dot: Source<'a>,
-    ident_or_fn: IdentifierOrFunction<'a>,
-}
-impl<'a> Field<'a> {
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let span = self.dot.span_token();
-        let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
-            .expect("Dot should be able to be parsed properly here");
-
-        let ident_or_fn = &self.ident_or_fn.to_tokens(state);
-        quote! { #dot #ident_or_fn }
-    }
-
-    /// Get the `Source` for the field.
-    pub(crate) fn source(&self) -> Source<'a> {
-        self.dot.clone().merge(
-            &self.ident_or_fn.source(),
-            "Field or method name should immediately follow the dot",
-        )
-    }
-}
 
 #[derive(Debug)]
 pub(crate) enum Expression<'a> {
@@ -64,15 +41,15 @@ pub(crate) enum Expression<'a> {
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
     Calc {
-        left: Box<ExpressionAccess<'a>>,
+        left: Box<Expression<'a>>,
         operator: Operator<'a>,
-        right: Box<Option<ExpressionAccess<'a>>>,
+        right: Box<Option<Expression<'a>>>,
         source: Source<'a>,
     },
-    Prefixed(PrefixOperator<'a>, Box<ExpressionAccess<'a>>),
+    Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
     Cow {
         prefix: Source<'a>,
-        expression: Box<ExpressionAccess<'a>>,
+        expression: Box<Expression<'a>>,
         source: Source<'a>,
     },
 
@@ -88,21 +65,24 @@ pub(crate) enum Expression<'a> {
     /// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
     /// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
     Index(
-        Box<ExpressionAccess<'a>>,
+        Box<Expression<'a>>,
         Source<'a>,
-        Box<ExpressionAccess<'a>>,
+        Box<Expression<'a>>,
         Source<'a>,
     ),
 
     /// `expr | filter(args)`
     Filter {
         name: Identifier<'a>,
-        expression: Box<ExpressionAccess<'a>>,
+        expression: Box<Expression<'a>>,
         vertical_bar: Source<'a>,
         cow_prefix: Option<Source<'a>>,
         arguments: Option<ArgumentsGroup<'a>>,
         source: Source<'a>,
     },
+
+    /// `expr.field` or `expr.method(args)`
+    FieldOrMethod(FieldOrMethod<'a>),
 }
 
 impl<'a> Expression<'a> {
@@ -205,6 +185,7 @@ impl<'a> Expression<'a> {
                 arguments.as_ref(),
                 source,
             ),
+            Expression::FieldOrMethod(field_or_method) => field_or_method.to_tokens(state),
         }
     }
 
@@ -212,7 +193,7 @@ impl<'a> Expression<'a> {
     fn filter(
         state: &State,
         name: &Identifier,
-        expression: &ExpressionAccess,
+        expression: &Expression,
         vertical_bar: &Source,
         cow_prefix: Option<&Source>,
         arguments: Option<&ArgumentsGroup>,
@@ -307,87 +288,36 @@ impl<'a> Expression<'a> {
                 .merge(open_bracket, "Open bracket should follow left expression")
                 .merge(&index.source(), "Index should follow open bracket")
                 .merge(close_bracket, "Close bracket should follow index"),
+            Expression::FieldOrMethod(field_or_method) => field_or_method.source().clone(),
         }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct ExpressionAccess<'a> {
-    expression: Expression<'a>,
-    fields: Vec<Field<'a>>,
-}
-impl<'a> ExpressionAccess<'a> {
-    pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let mut tokens = TokenStream::new();
-        let (expression, estimated_length) = self.expression.to_tokens(state);
-        tokens.append_all(expression);
-        for field in &self.fields {
-            tokens.append_all(field.to_tokens(state));
-        }
-        (tokens, estimated_length)
-    }
-
-    /// Get the `Source` for expression accesses.
-    pub(crate) fn source(&self) -> Source<'a> {
-        let mut source: Source<'a> = self.expression.source();
-        for field in &self.fields {
-            source = source.merge(
-                &field.source(),
-                "Field source should be immediately after the rest of the expression",
-            );
-        }
-        source
     }
 }
 
 pub(super) fn expression<'a>(
     allow_generic_nesting: bool,
     allow_concat_nesting: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, ExpressionAccess<'a>> {
+) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
     move |tokens| {
-        let (tokens, (expression, fields)) = (
-            alt((
-                filters(allow_generic_nesting),
-                Concat::parser(allow_concat_nesting),
-                calc(allow_generic_nesting),
-                index(allow_generic_nesting),
-                parse_cow_prefix,
-                into(Char::parse),
-                into(String::parse),
-                into(Number::parse),
-                into(Bool::parse),
-                identifier,
-                parse_prefixed_expression(allow_generic_nesting),
-                into(Group::parse),
-                Tuple::parse,
-                full_range,
-            )),
-            many0(field()),
-        )
-            .parse(tokens)?;
-
-        Ok((tokens, ExpressionAccess { expression, fields }))
-    }
-}
-
-fn field<'a>() -> impl Fn(TokenSlice<'a>) -> Res<'a, Field<'a>> + 'a {
-    |tokens| {
-        let (tokens, (dot, ident, arguments)) =
-            (take(TokenKind::Period), Identifier::parse, opt(arguments)).parse(tokens)?;
-
-        let ident_or_fn = if let Some(arguments) = arguments {
-            IdentifierOrFunction::Function(ident, arguments)
-        } else {
-            IdentifierOrFunction::Identifier(ident)
-        };
-
-        Ok((
-            tokens,
-            Field {
-                dot: dot.source().clone(),
-                ident_or_fn,
-            },
+        let (tokens, expression) = alt((
+            filters(allow_generic_nesting),
+            Concat::parser(allow_concat_nesting),
+            calc(allow_generic_nesting),
+            index(allow_generic_nesting),
+            into(FieldOrMethod::parser(allow_generic_nesting)),
+            parse_cow_prefix,
+            into(Char::parse),
+            into(String::parse),
+            into(Number::parse),
+            into(Bool::parse),
+            identifier,
+            parse_prefixed_expression(allow_generic_nesting),
+            into(Group::parse),
+            Tuple::parse,
+            full_range,
         ))
+        .parse(tokens)?;
+
+        Ok((tokens, expression))
     }
 }
 
@@ -493,7 +423,7 @@ fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a
             .parse(tokens);
         }
 
-        let (tokens, (expression, filters)) = (
+        let (tokens, (mut expression, filters)) = (
             expression(false, false),
             many1((
                 take(TokenKind::VerticalBar),
@@ -505,7 +435,6 @@ fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a
             .parse(tokens)?;
 
         let mut source = expression.source();
-        let mut expression_access = expression;
         for (vertical_bar, cow_prefix, name, arguments) in filters {
             source = source
                 .merge(
@@ -522,20 +451,17 @@ fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a
                     "Arguments should follow trailing whitespace",
                 );
 
-            expression_access = ExpressionAccess {
-                expression: Expression::Filter {
-                    name,
-                    expression: Box::new(expression_access),
-                    vertical_bar: vertical_bar.source().clone(),
-                    cow_prefix: cow_prefix.map(|token| token.source().clone()),
-                    arguments,
-                    source: source.clone(),
-                },
-                fields: Vec::new(),
+            expression = Expression::Filter {
+                name,
+                expression: Box::new(expression),
+                vertical_bar: vertical_bar.source().clone(),
+                cow_prefix: cow_prefix.map(|token| token.source().clone()),
+                arguments,
+                source: source.clone(),
             }
         }
 
-        Ok((tokens, expression_access.expression))
+        Ok((tokens, expression))
     }
 }
 

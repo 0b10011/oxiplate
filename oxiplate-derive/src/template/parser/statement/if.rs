@@ -5,7 +5,7 @@ use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
 use crate::parser::{Parser as _, cut, opt, take};
-use crate::template::parser::expression::{ExpressionAccess, KeywordParser};
+use crate::template::parser::expression::{Expression, KeywordParser};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::template::Template;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
@@ -13,8 +13,8 @@ use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
 pub(crate) enum IfType<'a> {
-    If(ExpressionAccess<'a>),
-    IfLet(Pattern<'a>, Box<ExpressionAccess<'a>>),
+    If(Expression<'a>),
+    IfLet(Pattern<'a>, Box<Expression<'a>>),
 }
 
 #[derive(Debug)]
