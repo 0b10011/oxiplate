@@ -152,10 +152,18 @@ pub fn consume_ident<'a>(
         .expect("Buffer should contain at least one character");
 
     let kind = match source.as_str() {
-        "true" => TokenKind::Bool(true),
-        "false" => TokenKind::Bool(false),
-        _ => TokenKind::Ident,
+        "true" => Ok(TokenKind::Bool(true)),
+        "false" => Ok(TokenKind::Bool(false)),
+        "oxiplate_formatter" => Err("`oxiplate_formatter` is a reserved name"),
+        "self" => Err("`self` is a reserved keyword"),
+        "super" => Err("`super` is a reserved keyword"),
+        _ => Ok(TokenKind::Ident),
     };
 
-    (None, Ok(Token::new(kind, &source, leading_whitespace)))
+    let token = match kind {
+        Ok(kind) => Ok(Token::new(kind, &source, leading_whitespace)),
+        Err(message) => Err(UnexpectedTokenError::new(message, source)),
+    };
+
+    (None, token)
 }

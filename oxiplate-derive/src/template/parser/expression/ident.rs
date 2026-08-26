@@ -3,7 +3,6 @@ use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
 use crate::parser::{Parser as _, opt, take};
-use crate::template::parser::Error;
 use crate::template::parser::expression::arguments::{ArgumentsGroup, arguments};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
@@ -30,21 +29,7 @@ impl<'a> Identifier<'a> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
         let source = token.source();
 
-        let error_message = match source.as_str() {
-            "oxiplate_formatter" => "`oxiplate_formatter` is a reserved name",
-            "self" => "`self` is a reserved keyword",
-            "super" => "`super` is a reserved keyword",
-            _ => {
-                return Ok((tokens, Self { source }));
-            }
-        };
-
-        Err(Error::Unrecoverable {
-            message: error_message.to_string(),
-            source: source.clone(),
-            previous_error: None,
-            is_eof: false,
-        })
+        Ok((tokens, Self { source }))
     }
 
     pub fn as_str(&self) -> &'a str {
