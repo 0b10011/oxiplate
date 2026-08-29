@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::{Expression, Res, expression};
-use crate::parser::{Parser as _, context, many1, opt, take};
+use crate::parser::{Parser as _, context, ignore_all_errors, many1, take};
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
@@ -22,7 +22,7 @@ impl<'a> Tuple<'a> {
             ),
             // Last tuple item doesn't need a comma after it,
             // but the first one does.
-            opt(TupleItem::parse(false)),
+            ignore_all_errors(TupleItem::parse(false)),
             context(
                 "Expected `)` after tuple item",
                 take(TokenKind::CloseParenthese),
@@ -77,7 +77,7 @@ impl<'a> TupleItem<'a> {
         move |tokens| {
             let (tokens, (expression, comma)) = if require_comma {
                 let (tokens, (expression, comma)) = (
-                    context("Expected an expression", expression(true, true)),
+                    context("Expected an expression", expression(true)),
                     context("Expected `,` after expression", take(TokenKind::Comma)),
                 )
                     .parse(tokens)?;
@@ -85,8 +85,8 @@ impl<'a> TupleItem<'a> {
                 (tokens, (expression, Some(comma)))
             } else {
                 (
-                    context("Expected an expression", expression(true, true)),
-                    opt(take(TokenKind::Comma)),
+                    context("Expected an expression", expression(true)),
+                    ignore_all_errors(take(TokenKind::Comma)),
                 )
                     .parse(tokens)?
             };

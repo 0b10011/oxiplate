@@ -2,44 +2,36 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, context, fail, many1, opt, take};
+use crate::parser::{Parser as _, ignore_all_errors, many1, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::arguments::arguments;
 use crate::template::parser::expression::ident::IdentifierOrFunction;
-use crate::template::parser::expression::{Expression, Identifier, expression};
+use crate::template::parser::expression::{Expression, Identifier, NestedExpression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 /// A field or method.
 #[derive(Debug)]
 pub struct FieldOrMethod<'a> {
-    expression: Box<Expression<'a>>,
+    pub(super) expression: Box<Expression<'a>>,
     fields: Vec<Field<'a>>,
 }
 
 impl<'a> FieldOrMethod<'a> {
     /// Parse a field or method.
-    pub fn parser(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Self> + 'a {
-        move |tokens| {
-            if !allow_generic_nesting {
-                return context(
-                    "Generic nesting of field or method not allowed in this context",
-                    fail(),
-                )
-                .parse(tokens);
-            }
+    pub fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+        let (tokens, fields) = many1(Field::parse).parse(tokens)?;
 
-            let (tokens, (expression, fields)) =
-                (expression(false, true), many1(Field::parse)).parse(tokens)?;
-
-            Ok((
-                tokens,
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
                 Self {
                     expression: Box::new(expression),
                     fields,
-                },
-            ))
-        }
+                }
+                .into()
+            }),
+        ))
     }
 
     /// Source for the entire group, including the parentheses.
@@ -80,8 +72,12 @@ pub(crate) struct Field<'a> {
 
 impl<'a> Field<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (dot, ident, arguments)) =
-            (take(TokenKind::Period), Identifier::parse, opt(arguments)).parse(tokens)?;
+        let (tokens, (dot, ident, arguments)) = (
+            take(TokenKind::Period),
+            Identifier::parse,
+            ignore_all_errors(arguments),
+        )
+            .parse(tokens)?;
 
         let ident_or_fn = if let Some(arguments) = arguments {
             IdentifierOrFunction::Function(ident, arguments)

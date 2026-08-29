@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::Pattern;
-use crate::parser::{Parser as _, alt, into, opt, take};
+use crate::parser::{Parser as _, alt, ignore_all_errors, into, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{Char, Float, Integer, Number};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
@@ -63,7 +63,7 @@ impl<'a> Range<'a> {
         let (tokens, (from, operator, to)) = (
             Value::parse,
             take(TokenKind::RangeExclusive),
-            opt(Value::parse),
+            ignore_all_errors(Value::parse),
         )
             .parse(tokens)?;
 

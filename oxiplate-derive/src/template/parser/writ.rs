@@ -10,7 +10,7 @@ use super::Item;
 use super::expression::{Expression, Identifier, expression};
 use super::item::tag_end;
 use crate::config::EscaperGroup;
-use crate::parser::{Parser as _, cut, opt, take};
+use crate::parser::{Parser as _, cut, ignore_all_errors, take};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
@@ -348,8 +348,8 @@ pub(super) fn writ<'a>(
     open_tag_source: Source<'a>,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
     move |tokens| {
-        let (tokens, escaper_info) = opt((
-            opt((Identifier::parse, take(TokenKind::Period))),
+        let (tokens, escaper_info) = ignore_all_errors((
+            ignore_all_errors((Identifier::parse, take(TokenKind::Period))),
             Identifier::parse,
             take(TokenKind::Colon),
         ))
@@ -374,8 +374,7 @@ pub(super) fn writ<'a>(
             escaper,
         });
 
-        let (tokens, output) =
-            cut("Expected an expression.", expression(true, true)).parse(tokens)?;
+        let (tokens, output) = cut("Expected an expression.", expression(true)).parse(tokens)?;
         let (tokens, (trailing_whitespace, end_tag)) = cut(
             "Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
             tag_end(TagKind::Writ),

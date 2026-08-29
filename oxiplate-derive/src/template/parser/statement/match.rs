@@ -5,7 +5,7 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut, many0, opt, take};
+use crate::parser::{Parser as _, cut, ignore_all_errors, many0, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{Expression, KeywordParser, expression};
 use crate::template::parser::statement::helpers::pattern::Pattern;
@@ -98,10 +98,7 @@ impl<'a> Match<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
         let (tokens, (statement, expression)) = (
             KeywordParser::new("match"),
-            cut(
-                r#"Expected an expression after "match""#,
-                expression(true, true),
-            ),
+            cut(r#"Expected an expression after "match""#, expression(true)),
         )
             .parse(tokens)?;
 
@@ -154,7 +151,7 @@ impl<'a> Case<'a> {
                 (
                     Pattern::parse,
                     many0((take(TokenKind::VerticalBar), Pattern::parse)),
-                    opt(Guard::parse),
+                    ignore_all_errors(Guard::parse),
                 ),
             ),
         )
@@ -252,7 +249,7 @@ impl<'a> Guard<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (if_tag, expression)) = (
             KeywordParser::new("if"),
-            cut("Expected expression after `if`", expression(true, true)),
+            cut("Expected expression after `if`", expression(true)),
         )
             .parse(tokens)?;
 

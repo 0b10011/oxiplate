@@ -4,7 +4,7 @@ use quote::{TokenStreamExt, quote};
 use super::super::expression::expression;
 use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut, opt, take};
+use crate::parser::{Parser as _, cut, ignore_all_errors, take};
 use crate::template::parser::expression::{Expression, KeywordParser};
 use crate::template::parser::statement::helpers::pattern::Pattern;
 use crate::template::parser::template::Template;
@@ -189,13 +189,13 @@ pub(super) fn parse_if(tokens: TokenSlice) -> Res<Statement> {
 }
 
 fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
-    let (tokens, keyword) = opt(KeywordParser::new("let")).parse(tokens)?;
+    let (tokens, keyword) = ignore_all_errors(KeywordParser::new("let")).parse(tokens)?;
 
     if let Some(keyword) = keyword {
         let (tokens, (pattern, equal, expression)) = (
             cut(r#"Expected a pattern after "let""#, Pattern::parse),
             cut("Expected `=`", take(TokenKind::Equal)),
-            cut("Expected an expression after `=`", expression(true, true)),
+            cut("Expected an expression after `=`", expression(true)),
         )
             .parse(tokens)?;
 
@@ -212,7 +212,7 @@ fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
         ))
     } else {
         let (tokens, output) =
-            cut("Expected an expression after `if`", expression(true, true)).parse(tokens)?;
+            cut("Expected an expression after `if`", expression(true)).parse(tokens)?;
 
         let source = output.source().clone();
 

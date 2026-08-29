@@ -23,7 +23,7 @@ impl<'a> Group<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (open, expression, close)) = (
             take(TokenKind::OpenParenthese),
-            context("Expected an expression", expression(true, true)),
+            context("Expected an expression", expression(true)),
             context(
                 "Expected `)` after expression",
                 take(TokenKind::CloseParenthese),

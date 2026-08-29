@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote_spanned};
 
 use super::Pattern;
-use crate::parser::{Parser as _, cut, many1, opt, take};
+use crate::parser::{Parser as _, context, cut, ignore_all_errors, many1, take};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{Source, State};
@@ -26,12 +26,12 @@ impl<'a> Tuple<'a> {
             take(TokenKind::OpenParenthese),
             (
                 many1((
-                    cut("Expected a pattern", Pattern::parse),
-                    cut("Expected `,`", take(TokenKind::Comma)),
+                    context("Expected a pattern", Pattern::parse),
+                    context("Expected `,`", take(TokenKind::Comma)),
                 )),
-                opt((
+                ignore_all_errors((
                     cut("Expected a pattern", Pattern::parse),
-                    opt(cut("Expected `,`", take(TokenKind::Comma))),
+                    ignore_all_errors(cut("Expected `,`", take(TokenKind::Comma))),
                 )),
                 cut("Expected `)`", take(TokenKind::CloseParenthese)),
             ),

@@ -1,3 +1,5 @@
+use std::mem;
+
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
@@ -22,16 +24,23 @@ use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{Parser as _, alt, context, cut, fail, into, many1, opt, take};
+use crate::parser::{Parser as _, alt, cut, ignore_all_errors, into, many0, take};
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
-use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
-#[derive(Debug)]
+type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
+
+#[derive(Debug, Default)]
 pub(crate) enum Expression<'a> {
-    Identifier(IdentifierOrFunction<'a>),
+    /// Placeholder expression used during precedence fixing.
+    /// Will generate a compile error if not replaced.
+    #[default]
+    Placeholder,
+
+    IdentifierOrFunction(IdentifierOrFunction<'a>),
     Char(Char<'a>),
     String(String<'a>),
     Integer(Integer<'a>),
@@ -44,13 +53,11 @@ pub(crate) enum Expression<'a> {
         left: Box<Expression<'a>>,
         operator: Operator<'a>,
         right: Box<Option<Expression<'a>>>,
-        source: Source<'a>,
     },
     Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
     Cow {
         prefix: Source<'a>,
         expression: Box<Expression<'a>>,
-        source: Source<'a>,
     },
 
     /// `..` that represents a range
@@ -78,7 +85,6 @@ pub(crate) enum Expression<'a> {
         vertical_bar: Source<'a>,
         cow_prefix: Option<Source<'a>>,
         arguments: Option<ArgumentsGroup<'a>>,
-        source: Source<'a>,
     },
 
     /// `expr.field` or `expr.method(args)`
@@ -86,9 +92,234 @@ pub(crate) enum Expression<'a> {
 }
 
 impl<'a> Expression<'a> {
+    /// Fix expression precedence.
+    pub(self) fn fix_precedence(&mut self) {
+        match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled a"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => (),
+
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.fix_precedence(),
+            Self::Filter { expression, .. } => expression.fix_precedence(),
+            Self::FieldOrMethod(field_or_method) => {
+                field_or_method.expression.as_mut().fix_precedence();
+            }
+            Self::Concat(concat) => concat.left.fix_precedence(),
+        }
+
+        if self.needs_precedence_fixed() {
+            let Some(mut left) = self.take_left() else {
+                return;
+            };
+
+            let Some(mut lefts_right) = left.take_right() else {
+                self.give_left(&mut left);
+                return;
+            };
+
+            lefts_right.fix_precedence();
+            self.give_left(&mut lefts_right);
+            left.give_right(self);
+            mem::swap(&mut left, self);
+        }
+    }
+
+    fn needs_precedence_fixed(&self) -> bool {
+        let left = match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled b"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => return false,
+
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left,
+            Self::Filter { expression, .. } => expression,
+            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_ref(),
+            Self::Concat(concat) => concat.left.as_ref(),
+        };
+
+        left.precedence() < self.precedence()
+    }
+
+    fn take_left(&mut self) -> Option<Expression<'a>> {
+        match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled c"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => None,
+
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => Some(mem::take(left)),
+            Self::Filter { expression, .. } => Some(mem::take(expression)),
+            Self::FieldOrMethod(field_or_method) => {
+                Some(mem::take(&mut field_or_method.expression))
+            }
+            Self::Concat(concat) => Some(concat.take_left()),
+        }
+    }
+
+    fn give_left(&mut self, new_left: &mut Expression<'a>) {
+        let placeholder_left = match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled d"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => {
+                unreachable!("Only placeholder expressions should ever be overwritten")
+            }
+
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.as_mut(),
+            Self::Filter { expression, .. } => expression.as_mut(),
+            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_mut(),
+            Self::Concat(concat) => concat.left.as_mut(),
+        };
+
+        if !matches!(placeholder_left, Self::Placeholder) {
+            unreachable!("Only placeholder expressions should ever be overwritten");
+        }
+
+        mem::swap(placeholder_left, new_left);
+    }
+
+    fn take_right(&mut self) -> Option<Expression<'a>> {
+        match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled e"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::Index(_, _, _, _)
+            | Self::Filter { .. }
+            | Self::IdentifierOrFunction(_)
+            | Self::FieldOrMethod(_) => None,
+
+            Self::Concat(concat) => Some(concat.take_right()),
+            Self::Calc { right, .. } => match right.as_mut() {
+                Some(right) => Some(mem::take(right)),
+                None => None,
+            },
+            Self::Prefixed(_, right) => Some(mem::take(right)),
+            Self::Cow { expression, .. } => Some(mem::take(expression)),
+        }
+    }
+
+    fn give_right(&mut self, new_right: &mut Expression<'a>) {
+        let placeholder_right = match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled f"),
+
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::Index(_, _, _, _)
+            | Self::Filter { .. }
+            | Self::IdentifierOrFunction(_)
+            | Self::FieldOrMethod(_) => {
+                unreachable!("Only placeholder expressions should ever be overwritten")
+            }
+
+            Self::Concat(concat) => match concat.concats.last_mut() {
+                Some((_tilde, last)) => last,
+                None => unreachable!("Concats should have at least 2 expressions"),
+            },
+            Self::Calc { right, .. } => match right.as_mut() {
+                Some(right) => right,
+                None => unreachable!("Only placeholder expressions should ever be overwritten"),
+            },
+            Self::Prefixed(_, right) => right,
+            Self::Cow { expression, .. } => expression,
+        };
+
+        if !matches!(placeholder_right, Self::Placeholder) {
+            unreachable!("Only placeholder expressions should ever be overwritten");
+        }
+
+        mem::swap(placeholder_right, new_right);
+    }
+
+    /// Expression precedence.
+    fn precedence(&self) -> u8 {
+        match self {
+            Self::Placeholder => todo!("Placeholder expression not yet handled g"),
+
+            // Rust expressions are assumed to be the same precedence
+            // to let Rust handle the details.
+            Self::FieldOrMethod(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Index(_, _, _, _)
+            | Self::Calc { .. }
+            | Self::Prefixed(_, _) => u8::MAX,
+
+            // Oxiplate expressions
+            Self::Concat(_) => 3,
+            Self::Cow { .. } => 2,
+
+            // Filters should always be handled last.
+            Self::Filter { .. } => 1,
+
+            // These expressions only contain a single operand
+            // so the actual precedence value doesn't really matter.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::FullRange { .. } => 0,
+        }
+    }
+
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
-            Expression::Identifier(identifier) => match &identifier {
+            Expression::Placeholder => (
+                quote! { compile_error!("Placeholder expression was never replaced.") },
+                0,
+            ),
+            Expression::IdentifierOrFunction(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.source().span_token();
                     if state.local_variables.contains(identifier.as_str()) {
@@ -175,7 +406,6 @@ impl<'a> Expression<'a> {
                 vertical_bar,
                 cow_prefix,
                 arguments,
-                source,
             } => Self::filter(
                 state,
                 name,
@@ -183,7 +413,7 @@ impl<'a> Expression<'a> {
                 vertical_bar,
                 cow_prefix.as_ref(),
                 arguments.as_ref(),
-                source,
+                &self.source(),
             ),
             Expression::FieldOrMethod(field_or_method) => field_or_method.to_tokens(state),
         }
@@ -203,7 +433,9 @@ impl<'a> Expression<'a> {
         let mut argument_tokens = expression;
 
         let arguments = if let Some(arguments) = arguments {
-            if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
+            if let Some((first_argument, remaining_arguments, _trailing_comma)) =
+                &arguments.arguments
+            {
                 // First argument
                 let comma_span = vertical_bar.span_token();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
@@ -266,16 +498,51 @@ impl<'a> Expression<'a> {
     /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
-            Expression::Identifier(identifier_or_function) => identifier_or_function.source(),
+            Expression::Placeholder => todo!("Placeholder not yet handled h"),
+            Expression::IdentifierOrFunction(identifier_or_function) => {
+                identifier_or_function.source()
+            }
             Expression::Char(value) => value.source().clone(),
             Expression::String(value) => value.source().clone(),
             Expression::Integer(value) => value.source().clone(),
             Expression::Float(value) => value.source().clone(),
             Expression::Bool(value) => value.source().clone(),
-            Expression::Calc { source, .. }
-            | Expression::FullRange { source, .. }
-            | Expression::Filter { source, .. }
-            | Expression::Cow { source, .. } => source.clone(),
+            Expression::Calc {
+                left,
+                operator,
+                right,
+            } => {
+                if let Some(right) = right.as_ref() {
+                    left.source()
+                        .merge(operator.source(), "Operator should follow whitespace")
+                        .merge(&right.source(), "Right expression should follow whitespace")
+                } else {
+                    left.source()
+                        .merge(operator.source(), "Operator should follow left expression")
+                }
+            }
+            Expression::FullRange { source, .. } => source.clone(),
+            Expression::Filter {
+                name,
+                expression,
+                vertical_bar,
+                cow_prefix,
+                arguments,
+            } => expression
+                .source()
+                .merge(
+                    vertical_bar,
+                    "Vertical bar should follow leading whitespace",
+                )
+                .merge_some(cow_prefix.as_ref(), "Cow prefix should follow whitespace")
+                .merge(name.source(), "Filter name should follow whitespace")
+                .merge_some(
+                    arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
+                    "Arguments should follow trailing whitespace",
+                ),
+            Expression::Cow { prefix, expression } => prefix
+                .clone()
+                .merge(&expression.source(), "Expression should follow whitespace"),
             Expression::Group(group) => group.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source().clone(),
@@ -294,75 +561,62 @@ impl<'a> Expression<'a> {
 }
 
 pub(super) fn expression<'a>(
-    allow_generic_nesting: bool,
-    allow_concat_nesting: bool,
+    allow_nesting: bool,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
     move |tokens| {
-        let (tokens, expression) = alt((
-            filters(allow_generic_nesting),
-            Concat::parser(allow_concat_nesting),
-            calc(allow_generic_nesting),
-            index(allow_generic_nesting),
-            into(FieldOrMethod::parser(allow_generic_nesting)),
+        let (tokens, mut expression) = alt((
             parse_cow_prefix,
             into(Char::parse),
             into(String::parse),
             into(Number::parse),
             into(Bool::parse),
             identifier,
-            parse_prefixed_expression(allow_generic_nesting),
+            parse_prefixed_expression,
             into(Group::parse),
             Tuple::parse,
             full_range,
         ))
         .parse(tokens)?;
 
+        if !allow_nesting {
+            return Ok((tokens, expression));
+        }
+
+        let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) = many0(
+            alt((filters, Concat::parser, calc, index, FieldOrMethod::parser)),
+        )
+        .parse(tokens)?;
+
+        for callback in expression_callbacks {
+            expression = callback(expression);
+        }
+
+        expression.fix_precedence();
+
         Ok((tokens, expression))
     }
 }
 
-fn calc<'a>(
-    allow_generic_nesting: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> + 'a {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of calc not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
+fn calc<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, operator) = parse_operator.parse(tokens)?;
+
+    let (tokens, right) = if operator.requires_expression_after() {
+        let (tokens, expression) =
+            cut("Expected an expression", expression(false)).parse(tokens)?;
+        (tokens, Some(expression))
+    } else {
+        ignore_all_errors(expression(false)).parse(tokens)?
+    };
+
+    let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
+        Expression::Calc {
+            left: Box::new(left),
+            operator,
+            right: Box::new(right),
         }
+    });
 
-        let (tokens, (left, operator)) =
-            (expression(false, false), parse_operator).parse(tokens)?;
-
-        let (tokens, right) = if operator.requires_expression_after() {
-            let (tokens, expression) =
-                cut("Expected an expression", expression(true, true)).parse(tokens)?;
-            (tokens, Some(expression))
-        } else {
-            opt(expression(true, true)).parse(tokens)?
-        };
-
-        let source = if let Some(right) = &right {
-            left.source()
-                .merge(operator.source(), "Operator should follow whitespace")
-                .merge(&right.source(), "Right expression should follow whitespace")
-        } else {
-            left.source()
-                .merge(operator.source(), "Operator should follow left expression")
-        };
-
-        Ok((
-            tokens,
-            Expression::Calc {
-                left: Box::new(left),
-                operator,
-                right: Box::new(right),
-                source,
-            },
-        ))
-    }
+    Ok((tokens, callback))
 }
 
 /// Parses a full range expression (`..`).
@@ -380,112 +634,62 @@ fn full_range(tokens: TokenSlice) -> Res<Expression> {
 
 /// Parses an index expression (`expr[expr]`).
 /// See: <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
-fn index<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of index not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
-        }
+fn index<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, (open, (range, close))) = (
+        take(TokenKind::OpenBracket),
+        cut(
+            "Expected an expression",
+            (expression(true), take(TokenKind::CloseBracket)),
+        ),
+    )
+        .parse(tokens)?;
 
-        let (tokens, (expression, open, (range, close))) = (
-            expression(false, false),
-            take(TokenKind::OpenBracket),
-            cut(
-                "Expected an expression",
-                (expression(true, true), take(TokenKind::CloseBracket)),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
+    Ok((
+        tokens,
+        Box::new(|expression: Expression<'a>| {
             Expression::Index(
                 Box::new(expression),
                 open.source().clone(),
                 Box::new(range),
                 close.source().clone(),
-            ),
-        ))
-    }
+            )
+        }),
+    ))
 }
 
 /// Parses filters (`expr | filter()`).
-fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of filters not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
-        }
+fn filters<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
+        take(TokenKind::VerticalBar),
+        ignore_all_errors(take(TokenKind::GreaterThan)),
+        cut("Expected a filter name", Identifier::parse),
+        ignore_all_errors(arguments),
+    )
+        .parse(tokens)?;
 
-        let (tokens, (mut expression, filters)) = (
-            expression(false, false),
-            many1((
-                take(TokenKind::VerticalBar),
-                opt(take(TokenKind::GreaterThan)),
-                cut("Expected a filter name", Identifier::parse),
-                opt(arguments),
-            )),
-        )
-            .parse(tokens)?;
+    let callback = Box::new(move |expression: Expression<'a>| Expression::Filter {
+        name,
+        expression: Box::new(expression),
+        vertical_bar: vertical_bar.source().clone(),
+        cow_prefix: cow_prefix.map(|token| token.source().clone()),
+        arguments,
+    });
 
-        let mut source = expression.source();
-        for (vertical_bar, cow_prefix, name, arguments) in filters {
-            source = source
-                .merge(
-                    vertical_bar.source(),
-                    "Vertical bar should follow leading whitespace",
-                )
-                .merge_some(
-                    cow_prefix.map(Token::source),
-                    "Cow prefix should follow whitespace",
-                )
-                .merge(name.source(), "Filter name should follow whitespace")
-                .merge_some(
-                    arguments.as_ref().map(ArgumentsGroup::source),
-                    "Arguments should follow trailing whitespace",
-                );
-
-            expression = Expression::Filter {
-                name,
-                expression: Box::new(expression),
-                vertical_bar: vertical_bar.source().clone(),
-                cow_prefix: cow_prefix.map(|token| token.source().clone()),
-                arguments,
-                source: source.clone(),
-            }
-        }
-
-        Ok((tokens, expression))
-    }
+    Ok((tokens, callback))
 }
 
 fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
     let (tokens, (prefix, expression)) = (
         take(TokenKind::GreaterThan),
-        cut(
-            "Expected an expression after cow prefix",
-            expression(false, false),
-        ),
+        cut("Expected an expression after cow prefix", expression(false)),
     )
         .parse(tokens)?;
-
-    let source = prefix
-        .source()
-        .clone()
-        .merge(&expression.source(), "Expression should follow whitespace");
 
     Ok((
         tokens,
         Expression::Cow {
             prefix: prefix.source().clone(),
             expression: Box::new(expression),
-            source,
         },
     ))
 }

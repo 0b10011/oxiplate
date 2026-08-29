@@ -6,7 +6,7 @@ use super::statement::statement;
 use super::r#static::StaticType;
 use super::writ::writ;
 use super::{Statement, Static, Writ};
-use crate::parser::{Error, Parser as _, cut, opt, take};
+use crate::parser::{Error, Parser as _, cut, ignore_all_errors, take};
 use crate::template::parser::Res;
 use crate::template::parser::statement::StatementKind;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
@@ -171,8 +171,11 @@ pub(crate) fn parse_tag(tokens: TokenSlice) -> Res<Vec<Item>> {
 }
 
 pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Source)> {
-    let (tokens, (leading_whitespace, open)) =
-        (opt(take(TokenKind::StaticWhitespace)), tag_open).parse(tokens)?;
+    let (tokens, (leading_whitespace, open)) = (
+        ignore_all_errors(take(TokenKind::StaticWhitespace)),
+        tag_open,
+    )
+        .parse(tokens)?;
 
     let (whitespace, removed_whitespace) = match open.whitespace_preference {
         WhitespacePreference::Replace => {
@@ -232,7 +235,7 @@ pub(super) fn parse_trailing_whitespace<'a>(
         let peek_tokens = tokens.clone();
 
         let (peek_tokens, trailing_whitespace) =
-            opt(take(TokenKind::StaticWhitespace)).parse(peek_tokens)?;
+            ignore_all_errors(take(TokenKind::StaticWhitespace)).parse(peek_tokens)?;
 
         let next_token = match peek_tokens.take() {
             Ok((_peek_tokens, next_token)) => Some(next_token),
@@ -287,7 +290,7 @@ pub(super) fn parse_trailing_whitespace<'a>(
         match whitespace_preference {
             WhitespacePreference::Replace => {
                 let (tokens, trailing_whitespace) =
-                    opt(take(TokenKind::StaticWhitespace)).parse(tokens)?;
+                    ignore_all_errors(take(TokenKind::StaticWhitespace)).parse(tokens)?;
 
                 let item = if let Some(trailing_whitespace) = trailing_whitespace {
                     Item::Whitespace(Static(" ", trailing_whitespace.source().clone()))
@@ -310,7 +313,7 @@ pub(super) fn parse_trailing_whitespace<'a>(
             }
             WhitespacePreference::Remove => {
                 let (tokens, trailing_whitespace) =
-                    opt(take(TokenKind::StaticWhitespace)).parse(tokens)?;
+                    ignore_all_errors(take(TokenKind::StaticWhitespace)).parse(tokens)?;
                 Ok((
                     tokens,
                     trailing_whitespace.map(|whitespace| {

@@ -2,13 +2,14 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
-use crate::parser::{Parser as _, opt, take};
+use crate::parser::{Parser as _, ignore_all_errors, take};
 use crate::template::parser::expression::arguments::{ArgumentsGroup, arguments};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
-    let (tokens, (ident, arguments)) = (Identifier::parse, opt(arguments)).parse(tokens)?;
+    let (tokens, (ident, arguments)) =
+        (Identifier::parse, ignore_all_errors(arguments)).parse(tokens)?;
 
     let field = if let Some(arguments) = arguments {
         IdentifierOrFunction::Function(ident, arguments)
@@ -16,7 +17,7 @@ pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
         IdentifierOrFunction::Identifier(ident)
     };
 
-    Ok((tokens, Expression::Identifier(field)))
+    Ok((tokens, Expression::IdentifierOrFunction(field)))
 }
 
 #[derive(Debug)]
@@ -94,7 +95,7 @@ impl<'a> IdentifierOrFunction<'a> {
             IdentifierOrFunction::Identifier(identifier) => identifier.source().clone(),
             IdentifierOrFunction::Function(identifier, arguments_group) => {
                 identifier.source().clone().merge(
-                    arguments_group.source(),
+                    &arguments_group.source(),
                     "Arguments group should immediately follow the function name",
                 )
             }

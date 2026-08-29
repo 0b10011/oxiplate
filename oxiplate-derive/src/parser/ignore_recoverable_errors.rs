@@ -3,26 +3,27 @@ use std::marker::PhantomData;
 
 use super::{Parser, Res, TokenSlice};
 
-/// Builds a parser that matches the provided parser 0 or 1 times.
+/// Builds a parser that matches the provided parser
+/// while ignoring recoverable errors.
 ///
 /// ```rust,ignore
-/// let (tokens, token) = opt(
+/// let (tokens, token) = ignore_all_errors(
 ///     take(TokenKind::StaticText),
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn opt<'a, K, P>(parser: P) -> Opt<'a, K, P>
+pub fn ignore_recoverable_errors<'a, K, P>(parser: P) -> IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
 {
-    Opt {
+    IgnoreRecoverableErrors {
         parser,
         phantom_data: PhantomData,
     }
 }
 
-pub struct Opt<'a, K, P>
+pub struct IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -31,7 +32,7 @@ where
     phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, K, P> Parser<'a, K> for Opt<'a, K, P>
+impl<'a, K, P> Parser<'a, K> for IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -41,7 +42,8 @@ where
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens.clone()) {
             Ok((tokens, output)) => Ok((tokens, Some(output))),
-            Err(_) => Ok((tokens, None)),
+            Err(err) if err.is_recoverable() => Ok((tokens, None)),
+            Err(err) => Err(err),
         }
     }
 }
