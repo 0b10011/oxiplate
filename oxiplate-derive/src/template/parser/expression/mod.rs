@@ -31,7 +31,7 @@ use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) enum Expression<'a> {
-    Identifier(IdentifierOrFunction<'a>),
+    IdentifierOrFunction(IdentifierOrFunction<'a>),
     Char(Char<'a>),
     String(String<'a>),
     Integer(Integer<'a>),
@@ -88,7 +88,7 @@ pub(crate) enum Expression<'a> {
 impl<'a> Expression<'a> {
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
-            Expression::Identifier(identifier) => match &identifier {
+            Expression::IdentifierOrFunction(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.source().span_token();
                     if state.local_variables.contains(identifier.as_str()) {
@@ -266,7 +266,9 @@ impl<'a> Expression<'a> {
     /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
-            Expression::Identifier(identifier_or_function) => identifier_or_function.source(),
+            Expression::IdentifierOrFunction(identifier_or_function) => {
+                identifier_or_function.source()
+            }
             Expression::Char(value) => value.source().clone(),
             Expression::String(value) => value.source().clone(),
             Expression::Integer(value) => value.source().clone(),

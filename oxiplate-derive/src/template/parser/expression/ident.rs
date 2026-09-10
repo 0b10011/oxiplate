@@ -16,7 +16,7 @@ pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
         IdentifierOrFunction::Identifier(ident)
     };
 
-    Ok((tokens, Expression::Identifier(field)))
+    Ok((tokens, Expression::IdentifierOrFunction(field)))
 }
 
 #[derive(Debug)]
