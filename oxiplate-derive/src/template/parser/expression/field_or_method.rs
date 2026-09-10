@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, context, fail, many1, opt, take};
+use crate::parser::{Parser as _, context, fail, ignore_recoverable_errors, many1, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::arguments::arguments;
 use crate::template::parser::expression::ident::IdentifierOrFunction;
@@ -80,8 +80,12 @@ pub(crate) struct Field<'a> {
 
 impl<'a> Field<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (dot, ident, arguments)) =
-            (take(TokenKind::Period), Identifier::parse, opt(arguments)).parse(tokens)?;
+        let (tokens, (dot, ident, arguments)) = (
+            take(TokenKind::Period),
+            Identifier::parse,
+            ignore_recoverable_errors(arguments),
+        )
+            .parse(tokens)?;
 
         let ident_or_fn = if let Some(arguments) = arguments {
             IdentifierOrFunction::Function(ident, arguments)

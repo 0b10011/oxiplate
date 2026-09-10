@@ -5,7 +5,7 @@ use quote::{TokenStreamExt, quote, quote_spanned};
 
 use super::super::Item;
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut, many0, opt, take};
+use crate::parser::{Parser as _, cut, ignore_recoverable_errors, many0, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{Expression, KeywordParser, expression};
 use crate::template::parser::statement::helpers::pattern::Pattern;
@@ -154,7 +154,7 @@ impl<'a> Case<'a> {
                 (
                     Pattern::parse,
                     many0((take(TokenKind::VerticalBar), Pattern::parse)),
-                    opt(Guard::parse),
+                    ignore_recoverable_errors(Guard::parse),
                 ),
             ),
         )

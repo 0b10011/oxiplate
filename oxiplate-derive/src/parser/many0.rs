@@ -40,9 +40,15 @@ where
 
     fn parse(&self, mut tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         let mut values = vec![];
-        while let Ok((remaining_tokens, output)) = self.parser.parse(tokens.clone()) {
-            tokens = remaining_tokens;
-            values.push(output);
+        loop {
+            match self.parser.parse(tokens.clone()) {
+                Ok((remaining_tokens, output)) => {
+                    tokens = remaining_tokens;
+                    values.push(output);
+                }
+                Err(err) if err.is_recoverable() => break,
+                Err(err) => return Err(err),
+            }
         }
 
         Ok((tokens, values))

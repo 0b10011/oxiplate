@@ -46,14 +46,12 @@ where
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens) {
-            Err(err @ (Error::Recoverable { .. } | Error::Multiple(_))) => {
-                Err(Error::Unrecoverable {
-                    message: self.message.to_string(),
-                    source: err.source().clone(),
-                    is_eof: err.is_eof(),
-                    previous_error: Some(Box::new(err)),
-                })
-            }
+            Err(err) if err.is_recoverable() => Err(Error::Unrecoverable {
+                message: self.message.to_string(),
+                source: err.source().clone(),
+                is_eof: err.is_eof(),
+                previous_error: Some(Box::new(err)),
+            }),
             result => result,
         }
     }

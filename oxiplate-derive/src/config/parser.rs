@@ -3,7 +3,9 @@ use std::mem;
 
 use crate::config::tokenizer::TokenKind;
 use crate::config::{Config, EscaperGroup, InferEscaperGroupFromFileExtension, Token, TokenSlice};
-use crate::parser::{Error, Parser as _, alt, cut, into, many0, opt, parse_all, take};
+use crate::parser::{
+    Error, Parser as _, alt, cut, ignore_recoverable_errors, into, many0, parse_all, take,
+};
 use crate::{OptimizedRenderer, Source};
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
@@ -378,7 +380,7 @@ impl<'a> Item<'a> {
             into(string),
             cut("`=` expected after key", take(TokenKind::Equal)),
             cut("Boolean or string value expected after `=`", value),
-            opt(take(TokenKind::Comment)),
+            ignore_recoverable_errors(take(TokenKind::Comment)),
             cut(
                 "Newline or end of file expected after expression",
                 newline_or_eof,

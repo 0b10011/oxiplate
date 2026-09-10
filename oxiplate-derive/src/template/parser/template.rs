@@ -6,7 +6,7 @@ use super::r#static::parse_static;
 use super::{Item, Static};
 #[cfg(coverage_nightly)]
 use crate::Source;
-use crate::parser::{Parser as _, alt, opt, parse_all, take};
+use crate::parser::{Parser as _, alt, ignore_recoverable_errors, parse_all, take};
 use crate::template::parser::Res;
 use crate::template::parser::item::parse_trailing_whitespace;
 use crate::template::tokenizer::{TokenKind, TokenSlice, WhitespacePreference};
@@ -112,7 +112,7 @@ pub(crate) fn parse_item(tokens: TokenSlice) -> Res<Vec<Item>> {
 
 pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
     let (tokens, (leading_whitespace, tag)) = (
-        opt(take(TokenKind::StaticWhitespace)),
+        ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
         alt((
             take(TokenKind::WhitespaceAdjustmentTag {
                 whitespace_preference: WhitespacePreference::Remove,
