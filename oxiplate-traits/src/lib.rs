@@ -38,7 +38,6 @@ pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 ///     }
 /// }
 ///
-/// # #[allow(clippy::test_attr_in_doctest)]
 /// #[test]
 /// # fn test_doesnt_run() {}
 /// fn str() {
@@ -46,7 +45,6 @@ pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 /// }
 /// # str();
 ///
-/// # #[allow(clippy::test_attr_in_doctest)]
 /// #[test]
 /// # fn test_doesnt_run_2() {}
 /// fn string() {
@@ -58,6 +56,7 @@ pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 /// # string();
 /// ```
 #[macro_export]
+#[allow(clippy::test_attr_in_doctest)]
 macro_rules! cow_str_wrapper {
     ($expr:expr) => {
         ::oxiplate_traits::CowStrWrapper::new(
