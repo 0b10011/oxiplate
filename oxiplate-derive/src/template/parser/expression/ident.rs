@@ -2,14 +2,14 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
 
 use super::{Expression, Res};
-use crate::parser::{Parser as _, ignore_all_errors, take};
+use crate::parser::{Parser as _, ignore_recoverable_errors, take};
 use crate::template::parser::expression::arguments::{ArgumentsGroup, arguments};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 pub(crate) fn identifier(tokens: TokenSlice) -> Res<Expression> {
     let (tokens, (ident, arguments)) =
-        (Identifier::parse, ignore_all_errors(arguments)).parse(tokens)?;
+        (Identifier::parse, ignore_recoverable_errors(arguments)).parse(tokens)?;
 
     let field = if let Some(arguments) = arguments {
         IdentifierOrFunction::Function(ident, arguments)

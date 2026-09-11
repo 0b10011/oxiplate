@@ -50,7 +50,6 @@ pub const raw_string: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(raw_string()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn raw_string() {
     let template = RawString {};
     {
@@ -115,7 +114,6 @@ pub const empty_string: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(empty_string()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn empty_string() {
     let template = EmptyString {};
     {
@@ -180,7 +178,6 @@ pub const seven_bit_escapes: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(seven_bit_escapes()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn seven_bit_escapes() {
     {
         match (

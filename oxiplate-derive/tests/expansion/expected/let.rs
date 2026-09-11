@@ -63,7 +63,6 @@ pub const set: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(set())),
 };
-#[rustc_test_entrypoint_marker]
 fn set() {
     let data = Set { value: "Hello world!" };
     {
@@ -179,7 +178,6 @@ pub const shadow_if: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(shadow_if())),
 };
-#[rustc_test_entrypoint_marker]
 fn shadow_if() {
     {
         match (
@@ -329,7 +327,6 @@ pub const shadow_for: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(shadow_for()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn shadow_for() {
     {
         match (
@@ -450,7 +447,6 @@ pub const shadow_match: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(shadow_match()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn shadow_match() {
     {
         match (
@@ -632,7 +628,6 @@ pub const extends: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(extends())),
 };
-#[rustc_test_entrypoint_marker]
 fn extends() {
     {
         match (
@@ -740,7 +735,6 @@ pub const extends_default: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(extends_default()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn extends_default() {
     {
         match (
@@ -814,7 +808,6 @@ pub const destructure: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(destructure()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn destructure() {
     {
         match (

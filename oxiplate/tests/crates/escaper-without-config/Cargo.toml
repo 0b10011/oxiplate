@@ -7,3 +7,6 @@ edition.workspace = true
 [dev-dependencies]
 trybuild = "1.0.116, < 1.0.120"
 oxiplate = { path = "../../../", default-features = false }
+
+[lints]
+workspace = true

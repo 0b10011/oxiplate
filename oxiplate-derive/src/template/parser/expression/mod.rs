@@ -24,7 +24,7 @@ use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{Parser as _, alt, cut, ignore_all_errors, into, many0, take};
+use crate::parser::{Parser as _, alt, cut, ignore_recoverable_errors, into, many0, take};
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
@@ -605,7 +605,7 @@ fn calc<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
             cut("Expected an expression", expression(false)).parse(tokens)?;
         (tokens, Some(expression))
     } else {
-        ignore_all_errors(expression(false)).parse(tokens)?
+        ignore_recoverable_errors(expression(false)).parse(tokens)?
     };
 
     let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
@@ -661,9 +661,9 @@ fn index<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
 fn filters<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
     let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
         take(TokenKind::VerticalBar),
-        ignore_all_errors(take(TokenKind::GreaterThan)),
+        ignore_recoverable_errors(take(TokenKind::GreaterThan)),
         cut("Expected a filter name", Identifier::parse),
-        ignore_all_errors(arguments),
+        ignore_recoverable_errors(arguments),
     )
         .parse(tokens)?;
 

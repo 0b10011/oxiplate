@@ -47,7 +47,6 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
 };
-#[rustc_test_entrypoint_marker]
 fn variable() {
     let data = Variable {
         message: "Hello world!",
@@ -118,7 +117,6 @@ pub const variables: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variables())),
 };
-#[rustc_test_entrypoint_marker]
 fn variables() {
     let data = Variables {
         title: "Foo Bar",

@@ -3,12 +3,12 @@ default: (watch "dev")
 
 # Watch files for changes and run the provided `just` command when there's a change. Typically used as `just watch dev`.
 [group("General Commands")]
-watch command:
-    watchexec just {{ command }}
+watch +commands:
+    watchexec just {{ commands }}
 
 # Format code, run tests, generate coverage, and run clippy. Typically used via `just watch dev`.
 [group("General Commands")]
-dev: format check coverage clippy expansion-tests doc
+dev: format check coverage clippy-strict expansion-tests doc
 
 # Build documentation for libraries.
 [group("General Commands")]
@@ -39,6 +39,9 @@ update-test-output:
     [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
     [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
 
+    # Update clippy test results
+    [ ! -f ./oxiplate-derive/tests/clippy/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/actual/*.stderr ./oxiplate-derive/tests/clippy/expected/
+
     echo "Test output updated successfully!"
 
 # Rebuild test crates for config
@@ -50,7 +53,7 @@ rebuild-config-test-crates:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-08-22" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-09-10" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -71,8 +74,14 @@ format-broken command:
 
 # Run `cargo clippy` against all packages.
 [group("Lint")]
-clippy:
+clippy: check
     cargo clippy --locked --workspace
+
+# Run `cargo clippy` against all packages, denying warnings.
+[group("Lint")]
+clippy-strict: check-strict
+    @echo "Checking clippy lints..."
+    cargo clippy --locked --workspace -- -Dwarnings
 
 # Run check against all packages.
 [group("Test")]
@@ -80,7 +89,7 @@ check: (run-against-stable "cargo check --locked" "") (run-against-unstable "car
 
 # Run check against all packages, denying warnings.
 [group("Test")]
-check-strict: (run-against-stable "RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "RUSTFLAGS='-D warnings' cargo check --locked" "")
+check-strict: (run-against-stable "CARGO_BUILD_WARNINGS=deny RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "CARGO_BUILD_WARNINGS=deny RUSTFLAGS='-D warnings' cargo check --locked" "")
 
 # Check dependencies for licenses, bans, and sources
 [group("Test")]

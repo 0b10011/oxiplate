@@ -87,7 +87,7 @@ impl<'a> NamedStruct<'a> {
                     cut("Expected a field", Field::parse),
                     many0((
                         context("Expected `,`", take(TokenKind::Comma)),
-                        cut("Expected a field", Field::parse),
+                        context("Expected a field", Field::parse),
                     )),
                     cut("Expected `}`", take(TokenKind::CloseBrace)),
                 ),

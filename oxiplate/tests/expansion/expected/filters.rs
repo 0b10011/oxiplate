@@ -112,7 +112,6 @@ pub const respond: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(respond())),
 };
-#[rustc_test_entrypoint_marker]
 fn respond() {
     {
         match (
@@ -210,7 +209,6 @@ pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(shorten())),
 };
-#[rustc_test_entrypoint_marker]
 fn shorten() {
     {
         match (
@@ -319,7 +317,6 @@ pub const pad: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(pad())),
 };
-#[rustc_test_entrypoint_marker]
 fn pad() {
     {
         match (
@@ -429,7 +426,6 @@ pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(multiple())),
 };
-#[rustc_test_entrypoint_marker]
 fn multiple() {
     {
         match (

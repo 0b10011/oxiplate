@@ -7,7 +7,7 @@ use super::{Parser, Res, TokenSlice};
 /// while ignoring recoverable errors.
 ///
 /// ```rust,ignore
-/// let (tokens, token) = ignore_all_errors(
+/// let (tokens, token) = ignore_recoverable_errors(
 ///     take(TokenKind::StaticText),
 /// )
 /// .parse(tokens)?;

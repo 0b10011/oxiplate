@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 
+#[allow(clippy::unnecessary_debug_formatting)]
 pub fn main() -> Result<(), Box<dyn Error>> {
     let expected_destination = Path::new("oxiplate-derive/tests/config/expected/");
     let template_dir = Path::new("oxiplate-derive/tests/config/crates/.template/");
@@ -26,6 +27,7 @@ pub fn main() -> Result<(), Box<dyn Error>> {
         let entry = entry?;
 
         // Skip non-files (directories) and non-toml files
+        #[allow(clippy::case_sensitive_file_extension_comparisons)]
         if !entry.file_type()?.is_file()
             || !entry.file_name().to_str().unwrap_or("").ends_with(".toml")
         {

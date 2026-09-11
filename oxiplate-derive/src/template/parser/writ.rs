@@ -10,7 +10,7 @@ use super::Item;
 use super::expression::{Expression, Identifier, expression};
 use super::item::tag_end;
 use crate::config::EscaperGroup;
-use crate::parser::{Parser as _, cut, ignore_all_errors, take};
+use crate::parser::{Parser as _, cut, ignore_recoverable_errors, take};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
@@ -348,8 +348,8 @@ pub(super) fn writ<'a>(
     open_tag_source: Source<'a>,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
     move |tokens| {
-        let (tokens, escaper_info) = ignore_all_errors((
-            ignore_all_errors((Identifier::parse, take(TokenKind::Period))),
+        let (tokens, escaper_info) = ignore_recoverable_errors((
+            ignore_recoverable_errors((Identifier::parse, take(TokenKind::Period))),
             Identifier::parse,
             take(TokenKind::Colon),
         ))

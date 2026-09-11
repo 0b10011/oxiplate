@@ -56,7 +56,6 @@ pub const comment: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(comment())),
 };
-#[rustc_test_entrypoint_marker]
 fn comment() {
     let comments = [
         (

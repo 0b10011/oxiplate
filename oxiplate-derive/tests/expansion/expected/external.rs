@@ -53,7 +53,6 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
 };
-#[rustc_test_entrypoint_marker]
 fn absolute() {
     let data = AbsoluteData {
         title: "Oxiplate Example",
@@ -103,7 +102,6 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(absolute_2()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn absolute_2() {
     let data = AbsoluteData {
         title: "Oxiplate Example #2",

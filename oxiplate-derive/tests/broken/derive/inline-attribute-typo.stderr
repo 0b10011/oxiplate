@@ -17,3 +17,8 @@ help: a derive helper attribute with a similar name exists
 4 - #[oxiplate_inlinee("")]
 4 + #[oxiplate_inline("")]
   |
+help: the derive macro `Oxiplate` accepts the similarly named `oxiplate_inline` attribute
+  |
+4 - #[oxiplate_inlinee("")]
+4 + #[oxiplate_inline("")]
+  |

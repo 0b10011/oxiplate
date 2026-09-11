@@ -66,7 +66,6 @@ pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_for())),
 };
-#[rustc_test_entrypoint_marker]
 fn test_for() {
     let data = Data {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -152,7 +151,6 @@ pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_method_calls()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_method_calls() {
     let data = Accounts {
         people: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -244,7 +242,6 @@ pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_shadow_variable()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_shadow_variable() {
     let data = ShadowVariable {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -332,7 +329,6 @@ pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_function_variables()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_function_variables() {
     let data = Functions {
         functions: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -424,7 +420,6 @@ pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_for_else()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_for_else() {
     let data = ForElse {
         values: ::alloc::vec::Vec::new(),
@@ -509,7 +504,6 @@ pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_continue()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_continue() {
     let data = Continue {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -599,7 +593,6 @@ pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_break()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_break() {
     let data = Break {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
@@ -689,7 +682,6 @@ pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(test_break_else()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn test_break_else() {
     let data = BreakElse {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(

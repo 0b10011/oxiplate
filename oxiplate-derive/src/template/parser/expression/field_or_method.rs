@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, ignore_all_errors, many1, take};
+use crate::parser::{Parser as _, ignore_recoverable_errors, many1, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::arguments::arguments;
 use crate::template::parser::expression::ident::IdentifierOrFunction;
@@ -75,7 +75,7 @@ impl<'a> Field<'a> {
         let (tokens, (dot, ident, arguments)) = (
             take(TokenKind::Period),
             Identifier::parse,
-            ignore_all_errors(arguments),
+            ignore_recoverable_errors(arguments),
         )
             .parse(tokens)?;
 

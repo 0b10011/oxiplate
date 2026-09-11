@@ -2,7 +2,6 @@
 name = "oxiplate-derive"
 description = "Oxiplate's derive macro that provides a compile-time template engine with a focus on helpful error messages and whitespace control."
 version = "0.18.0"
-readme = "README.md"
 authors.workspace = true
 homepage.workspace = true
 repository.workspace = true

@@ -89,7 +89,6 @@ pub const test_loop: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_loop())),
 };
-#[rustc_test_entrypoint_marker]
 fn test_loop() {
     let data = Loop {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(

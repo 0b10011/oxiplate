@@ -61,7 +61,6 @@ pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
 };
-#[rustc_test_entrypoint_marker]
 fn test_if() {
     let data = Data {
         r#ref: "Jax",
@@ -108,7 +107,6 @@ pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_else())),
 };
-#[rustc_test_entrypoint_marker]
 fn test_else() {
     let data = Data {
         r#ref: "",
@@ -158,7 +156,6 @@ pub const syn_tokens: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(syn_tokens()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn syn_tokens() {}
 #[rustc_main]
 #[coverage(off)]
