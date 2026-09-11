@@ -51,17 +51,6 @@ where
             }
         }
 
-        loop {
-            match self.parser.parse(tokens.clone()) {
-                Ok((remaining_tokens, output)) => {
-                    tokens = remaining_tokens;
-                    values.push(output);
-                }
-                Err(err) if err.is_recoverable() => break,
-                Err(err) => return Err(err),
-            }
-        }
-
         Ok((tokens, values))
     }
 }
