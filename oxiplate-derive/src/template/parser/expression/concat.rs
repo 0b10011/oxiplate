@@ -1,5 +1,3 @@
-use std::mem;
-
 use quote::{quote, quote_spanned};
 
 use super::Res;
@@ -11,21 +9,10 @@ use crate::{BuiltTokens, Source, State};
 #[derive(Debug)]
 pub(crate) struct Concat<'a> {
     pub(super) left: Box<Expression<'a>>,
-    pub concats: Vec<(Source<'a>, Expression<'a>)>,
+    pub(super) concats: Vec<(Source<'a>, Expression<'a>)>,
 }
 
 impl<'a> Concat<'a> {
-    pub(super) fn take_left(&mut self) -> Expression<'a> {
-        mem::take(self.left.as_mut())
-    }
-
-    pub(super) fn take_right(&mut self) -> Expression<'a> {
-        match self.concats.last_mut() {
-            Some((_tilde, expression)) => mem::take(expression),
-            None => unreachable!("Concats should always contain at least 2 expressions"),
-        }
-    }
-
     pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
         {
             let mut format_tokens = vec![];

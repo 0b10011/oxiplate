@@ -180,7 +180,7 @@ impl<'a> Expression<'a> {
             Self::FieldOrMethod(field_or_method) => {
                 Some(mem::take(&mut field_or_method.expression))
             }
-            Self::Concat(concat) => Some(concat.take_left()),
+            Self::Concat(concat) => Some(mem::take(concat.left.as_mut())),
         }
     }
 
@@ -232,7 +232,10 @@ impl<'a> Expression<'a> {
             | Self::IdentifierOrFunction(_)
             | Self::FieldOrMethod(_) => None,
 
-            Self::Concat(concat) => Some(concat.take_right()),
+            Self::Concat(concat) => match concat.concats.last_mut() {
+                Some((_tilde, expression)) => Some(mem::take(expression)),
+                None => unreachable!("Concats should always contain at least 2 expressions"),
+            },
             Self::Calc { right, .. } => match right.as_mut() {
                 Some(right) => Some(mem::take(right)),
                 None => None,
