@@ -2,10 +2,11 @@ mod alt;
 mod context;
 mod cut;
 mod fail;
+mod ignore_all_errors;
+mod ignore_recoverable_errors;
 mod into;
 mod many0;
 mod many1;
-mod opt;
 mod parse_all;
 mod take;
 
@@ -14,11 +15,14 @@ use std::fmt::Debug;
 pub use alt::alt;
 pub use context::context;
 pub use cut::cut;
+#[allow(unused)]
 pub use fail::fail;
+pub use ignore_all_errors::ignore_all_errors;
+#[allow(unused)]
+pub use ignore_recoverable_errors::ignore_recoverable_errors;
 pub use into::into;
 pub use many0::many0;
 pub use many1::many1;
-pub use opt::opt;
 pub use parse_all::parse_all;
 pub use take::take;
 
@@ -64,6 +68,22 @@ impl<'a> Error<'a> {
             source,
             previous_error: None,
             is_eof: false,
+        }
+    }
+
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            Self::Recoverable { .. } => true,
+            Self::Unrecoverable { .. } => false,
+            Self::Multiple(errors) => {
+                for error in errors {
+                    if !error.is_recoverable() {
+                        return false;
+                    }
+                }
+
+                true
+            }
         }
     }
 }

@@ -22,7 +22,9 @@ use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{Parser as _, alt, context, cut, fail, into, many1, opt, take};
+use crate::parser::{
+    Parser as _, alt, context, cut, fail, ignore_recoverable_errors, into, many1, take,
+};
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
@@ -343,7 +345,7 @@ fn calc<'a>(
                 cut("Expected an expression", expression(true, true)).parse(tokens)?;
             (tokens, Some(expression))
         } else {
-            opt(expression(true, true)).parse(tokens)?
+            ignore_recoverable_errors(expression(true, true)).parse(tokens)?
         };
 
         let source = if let Some(right) = &right {
@@ -429,9 +431,9 @@ fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a
             expression(false, false),
             many1((
                 take(TokenKind::VerticalBar),
-                opt(take(TokenKind::GreaterThan)),
+                ignore_recoverable_errors(take(TokenKind::GreaterThan)),
                 cut("Expected a filter name", Identifier::parse),
-                opt(arguments),
+                ignore_recoverable_errors(arguments),
             )),
         )
             .parse(tokens)?;

@@ -4,9 +4,9 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote_spanned};
 
 use super::Pattern;
-use crate::parser::{Parser as _, cut, many1, opt, take};
+use crate::parser::{Parser as _, context, cut, ignore_recoverable_errors, many1, take};
 use crate::template::parser::Res;
-use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 #[derive(Debug)]
@@ -26,13 +26,10 @@ impl<'a> Tuple<'a> {
             take(TokenKind::OpenParenthese),
             (
                 many1((
-                    cut("Expected a pattern", Pattern::parse),
-                    cut("Expected `,`", take(TokenKind::Comma)),
+                    context("Expected a pattern", Pattern::parse),
+                    context("Expected `,`", take(TokenKind::Comma)),
                 )),
-                opt((
-                    cut("Expected a pattern", Pattern::parse),
-                    opt(cut("Expected `,`", take(TokenKind::Comma))),
-                )),
+                ignore_recoverable_errors(context("Expected a pattern", Pattern::parse)),
                 cut("Expected `)`", take(TokenKind::CloseParenthese)),
             ),
         )
@@ -48,10 +45,8 @@ impl<'a> Tuple<'a> {
             values.push((field, comma.source().clone()));
         }
 
-        let last_value = if let Some((last_field, comma)) = last_field {
-            source = source
-                .merge(last_field.source(), "Field expected after comma")
-                .merge_some(comma.map(Token::source), "Comma expected after field");
+        let last_value = if let Some(last_field) = last_field {
+            source = source.merge(last_field.source(), "Field expected after comma");
 
             Some(Box::new(last_field))
         } else {

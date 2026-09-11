@@ -86,8 +86,8 @@ impl<'a> NamedStruct<'a> {
                 (
                     cut("Expected a field", Field::parse),
                     many0((
-                        cut("Expected `,`", take(TokenKind::Comma)),
-                        cut("Expected a field", Field::parse),
+                        context("Expected `,`", take(TokenKind::Comma)),
+                        context("Expected a field", Field::parse),
                     )),
                     cut("Expected `}`", take(TokenKind::CloseBrace)),
                 ),
@@ -265,8 +265,8 @@ impl<'a> TupleStruct<'a> {
                 (
                     cut("Expected pattern", Pattern::parse),
                     many0((
-                        cut("Expected `,`", take(TokenKind::Comma)),
-                        cut("Expected a pattern", Pattern::parse),
+                        context("Expected `,`", take(TokenKind::Comma)),
+                        context("Expected a pattern", Pattern::parse),
                     )),
                     cut("Expected `)`", take(TokenKind::CloseParenthese)),
                 ),

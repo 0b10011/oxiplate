@@ -52,8 +52,7 @@ impl<'a> Error<'a> {
 impl<'a> From<Error<'a>> for Template<'a> {
     fn from(error: Error<'a>) -> Self {
         let mut items = Vec::with_capacity(1);
-
-        let additional_errors: Vec<Error<'a>> = match error {
+        match error {
             Error::Recoverable {
                 message,
                 source,
@@ -71,16 +70,13 @@ impl<'a> From<Error<'a>> for Template<'a> {
                     error_source: source.clone(),
                     consumed_source: source,
                 });
-
-                // Ignore previous errors
-                vec![]
             }
-            Error::Multiple(errors) => errors,
-        };
-
-        for error in additional_errors {
-            let Template(additional_items) = error.into();
-            items.extend(additional_items);
+            Error::Multiple(errors) => {
+                for error in errors {
+                    let Template(additional_items) = error.into();
+                    items.extend(additional_items);
+                }
+            }
         }
 
         Self(items)

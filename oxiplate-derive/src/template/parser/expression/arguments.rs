@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 
 use super::Res;
-use crate::parser::{Parser as _, cut, many0, opt, take};
+use crate::parser::{Parser as _, cut, ignore_recoverable_errors, many0, take};
 use crate::template::parser::expression::{Expression, expression};
 use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{Source, State, quote_spanned};
@@ -49,10 +49,10 @@ pub(crate) fn arguments(tokens: TokenSlice) -> Res<ArgumentsGroup> {
         cut(
             "Expected comma-separated list of arguments followed by `)`",
             (
-                opt((
+                ignore_recoverable_errors((
                     expression(true, true),
                     many0((take(TokenKind::Comma), expression(true, true))),
-                    opt(take(TokenKind::Comma)),
+                    ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
                 take(TokenKind::CloseParenthese),
             ),

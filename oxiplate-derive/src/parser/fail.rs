@@ -12,6 +12,7 @@ use super::{Error, Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
+#[allow(dead_code)]
 pub fn fail<'a, P>() -> Fail<'a, P> {
     Fail {
         phantom_data: PhantomData,
