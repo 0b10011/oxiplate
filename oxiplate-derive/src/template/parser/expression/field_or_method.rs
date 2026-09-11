@@ -13,7 +13,7 @@ use crate::{Source, State};
 /// A field or method.
 #[derive(Debug)]
 pub struct FieldOrMethod<'a> {
-    expression: Box<Expression<'a>>,
+    pub(super) expression: Box<Expression<'a>>,
     fields: Vec<Field<'a>>,
 }
 
