@@ -39,6 +39,9 @@ update-test-output:
     [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
     [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
 
+    # Update clippy test results
+    [ ! -f ./oxiplate-derive/tests/clippy/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/actual/*.stderr ./oxiplate-derive/tests/clippy/expected/
+
     echo "Test output updated successfully!"
 
 # Rebuild test crates for config
