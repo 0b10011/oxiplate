@@ -3,8 +3,8 @@ default: (watch "dev")
 
 # Watch files for changes and run the provided `just` command when there's a change. Typically used as `just watch dev`.
 [group("General Commands")]
-watch command:
-    watchexec just {{ command }}
+watch +commands:
+    watchexec just {{ commands }}
 
 # Format code, run tests, generate coverage, and run clippy. Typically used via `just watch dev`.
 [group("General Commands")]
