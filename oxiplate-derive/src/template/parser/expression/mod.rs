@@ -28,7 +28,7 @@ use crate::parser::{
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
-use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
+use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
@@ -46,13 +46,11 @@ pub(crate) enum Expression<'a> {
         left: Box<Expression<'a>>,
         operator: Operator<'a>,
         right: Box<Option<Expression<'a>>>,
-        source: Source<'a>,
     },
     Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
     Cow {
         prefix: Source<'a>,
         expression: Box<Expression<'a>>,
-        source: Source<'a>,
     },
 
     /// `..` that represents a range
@@ -80,7 +78,6 @@ pub(crate) enum Expression<'a> {
         vertical_bar: Source<'a>,
         cow_prefix: Option<Source<'a>>,
         arguments: Option<ArgumentsGroup<'a>>,
-        source: Source<'a>,
     },
 
     /// `expr.field` or `expr.method(args)`
@@ -177,7 +174,6 @@ impl<'a> Expression<'a> {
                 vertical_bar,
                 cow_prefix,
                 arguments,
-                source,
             } => Self::filter(
                 state,
                 name,
@@ -185,7 +181,7 @@ impl<'a> Expression<'a> {
                 vertical_bar,
                 cow_prefix.as_ref(),
                 arguments.as_ref(),
-                source,
+                &self.source(),
             ),
             Expression::FieldOrMethod(field_or_method) => field_or_method.to_tokens(state),
         }
@@ -205,7 +201,9 @@ impl<'a> Expression<'a> {
         let mut argument_tokens = expression;
 
         let arguments = if let Some(arguments) = arguments {
-            if let Some((first_argument, remaining_arguments)) = &arguments.arguments {
+            if let Some((first_argument, remaining_arguments, _trailing_comma)) =
+                &arguments.arguments
+            {
                 // First argument
                 let comma_span = vertical_bar.span_token();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
@@ -276,10 +274,42 @@ impl<'a> Expression<'a> {
             Expression::Integer(value) => value.source().clone(),
             Expression::Float(value) => value.source().clone(),
             Expression::Bool(value) => value.source().clone(),
-            Expression::Calc { source, .. }
-            | Expression::FullRange { source, .. }
-            | Expression::Filter { source, .. }
-            | Expression::Cow { source, .. } => source.clone(),
+            Expression::Calc {
+                left,
+                operator,
+                right,
+            } => {
+                if let Some(right) = right.as_ref() {
+                    left.source()
+                        .merge(operator.source(), "Operator should follow whitespace")
+                        .merge(&right.source(), "Right expression should follow whitespace")
+                } else {
+                    left.source()
+                        .merge(operator.source(), "Operator should follow left expression")
+                }
+            }
+            Expression::FullRange { source, .. } => source.clone(),
+            Expression::Filter {
+                name,
+                expression,
+                vertical_bar,
+                cow_prefix,
+                arguments,
+            } => expression
+                .source()
+                .merge(
+                    vertical_bar,
+                    "Vertical bar should follow leading whitespace",
+                )
+                .merge_some(cow_prefix.as_ref(), "Cow prefix should follow whitespace")
+                .merge(name.source(), "Filter name should follow whitespace")
+                .merge_some(
+                    arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
+                    "Arguments should follow trailing whitespace",
+                ),
+            Expression::Cow { prefix, expression } => prefix
+                .clone()
+                .merge(&expression.source(), "Expression should follow whitespace"),
             Expression::Group(group) => group.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source().clone(),
@@ -348,22 +378,12 @@ fn calc<'a>(
             ignore_recoverable_errors(expression(true, true)).parse(tokens)?
         };
 
-        let source = if let Some(right) = &right {
-            left.source()
-                .merge(operator.source(), "Operator should follow whitespace")
-                .merge(&right.source(), "Right expression should follow whitespace")
-        } else {
-            left.source()
-                .merge(operator.source(), "Operator should follow left expression")
-        };
-
         Ok((
             tokens,
             Expression::Calc {
                 left: Box::new(left),
                 operator,
                 right: Box::new(right),
-                source,
             },
         ))
     }
@@ -438,30 +458,13 @@ fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a
         )
             .parse(tokens)?;
 
-        let mut source = expression.source();
         for (vertical_bar, cow_prefix, name, arguments) in filters {
-            source = source
-                .merge(
-                    vertical_bar.source(),
-                    "Vertical bar should follow leading whitespace",
-                )
-                .merge_some(
-                    cow_prefix.map(Token::source),
-                    "Cow prefix should follow whitespace",
-                )
-                .merge(name.source(), "Filter name should follow whitespace")
-                .merge_some(
-                    arguments.as_ref().map(ArgumentsGroup::source),
-                    "Arguments should follow trailing whitespace",
-                );
-
             expression = Expression::Filter {
                 name,
                 expression: Box::new(expression),
                 vertical_bar: vertical_bar.source().clone(),
                 cow_prefix: cow_prefix.map(|token| token.source().clone()),
                 arguments,
-                source: source.clone(),
             }
         }
 
@@ -479,17 +482,11 @@ fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
     )
         .parse(tokens)?;
 
-    let source = prefix
-        .source()
-        .clone()
-        .merge(&expression.source(), "Expression should follow whitespace");
-
     Ok((
         tokens,
         Expression::Cow {
             prefix: prefix.source().clone(),
             expression: Box::new(expression),
-            source,
         },
     ))
 }
