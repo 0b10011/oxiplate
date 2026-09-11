@@ -6,15 +6,7 @@ error[E0277]: cannot add `bool` to `u8`
   |
   = help: the trait `Add<bool>` is not implemented for `u8`
 help: the following other types implement trait `Add<Rhs>`
- --> $RUST/core/src/ops/arith.rs
-  |
-  |         const impl Add for $t {
-  |         ^^^^^^^^^^^^^^^^^^^^^ `u8` implements `Add`
-...
-  | add_impl! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 f16 f32 f64 f128 }
-  | ---------------------------------------------------------------------------------- in this macro invocation
-  |
- ::: $RUST/core/src/internal_macros.rs
+ --> $RUST/core/src/internal_macros.rs
   |
   |         const impl $imp<$u> for &$t {
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `&u8` implements `Add<u8>`
@@ -24,4 +16,12 @@ help: the following other types implement trait `Add<Rhs>`
 ...
   |         const impl $imp<&$u> for &$t {
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `&u8` implements `Add`
-  = note: this error originates in the macro `add_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
+  |
+ ::: $RUST/core/src/ops/arith.rs
+  |
+  |         const impl Add for $t {
+  |         ^^^^^^^^^^^^^^^^^^^^^ `u8` implements `Add`
+...
+  | add_impl! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 f16 f32 f64 f128 }
+  | ---------------------------------------------------------------------------------- in this macro invocation
+  = note: this error originates in the macro `forward_ref_binop` which comes from the expansion of the macro `add_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
