@@ -114,7 +114,7 @@ impl<'a> Expression<'a> {
             Self::FieldOrMethod(field_or_method) => {
                 field_or_method.expression.as_mut().fix_precedence();
             }
-            Self::Concat(concat) => concat.left.fix_precedence(),
+            Self::Concat(concat) => concat.first_expression.fix_precedence(),
         }
 
         if self.needs_precedence_fixed() {
@@ -153,7 +153,7 @@ impl<'a> Expression<'a> {
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => left,
             Self::Filter { expression, .. } => expression,
             Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_ref(),
-            Self::Concat(concat) => concat.left.as_ref(),
+            Self::Concat(concat) => concat.first_expression.as_ref(),
         };
 
         left.precedence() < self.precedence()
@@ -180,7 +180,7 @@ impl<'a> Expression<'a> {
             Self::FieldOrMethod(field_or_method) => {
                 Some(mem::take(&mut field_or_method.expression))
             }
-            Self::Concat(concat) => Some(mem::take(concat.left.as_mut())),
+            Self::Concat(concat) => Some(mem::take(concat.first_expression.as_mut())),
         }
     }
 
@@ -205,7 +205,7 @@ impl<'a> Expression<'a> {
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.as_mut(),
             Self::Filter { expression, .. } => expression.as_mut(),
             Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_mut(),
-            Self::Concat(concat) => concat.left.as_mut(),
+            Self::Concat(concat) => concat.first_expression.as_mut(),
         };
 
         if !matches!(placeholder_left, Self::Placeholder) {
@@ -232,7 +232,7 @@ impl<'a> Expression<'a> {
             | Self::IdentifierOrFunction(_)
             | Self::FieldOrMethod(_) => None,
 
-            Self::Concat(concat) => match concat.concats.last_mut() {
+            Self::Concat(concat) => match concat.additional_expressions.last_mut() {
                 Some((_tilde, expression)) => Some(mem::take(expression)),
                 None => unreachable!("Concats should always contain at least 2 expressions"),
             },
@@ -264,7 +264,7 @@ impl<'a> Expression<'a> {
                 unreachable!("Only placeholder expressions should ever be overwritten")
             }
 
-            Self::Concat(concat) => match concat.concats.last_mut() {
+            Self::Concat(concat) => match concat.additional_expressions.last_mut() {
                 Some((_tilde, last)) => last,
                 None => unreachable!("Concats should have at least 2 expressions"),
             },

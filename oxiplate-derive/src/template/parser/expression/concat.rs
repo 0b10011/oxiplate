@@ -8,8 +8,8 @@ use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
 pub(crate) struct Concat<'a> {
-    pub(super) left: Box<Expression<'a>>,
-    pub(super) concats: Vec<(Source<'a>, Expression<'a>)>,
+    pub(super) first_expression: Box<Expression<'a>>,
+    pub(super) additional_expressions: Vec<(Source<'a>, Expression<'a>)>,
 }
 
 impl<'a> Concat<'a> {
@@ -18,9 +18,9 @@ impl<'a> Concat<'a> {
             let mut format_tokens = vec![];
             let mut argument_tokens = vec![];
             let mut estimated_length = 0;
-            let mut expressions = Vec::with_capacity(self.concats.len() + 1);
-            expressions.push(self.left.as_ref());
-            for (_tilde, expression) in &self.concats {
+            let mut expressions = Vec::with_capacity(self.additional_expressions.len() + 1);
+            expressions.push(self.first_expression.as_ref());
+            for (_tilde, expression) in &self.additional_expressions {
                 expressions.push(expression);
             }
 
@@ -63,8 +63,8 @@ impl<'a> Concat<'a> {
 
         let callback = Box::new(|left: Expression<'a>| {
             Expression::Concat(Concat {
-                left: Box::new(left),
-                concats: concats
+                first_expression: Box::new(left),
+                additional_expressions: concats
                     .into_iter()
                     .map(|(tilde, expression)| (tilde.source().clone(), expression))
                     .collect(),
@@ -75,9 +75,9 @@ impl<'a> Concat<'a> {
     }
 
     pub fn source(&self) -> Source<'a> {
-        let mut source: Source<'a> = self.left.source();
+        let mut source: Source<'a> = self.first_expression.source();
 
-        for (tilde, expression) in &self.concats {
+        for (tilde, expression) in &self.additional_expressions {
             source = source
                 .merge(tilde, "Tilde should follow leading whitespace")
                 .merge(
