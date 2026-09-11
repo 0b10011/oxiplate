@@ -56,7 +56,6 @@ pub const variable: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
 };
-#[rustc_test_entrypoint_marker]
 fn variable() {
     let data = User {
         name: "Xavier",
@@ -125,7 +124,6 @@ pub const concat_strings: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(concat_strings()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn concat_strings() {
     {
         match (

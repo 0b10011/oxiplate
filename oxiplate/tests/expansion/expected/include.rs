@@ -75,7 +75,6 @@ pub const include: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(include())),
 };
-#[rustc_test_entrypoint_marker]
 fn include() {
     let data = Include {
         title: "Oxiplate Example",
@@ -167,7 +166,6 @@ pub const include_deep: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(include_deep()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn include_deep() {
     let data = IncludeDeep {
         title: "Oxiplate Example",

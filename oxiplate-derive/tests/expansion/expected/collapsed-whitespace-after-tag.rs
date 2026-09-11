@@ -53,7 +53,6 @@ pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(adjusted_whitespace()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn adjusted_whitespace() {
     let data = Data { value: true };
     {

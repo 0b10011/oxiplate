@@ -44,7 +44,6 @@ pub const a: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(a())),
 };
-#[rustc_test_entrypoint_marker]
 fn a() {
     {
         match (
@@ -108,7 +107,6 @@ pub const single_quote: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(single_quote()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn single_quote() {
     {
         match (
@@ -172,7 +170,6 @@ pub const double_quote: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(double_quote()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn double_quote() {
     {
         match (
@@ -233,7 +230,6 @@ pub const slash: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(slash())),
 };
-#[rustc_test_entrypoint_marker]
 fn slash() {
     {
         match (
@@ -296,7 +292,6 @@ pub const new_line: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(new_line())),
 };
-#[rustc_test_entrypoint_marker]
 fn new_line() {
     {
         match (
@@ -362,7 +357,6 @@ pub const carriage_return: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(carriage_return()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn carriage_return() {
     {
         match (
@@ -425,7 +419,6 @@ pub const tab: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(tab())),
 };
-#[rustc_test_entrypoint_marker]
 fn tab() {
     {
         match (
@@ -486,7 +479,6 @@ pub const null: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(null())),
 };
-#[rustc_test_entrypoint_marker]
 fn null() {
     {
         match (

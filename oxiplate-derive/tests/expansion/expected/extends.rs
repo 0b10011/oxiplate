@@ -60,7 +60,6 @@ pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
 };
-#[rustc_test_entrypoint_marker]
 fn absolute() {
     let data = AbsoluteData {
         title: "Oxiplate Example",
@@ -111,7 +110,6 @@ pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
         || test::assert_test_result(absolute_2()),
     ),
 };
-#[rustc_test_entrypoint_marker]
 fn absolute_2() {
     let data = AbsoluteData {
         title: "Oxiplate Example #2",
@@ -206,7 +204,6 @@ pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(prefix())),
 };
-#[rustc_test_entrypoint_marker]
 fn prefix() {
     let data = Prefix {
         title: "Prefixed block",
@@ -290,7 +287,6 @@ pub const replace: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(replace())),
 };
-#[rustc_test_entrypoint_marker]
 fn replace() {
     let data = Replace {
         title: "Replaced block",
@@ -384,7 +380,6 @@ pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(suffix())),
 };
-#[rustc_test_entrypoint_marker]
 fn suffix() {
     let data = Suffix {
         title: "Suffixed block",
