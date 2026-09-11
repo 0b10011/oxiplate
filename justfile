@@ -8,7 +8,7 @@ watch +commands:
 
 # Format code, run tests, generate coverage, and run clippy. Typically used via `just watch dev`.
 [group("General Commands")]
-dev: format check coverage clippy expansion-tests doc
+dev: format check coverage clippy-strict expansion-tests doc
 
 # Build documentation for libraries.
 [group("General Commands")]
@@ -74,8 +74,14 @@ format-broken command:
 
 # Run `cargo clippy` against all packages.
 [group("Lint")]
-clippy:
+clippy: check
     cargo clippy --locked --workspace
+
+# Run `cargo clippy` against all packages, denying warnings.
+[group("Lint")]
+clippy-strict: check-strict
+    @echo "Checking clippy lints..."
+    cargo clippy --locked --workspace -- -Dwarnings
 
 # Run check against all packages.
 [group("Test")]
@@ -83,7 +89,7 @@ check: (run-against-stable "cargo check --locked" "") (run-against-unstable "car
 
 # Run check against all packages, denying warnings.
 [group("Test")]
-check-strict: (run-against-stable "RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "RUSTFLAGS='-D warnings' cargo check --locked" "")
+check-strict: (run-against-stable "CARGO_BUILD_WARNINGS=deny RUSTFLAGS='-D warnings' cargo check --locked" "") (run-against-unstable "CARGO_BUILD_WARNINGS=deny RUSTFLAGS='-D warnings' cargo check --locked" "")
 
 # Check dependencies for licenses, bans, and sources
 [group("Test")]

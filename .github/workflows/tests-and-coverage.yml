@@ -230,4 +230,4 @@ jobs:
       - *restore-setup
 
       - name: Check formatting
-        run: just clippy
+        run: just clippy-strict
