@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.2.1...oxiplate-traits-v0.2.2) - 2026-09-12
+
+### Other
+
+- updated toolchain to nightly-2026-09-03
+- fixed clippy lint for test attributes in doc tests
+
 ## [0.2.1](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.2.0...oxiplate-traits-v0.2.1) - 2026-08-21
 
 ### Other
