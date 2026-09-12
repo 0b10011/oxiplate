@@ -1,3 +1,5 @@
+use std::mem;
+
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
@@ -31,8 +33,13 @@ use crate::{BuiltTokens, Source, State};
 
 type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) enum Expression<'a> {
+    /// Placeholder expression used during precedence fixing.
+    /// Will generate a compile error if not replaced.
+    #[default]
+    Placeholder,
+
     IdentifierOrFunction(IdentifierOrFunction<'a>),
     Char(Char<'a>),
     String(String<'a>),
@@ -85,8 +92,319 @@ pub(crate) enum Expression<'a> {
 }
 
 impl<'a> Expression<'a> {
+    /// Rearranges expression tree to match expression precedence.
+    pub(self) fn fix_precedence(&mut self) {
+        // Fix the precedence of the left expression, if any.
+        match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => unreachable!(
+                "Placeholder expression should not have `fix_precedence()` called for it"
+            ),
+
+            // Single-expression items
+            // or those with expressions only on the right side
+            // do not need to be changed.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => (),
+
+            // Fix the precedence of the leftmost expression.
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.fix_precedence(),
+            Self::Filter { expression, .. } => expression.fix_precedence(),
+            Self::FieldOrMethod(field_or_method) => {
+                field_or_method.expression.as_mut().fix_precedence();
+            }
+            Self::Concat(concat) => concat.first_expression.fix_precedence(),
+        }
+
+        // If the precedence is already correct, bail early.
+        if !self.needs_precedence_fixed() {
+            return;
+        }
+
+        // Grab the leftmost expression.
+        let mut left = self.take_left();
+
+        // Grab the rightmost expression from the left expression.
+        let Some(mut lefts_right) = left.take_right() else {
+            // Return the leftmost expression if there's no rightmost expression.
+            self.give_left(&mut left);
+            return;
+        };
+
+        // Fix the precedence of the expression
+        // about to become the leftmost expression of this one.
+        lefts_right.fix_precedence();
+
+        // Move the middle expression from the left one to this one,
+        // then move this one onto the left expression,
+        // and finally make it official.
+        self.give_left(&mut lefts_right);
+        left.give_right(self);
+        mem::swap(&mut left, self);
+    }
+
+    /// Check if the precedence of the left expression
+    /// is lower than the precedence of this expression
+    /// and therefore needs to be rearranged
+    /// to fix the precedence of the final expression.
+    fn needs_precedence_fixed(&self) -> bool {
+        let left = match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => unreachable!(
+                "Placeholder expression should not have `needs_precedence_fixed()` called for it"
+            ),
+
+            // Single-expression items
+            // or those with expressions only on the right side
+            // do not need to be changed.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => return false,
+
+            // Grab the leftmost expression.
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left,
+            Self::Filter { expression, .. } => expression,
+            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_ref(),
+            Self::Concat(concat) => concat.first_expression.as_ref(),
+        };
+
+        // Ensure the precedence of the left and this expression are correct.
+        left.precedence() < self.precedence()
+    }
+
+    /// Take the left expression,
+    /// replacing it with `Expression::Placeholder` temporarily
+    /// until a new expression is placed via `give_left()`.
+    fn take_left(&mut self) -> Expression<'a> {
+        match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `take_left()` called for it")
+            }
+
+            // No expression on the left.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => unreachable!(
+                "Expressions without an expression on the left should never have `take_left()` \
+                 called for them"
+            ),
+
+            // Take the leftmost expression and return it.
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => mem::take(left),
+            Self::Filter { expression, .. } => mem::take(expression),
+            Self::FieldOrMethod(field_or_method) => mem::take(&mut field_or_method.expression),
+            Self::Concat(concat) => mem::take(concat.first_expression.as_mut()),
+        }
+    }
+
+    /// Give a new expression for the left side of this one,
+    /// usually taken via `take_right()`,
+    /// replacing the `Expression::Placeholder` set by `take_left()`.
+    fn give_left(&mut self, new_left: &mut Expression<'a>) {
+        let placeholder_left = match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `give_left()` called for it")
+            }
+
+            // No expression on the left.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Prefixed(_, _)
+            | Self::Cow { .. } => {
+                unreachable!(
+                    "Only expressions that hold an expression on the left side should ever be \
+                     given a left expression"
+                )
+            }
+
+            // Take a mutable reference to the placeholder.
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.as_mut(),
+            Self::Filter { expression, .. } => expression.as_mut(),
+            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_mut(),
+            Self::Concat(concat) => concat.first_expression.as_mut(),
+        };
+
+        // Ensure the expression is actually a placeholder.
+        if !matches!(placeholder_left, Self::Placeholder) {
+            unreachable!("Only placeholder expressions should ever be overwritten");
+        }
+
+        // Replace the placeholder with the new left expression.
+        mem::swap(placeholder_left, new_left);
+    }
+
+    /// Take the right expression,
+    /// replacing it with `Expression::Placeholder` temporarily
+    /// until a new expression is placed via `give_right()`.
+    fn take_right(&mut self) -> Option<Expression<'a>> {
+        match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `take_right()` called for it")
+            }
+
+            // No expression on the right.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::Index(_, _, _, _)
+            | Self::Filter { .. }
+            | Self::IdentifierOrFunction(_)
+            | Self::FieldOrMethod(_) => None,
+
+            // Take the rightmost expression and return it.
+            Self::Concat(concat) => match concat.additional_expressions.last_mut() {
+                Some((_tilde, expression)) => Some(mem::take(expression)),
+                None => unreachable!("Concats should always contain at least 2 expressions"),
+            },
+            Self::Calc { right, .. } => match right.as_mut() {
+                Some(right) => Some(mem::take(right)),
+                None => None,
+            },
+            Self::Prefixed(_, right) => Some(mem::take(right)),
+            Self::Cow { expression, .. } => Some(mem::take(expression)),
+        }
+    }
+
+    /// Give a new expression for the right side of this one,
+    /// usually taken via `take_left()`,
+    /// replacing the `Expression::Placeholder` set by `take_right()`.
+    fn give_right(&mut self, new_right: &mut Expression<'a>) {
+        let placeholder_right = match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `give_right()` called for it")
+            }
+
+            // No expression on the right.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::FullRange { .. }
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::Index(_, _, _, _)
+            | Self::Filter { .. }
+            | Self::IdentifierOrFunction(_)
+            | Self::FieldOrMethod(_) => {
+                unreachable!(
+                    "Only expressions that hold an expression on the right side should ever be \
+                     given a right expression"
+                )
+            }
+
+            // Take a mutable reference to the placeholder.
+            Self::Concat(concat) => match concat.additional_expressions.last_mut() {
+                Some((_tilde, last)) => last,
+                None => unreachable!("Concats should have at least 2 expressions"),
+            },
+            Self::Calc { right, .. } => match right.as_mut() {
+                Some(right) => right,
+                None => unreachable!("Only placeholder expressions should ever be overwritten"),
+            },
+            Self::Prefixed(_, right) => right,
+            Self::Cow { expression, .. } => expression,
+        };
+
+        // Ensure the expression is actually a placeholder.
+        if !matches!(placeholder_right, Self::Placeholder) {
+            unreachable!("Only placeholder expressions should ever be overwritten");
+        }
+
+        // Replace the placeholder with the new right expression.
+        mem::swap(placeholder_right, new_right);
+    }
+
+    /// Get the precedence of the current expression.
+    fn precedence(&self) -> u8 {
+        match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `precedence()` called for it")
+            }
+
+            // Rust expressions are assumed to be the same precedence
+            // to let Rust handle the details.
+            Self::FieldOrMethod(_)
+            | Self::IdentifierOrFunction(_)
+            | Self::Index(_, _, _, _)
+            | Self::Calc { .. }
+            | Self::Prefixed(_, _) => u8::MAX,
+
+            // Oxiplate expressions
+            Self::Concat(_) => 3,
+            Self::Cow { .. } => 2,
+
+            // Filters should always be handled last.
+            Self::Filter { .. } => 1,
+
+            // These expressions only contain a single operand
+            // so the actual precedence value doesn't really matter.
+            Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::FullRange { .. } => 0,
+        }
+    }
+
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
+            Expression::Placeholder => (
+                quote! { compile_error!("Placeholder expression was never replaced.") },
+                0,
+            ),
             Expression::IdentifierOrFunction(identifier) => match &identifier {
                 IdentifierOrFunction::Identifier(identifier) => {
                     let span = identifier.source().span_token();
@@ -266,6 +584,12 @@ impl<'a> Expression<'a> {
     /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `source()` called for it")
+            }
+
             Expression::IdentifierOrFunction(identifier_or_function) => {
                 identifier_or_function.source()
             }
@@ -357,6 +681,8 @@ pub(super) fn expression<'a>(
         for callback in expression_callbacks {
             expression = callback(expression);
         }
+
+        expression.fix_precedence();
 
         Ok((tokens, expression))
     }

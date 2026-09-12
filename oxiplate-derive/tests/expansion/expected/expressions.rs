@@ -19,7 +19,7 @@ mod filters_for_oxiplate {
     }
 }
 #[oxiplate_inline(
-    r#"{{ message | respond(*respond) ~ " " ~ (9 + 5 * 2) ~ " " ~ (message | respond(!respond)) }}"#
+    r#"{{ message | respond(*respond) ~ " " ~ 9 + 5 * 2 ~ " " ~ (message | respond(!respond)) }}"#
 )]
 struct Respond {
     message: &'static str,
@@ -41,9 +41,16 @@ impl ::core::fmt::Display for Respond {
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(
                                 format_args!(
-                                    "{0} {1} {2}",
-                                    filters_for_oxiplate::respond(self.message, *self.respond),
-                                    (9 + 5 * 2),
+                                    "{0} {1}",
+                                    ::alloc::__export::must_use({
+                                        ::alloc::fmt::format(
+                                            format_args!(
+                                                "{0} {1}",
+                                                filters_for_oxiplate::respond(self.message, *self.respond),
+                                                9 + 5 * 2,
+                                            ),
+                                        )
+                                    }),
                                     (filters_for_oxiplate::respond(self.message, !self.respond)),
                                 ),
                             )
@@ -64,9 +71,9 @@ pub const combination: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/expressions.rs",
-        start_line: 32usize,
+        start_line: 34usize,
         start_col: 4usize,
-        end_line: 32usize,
+        end_line: 34usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,

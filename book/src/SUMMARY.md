@@ -23,3 +23,4 @@
     - [let](templates/statements/let.md)
 - [Expressions](templates/expressions/README.md)
     - [Filters](templates/expressions/filters.md)
+    - [Expression precedence](templates/expressions/expression-precedence.md)
