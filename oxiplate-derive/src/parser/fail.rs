@@ -40,3 +40,43 @@ impl<'a, K: Debug + PartialEq + Eq, P> Parser<'a, K> for Fail<'a, P> {
         })
     }
 }
+
+#[test]
+#[should_panic = "`fail()` called"]
+fn test_error_failure() {
+    use super::take;
+    use crate::source::test_source;
+    use crate::template::TokenKind;
+    use crate::tokenizer::{Eof, Token};
+
+    test_source!(source = "Hello world");
+
+    (take(TokenKind::StaticText), fail::<String>())
+        .parse(TokenSlice::new(
+            &[Ok(Token::new(TokenKind::StaticText, &source, None))],
+            &Eof::for_test(source),
+        ))
+        .unwrap();
+}
+
+#[test]
+#[should_panic = "`fail()` called"]
+fn test_success_failure() {
+    use super::take;
+    use crate::source::test_source;
+    use crate::template::TokenKind;
+    use crate::tokenizer::{Eof, Token};
+
+    test_source!(source = "Hello world");
+    test_source!(source2 = "Goodbye world");
+
+    (take(TokenKind::StaticText), fail::<String>())
+        .parse(TokenSlice::new(
+            &[
+                Ok(Token::new(TokenKind::StaticText, &source, None)),
+                Ok(Token::new(TokenKind::StaticText, &source2, None)),
+            ],
+            &Eof::for_test(source),
+        ))
+        .unwrap();
+}

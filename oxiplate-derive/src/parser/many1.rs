@@ -64,3 +64,26 @@ where
         Ok((tokens, values))
     }
 }
+
+#[test]
+#[should_panic = "Expected static text"]
+fn test_with_cut() {
+    use super::take;
+    use crate::parser::cut;
+    use crate::source::test_source;
+    use crate::template::TokenKind;
+    use crate::tokenizer::{Eof, Token};
+
+    test_source!(source = "Hello world");
+    test_source!(source2 = "&");
+
+    many1(cut("Expected static text", take(TokenKind::StaticText)))
+        .parse(TokenSlice::new(
+            &[
+                Ok(Token::new(TokenKind::StaticText, &source, None)),
+                Ok(Token::new(TokenKind::Ampersand, &source2, None)),
+            ],
+            &Eof::for_test(source),
+        ))
+        .unwrap();
+}

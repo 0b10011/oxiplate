@@ -1,8 +1,8 @@
 use quote::{quote, quote_spanned};
 
 use super::Res;
-use crate::parser::{Parser as _, context, cut, fail, many1, take};
-use crate::template::parser::expression::{Expression, expression};
+use crate::parser::{Parser as _, cut, many1, take};
+use crate::template::parser::expression::{Expression, NestedExpression, expression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
@@ -54,34 +54,24 @@ impl<'a> Concat<'a> {
     }
 
     /// Parser for concat expressions.
-    pub(super) fn parser(allow_concat: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-        move |tokens| {
-            if !allow_concat {
-                return context("Concat not allowed in this context", fail()).parse(tokens);
-            }
-            let (tokens, (first_expression, concats)) = (
-                expression(false, false),
-                many1((
-                    take(TokenKind::Tilde),
-                    cut("Expected an expression", expression(true, false)),
-                )),
-            )
-                .parse(tokens)?;
+    pub(super) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+        let (tokens, concats) = many1((
+            take(TokenKind::Tilde),
+            cut("Expected an expression", expression(false)),
+        ))
+        .parse(tokens)?;
 
-            let mut additional_expressions = Vec::with_capacity(concats.len());
+        let callback = Box::new(|left: Expression<'a>| {
+            Expression::Concat(Concat {
+                first_expression: Box::new(left),
+                additional_expressions: concats
+                    .into_iter()
+                    .map(|(tilde, expression)| (tilde.source().clone(), expression))
+                    .collect(),
+            })
+        });
 
-            for (tilde, expression) in concats {
-                additional_expressions.push((tilde.source().clone(), expression));
-            }
-
-            Ok((
-                tokens,
-                Expression::Concat(Concat {
-                    first_expression: Box::new(first_expression),
-                    additional_expressions,
-                }),
-            ))
-        }
+        Ok((tokens, callback))
     }
 
     pub fn source(&self) -> Source<'a> {

@@ -155,10 +155,7 @@ pub(super) fn parse_for(tokens: TokenSlice) -> Res<Statement> {
     let (tokens, (pattern, in_keyword, expression)) = (
         cut("Expected a pattern", Pattern::parse),
         cut("Expected 'in'", KeywordParser::new("in")),
-        cut(
-            "Expected an expression that is iterable",
-            expression(true, true),
-        ),
+        cut("Expected an expression that is iterable", expression(true)),
     )
         .parse(tokens)?;
 

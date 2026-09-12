@@ -37,7 +37,7 @@ impl<'a> Let<'a> {
             KeywordParser::new("let"),
             cut("Expected a pattern", Pattern::parse),
             cut("Expected `=`", take(TokenKind::Equal)),
-            cut("Expected an expression", expression(true, true)),
+            cut("Expected an expression", expression(true)),
         )
             .parse(tokens)?;
 

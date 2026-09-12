@@ -22,14 +22,14 @@ use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
-use crate::parser::{
-    Parser as _, alt, context, cut, fail, ignore_recoverable_errors, into, many1, take,
-};
+use crate::parser::{Parser as _, alt, cut, ignore_recoverable_errors, into, many0, take};
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
+
+type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
 
 #[derive(Debug)]
 pub(crate) enum Expression<'a> {
@@ -328,65 +328,60 @@ impl<'a> Expression<'a> {
 }
 
 pub(super) fn expression<'a>(
-    allow_generic_nesting: bool,
-    allow_concat_nesting: bool,
+    allow_nesting: bool,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
     move |tokens| {
-        let (tokens, expression) = alt((
-            filters(allow_generic_nesting),
-            Concat::parser(allow_concat_nesting),
-            calc(allow_generic_nesting),
-            index(allow_generic_nesting),
-            into(FieldOrMethod::parser(allow_generic_nesting)),
+        let (tokens, mut expression) = alt((
             parse_cow_prefix,
             into(Char::parse),
             into(String::parse),
             into(Number::parse),
             into(Bool::parse),
             identifier,
-            parse_prefixed_expression(allow_generic_nesting),
+            parse_prefixed_expression,
             into(Group::parse),
             Tuple::parse,
             full_range,
         ))
         .parse(tokens)?;
 
+        if !allow_nesting {
+            return Ok((tokens, expression));
+        }
+
+        let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) = many0(
+            alt((filters, Concat::parser, calc, index, FieldOrMethod::parser)),
+        )
+        .parse(tokens)?;
+
+        for callback in expression_callbacks {
+            expression = callback(expression);
+        }
+
         Ok((tokens, expression))
     }
 }
 
-fn calc<'a>(
-    allow_generic_nesting: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> + 'a {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of calc not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
+fn calc<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, operator) = parse_operator.parse(tokens)?;
+
+    let (tokens, right) = if operator.requires_expression_after() {
+        let (tokens, expression) =
+            cut("Expected an expression", expression(false)).parse(tokens)?;
+        (tokens, Some(expression))
+    } else {
+        ignore_recoverable_errors(expression(false)).parse(tokens)?
+    };
+
+    let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
+        Expression::Calc {
+            left: Box::new(left),
+            operator,
+            right: Box::new(right),
         }
+    });
 
-        let (tokens, (left, operator)) =
-            (expression(false, false), parse_operator).parse(tokens)?;
-
-        let (tokens, right) = if operator.requires_expression_after() {
-            let (tokens, expression) =
-                cut("Expected an expression", expression(true, true)).parse(tokens)?;
-            (tokens, Some(expression))
-        } else {
-            ignore_recoverable_errors(expression(true, true)).parse(tokens)?
-        };
-
-        Ok((
-            tokens,
-            Expression::Calc {
-                left: Box::new(left),
-                operator,
-                right: Box::new(right),
-            },
-        ))
-    }
+    Ok((tokens, callback))
 }
 
 /// Parses a full range expression (`..`).
@@ -404,81 +399,54 @@ fn full_range(tokens: TokenSlice) -> Res<Expression> {
 
 /// Parses an index expression (`expr[expr]`).
 /// See: <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
-fn index<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of index not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
-        }
+fn index<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, (open, (range, close))) = (
+        take(TokenKind::OpenBracket),
+        cut(
+            "Expected an expression",
+            (expression(true), take(TokenKind::CloseBracket)),
+        ),
+    )
+        .parse(tokens)?;
 
-        let (tokens, (expression, open, (range, close))) = (
-            expression(false, false),
-            take(TokenKind::OpenBracket),
-            cut(
-                "Expected an expression",
-                (expression(true, true), take(TokenKind::CloseBracket)),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
+    Ok((
+        tokens,
+        Box::new(|expression: Expression<'a>| {
             Expression::Index(
                 Box::new(expression),
                 open.source().clone(),
                 Box::new(range),
                 close.source().clone(),
-            ),
-        ))
-    }
+            )
+        }),
+    ))
 }
 
 /// Parses filters (`expr | filter()`).
-fn filters<'a>(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
-        if !allow_generic_nesting {
-            return context(
-                "Generic nesting of filters not allowed in this context",
-                fail(),
-            )
-            .parse(tokens);
-        }
+fn filters<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
+        take(TokenKind::VerticalBar),
+        ignore_recoverable_errors(take(TokenKind::GreaterThan)),
+        cut("Expected a filter name", Identifier::parse),
+        ignore_recoverable_errors(arguments),
+    )
+        .parse(tokens)?;
 
-        let (tokens, (mut expression, filters)) = (
-            expression(false, false),
-            many1((
-                take(TokenKind::VerticalBar),
-                ignore_recoverable_errors(take(TokenKind::GreaterThan)),
-                cut("Expected a filter name", Identifier::parse),
-                ignore_recoverable_errors(arguments),
-            )),
-        )
-            .parse(tokens)?;
+    let callback = Box::new(move |expression: Expression<'a>| Expression::Filter {
+        name,
+        expression: Box::new(expression),
+        vertical_bar: vertical_bar.source().clone(),
+        cow_prefix: cow_prefix.map(|token| token.source().clone()),
+        arguments,
+    });
 
-        for (vertical_bar, cow_prefix, name, arguments) in filters {
-            expression = Expression::Filter {
-                name,
-                expression: Box::new(expression),
-                vertical_bar: vertical_bar.source().clone(),
-                cow_prefix: cow_prefix.map(|token| token.source().clone()),
-                arguments,
-            }
-        }
-
-        Ok((tokens, expression))
-    }
+    Ok((tokens, callback))
 }
 
 fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
     let (tokens, (prefix, expression)) = (
         take(TokenKind::GreaterThan),
-        cut(
-            "Expected an expression after cow prefix",
-            expression(false, false),
-        ),
+        cut("Expected an expression after cow prefix", expression(false)),
     )
         .parse(tokens)?;
 

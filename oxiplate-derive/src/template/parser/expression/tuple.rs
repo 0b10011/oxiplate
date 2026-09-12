@@ -77,7 +77,7 @@ impl<'a> TupleItem<'a> {
         move |tokens| {
             let (tokens, (expression, comma)) = if require_comma {
                 let (tokens, (expression, comma)) = (
-                    context("Expected an expression", expression(true, true)),
+                    context("Expected an expression", expression(true)),
                     context("Expected `,` after expression", take(TokenKind::Comma)),
                 )
                     .parse(tokens)?;
@@ -85,7 +85,7 @@ impl<'a> TupleItem<'a> {
                 (tokens, (expression, Some(comma)))
             } else {
                 (
-                    context("Expected an expression", expression(true, true)),
+                    context("Expected an expression", expression(true)),
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )
                     .parse(tokens)?

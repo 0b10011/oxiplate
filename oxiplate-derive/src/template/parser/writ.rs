@@ -374,8 +374,7 @@ pub(super) fn writ<'a>(
             escaper,
         });
 
-        let (tokens, output) =
-            cut("Expected an expression.", expression(true, true)).parse(tokens)?;
+        let (tokens, output) = cut("Expected an expression.", expression(true)).parse(tokens)?;
         let (tokens, (trailing_whitespace, end_tag)) = cut(
             "Expected the writ tag to be closed with `_}}`, `-}}`, or `}}`.",
             tag_end(TagKind::Writ),
