@@ -22,7 +22,9 @@ mod filters_for_oxiplate {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ message | respond(*respond) ~ " " ~ 9 + 5 * 2 ~ " " ~ (message | respond(!respond)) }}"#)]
+#[oxiplate_inline(
+    r#"{{ message | respond(*respond) ~ " " ~ 9 + 5 * 2 ~ " " ~ (message | respond(!respond)) }}"#
+)]
 struct Respond {
     message: &'static str,
     respond: &'static bool,
