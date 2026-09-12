@@ -585,7 +585,12 @@ impl<'a> Expression<'a> {
     /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
-            Expression::Placeholder => todo!("Placeholder not yet handled h"),
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!("Placeholder expression should not have `source()` called for it")
+            }
+
             Expression::IdentifierOrFunction(identifier_or_function) => {
                 identifier_or_function.source()
             }
