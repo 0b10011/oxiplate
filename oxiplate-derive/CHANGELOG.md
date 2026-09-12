@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.18.0...oxiplate-derive-v0.18.1) - 2026-09-12
+
+### Fixed
+
+- fixed handling of multi-expression expressions
+
+### Other
+
+- started building source during token building phase for any items that may change due to precedence
+- updated toolchain to nightly-2026-09-03
+- stopped ignoring non-recoverable errors with `opt` and `many*` parsers
+- removed `ExpressionAccess` in favor of `Expression::FieldOrMethod`
+- switched to checking for reserved idents during tokenization to avoid multiple checks during parsing
+
 ## [0.18.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.17.1...oxiplate-derive-v0.18.0) - 2026-08-21
 
 ### Added
