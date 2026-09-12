@@ -195,7 +195,7 @@ fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
         let (tokens, (pattern, equal, expression)) = (
             cut(r#"Expected a pattern after "let""#, Pattern::parse),
             cut("Expected `=`", take(TokenKind::Equal)),
-            cut("Expected an expression after `=`", expression(true, true)),
+            cut("Expected an expression after `=`", expression(true)),
         )
             .parse(tokens)?;
 
@@ -212,7 +212,7 @@ fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
         ))
     } else {
         let (tokens, output) =
-            cut("Expected an expression after `if`", expression(true, true)).parse(tokens)?;
+            cut("Expected an expression after `if`", expression(true)).parse(tokens)?;
 
         let source = output.source().clone();
 

@@ -43,27 +43,23 @@ fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
         },
     ))
 }
-pub(super) fn parse_prefixed_expression<'a>(
-    allow_generic_nesting: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
-        let (tokens, prefix_operator) = parse_prefix_operator.parse(tokens)?;
+pub(super) fn parse_prefixed_expression(tokens: TokenSlice<'_>) -> Res<'_, Expression<'_>> {
+    let (tokens, prefix_operator) = parse_prefix_operator.parse(tokens)?;
 
-        let (tokens, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
-            cut(
-                "Expected an expression after prefix operator",
-                expression(allow_generic_nesting, true),
-            )
-            .parse(tokens)?
-        } else {
-            expression(allow_generic_nesting, true).parse(tokens)?
-        };
+    let (tokens, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
+        cut(
+            "Expected an expression after prefix operator",
+            expression(false),
+        )
+        .parse(tokens)?
+    } else {
+        expression(false).parse(tokens)?
+    };
 
-        Ok((
-            tokens,
-            Expression::Prefixed(prefix_operator, Box::new(expression)),
-        ))
-    }
+    Ok((
+        tokens,
+        Expression::Prefixed(prefix_operator, Box::new(expression)),
+    ))
 }
 
 #[derive(Debug)]

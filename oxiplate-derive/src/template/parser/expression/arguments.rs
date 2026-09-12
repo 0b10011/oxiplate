@@ -74,8 +74,8 @@ pub(crate) fn arguments(tokens: TokenSlice) -> Res<ArgumentsGroup> {
             "Expected comma-separated list of arguments followed by `)`",
             (
                 ignore_recoverable_errors((
-                    expression(true, true),
-                    many0((take(TokenKind::Comma), expression(true, true))),
+                    expression(true),
+                    many0((take(TokenKind::Comma), expression(true))),
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
                 take(TokenKind::CloseParenthese),

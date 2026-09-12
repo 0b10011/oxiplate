@@ -98,10 +98,7 @@ impl<'a> Match<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
         let (tokens, (statement, expression)) = (
             KeywordParser::new("match"),
-            cut(
-                r#"Expected an expression after "match""#,
-                expression(true, true),
-            ),
+            cut(r#"Expected an expression after "match""#, expression(true)),
         )
             .parse(tokens)?;
 
@@ -252,7 +249,7 @@ impl<'a> Guard<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (if_tag, expression)) = (
             KeywordParser::new("if"),
-            cut("Expected expression after `if`", expression(true, true)),
+            cut("Expected expression after `if`", expression(true)),
         )
             .parse(tokens)?;
 

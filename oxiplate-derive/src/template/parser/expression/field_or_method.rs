@@ -2,11 +2,11 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, context, fail, ignore_recoverable_errors, many1, take};
+use crate::parser::{Parser as _, ignore_recoverable_errors, many1, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::arguments::arguments;
 use crate::template::parser::expression::ident::IdentifierOrFunction;
-use crate::template::parser::expression::{Expression, Identifier, expression};
+use crate::template::parser::expression::{Expression, Identifier, NestedExpression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
@@ -19,27 +19,19 @@ pub struct FieldOrMethod<'a> {
 
 impl<'a> FieldOrMethod<'a> {
     /// Parse a field or method.
-    pub fn parser(allow_generic_nesting: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, Self> + 'a {
-        move |tokens| {
-            if !allow_generic_nesting {
-                return context(
-                    "Generic nesting of field or method not allowed in this context",
-                    fail(),
-                )
-                .parse(tokens);
-            }
+    pub fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+        let (tokens, fields) = many1(Field::parse).parse(tokens)?;
 
-            let (tokens, (expression, fields)) =
-                (expression(false, true), many1(Field::parse)).parse(tokens)?;
-
-            Ok((
-                tokens,
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
                 Self {
                     expression: Box::new(expression),
                     fields,
-                },
-            ))
-        }
+                }
+                .into()
+            }),
+        ))
     }
 
     /// Source for the entire group, including the parentheses.
