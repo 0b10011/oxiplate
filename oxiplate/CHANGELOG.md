@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.18.2...oxiplate-v0.19.0) - 2026-09-12
+
+### Added
+
+- [**breaking**] added support for proper expression precedence ([#294](https://github.com/0b10011/oxiplate/pull/294))
+
 ## [0.18.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.18.1...oxiplate-v0.18.2) - 2026-09-12
 
 ### Fixed
