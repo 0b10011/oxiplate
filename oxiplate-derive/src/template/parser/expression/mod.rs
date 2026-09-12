@@ -132,9 +132,7 @@ impl<'a> Expression<'a> {
         }
 
         // Grab the leftmost expression.
-        let Some(mut left) = self.take_left() else {
-            return;
-        };
+        let mut left = self.take_left();
 
         // Grab the rightmost expression from the left expression.
         let Some(mut lefts_right) = left.take_right() else {
@@ -196,7 +194,7 @@ impl<'a> Expression<'a> {
     /// Take the left expression,
     /// replacing it with `Expression::Placeholder` temporarily
     /// until a new expression is placed via `give_left()`.
-    fn take_left(&mut self) -> Option<Expression<'a>> {
+    fn take_left(&mut self) -> Expression<'a> {
         match self {
             // Placeholder is only temporary
             // and should never have this method called for it.
@@ -215,15 +213,16 @@ impl<'a> Expression<'a> {
             | Self::Tuple(_)
             | Self::IdentifierOrFunction(_)
             | Self::Prefixed(_, _)
-            | Self::Cow { .. } => None,
+            | Self::Cow { .. } => unreachable!(
+                "Expressions without an expression on the left should never have `take_left()` \
+                 called for them"
+            ),
 
             // Take the leftmost expression and return it.
-            Self::Index(left, _, _, _) | Self::Calc { left, .. } => Some(mem::take(left)),
-            Self::Filter { expression, .. } => Some(mem::take(expression)),
-            Self::FieldOrMethod(field_or_method) => {
-                Some(mem::take(&mut field_or_method.expression))
-            }
-            Self::Concat(concat) => Some(mem::take(concat.first_expression.as_mut())),
+            Self::Index(left, _, _, _) | Self::Calc { left, .. } => mem::take(left),
+            Self::Filter { expression, .. } => mem::take(expression),
+            Self::FieldOrMethod(field_or_method) => mem::take(&mut field_or_method.expression),
+            Self::Concat(concat) => mem::take(concat.first_expression.as_mut()),
         }
     }
 
