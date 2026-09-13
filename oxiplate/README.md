@@ -16,7 +16,79 @@
 [issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate
 
-Oxiplate is an *experimental* compile-time template system for Rust with a focus on helpful error messages, escaping, and whitespace control. Use at your own risk.
+Oxiplate is a work-in-progress compile-time template engine for Rust
+with a focus on helpful error messages, escaping, and whitespace control,
+while still including the primary functionality expected from such a library.
+
+## Features
+
+- [Helpful errors](#helpful-error-messages) regardless of where or when the error occurs (`better-errors` feature)
+- [Escaping for any markup language][escaping] with escapers scoped accordingly, specified first in writs, and guaranteed to run last
+- [Powerful whitespace control][whitespace control] around all tags with `-` and `_`
+- [Filters anywhere expressions are accepted][filters] with `EXPRESSION | FILTER` and `EXPRESSION | FILTER(ARGUMENTS)`
+- Destructuring (pattern matching) in `for`, `if let`, `elseif let`, and `case` statements
+- More efficient string handling with the [cow prefix][cow prefix] and [specialized escaping calls][unescaped text]
+- [Straightforward expression precedence][precedence]
+- [Separate library for traits][traits] to ensure third-party escapers and filters continue working even when there are breaking changes to the main libraries
+
+[cow prefix]: https://0b10011.io/oxiplate/templates/expressions/index.html#cow-prefix-for-more-efficient-string-conversion
+[escaping]: https://0b10011.io/oxiplate/templates/writs/escaping.html
+[filters]: https://0b10011.io/oxiplate/templates/expressions/filters.html
+[precedence]: https://0b10011.io/oxiplate/templates/expressions/expression-precedence.html
+[traits]: https://crates.io/crates/oxiplate-traits
+[unescaped text]: https://github.com/0b10011/oxiplate/blob/main/oxiplate-traits/src/unescaped_text.rs
+[whitespace control]: https://0b10011.io/oxiplate/templates/whitespace-control.html
+
+### Supported tags
+
+- [Whitespace control short tags][whitespace short tags] with `{-}` and `{_}`
+- [Writs to output content][writs] with `{{ ESCAPER_GROUP.ESCAPER: EXPRESSION }}`
+- [Statements][statements] with `{% STATEMENT %}`
+- [Comments that are discarded from the final template][comments] with `{# COMMENT #}`
+
+[whitespace short tags]: https://0b10011.io/oxiplate/templates/whitespace-control.html#short-tags
+[writs]: https://0b10011.io/oxiplate/templates/writs/index.html
+[statements]: https://0b10011.io/oxiplate/templates/statements/index.html
+[comments]: https://0b10011.io/oxiplate/templates/tags.html#comments
+
+### Supported statements
+
+- [Template inheritance][template inheritance] with `{% extends "TEMPLATE_PATH" %}`, `{% block BLOCK_NAME %}`, `{% parent %}`, and `{% endblock %}`
+- [Include content from other templates][include] with `{% include "TEMPLATE_PATH" %}`
+- [`for` loops][for] with `{% for PATTERN in EXPRESSION %}`, `{% else %}`, and `{% endfor %}`
+- [`if` statements][if] with `{% if EXPRESSION %}`, `{% elseif EXPRESSION %}`, `{% else %}`, and `{% endif %}`
+  - Pattern matching also supported with `{% if let PATTERN = EXPRESSION %}` (`elseif` also works)
+- [`match` statements][match] with `{% match EXPRESSION %}`, `{% case PATTERNS %}`, and `{% endmatch %}`
+  - Match guards are also supported: `{% case PATTERN if EXPRESSION %}`
+- [`let` statements][let] with `{% let PATTERN = EXPRESSION %}`
+- [In-template default escaper group control][default escaper group] with `{% default_escaper_group GROUP_NAME %}` and `{% replace_escaper_group GROUP_NAME %}`
+
+[default escaper group]: https://0b10011.io/oxiplate/templates/statements/default-escaper-group.html
+[expressions]: https://0b10011.io/oxiplate/templates/expressions.html
+[if]: https://0b10011.io/oxiplate/templates/statements/if-else.html
+[for]: https://0b10011.io/oxiplate/templates/statements/for.html
+[include]: https://0b10011.io/oxiplate/templates/statements/include.html
+[let]: https://0b10011.io/oxiplate/templates/statements/let.html
+[match]: https://0b10011.io/oxiplate/templates/statements/match.html
+[template inheritance]: https://0b10011.io/oxiplate/templates/statements/extends.html
+
+### What's missing?
+
+While 100% feature parity isn't a requirement,
+ensuring there's at lease _some_ way to achieve everything is important.
+Parity is being tracked across a few issues:
+
+- [Add common filters (#73)][common filters]
+- [Feature parity with other template engines (#302)][feature parity]
+- [Built-in framework support (#303)][framework support]
+
+There's also an [experimental branch to add translation support][translation branch],
+but that may or may not make it in before 1.0.
+
+[common filters]: https://github.com/0b10011/oxiplate/issues/73
+[feature parity]: https://github.com/0b10011/oxiplate/issues/302
+[framework support]: https://github.com/0b10011/oxiplate/issues/303
+[translation branch]: https://github.com/0b10011/oxiplate/tree/translation
 
 ## Using Oxiplate in your project
 
@@ -35,9 +107,8 @@ Position information is tracked across files and passed onto Rust.
 This results in debuggable error messages
 even when issues are caught by Rust instead of Oxiplate.
 
-```html.oxip
-<h1>{{ title }}</h1>
-<p>{{ message }}</p>
+```add.html.oxip
+{{ a }} + {{ b }} = {{ a + b }}
 ```
 
 ```rust,compile_fail
@@ -110,15 +181,12 @@ let profile_link = ProfileLink {
     name: r#"<!-- --><script>alert("hacked!");</script><!-- -->"#
 };
 
-print!("{}", profile_link.render()?);
-#
-# // Update HTML code block as well if output changes.
-# assert_eq!(
-#     profile_link.render()?,
-#     r#"<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
-# <a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
-# "#,
-# );
+assert_eq!(
+    profile_link.render()?,
+    r#"<!-- Profile link for ‹ǃ−− −−›‹script›alert("hackedǃ");‹/script›‹ǃ−− −−› -->
+<a href="&#34;><script>alert(&#34;hacked!&#34;);</script>">&lt;!-- -->&lt;script>alert("hacked!");&lt;/script>&lt;!-- --></a>
+"#,
+);
 #
 # Ok::<(), ::std::fmt::Error>(())
 ```
