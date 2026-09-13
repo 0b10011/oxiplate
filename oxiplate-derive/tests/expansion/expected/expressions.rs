@@ -41,16 +41,9 @@ impl ::core::fmt::Display for Respond {
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(
                                 format_args!(
-                                    "{0} {1}",
-                                    ::alloc::__export::must_use({
-                                        ::alloc::fmt::format(
-                                            format_args!(
-                                                "{0} {1}",
-                                                filters_for_oxiplate::respond(self.message, *self.respond),
-                                                9 + 5 * 2,
-                                            ),
-                                        )
-                                    }),
+                                    "{0} {1} {2}",
+                                    filters_for_oxiplate::respond(self.message, *self.respond),
+                                    9 + 5 * 2,
                                     (filters_for_oxiplate::respond(self.message, !self.respond)),
                                 ),
                             )

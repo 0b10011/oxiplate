@@ -399,6 +399,122 @@ impl<'a> Expression<'a> {
         }
     }
 
+    /// Merges expressions that can be joined together.
+    pub(self) fn merge_joinable(&mut self) {
+        match self {
+            // Placeholder is only temporary
+            // and should never have this method called for it.
+            Self::Placeholder => {
+                unreachable!(
+                    "Placeholder expression should not have `merge_joinable()` called for it"
+                )
+            }
+
+            // No expressions to merge.
+            Self::IdentifierOrFunction(_)
+            | Self::Char(_)
+            | Self::String(_)
+            | Self::Integer(_)
+            | Self::Float(_)
+            | Self::Bool(_)
+            | Self::Group(_)
+            | Self::Tuple(_)
+            | Self::FullRange { .. } => (),
+
+            // Concatenations are joinable
+            // resulting in a single `format!()` call
+            // per group of concatenated items.
+            Self::Concat(Concat {
+                first_expression,
+                additional_expressions,
+            }) => {
+                // Only the first and last expressions should need to be merged.
+                // The middle ones should always be
+                // single-expression items
+                // or items merged via this method.
+                // The last expression is handled later.
+                first_expression.merge_joinable();
+
+                // If the first item is also a concatenation,
+                // remove it,
+                // insert the first item from it here,
+                // and prepend the additional expressions from it
+                // to this concat's additional expressions.
+                if matches!(first_expression.as_ref(), Expression::Concat(_)) {
+                    let Self::Concat(Concat {
+                        first_expression: mut new_first_expression,
+                        additional_expressions: mut additional_expressions_to_add,
+                    }) = *mem::take(first_expression)
+                    else {
+                        unreachable!(
+                            "Expression is verified to be `Concat` immediately before doing the \
+                             destructuring"
+                        );
+                    };
+
+                    mem::swap(first_expression, &mut new_first_expression);
+                    mem::swap(additional_expressions, &mut additional_expressions_to_add);
+                    additional_expressions.extend(additional_expressions_to_add);
+                }
+
+                // If the last item is also a concatenation,
+                // remove it,
+                // merge joinable,
+                // and append all of the parts to this concat.
+                // Otherwise,
+                // just merge joinable.
+                if matches!(
+                    additional_expressions.last(),
+                    Some((_, Expression::Concat(_)))
+                ) {
+                    let (tilde, mut additional_expressions_to_add) = additional_expressions
+                        .pop()
+                        .expect("There should always be at least one expression");
+
+                    additional_expressions_to_add.merge_joinable();
+
+                    let Self::Concat(Concat {
+                        first_expression: first_expression_to_add,
+                        additional_expressions: additional_expressions_to_add,
+                    }) = additional_expressions_to_add
+                    else {
+                        unreachable!(
+                            "Expression is confirmed to be `Concat` just a few statements up"
+                        );
+                    };
+
+                    additional_expressions.push((tilde, *first_expression_to_add));
+                    additional_expressions.extend(additional_expressions_to_add);
+                } else {
+                    let (_tilde, additional_expressions_to_add) = additional_expressions
+                        .last_mut()
+                        .expect("There should always be at least one expression");
+
+                    additional_expressions_to_add.merge_joinable();
+                }
+            }
+
+            // Other expressions contain expressions
+            // that may need to have their expressions merged.
+            // Expressions that allow nesting,
+            // like the expression between brackets in index expressions,
+            // already handled merging joinable.
+            Self::Calc { left, right, .. } => {
+                left.merge_joinable();
+                if let Some(right) = right.as_mut() {
+                    right.merge_joinable();
+                }
+            }
+            Self::Prefixed(_, expression)
+            | Self::Cow { expression, .. }
+            | Self::Index(expression, _, _, _) => {
+                expression.merge_joinable();
+            }
+            Self::Filter { expression, .. } => expression.merge_joinable(),
+            Self::FieldOrMethod(field_or_method) => field_or_method.expression.merge_joinable(),
+        }
+    }
+
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
             Expression::Placeholder => (
@@ -683,6 +799,8 @@ pub(super) fn expression<'a>(
         }
 
         expression.fix_precedence();
+
+        expression.merge_joinable();
 
         Ok((tokens, expression))
     }

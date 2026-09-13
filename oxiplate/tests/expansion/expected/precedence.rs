@@ -43,14 +43,7 @@ impl ::oxiplate::Render for Data {
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(
-                                format_args!(
-                                    "{0}) ",
-                                    ::alloc::__export::must_use({
-                                        ::alloc::fmt::format(
-                                            format_args!(" ({0}", (9 + 5 * 2) * 100 + 89),
-                                        )
-                                    }),
-                                ),
+                                format_args!(" ({0}) ", (9 + 5 * 2) * 100 + 89),
                             )
                         })),
                     ))
