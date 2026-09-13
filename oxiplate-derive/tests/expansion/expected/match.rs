@@ -46,60 +46,53 @@ struct Data {
 impl ::core::fmt::Display for Data {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string =
-                    alloc::string::String::with_capacity(13usize);
-                let oxiplate_formatter = &mut string;
-                match (&self.name, self.cats_count) {
-                    (Ok(Name::Actual(name)), Some(cats_count)) => {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
-                        ;
-                        oxiplate_formatter.write_str(" cats named ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
-                        ;
-                        oxiplate_formatter.write_str("!")?;
-                    }
-                    (Ok(Name::Actual(missing_name)), None) => {
-                        oxiplate_formatter.write_str("No cats named ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
-                        ;
-                        oxiplate_formatter.write_str(" found :(")?;
-                    }
-                    (Ok(Name::Nickname { name }), Some(cats_count)) => {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
-                        ;
-                        oxiplate_formatter.write_str(" cats nicknamed ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
-                        ;
-                        oxiplate_formatter.write_str("!")?;
-                    }
-                    (Ok(Name::Nickname { name: missing_name }), None) => {
-                        oxiplate_formatter.write_str("No cats nicknamed ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
-                        ;
-                        oxiplate_formatter.write_str(" found :(")?;
-                    }
-                    (Ok(Name::Missing), Some(cats_count)) => {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
-                        ;
-                        oxiplate_formatter.write_str(" cats!")?;
-                    }
-                    (Ok(Name::Missing), None) => {
-                        oxiplate_formatter.write_str("No cats found :(")?;
-                    }
-                    (Err(_), _) => {
-                        oxiplate_formatter.write_str("Name could not be fetched.")?;
-                    }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match (&self.name, self.cats_count) {
+            (Ok(Name::Actual(name)), Some(cats_count)) => {
+                oxiplate_formatter.write_str("Found ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                ;
+                oxiplate_formatter.write_str(" cats named ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
+                ;
+                oxiplate_formatter.write_str("!")?;
+            }
+            (Ok(Name::Actual(missing_name)), None) => {
+                oxiplate_formatter.write_str("No cats named ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
+                ;
+                oxiplate_formatter.write_str(" found :(")?;
+            }
+            (Ok(Name::Nickname { name }), Some(cats_count)) => {
+                oxiplate_formatter.write_str("Found ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                ;
+                oxiplate_formatter.write_str(" cats nicknamed ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
+                ;
+                oxiplate_formatter.write_str("!")?;
+            }
+            (Ok(Name::Nickname { name: missing_name }), None) => {
+                oxiplate_formatter.write_str("No cats nicknamed ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
+                ;
+                oxiplate_formatter.write_str(" found :(")?;
+            }
+            (Ok(Name::Missing), Some(cats_count)) => {
+                oxiplate_formatter.write_str("Found ")?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                ;
+                oxiplate_formatter.write_str(" cats!")?;
+            }
+            (Ok(Name::Missing), None) => {
+                oxiplate_formatter.write_str("No cats found :(")?;
+            }
+            (Err(_), _) => {
+                oxiplate_formatter.write_str("Name could not be fetched.")?;
+            }
+        }
+        Ok(())
     }
 }
 
@@ -309,22 +302,15 @@ struct MultipleWrapper {
 impl ::core::fmt::Display for MultipleWrapper {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(2usize);
-                let oxiplate_formatter = &mut string;
-                if let Multiple { a: 10, b: 'b', c: "19", d: false } =
-                        self.multiple {
-                    oxiplate_formatter.write_str("bad")?;
-                } else if let Multiple { a: 10, b: 'b', c: "19", d: true } =
-                        self.multiple {
-                    oxiplate_formatter.write_str("yes")?;
-                } else { oxiplate_formatter.write_str("no")?; }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
+            oxiplate_formatter.write_str("bad")?;
+        } else if let Multiple { a: 10, b: 'b', c: "19", d: true } =
+                self.multiple {
+            oxiplate_formatter.write_str("yes")?;
+        } else { oxiplate_formatter.write_str("no")?; }
+        Ok(())
     }
 }
 extern crate test;
@@ -393,26 +379,18 @@ struct Outer {
 impl ::core::fmt::Display for Outer {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(6usize);
-                let oxiplate_formatter = &mut string;
-                if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } =
-                        self.a {
-                    oxiplate_formatter.write_str("a.b: ")?;
-                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
-                    ;
-                } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) =
-                        self.b {
-                    oxiplate_formatter.write_str("b.a: ")?;
-                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
-                    ;
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
+            oxiplate_formatter.write_str("a.b: ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+            ;
+        } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) = self.b {
+            oxiplate_formatter.write_str("b.a: ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+            ;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -518,23 +496,17 @@ struct RangeInteger {
 impl ::core::fmt::Display for RangeInteger {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(1usize);
-                let oxiplate_formatter = &mut string;
-                match self.value {
-                    ..1 => { oxiplate_formatter.write_str("To 1")?; }
-                    ..=1 => { oxiplate_formatter.write_str("Through 1")?; }
-                    2 => { oxiplate_formatter.write_str("2")?; }
-                    3..4 => { oxiplate_formatter.write_str("3 to 4")?; }
-                    3..=4 => { oxiplate_formatter.write_str("3 through 4")?; }
-                    3.. => { oxiplate_formatter.write_str("3 and up")?; }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match self.value {
+            ..1 => { oxiplate_formatter.write_str("To 1")?; }
+            ..=1 => { oxiplate_formatter.write_str("Through 1")?; }
+            2 => { oxiplate_formatter.write_str("2")?; }
+            3..4 => { oxiplate_formatter.write_str("3 to 4")?; }
+            3..=4 => { oxiplate_formatter.write_str("3 through 4")?; }
+            3.. => { oxiplate_formatter.write_str("3 and up")?; }
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -668,24 +640,18 @@ struct RangeFloat {
 impl ::core::fmt::Display for RangeFloat {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(1usize);
-                let oxiplate_formatter = &mut string;
-                match self.value {
-                    ..1. => { oxiplate_formatter.write_str("To 1")?; }
-                    ..=1. => { oxiplate_formatter.write_str("Through 1")?; }
-                    2.0 => { oxiplate_formatter.write_str("2")?; }
-                    3...4. => { oxiplate_formatter.write_str("3 to 4")?; }
-                    3...=4. => { oxiplate_formatter.write_str("3 through 4")?; }
-                    3... => { oxiplate_formatter.write_str("3 and up")?; }
-                    _ => { oxiplate_formatter.write_str("Something else")?; }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match self.value {
+            ..1. => { oxiplate_formatter.write_str("To 1")?; }
+            ..=1. => { oxiplate_formatter.write_str("Through 1")?; }
+            2.0 => { oxiplate_formatter.write_str("2")?; }
+            3...4. => { oxiplate_formatter.write_str("3 to 4")?; }
+            3...=4. => { oxiplate_formatter.write_str("3 through 4")?; }
+            3... => { oxiplate_formatter.write_str("3 and up")?; }
+            _ => { oxiplate_formatter.write_str("Something else")?; }
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -832,25 +798,17 @@ struct RangeChar {
 impl ::core::fmt::Display for RangeChar {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(1usize);
-                let oxiplate_formatter = &mut string;
-                match self.value {
-                    ..'b' => { oxiplate_formatter.write_str("To b")?; }
-                    ..='b' => { oxiplate_formatter.write_str("Through b")?; }
-                    'c' => { oxiplate_formatter.write_str("c")?; }
-                    'd'..'e' => { oxiplate_formatter.write_str("d to e")?; }
-                    'd'..='e' => {
-                        oxiplate_formatter.write_str("d through e")?;
-                    }
-                    'd'.. => { oxiplate_formatter.write_str("d and up")?; }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match self.value {
+            ..'b' => { oxiplate_formatter.write_str("To b")?; }
+            ..='b' => { oxiplate_formatter.write_str("Through b")?; }
+            'c' => { oxiplate_formatter.write_str("c")?; }
+            'd'..'e' => { oxiplate_formatter.write_str("d to e")?; }
+            'd'..='e' => { oxiplate_formatter.write_str("d through e")?; }
+            'd'.. => { oxiplate_formatter.write_str("d and up")?; }
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -981,24 +939,15 @@ struct MultipleCases {
 impl ::core::fmt::Display for MultipleCases {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string =
-                    alloc::string::String::with_capacity(10usize);
-                let oxiplate_formatter = &mut string;
-                match self.value {
-                    19 => { oxiplate_formatter.write_str("The best number")?; }
-                    42 => { oxiplate_formatter.write_str("The answer")?; }
-                    69 | 420 => {
-                        oxiplate_formatter.write_str("Internet number")?;
-                    }
-                    _ => { oxiplate_formatter.write_str("Boring number")?; }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match self.value {
+            19 => { oxiplate_formatter.write_str("The best number")?; }
+            42 => { oxiplate_formatter.write_str("The answer")?; }
+            69 | 420 => { oxiplate_formatter.write_str("Internet number")?; }
+            _ => { oxiplate_formatter.write_str("Boring number")?; }
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -1113,22 +1062,16 @@ struct Guard {
 impl ::core::fmt::Display for Guard {
     fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>)
         -> ::core::fmt::Result {
-        let string =
-            {
-                extern crate alloc;
-                use ::core::fmt::Write as _;
-                let mut string = alloc::string::String::with_capacity(3usize);
-                let oxiplate_formatter = &mut string;
-                match self.value {
-                    Some(number) if number % 2 == 0 => {
-                        oxiplate_formatter.write_str("Even")?;
-                    }
-                    Some(_) => { oxiplate_formatter.write_str("Odd")?; }
-                    None => { oxiplate_formatter.write_str("Missing")?; }
-                }
-                string
-            };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        match self.value {
+            Some(number) if number % 2 == 0 => {
+                oxiplate_formatter.write_str("Even")?;
+            }
+            Some(_) => { oxiplate_formatter.write_str("Odd")?; }
+            None => { oxiplate_formatter.write_str("Missing")?; }
+        }
+        Ok(())
     }
 }
 extern crate test;

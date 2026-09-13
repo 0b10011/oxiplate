@@ -32,137 +32,101 @@ impl ::core::fmt::Display for Math {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(129usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("1 + 2 = ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(1 + 2)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" + ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max + self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" - ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max - self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" * ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max * self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" / ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max / self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" % ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max % self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" + ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" * ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.min + self.min * self.max),
-                    ),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" + ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" / ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.max + self.max / self.min),
-                    ),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" - ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" % ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.max - self.min % self.min),
-                    ),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a)))?;
-            oxiplate_formatter.write_str(" - ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.b)))?;
-            oxiplate_formatter.write_str(" * ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.c)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.a - self.b * self.c)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a)))?;
-            oxiplate_formatter.write_str(" / ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.b)))?;
-            oxiplate_formatter.write_str(" + ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.c)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.a / self.b + self.c)),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("1 + 2 = ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(1 + 2)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" + ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max + self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" - ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max - self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" * ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max * self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" / ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max / self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" % ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max % self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" + ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" * ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.min + self.min * self.max)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" + ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" / ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.max + self.max / self.min)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" - ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" % ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.max - self.min % self.min)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a)))?;
+        oxiplate_formatter.write_str(" - ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.b)))?;
+        oxiplate_formatter.write_str(" * ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.c)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.a - self.b * self.c)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a)))?;
+        oxiplate_formatter.write_str(" / ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.b)))?;
+        oxiplate_formatter.write_str(" + ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.c)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.a / self.b + self.c)),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -242,75 +206,50 @@ impl ::core::fmt::Display for Comparisons {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(63usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" == ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.max == self.min)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" != ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.max != self.min)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" > ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max > self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" < ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max < self.min)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" >= ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.max >= self.min)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.max)))?;
-            oxiplate_formatter.write_str(" <= ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.min)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.max <= self.min)),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" == ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max == self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" != ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max != self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" > ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max > self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" < ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max < self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" >= ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max >= self.min)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
+        oxiplate_formatter.write_str(" <= ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.max <= self.min)))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -390,137 +329,97 @@ impl ::core::fmt::Display for OrAnd {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(135usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.yes || self.yes2)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes || self.no)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no || self.yes)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no || self.no2)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.yes && self.yes2)),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes && self.no)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no && self.yes)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no && self.no2)))?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.yes || self.no && self.no2),
-                    ),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.no || self.yes && self.no2),
-                    ),
-                )?;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.no)))?;
-            oxiplate_formatter.write_str(" || ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" && ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
-            oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.no || self.yes && self.yes2),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.yes || self.yes2)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.yes || self.no)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.no || self.yes)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.no || self.no2)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.yes && self.yes2)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.yes && self.no)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.no && self.yes)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.no && self.no2)))?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.yes || self.no && self.no2)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.no || self.yes && self.no2)),
+            )?;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
+        oxiplate_formatter.write_str(" || ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" && ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
+        oxiplate_formatter.write_str(" = ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.no || self.yes && self.yes2)),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -604,27 +503,22 @@ impl ::core::fmt::Display for OrderOfOperations {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(5usize);
-            let oxiplate_formatter = &mut string;
-            if self.a - self.b < self.c + self.b {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.a - self.b)))?;
-                oxiplate_formatter.write_str(" < ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.c + self.b)))?;
-            } else {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.a - self.b)))?;
-                oxiplate_formatter.write_str(" > ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.c + self.b)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.a - self.b < self.c + self.b {
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.a - self.b)))?;
+            oxiplate_formatter.write_str(" < ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.c + self.b)))?;
+        } else {
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.a - self.b)))?;
+            oxiplate_formatter.write_str(" > ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.c + self.b)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;

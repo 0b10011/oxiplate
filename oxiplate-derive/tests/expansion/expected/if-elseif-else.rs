@@ -26,30 +26,25 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(10usize);
-            let oxiplate_formatter = &mut string;
-            if self.do_this {
-                oxiplate_formatter.write_str("This then ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
-                oxiplate_formatter.write_str(" :D")?;
-            } else if self.do_that {
-                oxiplate_formatter.write_str("That then ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
-                oxiplate_formatter.write_str(" :D")?;
-            } else {
-                oxiplate_formatter.write_str("Can\'t ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
-                oxiplate_formatter.write_str(" :(")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.do_this {
+            oxiplate_formatter.write_str("This then ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(" :D")?;
+        } else if self.do_that {
+            oxiplate_formatter.write_str("That then ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(" :D")?;
+        } else {
+            oxiplate_formatter.write_str("Can\'t ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(" :(")?;
+        }
+        Ok(())
     }
 }
 extern crate test;

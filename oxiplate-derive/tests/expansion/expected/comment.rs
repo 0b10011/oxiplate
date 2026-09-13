@@ -13,14 +13,9 @@ impl ::core::fmt::Display for Hashes {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(0usize);
-            let oxiplate_formatter = &mut string;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        Ok(())
     }
 }
 extern crate test;
@@ -75,14 +70,9 @@ impl ::core::fmt::Display for TagEnds {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(0usize);
-            let oxiplate_formatter = &mut string;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        Ok(())
     }
 }
 extern crate test;

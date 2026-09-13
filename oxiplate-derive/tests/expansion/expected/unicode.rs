@@ -15,17 +15,11 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(5usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.foo)))?;
-            oxiplate_formatter.write_str("\u{276f}\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.foo)))?;
+        oxiplate_formatter.write_str("\u{276f}\n")?;
+        Ok(())
     }
 }
 extern crate test;

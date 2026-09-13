@@ -24,20 +24,14 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            if self.check {
-                oxiplate_formatter.write_str("bar")?;
-            } else if let Some(text) = self.ty {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(text)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.check {
+            oxiplate_formatter.write_str("bar")?;
+        } else if let Some(text) = self.ty {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(text)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;

@@ -16,28 +16,23 @@ impl ::core::fmt::Display for AbsoluteData {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(55usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        {
+            oxiplate_formatter.write_str("<h1>")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n")?;
-            {
-                oxiplate_formatter.write_str("<h1>")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-                oxiplate_formatter.write_str("</h1>\n  <p>")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
-                oxiplate_formatter.write_str("</p>")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            oxiplate_formatter.write_str("</h1>\n  <p>")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str("</p>")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -154,34 +149,27 @@ impl ::core::fmt::Display for Prefix {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(46usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        {
             {
-                {
-                    oxiplate_formatter.write_str("<p>")?;
-                    oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(&(self.message)),
-                        )?;
-                    oxiplate_formatter.write_str("</p>")?;
-                }
-                {
-                    oxiplate_formatter.write_str("test")?;
-                }
-                {}
-                {}
+                oxiplate_formatter.write_str("<p>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
             }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            {
+                oxiplate_formatter.write_str("test")?;
+            }
+            {}
+            {}
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -246,25 +234,20 @@ impl ::core::fmt::Display for Replace {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(42usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        {
+            oxiplate_formatter.write_str("<p>")?;
             oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n")?;
-            {
-                oxiplate_formatter.write_str("<p>")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
-                oxiplate_formatter.write_str("</p>")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str("</p>")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -330,34 +313,27 @@ impl ::core::fmt::Display for Suffix {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(46usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        {
+            {}
             {
-                {}
-                {
-                    oxiplate_formatter.write_str("test")?;
-                }
-                {}
-                {
-                    oxiplate_formatter.write_str("<p>")?;
-                    oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(&(self.message)),
-                        )?;
-                    oxiplate_formatter.write_str("</p>")?;
-                }
+                oxiplate_formatter.write_str("test")?;
             }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            {}
+            {
+                oxiplate_formatter.write_str("<p>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
+            }
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;

@@ -16,18 +16,13 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(104usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
+            )?;
+        Ok(())
     }
 }
 extern crate test;

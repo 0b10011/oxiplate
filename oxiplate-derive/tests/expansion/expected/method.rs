@@ -27,18 +27,13 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(self.user.display_name())),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&(self.user.display_name())),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -98,17 +93,12 @@ impl ::core::fmt::Display for Argument {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(4usize);
-            let oxiplate_formatter = &mut string;
-            if self.user.display_name().contains("i") {
-                oxiplate_formatter.write_str("yup!")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.user.display_name().contains("i") {
+            oxiplate_formatter.write_str("yup!")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -173,27 +163,22 @@ impl ::core::fmt::Display for Arguments {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.user.display_name().replace("a", "@")),
-                    ),
-                )?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(self.user.display_name().replace("a", "@")),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(self.user.display_name().replace("a", "@")),
+                ),
+            )?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(self.user.display_name().replace("a", "@")),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -256,16 +241,11 @@ impl ::core::fmt::Display for Callback {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
+        Ok(())
     }
 }
 extern crate test;

@@ -170,16 +170,13 @@ fn parse_input(
             );
             impl #generics ::core::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-                    let string = {
-                        extern crate alloc;
+                    extern crate alloc;
 
-                        use ::core::fmt::Write as _;
-                        let mut string = alloc::string::String::with_capacity(#estimated_length);
-                        let oxiplate_formatter = &mut string;
-                        #template
-                        string
-                    };
-                    oxiplate_formatter.write_str(&string)
+                    use ::core::fmt::Write as _;
+
+                    #template
+
+                    Ok(())
                 }
             }
         }
@@ -200,7 +197,9 @@ fn parse_input(
 
                     use ::core::fmt::Write as _;
                     use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+
                     #template
+
                     Ok(())
                 }
             }
@@ -209,16 +208,13 @@ fn parse_input(
         quote! {
             impl #generics ::core::fmt::Display for #ident #generics #where_clause {
                 fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-                    let string = {
-                        extern crate alloc;
+                    extern crate alloc;
 
-                        use ::core::fmt::Write as _;
-                        let mut string = alloc::string::String::with_capacity(#estimated_length);
-                        let oxiplate_formatter = &mut string;
-                        #template
-                        string
-                    };
-                    oxiplate_formatter.write_str(&string)
+                    use ::core::fmt::Write as _;
+
+                    #template
+
+                    Ok(())
                 }
             }
         }

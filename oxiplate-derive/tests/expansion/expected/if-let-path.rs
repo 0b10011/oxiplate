@@ -27,27 +27,19 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            if let Type::Text(text) = self.ty {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(text)))?;
-            } else if let Type::Numbers(left, right) = self.ty {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(left)))?;
-                oxiplate_formatter.write_str(" + ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(right)))?;
-                oxiplate_formatter.write_str(" = ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let Type::Text(text) = self.ty {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(text)))?;
+        } else if let Type::Numbers(left, right) = self.ty {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(left)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(right)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;

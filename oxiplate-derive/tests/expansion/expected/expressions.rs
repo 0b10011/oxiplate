@@ -30,29 +30,24 @@ impl ::core::fmt::Display for Respond {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(5usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(
-                                format_args!(
-                                    "{0} {1} {2}",
-                                    filters_for_oxiplate::respond(self.message, *self.respond),
-                                    9 + 5 * 2,
-                                    (filters_for_oxiplate::respond(self.message, !self.respond)),
-                                ),
-                            )
-                        })),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(
+                            format_args!(
+                                "{0} {1} {2}",
+                                filters_for_oxiplate::respond(self.message, *self.respond),
+                                9 + 5 * 2,
+                                (filters_for_oxiplate::respond(self.message, !self.respond)),
+                            ),
+                        )
+                    })),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;

@@ -16,24 +16,19 @@ impl ::core::fmt::Display for User {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(5usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(
-                                format_args!("{0} ({1})", self.name, self.company),
-                            )
-                        })),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(
+                            format_args!("{0} ({1})", self.name, self.company),
+                        )
+                    })),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -89,16 +84,11 @@ impl ::core::fmt::Display for ConcatStrings {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(11usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&("hello world")))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&("hello world")))?;
+        Ok(())
     }
 }
 extern crate test;

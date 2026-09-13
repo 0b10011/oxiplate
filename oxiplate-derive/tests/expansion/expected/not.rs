@@ -18,17 +18,12 @@ impl ::core::fmt::Display for Not {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            if !self.foo {
-                oxiplate_formatter.write_str("Yay")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if !self.foo {
+            oxiplate_formatter.write_str("Yay")?;
+        }
+        Ok(())
     }
 }
 extern crate test;

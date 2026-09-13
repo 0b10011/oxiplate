@@ -14,15 +14,10 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(11usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("hello world")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("hello world")?;
+        Ok(())
     }
 }
 extern crate test;

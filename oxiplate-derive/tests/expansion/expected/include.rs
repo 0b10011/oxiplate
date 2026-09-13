@@ -16,28 +16,23 @@ impl ::core::fmt::Display for Include {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(55usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        {
+            oxiplate_formatter.write_str("<h1>")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n")?;
-            {
-                oxiplate_formatter.write_str("<h1>")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-                oxiplate_formatter.write_str("</h1>\n  <p>")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
-                oxiplate_formatter.write_str("</p>")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            oxiplate_formatter.write_str("</h1>\n  <p>")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str("</p>")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -97,23 +92,18 @@ impl ::core::fmt::Display for IncludeDeep {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(32usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h1>\n")?;
-            oxiplate_formatter.write_str("<p>foo</p>\n")?;
-            oxiplate_formatter.write_str("\n<p>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</p>\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<h1>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</h1>\n")?;
+        oxiplate_formatter.write_str("<p>foo</p>\n")?;
+        oxiplate_formatter.write_str("\n<p>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        oxiplate_formatter.write_str("</p>\n")?;
+        Ok(())
     }
 }
 extern crate test;

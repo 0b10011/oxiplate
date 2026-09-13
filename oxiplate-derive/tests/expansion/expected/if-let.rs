@@ -47,66 +47,55 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(13usize);
-            let oxiplate_formatter = &mut string;
-            if let Ok(name) = &self.name {
-                if let Some(cats_count) = self.cats_count {
-                    if let Name::Actual(name) = name {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter
-                            .write_str(
-                                &alloc::string::ToString::to_string(&(cats_count)),
-                            )?;
-                        oxiplate_formatter.write_str(" cats named ")?;
-                        oxiplate_formatter
-                            .write_str(&alloc::string::ToString::to_string(&(name)))?;
-                        oxiplate_formatter.write_str("!")?;
-                    } else if let Name::Nickname { name } = name {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter
-                            .write_str(
-                                &alloc::string::ToString::to_string(&(cats_count)),
-                            )?;
-                        oxiplate_formatter.write_str(" cats nicknamed ")?;
-                        oxiplate_formatter
-                            .write_str(&alloc::string::ToString::to_string(&(name)))?;
-                        oxiplate_formatter.write_str("!")?;
-                    } else {
-                        oxiplate_formatter.write_str("Found ")?;
-                        oxiplate_formatter
-                            .write_str(
-                                &alloc::string::ToString::to_string(&(cats_count)),
-                            )?;
-                        oxiplate_formatter.write_str(" cats!")?;
-                    }
-                } else if let core::option::Option::None = self.cats_count {
-                    if let Name::Actual(missing_name) = &name {
-                        oxiplate_formatter.write_str("No cats named ")?;
-                        oxiplate_formatter
-                            .write_str(
-                                &alloc::string::ToString::to_string(&(missing_name)),
-                            )?;
-                        oxiplate_formatter.write_str(" found :(")?;
-                    } else if let Name::Nickname { name: missing_name } = &name {
-                        oxiplate_formatter.write_str("No cats nicknamed ")?;
-                        oxiplate_formatter
-                            .write_str(
-                                &alloc::string::ToString::to_string(&(missing_name)),
-                            )?;
-                        oxiplate_formatter.write_str(" found :(")?;
-                    } else {
-                        oxiplate_formatter.write_str("No cats found :(")?;
-                    }
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let Ok(name) = &self.name {
+            if let Some(cats_count) = self.cats_count {
+                if let Name::Actual(name) = name {
+                    oxiplate_formatter.write_str("Found ")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                    oxiplate_formatter.write_str(" cats named ")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(name)))?;
+                    oxiplate_formatter.write_str("!")?;
+                } else if let Name::Nickname { name } = name {
+                    oxiplate_formatter.write_str("Found ")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                    oxiplate_formatter.write_str(" cats nicknamed ")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(name)))?;
+                    oxiplate_formatter.write_str("!")?;
+                } else {
+                    oxiplate_formatter.write_str("Found ")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
+                    oxiplate_formatter.write_str(" cats!")?;
                 }
-            } else {
-                oxiplate_formatter.write_str("Name could not be fetched.")?;
+            } else if let core::option::Option::None = self.cats_count {
+                if let Name::Actual(missing_name) = &name {
+                    oxiplate_formatter.write_str("No cats named ")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &alloc::string::ToString::to_string(&(missing_name)),
+                        )?;
+                    oxiplate_formatter.write_str(" found :(")?;
+                } else if let Name::Nickname { name: missing_name } = &name {
+                    oxiplate_formatter.write_str("No cats nicknamed ")?;
+                    oxiplate_formatter
+                        .write_str(
+                            &alloc::string::ToString::to_string(&(missing_name)),
+                        )?;
+                    oxiplate_formatter.write_str(" found :(")?;
+                } else {
+                    oxiplate_formatter.write_str("No cats found :(")?;
+                }
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        } else {
+            oxiplate_formatter.write_str("Name could not be fetched.")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -326,21 +315,16 @@ impl ::core::fmt::Display for MultipleWrapper {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(2usize);
-            let oxiplate_formatter = &mut string;
-            if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
-                oxiplate_formatter.write_str("bad")?;
-            } else if let Multiple { a: 10, b: 'b', c: "19", d: true } = self.multiple {
-                oxiplate_formatter.write_str("yes")?;
-            } else {
-                oxiplate_formatter.write_str("no")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
+            oxiplate_formatter.write_str("bad")?;
+        } else if let Multiple { a: 10, b: 'b', c: "19", d: true } = self.multiple {
+            oxiplate_formatter.write_str("yes")?;
+        } else {
+            oxiplate_formatter.write_str("no")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -429,21 +413,16 @@ impl ::core::fmt::Display for Outer {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(6usize);
-            let oxiplate_formatter = &mut string;
-            if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
-                oxiplate_formatter.write_str("a.b: ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
-            } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
-                oxiplate_formatter.write_str("b.a: ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
+            oxiplate_formatter.write_str("a.b: ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+        } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
+            oxiplate_formatter.write_str("b.a: ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;

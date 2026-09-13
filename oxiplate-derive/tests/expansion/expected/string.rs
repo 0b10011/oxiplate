@@ -13,18 +13,13 @@ impl ::core::fmt::Display for RawString {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(21usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&("jane #\"the deer\"# doe")),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(&("jane #\"the deer\"# doe")),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -80,15 +75,10 @@ impl ::core::fmt::Display for EmptyString {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(0usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -144,15 +134,10 @@ impl ::core::fmt::Display for SevenBitEscapes {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(7usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
+        Ok(())
     }
 }
 extern crate test;

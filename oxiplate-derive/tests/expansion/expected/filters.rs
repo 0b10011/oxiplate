@@ -55,27 +55,22 @@ impl ::core::fmt::Display for Respond {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::respond(self.message, *self.respond)),
-                    ),
-                )?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::respond(self.message, !*self.respond)),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::respond(self.message, *self.respond)),
+                ),
+            )?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::respond(self.message, !*self.respond)),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -166,20 +161,15 @@ impl ::core::fmt::Display for Shorten {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::shorten(self.message, self.max_length)),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::shorten(self.message, self.max_length)),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -270,20 +260,15 @@ impl ::core::fmt::Display for Pad {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::pad(self.number, self.length)),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::pad(self.number, self.length)),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -358,23 +343,18 @@ impl ::core::fmt::Display for Multiple {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::shorten(
-                            filters_for_oxiplate::respond(self.message, false),
-                            self.length,
-                        )),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::shorten(
+                        filters_for_oxiplate::respond(self.message, false),
+                        self.length,
+                    )),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -492,27 +472,22 @@ impl ::core::fmt::Display for Trim {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::trim(self.value)),
-                    ),
-                )?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::trim(self.value)),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::trim(self.value)),
+                ),
+            )?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::trim(self.value)),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;
@@ -566,20 +541,15 @@ impl ::core::fmt::Display for Replace {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(filters_for_oxiplate::replace(self.value, "ar", "oo")),
-                    ),
-                )?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(
+                &alloc::string::ToString::to_string(
+                    &(filters_for_oxiplate::replace(self.value, "ar", "oo")),
+                ),
+            )?;
+        Ok(())
     }
 }
 extern crate test;

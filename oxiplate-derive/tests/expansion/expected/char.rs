@@ -13,15 +13,10 @@ impl ::core::fmt::Display for A {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('a')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('a')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -73,15 +68,10 @@ impl ::core::fmt::Display for SingleQuote {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\'')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\'')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -136,15 +126,10 @@ impl ::core::fmt::Display for DoubleQuote {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('"')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('"')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -199,15 +184,10 @@ impl ::core::fmt::Display for Slash {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\\')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\\')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -259,17 +239,12 @@ impl ::core::fmt::Display for NewLine {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -321,17 +296,12 @@ impl ::core::fmt::Display for CarriageReturn {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -386,17 +356,12 @@ impl ::core::fmt::Display for Tab {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
+        Ok(())
     }
 }
 extern crate test;
@@ -448,15 +413,10 @@ impl ::core::fmt::Display for Null {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\0')))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\0')))?;
+        Ok(())
     }
 }
 extern crate test;

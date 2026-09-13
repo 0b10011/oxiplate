@@ -24,23 +24,18 @@ impl ::core::fmt::Display for Set {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(6usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            let value = 19;
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-            let value = "89";
-            oxiplate_formatter.write_str("\n")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        let value = 19;
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        let value = "89";
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -116,46 +111,38 @@ impl ::core::fmt::Display for ShadowIf {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(11usize);
-            let oxiplate_formatter = &mut string;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        if self.value == "Hello world!" {
+            oxiplate_formatter.write_str("if ")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            if self.value == "Hello world!" {
-                oxiplate_formatter.write_str("if ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                let value = 19;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-            } else if self.value == "Goodbye world!" {
-                oxiplate_formatter.write_str("elseif ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                let value = 89;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-            } else {
-                oxiplate_formatter.write_str("else ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                let value = 42;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-            }
-            oxiplate_formatter.write_str("\n")?;
+            let value = 19;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        } else if self.value == "Goodbye world!" {
+            oxiplate_formatter.write_str("elseif ")?;
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            let value = 89;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        } else {
+            oxiplate_formatter.write_str("else ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            let value = 42;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -272,36 +259,30 @@ impl ::core::fmt::Display for ShadowFor {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(20usize);
-            let oxiplate_formatter = &mut string;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        for number in &self.numbers {
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            for number in &self.numbers {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(number)))?;
-                let value = 19;
-                let number = 89;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(number)))?;
-                oxiplate_formatter.write_str("\n")?;
-            }
+            oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                .write_str(&alloc::string::ToString::to_string(&(number)))?;
+            let value = 19;
+            let number = 89;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(number)))?;
             oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        }
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -388,40 +369,35 @@ impl ::core::fmt::Display for ShadowMatch {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(8usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            match self.number {
-                19 => {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                    let value = 19;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    oxiplate_formatter.write_str("\n")?;
-                }
-                value => {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    let value = "Goodbye world!";
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    oxiplate_formatter.write_str("\n")?;
-                }
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        match self.number {
+            19 => {
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                let value = 19;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str("\n")?;
             }
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            value => {
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                let value = "Goodbye world!";
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str("\n")?;
+            }
+        }
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -535,77 +511,72 @@ impl ::core::fmt::Display for Extends {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(97usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("</header>\n<main>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("</header>\n<main>")?;
+        {
             {
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                    let value = 69;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    oxiplate_formatter.write_str(" | ")?;
-                }
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                    let value = 19;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                }
-                {}
-                {
-                    oxiplate_formatter.write_str(" | ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                }
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                let value = 69;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(" | ")?;
             }
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("</main>\n")?;
-            let value = 42;
-            oxiplate_formatter.write_str("<footer>")?;
             {
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                    let value = 420;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    oxiplate_formatter.write_str(" | ")?;
-                }
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    let value = 89;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                }
-                {}
-                {
-                    oxiplate_formatter.write_str(" | ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                }
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                let value = 19;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-            oxiplate_formatter.write_str("</footer>\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            {}
+            {
+                oxiplate_formatter.write_str(" | ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            }
+        }
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("</main>\n")?;
+        let value = 42;
+        oxiplate_formatter.write_str("<footer>")?;
+        {
+            {
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                let value = 420;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(" | ")?;
+            }
+            {
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                let value = 89;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+            }
+            {}
+            {
+                oxiplate_formatter.write_str(" | ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            }
+        }
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        oxiplate_formatter.write_str("</footer>\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -663,53 +634,48 @@ impl ::core::fmt::Display for ExtendsDefault {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(77usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("</header>\n<main>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("</header>\n<main>")?;
+        {
+            {}
             {
-                {}
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-                    let value = 19;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                }
-                {}
-                {}
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                let value = 19;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("</main>\n")?;
-            let value = 42;
-            oxiplate_formatter.write_str("<footer>")?;
+            {}
+            {}
+        }
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("</main>\n")?;
+        let value = 42;
+        oxiplate_formatter.write_str("<footer>")?;
+        {
+            {}
             {
-                {}
-                {
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    let value = 89;
-                    oxiplate_formatter.write_str(" ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                }
-                {}
-                {}
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                let value = 89;
+                oxiplate_formatter.write_str(" ")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-            oxiplate_formatter.write_str("</footer>\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            {}
+            {}
+        }
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        oxiplate_formatter.write_str("</footer>\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -773,16 +739,11 @@ impl ::core::fmt::Display for Destructure {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            let DestructureData(value) = self.value;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        let DestructureData(value) = self.value;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+        Ok(())
     }
 }
 extern crate test;

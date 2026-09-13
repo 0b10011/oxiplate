@@ -24,39 +24,34 @@ impl ::core::fmt::Display for RangeToExclusive {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(81usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\n")?;
-            if (..3).contains(&-1) {
-                oxiplate_formatter.write_str("3 contains -1")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..self.b).contains(&-1) {
-                oxiplate_formatter.write_str("b contains -1")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..3).contains(&3) {
-                oxiplate_formatter.write_str("3 contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..self.b).contains(&3) {
-                oxiplate_formatter.write_str("b contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..3).contains(&4) {
-                oxiplate_formatter.write_str("3 contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..self.b).contains(&4) {
-                oxiplate_formatter.write_str("b contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\n")?;
+        if (..3).contains(&-1) {
+            oxiplate_formatter.write_str("3 contains -1")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..self.b).contains(&-1) {
+            oxiplate_formatter.write_str("b contains -1")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..3).contains(&3) {
+            oxiplate_formatter.write_str("3 contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..self.b).contains(&3) {
+            oxiplate_formatter.write_str("b contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..3).contains(&4) {
+            oxiplate_formatter.write_str("3 contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..self.b).contains(&4) {
+            oxiplate_formatter.write_str("b contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -129,39 +124,34 @@ impl ::core::fmt::Display for RangeToInclusive {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(81usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\n")?;
-            if (..=3).contains(&-1) {
-                oxiplate_formatter.write_str("3 contains -1")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..=self.b).contains(&-1) {
-                oxiplate_formatter.write_str("b contains -1")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..=3).contains(&3) {
-                oxiplate_formatter.write_str("3 contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..=self.b).contains(&3) {
-                oxiplate_formatter.write_str("b contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..=3).contains(&4) {
-                oxiplate_formatter.write_str("3 contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (..=self.b).contains(&4) {
-                oxiplate_formatter.write_str("b contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\n")?;
+        if (..=3).contains(&-1) {
+            oxiplate_formatter.write_str("3 contains -1")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..=self.b).contains(&-1) {
+            oxiplate_formatter.write_str("b contains -1")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..=3).contains(&3) {
+            oxiplate_formatter.write_str("3 contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..=self.b).contains(&3) {
+            oxiplate_formatter.write_str("b contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..=3).contains(&4) {
+            oxiplate_formatter.write_str("3 contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (..=self.b).contains(&4) {
+            oxiplate_formatter.write_str("b contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -234,39 +224,34 @@ impl ::core::fmt::Display for RangeFrom {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(83usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\n")?;
-            if (4..).contains(&3) {
-                oxiplate_formatter.write_str("4 contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..).contains(&3) {
-                oxiplate_formatter.write_str("a contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (4..).contains(&4) {
-                oxiplate_formatter.write_str("4 contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..).contains(&4) {
-                oxiplate_formatter.write_str("a contains 4")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (4..).contains(&127) {
-                oxiplate_formatter.write_str("4 contains 127")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..).contains(&127) {
-                oxiplate_formatter.write_str("a contains 127")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\n")?;
+        if (4..).contains(&3) {
+            oxiplate_formatter.write_str("4 contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..).contains(&3) {
+            oxiplate_formatter.write_str("a contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (4..).contains(&4) {
+            oxiplate_formatter.write_str("4 contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..).contains(&4) {
+            oxiplate_formatter.write_str("a contains 4")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (4..).contains(&127) {
+            oxiplate_formatter.write_str("4 contains 127")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..).contains(&127) {
+            oxiplate_formatter.write_str("a contains 127")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -344,55 +329,50 @@ impl ::core::fmt::Display for RangeExclusive {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(142usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\n")?;
-            if (3..19).contains(&2) {
-                oxiplate_formatter.write_str("3 contains 2")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..self.b).contains(&2) {
-                oxiplate_formatter.write_str("ab contains 2")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..19).contains(&4) {
-                oxiplate_formatter.write_str("3 contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..self.b).contains(&4) {
-                oxiplate_formatter.write_str("ab contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..19).contains(&18) {
-                oxiplate_formatter.write_str("3 contains 18")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..self.b).contains(&18) {
-                oxiplate_formatter.write_str("ab contains 18")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..19).contains(&19) {
-                oxiplate_formatter.write_str("3 contains 19")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..self.b).contains(&19) {
-                oxiplate_formatter.write_str("ab contains 19")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..19).contains(&20) {
-                oxiplate_formatter.write_str("3 contains 20")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..self.b).contains(&20) {
-                oxiplate_formatter.write_str("ab contains 20")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\n")?;
+        if (3..19).contains(&2) {
+            oxiplate_formatter.write_str("3 contains 2")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..self.b).contains(&2) {
+            oxiplate_formatter.write_str("ab contains 2")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..19).contains(&4) {
+            oxiplate_formatter.write_str("3 contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..self.b).contains(&4) {
+            oxiplate_formatter.write_str("ab contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..19).contains(&18) {
+            oxiplate_formatter.write_str("3 contains 18")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..self.b).contains(&18) {
+            oxiplate_formatter.write_str("ab contains 18")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..19).contains(&19) {
+            oxiplate_formatter.write_str("3 contains 19")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..self.b).contains(&19) {
+            oxiplate_formatter.write_str("ab contains 19")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..19).contains(&20) {
+            oxiplate_formatter.write_str("3 contains 20")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..self.b).contains(&20) {
+            oxiplate_formatter.write_str("ab contains 20")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -474,55 +454,50 @@ impl ::core::fmt::Display for RangeInclusive {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(142usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("\n")?;
-            if (3..=19).contains(&2) {
-                oxiplate_formatter.write_str("3 contains 2")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..=self.b).contains(&2) {
-                oxiplate_formatter.write_str("ab contains 2")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..=19).contains(&4) {
-                oxiplate_formatter.write_str("3 contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..=self.b).contains(&4) {
-                oxiplate_formatter.write_str("ab contains 3")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..=19).contains(&18) {
-                oxiplate_formatter.write_str("3 contains 18")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..=self.b).contains(&18) {
-                oxiplate_formatter.write_str("ab contains 18")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..=19).contains(&19) {
-                oxiplate_formatter.write_str("3 contains 19")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..=self.b).contains(&19) {
-                oxiplate_formatter.write_str("ab contains 19")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (3..=19).contains(&20) {
-                oxiplate_formatter.write_str("3 contains 20")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            if (self.a..=self.b).contains(&20) {
-                oxiplate_formatter.write_str("ab contains 20")?;
-            }
-            oxiplate_formatter.write_str("\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("\n")?;
+        if (3..=19).contains(&2) {
+            oxiplate_formatter.write_str("3 contains 2")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..=self.b).contains(&2) {
+            oxiplate_formatter.write_str("ab contains 2")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..=19).contains(&4) {
+            oxiplate_formatter.write_str("3 contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..=self.b).contains(&4) {
+            oxiplate_formatter.write_str("ab contains 3")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..=19).contains(&18) {
+            oxiplate_formatter.write_str("3 contains 18")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..=self.b).contains(&18) {
+            oxiplate_formatter.write_str("ab contains 18")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..=19).contains(&19) {
+            oxiplate_formatter.write_str("3 contains 19")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..=self.b).contains(&19) {
+            oxiplate_formatter.write_str("ab contains 19")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (3..=19).contains(&20) {
+            oxiplate_formatter.write_str("3 contains 20")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        if (self.a..=self.b).contains(&20) {
+            oxiplate_formatter.write_str("ab contains 20")?;
+        }
+        oxiplate_formatter.write_str("\n")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -599,31 +574,26 @@ impl ::core::fmt::Display for RangeFull {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(11usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[..])))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[2..])))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[..2])))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[..=2])))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[2..4])))?;
-            oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[..])))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[2..])))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[..2])))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[..=2])))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[2..4])))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
+        Ok(())
     }
 }
 extern crate test;

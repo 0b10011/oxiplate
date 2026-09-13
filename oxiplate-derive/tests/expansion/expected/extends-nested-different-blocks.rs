@@ -16,34 +16,27 @@ impl ::core::fmt::Display for AbsoluteData {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(97usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</title>\n</head>\n<body>")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str("</title>\n</head>\n<body>")?;
+        {
+            oxiplate_formatter.write_str("<main>")?;
             {
-                oxiplate_formatter.write_str("<main>")?;
-                {
-                    oxiplate_formatter.write_str("<h1>")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-                    oxiplate_formatter.write_str("</h1>\n  <p>")?;
-                    oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(&(self.message)),
-                        )?;
-                    oxiplate_formatter.write_str("</p>")?;
-                }
-                oxiplate_formatter.write_str("</main>")?;
+                oxiplate_formatter.write_str("<h1>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+                oxiplate_formatter.write_str("</h1>\n  <p>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
             }
-            oxiplate_formatter.write_str("</body>\n")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            oxiplate_formatter.write_str("</main>")?;
+        }
+        oxiplate_formatter.write_str("</body>\n")?;
+        Ok(())
     }
 }
 extern crate test;

@@ -15,17 +15,12 @@ impl ::core::fmt::Display for Comparison {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(3usize);
-            let oxiplate_formatter = &mut string;
-            if self.value == 5 {
-                oxiplate_formatter.write_str("bar")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.value == 5 {
+            oxiplate_formatter.write_str("bar")?;
+        }
+        Ok(())
     }
 }
 extern crate test;

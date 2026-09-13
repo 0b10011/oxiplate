@@ -23,27 +23,22 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(36usize);
-            let oxiplate_formatter = &mut string;
-            for a in &self.values {
-                for b in &self.values {
-                    oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(
-                                &(::alloc::__export::must_use({
-                                    ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
-                                })),
-                            ),
-                        )?;
-                    oxiplate_formatter.write_str("<br>")?;
-                }
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        for a in &self.values {
+            for b in &self.values {
+                oxiplate_formatter
+                    .write_str(
+                        &alloc::string::ToString::to_string(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
+                            })),
+                        ),
+                    )?;
+                oxiplate_formatter.write_str("<br>")?;
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -110,19 +105,13 @@ impl ::core::fmt::Display for Accounts {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(10usize);
-            let oxiplate_formatter = &mut string;
-            for Person { name } in &self.people {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(name)))?;
-                oxiplate_formatter.write_str("<br>")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        for Person { name } in &self.people {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
+            oxiplate_formatter.write_str("<br>")?;
+        }
+        Ok(())
     }
 }
 struct Person {
@@ -198,25 +187,19 @@ impl ::core::fmt::Display for ShadowVariable {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(17usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str("!\n")?;
-            for value in &self.values {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                oxiplate_formatter.write_str("\n")?;
-            }
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-            oxiplate_formatter.write_str(" again :D")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str("!\n")?;
+        for value in &self.values {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str("\n")?;
+        }
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(" again :D")?;
+        Ok(())
     }
 }
 extern crate test;
@@ -291,19 +274,14 @@ impl ::core::fmt::Display for Functions {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(4usize);
-            let oxiplate_formatter = &mut string;
-            for function in &self.functions {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(function())))?;
-                oxiplate_formatter.write_str("\n")?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        for function in &self.functions {
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(function())))?;
+            oxiplate_formatter.write_str("\n")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -375,26 +353,21 @@ impl ::core::fmt::Display for ForElse {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(10usize);
-            let oxiplate_formatter = &mut string;
-            {
-                let mut loop_ran = false;
-                for value in &self.values {
-                    loop_ran = true;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                    oxiplate_formatter.write_str("<br>")?;
-                }
-                if !loop_ran {
-                    oxiplate_formatter.write_str("No values :(")?;
-                }
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        {
+            let mut loop_ran = false;
+            for value in &self.values {
+                loop_ran = true;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str("<br>")?;
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            if !loop_ran {
+                oxiplate_formatter.write_str("No values :(")?;
+            }
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -463,22 +436,16 @@ impl ::core::fmt::Display for Continue {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(4usize);
-            let oxiplate_formatter = &mut string;
-            for value in &self.values {
-                if *value == 23 {
-                    continue;
-                }
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                oxiplate_formatter.write_str(" ")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        for value in &self.values {
+            if *value == 23 {
+                continue;
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str(" ")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -552,22 +519,16 @@ impl ::core::fmt::Display for Break {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(4usize);
-            let oxiplate_formatter = &mut string;
-            for value in &self.values {
-                if *value > 42 {
-                    break;
-                }
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
-                oxiplate_formatter.write_str(" ")?;
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        for value in &self.values {
+            if *value > 42 {
+                break;
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str(" ")?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -639,24 +600,19 @@ impl ::core::fmt::Display for BreakElse {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(0usize);
-            let oxiplate_formatter = &mut string;
-            {
-                let mut loop_ran = false;
-                for _value in &self.values {
-                    loop_ran = true;
-                    break;
-                }
-                if !loop_ran {
-                    oxiplate_formatter.write_str("No values :(")?;
-                }
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        {
+            let mut loop_ran = false;
+            for _value in &self.values {
+                loop_ran = true;
+                break;
             }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+            if !loop_ran {
+                oxiplate_formatter.write_str("No values :(")?;
+            }
+        }
+        Ok(())
     }
 }
 extern crate test;

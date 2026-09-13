@@ -13,27 +13,22 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(81usize);
-            let oxiplate_formatter = &mut string;
-            oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-            {
-                oxiplate_formatter.write_str("header")?;
-            }
-            oxiplate_formatter.write_str("</header>\n<main>")?;
-            {
-                oxiplate_formatter.write_str("main")?;
-            }
-            oxiplate_formatter.write_str("</main>\n<footer>")?;
-            {
-                oxiplate_formatter.write_str("footer")?;
-            }
-            oxiplate_formatter.write_str("</footer>")?;
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
+        {
+            oxiplate_formatter.write_str("header")?;
+        }
+        oxiplate_formatter.write_str("</header>\n<main>")?;
+        {
+            oxiplate_formatter.write_str("main")?;
+        }
+        oxiplate_formatter.write_str("</main>\n<footer>")?;
+        {
+            oxiplate_formatter.write_str("footer")?;
+        }
+        oxiplate_formatter.write_str("</footer>")?;
+        Ok(())
     }
 }
 extern crate test;

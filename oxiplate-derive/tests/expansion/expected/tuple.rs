@@ -19,17 +19,12 @@ impl ::core::fmt::Display for Single {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            if let (a,) = (self.a,) {
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a,) = (self.a,) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -90,22 +85,16 @@ impl ::core::fmt::Display for Double {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(9usize);
-            let oxiplate_formatter = &mut string;
-            if let (a, b) = (self.b, self.a) {
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
-                oxiplate_formatter.write_str(" + ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
-                oxiplate_formatter.write_str(" = ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(a + b)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a, b) = (self.b, self.a) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a + b)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;
@@ -173,25 +162,20 @@ impl ::core::fmt::Display for Several {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(9usize);
-            let oxiplate_formatter = &mut string;
-            if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(c)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(d)))?;
-                oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(e)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(c)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(d)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(e)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;

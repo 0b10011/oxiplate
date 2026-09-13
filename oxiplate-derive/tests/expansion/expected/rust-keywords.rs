@@ -23,22 +23,17 @@ impl ::core::fmt::Display for Data {
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
-        let string = {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            let mut string = alloc::string::String::with_capacity(1usize);
-            let oxiplate_formatter = &mut string;
-            if !self.r#ref.is_empty() {
-                oxiplate_formatter.write_str("Referee: ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
-            } else {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.r#else)))?;
-            }
-            string
-        };
-        oxiplate_formatter.write_str(&string)
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if !self.r#ref.is_empty() {
+            oxiplate_formatter.write_str("Referee: ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
+        } else {
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.r#else)))?;
+        }
+        Ok(())
     }
 }
 extern crate test;
