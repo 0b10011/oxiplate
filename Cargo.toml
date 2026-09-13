@@ -13,8 +13,8 @@ members = [
 authors = ["Brandon Frohs <brandon@19.codes>"]
 homepage = "https://0b10011.io/oxiplate"
 repository = "https://github.com/0b10011/oxiplate"
-categories = ["template-engine"]
-keywords = ["escaping", "whitespace-control", "compile-time"]
+categories = ["template-engine", "no-std", "web-programming", "text-processing"]
+keywords = ["escaping", "whitespace", "compile-time", "html", "jinja2"]
 license = "MIT OR Apache-2.0"
 edition = "2024"
 # Found with `cargo msrv --workspace find --no-default-features --features config,built-in-escapers,fast-escape-ints`
