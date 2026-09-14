@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.0...oxiplate-derive-v0.19.1) - 2026-09-14
+
+### Other
+
+- stopped building intermediate strings unnecessarily
+- merged consecutive concatenations together to reduce number of `format!()` calls
+
 ## [0.19.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.18.1...oxiplate-derive-v0.19.0) - 2026-09-12
 
 ### Added
