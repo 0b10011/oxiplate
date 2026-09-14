@@ -1,10 +1,8 @@
 extern crate alloc;
 
 use alloc::string::String;
-
-use oxiplate_traits::CowStr;
 #[cfg(test)]
-use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+use alloc::vec;
 
 /// Joins an iterable of strings using the provided glue.
 ///
@@ -14,7 +12,7 @@ use oxiplate_traits::{ToCowStr, cow_str_wrapper};
 /// use oxiplate::prelude::*;
 ///
 /// #[derive(Oxiplate)]
-/// #[oxiplate_inline(html: r#"{{ values | join(>", ") }}"#)]
+/// #[oxiplate_inline(html: r#"{{ values | join(", ") }}"#)]
 /// struct Data {
 ///     values: [&'static str; 3],
 /// }
@@ -27,13 +25,11 @@ use oxiplate_traits::{ToCowStr, cow_str_wrapper};
 ///     Ok(())
 /// }
 /// ```
-pub fn join<'a, I, S, G>(expression: I, glue: G) -> String
+pub fn join<I, S>(expression: I, glue: &str) -> String
 where
     I: IntoIterator<Item = S>,
     S: AsRef<str>,
-    G: CowStr<'a>,
 {
-    let glue = glue.cow_str();
     let mut values = expression.into_iter();
     let Some(first) = values.next() else {
         return String::new();
@@ -41,7 +37,7 @@ where
 
     let mut joined = String::from(first.as_ref());
     for value in values {
-        joined.push_str(&glue);
+        joined.push_str(glue);
         joined.push_str(value.as_ref());
     }
 
@@ -50,33 +46,38 @@ where
 
 #[test]
 fn string_slices() {
-    assert_eq!(
-        "red, green, blue",
-        join(["red", "green", "blue"], cow_str_wrapper!(", "))
-    );
+    assert_eq!("red, green, blue", join(["red", "green", "blue"], ", "));
 }
 
 #[test]
-fn strings() {
-    assert_eq!(
-        "red | green | blue",
-        join(
-            [
-                String::from("red"),
-                String::from("green"),
-                String::from("blue"),
-            ],
-            cow_str_wrapper!(String::from(" | ")),
-        )
-    );
+fn vec_of_string_slices() {
+    assert_eq!("red, green, blue", join(vec!["red", "green", "blue"], ", "));
+}
+
+#[test]
+fn borrowed_vec_of_strings() {
+    let values = vec![
+        String::from("red"),
+        String::from("green"),
+        String::from("blue"),
+    ];
+
+    assert_eq!("red | green | blue", join(&values, " | "));
 }
 
 #[test]
 fn empty() {
-    assert_eq!("", join::<_, &str, _>([], cow_str_wrapper!(", ")));
+    assert_eq!("", join::<_, &str>([], ", "));
 }
 
 #[test]
 fn one() {
-    assert_eq!("red", join(["red"], cow_str_wrapper!(", ")));
+    assert_eq!("red", join(["red"], ", "));
+}
+
+#[test]
+fn iterator() {
+    let values = ["red", "green", "blue"].into_iter().map(str::to_uppercase);
+
+    assert_eq!("RED/GREEN/BLUE", join(values, "/"));
 }
