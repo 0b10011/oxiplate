@@ -22,5 +22,6 @@
     - [match / case](templates/statements/match.md)
     - [let](templates/statements/let.md)
 - [Expressions](templates/expressions/README.md)
-    - [Filters](templates/expressions/filters.md)
     - [Expression precedence](templates/expressions/expression-precedence.md)
+    - [Filters](templates/expressions/filters/README.md)
+        - [`join` filter](templates/expressions/filters/join.md)

@@ -93,15 +93,7 @@ use crate::filters_for_oxiplate;
 
 | Filter | Arguments | Description |
 |-|-|-|
-| `join` | `glue` | Joins an iterator of strings, placing `glue` between each value. |
+| [`join`][] | `glue` | Joins an iterator of strings, placing `glue` between each value. |
 | `loop` | | Groups an iterator with a `Loop` struct containing additional loop iteration info. |
 
-For example, `join` can render a list of strings separated by a string slice:
-
-```oxip
-{{ values | join(", ") }}
-```
-
-Given `values` containing `red`, `green`, and `blue`, this renders:
-
-> red, green, blue
+[`join`]: ./join.md
