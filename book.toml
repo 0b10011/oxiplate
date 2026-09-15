@@ -29,5 +29,3 @@ runnable = false
 "/expressions.html" = "./templates/expressions/index.html"
 "/templates/expressions.html" = "./expressions/index.html"
 "/templates/expressions/filters.html" = "./filters/index.html"
-
-[preprocessor.codename]
