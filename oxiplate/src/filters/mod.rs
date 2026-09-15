@@ -50,12 +50,14 @@
 //! ```
 
 mod default;
+mod join;
 mod r#loop;
 mod lower;
 mod trim;
 mod upper;
 
 pub use default::default;
+pub use join::join;
 pub use r#loop::r#loop;
 pub use lower::lower;
 pub use trim::{trim, trim_end, trim_start};
