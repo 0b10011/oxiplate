@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- added `join` filter ([#327](https://github.com/0b10011/oxiplate/pull/327))
+- added `join` filter ([#327](https://github.com/0b10011/oxiplate/pull/327) by [@shubhambhar007](https://github.com/shubhambhar007))
 
 ## [0.19.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.0...oxiplate-v0.19.1) - 2026-09-14
 
