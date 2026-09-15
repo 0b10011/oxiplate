@@ -10,6 +10,7 @@ edition = "2024"
 
 [build]
 build-dir = "book/output"
+create-missing = false
 
 [output.html]
 git-repository-url = "https://github.com/0b10011/oxiplate"
