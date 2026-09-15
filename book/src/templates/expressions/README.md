@@ -43,9 +43,9 @@ it will be implied when a local variable of the same name doesn't exist.
 
 ## Filters
 
-{{#include filters.md:intro}}
+{{#include filters/README.md:intro}}
 
-Read more in the [filters chapter](./filters.md).
+Read more in the [filters chapter](./filters/README.md).
 
 ## Cow prefix for more efficient string conversion
 
