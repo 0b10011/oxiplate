@@ -1,3 +1,4 @@
+mod array;
 mod literal;
 mod range;
 mod r#struct;
@@ -15,6 +16,7 @@ use self::tuple::Tuple;
 use crate::parser::{Parser as _, alt, cut, ignore_all_errors, into, many1, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::Identifier;
+use crate::template::parser::statement::helpers::pattern::array::Array;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
@@ -24,6 +26,7 @@ pub(crate) enum Pattern<'a> {
     Ident(Identifier<'a>),
     Range(Range<'a>),
     Struct(Struct<'a>),
+    Array(Array<'a>),
     Tuple(Tuple<'a>),
     // TODO: foo @ 3..=7
 }
@@ -33,6 +36,7 @@ impl<'a> Pattern<'a> {
         alt((
             into(Range::parse),
             into(Literal::parse),
+            into(Array::parse),
             into(Tuple::parse),
             into(Struct::parse),
             into(Identifier::parse),
@@ -46,6 +50,7 @@ impl<'a> Pattern<'a> {
             Self::Ident(identifier) => identifier.source(),
             Self::Range(range) => range.source(),
             Self::Struct(r#struct) => r#struct.source(),
+            Self::Array(array) => array.source(),
             Self::Tuple(tuple) => tuple.source(),
         }
     }
@@ -54,6 +59,7 @@ impl<'a> Pattern<'a> {
         match self {
             Self::Ident(identifier) => HashSet::from([identifier.as_str()]),
             Self::Struct(value) => value.get_variables(),
+            Self::Array(value) => value.get_variables(),
             Self::Tuple(value) => value.get_variables(),
             Self::Literal(_) | Self::Range(_) => HashSet::new(),
         }
@@ -65,6 +71,7 @@ impl<'a> Pattern<'a> {
             Self::Ident(value) => quote! { #value },
             Self::Range(value) => value.to_tokens(state),
             Self::Struct(value) => value.to_tokens(state),
+            Self::Array(value) => value.to_tokens(state),
             Self::Tuple(value) => value.to_tokens(state),
         }
     }

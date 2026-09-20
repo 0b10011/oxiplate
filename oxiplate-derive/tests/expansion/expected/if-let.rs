@@ -541,11 +541,160 @@ fn nested() {
     };
 }
 extern crate test;
+#[rustc_test_marker = "array"]
+#[doc(hidden)]
+pub static array: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("array"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 189usize,
+        start_col: 4usize,
+        end_line: 189usize,
+        end_col: 9usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(array())),
+};
+fn array() {
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, b, c] = data[..] -%}
+            {{ a ~ " + " ~ b ~ " = " ~ c ~ " ... probably" -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: [usize; 3],
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            if let [a, b, c] = self.data[..] {
+                oxiplate_formatter
+                    .write_str(
+                        &alloc::string::ToString::to_string(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!("{0} + {1} = {2} ... probably", a, b, c),
+                                )
+                            })),
+                        ),
+                    )?;
+            }
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Data { data: [1, 2, 3] }))
+            }),
+            &"1 + 2 = 3 ... probably",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
+#[rustc_test_marker = "empty_array"]
+#[doc(hidden)]
+pub static empty_array: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_array"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 208usize,
+        start_col: 4usize,
+        end_line: 208usize,
+        end_col: 15usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(empty_array()),
+    ),
+};
+fn empty_array() {
+    #[oxiplate_inline(
+        r#"
+        {%- if let [] = data -%}
+            no data!
+        {%- endif %}"#
+    )]
+    struct Data {
+        data: [usize; 0],
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            if let [] = self.data {
+                oxiplate_formatter.write_str("no data!")?;
+            }
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Data { data: [] }))
+            }),
+            &"no data!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
     test::test_main_env_args(
-        &[&nested, &test_count, &test_count_name, &test_multiple, &test_name, &test_none],
+        &[
+            &array,
+            &empty_array,
+            &nested,
+            &test_count,
+            &test_count_name,
+            &test_multiple,
+            &test_name,
+            &test_none,
+        ],
     )
 }

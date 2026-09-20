@@ -184,3 +184,38 @@ fn nested() {
     assert_eq!(format!("{}", outer!(64, 19, 89, 42)), "b.a: 89");
     assert_eq!(format!("{}", outer!(64, 19, 89, 16)), "");
 }
+
+#[test]
+fn array() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, b, c] = data[..] -%}
+            {{ a ~ " + " ~ b ~ " = " ~ c ~ " ... probably" -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: [usize; 3],
+    }
+
+    assert_eq!(
+        format!("{}", Data { data: [1, 2, 3] }),
+        "1 + 2 = 3 ... probably"
+    );
+}
+
+#[test]
+fn empty_array() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+        {%- if let [] = data -%}
+            no data!
+        {%- endif %}"#
+    )]
+    struct Data {
+        data: [usize; 0],
+    }
+
+    assert_eq!(format!("{}", Data { data: [] }), "no data!");
+}
