@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.1...oxiplate-derive-v0.19.2) - 2026-09-20
+
+### Added
+
+- added support for binding identifiers when pattern matching (`ident @ 1 ..= 5`)
+- added support for rest patterns (`..`)
+- added support for array destructuring
+- added support for using within `#![no_implicit_prelude]` environments
+- added support for array expressions
+
+### Fixed
+
+- stopped failing to parse double borrows (`&&expr`)
+- changed variable in for loops from `loop_ran` to `oxiplate_loop_had_item` and added it to reserved names to prevent collisions
+- fixed higher unicode escapes in inline templates
+- changed error wording for missing expressions in for loops to avoid users thinking Oxiplate is somehow checking if an expression is iterable
+
+### Other
+
+- added test for recursive templates
+- added test to ensure comments can be present anywhere in a template that extends another
+- added test for setting a variable named `_` or starting with `_`
+- fixed expansion tests to not fail when non-rust files are present in the test directory
+- updated toolchain to nightly-2026-09-18
+- updated toolchain to nightly-2026-09-16
+
 ## [0.19.1](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.0...oxiplate-derive-v0.19.1) - 2026-09-14
 
 ### Other
