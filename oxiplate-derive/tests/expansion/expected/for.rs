@@ -356,14 +356,14 @@ impl ::core::fmt::Display for ForElse {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
-            let mut loop_ran = false;
+            let mut oxiplate_loop_had_item = false;
             for value in &self.values {
-                loop_ran = true;
+                oxiplate_loop_had_item = true;
                 oxiplate_formatter
                     .write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
-            if !loop_ran {
+            if !oxiplate_loop_had_item {
                 oxiplate_formatter.write_str("No values :(")?;
             }
         }
@@ -603,12 +603,12 @@ impl ::core::fmt::Display for BreakElse {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
-            let mut loop_ran = false;
+            let mut oxiplate_loop_had_item = false;
             for _value in &self.values {
-                loop_ran = true;
+                oxiplate_loop_had_item = true;
                 break;
             }
-            if !loop_ran {
+            if !oxiplate_loop_had_item {
                 oxiplate_formatter.write_str("No values :(")?;
             }
         }

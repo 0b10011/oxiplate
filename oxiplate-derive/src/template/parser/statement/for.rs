@@ -122,12 +122,12 @@ impl<'a> For<'a> {
             estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
-                    let mut loop_ran = false;
+                    let mut oxiplate_loop_had_item = false;
                     #for_keyword #pattern #in_keyword #expression {
-                        loop_ran = true;
+                        oxiplate_loop_had_item = true;
                         #template
                     }
-                    if !loop_ran {
+                    if !oxiplate_loop_had_item {
                         #otherwise
                     }
                 }

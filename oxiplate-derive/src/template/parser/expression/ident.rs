@@ -55,10 +55,6 @@ impl ToTokens for Identifier<'_> {
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
             | "yield" => syn::Ident::new_raw(self.source.as_str(), self.source.span_token()),
 
-            reserved_name @ ("self" | "super" | "oxiplate_formatter") => {
-                unreachable!("`{}` should have generated an error instead", reserved_name);
-            }
-
             _ => syn::Ident::new(self.source.as_str(), self.source.span_token()),
         };
 

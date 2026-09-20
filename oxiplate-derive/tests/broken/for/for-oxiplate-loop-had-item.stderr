@@ -1,0 +1,5 @@
+error: `oxiplate_loop_had_item` is a reserved name
+ --> tests/broken/for/for-oxiplate-loop-had-item.rs:6:9
+  |
+6 | {%- for oxiplate_loop_had_item in numbers -%}
+  |         ^^^^^^^^^^^^^^^^^^^^^^
