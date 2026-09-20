@@ -31,7 +31,7 @@ impl ::core::fmt::Display for AbsoluteData {
 extern crate test;
 #[rustc_test_marker = "absolute"]
 #[doc(hidden)]
-pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
+pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute"),
         ignore: false,
@@ -77,7 +77,7 @@ fn absolute() {
 extern crate test;
 #[rustc_test_marker = "absolute_2"]
 #[doc(hidden)]
-pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
+pub static absolute_2: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute_2"),
         ignore: false,
@@ -128,5 +128,5 @@ fn absolute_2() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&absolute, &absolute_2])
+    test::test_main_env_args(&[&absolute, &absolute_2])
 }

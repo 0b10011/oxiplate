@@ -26,7 +26,7 @@ impl ::core::fmt::Display for Comparison {
 extern crate test;
 #[rustc_test_marker = "test_equals_string"]
 #[doc(hidden)]
-pub const test_equals_string: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_equals_string: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_equals_string"),
         ignore: false,
@@ -72,7 +72,7 @@ fn test_equals_string() {
 extern crate test;
 #[rustc_test_marker = "test_does_not_equal_string"]
 #[doc(hidden)]
-pub const test_does_not_equal_string: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_does_not_equal_string: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_does_not_equal_string"),
         ignore: false,
@@ -120,5 +120,5 @@ fn test_does_not_equal_string() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test_does_not_equal_string, &test_equals_string])
+    test::test_main_env_args(&[&test_does_not_equal_string, &test_equals_string])
 }

@@ -40,7 +40,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "test"]
 #[doc(hidden)]
-pub const test: test::TestDescAndFn = test::TestDescAndFn {
+pub static test: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test"),
         ignore: false,
@@ -88,5 +88,5 @@ fn test() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test])
+    test::test_main_env_args(&[&test])
 }

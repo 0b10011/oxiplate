@@ -72,7 +72,7 @@ impl ::oxiplate::Render for Loop {
 extern crate test;
 #[rustc_test_marker = "test_loop"]
 #[doc(hidden)]
-pub const test_loop: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_loop: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_loop"),
         ignore: false,
@@ -128,5 +128,5 @@ first: #1 (#0) 19
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test_loop])
+    test::test_main_env_args(&[&test_loop])
 }

@@ -51,7 +51,7 @@ impl ::oxiplate::Render for Html {
 extern crate test;
 #[rustc_test_marker = "html"]
 #[doc(hidden)]
-pub const html: test::TestDescAndFn = test::TestDescAndFn {
+pub static html: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("html"),
         ignore: false,
@@ -116,5 +116,5 @@ hello
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&html])
+    test::test_main_env_args(&[&html])
 }

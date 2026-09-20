@@ -23,7 +23,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "external_unicode"]
 #[doc(hidden)]
-pub const external_unicode: test::TestDescAndFn = test::TestDescAndFn {
+pub static external_unicode: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("external_unicode"),
         ignore: false,
@@ -71,5 +71,5 @@ fn external_unicode() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&external_unicode])
+    test::test_main_env_args(&[&external_unicode])
 }

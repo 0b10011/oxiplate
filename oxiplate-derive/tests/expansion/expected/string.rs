@@ -25,7 +25,7 @@ impl ::core::fmt::Display for RawString {
 extern crate test;
 #[rustc_test_marker = "raw_string"]
 #[doc(hidden)]
-pub const raw_string: test::TestDescAndFn = test::TestDescAndFn {
+pub static raw_string: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("raw_string"),
         ignore: false,
@@ -84,7 +84,7 @@ impl ::core::fmt::Display for EmptyString {
 extern crate test;
 #[rustc_test_marker = "empty_string"]
 #[doc(hidden)]
-pub const empty_string: test::TestDescAndFn = test::TestDescAndFn {
+pub static empty_string: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty_string"),
         ignore: false,
@@ -143,7 +143,7 @@ impl ::core::fmt::Display for SevenBitEscapes {
 extern crate test;
 #[rustc_test_marker = "seven_bit_escapes"]
 #[doc(hidden)]
-pub const seven_bit_escapes: test::TestDescAndFn = test::TestDescAndFn {
+pub static seven_bit_escapes: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("seven_bit_escapes"),
         ignore: false,
@@ -190,5 +190,5 @@ fn seven_bit_escapes() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&empty_string, &raw_string, &seven_bit_escapes])
+    test::test_main_env_args(&[&empty_string, &raw_string, &seven_bit_escapes])
 }

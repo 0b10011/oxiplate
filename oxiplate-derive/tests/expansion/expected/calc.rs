@@ -132,7 +132,7 @@ impl ::core::fmt::Display for Math {
 extern crate test;
 #[rustc_test_marker = "test_math"]
 #[doc(hidden)]
-pub const test_math: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_math: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_math"),
         ignore: false,
@@ -255,7 +255,7 @@ impl ::core::fmt::Display for Comparisons {
 extern crate test;
 #[rustc_test_marker = "test_comparisons"]
 #[doc(hidden)]
-pub const test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_comparisons: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_comparisons"),
         ignore: false,
@@ -425,7 +425,7 @@ impl ::core::fmt::Display for OrAnd {
 extern crate test;
 #[rustc_test_marker = "test_or_and"]
 #[doc(hidden)]
-pub const test_or_and: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_or_and: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_or_and"),
         ignore: false,
@@ -524,7 +524,7 @@ impl ::core::fmt::Display for OrderOfOperations {
 extern crate test;
 #[rustc_test_marker = "test_order_of_operations"]
 #[doc(hidden)]
-pub const test_order_of_operations: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_order_of_operations: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_order_of_operations"),
         ignore: false,
@@ -576,7 +576,7 @@ fn test_order_of_operations() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[&test_comparisons, &test_math, &test_or_and, &test_order_of_operations],
     )
 }

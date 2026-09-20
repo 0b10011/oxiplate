@@ -44,7 +44,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "test_for"]
 #[doc(hidden)]
-pub const test_for: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_for: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_for"),
         ignore: false,
@@ -120,7 +120,7 @@ struct Person {
 extern crate test;
 #[rustc_test_marker = "test_method_calls"]
 #[doc(hidden)]
-pub const test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_method_calls"),
         ignore: false,
@@ -205,7 +205,7 @@ impl ::core::fmt::Display for ShadowVariable {
 extern crate test;
 #[rustc_test_marker = "test_shadow_variable"]
 #[doc(hidden)]
-pub const test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_shadow_variable"),
         ignore: false,
@@ -287,7 +287,7 @@ impl ::core::fmt::Display for Functions {
 extern crate test;
 #[rustc_test_marker = "test_function_variables"]
 #[doc(hidden)]
-pub const test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_function_variables"),
         ignore: false,
@@ -373,7 +373,7 @@ impl ::core::fmt::Display for ForElse {
 extern crate test;
 #[rustc_test_marker = "test_for_else"]
 #[doc(hidden)]
-pub const test_for_else: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_for_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_for_else"),
         ignore: false,
@@ -451,7 +451,7 @@ impl ::core::fmt::Display for Continue {
 extern crate test;
 #[rustc_test_marker = "test_continue"]
 #[doc(hidden)]
-pub const test_continue: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_continue: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_continue"),
         ignore: false,
@@ -534,7 +534,7 @@ impl ::core::fmt::Display for Break {
 extern crate test;
 #[rustc_test_marker = "test_break"]
 #[doc(hidden)]
-pub const test_break: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_break: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_break"),
         ignore: false,
@@ -618,7 +618,7 @@ impl ::core::fmt::Display for BreakElse {
 extern crate test;
 #[rustc_test_marker = "test_break_else"]
 #[doc(hidden)]
-pub const test_break_else: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_break_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_break_else"),
         ignore: false,
@@ -673,7 +673,7 @@ fn test_break_else() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[
             &test_break,
             &test_break_else,

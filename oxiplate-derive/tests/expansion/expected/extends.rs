@@ -38,7 +38,7 @@ impl ::core::fmt::Display for AbsoluteData {
 extern crate test;
 #[rustc_test_marker = "absolute"]
 #[doc(hidden)]
-pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
+pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute"),
         ignore: false,
@@ -85,7 +85,7 @@ fn absolute() {
 extern crate test;
 #[rustc_test_marker = "absolute_2"]
 #[doc(hidden)]
-pub const absolute_2: test::TestDescAndFn = test::TestDescAndFn {
+pub static absolute_2: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute_2"),
         ignore: false,
@@ -175,7 +175,7 @@ impl ::core::fmt::Display for Prefix {
 extern crate test;
 #[rustc_test_marker = "prefix"]
 #[doc(hidden)]
-pub const prefix: test::TestDescAndFn = test::TestDescAndFn {
+pub static prefix: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("prefix"),
         ignore: false,
@@ -253,7 +253,7 @@ impl ::core::fmt::Display for Replace {
 extern crate test;
 #[rustc_test_marker = "replace"]
 #[doc(hidden)]
-pub const replace: test::TestDescAndFn = test::TestDescAndFn {
+pub static replace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("replace"),
         ignore: false,
@@ -339,7 +339,7 @@ impl ::core::fmt::Display for Suffix {
 extern crate test;
 #[rustc_test_marker = "suffix"]
 #[doc(hidden)]
-pub const suffix: test::TestDescAndFn = test::TestDescAndFn {
+pub static suffix: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("suffix"),
         ignore: false,
@@ -387,5 +387,5 @@ fn suffix() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&absolute, &absolute_2, &prefix, &replace, &suffix])
+    test::test_main_env_args(&[&absolute, &absolute_2, &prefix, &replace, &suffix])
 }

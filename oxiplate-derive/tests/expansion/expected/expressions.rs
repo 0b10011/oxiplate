@@ -53,7 +53,7 @@ impl ::core::fmt::Display for Respond {
 extern crate test;
 #[rustc_test_marker = "combination"]
 #[doc(hidden)]
-pub const combination: test::TestDescAndFn = test::TestDescAndFn {
+pub static combination: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("combination"),
         ignore: false,
@@ -108,5 +108,5 @@ fn combination() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&combination])
+    test::test_main_env_args(&[&combination])
 }

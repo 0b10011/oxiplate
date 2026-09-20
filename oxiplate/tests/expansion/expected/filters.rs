@@ -95,7 +95,7 @@ impl ::oxiplate::Render for Respond {
 extern crate test;
 #[rustc_test_marker = "respond"]
 #[doc(hidden)]
-pub const respond: test::TestDescAndFn = test::TestDescAndFn {
+pub static respond: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("respond"),
         ignore: false,
@@ -192,7 +192,7 @@ impl ::oxiplate::Render for Shorten {
 extern crate test;
 #[rustc_test_marker = "shorten"]
 #[doc(hidden)]
-pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
+pub static shorten: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("shorten"),
         ignore: false,
@@ -300,7 +300,7 @@ impl ::oxiplate::Render for Pad {
 extern crate test;
 #[rustc_test_marker = "pad"]
 #[doc(hidden)]
-pub const pad: test::TestDescAndFn = test::TestDescAndFn {
+pub static pad: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("pad"),
         ignore: false,
@@ -409,7 +409,7 @@ impl ::oxiplate::Render for Multiple {
 extern crate test;
 #[rustc_test_marker = "multiple"]
 #[doc(hidden)]
-pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
+pub static multiple: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multiple"),
         ignore: false,
@@ -517,5 +517,5 @@ fn multiple() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&multiple, &pad, &respond, &shorten])
+    test::test_main_env_args(&[&multiple, &pad, &respond, &shorten])
 }

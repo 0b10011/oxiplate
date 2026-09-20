@@ -22,7 +22,7 @@ impl ::core::fmt::Display for A {
 extern crate test;
 #[rustc_test_marker = "a"]
 #[doc(hidden)]
-pub const a: test::TestDescAndFn = test::TestDescAndFn {
+pub static a: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("a"),
         ignore: false,
@@ -77,7 +77,7 @@ impl ::core::fmt::Display for SingleQuote {
 extern crate test;
 #[rustc_test_marker = "single_quote"]
 #[doc(hidden)]
-pub const single_quote: test::TestDescAndFn = test::TestDescAndFn {
+pub static single_quote: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("single_quote"),
         ignore: false,
@@ -135,7 +135,7 @@ impl ::core::fmt::Display for DoubleQuote {
 extern crate test;
 #[rustc_test_marker = "double_quote"]
 #[doc(hidden)]
-pub const double_quote: test::TestDescAndFn = test::TestDescAndFn {
+pub static double_quote: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("double_quote"),
         ignore: false,
@@ -193,7 +193,7 @@ impl ::core::fmt::Display for Slash {
 extern crate test;
 #[rustc_test_marker = "slash"]
 #[doc(hidden)]
-pub const slash: test::TestDescAndFn = test::TestDescAndFn {
+pub static slash: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("slash"),
         ignore: false,
@@ -250,7 +250,7 @@ impl ::core::fmt::Display for NewLine {
 extern crate test;
 #[rustc_test_marker = "new_line"]
 #[doc(hidden)]
-pub const new_line: test::TestDescAndFn = test::TestDescAndFn {
+pub static new_line: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("new_line"),
         ignore: false,
@@ -307,7 +307,7 @@ impl ::core::fmt::Display for CarriageReturn {
 extern crate test;
 #[rustc_test_marker = "carriage_return"]
 #[doc(hidden)]
-pub const carriage_return: test::TestDescAndFn = test::TestDescAndFn {
+pub static carriage_return: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("carriage_return"),
         ignore: false,
@@ -367,7 +367,7 @@ impl ::core::fmt::Display for Tab {
 extern crate test;
 #[rustc_test_marker = "tab"]
 #[doc(hidden)]
-pub const tab: test::TestDescAndFn = test::TestDescAndFn {
+pub static tab: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("tab"),
         ignore: false,
@@ -422,7 +422,7 @@ impl ::core::fmt::Display for Null {
 extern crate test;
 #[rustc_test_marker = "null"]
 #[doc(hidden)]
-pub const null: test::TestDescAndFn = test::TestDescAndFn {
+pub static null: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("null"),
         ignore: false,
@@ -466,7 +466,7 @@ fn null() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[
             &a,
             &carriage_return,

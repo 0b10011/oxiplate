@@ -5,7 +5,7 @@ use std::prelude::rust_2024::*;
 extern crate test;
 #[rustc_test_marker = "broken"]
 #[doc(hidden)]
-pub const broken: test::TestDescAndFn = test::TestDescAndFn {
+pub static broken: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("broken"),
         ignore: true,
@@ -42,5 +42,5 @@ fn broken() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&broken])
+    test::test_main_env_args(&[&broken])
 }

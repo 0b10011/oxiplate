@@ -101,7 +101,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "test_count"]
 #[doc(hidden)]
-pub const test_count: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_count: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_count"),
         ignore: false,
@@ -150,7 +150,7 @@ fn test_count() {
 extern crate test;
 #[rustc_test_marker = "test_count_name"]
 #[doc(hidden)]
-pub const test_count_name: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_count_name: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_count_name"),
         ignore: false,
@@ -199,7 +199,7 @@ fn test_count_name() {
 extern crate test;
 #[rustc_test_marker = "test_name"]
 #[doc(hidden)]
-pub const test_name: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_name: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_name"),
         ignore: false,
@@ -247,7 +247,7 @@ fn test_name() {
 extern crate test;
 #[rustc_test_marker = "test_none"]
 #[doc(hidden)]
-pub const test_none: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_none: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_none"),
         ignore: false,
@@ -330,7 +330,7 @@ impl ::core::fmt::Display for MultipleWrapper {
 extern crate test;
 #[rustc_test_marker = "test_multiple"]
 #[doc(hidden)]
-pub const test_multiple: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_multiple: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_multiple"),
         ignore: false,
@@ -428,7 +428,7 @@ impl ::core::fmt::Display for Outer {
 extern crate test;
 #[rustc_test_marker = "nested"]
 #[doc(hidden)]
-pub const nested: test::TestDescAndFn = test::TestDescAndFn {
+pub static nested: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("nested"),
         ignore: false,
@@ -545,7 +545,7 @@ fn nested() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[&nested, &test_count, &test_count_name, &test_multiple, &test_name, &test_none],
     )
 }

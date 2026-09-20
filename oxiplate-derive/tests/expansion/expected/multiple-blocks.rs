@@ -34,7 +34,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "multiple_blocks"]
 #[doc(hidden)]
-pub const multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
+pub static multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multiple_blocks"),
         ignore: false,
@@ -82,5 +82,5 @@ fn multiple_blocks() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&multiple_blocks])
+    test::test_main_env_args(&[&multiple_blocks])
 }

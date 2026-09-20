@@ -30,7 +30,7 @@ impl ::core::fmt::Display for Single {
 extern crate test;
 #[rustc_test_marker = "single"]
 #[doc(hidden)]
-pub const single: test::TestDescAndFn = test::TestDescAndFn {
+pub static single: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("single"),
         ignore: false,
@@ -100,7 +100,7 @@ impl ::core::fmt::Display for Double {
 extern crate test;
 #[rustc_test_marker = "double"]
 #[doc(hidden)]
-pub const double: test::TestDescAndFn = test::TestDescAndFn {
+pub static double: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("double"),
         ignore: false,
@@ -181,7 +181,7 @@ impl ::core::fmt::Display for Several {
 extern crate test;
 #[rustc_test_marker = "several"]
 #[doc(hidden)]
-pub const several: test::TestDescAndFn = test::TestDescAndFn {
+pub static several: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("several"),
         ignore: false,
@@ -236,5 +236,5 @@ fn several() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&double, &several, &single])
+    test::test_main_env_args(&[&double, &several, &single])
 }

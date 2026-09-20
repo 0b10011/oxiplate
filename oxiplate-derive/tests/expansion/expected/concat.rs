@@ -34,7 +34,7 @@ impl ::core::fmt::Display for User {
 extern crate test;
 #[rustc_test_marker = "variable"]
 #[doc(hidden)]
-pub const variable: test::TestDescAndFn = test::TestDescAndFn {
+pub static variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("variable"),
         ignore: false,
@@ -94,7 +94,7 @@ impl ::core::fmt::Display for ConcatStrings {
 extern crate test;
 #[rustc_test_marker = "concat_strings"]
 #[doc(hidden)]
-pub const concat_strings: test::TestDescAndFn = test::TestDescAndFn {
+pub static concat_strings: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("concat_strings"),
         ignore: false,
@@ -141,5 +141,5 @@ fn concat_strings() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&concat_strings, &variable])
+    test::test_main_env_args(&[&concat_strings, &variable])
 }

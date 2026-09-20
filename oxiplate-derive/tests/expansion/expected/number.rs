@@ -162,7 +162,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "field"]
 #[doc(hidden)]
-pub const field: test::TestDescAndFn = test::TestDescAndFn {
+pub static field: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("field"),
         ignore: false,
@@ -218,5 +218,5 @@ oct: 0 0 -19 -19 -342391",
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&field])
+    test::test_main_env_args(&[&field])
 }

@@ -28,7 +28,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "adjusted_whitespace"]
 #[doc(hidden)]
-pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
+pub static adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("adjusted_whitespace"),
         ignore: false,
@@ -76,5 +76,5 @@ fn adjusted_whitespace() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&adjusted_whitespace])
+    test::test_main_env_args(&[&adjusted_whitespace])
 }

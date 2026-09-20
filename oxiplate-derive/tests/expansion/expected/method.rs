@@ -39,7 +39,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "field"]
 #[doc(hidden)]
-pub const field: test::TestDescAndFn = test::TestDescAndFn {
+pub static field: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("field"),
         ignore: false,
@@ -104,7 +104,7 @@ impl ::core::fmt::Display for Argument {
 extern crate test;
 #[rustc_test_marker = "field_with_argument"]
 #[doc(hidden)]
-pub const field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
+pub static field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("field_with_argument"),
         ignore: false,
@@ -184,7 +184,7 @@ impl ::core::fmt::Display for Arguments {
 extern crate test;
 #[rustc_test_marker = "field_with_arguments"]
 #[doc(hidden)]
-pub const field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
+pub static field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("field_with_arguments"),
         ignore: false,
@@ -251,7 +251,7 @@ impl ::core::fmt::Display for Callback {
 extern crate test;
 #[rustc_test_marker = "callback"]
 #[doc(hidden)]
-pub const callback: test::TestDescAndFn = test::TestDescAndFn {
+pub static callback: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("callback"),
         ignore: false,
@@ -297,7 +297,7 @@ fn callback() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[&callback, &field, &field_with_argument, &field_with_arguments],
     )
 }

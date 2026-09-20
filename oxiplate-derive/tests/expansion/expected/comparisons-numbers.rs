@@ -26,7 +26,7 @@ impl ::core::fmt::Display for Comparison {
 extern crate test;
 #[rustc_test_marker = "test_5u8"]
 #[doc(hidden)]
-pub const test_5u8: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_5u8: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_5u8"),
         ignore: false,
@@ -69,7 +69,7 @@ fn test_5u8() {
 extern crate test;
 #[rustc_test_marker = "test_5"]
 #[doc(hidden)]
-pub const test_5: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_5: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_5"),
         ignore: false,
@@ -112,7 +112,7 @@ fn test_5() {
 extern crate test;
 #[rustc_test_marker = "test_4u8"]
 #[doc(hidden)]
-pub const test_4u8: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_4u8: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_4u8"),
         ignore: false,
@@ -155,7 +155,7 @@ fn test_4u8() {
 extern crate test;
 #[rustc_test_marker = "test_4"]
 #[doc(hidden)]
-pub const test_4: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_4: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_4"),
         ignore: false,
@@ -200,5 +200,5 @@ fn test_4() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test_4, &test_4u8, &test_5, &test_5u8])
+    test::test_main_env_args(&[&test_4, &test_4u8, &test_5, &test_5u8])
 }

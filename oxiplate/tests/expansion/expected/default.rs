@@ -58,7 +58,7 @@ impl ::oxiplate::Render for Data {
 extern crate test;
 #[rustc_test_marker = "some"]
 #[doc(hidden)]
-pub const some: test::TestDescAndFn = test::TestDescAndFn {
+pub static some: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("some"),
         ignore: false,
@@ -106,7 +106,7 @@ fn some() {
 extern crate test;
 #[rustc_test_marker = "none"]
 #[doc(hidden)]
-pub const none: test::TestDescAndFn = test::TestDescAndFn {
+pub static none: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("none"),
         ignore: false,
@@ -151,5 +151,5 @@ fn none() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&none, &some])
+    test::test_main_env_args(&[&none, &some])
 }

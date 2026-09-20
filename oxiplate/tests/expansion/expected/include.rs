@@ -58,7 +58,7 @@ impl ::oxiplate::Render for Include {
 extern crate test;
 #[rustc_test_marker = "include"]
 #[doc(hidden)]
-pub const include: test::TestDescAndFn = test::TestDescAndFn {
+pub static include: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("include"),
         ignore: false,
@@ -146,7 +146,7 @@ impl ::oxiplate::Render for IncludeDeep {
 extern crate test;
 #[rustc_test_marker = "include_deep"]
 #[doc(hidden)]
-pub const include_deep: test::TestDescAndFn = test::TestDescAndFn {
+pub static include_deep: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("include_deep"),
         ignore: false,
@@ -197,5 +197,5 @@ fn include_deep() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&include, &include_deep])
+    test::test_main_env_args(&[&include, &include_deep])
 }

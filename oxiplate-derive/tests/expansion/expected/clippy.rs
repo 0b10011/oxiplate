@@ -10,7 +10,7 @@ use std::process::{Command, Output};
 extern crate test;
 #[rustc_test_marker = "clippy"]
 #[doc(hidden)]
-pub const clippy: test::TestDescAndFn = test::TestDescAndFn {
+pub static clippy: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("clippy"),
         ignore: true,
@@ -166,5 +166,5 @@ fn clippy() -> Result<(), Box<dyn Error>> {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&clippy])
+    test::test_main_env_args(&[&clippy])
 }

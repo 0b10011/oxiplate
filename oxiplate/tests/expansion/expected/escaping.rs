@@ -238,7 +238,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
 extern crate test;
 #[rustc_test_marker = "types"]
 #[doc(hidden)]
-pub const types: test::TestDescAndFn = test::TestDescAndFn {
+pub static types: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("types"),
         ignore: false,
@@ -325,5 +325,5 @@ Hello world &lt;<script><!--
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&types])
+    test::test_main_env_args(&[&types])
 }

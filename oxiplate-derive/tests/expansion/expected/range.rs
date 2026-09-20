@@ -57,7 +57,7 @@ impl ::core::fmt::Display for RangeToExclusive {
 extern crate test;
 #[rustc_test_marker = "range_to_exclusive"]
 #[doc(hidden)]
-pub const range_to_exclusive: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_to_exclusive: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_to_exclusive"),
         ignore: false,
@@ -157,7 +157,7 @@ impl ::core::fmt::Display for RangeToInclusive {
 extern crate test;
 #[rustc_test_marker = "range_to_inclusive"]
 #[doc(hidden)]
-pub const range_to_inclusive: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_to_inclusive: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_to_inclusive"),
         ignore: false,
@@ -257,7 +257,7 @@ impl ::core::fmt::Display for RangeFrom {
 extern crate test;
 #[rustc_test_marker = "range_from"]
 #[doc(hidden)]
-pub const range_from: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_from: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_from"),
         ignore: false,
@@ -378,7 +378,7 @@ impl ::core::fmt::Display for RangeExclusive {
 extern crate test;
 #[rustc_test_marker = "range_exclusive"]
 #[doc(hidden)]
-pub const range_exclusive: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_exclusive: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_exclusive"),
         ignore: false,
@@ -503,7 +503,7 @@ impl ::core::fmt::Display for RangeInclusive {
 extern crate test;
 #[rustc_test_marker = "range_inclusive"]
 #[doc(hidden)]
-pub const range_inclusive: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_inclusive: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_inclusive"),
         ignore: false,
@@ -599,7 +599,7 @@ impl ::core::fmt::Display for RangeFull {
 extern crate test;
 #[rustc_test_marker = "range_full"]
 #[doc(hidden)]
-pub const range_full: test::TestDescAndFn = test::TestDescAndFn {
+pub static range_full: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("range_full"),
         ignore: false,
@@ -646,7 +646,7 @@ fn range_full() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[
             &range_exclusive,
             &range_from,

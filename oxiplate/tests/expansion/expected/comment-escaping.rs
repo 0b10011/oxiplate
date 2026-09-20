@@ -39,7 +39,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
 extern crate test;
 #[rustc_test_marker = "comment"]
 #[doc(hidden)]
-pub const comment: test::TestDescAndFn = test::TestDescAndFn {
+pub static comment: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("comment"),
         ignore: false,
@@ -133,5 +133,5 @@ fn comment() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&comment])
+    test::test_main_env_args(&[&comment])
 }

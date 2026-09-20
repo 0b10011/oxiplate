@@ -28,7 +28,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "format_injection"]
 #[doc(hidden)]
-pub const format_injection: test::TestDescAndFn = test::TestDescAndFn {
+pub static format_injection: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("format_injection"),
         ignore: false,
@@ -78,5 +78,5 @@ fn format_injection() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&format_injection])
+    test::test_main_env_args(&[&format_injection])
 }

@@ -76,7 +76,7 @@ impl ::core::fmt::Display for Respond {
 extern crate test;
 #[rustc_test_marker = "respond"]
 #[doc(hidden)]
-pub const respond: test::TestDescAndFn = test::TestDescAndFn {
+pub static respond: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("respond"),
         ignore: false,
@@ -175,7 +175,7 @@ impl ::core::fmt::Display for Shorten {
 extern crate test;
 #[rustc_test_marker = "shorten"]
 #[doc(hidden)]
-pub const shorten: test::TestDescAndFn = test::TestDescAndFn {
+pub static shorten: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("shorten"),
         ignore: false,
@@ -274,7 +274,7 @@ impl ::core::fmt::Display for Pad {
 extern crate test;
 #[rustc_test_marker = "pad"]
 #[doc(hidden)]
-pub const pad: test::TestDescAndFn = test::TestDescAndFn {
+pub static pad: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("pad"),
         ignore: false,
@@ -360,7 +360,7 @@ impl ::core::fmt::Display for Multiple {
 extern crate test;
 #[rustc_test_marker = "multiple"]
 #[doc(hidden)]
-pub const multiple: test::TestDescAndFn = test::TestDescAndFn {
+pub static multiple: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multiple"),
         ignore: false,
@@ -493,7 +493,7 @@ impl ::core::fmt::Display for Trim {
 extern crate test;
 #[rustc_test_marker = "trim"]
 #[doc(hidden)]
-pub const trim: test::TestDescAndFn = test::TestDescAndFn {
+pub static trim: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("trim"),
         ignore: false,
@@ -555,7 +555,7 @@ impl ::core::fmt::Display for Replace {
 extern crate test;
 #[rustc_test_marker = "replace"]
 #[doc(hidden)]
-pub const replace: test::TestDescAndFn = test::TestDescAndFn {
+pub static replace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("replace"),
         ignore: false,
@@ -599,5 +599,5 @@ fn replace() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&multiple, &pad, &replace, &respond, &shorten, &trim])
+    test::test_main_env_args(&[&multiple, &pad, &replace, &respond, &shorten, &trim])
 }

@@ -51,7 +51,7 @@ impl ::oxiplate::Render for Html {
 extern crate test;
 #[rustc_test_marker = "html"]
 #[doc(hidden)]
-pub const html: test::TestDescAndFn = test::TestDescAndFn {
+pub static html: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("html"),
         ignore: false,
@@ -136,7 +136,7 @@ impl ::oxiplate::Render for Json {
 extern crate test;
 #[rustc_test_marker = "json"]
 #[doc(hidden)]
-pub const json: test::TestDescAndFn = test::TestDescAndFn {
+pub static json: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("json"),
         ignore: false,
@@ -186,5 +186,5 @@ fn json() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&html, &json])
+    test::test_main_env_args(&[&html, &json])
 }

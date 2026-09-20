@@ -21,7 +21,7 @@ impl ::core::fmt::Display for Hashes {
 extern crate test;
 #[rustc_test_marker = "hashes"]
 #[doc(hidden)]
-pub const hashes: test::TestDescAndFn = test::TestDescAndFn {
+pub static hashes: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("hashes"),
         ignore: false,
@@ -78,7 +78,7 @@ impl ::core::fmt::Display for TagEnds {
 extern crate test;
 #[rustc_test_marker = "tag_ends"]
 #[doc(hidden)]
-pub const tag_ends: test::TestDescAndFn = test::TestDescAndFn {
+pub static tag_ends: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("tag_ends"),
         ignore: false,
@@ -122,5 +122,5 @@ fn tag_ends() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&hashes, &tag_ends])
+    test::test_main_env_args(&[&hashes, &tag_ends])
 }

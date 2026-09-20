@@ -42,7 +42,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "test_if"]
 #[doc(hidden)]
-pub const test_if: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_if"),
         ignore: false,
@@ -88,7 +88,7 @@ fn test_if() {
 extern crate test;
 #[rustc_test_marker = "test_else"]
 #[doc(hidden)]
-pub const test_else: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("test_else"),
         ignore: false,
@@ -136,5 +136,5 @@ fn test_else() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&test_else, &test_if])
+    test::test_main_env_args(&[&test_else, &test_if])
 }

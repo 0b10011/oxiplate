@@ -25,7 +25,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "overridden_std"]
 #[doc(hidden)]
-pub const overridden_std: test::TestDescAndFn = test::TestDescAndFn {
+pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("overridden_std"),
         ignore: false,
@@ -73,5 +73,5 @@ fn overridden_std() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&overridden_std])
+    test::test_main_env_args(&[&overridden_std])
 }

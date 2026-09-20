@@ -58,7 +58,7 @@ impl ::oxiplate::Render for AbsoluteData {
 extern crate test;
 #[rustc_test_marker = "absolute"]
 #[doc(hidden)]
-pub const absolute: test::TestDescAndFn = test::TestDescAndFn {
+pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("absolute"),
         ignore: false,
@@ -107,5 +107,5 @@ fn absolute() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&absolute])
+    test::test_main_env_args(&[&absolute])
 }

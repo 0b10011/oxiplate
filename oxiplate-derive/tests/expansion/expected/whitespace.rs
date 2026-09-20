@@ -22,7 +22,7 @@ impl ::core::fmt::Display for AdjustedWhitespace {
 extern crate test;
 #[rustc_test_marker = "adjusted_whitespace"]
 #[doc(hidden)]
-pub const adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
+pub static adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("adjusted_whitespace"),
         ignore: false,
@@ -92,7 +92,7 @@ impl ::core::fmt::Display for WritWhitespaceControl {
 extern crate test;
 #[rustc_test_marker = "writ_whitespace_control"]
 #[doc(hidden)]
-pub const writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
+pub static writ_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("writ_whitespace_control"),
         ignore: false,
@@ -157,7 +157,7 @@ impl ::core::fmt::Display for CommentWhitespaceControl {
 extern crate test;
 #[rustc_test_marker = "comment_whitespace_control"]
 #[doc(hidden)]
-pub const comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
+pub static comment_whitespace_control: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("comment_whitespace_control"),
         ignore: false,
@@ -297,7 +297,7 @@ impl ::core::fmt::Display for AdjacentTags {
 extern crate test;
 #[rustc_test_marker = "adjacent_tags"]
 #[doc(hidden)]
-pub const adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
+pub static adjacent_tags: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("adjacent_tags"),
         ignore: false,
@@ -374,7 +374,7 @@ impl ::core::fmt::Display for WhitespaceOnly {
 extern crate test;
 #[rustc_test_marker = "whitespace_only"]
 #[doc(hidden)]
-pub const whitespace_only: test::TestDescAndFn = test::TestDescAndFn {
+pub static whitespace_only: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("whitespace_only"),
         ignore: false,
@@ -421,7 +421,7 @@ fn whitespace_only() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[
             &adjacent_tags,
             &adjusted_whitespace,

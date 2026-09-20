@@ -99,7 +99,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "test_count"]
 #[doc(hidden)]
-pub const test_count: test::TestDescAndFn =
+pub static test_count: test::TestDescAndFn =
     test::TestDescAndFn {
 
         desc: test::TestDesc {
@@ -162,7 +162,7 @@ fn test_count() {
 extern crate test;
 #[rustc_test_marker = "test_count_name"]
 #[doc(hidden)]
-pub const test_count_name: test::TestDescAndFn =
+pub static test_count_name: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("test_count_name"),
@@ -204,7 +204,7 @@ fn test_count_name() {
 extern crate test;
 #[rustc_test_marker = "test_name"]
 #[doc(hidden)]
-pub const test_name: test::TestDescAndFn =
+pub static test_name: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("test_name"),
@@ -246,7 +246,7 @@ fn test_name() {
 extern crate test;
 #[rustc_test_marker = "test_none"]
 #[doc(hidden)]
-pub const test_none: test::TestDescAndFn =
+pub static test_none: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("test_none"),
@@ -316,7 +316,7 @@ impl ::core::fmt::Display for MultipleWrapper {
 extern crate test;
 #[rustc_test_marker = "test_multiple"]
 #[doc(hidden)]
-pub const test_multiple: test::TestDescAndFn =
+pub static test_multiple: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("test_multiple"),
@@ -396,7 +396,7 @@ impl ::core::fmt::Display for Outer {
 extern crate test;
 #[rustc_test_marker = "nested"]
 #[doc(hidden)]
-pub const nested: test::TestDescAndFn =
+pub static nested: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("nested"),
@@ -512,7 +512,7 @@ impl ::core::fmt::Display for RangeInteger {
 extern crate test;
 #[rustc_test_marker = "range_integer"]
 #[doc(hidden)]
-pub const range_integer: test::TestDescAndFn =
+pub static range_integer: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("range_integer"),
@@ -657,7 +657,7 @@ impl ::core::fmt::Display for RangeFloat {
 extern crate test;
 #[rustc_test_marker = "range_float"]
 #[doc(hidden)]
-pub const range_float: test::TestDescAndFn =
+pub static range_float: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("range_float"),
@@ -814,7 +814,7 @@ impl ::core::fmt::Display for RangeChar {
 extern crate test;
 #[rustc_test_marker = "range_char"]
 #[doc(hidden)]
-pub const range_char: test::TestDescAndFn =
+pub static range_char: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("range_char"),
@@ -953,7 +953,7 @@ impl ::core::fmt::Display for MultipleCases {
 extern crate test;
 #[rustc_test_marker = "multiple_cases"]
 #[doc(hidden)]
-pub const multiple_cases: test::TestDescAndFn =
+pub static multiple_cases: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("multiple_cases"),
@@ -1077,7 +1077,7 @@ impl ::core::fmt::Display for Guard {
 extern crate test;
 #[rustc_test_marker = "guard"]
 #[doc(hidden)]
-pub const guard: test::TestDescAndFn =
+pub static guard: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
             name: test::StaticTestName("guard"),
@@ -1148,7 +1148,7 @@ fn guard() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&guard, &multiple_cases, &nested, &range_char,
+    test::test_main_env_args(&[&guard, &multiple_cases, &nested, &range_char,
                     &range_float, &range_integer, &test_count, &test_count_name,
                     &test_multiple, &test_name, &test_none])
 }

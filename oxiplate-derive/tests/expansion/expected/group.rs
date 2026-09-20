@@ -29,7 +29,7 @@ impl ::core::fmt::Display for GroupCalc {
 extern crate test;
 #[rustc_test_marker = "group_calc"]
 #[doc(hidden)]
-pub const group_calc: test::TestDescAndFn = test::TestDescAndFn {
+pub static group_calc: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("group_calc"),
         ignore: false,
@@ -76,5 +76,5 @@ fn group_calc() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&group_calc])
+    test::test_main_env_args(&[&group_calc])
 }

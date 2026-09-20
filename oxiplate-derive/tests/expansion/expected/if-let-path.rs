@@ -45,7 +45,7 @@ impl ::core::fmt::Display for Data {
 extern crate test;
 #[rustc_test_marker = "text"]
 #[doc(hidden)]
-pub const text: test::TestDescAndFn = test::TestDescAndFn {
+pub static text: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("text"),
         ignore: false,
@@ -88,7 +88,7 @@ fn text() {
 extern crate test;
 #[rustc_test_marker = "numbers"]
 #[doc(hidden)]
-pub const numbers: test::TestDescAndFn = test::TestDescAndFn {
+pub static numbers: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("numbers"),
         ignore: false,
@@ -133,5 +133,5 @@ fn numbers() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&numbers, &text])
+    test::test_main_env_args(&[&numbers, &text])
 }

@@ -46,7 +46,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
 extern crate test;
 #[rustc_test_marker = "variable"]
 #[doc(hidden)]
-pub const variable: test::TestDescAndFn = test::TestDescAndFn {
+pub static variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("variable"),
         ignore: false,
@@ -106,5 +106,5 @@ Hello world\!
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(&[&variable])
+    test::test_main_env_args(&[&variable])
 }

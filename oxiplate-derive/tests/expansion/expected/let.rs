@@ -41,7 +41,7 @@ impl ::core::fmt::Display for Set {
 extern crate test;
 #[rustc_test_marker = "set"]
 #[doc(hidden)]
-pub const set: test::TestDescAndFn = test::TestDescAndFn {
+pub static set: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("set"),
         ignore: false,
@@ -148,7 +148,7 @@ impl ::core::fmt::Display for ShadowIf {
 extern crate test;
 #[rustc_test_marker = "shadow_if"]
 #[doc(hidden)]
-pub const shadow_if: test::TestDescAndFn = test::TestDescAndFn {
+pub static shadow_if: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("shadow_if"),
         ignore: false,
@@ -288,7 +288,7 @@ impl ::core::fmt::Display for ShadowFor {
 extern crate test;
 #[rustc_test_marker = "shadow_for"]
 #[doc(hidden)]
-pub const shadow_for: test::TestDescAndFn = test::TestDescAndFn {
+pub static shadow_for: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("shadow_for"),
         ignore: false,
@@ -403,7 +403,7 @@ impl ::core::fmt::Display for ShadowMatch {
 extern crate test;
 #[rustc_test_marker = "shadow_match"]
 #[doc(hidden)]
-pub const shadow_match: test::TestDescAndFn = test::TestDescAndFn {
+pub static shadow_match: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("shadow_match"),
         ignore: false,
@@ -582,7 +582,7 @@ impl ::core::fmt::Display for Extends {
 extern crate test;
 #[rustc_test_marker = "extends"]
 #[doc(hidden)]
-pub const extends: test::TestDescAndFn = test::TestDescAndFn {
+pub static extends: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("extends"),
         ignore: false,
@@ -681,7 +681,7 @@ impl ::core::fmt::Display for ExtendsDefault {
 extern crate test;
 #[rustc_test_marker = "extends_default"]
 #[doc(hidden)]
-pub const extends_default: test::TestDescAndFn = test::TestDescAndFn {
+pub static extends_default: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("extends_default"),
         ignore: false,
@@ -749,7 +749,7 @@ impl ::core::fmt::Display for Destructure {
 extern crate test;
 #[rustc_test_marker = "destructure"]
 #[doc(hidden)]
-pub const destructure: test::TestDescAndFn = test::TestDescAndFn {
+pub static destructure: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("destructure"),
         ignore: false,
@@ -803,7 +803,7 @@ fn destructure() {
 #[doc(hidden)]
 pub fn main() -> () {
     extern crate test;
-    test::test_main_static(
+    test::test_main_env_args(
         &[
             &destructure,
             &extends,
