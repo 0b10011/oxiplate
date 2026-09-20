@@ -1,4 +1,4 @@
-error: Expected an expression that is iterable
+error: Expected an expression
  --> tests/broken/for/for-no-expression.rs:6:19
   |
 6 | {%- for number in -%}
