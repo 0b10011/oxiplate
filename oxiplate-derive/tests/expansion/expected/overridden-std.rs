@@ -48,10 +48,10 @@ fn overridden_std() {
         ::std::io::_print(format_args!("{0}", data));
     };
 }
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
-pub fn main() -> () {
-    extern crate test;
+pub fn main() -> test::ExitCode {
     test::test_main_env_args(&[&overridden_std])
 }

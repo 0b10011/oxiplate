@@ -540,11 +540,11 @@ fn nested() {
         }
     };
 }
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
-pub fn main() -> () {
-    extern crate test;
+pub fn main() -> test::ExitCode {
     test::test_main_env_args(
         &[&nested, &test_count, &test_count_name, &test_multiple, &test_name, &test_none],
     )

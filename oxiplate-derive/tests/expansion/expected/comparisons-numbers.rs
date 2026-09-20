@@ -195,10 +195,10 @@ fn test_4() {
         }
     };
 }
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
-pub fn main() -> () {
-    extern crate test;
+pub fn main() -> test::ExitCode {
     test::test_main_env_args(&[&test_4, &test_4u8, &test_5, &test_5u8])
 }

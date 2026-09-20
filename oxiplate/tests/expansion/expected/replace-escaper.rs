@@ -111,10 +111,10 @@ hello
         }
     };
 }
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
-pub fn main() -> () {
-    extern crate test;
+pub fn main() -> test::ExitCode {
     test::test_main_env_args(&[&html])
 }
