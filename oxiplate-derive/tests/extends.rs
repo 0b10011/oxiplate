@@ -43,6 +43,39 @@ fn absolute_2() {
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(
+    r#"{#- Should be ignored -#}
+{% extends "extends-wrapper.html.oxip" %}
+{#- Should be ignored -#}
+{% block content -%}
+    {#- Should be ignored -#}
+    <p>{{ message }}</p>
+    {#- Should be ignored -#}
+    {%- parent %}
+    {#- Should be ignored -#}
+{%- endblock %}
+{#- Should be ignored -#}
+"#
+)]
+struct Comments {
+    title: &'static str,
+    message: &'static str,
+}
+
+#[test]
+fn comments() {
+    let data = Comments {
+        title: "Comments",
+        message: "Comments are fine anywhere",
+    };
+
+    assert_eq!(
+        format!("{}", data),
+        "<!DOCTYPE html>\n<title>Comments</title>\n<p>Comments are fine anywhere</p>test\n"
+    );
+}
+
+#[derive(Oxiplate)]
+#[oxiplate_inline(
     r#"{% extends "extends-wrapper.html.oxip" %}
 {% block content -%}
     <p>{{ message }}</p>
