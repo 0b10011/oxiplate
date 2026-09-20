@@ -42,6 +42,16 @@ mod test {
                 continue;
             }
 
+            // Ignore non-rust files
+            if !entry.file_name().to_string_lossy().ends_with(".rs") {
+                writeln!(
+                    std::io::stdout(),
+                    "skipping non-rust file `{}`",
+                    entry.file_name().to_string_lossy()
+                )?;
+                continue;
+            }
+
             expected_paths.insert(expected_expansion_path.to_string_lossy().into_owned());
 
             let test_name_path = entry.path().with_extension("");
