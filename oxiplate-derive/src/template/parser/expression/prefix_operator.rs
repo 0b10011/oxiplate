@@ -10,6 +10,7 @@ use crate::{Source, internal_error};
 fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
     let (tokens, token) = alt((
         take(TokenKind::Ampersand),
+        take(TokenKind::And),
         take(TokenKind::Asterisk),
         take(TokenKind::Exclamation),
         take(TokenKind::Minus),
@@ -22,6 +23,7 @@ fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
 
     let kind = match token.kind() {
         TokenKind::Ampersand => PrefixOperatorKind::Borrow,
+        TokenKind::And => PrefixOperatorKind::DoubleBorrow,
         TokenKind::Asterisk => PrefixOperatorKind::Dereference,
         TokenKind::Exclamation => PrefixOperatorKind::Not,
         TokenKind::Minus => PrefixOperatorKind::Negative,
@@ -71,6 +73,8 @@ pub struct PrefixOperator<'a> {
 #[derive(Debug)]
 enum PrefixOperatorKind {
     Borrow,
+    /// `&&expr`
+    DoubleBorrow,
     Dereference,
     Not,
 
@@ -91,6 +95,7 @@ impl<'a> PrefixOperator<'a> {
     fn cut_if_not_followed_by_expression(&self) -> bool {
         match self.kind {
             PrefixOperatorKind::Borrow
+            | PrefixOperatorKind::DoubleBorrow
             | PrefixOperatorKind::Dereference
             | PrefixOperatorKind::Not
             | PrefixOperatorKind::Negative
@@ -121,6 +126,7 @@ impl ToTokens for PrefixOperator<'_> {
 
         tokens.append_all(match self.kind {
             PrefixOperatorKind::Borrow => op!(&),
+            PrefixOperatorKind::DoubleBorrow => op!(&&),
             PrefixOperatorKind::Dereference => op!(*),
             PrefixOperatorKind::Not => op!(!),
             PrefixOperatorKind::Negative => op!(-),
