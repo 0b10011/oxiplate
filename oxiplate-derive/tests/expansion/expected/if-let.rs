@@ -4,8 +4,9 @@ extern crate core;
 #[prelude_import]
 use core::prelude::rust_2024::*;
 extern crate alloc;
-use alloc::format;
 use alloc::string::String;
+use alloc::vec::Vec;
+use alloc::{format, vec};
 use oxiplate_derive::Oxiplate;
 enum Name {
     Actual(String),
@@ -107,9 +108,9 @@ pub static test_count: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 49usize,
+        start_line: 50usize,
         start_col: 4usize,
-        end_line: 49usize,
+        end_line: 50usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -156,9 +157,9 @@ pub static test_count_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 59usize,
+        start_line: 60usize,
         start_col: 4usize,
-        end_line: 59usize,
+        end_line: 60usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -205,9 +206,9 @@ pub static test_name: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 69usize,
+        start_line: 70usize,
         start_col: 4usize,
-        end_line: 69usize,
+        end_line: 70usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -253,9 +254,9 @@ pub static test_none: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 81usize,
+        start_line: 82usize,
         start_col: 4usize,
-        end_line: 81usize,
+        end_line: 82usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -336,9 +337,9 @@ pub static test_multiple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 114usize,
+        start_line: 115usize,
         start_col: 4usize,
-        end_line: 114usize,
+        end_line: 115usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
@@ -434,9 +435,9 @@ pub static nested: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 161usize,
+        start_line: 162usize,
         start_col: 4usize,
-        end_line: 161usize,
+        end_line: 162usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -549,9 +550,9 @@ pub static array: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 189usize,
+        start_line: 190usize,
         start_col: 4usize,
-        end_line: 189usize,
+        end_line: 190usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
@@ -622,9 +623,9 @@ pub static empty_array: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/if-let.rs",
-        start_line: 208usize,
+        start_line: 209usize,
         start_col: 4usize,
-        end_line: 208usize,
+        end_line: 209usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
@@ -681,6 +682,98 @@ fn empty_array() {
     };
 }
 extern crate test;
+#[rustc_test_marker = "rest_unnamed"]
+#[doc(hidden)]
+pub static rest_unnamed: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("rest_unnamed"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 225usize,
+        start_col: 4usize,
+        end_line: 225usize,
+        end_col: 16usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(rest_unnamed()),
+    ),
+};
+fn rest_unnamed() {
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, .., c] = data[..] -%}
+            {{ a ~ " comes before some items followed by " ~ c -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: Vec<&'static str>,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            if let [a, .., c] = self.data[..] {
+                oxiplate_formatter
+                    .write_str(
+                        &alloc::string::ToString::to_string(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!(
+                                        "{0} comes before some items followed by {1}",
+                                        a,
+                                        c,
+                                    ),
+                                )
+                            })),
+                        ),
+                    )?;
+            }
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        Data {
+                            data: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+                                ::alloc::intrinsics::write_box_via_move(
+                                    ::alloc::boxed::Box::new_uninit(),
+                                    ["a", "b", "c", "d", "e"],
+                                ),
+                            ),
+                        },
+                    ),
+                )
+            }),
+            &"a comes before some items followed by e",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
@@ -690,6 +783,7 @@ pub fn main() -> test::ExitCode {
             &array,
             &empty_array,
             &nested,
+            &rest_unnamed,
             &test_count,
             &test_count_name,
             &test_multiple,

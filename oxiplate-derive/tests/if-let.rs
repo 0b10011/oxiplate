@@ -2,8 +2,9 @@
 
 extern crate alloc;
 
-use alloc::format;
 use alloc::string::String;
+use alloc::vec::Vec;
+use alloc::{format, vec};
 
 use oxiplate_derive::Oxiplate;
 
@@ -218,4 +219,28 @@ fn empty_array() {
     }
 
     assert_eq!(format!("{}", Data { data: [] }), "no data!");
+}
+
+#[test]
+fn rest_unnamed() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, .., c] = data[..] -%}
+            {{ a ~ " comes before some items followed by " ~ c -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: Vec<&'static str>,
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                data: vec!["a", "b", "c", "d", "e"]
+            }
+        ),
+        "a comes before some items followed by e"
+    );
 }

@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
 use super::Pattern;
-use crate::parser::{Parser as _, alt, ignore_all_errors, into, take};
+use crate::parser::{Parser as _, alt, ignore_all_errors, ignore_recoverable_errors, into, take};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{Char, Float, Integer, Number};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
@@ -46,6 +46,9 @@ pub(crate) enum Range<'a> {
         to: Value<'a>,
         source: Source<'a>,
     },
+
+    /// ..
+    Full { operator: Source<'a> },
 }
 
 impl<'a> Range<'a> {
@@ -120,8 +123,20 @@ impl<'a> Range<'a> {
     }
 
     pub fn parse_exclusive_to(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (operator, to)) =
-            (take(TokenKind::RangeExclusive), Value::parse).parse(tokens)?;
+        let (tokens, (operator, to)) = (
+            take(TokenKind::RangeExclusive),
+            ignore_recoverable_errors(Value::parse),
+        )
+            .parse(tokens)?;
+
+        let Some(to) = to else {
+            return Ok((
+                tokens,
+                Self::Full {
+                    operator: operator.source().clone(),
+                },
+            ));
+        };
 
         let source = operator
             .source()
@@ -163,7 +178,8 @@ impl<'a> Range<'a> {
             | Self::Exclusive { source, .. }
             | Self::Inclusive { source, .. }
             | Self::ExclusiveTo { source, .. }
-            | Self::InclusiveTo { source, .. } => source,
+            | Self::InclusiveTo { source, .. }
+            | Self::Full { operator: source } => source,
         }
     }
 
@@ -210,6 +226,10 @@ impl<'a> Range<'a> {
             } => {
                 let operator_span = operator.span_token();
                 (None, quote_spanned! {operator_span=> ..= }, Some(to))
+            }
+            Self::Full { operator } => {
+                let operator_span = operator.span_token();
+                (None, quote_spanned! {operator_span=> .. }, None)
             }
         };
 
