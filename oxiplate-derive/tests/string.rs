@@ -36,3 +36,13 @@ struct SevenBitEscapes;
 fn seven_bit_escapes() {
     assert_eq!("\0 \u{f} \u{f} \u{7f}", format!("{}", SevenBitEscapes));
 }
+
+#[derive(Oxiplate)]
+#[oxiplate_inline("\u{0} \u{10ffff}")]
+struct UnicodeEscapes;
+
+#[test]
+fn unicode_escapes() {
+    // Minimum and maximum unicode escape values.
+    assert_eq!("\0 \u{10ffff}", format!("{}", UnicodeEscapes));
+}

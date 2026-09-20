@@ -422,6 +422,7 @@ impl<'a> Source<'a> {
         debug_range.end += 1;
     }
 
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-UNICODE_ESCAPE>
     fn parse_unicode_escape(
         chars: &mut CharIterator<'_>,
         range: &mut Range<usize>,
@@ -446,11 +447,11 @@ impl<'a> Source<'a> {
                 (-1, '{') => {
                     unicode_chars_parsed += 1;
                 }
-                (0..=3, '0'..='9' | 'a'..='f' | 'A'..='F') => {
+                (0..=5, '0'..='9' | 'a'..='f' | 'A'..='F') => {
                     unicode_chars_parsed += 1;
                     unicode_code.push(char);
                 }
-                (1..=4, '}') => {
+                (1..=6, '}') => {
                     #[cfg(feature = "_unreachable")]
                     {
                         unicode_chars_parsed += 1;
