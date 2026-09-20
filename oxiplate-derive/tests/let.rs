@@ -10,7 +10,11 @@ use oxiplate_derive::Oxiplate;
 #[derive(Oxiplate)]
 #[oxiplate_inline(
     r#"
-{{- value }}
+{%- let _underscored_value = 19 %}
+{{- _underscored_value }}
+{%- let ignored_value = 19 %}
+{%- let _ = ignored_value %}
+{{ value }}
 {%- let value = 19 %}
 {{ value }}
 {%- let value = "89" %}
@@ -27,7 +31,7 @@ fn set() {
         value: "Hello world!",
     };
 
-    assert_eq!(format!("{data}"), "Hello world!\n19\n89\n");
+    assert_eq!(format!("{data}"), "19\nHello world!\n19\n89\n");
 }
 
 #[derive(Oxiplate)]

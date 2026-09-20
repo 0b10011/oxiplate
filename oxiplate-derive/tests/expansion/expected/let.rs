@@ -9,7 +9,11 @@ use alloc::{format, vec};
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     r#"
-{{- value }}
+{%- let _underscored_value = 19 %}
+{{- _underscored_value }}
+{%- let ignored_value = 19 %}
+{%- let _ = ignored_value %}
+{{ value }}
 {%- let value = 19 %}
 {{ value }}
 {%- let value = "89" %}
@@ -26,6 +30,12 @@ impl ::core::fmt::Display for Set {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
+        let _underscored_value = 19;
+        oxiplate_formatter
+            .write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
+        let ignored_value = 19;
+        let _ = ignored_value;
+        oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         let value = 19;
@@ -47,9 +57,9 @@ pub static set: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 25usize,
+        start_line: 29usize,
         start_col: 4usize,
-        end_line: 25usize,
+        end_line: 29usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -65,7 +75,7 @@ fn set() {
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"Hello world!\n19\n89\n",
+            &"19\nHello world!\n19\n89\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -154,9 +164,9 @@ pub static shadow_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 61usize,
+        start_line: 65usize,
         start_col: 4usize,
-        end_line: 61usize,
+        end_line: 65usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -294,9 +304,9 @@ pub static shadow_for: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 107usize,
+        start_line: 111usize,
         start_col: 4usize,
-        end_line: 107usize,
+        end_line: 111usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -409,9 +419,9 @@ pub static shadow_match: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 144usize,
+        start_line: 148usize,
         start_col: 4usize,
-        end_line: 144usize,
+        end_line: 148usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -588,9 +598,9 @@ pub static extends: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 195usize,
+        start_line: 199usize,
         start_col: 4usize,
-        end_line: 195usize,
+        end_line: 199usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -687,9 +697,9 @@ pub static extends_default: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 213usize,
+        start_line: 217usize,
         start_col: 4usize,
-        end_line: 213usize,
+        end_line: 217usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -755,9 +765,9 @@ pub static destructure: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 233usize,
+        start_line: 237usize,
         start_col: 4usize,
-        end_line: 233usize,
+        end_line: 237usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
