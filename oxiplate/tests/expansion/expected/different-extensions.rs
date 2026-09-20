@@ -45,7 +45,7 @@ impl ::oxiplate::Render for Html {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("!</p>\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -130,7 +130,7 @@ impl ::oxiplate::Render for Json {
                 &::oxiplate::escapers::json::JsonEscaper::substring,
             )?;
         oxiplate_formatter.write_str("\"\n}\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

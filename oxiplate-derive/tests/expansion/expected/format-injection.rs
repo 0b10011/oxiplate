@@ -22,7 +22,7 @@ impl ::core::fmt::Display for Data {
             .write_str(
                 "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

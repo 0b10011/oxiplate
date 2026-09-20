@@ -15,7 +15,7 @@ impl ::core::fmt::Display for Hashes {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -72,7 +72,7 @@ impl ::core::fmt::Display for TagEnds {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

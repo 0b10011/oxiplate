@@ -22,7 +22,7 @@ impl ::core::fmt::Display for Data {
         use ::core::fmt::Write as _;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.user.name)))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

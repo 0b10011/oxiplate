@@ -42,7 +42,7 @@ fn test_assignment() {
             let array = ["a"; 3];
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(array.join(""))))?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {
@@ -105,7 +105,7 @@ fn test_array_of_string_slices_in_writ() {
                     &alloc::string::ToString::to_string(&(["a", "b", "c"].join(""))),
                 )?;
             oxiplate_formatter.write_str("]")?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {
@@ -174,7 +174,7 @@ fn test_array_of_numbers_in_for_loop() {
                     .write_str(&alloc::string::ToString::to_string(&(elem)))?;
             }
             oxiplate_formatter.write_str("]")?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {
@@ -239,7 +239,7 @@ fn test_array_of_expressions() {
                     ),
                 )?;
             oxiplate_formatter.write_str("]")?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {
@@ -300,7 +300,7 @@ fn test_repeat() {
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(["a"; 3].join(""))))?;
             oxiplate_formatter.write_str("]")?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {
@@ -361,7 +361,7 @@ fn test_repeat_empty() {
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(["a"; 0].join(""))))?;
             oxiplate_formatter.write_str("]")?;
-            Ok(())
+            ::core::result::Result::Ok(())
         }
     }
     {

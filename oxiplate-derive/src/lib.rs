@@ -176,7 +176,7 @@ fn parse_input(
 
                     #template
 
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }
             }
         }
@@ -200,7 +200,7 @@ fn parse_input(
 
                     #template
 
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }
             }
         }
@@ -214,7 +214,7 @@ fn parse_input(
 
                     #template
 
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }
             }
         }

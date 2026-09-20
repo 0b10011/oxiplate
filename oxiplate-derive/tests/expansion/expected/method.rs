@@ -33,7 +33,7 @@ impl ::core::fmt::Display for Data {
             .write_str(
                 &alloc::string::ToString::to_string(&(self.user.display_name())),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -98,7 +98,7 @@ impl ::core::fmt::Display for Argument {
         if self.user.display_name().contains("i") {
             oxiplate_formatter.write_str("yup!")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -178,7 +178,7 @@ impl ::core::fmt::Display for Arguments {
                     &(self.user.display_name().replace("a", "@")),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -245,7 +245,7 @@ impl ::core::fmt::Display for Callback {
         use ::core::fmt::Write as _;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

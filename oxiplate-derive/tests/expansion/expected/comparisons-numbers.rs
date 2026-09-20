@@ -20,7 +20,7 @@ impl ::core::fmt::Display for Comparison {
         if self.value == 5 {
             oxiplate_formatter.write_str("bar")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

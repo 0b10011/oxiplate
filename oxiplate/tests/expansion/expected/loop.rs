@@ -66,7 +66,7 @@ impl ::oxiplate::Render for Loop {
             }
             oxiplate_formatter.write_str("\n")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

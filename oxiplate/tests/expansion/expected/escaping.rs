@@ -232,7 +232,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
             .oxiplate_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

@@ -23,7 +23,7 @@ impl ::core::fmt::Display for GroupCalc {
             .write_str(
                 &alloc::string::ToString::to_string(&(self.c * (self.a + self.b))),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

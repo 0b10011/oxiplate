@@ -17,7 +17,7 @@ impl ::core::fmt::Display for Data {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("hello world")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

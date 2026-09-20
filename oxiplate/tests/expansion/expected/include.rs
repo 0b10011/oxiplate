@@ -52,7 +52,7 @@ impl ::oxiplate::Render for Include {
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -140,7 +140,7 @@ impl ::oxiplate::Render for IncludeDeep {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("</p>\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

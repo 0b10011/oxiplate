@@ -16,7 +16,7 @@ impl ::core::fmt::Display for AdjustedWhitespace {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("Hello world!")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -86,7 +86,7 @@ impl ::core::fmt::Display for WritWhitespaceControl {
         oxiplate_formatter.write_str(" (")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.name)))?;
         oxiplate_formatter.write_str(")!")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -151,7 +151,7 @@ impl ::core::fmt::Display for CommentWhitespaceControl {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("Hello  ()!")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -291,7 +291,7 @@ impl ::core::fmt::Display for AdjacentTags {
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -368,7 +368,7 @@ impl ::core::fmt::Display for WhitespaceOnly {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(" \t\r\n{")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

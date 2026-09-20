@@ -47,7 +47,7 @@ impl ::core::fmt::Display for Respond {
                     })),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

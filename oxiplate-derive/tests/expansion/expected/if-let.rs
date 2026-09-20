@@ -95,7 +95,7 @@ impl ::core::fmt::Display for Data {
         } else {
             oxiplate_formatter.write_str("Name could not be fetched.")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -324,7 +324,7 @@ impl ::core::fmt::Display for MultipleWrapper {
         } else {
             oxiplate_formatter.write_str("no")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -422,7 +422,7 @@ impl ::core::fmt::Display for Outer {
             oxiplate_formatter.write_str("b.a: ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

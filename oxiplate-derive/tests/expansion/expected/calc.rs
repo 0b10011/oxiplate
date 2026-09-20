@@ -126,7 +126,7 @@ impl ::core::fmt::Display for Math {
             .write_str(
                 &alloc::string::ToString::to_string(&(self.a / self.b + self.c)),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -249,7 +249,7 @@ impl ::core::fmt::Display for Comparisons {
         oxiplate_formatter.write_str(" = ")?;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.max <= self.min)))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -419,7 +419,7 @@ impl ::core::fmt::Display for OrAnd {
             .write_str(
                 &alloc::string::ToString::to_string(&(self.no || self.yes && self.yes2)),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -518,7 +518,7 @@ impl ::core::fmt::Display for OrderOfOperations {
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(self.c + self.b)))?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

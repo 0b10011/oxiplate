@@ -32,7 +32,7 @@ impl<'a> ::core::fmt::Display for AbsoluteData<'a> {
             oxiplate_formatter.write_str("</div>")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

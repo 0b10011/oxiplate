@@ -38,7 +38,7 @@ impl ::core::fmt::Display for Data {
                 oxiplate_formatter.write_str("<br>")?;
             }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -111,7 +111,7 @@ impl ::core::fmt::Display for Accounts {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
             oxiplate_formatter.write_str("<br>")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 struct Person {
@@ -199,7 +199,7 @@ impl ::core::fmt::Display for ShadowVariable {
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str(" again :D")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -281,7 +281,7 @@ impl ::core::fmt::Display for Functions {
                 .write_str(&alloc::string::ToString::to_string(&(function())))?;
             oxiplate_formatter.write_str("\n")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -367,7 +367,7 @@ impl ::core::fmt::Display for ForElse {
                 oxiplate_formatter.write_str("No values :(")?;
             }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -445,7 +445,7 @@ impl ::core::fmt::Display for Continue {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str(" ")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -528,7 +528,7 @@ impl ::core::fmt::Display for Break {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str(" ")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -612,7 +612,7 @@ impl ::core::fmt::Display for BreakElse {
                 oxiplate_formatter.write_str("No values :(")?;
             }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

@@ -92,7 +92,7 @@ impl ::core::fmt::Display for Data {
                 oxiplate_formatter.write_str("Name could not be fetched.")?;
             }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 
@@ -310,7 +310,7 @@ impl ::core::fmt::Display for MultipleWrapper {
                 self.multiple {
             oxiplate_formatter.write_str("yes")?;
         } else { oxiplate_formatter.write_str("no")?; }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -390,7 +390,7 @@ impl ::core::fmt::Display for Outer {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
             ;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -506,7 +506,7 @@ impl ::core::fmt::Display for RangeInteger {
             3..=4 => { oxiplate_formatter.write_str("3 through 4")?; }
             3.. => { oxiplate_formatter.write_str("3 and up")?; }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -651,7 +651,7 @@ impl ::core::fmt::Display for RangeFloat {
             3... => { oxiplate_formatter.write_str("3 and up")?; }
             _ => { oxiplate_formatter.write_str("Something else")?; }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -808,7 +808,7 @@ impl ::core::fmt::Display for RangeChar {
             'd'..='e' => { oxiplate_formatter.write_str("d through e")?; }
             'd'.. => { oxiplate_formatter.write_str("d and up")?; }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -947,7 +947,7 @@ impl ::core::fmt::Display for MultipleCases {
             69 | 420 => { oxiplate_formatter.write_str("Internet number")?; }
             _ => { oxiplate_formatter.write_str("Boring number")?; }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -1071,7 +1071,7 @@ impl ::core::fmt::Display for Guard {
             Some(_) => { oxiplate_formatter.write_str("Odd")?; }
             None => { oxiplate_formatter.write_str("Missing")?; }
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

@@ -22,7 +22,7 @@ impl ::core::fmt::Display for Data {
             oxiplate_formatter.write_str("foo")?;
         }
         oxiplate_formatter.write_str(" ")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

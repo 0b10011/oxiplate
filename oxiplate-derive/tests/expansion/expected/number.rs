@@ -156,7 +156,7 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(-0o01_234_567)))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

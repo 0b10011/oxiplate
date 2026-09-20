@@ -70,7 +70,7 @@ impl ::oxiplate::Render for Data {
         ))
             .oxiplate_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

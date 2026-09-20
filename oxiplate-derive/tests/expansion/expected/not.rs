@@ -23,7 +23,7 @@ impl ::core::fmt::Display for Not {
         if !self.foo {
             oxiplate_formatter.write_str("Yay")?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

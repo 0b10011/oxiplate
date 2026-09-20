@@ -51,7 +51,7 @@ impl ::core::fmt::Display for RangeToExclusive {
             oxiplate_formatter.write_str("b contains 4")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -151,7 +151,7 @@ impl ::core::fmt::Display for RangeToInclusive {
             oxiplate_formatter.write_str("b contains 4")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -251,7 +251,7 @@ impl ::core::fmt::Display for RangeFrom {
             oxiplate_formatter.write_str("a contains 127")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -372,7 +372,7 @@ impl ::core::fmt::Display for RangeExclusive {
             oxiplate_formatter.write_str("ab contains 20")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -497,7 +497,7 @@ impl ::core::fmt::Display for RangeInclusive {
             oxiplate_formatter.write_str("ab contains 20")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -593,7 +593,7 @@ impl ::core::fmt::Display for RangeFull {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

@@ -28,7 +28,7 @@ impl ::core::fmt::Display for Data {
             oxiplate_formatter.write_str("footer")?;
         }
         oxiplate_formatter.write_str("</footer>")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

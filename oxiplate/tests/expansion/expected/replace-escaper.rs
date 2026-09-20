@@ -45,7 +45,7 @@ impl ::oxiplate::Render for Html {
                 &::oxiplate::escapers::your_group::YourEscaper::bar,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

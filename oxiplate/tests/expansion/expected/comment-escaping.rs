@@ -33,7 +33,7 @@ impl<'a> ::oxiplate::Render for Data<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("-->")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

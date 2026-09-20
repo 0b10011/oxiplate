@@ -32,7 +32,7 @@ impl ::core::fmt::Display for AbsoluteData {
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -175,7 +175,7 @@ impl ::core::fmt::Display for Comments {
             {}
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -261,7 +261,7 @@ impl ::core::fmt::Display for Prefix {
             {}
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -339,7 +339,7 @@ impl ::core::fmt::Display for Replace {
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -425,7 +425,7 @@ impl ::core::fmt::Display for Suffix {
             }
         }
         oxiplate_formatter.write_str("\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

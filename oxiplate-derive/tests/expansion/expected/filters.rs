@@ -70,7 +70,7 @@ impl ::core::fmt::Display for Respond {
                     &(filters_for_oxiplate::respond(self.message, !*self.respond)),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -169,7 +169,7 @@ impl ::core::fmt::Display for Shorten {
                     &(filters_for_oxiplate::shorten(self.message, self.max_length)),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -268,7 +268,7 @@ impl ::core::fmt::Display for Pad {
                     &(filters_for_oxiplate::pad(self.number, self.length)),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -354,7 +354,7 @@ impl ::core::fmt::Display for Multiple {
                     )),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -487,7 +487,7 @@ impl ::core::fmt::Display for Trim {
                     &(filters_for_oxiplate::trim(self.value)),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -549,7 +549,7 @@ impl ::core::fmt::Display for Replace {
                     &(filters_for_oxiplate::replace(self.value, "ar", "oo")),
                 ),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

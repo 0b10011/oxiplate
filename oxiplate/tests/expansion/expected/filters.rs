@@ -89,7 +89,7 @@ impl ::oxiplate::Render for Respond {
             )),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -186,7 +186,7 @@ impl ::oxiplate::Render for Shorten {
             )),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -294,7 +294,7 @@ impl ::oxiplate::Render for Pad {
             &(filters_for_oxiplate::pad(self.number, self.length)),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -403,7 +403,7 @@ impl ::oxiplate::Render for Multiple {
             )),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

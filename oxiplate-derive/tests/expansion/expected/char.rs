@@ -16,7 +16,7 @@ impl ::core::fmt::Display for A {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('a')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -71,7 +71,7 @@ impl ::core::fmt::Display for SingleQuote {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\'')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -129,7 +129,7 @@ impl ::core::fmt::Display for DoubleQuote {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('"')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -187,7 +187,7 @@ impl ::core::fmt::Display for Slash {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\\')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -244,7 +244,7 @@ impl ::core::fmt::Display for NewLine {
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -301,7 +301,7 @@ impl ::core::fmt::Display for CarriageReturn {
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -361,7 +361,7 @@ impl ::core::fmt::Display for Tab {
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -416,7 +416,7 @@ impl ::core::fmt::Display for Null {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\0')))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

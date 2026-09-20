@@ -25,7 +25,7 @@ impl ::core::fmt::Display for AbsoluteData {
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
         oxiplate_formatter.write_str("</p>\n")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

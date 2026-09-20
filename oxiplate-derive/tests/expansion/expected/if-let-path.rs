@@ -39,7 +39,7 @@ impl ::core::fmt::Display for Data {
             oxiplate_formatter
                 .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
         }
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;

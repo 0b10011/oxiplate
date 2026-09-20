@@ -19,7 +19,7 @@ impl ::core::fmt::Display for RawString {
             .write_str(
                 &alloc::string::ToString::to_string(&("jane #\"the deer\"# doe")),
             )?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -78,7 +78,7 @@ impl ::core::fmt::Display for EmptyString {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -137,7 +137,7 @@ impl ::core::fmt::Display for SevenBitEscapes {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
@@ -195,7 +195,7 @@ impl ::core::fmt::Display for UnicodeEscapes {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\u{0} \u{10ffff}")?;
-        Ok(())
+        ::core::result::Result::Ok(())
     }
 }
 extern crate test;
