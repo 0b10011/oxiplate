@@ -1,4 +1,5 @@
 mod array;
+mod bind;
 mod literal;
 mod range;
 mod r#struct;
@@ -17,6 +18,7 @@ use crate::parser::{Parser as _, alt, cut, ignore_all_errors, into, many1, take}
 use crate::template::parser::Res;
 use crate::template::parser::expression::Identifier;
 use crate::template::parser::statement::helpers::pattern::array::Array;
+use crate::template::parser::statement::helpers::pattern::bind::Bind;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
@@ -28,7 +30,7 @@ pub(crate) enum Pattern<'a> {
     Struct(Struct<'a>),
     Array(Array<'a>),
     Tuple(Tuple<'a>),
-    // TODO: foo @ 3..=7
+    Bind(Bind<'a>),
 }
 
 impl<'a> Pattern<'a> {
@@ -39,6 +41,7 @@ impl<'a> Pattern<'a> {
             into(Array::parse),
             into(Tuple::parse),
             into(Struct::parse),
+            into(Bind::parse),
             into(Identifier::parse),
         ))
         .parse(tokens)
@@ -48,6 +51,7 @@ impl<'a> Pattern<'a> {
         match self {
             Self::Literal(literal) => literal.source(),
             Self::Ident(identifier) => identifier.source(),
+            Self::Bind(bind) => bind.source(),
             Self::Range(range) => range.source(),
             Self::Struct(r#struct) => r#struct.source(),
             Self::Array(array) => array.source(),
@@ -58,6 +62,7 @@ impl<'a> Pattern<'a> {
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
         match self {
             Self::Ident(identifier) => HashSet::from([identifier.as_str()]),
+            Self::Bind(value) => value.get_variables(),
             Self::Struct(value) => value.get_variables(),
             Self::Array(value) => value.get_variables(),
             Self::Tuple(value) => value.get_variables(),
@@ -69,6 +74,7 @@ impl<'a> Pattern<'a> {
         match self {
             Self::Literal(value) => value.to_tokens(),
             Self::Ident(value) => quote! { #value },
+            Self::Bind(value) => value.to_tokens(state),
             Self::Range(value) => value.to_tokens(state),
             Self::Struct(value) => value.to_tokens(state),
             Self::Array(value) => value.to_tokens(state),

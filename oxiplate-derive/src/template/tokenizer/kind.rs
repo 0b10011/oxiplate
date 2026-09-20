@@ -95,6 +95,8 @@ pub enum TokenKind {
     Semicolon,
     /// `=`
     Equal,
+    /// `@`
+    At,
 
     /// `..`
     RangeExclusive,

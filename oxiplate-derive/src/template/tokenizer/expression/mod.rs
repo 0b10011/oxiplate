@@ -98,6 +98,7 @@ pub fn consume_expression_token<'a>(
                 TokenKind::Period
             }
         }
+        Some('@') => TokenKind::At,
         Some('a'..='z' | 'A'..='Z') => return consume_ident(source, leading_whitespace),
         Some('0') => return consume_alternative_base(source, leading_whitespace),
         Some('1'..='9') => return consume_decimal(source, leading_whitespace),

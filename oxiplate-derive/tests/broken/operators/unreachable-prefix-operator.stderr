@@ -1,5 +1,5 @@
-error: Unexpected character in expression
+error: Expected an expression.
  --> tests/broken/operators/unreachable-prefix-operator.rs:5:23
   |
-5 | #[oxiplate_inline("{{ @a }}")]
+5 | #[oxiplate_inline("{{ =a }}")]
   |                       ^

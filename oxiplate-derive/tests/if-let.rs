@@ -244,3 +244,27 @@ fn rest_unnamed() {
         "a comes before some items followed by e"
     );
 }
+
+#[test]
+fn rest_named() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, b @ .., c] = data -%}
+            {{ a ~ " comes before " ~ b.len() ~ " items followed by " ~ c -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: [&'static str; 5],
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                data: ["a", "b", "c", "d", "e"]
+            }
+        ),
+        "a comes before 3 items followed by e"
+    );
+}

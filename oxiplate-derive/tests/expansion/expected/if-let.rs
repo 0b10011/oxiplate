@@ -774,6 +774,94 @@ fn rest_unnamed() {
     };
 }
 extern crate test;
+#[rustc_test_marker = "rest_named"]
+#[doc(hidden)]
+pub static rest_named: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("rest_named"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/if-let.rs",
+        start_line: 249usize,
+        start_col: 4usize,
+        end_line: 249usize,
+        end_col: 14usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(rest_named()),
+    ),
+};
+fn rest_named() {
+    #[oxiplate_inline(
+        r#"
+        {%- if let [a, b @ .., c] = data -%}
+            {{ a ~ " comes before " ~ b.len() ~ " items followed by " ~ c -}}
+        {% endif %}"#
+    )]
+    struct Data {
+        data: [&'static str; 5],
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            if let [a, b @ .., c] = self.data {
+                oxiplate_formatter
+                    .write_str(
+                        &alloc::string::ToString::to_string(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(
+                                    format_args!(
+                                        "{0} comes before {1} items followed by {2}",
+                                        a,
+                                        b.len(),
+                                        c,
+                                    ),
+                                )
+                            })),
+                        ),
+                    )?;
+            }
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(
+                    format_args!(
+                        "{0}",
+                        Data {
+                            data: ["a", "b", "c", "d", "e"],
+                        },
+                    ),
+                )
+            }),
+            &"a comes before 3 items followed by e",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
@@ -783,6 +871,7 @@ pub fn main() -> test::ExitCode {
             &array,
             &empty_array,
             &nested,
+            &rest_named,
             &rest_unnamed,
             &test_count,
             &test_count_name,
