@@ -91,6 +91,8 @@ pub enum TokenKind {
     VerticalBar,
     /// `:`
     Colon,
+    /// `;`
+    Semicolon,
     /// `=`
     Equal,
 

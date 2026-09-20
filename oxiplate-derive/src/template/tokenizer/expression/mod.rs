@@ -84,6 +84,7 @@ pub fn consume_expression_token<'a>(
         Some('~') => TokenKind::Tilde,
         Some(',') => TokenKind::Comma,
         Some(':') => if_matches!(':' => PathSeparator else Colon),
+        Some(';') => TokenKind::Semicolon,
         Some('&') => if_matches!('&' => And else Ampersand),
         Some('!') => if_matches!('=' => NotEq else Exclamation),
         Some('=') => if_matches!('=' => Eq else Equal),

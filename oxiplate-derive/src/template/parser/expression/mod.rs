@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
 mod arguments;
+mod array;
 mod concat;
 mod field_or_method;
 mod group;
@@ -25,6 +26,7 @@ use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::parser::{Parser as _, alt, cut, ignore_recoverable_errors, into, many0, take};
+use crate::template::parser::expression::array::Array;
 use crate::template::parser::expression::field_or_method::FieldOrMethod;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
@@ -47,6 +49,7 @@ pub(crate) enum Expression<'a> {
     Float(Float<'a>),
     Bool(Bool<'a>),
     Group(Group<'a>),
+    Array(Array<'a>),
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
     Calc {
@@ -112,6 +115,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::IdentifierOrFunction(_)
             | Self::Prefixed(_, _)
@@ -175,6 +179,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::IdentifierOrFunction(_)
             | Self::Prefixed(_, _)
@@ -210,6 +215,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::IdentifierOrFunction(_)
             | Self::Prefixed(_, _)
@@ -245,6 +251,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::IdentifierOrFunction(_)
             | Self::Prefixed(_, _)
@@ -290,6 +297,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::Index(_, _, _, _)
             | Self::Filter { .. }
@@ -329,6 +337,7 @@ impl<'a> Expression<'a> {
             | Self::Bool(_)
             | Self::FullRange { .. }
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::Index(_, _, _, _)
             | Self::Filter { .. }
@@ -394,6 +403,7 @@ impl<'a> Expression<'a> {
             | Self::Float(_)
             | Self::Bool(_)
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::FullRange { .. } => 0,
         }
@@ -418,6 +428,7 @@ impl<'a> Expression<'a> {
             | Self::Float(_)
             | Self::Bool(_)
             | Self::Group(_)
+            | Self::Array(_)
             | Self::Tuple(_)
             | Self::FullRange { .. } => (),
 
@@ -542,6 +553,7 @@ impl<'a> Expression<'a> {
                 }
             },
             Expression::Group(group) => group.to_tokens(state),
+            Expression::Array(array) => array.to_tokens(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
             Expression::Calc {
@@ -751,6 +763,7 @@ impl<'a> Expression<'a> {
                 .clone()
                 .merge(&expression.source(), "Expression should follow whitespace"),
             Expression::Group(group) => group.source().clone(),
+            Expression::Array(array) => array.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source().clone(),
             Expression::Prefixed(prefix_operator, expression) => prefix_operator
@@ -781,6 +794,7 @@ pub(super) fn expression<'a>(
             parse_prefixed_expression,
             into(Group::parse),
             Tuple::parse,
+            Array::parse,
             full_range,
         ))
         .parse(tokens)?;
