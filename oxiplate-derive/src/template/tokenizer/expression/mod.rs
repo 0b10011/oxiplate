@@ -158,8 +158,10 @@ pub fn consume_ident<'a>(
         "false" => Ok(TokenKind::Bool(false)),
         "oxiplate_formatter" => Err("`oxiplate_formatter` is a reserved name"),
         "oxiplate_loop_had_item" => Err("`oxiplate_loop_had_item` is a reserved name"),
-        "self" => Err("`self` is a reserved keyword"),
-        "super" => Err("`super` is a reserved keyword"),
+        "crate" => Ok(TokenKind::Crate),
+        "Self" => Ok(TokenKind::SelfCurrentType),
+        "self" => Ok(TokenKind::SelfCurrentModule),
+        "super" => Ok(TokenKind::Super),
         _ => Ok(TokenKind::Ident),
     };
 

@@ -33,7 +33,7 @@ use crate::config::OptimizedRenderer;
 pub(crate) use crate::source::Source;
 use crate::source::SourceOwned;
 pub(crate) use crate::state::State;
-use crate::state::{LocalVariables, build_config};
+use crate::state::{Fields, LocalVariables, build_config};
 use crate::template::{TokenSlice, parse, tokens_and_eof};
 
 type BuiltTokens = (proc_macro2::TokenStream, usize);
@@ -242,9 +242,23 @@ fn parse_template_and_data(
         attrs, ident, data, ..
     } = &input;
 
-    // Ensure the data is a struct
-    match data {
-        Data::Struct(_struct_item) => (),
+    // Ensure the data is a struct and extract field names
+    let fields = match data {
+        Data::Struct(struct_item) => {
+            let mut fields = Vec::with_capacity(
+                struct_item
+                    .fields
+                    .iter()
+                    .filter(|field| field.ident.is_some())
+                    .count(),
+            );
+            for field in &struct_item.fields {
+                if let Some(ref ident) = field.ident {
+                    fields.push(ident.to_string());
+                }
+            }
+            fields
+        }
         _ => {
             return Err((
                 syn::Error::new(input.span(), "Expected a struct"),
@@ -252,7 +266,7 @@ fn parse_template_and_data(
                 config.optimized_renderer,
             ));
         }
-    }
+    };
 
     let (attr, template_type) = parse_template_type(attrs, ident.span())
         .map_err(|err: syn::Error| (err, None, config.optimized_renderer.clone()))?;
@@ -261,6 +275,7 @@ fn parse_template_and_data(
 
     let mut state = State {
         local_variables: LocalVariables::new(),
+        fields: Fields::from(fields),
         inferred_escaper_group: None,
         default_escaper_group: None,
         failed_to_set_default_escaper_group: false,

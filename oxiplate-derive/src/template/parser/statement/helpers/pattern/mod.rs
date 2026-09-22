@@ -42,7 +42,7 @@ impl<'a> Pattern<'a> {
             into(Tuple::parse),
             into(Struct::parse),
             into(Bind::parse),
-            into(Identifier::parse),
+            into(Identifier::parse_prevent_reserved_keywords),
         ))
         .parse(tokens)
     }

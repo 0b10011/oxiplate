@@ -5,29 +5,31 @@ use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
 mod arguments;
 mod array;
+mod call;
 mod concat;
-mod field_or_method;
+mod fields;
 mod group;
-mod ident;
 mod keyword;
 mod literal;
 mod operator;
+mod path;
 mod prefix_operator;
 mod tuple;
 
 use self::arguments::arguments;
 use self::concat::Concat;
-use self::ident::IdentifierOrFunction;
-pub(super) use self::ident::{Identifier, identifier};
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
+pub(super) use self::path::Identifier;
+use self::path::Path;
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::parser::{Parser as _, alt, cut, ignore_recoverable_errors, into, many0, take};
 use crate::template::parser::expression::array::Array;
-use crate::template::parser::expression::field_or_method::FieldOrMethod;
+use crate::template::parser::expression::call::Call;
+use crate::template::parser::expression::fields::Fields;
 use crate::template::parser::expression::group::Group;
 use crate::template::parser::expression::tuple::Tuple;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
@@ -42,7 +44,7 @@ pub(crate) enum Expression<'a> {
     #[default]
     Placeholder,
 
-    IdentifierOrFunction(IdentifierOrFunction<'a>),
+    Path(Path<'a>),
     Char(Char<'a>),
     String(String<'a>),
     Integer(Integer<'a>),
@@ -90,8 +92,11 @@ pub(crate) enum Expression<'a> {
         arguments: Option<ArgumentsGroup<'a>>,
     },
 
-    /// `expr.field` or `expr.method(args)`
-    FieldOrMethod(FieldOrMethod<'a>),
+    /// `expr.field`
+    Fields(Fields<'a>),
+
+    /// `expr(args)`
+    Call(Call<'a>),
 }
 
 impl<'a> Expression<'a> {
@@ -117,17 +122,18 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::IdentifierOrFunction(_)
+            | Self::Path(_)
             | Self::Prefixed(_, _)
             | Self::Cow { .. } => (),
 
             // Fix the precedence of the leftmost expression.
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.fix_precedence(),
             Self::Filter { expression, .. } => expression.fix_precedence(),
-            Self::FieldOrMethod(field_or_method) => {
-                field_or_method.expression.as_mut().fix_precedence();
+            Self::Fields(fields) => {
+                fields.expression.as_mut().fix_precedence();
             }
             Self::Concat(concat) => concat.first_expression.fix_precedence(),
+            Self::Call(call) => call.expression.fix_precedence(),
         }
 
         // If the precedence is already correct, bail early.
@@ -181,15 +187,16 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::IdentifierOrFunction(_)
+            | Self::Path(_)
             | Self::Prefixed(_, _)
             | Self::Cow { .. } => return false,
 
             // Grab the leftmost expression.
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => left,
             Self::Filter { expression, .. } => expression,
-            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_ref(),
+            Self::Fields(fields) => fields.expression.as_ref(),
             Self::Concat(concat) => concat.first_expression.as_ref(),
+            Self::Call(call) => call.expression.as_ref(),
         };
 
         // Ensure the precedence of the left and this expression are correct.
@@ -217,7 +224,7 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::IdentifierOrFunction(_)
+            | Self::Path(_)
             | Self::Prefixed(_, _)
             | Self::Cow { .. } => unreachable!(
                 "Expressions without an expression on the left should never have `take_left()` \
@@ -227,8 +234,9 @@ impl<'a> Expression<'a> {
             // Take the leftmost expression and return it.
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => mem::take(left),
             Self::Filter { expression, .. } => mem::take(expression),
-            Self::FieldOrMethod(field_or_method) => mem::take(&mut field_or_method.expression),
+            Self::Fields(fields) => mem::take(&mut fields.expression),
             Self::Concat(concat) => mem::take(concat.first_expression.as_mut()),
+            Self::Call(call) => mem::take(&mut call.expression),
         }
     }
 
@@ -253,7 +261,7 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::IdentifierOrFunction(_)
+            | Self::Path(_)
             | Self::Prefixed(_, _)
             | Self::Cow { .. } => {
                 unreachable!(
@@ -265,8 +273,9 @@ impl<'a> Expression<'a> {
             // Take a mutable reference to the placeholder.
             Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.as_mut(),
             Self::Filter { expression, .. } => expression.as_mut(),
-            Self::FieldOrMethod(field_or_method) => field_or_method.expression.as_mut(),
+            Self::Fields(fields) => fields.expression.as_mut(),
             Self::Concat(concat) => concat.first_expression.as_mut(),
+            Self::Call(call) => call.expression.as_mut(),
         };
 
         // Ensure the expression is actually a placeholder.
@@ -301,8 +310,9 @@ impl<'a> Expression<'a> {
             | Self::Tuple(_)
             | Self::Index(_, _, _, _)
             | Self::Filter { .. }
-            | Self::IdentifierOrFunction(_)
-            | Self::FieldOrMethod(_) => None,
+            | Self::Path(_)
+            | Self::Fields(_)
+            | Self::Call(_) => None,
 
             // Take the rightmost expression and return it.
             Self::Concat(concat) => match concat.additional_expressions.last_mut() {
@@ -341,8 +351,9 @@ impl<'a> Expression<'a> {
             | Self::Tuple(_)
             | Self::Index(_, _, _, _)
             | Self::Filter { .. }
-            | Self::IdentifierOrFunction(_)
-            | Self::FieldOrMethod(_) => {
+            | Self::Path(_)
+            | Self::Fields(_)
+            | Self::Call(_) => {
                 unreachable!(
                     "Only expressions that hold an expression on the right side should ever be \
                      given a right expression"
@@ -382,8 +393,9 @@ impl<'a> Expression<'a> {
 
             // Rust expressions are assumed to be the same precedence
             // to let Rust handle the details.
-            Self::FieldOrMethod(_)
-            | Self::IdentifierOrFunction(_)
+            Self::Fields(_)
+            | Self::Call(_)
+            | Self::Path(_)
             | Self::Index(_, _, _, _)
             | Self::Calc { .. }
             | Self::Prefixed(_, _) => u8::MAX,
@@ -421,7 +433,7 @@ impl<'a> Expression<'a> {
             }
 
             // No expressions to merge.
-            Self::IdentifierOrFunction(_)
+            Self::Path(_)
             | Self::Char(_)
             | Self::String(_)
             | Self::Integer(_)
@@ -522,7 +534,8 @@ impl<'a> Expression<'a> {
                 expression.merge_joinable();
             }
             Self::Filter { expression, .. } => expression.merge_joinable(),
-            Self::FieldOrMethod(field_or_method) => field_or_method.expression.merge_joinable(),
+            Self::Fields(fields) => fields.expression.merge_joinable(),
+            Self::Call(call) => call.expression.merge_joinable(),
         }
     }
 
@@ -532,26 +545,7 @@ impl<'a> Expression<'a> {
                 quote! { compile_error!("Placeholder expression was never replaced.") },
                 0,
             ),
-            Expression::IdentifierOrFunction(identifier) => match &identifier {
-                IdentifierOrFunction::Identifier(identifier) => {
-                    let span = identifier.source().span_token();
-                    if state.local_variables.contains(identifier.as_str()) {
-                        (quote! { #identifier }, 1)
-                    } else {
-                        (quote_spanned! {span=> self.#identifier }, 1)
-                    }
-                }
-                IdentifierOrFunction::Function(identifier, arguments) => {
-                    let arguments = arguments.to_tokens(state);
-
-                    let span = identifier.source().span_token();
-                    if state.local_variables.contains(identifier.as_str()) {
-                        (quote! { #identifier #arguments }, 1)
-                    } else {
-                        (quote_spanned! {span=> (self.#identifier)#arguments }, 1)
-                    }
-                }
-            },
+            Expression::Path(path) => path.to_tokens(state),
             Expression::Group(group) => group.to_tokens(state),
             Expression::Array(array) => array.to_tokens(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
@@ -629,7 +623,8 @@ impl<'a> Expression<'a> {
                 arguments.as_ref(),
                 &self.source(),
             ),
-            Expression::FieldOrMethod(field_or_method) => field_or_method.to_tokens(state),
+            Expression::Fields(fields) => fields.to_tokens(state),
+            Expression::Call(call) => call.to_tokens(state),
         }
     }
 
@@ -718,9 +713,7 @@ impl<'a> Expression<'a> {
                 unreachable!("Placeholder expression should not have `source()` called for it")
             }
 
-            Expression::IdentifierOrFunction(identifier_or_function) => {
-                identifier_or_function.source()
-            }
+            Expression::Path(identifier_or_function) => identifier_or_function.source(),
             Expression::Char(value) => value.source().clone(),
             Expression::String(value) => value.source().clone(),
             Expression::Integer(value) => value.source().clone(),
@@ -775,7 +768,8 @@ impl<'a> Expression<'a> {
                 .merge(open_bracket, "Open bracket should follow left expression")
                 .merge(&index.source(), "Index should follow open bracket")
                 .merge(close_bracket, "Close bracket should follow index"),
-            Expression::FieldOrMethod(field_or_method) => field_or_method.source().clone(),
+            Expression::Fields(fields) => fields.source().clone(),
+            Expression::Call(call) => call.source().clone(),
         }
     }
 }
@@ -790,7 +784,7 @@ pub(super) fn expression<'a>(
             into(String::parse),
             into(Number::parse),
             into(Bool::parse),
-            identifier,
+            into(Path::parser),
             parse_prefixed_expression,
             into(Group::parse),
             Tuple::parse,
@@ -803,10 +797,16 @@ pub(super) fn expression<'a>(
             return Ok((tokens, expression));
         }
 
-        let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) = many0(
-            alt((filters, Concat::parser, calc, index, FieldOrMethod::parser)),
-        )
-        .parse(tokens)?;
+        let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) =
+            many0(alt((
+                filters,
+                Concat::parser,
+                calc,
+                index,
+                Fields::parser,
+                Call::parser,
+            )))
+            .parse(tokens)?;
 
         for callback in expression_callbacks {
             expression = callback(expression);
