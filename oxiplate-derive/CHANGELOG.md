@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.2...oxiplate-derive-v0.19.3) - 2026-09-22
+
+### Added
+
+- added support in expressions for paths and function calls ([#337](https://github.com/0b10011/oxiplate/pull/337))
+
 ## [0.19.2](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.1...oxiplate-derive-v0.19.2) - 2026-09-20
 
 ### Added
