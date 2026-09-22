@@ -1,7 +1,5 @@
-error[E0609]: no field `message` on type `&Data`
+error[E0425]: cannot find value `message` in this scope
  --> templates/external.html.oxip
   |
   | <p>{{ message }}</p>
-  |       ^^^^^^^ unknown field
-  |
-  = note: available field is: `title`
+  |       ^^^^^^^ not found in this scope

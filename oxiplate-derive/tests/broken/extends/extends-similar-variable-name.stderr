@@ -1,11 +1,5 @@
-error[E0609]: no field `title` on type `&AbsoluteData`
+error[E0425]: cannot find value `title` in this scope
  --> templates/extends-wrapper.html.oxip
   |
   | <title>{{ title }}</title>
-  |           ^^^^^ unknown field
-  |
-help: a field with a similar name exists
-  |
-2 - <title>{{ title }}</title>
-2 + <title>{{ tile }}</title>
-  |
+  |           ^^^^^ not found in this scope

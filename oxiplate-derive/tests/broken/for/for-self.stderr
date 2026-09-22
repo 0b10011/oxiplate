@@ -1,4 +1,4 @@
-error: `self` is a reserved keyword
+error: This is a reserved keyword
  --> tests/broken/for/for-self.rs:4:28
   |
 4 | #[oxiplate_inline("{%- for self in numbers -%}{{ self }}{% endfor %}")]

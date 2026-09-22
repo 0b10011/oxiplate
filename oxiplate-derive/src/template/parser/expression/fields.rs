@@ -2,22 +2,20 @@ use proc_macro2::TokenStream;
 use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, ignore_recoverable_errors, many1, take};
+use crate::parser::{Parser as _, many1, take};
 use crate::template::parser::Res;
-use crate::template::parser::expression::arguments::arguments;
-use crate::template::parser::expression::ident::IdentifierOrFunction;
 use crate::template::parser::expression::{Expression, Identifier, NestedExpression};
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{Source, State};
 
 /// A field or method.
 #[derive(Debug)]
-pub struct FieldOrMethod<'a> {
+pub struct Fields<'a> {
     pub(super) expression: Box<Expression<'a>>,
     fields: Vec<Field<'a>>,
 }
 
-impl<'a> FieldOrMethod<'a> {
+impl<'a> Fields<'a> {
     /// Parse a field or method.
     pub fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
         let (tokens, fields) = many1(Field::parse).parse(tokens)?;
@@ -52,61 +50,50 @@ impl<'a> FieldOrMethod<'a> {
         let (expression, estimated_length) = self.expression.to_tokens(state);
         tokens.append_all(expression);
         for field in &self.fields {
-            tokens.append_all(field.to_tokens(state));
+            tokens.append_all(field.to_tokens());
         }
         (tokens, estimated_length)
     }
 }
 
-impl<'a> From<FieldOrMethod<'a>> for Expression<'a> {
-    fn from(value: FieldOrMethod<'a>) -> Self {
-        Expression::FieldOrMethod(value)
+impl<'a> From<Fields<'a>> for Expression<'a> {
+    fn from(value: Fields<'a>) -> Self {
+        Expression::Fields(value)
     }
 }
 
 #[derive(Debug)]
 pub(crate) struct Field<'a> {
     dot: Source<'a>,
-    ident_or_fn: IdentifierOrFunction<'a>,
+    ident: Identifier<'a>,
 }
 
 impl<'a> Field<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (dot, ident, arguments)) = (
-            take(TokenKind::Period),
-            Identifier::parse,
-            ignore_recoverable_errors(arguments),
-        )
-            .parse(tokens)?;
-
-        let ident_or_fn = if let Some(arguments) = arguments {
-            IdentifierOrFunction::Function(ident, arguments)
-        } else {
-            IdentifierOrFunction::Identifier(ident)
-        };
+        let (tokens, (dot, ident)) = (take(TokenKind::Period), Identifier::parse).parse(tokens)?;
 
         Ok((
             tokens,
             Field {
                 dot: dot.source().clone(),
-                ident_or_fn,
+                ident,
             },
         ))
     }
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+    pub fn to_tokens(&self) -> TokenStream {
         let span = self.dot.span_token();
         let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
             .expect("Dot should be able to be parsed properly here");
 
-        let ident_or_fn = &self.ident_or_fn.to_tokens(state);
-        quote! { #dot #ident_or_fn }
+        let ident = &self.ident;
+        quote! { #dot #ident }
     }
 
     /// Get the `Source` for the field.
     pub(crate) fn source(&self) -> Source<'a> {
         self.dot.clone().merge(
-            &self.ident_or_fn.source(),
+            self.ident.source(),
             "Field or method name should immediately follow the dot",
         )
     }

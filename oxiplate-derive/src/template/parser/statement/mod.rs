@@ -166,7 +166,7 @@ impl<'a> Statement<'a> {
             StatementKind::Block(block) => Ok(block.to_tokens(state)),
             StatementKind::Parent => unexpected!("parent"),
             StatementKind::EndBlock => unexpected!("endblock"),
-            StatementKind::Include(statement) => Ok(statement.to_tokens()),
+            StatementKind::Include(statement) => Ok(statement.to_tokens(state)),
             StatementKind::If(statement) => Ok(statement.to_tokens(state)),
             StatementKind::ElseIf(_) => unexpected!("elseif"),
             StatementKind::Else => unexpected!("else"),

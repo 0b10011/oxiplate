@@ -22,6 +22,14 @@ pub enum TokenKind {
     Ident,
     /// `::`
     PathSeparator,
+    /// `self`
+    SelfCurrentModule,
+    /// `Self`
+    SelfCurrentType,
+    /// `super`
+    Super,
+    /// `crate`
+    Crate,
 
     Bool(bool),
     Char(char),

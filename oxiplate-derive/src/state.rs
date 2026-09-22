@@ -1,3 +1,4 @@
+use std::collections::hash_set::Iter;
 use std::collections::{HashMap, HashSet, VecDeque};
 #[cfg(not(feature = "config"))]
 use std::fs;
@@ -90,6 +91,35 @@ fn read_config_and_add_built_in_escapers() -> Result<Config, syn::Error> {
     Ok(config)
 }
 
+/// Fields on the template's data structure available for usage within templates.
+pub(crate) struct Fields {
+    /// Currently active field names.
+    active: HashSet<String>,
+}
+
+impl Fields {
+    /// Whether the provided variable name exists as a local variable.
+    #[must_use]
+    pub fn contains(&self, var: &str) -> bool {
+        self.active.contains(var.trim_start_matches("r#"))
+    }
+
+    pub fn iter(&self) -> Iter<'_, String> {
+        self.active.iter()
+    }
+}
+
+impl From<Vec<String>> for Fields {
+    fn from(value: Vec<String>) -> Self {
+        Fields {
+            active: value
+                .iter()
+                .map(|field| field.trim_start_matches("r#").to_owned())
+                .collect::<HashSet<String>>(),
+        }
+    }
+}
+
 /// Local variables available for usage within templates.
 pub(crate) struct LocalVariables {
     /// Currently active variables.
@@ -153,6 +183,7 @@ impl LocalVariables {
 pub(crate) struct State<'a> {
     /// Storage for local variable names when building tokens.
     pub(crate) local_variables: LocalVariables,
+    pub(crate) fields: Fields,
     pub(crate) config: Config,
     pub(crate) inferred_escaper_group: Option<(String, EscaperGroup)>,
 

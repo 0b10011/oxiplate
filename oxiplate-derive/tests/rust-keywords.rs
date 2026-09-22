@@ -41,4 +41,28 @@ fn test_else() {
 }
 
 #[test]
-fn syn_tokens() {}
+fn include() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+{%- extends "rust-keywords/extends.html.oxip" %}
+{% block body -%}
+{% parent %}
+should be the same as:
+Referee: {{ ref }}
+{%- endblock %}"#
+    )]
+    struct Data {
+        r#ref: &'static str,
+    }
+
+    assert_eq!(
+        format!("{}", Data { r#ref: "Jess" }),
+        r#"<!DOCTYPE html>
+<title>Jess</title>
+<article>Referee: Jess
+should be the same as:
+Referee: Jess</article>
+"#
+    );
+}

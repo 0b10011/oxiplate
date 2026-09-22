@@ -2,14 +2,14 @@ use std::collections::{HashMap, VecDeque};
 
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
-use syn::LitStr;
+use syn::{Ident, LitStr};
 
 use super::{Statement, StatementKind};
 use crate::parser::{Parser as _, cut};
 use crate::template::parser::Res;
 use crate::template::parser::expression::{KeywordParser, String};
 use crate::template::tokenizer::TokenSlice;
-use crate::{BuiltTokens, oxiplate_internal};
+use crate::{BuiltTokens, State, oxiplate_internal};
 
 #[derive(Debug)]
 pub struct Include<'a> {
@@ -23,7 +23,7 @@ impl<'a> From<Include<'a>> for StatementKind<'a> {
 }
 
 impl Include<'_> {
-    pub fn to_tokens(&self) -> BuiltTokens {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
         let span = self.path.source().span_token();
@@ -36,19 +36,22 @@ impl Include<'_> {
         // Generate tokens for the included template.
         // They'll be injected into the main template later.
         //
-        // `IncludingTemplate` doesn't include any fields
+        // `IncludingTemplate` doesn't include types for any fields
         // because the struct will be discarded
         // before type checks are done on the generated code.
-        // If fields that don't exist are accessed,
-        // Rust will handle the error message for those,
-        // and the spans in the generated code
-        // will point the user to the correct place in the code
-        // to fix things.
+        // The fields names need to be included
+        // so the state can be properly built
+        // and `foo` in a template
+        // can be turned into `self.foo`
+        // in the generated Rust code.
         let include_path = LitStr::new(self.path.as_str(), self.path.source().span_token());
+        let fields = state.fields.iter().map(|field| Ident::new_raw(field, span));
         let template = quote_spanned! {span=>
             #[derive(#oxiplate)]
             #[oxiplate_include = #include_path]
-            struct IncludingTemplate;
+            struct IncludingTemplate {
+                #(#fields: (),)*
+            }
         };
         let (template, estimated_length) =
             oxiplate_internal(template.into(), &VecDeque::from([&HashMap::new()]));

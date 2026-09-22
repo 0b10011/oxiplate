@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<title>{{ ref }}</title>
+<article>
+    {%- block body -%}
+        {% include "rust-keywords/include.html.oxip" -%}
+    {% endblock -%}
+</article>

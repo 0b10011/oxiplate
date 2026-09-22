@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 use quote::{TokenStreamExt, quote, quote_spanned};
-use syn::LitStr;
+use syn::{Ident, LitStr};
 
 use super::{Statement, StatementKind, StaticType};
 use crate::parser::{Parser as _, cut};
@@ -83,10 +83,21 @@ impl<'a> Extends<'a> {
         let (template, _template_length) = &self.template.to_tokens(state);
         let mut tokens: TokenStream = quote! { #template };
 
+        // `Template` doesn't include types for any fields
+        // because the struct will be discarded
+        // before type checks are done on the generated code.
+        // The fields names need to be included
+        // so the state can be properly built
+        // and `foo` in a template
+        // can be turned into `self.foo`
+        // in the generated Rust code.
+        let fields = state.fields.iter().map(|field| Ident::new_raw(field, span));
         let template_to_extend = quote_spanned! {span=>
             #[derive(#oxiplate)]
             #[oxiplate_extends = #path]
-            struct Template {}
+            struct Template {
+                #(#fields: (),)*
+            }
         };
 
         let mut block_stack = state.blocks.clone();
