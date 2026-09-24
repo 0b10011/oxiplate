@@ -8,6 +8,7 @@ mod array;
 mod call;
 mod concat;
 mod fields;
+mod generics;
 mod group;
 mod keyword;
 mod literal;

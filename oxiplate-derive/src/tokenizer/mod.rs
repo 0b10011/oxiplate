@@ -30,13 +30,13 @@ impl<'a> Eof<'a> {
 
 #[derive(Clone, Debug)]
 pub struct UnexpectedTokenError<'a> {
-    message: &'a str,
+    message: &'static str,
     source: Source<'a>,
     is_eof: bool,
 }
 
 impl<'a> UnexpectedTokenError<'a> {
-    pub fn new(message: &'a str, source: Source<'a>) -> Self {
+    pub fn new(message: &'static str, source: Source<'a>) -> Self {
         Self {
             message,
             source,
@@ -52,7 +52,7 @@ impl<'a> UnexpectedTokenError<'a> {
         }
     }
 
-    pub fn message(&self) -> &'a str {
+    pub fn message(&self) -> &'static str {
         self.message
     }
 

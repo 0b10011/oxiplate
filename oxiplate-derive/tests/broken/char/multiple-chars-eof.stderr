@@ -1,4 +1,4 @@
-error: Unclosed character literal. Expected `'` after first character
+error: End of file encountered while parsing a lifetime.
  --> tests/broken/char/multiple-chars-eof.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ 'hello")]
