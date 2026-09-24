@@ -33,6 +33,7 @@ pub enum TokenKind {
 
     Bool(bool),
     Char(char),
+    Lifetime,
     Integer,
     Float,
 

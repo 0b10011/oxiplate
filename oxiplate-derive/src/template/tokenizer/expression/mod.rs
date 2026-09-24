@@ -4,7 +4,7 @@ mod string;
 
 use super::Token;
 use crate::Source;
-use crate::template::tokenizer::expression::char::consume_char;
+use crate::template::tokenizer::expression::char::consume_char_or_lifetime;
 use crate::template::tokenizer::expression::number::{consume_alternative_base, consume_decimal};
 use crate::template::tokenizer::expression::string::{consume_raw_string, consume_string};
 use crate::template::tokenizer::{
@@ -36,7 +36,7 @@ pub fn consume_expression_token<'a>(
     let kind = match source.next() {
         Some('"') => return consume_string(source, leading_whitespace),
         Some('#') => return consume_raw_string(source, leading_whitespace),
-        Some('\'') => return consume_char(source, leading_whitespace),
+        Some('\'') => return consume_char_or_lifetime(source, leading_whitespace),
         Some('}') => {
             return consume_possible_tag_end(
                 source,
