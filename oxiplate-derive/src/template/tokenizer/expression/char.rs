@@ -58,10 +58,13 @@ fn parse_char_or_lifetime<'a>(
 
         Some(char) if source.peek() == Some('\'') => char,
 
-        Some('a'..='z' | 'A'..='Z' | '_') if source.peek().is_some() => {
-            source.next_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'));
+        Some('a'..='z' | 'A'..='Z' | '_') => {
+            let matched =
+                source.next_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'));
 
             match source.peek() {
+                // Single character followed by `'`
+                // should have already been checked for by this point.
                 Some('\'') => {
                     let _ = source.next();
                     return Err(ParseError::new(
@@ -69,9 +72,12 @@ fn parse_char_or_lifetime<'a>(
                     ));
                 }
                 None => {
-                    return Err(ParseError::new(
-                        "End of file encountered while parsing a lifetime.",
-                    ));
+                    let message = if matched == 0 {
+                        "End of file encountered while parsing a character literal"
+                    } else {
+                        "End of file encountered while parsing a lifetime."
+                    };
+                    return Err(ParseError::new(message));
                 }
                 _ => (),
             }
