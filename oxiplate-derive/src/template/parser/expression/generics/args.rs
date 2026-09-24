@@ -3,22 +3,20 @@ use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::Generics;
 use super::lifetime::Lifetime;
-use crate::parser::{Parser as _, context, fail, ignore_recoverable_errors, into, many0, take};
+use crate::parser::{Parser as _, ignore_recoverable_errors, into, many0, take};
 use crate::template::parser::Res;
-use crate::template::tokenizer::{Token, TokenKind};
+use crate::template::tokenizer::TokenKind;
 use crate::{Source, TokenSlice};
 
 #[derive(Debug)]
 pub(super) struct GenericArgs<'a> {
     first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
-    last_generic: GenericArg<'a>,
-    trailing_comma: Option<Source<'a>>,
+    last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
     source: Source<'a>,
 }
 
 impl<'a> GenericArgs<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let tokens_backup = tokens.clone();
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
@@ -32,15 +30,13 @@ impl<'a> GenericArgs<'a> {
         )
             .parse(tokens)?;
 
-        let (last_generic, trailing_comma) = if let Some(last_generic) = last_generic {
+        let last_generic = if last_generic.is_some() {
             last_generic
+                .map(|(generic, comma)| (generic, comma.map(|comma| comma.source().clone())))
         } else {
-            let Some((last_generic, trailing_comma)) = first_generics.pop() else {
-                return context("Expected one or more generic arguments", fail())
-                    .parse(tokens_backup);
-            };
-
-            (last_generic, Some(trailing_comma))
+            first_generics
+                .pop()
+                .map(|(generic, comma)| (generic, Some(comma.source().clone())))
         };
 
         let mut source = less_than.source().clone();
@@ -51,13 +47,13 @@ impl<'a> GenericArgs<'a> {
                 .merge(comma.source(), "`,` expected after generic");
         }
 
-        source = source
-            .merge(last_generic.source(), "Generic expected after `,` or `<`")
-            .merge_some(
-                trailing_comma.map(Token::source),
-                "`,` expected after last generic",
-            )
-            .merge(greater_than.source(), "`>` expected after generics");
+        if let Some((generic, comma)) = &last_generic {
+            source = source
+                .merge(generic.source(), "Generic expected after `,` or `<`")
+                .merge_some(comma.as_ref(), "`,` expected after last generic");
+        }
+
+        source = source.merge(greater_than.source(), "`>` expected after generics");
 
         Ok((
             tokens,
@@ -67,7 +63,6 @@ impl<'a> GenericArgs<'a> {
                     .map(|(generic, comma)| (generic, comma.source().clone()))
                     .collect(),
                 last_generic,
-                trailing_comma: trailing_comma.map(|comma| comma.source().clone()),
                 source,
             },
         ))
@@ -87,10 +82,12 @@ impl ToTokens for GenericArgs<'_> {
             inner_tokens.append_all(quote_spanned! {span=> #arg, });
         }
 
-        self.last_generic.to_tokens(&mut inner_tokens);
-        if let Some(comma) = &self.trailing_comma {
-            let span = comma.span_token();
-            inner_tokens.append_all(quote_spanned! {span=> , });
+        if let Some((generic, comma)) = &self.last_generic {
+            generic.to_tokens(&mut inner_tokens);
+            if let Some(comma) = comma {
+                let span = comma.span_token();
+                inner_tokens.append_all(quote_spanned! {span=> , });
+            }
         }
 
         let span = self.source.span_token();

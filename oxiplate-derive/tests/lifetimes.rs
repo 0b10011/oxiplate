@@ -8,6 +8,21 @@ use alloc::string::String;
 use oxiplate_derive::Oxiplate;
 
 #[test]
+fn none<'c>() {
+    fn function(left: &str) -> String {
+        format!("{left:?}")
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ function::<>(left) }}"#)]
+    struct Data {
+        left: &'static str,
+    }
+
+    assert_eq!(format!("{}", Data { left: "hello" }), r#""hello""#);
+}
+
+#[test]
 fn one<'c>() {
     fn function<'a: 'a>(left: &'a str) -> String {
         format!("{left:?}")
