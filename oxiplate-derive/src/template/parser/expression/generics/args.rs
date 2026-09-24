@@ -3,7 +3,7 @@ use quote::{ToTokens, TokenStreamExt, quote_spanned};
 
 use super::Generics;
 use super::lifetime::Lifetime;
-use crate::parser::{Parser as _, ignore_recoverable_errors, into, many0, take};
+use crate::parser::{Parser as _, context, fail, ignore_recoverable_errors, into, many0, take};
 use crate::template::parser::Res;
 use crate::template::tokenizer::{Token, TokenKind};
 use crate::{Source, TokenSlice};
@@ -18,16 +18,30 @@ pub(super) struct GenericArgs<'a> {
 
 impl<'a> GenericArgs<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (less_than, (first_generics, last_generic, trailing_comma), greater_than)) = (
+        let tokens_backup = tokens.clone();
+        let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
                 many0((GenericArg::parse, take(TokenKind::Comma))),
-                GenericArg::parse,
-                ignore_recoverable_errors(take(TokenKind::Comma)),
+                ignore_recoverable_errors((
+                    GenericArg::parse,
+                    ignore_recoverable_errors(take(TokenKind::Comma)),
+                )),
             ),
             take(TokenKind::GreaterThan),
         )
             .parse(tokens)?;
+
+        let (last_generic, trailing_comma) = if let Some(last_generic) = last_generic {
+            last_generic
+        } else {
+            let Some((last_generic, trailing_comma)) = first_generics.pop() else {
+                return context("Expected one or more generic arguments", fail())
+                    .parse(tokens_backup);
+            };
+
+            (last_generic, Some(trailing_comma))
+        };
 
         let mut source = less_than.source().clone();
 
