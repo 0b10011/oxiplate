@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.4](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.3...oxiplate-derive-v0.19.4) - 2026-09-24
+
+### Added
+
+- added support for lifetime generics ([#343](https://github.com/0b10011/oxiplate/pull/343))
+
 ## [0.19.3](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.2...oxiplate-derive-v0.19.3) - 2026-09-22
 
 ### Added
