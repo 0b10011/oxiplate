@@ -19,7 +19,6 @@ oxiplate-derive = { version = "0.19.4", path = "../oxiplate-derive", default-fea
 oxiplate-traits = { version = "0.2", path = "../oxiplate-traits", default-features = false, features = [] }
 
 [dev-dependencies]
-rustversion = "1.0.19"
 trybuild = "1.0.116, < 1.0.120"
 
 [features]

@@ -8,17 +8,7 @@ fn expansion() -> Result<(), Box<dyn Error>> {
     test::expansion()
 }
 
-#[rustversion::before(2025-07-14)]
-mod test {
-    pub(super) fn expansion() -> Result<(), Box<dyn super::Error>> {
-        unimplemented!(
-            "Expansion tests are incorrect on older Rust compiler version like this one. Run \
-             `rustup self update && rustup update` to get the latest Rust compiler version."
-        );
-    }
-}
-
-#[rustversion::since(2025-07-14)]
+#[cfg(test)]
 mod test {
     use std::collections::HashSet;
     use std::fs;

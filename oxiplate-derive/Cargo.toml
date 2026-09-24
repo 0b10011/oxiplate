@@ -23,7 +23,6 @@ quote = { version = "1.0.45", default-features = false, features = ["proc-macro"
 syn = { version = "3.0.0", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
 
 [dev-dependencies]
-rustversion = "1.0.19"
 trybuild = "1.0.116, < 1.0.120"
 
 [features]
