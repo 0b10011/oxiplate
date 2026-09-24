@@ -27,17 +27,18 @@ pub static lifetime: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(lifetime())),
 };
-fn lifetime<'b>() {
-    fn function<'a: 'a>(data: &'a str) -> String {
+fn lifetime<'c, 'd>() {
+    fn function<'a: 'a, 'b: 'b>(left: &'a str, right: &'b str) -> String {
         ::alloc::__export::must_use({
-            ::alloc::fmt::format(format_args!("{0:?}", data))
+            ::alloc::fmt::format(format_args!("{0:?} {1:?}", left, right))
         })
     }
-    #[oxiplate_inline(r#"{{ function::<'b>(message) }}"#)]
-    struct Data<'b> {
-        message: &'b str,
+    #[oxiplate_inline(r#"{{ function::<'c, 'd>(left, right) }}"#)]
+    struct Data<'c, 'd> {
+        left: &'c str,
+        right: &'d str,
     }
-    impl<'b> ::core::fmt::Display for Data<'b> {
+    impl<'c, 'd> ::core::fmt::Display for Data<'c, 'd> {
         fn fmt(
             &self,
             oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
@@ -46,7 +47,9 @@ fn lifetime<'b>() {
             use ::core::fmt::Write as _;
             oxiplate_formatter
                 .write_str(
-                    &alloc::string::ToString::to_string(&(function::<'b>(self.message))),
+                    &alloc::string::ToString::to_string(
+                        &(function::<'c, 'd>(self.left, self.right)),
+                    ),
                 )?;
             ::core::result::Result::Ok(())
         }
@@ -55,10 +58,16 @@ fn lifetime<'b>() {
         match (
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(
-                    format_args!("{0}", Data { message: "hello world" }),
+                    format_args!(
+                        "{0}",
+                        Data {
+                            left: "hello",
+                            right: "world",
+                        },
+                    ),
                 )
             }),
-            &r#""hello world""#,
+            &r#""hello" "world""#,
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

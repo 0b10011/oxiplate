@@ -1,0 +1,5 @@
+error: More than one character present in character literal. Consider using `"` instead of `'` to use a string literal instead.
+ --> tests/broken/char/multiple-chars-non-ident.rs:4:24
+  |
+4 | #[oxiplate_inline(r"{{ '*hi' }}")]
+  |                        ^^^^^

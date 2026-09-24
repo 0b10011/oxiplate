@@ -8,24 +8,26 @@ use alloc::string::String;
 use oxiplate_derive::Oxiplate;
 
 #[test]
-fn lifetime<'b>() {
-    fn function<'a: 'a>(data: &'a str) -> String {
-        format!("{data:?}")
+fn lifetime<'c, 'd>() {
+    fn function<'a: 'a, 'b: 'b>(left: &'a str, right: &'b str) -> String {
+        format!("{left:?} {right:?}")
     }
 
     #[derive(Oxiplate)]
-    #[oxiplate_inline(r#"{{ function::<'b>(message) }}"#)]
-    struct Data<'b> {
-        message: &'b str,
+    #[oxiplate_inline(r#"{{ function::<'c, 'd>(left, right) }}"#)]
+    struct Data<'c, 'd> {
+        left: &'c str,
+        right: &'d str,
     }
 
     assert_eq!(
         format!(
             "{}",
             Data {
-                message: "hello world"
+                left: "hello",
+                right: "world",
             }
         ),
-        r#""hello world""#
+        r#""hello" "world""#
     );
 }
