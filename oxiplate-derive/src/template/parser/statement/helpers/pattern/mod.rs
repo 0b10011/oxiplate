@@ -119,7 +119,7 @@ impl<'a> Path<'a> {
     pub fn parse_exclude_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (segments_with_whitespace, name)) = (
             many1((Identifier::parse, take(TokenKind::PathSeparator))),
-            cut("Expected type name and optional fields", Identifier::parse),
+            cut("Expected an identifier", Identifier::parse),
         )
             .parse(tokens)?;
 

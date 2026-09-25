@@ -1,4 +1,4 @@
-error: Expected type name and optional fields
+error: Expected an identifier
   --> tests/broken/if/if-let-bad-type-name.rs:10:26
    |
 10 | {%- if let std::option:: -%}
