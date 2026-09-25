@@ -1,13 +1,16 @@
 error[E0599]: the method `oxiplate_escape` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/unwritable-writ.rs:4:26
   |
-4 | #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
-  |                          ^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
+4 |   #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
+  |                            ^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
-  | pub struct Vec<T, #[unstable(feature = "allocator_api", issue = "32838")] A: Allocator = Global> {
-  | ------------------------------------------------------------------------------------------------ doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
+  | / pub struct Vec<
+  | |     T,
+  | |     #[stable(feature = "allocator_api", since = "CURRENT_RUSTC_VERSION")] A: Allocator = Global,
+  | | > {
+  | |_- doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastEscape<'_, _>`
@@ -18,13 +21,16 @@ error[E0599]: the method `oxiplate_escape` exists for reference `&&UnescapedText
 error[E0599]: the method `oxiplate_escape` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/unwritable-writ.rs:4:41
   |
-4 | #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
-  |                                         ^^^^^^^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
+4 |   #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
+  |                                           ^^^^^^^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
-  | pub struct Vec<T, #[unstable(feature = "allocator_api", issue = "32838")] A: Allocator = Global> {
-  | ------------------------------------------------------------------------------------------------ doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
+  | / pub struct Vec<
+  | |     T,
+  | |     #[stable(feature = "allocator_api", since = "CURRENT_RUSTC_VERSION")] A: Allocator = Global,
+  | | > {
+  | |_- doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastEscape<'_, _>`
@@ -35,13 +41,16 @@ error[E0599]: the method `oxiplate_escape` exists for reference `&&UnescapedText
 error[E0599]: the method `oxiplate_raw` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/unwritable-writ.rs:4:70
   |
-4 | #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
-  |                                                                      ^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
+4 |   #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
+  |                                                                        ^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
-  | pub struct Vec<T, #[unstable(feature = "allocator_api", issue = "32838")] A: Allocator = Global> {
-  | ------------------------------------------------------------------------------------------------ doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
+  | / pub struct Vec<
+  | |     T,
+  | |     #[stable(feature = "allocator_api", since = "CURRENT_RUSTC_VERSION")] A: Allocator = Global,
+  | | > {
+  | |_- doesn't satisfy `Vec<&str>: FastEscape<'_, _>` or `Vec<&str>: std::fmt::Display`
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastEscape<'_, _>`
