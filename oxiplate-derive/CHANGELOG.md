@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.5](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.4...oxiplate-derive-v0.19.5) - 2026-09-25
+
+### Fixed
+
+- improved error for malformed raw strings
+- improved error message when skipping the path in an include statement
+- fixed unrecognized statement error to include parent statement
+- fixed error message for missing trailing identifer in paths
+- improved error for unclosed statements by highlighting entire statement
+- improved error message for multiple parent statements in a single block statement
+- improved error message when skipping the path in an extends statement
+- improved error message when skipping a block name
+
+### Other
+
+- removed Rust version check that isn't needed due to pinning the toolchain
+
 ## [0.19.4](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.3...oxiplate-derive-v0.19.4) - 2026-09-24
 
 ### Added
