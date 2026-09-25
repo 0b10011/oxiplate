@@ -66,7 +66,10 @@ impl Include<'_> {
 pub(super) fn parse_include(tokens: TokenSlice) -> Res<Statement> {
     let (tokens, (include_keyword, path)) = (
         KeywordParser::new("include"),
-        cut("Expected path to the template to include", String::parse),
+        cut(
+            r#"Expected path to template to include (e.g., `{% include "path/to/template.html.oxip" %}`)"#,
+            String::parse
+        ),
     )
         .parse(tokens)?;
 
