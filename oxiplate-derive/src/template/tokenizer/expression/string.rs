@@ -72,7 +72,7 @@ pub fn consume_raw_string<'a>(
         return (
             None,
             Err(UnexpectedTokenError::new(
-                "Malformed raw string. Expected `\"` after opening hashes",
+                r####"Malformed raw string. Expected `"` after opening hashes (e.g., `###"hello world"###`)"####,
                 source,
             )),
         );

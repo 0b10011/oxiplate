@@ -1,4 +1,4 @@
-error: Malformed raw string. Expected `"` after opening hashes
+error: Malformed raw string. Expected `"` after opening hashes (e.g., `###"hello world"###`)
  --> tests/broken/strings/missing-quote-after-hashes.rs:4:27
   |
 4 | #[oxiplate_inline(r###"{{ ##hello world"## }}"###)]
