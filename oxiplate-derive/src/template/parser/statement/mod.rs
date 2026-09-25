@@ -201,8 +201,8 @@ pub(super) fn statement<'a>(
         // Parse statements
         let (tokens, mut statement): (TokenSlice<'a>, Statement<'a>) = cut(
             "Expected one of: default_escaper_group, replace_escaper_group, extends, block, \
-             endblock, include, if, elseif, else, endif, for, continue, break, endfor, match, \
-             case, endmatch, let",
+             parent, endblock, include, if, elseif, else, endif, for, continue, break, endfor, \
+             match, case, endmatch, let",
             alt((
                 escaper::parse_default_escaper_group,
                 extends::parse_extends,
