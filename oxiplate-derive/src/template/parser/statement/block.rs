@@ -44,7 +44,8 @@ impl<'a> Block<'a> {
             }) => {
                 if let Some(suffix) = &mut self.suffix {
                     suffix.0.push(Item::CompileError {
-                        message: "Multiple parent blocks present in block".to_string(),
+                        message: "Only one parent statement is allowed in a block statement"
+                            .to_string(),
                         error_source: source.clone(),
                         consumed_source: source,
                     });

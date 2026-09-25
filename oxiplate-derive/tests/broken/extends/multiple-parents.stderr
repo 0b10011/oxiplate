@@ -1,4 +1,4 @@
-error: Multiple parent blocks present in block
+error: Only one parent statement is allowed in a block statement
  --> tests/broken/extends/multiple-parents.rs:7:32
   |
 7 | {% block content %}{% parent %}{% parent %}
