@@ -188,7 +188,11 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
 pub(super) fn parse_block(tokens: TokenSlice) -> Res<Statement> {
     let (tokens, block_keyword) = KeywordParser::new("block").parse(tokens)?;
 
-    let (tokens, name) = cut("Expected an identifier", Identifier::parse).parse(tokens)?;
+    let (tokens, name) = cut(
+        "Expected a block name (e.g., `{% block content %}`)",
+        Identifier::parse,
+    )
+    .parse(tokens)?;
 
     let source = block_keyword
         .source()

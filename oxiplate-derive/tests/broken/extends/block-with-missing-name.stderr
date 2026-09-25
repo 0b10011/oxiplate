@@ -1,4 +1,4 @@
-error: Expected an identifier
+error: Expected a block name (e.g., `{% block content %}`)
  --> tests/broken/extends/block-with-missing-name.rs:4:64
   |
 4 | #[oxiplate_inline(r#"{% extends "extends.html.oxip" %}{% block %}"#)]
