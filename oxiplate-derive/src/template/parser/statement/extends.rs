@@ -136,7 +136,7 @@ pub(super) fn parse_extends(tokens: TokenSlice) -> Res<Statement> {
     let (tokens, (extends_keyword, path)) = (
         KeywordParser::new("extends"),
         cut(
-            "Expected string containing path to template to extend",
+            r#"Expected path to template to extend (e.g., `{% extends "path/to/template.html.oxip" %}`)"#,
             String::parse,
         ),
     )
