@@ -340,7 +340,7 @@ fn eof<'a>(
     };
     statement.add_item(Item::CompileError {
         message: context_message.to_string(),
-        error_source: tokens.eof().source().clone(),
+        error_source: statement.source().clone(),
         consumed_source: tokens.eof().source().clone(),
     });
 
