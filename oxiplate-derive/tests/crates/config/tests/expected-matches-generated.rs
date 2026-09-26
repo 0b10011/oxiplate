@@ -64,7 +64,7 @@ fn stderr_matches() -> Result<(), Box<dyn Error>> {
 
     if mismatched > 0 {
         panic!(
-            "1 or more mismatched stderr files. Try running `just build-config-test-crates` to \
+            "1 or more mismatched stderr files. Try running `just rebuild-config-test-crates` to \
              fix."
         );
     }
@@ -125,7 +125,7 @@ fn config_matches() -> Result<(), Box<dyn Error>> {
     if mismatched > 0 {
         panic!(
             "1 or more mismatched oxiplate.toml files. Try running `just \
-             build-config-test-crates` to fix."
+             rebuild-config-test-crates` to fix."
         );
     }
 
