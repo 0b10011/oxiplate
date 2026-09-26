@@ -1,0 +1,7 @@
+error: Unexpected statement in `if` statement; is an `endif` statement missing or `if` used instead of `elseif`?
+  --> tests/broken/if/else-with-case.rs:9:12
+   |
+ 9 |       Missing
+   |  ____________^
+10 | | {%- case None -%}
+   | |_________________^
