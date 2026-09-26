@@ -643,10 +643,11 @@ impl<'a> Source<'a> {
     }
 }
 
-#[cfg(not(feature = "better-internal-errors"))]
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
+    use core::ops::Range;
+
     use proc_macro2::{Literal, Span};
 
     use super::Source;
@@ -702,5 +703,19 @@ mod tests {
             end: 1,
         };
         let _ = a.span_token();
+    }
+
+    #[test]
+    #[should_panic = "Range end 19 must be less than or equal to the code length 11"]
+    fn end_past_end() {
+        let literal = Literal::usize_unsuffixed(0);
+        let owned_source = crate::SourceOwned {
+            code: "hello world".to_string(),
+            code_escaped: literal.to_string(),
+            literal,
+            span_hygiene: Span::call_site(),
+            origin: None,
+        };
+        let _ = Source::new_with_range(&owned_source, Range { start: 0, end: 19 });
     }
 }
