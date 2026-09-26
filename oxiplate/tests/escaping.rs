@@ -122,3 +122,14 @@ Hello world &lt;<script><!--
 "
     );
 }
+
+#[test]
+fn explicit_and_inferred_escaper_group_in_writ() {
+    use alloc::format;
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(html: r#"{% default_escaper_group html %}{{ "<hello>" }}"#)]
+    struct Data;
+
+    assert_eq!(format!("{Data}"), "&lt;hello>",);
+}

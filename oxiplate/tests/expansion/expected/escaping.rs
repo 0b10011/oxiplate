@@ -321,9 +321,83 @@ Hello world &lt;<script><!--
     };
 }
 extern crate test;
+#[rustc_test_marker = "explicit_and_inferred_escaper_group_in_writ"]
+#[doc(hidden)]
+pub static explicit_and_inferred_escaper_group_in_writ: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("explicit_and_inferred_escaper_group_in_writ"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate/tests/escaping.rs",
+        start_line: 127usize,
+        start_col: 4usize,
+        end_line: 127usize,
+        end_col: 47usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(explicit_and_inferred_escaper_group_in_writ()),
+    ),
+};
+fn explicit_and_inferred_escaper_group_in_writ() {
+    use alloc::format;
+    #[oxiplate_inline(html:r#"{% default_escaper_group html %}{{ "<hello>" }}"#)]
+    struct Data;
+    impl ::core::fmt::Display for Data {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            ::oxiplate::Render::render_into(self, oxiplate_formatter)
+        }
+    }
+    impl ::oxiplate::Render for Data {
+        const ESTIMATED_LENGTH: usize = 7usize;
+        #[inline]
+        fn render_into<W: ::core::fmt::Write>(
+            &self,
+            oxiplate_formatter: &mut W,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+            (&&::oxiplate::UnescapedTextWrapper::new(&("<hello>")))
+                .oxiplate_escape(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Data))
+            }),
+            &"&lt;hello>",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
 #[rustc_main]
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&types])
+    test::test_main_env_args(&[&explicit_and_inferred_escaper_group_in_writ, &types])
 }
