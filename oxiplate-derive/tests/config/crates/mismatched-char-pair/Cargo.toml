@@ -1,0 +1,12 @@
+[package]
+name = "oxiplate-derive-test-config-mismatched-char-pair"
+publish = false
+license.workspace = true
+edition.workspace = true
+
+[dev-dependencies]
+trybuild = "1.0.116, < 1.0.120"
+oxiplate-derive = { path = "../../../../" }
+
+[lints]
+workspace = true

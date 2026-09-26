@@ -143,35 +143,36 @@ impl<'a> Iterator for Tokens<'a> {
             err => return Some(err),
         };
 
+        macro_rules! check {
+            ($kind:ident) => {{
+                self.char_pair_stack.push(CharPairKind::$kind);
+                None
+            }};
+            ($kind:ident, $found:literal) => {
+                Some((
+                    matches!(self.char_pair_stack.last(), Some(CharPairKind::$kind)),
+                    match self.char_pair_stack.last() {
+                        Some(CharPairKind::Brace) => concat!("Expected `}`, found `", $found, "`"),
+                        Some(CharPairKind::Bracket) => {
+                            concat!("Expected `]`, found `", $found, "`")
+                        }
+                        Some(CharPairKind::DoubleBracket) => {
+                            concat!("Expected `]]`, found `", $found, "`")
+                        }
+                        None => concat!("Did not expect `", $found, "`"),
+                    },
+                ))
+            };
+        }
+
         // Ensure all char pairs are matched.
         let char_pair_check = match token.kind() {
-            TokenKind::BraceOpen => {
-                self.char_pair_stack.push(CharPairKind::Brace);
-                None
-            }
-            TokenKind::BracketOpen => {
-                self.char_pair_stack.push(CharPairKind::Bracket);
-                None
-            }
-            TokenKind::DoubleBracketOpen => {
-                self.char_pair_stack.push(CharPairKind::DoubleBracket);
-                None
-            }
-            TokenKind::BraceClose => Some((
-                matches!(self.char_pair_stack.last(), Some(CharPairKind::Brace)),
-                "Expected `}`",
-            )),
-            TokenKind::BracketClose => Some((
-                matches!(self.char_pair_stack.last(), Some(CharPairKind::Bracket)),
-                "Expected `]`",
-            )),
-            TokenKind::DoubleBracketClose => Some((
-                matches!(
-                    self.char_pair_stack.last(),
-                    Some(CharPairKind::DoubleBracket)
-                ),
-                "Expected `)`",
-            )),
+            TokenKind::BraceOpen => check!(Brace),
+            TokenKind::BraceClose => check!(Brace, '}'),
+            TokenKind::BracketOpen => check!(Bracket),
+            TokenKind::BracketClose => check!(Bracket, ']'),
+            TokenKind::DoubleBracketOpen => check!(DoubleBracket),
+            TokenKind::DoubleBracketClose => check!(DoubleBracket, "]]"),
             _ => None,
         };
 

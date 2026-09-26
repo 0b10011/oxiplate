@@ -182,6 +182,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-mismatched-char-pair"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-missing-value"
 version = "0.0.0"
 dependencies = [
