@@ -175,3 +175,15 @@ impl Deref for OptimizedRenderer {
         &self.0
     }
 }
+
+#[cfg(all(test, feature = "config"))]
+mod test {
+    use crate::parser::Error;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `Error::Multiple` should always \
+                      contain at least one error"]
+    fn multiple_errors_with_no_error() {
+        super::convert_error(&Error::Multiple(vec![]));
+    }
+}

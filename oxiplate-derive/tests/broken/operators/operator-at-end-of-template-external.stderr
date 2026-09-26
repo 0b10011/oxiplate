@@ -1,0 +1,5 @@
+error: End of file encountered while parsing a statement. Expected `%}`, `-%}`, or `_%}`
+ --> templates/operator-at-end-of-template.oxip
+  |
+  | {% if 19 +
+  |          ^

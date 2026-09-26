@@ -1,0 +1,5 @@
+error: End of file encountered while parsing a statement. Expected `%}`, `-%}`, or `_%}`
+ --> tests/broken/operators/operator-at-end-of-template.rs:4:31
+  |
+4 | #[oxiplate_inline(r#"{% if 19 +"#)]
+  |                               ^

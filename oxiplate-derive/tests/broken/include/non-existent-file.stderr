@@ -1,0 +1,5 @@
+error: Path does not exist: `$DIR/templates/this-file-does-not-exist.oxip`
+ --> tests/broken/include/non-existent-file.rs:4:33
+  |
+4 | #[oxiplate_inline(r#"{% include "this-file-does-not-exist.oxip" %}"#)]
+  |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
