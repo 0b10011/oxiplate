@@ -25,6 +25,15 @@ fn test_array_of_string_slices_in_writ() {
 }
 
 #[test]
+fn test_array_of_string_slices_in_writ_trailing_comma() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"[{{ ["a", "b", "c",].join("") }}]"#)]
+    struct Array;
+
+    assert_eq!(format!("{}", Array), "[abc]");
+}
+
+#[test]
 fn test_array_of_numbers_in_for_loop() {
     #[derive(Oxiplate)]
     #[oxiplate_inline(

@@ -130,6 +130,69 @@ fn test_array_of_string_slices_in_writ() {
     };
 }
 extern crate test;
+#[rustc_test_marker = "test_array_of_string_slices_in_writ_trailing_comma"]
+#[doc(hidden)]
+pub static test_array_of_string_slices_in_writ_trailing_comma: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("test_array_of_string_slices_in_writ_trailing_comma"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/array.rs",
+        start_line: 28usize,
+        start_col: 4usize,
+        end_line: 28usize,
+        end_col: 54usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_array_of_string_slices_in_writ_trailing_comma()),
+    ),
+};
+fn test_array_of_string_slices_in_writ_trailing_comma() {
+    #[oxiplate_inline(r#"[{{ ["a", "b", "c",].join("") }}]"#)]
+    struct Array;
+    impl ::core::fmt::Display for Array {
+        fn fmt(
+            &self,
+            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
+        ) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str("[")?;
+            oxiplate_formatter
+                .write_str(
+                    &alloc::string::ToString::to_string(&(["a", "b", "c"].join(""))),
+                )?;
+            oxiplate_formatter.write_str("]")?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Array))
+            }),
+            &"[abc]",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
 #[rustc_test_marker = "test_array_of_numbers_in_for_loop"]
 #[doc(hidden)]
 pub static test_array_of_numbers_in_for_loop: test::TestDescAndFn = test::TestDescAndFn {
@@ -138,9 +201,9 @@ pub static test_array_of_numbers_in_for_loop: test::TestDescAndFn = test::TestDe
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/array.rs",
-        start_line: 28usize,
+        start_line: 37usize,
         start_col: 4usize,
-        end_line: 28usize,
+        end_line: 37usize,
         end_col: 37usize,
         compile_fail: false,
         no_run: false,
@@ -207,9 +270,9 @@ pub static test_array_of_expressions: test::TestDescAndFn = test::TestDescAndFn 
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/array.rs",
-        start_line: 43usize,
+        start_line: 52usize,
         start_col: 4usize,
-        end_line: 43usize,
+        end_line: 52usize,
         end_col: 29usize,
         compile_fail: false,
         no_run: false,
@@ -272,9 +335,9 @@ pub static test_repeat: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/array.rs",
-        start_line: 52usize,
+        start_line: 61usize,
         start_col: 4usize,
-        end_line: 52usize,
+        end_line: 61usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
@@ -333,9 +396,9 @@ pub static test_repeat_empty: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/array.rs",
-        start_line: 61usize,
+        start_line: 70usize,
         start_col: 4usize,
-        end_line: 61usize,
+        end_line: 70usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
@@ -395,6 +458,7 @@ pub fn main() -> test::ExitCode {
             &test_array_of_expressions,
             &test_array_of_numbers_in_for_loop,
             &test_array_of_string_slices_in_writ,
+            &test_array_of_string_slices_in_writ_trailing_comma,
             &test_assignment,
             &test_repeat,
             &test_repeat_empty,
