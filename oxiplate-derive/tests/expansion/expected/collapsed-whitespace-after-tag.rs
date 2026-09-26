@@ -6,8 +6,10 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline(r"{% if value %}foo{% endif _%}
-")]
+#[oxiplate_inline(r#"{# _#}
+{% if value %}foo{% endif _%}
+{{ "bar" _}}
+"#)]
 struct Data {
     value: bool,
 }
@@ -18,9 +20,12 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(" ")?;
         if self.value {
             oxiplate_formatter.write_str("foo")?;
         }
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("bar")))?;
         oxiplate_formatter.write_str(" ")?;
         ::core::result::Result::Ok(())
     }
@@ -34,9 +39,9 @@ pub static adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/collapsed-whitespace-after-tag.rs",
-        start_line: 19usize,
+        start_line: 21usize,
         start_col: 4usize,
-        end_line: 19usize,
+        end_line: 21usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,
@@ -55,7 +60,7 @@ fn adjusted_whitespace() {
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"foo ",
+            &" foo bar ",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

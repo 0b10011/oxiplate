@@ -267,9 +267,9 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         _ => None,
     };
 
-    // Handle `-`, `_`, and non-comment close tags in comments.
+    // Handle non-comment close tags in comments.
     if let TagKind::Comment = in_tag_kind {
-        if let None | Some(TagKind::Statement | TagKind::Writ) = tag_end_kind {
+        if let Some(TagKind::Statement | TagKind::Writ) = tag_end_kind {
             return (
                 None,
                 Ok(Token::new(

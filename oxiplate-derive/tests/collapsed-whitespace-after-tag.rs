@@ -8,8 +8,10 @@ use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
 #[oxiplate_inline(
-    r"{% if value %}foo{% endif _%}
-"
+    r#"{# _#}
+{% if value %}foo{% endif _%}
+{{ "bar" _}}
+"#
 )]
 struct Data {
     value: bool,
@@ -19,5 +21,5 @@ struct Data {
 fn adjusted_whitespace() {
     let data = Data { value: true };
 
-    assert_eq!(format!("{data}"), "foo ");
+    assert_eq!(format!("{data}"), " foo bar ");
 }
