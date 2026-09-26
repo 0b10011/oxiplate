@@ -1,0 +1,5 @@
+error: Unexpected character in expression
+ --> tests/broken/strings/multi-byte-char-at-end-of-template-in-expression.rs:4:28
+  |
+4 | #[oxiplate_inline(r#"{% if ❯"#)]
+  |                            ^

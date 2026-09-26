@@ -1,0 +1,5 @@
+error: Unexpected character in expression
+ --> templates/multi-byte-char-at-end-of-template-in-expression.oxip
+  |
+  | {% if ❯
+  |       ^
