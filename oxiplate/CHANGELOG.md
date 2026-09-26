@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.7](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.6...oxiplate-v0.19.7) - 2026-09-26
+
+### Fixed
+
+- improved error messages for mismatched char pairs in oxiplate.toml
+
+### Other
+
+- added test to cover setting default escaper group to inferred group
+- added test for trailing comma in arrays
+- added test for unexpected statement in if/else statement
+- started returning error directly instead of going through macro to send expected error message and increase coverage
+- improved test coverage for `-` or `_` in comments
+- improved test coverage
+- fixed name of command to rebuild config test crates
+- added test for out of bounds range end for `Source`
+- added tests to explicitly cover multi-byte single character tokens with errors at the end of the template
+
 ## [0.19.6](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.5...oxiplate-v0.19.6) - 2026-09-25
 
 ### Fixed
