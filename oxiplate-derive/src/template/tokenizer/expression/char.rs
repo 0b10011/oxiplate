@@ -36,10 +36,11 @@ fn parse_char_or_lifetime<'a>(
                 source,
                 r#"Unknown character escape. Expected `\\`, `\"`, `\'`, `\n`, `\r`, `\t`, or `\0`"#
             ),
-            None => error!(
-                source,
-                "End of file encountered while parsing a character literal"
-            ),
+            None => {
+                return Err(ParseError::new(
+                    "End of file encountered while parsing a character literal",
+                ));
+            }
         },
 
         // Allow raw newlines, carriage returns, and tabs
@@ -92,10 +93,11 @@ fn parse_char_or_lifetime<'a>(
         // Error will get caught by `parse_char_end()`
         Some(char) => char,
 
-        None => error!(
-            source,
-            "End of file encountered while parsing a character literal"
-        ),
+        None => {
+            return Err(ParseError::new(
+                "End of file encountered while parsing a character literal",
+            ));
+        }
     };
 
     parse_char_end(source).map(|()| CharOrLifetime::Char(char))
