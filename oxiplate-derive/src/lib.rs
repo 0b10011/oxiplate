@@ -422,8 +422,9 @@ fn parse_code_literal(
     #[cfg(feature = "external-template-spans")] template_type: &TemplateType,
     #[cfg(feature = "external-template-spans")] span: Span,
 ) -> Result<LitStr, syn::Error> {
+    // Expand macros
     #[cfg(feature = "external-template-spans")]
-    let input = {
+    let Ok(input) = input.expand_expr() else {
         let invalid_attribute_message = match template_type {
             TemplateType::Path | TemplateType::Inline => {
                 r#"Must provide either an external or internal template:
@@ -438,12 +439,7 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
             }
         };
 
-        // Expand macros
-        let input = input.expand_expr();
-        if input.is_err() {
-            return Err(syn::Error::new(span, invalid_attribute_message));
-        }
-        input.unwrap()
+        return Err(syn::Error::new(span, invalid_attribute_message));
     };
 
     #[cfg(not(feature = "external-template-spans"))]
@@ -582,12 +578,16 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#);
                 Ok((span, quote::quote_spanned!(span=> #template), None, None))
             }
             Err(error) => {
-                let span = error.span();
-                let compile_error = error.to_compile_error();
-                Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
-                    compile_error!("Failed to parse inline template. Should look something like:\n#[oxiplate_inline(html: \"{{ your_var }}\")]");
-                    #compile_error
-                }))
+                if cfg!(feature = "_unreachable") {
+                    Ok((error.span(), quote::quote! {}, None, None))
+                } else {
+                    let span = error.span();
+                    let compile_error = error.to_compile_error();
+                    Err(ParsedEscaperError::ParseError(quote_spanned! {span=>
+                        compile_error!("Failed to parse inline template. Should look something like:\n#[oxiplate_inline(html: \"{{ your_var }}\")]");
+                        #compile_error
+                    }))
+                }
             }
         },
         syn::Meta::NameValue(meta) => {
