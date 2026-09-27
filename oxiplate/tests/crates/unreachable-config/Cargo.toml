@@ -1,0 +1,12 @@
+[package]
+name = "oxiplate-test-unreachable-config"
+publish = false
+license.workspace = true
+edition.workspace = true
+
+[dev-dependencies]
+trybuild = "1.0.116, < 1.0.120"
+oxiplate = { path = "../../../", features = ["_unreachable", "better-errors"] }
+
+[lints]
+workspace = true

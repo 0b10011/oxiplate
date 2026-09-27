@@ -1,0 +1,5 @@
+error: Invalid fallback escaper group specified. Make sure the escaper name in the template matches the name set in `/oxiplate.toml`.
+ --> tests/broken/invalid-fallback-escaper-group-default.rs:4:20
+  |
+4 | #[oxiplate_inline("{{ message }}")]
+  |                    ^^^^^^^^^^^^^

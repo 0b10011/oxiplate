@@ -1,0 +1,4 @@
+fallback_escaper_group = "htm"
+
+[escaper_groups.html]
+escaper = "not a path"

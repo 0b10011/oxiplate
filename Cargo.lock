@@ -470,6 +470,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-unreachable-config"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-unreachable-stable"
 version = "0.0.0"
 dependencies = [

@@ -1,0 +1,5 @@
+error: Escaper could not be found because an invalid fallback escaper group `htm` was specified in `/oxiplate.toml`. Specify the escaper group in the writ, or fix the fallback escaper group in `/oxiplate.toml`.
+ --> tests/broken/invalid-fallback-escaper-group.rs:4:23
+  |
+4 | #[oxiplate_inline("{{ text: message }}")]
+  |                       ^^^^

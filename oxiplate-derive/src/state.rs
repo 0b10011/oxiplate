@@ -4,6 +4,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::fs;
 
 use syn::DeriveInput;
+#[cfg(not(feature = "_unreachable"))]
 use syn::spanned::Spanned;
 
 use crate::BuiltTokens;
@@ -39,6 +40,7 @@ pub(crate) fn build_config(input: &DeriveInput) -> Result<Config, (syn::Error, O
 
     let config = config.map_err(|err| (err, OptimizedRenderer::unoptimized()))?;
 
+    #[cfg(not(feature = "_unreachable"))]
     if let Some(ref fallback_escaper_group) = config.fallback_escaper_group {
         if fallback_escaper_group != "raw"
             && !config
@@ -59,6 +61,9 @@ pub(crate) fn build_config(input: &DeriveInput) -> Result<Config, (syn::Error, O
             ));
         }
     }
+
+    #[cfg(feature = "_unreachable")]
+    let _ = input;
 
     Ok(config)
 }

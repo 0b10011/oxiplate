@@ -1,0 +1,6 @@
+error: Unparseable default escaper group path. Make sure the escaper path is correct in \
+                                   `/oxiplate.toml`. It should look something like `escaper = "::oxiplate::escapers::html::HtmlEscaper"`.
+ --> tests/broken/invalid-default-escaper.rs:4:54
+  |
+4 | #[oxiplate_inline(r#"{% default_escaper_group html %}{{ message }}"#)]
+  |                                                      ^^^^^^^^^^^^^

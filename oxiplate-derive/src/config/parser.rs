@@ -167,26 +167,31 @@ fn parse_escaper_groups<'a>(
                 }
                 TableOrValue::Value(Value::String(ref value)) => value.value,
             };
-            if !path.starts_with("::") {
-                return Err(Error::unrecoverable(
-                    format!("Expected path `{path}` to start with `::`"),
-                    tokens.eof().source().clone(),
-                ));
-            }
-            let mut split_path = path.split("::");
-            split_path.next();
-            if !split_path.all(|ident| {
-                ident.starts_with(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'))
-                    && ident
-                        .chars()
-                        .all(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
-            }) {
-                return Err(Error::unrecoverable(
-                    format!(
-                        "Expected path `{path}` to be a valid path (`(::[a-zA-Z_][a-zA-Z0-9_]*)+`)"
-                    ),
-                    tokens.eof().source().clone(),
-                ));
+
+            #[cfg(not(feature = "_unreachable"))]
+            {
+                if !path.starts_with("::") {
+                    return Err(Error::unrecoverable(
+                        format!("Expected path `{path}` to start with `::`"),
+                        tokens.eof().source().clone(),
+                    ));
+                }
+                let mut split_path = path.split("::");
+                split_path.next();
+                if !split_path.all(|ident| {
+                    ident.starts_with(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '_'))
+                        && ident
+                            .chars()
+                            .all(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
+                }) {
+                    return Err(Error::unrecoverable(
+                        format!(
+                            "Expected path `{path}` to be a valid path \
+                             (`(::[a-zA-Z_][a-zA-Z0-9_]*)+`)"
+                        ),
+                        tokens.eof().source().clone(),
+                    ));
+                }
             }
 
             let path = EscaperGroup {
