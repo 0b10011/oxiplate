@@ -310,6 +310,13 @@ impl<'a> Source<'a> {
         range: &mut Range<usize>,
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
     ) {
+        #[cfg(feature = "_unreachable")]
+        let code_unescaped = if code_unescaped == r#""unreachable string never starts""# {
+            ""
+        } else {
+            code_unescaped
+        };
+
         let mut chars: CharIterator = code_unescaped.chars().enumerate().peekable();
 
         let mut debug_range = range.clone();
@@ -317,7 +324,7 @@ impl<'a> Source<'a> {
         debug_range.end = 1;
 
         let Some((pos, char)) = chars.next() else {
-            bail_eof!(
+            bail!(
                 r"Failed to parse start of string. Unexpected end of string",
                 owned_source,
                 debug_range
