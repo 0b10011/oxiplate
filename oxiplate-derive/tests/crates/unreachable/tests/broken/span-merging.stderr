@@ -1,0 +1,40 @@
+error: Internal Oxiplate error: Disjointed ranges cannot be merged. Error: Concat source merging intentionally broken when `_unreachable` is turned on for `span_full()` test coverage
+ --> tests/broken/span-merging.rs:4:24
+  |
+4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
+  |                        ^^^^^^^^  ^^^^^^^^
+  |
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged.+Error%3A+Concat+source+merging+intentionally+broken+when+%60_unreachable%60+is+turned+on+for+%60span_full%28%29%60+test+coverage&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
+help: First range here
+ --> tests/broken/span-merging.rs:4:24
+  |
+4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
+  |                        ^^^^^^^^
+help: Second range here
+ --> tests/broken/span-merging.rs:4:34
+  |
+4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
+  |                                  ^^^^^^^^
+
+error: proc-macro derive panicked
+ --> tests/broken/span-merging.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/broken/span-merging.rs:8:18
+  |
+8 |     print!("{}", Data);
+  |             --   ^^^^ `Data` cannot be formatted with the default formatter
+  |             |
+  |             required by this formatting parameter
+  |
+help: the trait `std::fmt::Display` is not implemented for `Data`
+ --> tests/broken/span-merging.rs:5:1
+  |
+5 | struct Data;
+  | ^^^^^^^^^^^
+  = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead
