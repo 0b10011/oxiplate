@@ -636,20 +636,6 @@ impl<'a> Source<'a> {
             debug_range.end += 1;
             match char {
                 '"' => return,
-                // Escapes are parsed by Rust first,
-                // so invalid escape sequences are only reachable
-                // if the code is reached without a `\` before them.
-                #[cfg(feature = "_unreachable")]
-                '/' => {
-                    Self::update_range(range, pos);
-                    Self::parse_escape(
-                        chars,
-                        range,
-                        #[cfg(feature = "better-internal-errors")]
-                        owned_source,
-                        debug_range,
-                    );
-                }
                 '\\' => {
                     Self::update_range(range, pos);
                     Self::parse_escape(
@@ -659,6 +645,24 @@ impl<'a> Source<'a> {
                         owned_source,
                         debug_range,
                     );
+                }
+                // Escapes are parsed by Rust first,
+                // so invalid escape sequences are only reachable
+                // if the code is reached without a `\` before them.
+                '/' => {
+                    // Coverage doesn't report properly
+                    // if cfg is set on the entire match arm
+                    #[cfg(feature = "_unreachable")]
+                    {
+                        Self::update_range(range, pos);
+                        Self::parse_escape(
+                            chars,
+                            range,
+                            #[cfg(feature = "better-internal-errors")]
+                            owned_source,
+                            debug_range,
+                        );
+                    }
                 }
                 _ => (),
             }
