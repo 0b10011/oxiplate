@@ -73,6 +73,9 @@ pub(crate) struct Source<'a> {
 
 macro_rules! bail {
     ($message:expr, $original:ident, $debug_range:ident) => {{
+        #[cfg(not(feature = "better-internal-errors"))]
+        let _ = $debug_range;
+
         crate::internal_error!(
             $original
                 .literal
@@ -311,10 +314,12 @@ impl<'a> Source<'a> {
         #[cfg(feature = "better-internal-errors")] owned_source: &SourceOwned,
     ) {
         #[cfg(feature = "_unreachable")]
-        let code_unescaped = if code_unescaped == r#""unreachable string never starts""# {
-            ""
-        } else {
-            code_unescaped
+        let code_unescaped = match code_unescaped {
+            r#""unreachable: mocking missing string""# => "",
+            r#"r"unreachable: mocking parsing of `r`""# => "r",
+            r##"r#"unreachable: mocking parsing of `r#`"#"## => "r#",
+            r##"r#"unreachable: mocking parsing of `r#s`"#"## => "r#s",
+            _ => code_unescaped,
         };
 
         let mut chars: CharIterator = code_unescaped.chars().enumerate().peekable();
@@ -357,11 +362,13 @@ impl<'a> Source<'a> {
         Self::update_range(range, pos);
 
         for (pos, char) in chars.by_ref() {
+            debug_range.start += 1;
+            debug_range.end += 1;
             match char {
                 '#' => (),
                 '"' => {
                     Self::update_range(range, pos);
-                    break;
+                    return;
                 }
                 _ => bail!(
                     r#"Failed to parse start of raw string. Expected `#` or `"`"#,
@@ -371,6 +378,12 @@ impl<'a> Source<'a> {
             }
             Self::update_range(range, pos);
         }
+
+        bail!(
+            r#"Failed to parse start of raw string. Expected `#` or `"`"#,
+            owned_source,
+            debug_range
+        )
     }
 
     /// Consume `"` if present. For testing unreachable match arms.

@@ -1,7 +1,7 @@
 use oxiplate_derive::Oxiplate;
 
 #[derive(Oxiplate)]
-#[oxiplate_inline("unreachable: mocking missing string")]
+#[oxiplate_inline(r"unreachable: mocking parsing of `r`")]
 struct Data;
 
 fn main() {
