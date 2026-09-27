@@ -455,6 +455,9 @@ impl<'a> Source<'a> {
                     #[cfg(feature = "_unreachable")]
                     {
                         unicode_chars_parsed += 1;
+                        if unicode_code == "f00f00" {
+                            unicode_code.push_str("fff");
+                        }
                     }
 
                     let code = match u32::from_str_radix(&unicode_code, 16) {
