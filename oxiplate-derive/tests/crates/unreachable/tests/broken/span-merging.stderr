@@ -2,7 +2,7 @@ error: Internal Oxiplate error: Disjointed ranges cannot be merged. Error: Conca
  --> tests/broken/span-merging.rs:4:24
   |
 4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
-  |                        ^^^^^^^^  ^^^^^^^^
+  |                        ^^^^^^^^
   |
   = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Disjointed+ranges+cannot+be+merged.+Error%3A+Concat+source+merging+intentionally+broken+when+%60_unreachable%60+is+turned+on+for+%60span_full%28%29%60+test+coverage&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
 help: First range here
@@ -11,10 +11,10 @@ help: First range here
 4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
   |                        ^^^^^^^^
 help: Second range here
- --> tests/broken/span-merging.rs:4:34
+ --> tests/broken/span-merging.rs:4:24
   |
 4 | #[oxiplate_inline(r#"{{ "hello" ~ "world" }}"#)]
-  |                                  ^^^^^^^^
+  |                        ^^^^^^^^
 
 error: proc-macro derive panicked
  --> tests/broken/span-merging.rs:3:10

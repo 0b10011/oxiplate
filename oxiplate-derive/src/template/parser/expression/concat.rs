@@ -77,16 +77,14 @@ impl<'a> Concat<'a> {
     pub fn source(&self) -> Source<'a> {
         let mut source: Source<'a> = self.first_expression.source();
 
-        for (tilde, expression) in &self.additional_expressions {
-            #[cfg(feature = "_unreachable")]
-            {
-                source = source.merge(
-                    &expression.source(),
-                    "Concat source merging intentionally broken when `_unreachable` is turned on \
-                     for `span_full()` test coverage",
-                );
-            }
+        #[cfg(feature = "_unreachable")]
+        let _ = source.clone().merge(
+            &self.first_expression.source(),
+            "Concat source merging intentionally broken when `_unreachable` is turned on for \
+             `span_full()` test coverage",
+        );
 
+        for (tilde, expression) in &self.additional_expressions {
             source = source
                 .merge(tilde, "Tilde should follow leading whitespace")
                 .merge(
