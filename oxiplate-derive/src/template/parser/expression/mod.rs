@@ -921,13 +921,10 @@ fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
-    use std::collections::VecDeque;
-
-    use crate::config::Config;
+    use crate::State;
     use crate::source::test_source;
     use crate::template::parser::expression::Char;
     use crate::template::parser::expression::concat::Concat;
-    use crate::{Fields, LocalVariables, State};
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
@@ -1068,16 +1065,7 @@ mod test {
 
     #[test]
     fn to_tokens() {
-        let (tokens, length) = super::Expression::Placeholder.to_tokens(&State {
-            local_variables: LocalVariables::new(),
-            fields: Fields::new_for_test(),
-            config: Config::default(),
-            inferred_escaper_group: None,
-            default_escaper_group: None,
-            failed_to_set_default_escaper_group: false,
-            blocks: &VecDeque::new(),
-            has_content: false,
-        });
+        let (tokens, length) = super::Expression::Placeholder.to_tokens(&State::new_for_test());
 
         assert_eq!(length, 0);
         assert_eq!(

@@ -143,6 +143,16 @@ pub(crate) struct Case<'a> {
 }
 
 impl<'a> Case<'a> {
+    #[cfg(test)]
+    pub fn new_for_test(source: &'a Source<'a>) -> Self {
+        Self {
+            first_pattern: Pattern::new_for_test(source),
+            additional_patterns: vec![],
+            guard: None,
+            template: Template(vec![]),
+        }
+    }
+
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
         let (tokens, (statement, (first_pattern, additional_patterns_and_separators, guard))) = (
             KeywordParser::new("case"),

@@ -34,6 +34,13 @@ pub(crate) enum Pattern<'a> {
 }
 
 impl<'a> Pattern<'a> {
+    #[cfg(test)]
+    pub fn new_for_test(source: &'a Source<'a>) -> Self {
+        use crate::template::parser::expression::Integer;
+
+        Self::Literal(Literal::Integer(Integer::new_for_test(source)))
+    }
+
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(Range::parse),

@@ -214,6 +214,25 @@ pub(crate) struct State<'a> {
 }
 
 #[cfg(test)]
+impl<'a> State<'a> {
+    pub fn new_for_test() -> Self {
+        const BLOCKS: &'static VecDeque<
+            &'static HashMap<&'static str, (BuiltTokens, Option<BuiltTokens>)>,
+        > = &VecDeque::new();
+        Self {
+            local_variables: LocalVariables::new(),
+            fields: Fields::new_for_test(),
+            config: Config::default(),
+            inferred_escaper_group: None,
+            default_escaper_group: None,
+            failed_to_set_default_escaper_group: false,
+            blocks: &BLOCKS,
+            has_content: false,
+        }
+    }
+}
+
+#[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use std::collections::HashSet;

@@ -346,3 +346,63 @@ fn eof<'a>(
 
     (tokens, (statement.into(), trailing_whitespace))
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use crate::State;
+    use crate::source::test_source;
+    use crate::template::parser::statement::r#match::Case;
+
+    macro_rules! unexpected_statement_for_to_tokens {
+        ($function_name:ident, $tag:literal, $tag_name:literal, $kind:ident) => {
+            #[test]
+            fn $function_name() {
+                test_source!(source = $tag);
+                let (tokens, length) = super::Statement {
+                    source,
+                    kind: super::StatementKind::$kind,
+                }
+                .to_tokens(&mut State::new_for_test())
+                .expect_err("Error TokenStream expected");
+
+                assert_eq!(length, 0, "Length should be 0 due to compile error");
+                assert_eq!(
+                    format!("{tokens}"),
+                    concat!(
+                        r#"compile_error ! (concat ! ("Unexpected '" , ""#,
+                        $tag_name,
+                        r#"" , "' statement")) ;"#
+                    ),
+                    "`{}` should result in a compile error",
+                    $tag,
+                );
+            }
+        };
+    }
+
+    unexpected_statement_for_to_tokens!(parent_to_tokens, "{% parent %}", "parent", Parent);
+    unexpected_statement_for_to_tokens!(endblock_to_tokens, "{% endblock %}", "endblock", EndBlock);
+    unexpected_statement_for_to_tokens!(endfor_to_tokens, "{% endfor %}", "endfor", EndFor);
+    unexpected_statement_for_to_tokens!(endmatch_to_tokens, "{% endmatch %}", "endmatch", EndMatch);
+
+    #[test]
+    fn case_to_tokens() {
+        test_source!(source = "{% case 19 %}");
+        test_source!(integer_source = "19");
+        let (tokens, length) = super::Statement {
+            source,
+            kind: super::StatementKind::Case(Case::new_for_test(&integer_source)),
+        }
+        .to_tokens(&mut State::new_for_test())
+        .expect_err("Error TokenStream expected");
+
+        assert_eq!(length, 0, "Length should be 0 due to compile error");
+        assert_eq!(
+            format!("{tokens}"),
+            r#"compile_error ! (concat ! ("Unexpected '" , "case" , "' statement")) ;"#,
+            "`{}` should result in a compile error",
+            "{% case %}",
+        );
+    }
+}

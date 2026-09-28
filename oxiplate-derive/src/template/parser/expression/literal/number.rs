@@ -11,6 +11,11 @@ pub(crate) struct Integer<'a> {
 }
 
 impl<'a> Integer<'a> {
+    #[cfg(test)]
+    pub fn new_for_test(source: &'a Source<'a>) -> Self {
+        Self { source }
+    }
+
     fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, integer) = take(TokenKind::Integer).parse(tokens)?;
 
