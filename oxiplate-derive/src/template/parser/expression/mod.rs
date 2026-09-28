@@ -917,3 +917,179 @@ fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
         },
     ))
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use std::collections::VecDeque;
+
+    use crate::config::Config;
+    use crate::source::test_source;
+    use crate::template::parser::expression::Char;
+    use crate::template::parser::expression::concat::Concat;
+    use crate::{Fields, LocalVariables, State};
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `fix_precedence()` called for it"]
+    fn fix_precedence_on_placeholder() {
+        super::Expression::Placeholder.fix_precedence();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `needs_precedence_fixed()` called for it"]
+    fn needs_precedence_fixed_on_placeholder() {
+        super::Expression::Placeholder.needs_precedence_fixed();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `take_left()` called for it"]
+    fn take_left_on_placeholder() {
+        super::Expression::Placeholder.take_left();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Expressions without an expression \
+                      on the left should never have `take_left()` called for them"]
+    fn take_left_on_full_range() {
+        test_source!(source = "..");
+        super::Expression::FullRange { source }.take_left();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `give_left()` called for it"]
+    fn give_left_on_placeholder() {
+        super::Expression::Placeholder.give_left(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Only expressions that hold an \
+                      expression on the left side should ever be given a left expression"]
+    fn give_left_on_full_range() {
+        test_source!(source = "..");
+        super::Expression::FullRange { source }.give_left(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Only placeholder expressions \
+                      should ever be overwritten"]
+    fn give_left_with_placeholder() {
+        test_source!(a = "'a'");
+        test_source!(concat_b = " ~ 'b'");
+        test_source!(b = " 'b'");
+        let a = Char::new_for_test('a', &a).into();
+        let b = (concat_b, Char::new_for_test('b', &b).into());
+        super::Expression::Concat(Concat {
+            first_expression: Box::new(a),
+            additional_expressions: vec![b],
+        })
+        .give_left(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `take_right()` called for it"]
+    fn take_right_on_placeholder() {
+        super::Expression::Placeholder.take_right();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Concats should always contain at \
+                      least 2 expressions"]
+    fn take_right_on_concat_empty_additional() {
+        test_source!(a = "'a'");
+        let a = Char::new_for_test('a', &a).into();
+        super::Expression::Concat(Concat {
+            first_expression: Box::new(a),
+            additional_expressions: vec![],
+        })
+        .take_right();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `give_right()` called for it"]
+    fn give_right_on_placeholder() {
+        super::Expression::Placeholder.give_right(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Only expressions that hold an \
+                      expression on the right side should ever be given a right expression"]
+    fn give_right_on_full_range() {
+        test_source!(source = "..");
+        super::Expression::FullRange { source }.give_right(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Only placeholder expressions \
+                      should ever be overwritten"]
+    fn give_right_with_placeholder() {
+        test_source!(a = "'a'");
+        test_source!(concat_b = " ~ 'b'");
+        test_source!(b = " 'b'");
+        let a = Char::new_for_test('a', &a).into();
+        let b = (concat_b, Char::new_for_test('b', &b).into());
+        super::Expression::Concat(Concat {
+            first_expression: Box::new(a),
+            additional_expressions: vec![b],
+        })
+        .give_right(&mut super::Expression::Placeholder);
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `precedence()` called for it"]
+    fn precedence_on_placeholder() {
+        super::Expression::Placeholder.precedence();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `merge_joinable()` called for it"]
+    fn merge_joinable_on_placeholder() {
+        super::Expression::Placeholder.merge_joinable();
+    }
+
+    #[test]
+    #[should_panic = "There should always be at least one expression"]
+    fn merge_joinable_on_concat_with_empty_additional() {
+        test_source!(a = "'a'");
+        let a = Char::new_for_test('a', &a).into();
+        super::Expression::Concat(Concat {
+            first_expression: Box::new(a),
+            additional_expressions: vec![],
+        })
+        .merge_joinable();
+    }
+
+    #[test]
+    fn to_tokens() {
+        let (tokens, length) = super::Expression::Placeholder.to_tokens(&State {
+            local_variables: LocalVariables::new(),
+            fields: Fields::new_for_test(),
+            config: Config::default(),
+            inferred_escaper_group: None,
+            default_escaper_group: None,
+            failed_to_set_default_escaper_group: false,
+            blocks: &VecDeque::new(),
+            has_content: false,
+        });
+
+        assert_eq!(length, 0);
+        assert_eq!(
+            format!("{tokens}"),
+            r#"compile_error ! ("Placeholder expression was never replaced.")"#
+        );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
+                      have `source()` called for it"]
+    fn source() {
+        super::Expression::Placeholder.source();
+    }
+}

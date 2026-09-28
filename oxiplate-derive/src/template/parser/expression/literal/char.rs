@@ -12,6 +12,12 @@ pub(crate) struct Char<'a> {
 }
 
 impl<'a> Char<'a> {
+    /// Helper function to build a char for a test.
+    #[cfg(test)]
+    pub(crate) fn new_for_test(value: char, source: &'a Source<'a>) -> Self {
+        Self { value, source }
+    }
+
     /// Parse char literal (e.g., `'a'`).
     /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {

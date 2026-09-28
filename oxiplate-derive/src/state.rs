@@ -103,6 +103,14 @@ pub(crate) struct Fields {
 }
 
 impl Fields {
+    /// Helper function to build fields for a test.
+    #[cfg(test)]
+    pub fn new_for_test() -> Self {
+        Self {
+            active: HashSet::new(),
+        }
+    }
+
     /// Whether the provided variable name exists as a local variable.
     #[must_use]
     pub fn contains(&self, var: &str) -> bool {
