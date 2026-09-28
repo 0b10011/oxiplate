@@ -346,41 +346,46 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
     }
 }
 
-#[test]
-fn test() {
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
     use proc_macro2::Span;
     use syn::LitStr;
 
+    use crate::Source;
     use crate::source::SourceOwned;
 
-    let span = Span::mixed_site();
-    let string = "a {# whoa #} \n\thello \t\n{{ name }} b";
-    assert_eq!(
-        Tokens::new(Source::new(&SourceOwned::new(
-            &LitStr::new(string, span),
-            span,
-            None
-        )))
-        .into_iter()
-        .map(|token| match token {
-            Ok(token) => format!("{:?}", token),
-            Err(err) => format!("{:?}", err),
-        })
-        .collect::<Vec<String>>(),
-        vec![
-            "StaticText[a]",
-            "StaticWhitespace[ ]",
-            "TagStart { kind: Comment, whitespace_preference: Indifferent }[{#]",
-            "Comment[ whoa ]",
-            "TagEnd { kind: Comment, whitespace_preference: Indifferent }[#}]",
-            "StaticWhitespace[ \n\t]",
-            "StaticText[hello]",
-            "StaticWhitespace[ \t\n]",
-            "TagStart { kind: Writ, whitespace_preference: Indifferent }[{{]",
-            "Ident[name]",
-            "TagEnd { kind: Writ, whitespace_preference: Indifferent }[}}]",
-            "StaticWhitespace[ ]",
-            "StaticText[b]",
-        ],
-    );
+    #[test]
+    fn test() {
+        let span = Span::mixed_site();
+        let string = "a {# whoa #} \n\thello \t\n{{ name }} b";
+        assert_eq!(
+            super::Tokens::new(Source::new(&SourceOwned::new(
+                &LitStr::new(string, span),
+                span,
+                None
+            )))
+            .into_iter()
+            .map(|token| match token {
+                Ok(token) => format!("{:?}", token),
+                Err(err) => format!("{:?}", err),
+            })
+            .collect::<Vec<String>>(),
+            vec![
+                "StaticText[a]",
+                "StaticWhitespace[ ]",
+                "TagStart { kind: Comment, whitespace_preference: Indifferent }[{#]",
+                "Comment[ whoa ]",
+                "TagEnd { kind: Comment, whitespace_preference: Indifferent }[#}]",
+                "StaticWhitespace[ \n\t]",
+                "StaticText[hello]",
+                "StaticWhitespace[ \t\n]",
+                "TagStart { kind: Writ, whitespace_preference: Indifferent }[{{]",
+                "Ident[name]",
+                "TagEnd { kind: Writ, whitespace_preference: Indifferent }[}}]",
+                "StaticWhitespace[ ]",
+                "StaticText[b]",
+            ],
+        );
+    }
 }

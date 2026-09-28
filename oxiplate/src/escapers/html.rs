@@ -10,11 +10,6 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-#[cfg(test)]
-extern crate alloc;
-
-#[cfg(test)]
-use alloc::string::String;
 use core::fmt::{Result, Write};
 
 use oxiplate_traits::Escaper;
@@ -194,16 +189,24 @@ pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Resu
     Ok(())
 }
 
-#[test]
-fn test_escape_attribute_quoted_value() {
-    let mut string = String::new();
-    escape_attribute_quoted_value(&mut string, r#"&"' hello"#).unwrap();
-    assert_eq!("&amp;&#34;&#39; hello", string);
-}
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    extern crate alloc;
 
-#[test]
-fn test_escape_attribute_quoted_value_nothing_to_escape() {
-    let mut string = String::new();
-    escape_attribute_quoted_value(&mut string, r#"Hello world!"#).unwrap();
-    assert_eq!("Hello world!", string);
+    use alloc::string::String;
+
+    #[test]
+    fn test_escape_attribute_quoted_value() {
+        let mut string = String::new();
+        super::escape_attribute_quoted_value(&mut string, r#"&"' hello"#).unwrap();
+        assert_eq!("&amp;&#34;&#39; hello", string);
+    }
+
+    #[test]
+    fn test_escape_attribute_quoted_value_nothing_to_escape() {
+        let mut string = String::new();
+        super::escape_attribute_quoted_value(&mut string, r#"Hello world!"#).unwrap();
+        assert_eq!("Hello world!", string);
+    }
 }

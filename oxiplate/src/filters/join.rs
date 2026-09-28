@@ -1,8 +1,6 @@
 extern crate alloc;
 
 use alloc::string::String;
-#[cfg(test)]
-use alloc::vec;
 
 /// Joins an iterable of strings using the provided glue.
 ///
@@ -44,40 +42,55 @@ where
     joined
 }
 
-#[test]
-fn string_slices() {
-    assert_eq!("red, green, blue", join(["red", "green", "blue"], ", "));
-}
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    extern crate alloc;
 
-#[test]
-fn vec_of_string_slices() {
-    assert_eq!("red, green, blue", join(vec!["red", "green", "blue"], ", "));
-}
+    use alloc::string::String;
+    use alloc::vec;
 
-#[test]
-fn borrowed_vec_of_strings() {
-    let values = vec![
-        String::from("red"),
-        String::from("green"),
-        String::from("blue"),
-    ];
+    #[test]
+    fn string_slices() {
+        assert_eq!(
+            "red, green, blue",
+            super::join(["red", "green", "blue"], ", ")
+        );
+    }
 
-    assert_eq!("red | green | blue", join(&values, " | "));
-}
+    #[test]
+    fn vec_of_string_slices() {
+        assert_eq!(
+            "red, green, blue",
+            super::join(vec!["red", "green", "blue"], ", ")
+        );
+    }
 
-#[test]
-fn empty() {
-    assert_eq!("", join::<_, &str>([], ", "));
-}
+    #[test]
+    fn borrowed_vec_of_strings() {
+        let values = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
 
-#[test]
-fn one() {
-    assert_eq!("red", join(["red"], ", "));
-}
+        assert_eq!("red | green | blue", super::join(&values, " | "));
+    }
 
-#[test]
-fn iterator() {
-    let values = ["red", "green", "blue"].into_iter().map(str::to_uppercase);
+    #[test]
+    fn empty() {
+        assert_eq!("", super::join::<_, &str>([], ", "));
+    }
 
-    assert_eq!("RED/GREEN/BLUE", join(values, "/"));
+    #[test]
+    fn one() {
+        assert_eq!("red", super::join(["red"], ", "));
+    }
+
+    #[test]
+    fn iterator() {
+        let values = ["red", "green", "blue"].into_iter().map(str::to_uppercase);
+
+        assert_eq!("RED/GREEN/BLUE", super::join(values, "/"));
+    }
 }

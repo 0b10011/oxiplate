@@ -9,11 +9,6 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-#[cfg(test)]
-extern crate alloc;
-
-#[cfg(test)]
-use alloc::string::String;
 use core::fmt::{Result, Write};
 
 use oxiplate_traits::Escaper;
@@ -66,16 +61,24 @@ pub fn escape_substring<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result 
     Ok(())
 }
 
-#[test]
-fn test_escape_substring() {
-    fn escape(raw: &str) -> String {
-        let mut escaped = String::with_capacity(raw.len());
-        escape_substring(&mut escaped, raw).unwrap();
-        escaped
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    extern crate alloc;
+
+    use alloc::string::String;
+
+    #[test]
+    fn test_escape_substring() {
+        fn escape(raw: &str) -> String {
+            let mut escaped = String::with_capacity(raw.len());
+            super::escape_substring(&mut escaped, raw).unwrap();
+            escaped
+        }
+        assert_eq!(escape(r"\"), r"\\");
+        assert_eq!(escape(r#"""#), r#"\""#);
+        assert_eq!(escape(r#"\""#), r#"\\\""#);
+        assert_eq!(escape("\u{0000}"), r"\u0000");
+        assert_eq!(escape("\u{0001}"), r"\u0001");
     }
-    assert_eq!(escape(r"\"), r"\\");
-    assert_eq!(escape(r#"""#), r#"\""#);
-    assert_eq!(escape(r#"\""#), r#"\\\""#);
-    assert_eq!(escape("\u{0000}"), r"\u0000");
-    assert_eq!(escape("\u{0001}"), r"\u0001");
 }

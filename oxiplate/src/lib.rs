@@ -1,4 +1,5 @@
 #![no_std]
+#![cfg_attr(all(coverage_nightly, test), feature(coverage_attribute))]
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/oxiplate/issues/")]
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]

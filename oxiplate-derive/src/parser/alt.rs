@@ -107,40 +107,44 @@ alt!(
     10 P10, 11 P11, 12 P12, 13 P13, 14 P14, 15 P15, 16 P16, 17 P17, 18 P18, 19 P19
 );
 
-#[test]
-#[should_panic = "Attempting to use `alt()` with 20 variants, but only 19 variants are currently \
-                  supported. Consider adding additional member tokens to the `alt!()` invocation, \
-                  or reducing the number of items passed into `alt()`."]
-fn max_alt_variants() {
-    use super::take;
-    use crate::source::test_source;
-    use crate::template::TokenKind;
-    use crate::tokenizer::Eof;
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    #[test]
+    #[should_panic = "Attempting to use `alt()` with 20 variants, but only 19 variants are \
+                      currently supported. Consider adding additional member tokens to the \
+                      `alt!()` invocation, or reducing the number of items passed into `alt()`."]
+    fn max_alt_variants() {
+        use crate::parser::{Parser as _, take};
+        use crate::source::test_source;
+        use crate::template::TokenKind;
+        use crate::tokenizer::{Eof, TokenSlice};
 
-    test_source!(source = "Hello world");
+        test_source!(source = "Hello world");
 
-    alt((
-        take(TokenKind::Eq),
-        take(TokenKind::LessThanOrEqualTo),
-        take(TokenKind::LessThan),
-        take(TokenKind::GreaterThanOrEqualTo),
-        take(TokenKind::GreaterThan),
-        take(TokenKind::Plus),
-        take(TokenKind::Minus),
-        take(TokenKind::Asterisk),
-        take(TokenKind::ForwardSlash),
-        take(TokenKind::Percent),
-        take(TokenKind::Tilde),
-        take(TokenKind::Comma),
-        take(TokenKind::Ampersand),
-        take(TokenKind::Exclamation),
-        take(TokenKind::Period),
-        take(TokenKind::VerticalBar),
-        take(TokenKind::Colon),
-        take(TokenKind::Equal),
-        take(TokenKind::RangeExclusive),
-        take(TokenKind::RangeInclusive),
-    ))
-    .parse(TokenSlice::new(&[], &Eof::for_test(source)))
-    .unwrap();
+        super::alt((
+            take(TokenKind::Eq),
+            take(TokenKind::LessThanOrEqualTo),
+            take(TokenKind::LessThan),
+            take(TokenKind::GreaterThanOrEqualTo),
+            take(TokenKind::GreaterThan),
+            take(TokenKind::Plus),
+            take(TokenKind::Minus),
+            take(TokenKind::Asterisk),
+            take(TokenKind::ForwardSlash),
+            take(TokenKind::Percent),
+            take(TokenKind::Tilde),
+            take(TokenKind::Comma),
+            take(TokenKind::Ampersand),
+            take(TokenKind::Exclamation),
+            take(TokenKind::Period),
+            take(TokenKind::VerticalBar),
+            take(TokenKind::Colon),
+            take(TokenKind::Equal),
+            take(TokenKind::RangeExclusive),
+            take(TokenKind::RangeInclusive),
+        ))
+        .parse(TokenSlice::new(&[], &Eof::for_test(source)))
+        .unwrap();
+    }
 }

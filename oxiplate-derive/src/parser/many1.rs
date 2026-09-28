@@ -65,25 +65,28 @@ where
     }
 }
 
-#[test]
-#[should_panic = "Expected static text"]
-fn test_with_cut() {
-    use super::take;
-    use crate::parser::cut;
-    use crate::source::test_source;
-    use crate::template::TokenKind;
-    use crate::tokenizer::{Eof, Token};
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    #[test]
+    #[should_panic = "Expected static text"]
+    fn test_with_cut() {
+        use crate::parser::{Parser as _, cut, take};
+        use crate::source::test_source;
+        use crate::template::TokenKind;
+        use crate::tokenizer::{Eof, Token, TokenSlice};
 
-    test_source!(source = "Hello world");
-    test_source!(source2 = "&");
+        test_source!(source = "Hello world");
+        test_source!(source2 = "&");
 
-    many1(cut("Expected static text", take(TokenKind::StaticText)))
-        .parse(TokenSlice::new(
-            &[
-                Ok(Token::new(TokenKind::StaticText, &source, None)),
-                Ok(Token::new(TokenKind::Ampersand, &source2, None)),
-            ],
-            &Eof::for_test(source),
-        ))
-        .unwrap();
+        super::many1(cut("Expected static text", take(TokenKind::StaticText)))
+            .parse(TokenSlice::new(
+                &[
+                    Ok(Token::new(TokenKind::StaticText, &source, None)),
+                    Ok(Token::new(TokenKind::Ampersand, &source2, None)),
+                ],
+                &Eof::for_test(source),
+            ))
+            .unwrap();
+    }
 }

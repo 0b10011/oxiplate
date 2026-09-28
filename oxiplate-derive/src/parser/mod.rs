@@ -201,29 +201,34 @@ tuple!(
     5 p5 P5, 6 p6 P6, 7 p7 P7, 8 p8 P8, 9 p9 P9
 );
 
-#[test]
-#[should_panic = "Attempting to use a tuple with 10 values for parsing, but only 9 values are \
-                  currently supported. Consider adding additional member tokens to the `tuple!()` \
-                  invocation, or reducing the number of items in the tuple."]
-fn max_tuple_values() {
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use crate::parser::{Parser as _, take};
     use crate::source::test_source;
     use crate::template::TokenKind;
-    use crate::tokenizer::Eof;
+    use crate::tokenizer::{Eof, TokenSlice};
 
-    test_source!(source = "Hello world");
+    #[test]
+    #[should_panic = "Attempting to use a tuple with 10 values for parsing, but only 9 values are \
+                      currently supported. Consider adding additional member tokens to the \
+                      `tuple!()` invocation, or reducing the number of items in the tuple."]
+    fn max_tuple_values() {
+        test_source!(source = "Hello world");
 
-    (
-        take(TokenKind::Plus),
-        take(TokenKind::Minus),
-        take(TokenKind::Asterisk),
-        take(TokenKind::ForwardSlash),
-        take(TokenKind::Percent),
-        take(TokenKind::Tilde),
-        take(TokenKind::Comma),
-        take(TokenKind::Ampersand),
-        take(TokenKind::Exclamation),
-        take(TokenKind::Period),
-    )
-        .parse(TokenSlice::new(&[], &Eof::for_test(source)))
-        .unwrap();
+        (
+            take(TokenKind::Plus),
+            take(TokenKind::Minus),
+            take(TokenKind::Asterisk),
+            take(TokenKind::ForwardSlash),
+            take(TokenKind::Percent),
+            take(TokenKind::Tilde),
+            take(TokenKind::Comma),
+            take(TokenKind::Ampersand),
+            take(TokenKind::Exclamation),
+            take(TokenKind::Period),
+        )
+            .parse(TokenSlice::new(&[], &Eof::for_test(source)))
+            .unwrap();
+    }
 }

@@ -1,14 +1,8 @@
 extern crate alloc;
 
 use alloc::borrow::Cow;
-#[cfg(test)]
-use alloc::string::String;
-#[cfg(test)]
-use core::fmt::Display;
 
 use oxiplate_traits::CowStr;
-#[cfg(test)]
-use oxiplate_traits::{ToCowStr, cow_str_wrapper};
 
 /// Trims the leading and trailing whitespace from the input.
 ///
@@ -78,46 +72,57 @@ pub fn trim_end<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
     }
 }
 
-macro_rules! test {
-    ($test_fn:ident, $input:literal, $trim_fn:ident, $expected:literal) => {
-        #[test]
-        fn $test_fn() {
-            assert_eq!(
-                $expected,
-                $trim_fn(cow_str_wrapper!($input)),
-                "testing string slice"
-            );
-            assert_eq!(
-                $expected,
-                $trim_fn(cow_str_wrapper!(String::from($input))),
-                "testing `String`"
-            );
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    extern crate alloc;
 
-            struct Data;
-            impl Display for Data {
-                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                    f.write_str($input)
+    use alloc::string::String;
+    use core::fmt::Display;
+
+    use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+
+    macro_rules! test {
+        ($test_fn:ident, $input:literal, $trim_fn:ident, $expected:literal) => {
+            #[test]
+            fn $test_fn() {
+                assert_eq!(
+                    $expected,
+                    super::$trim_fn(cow_str_wrapper!($input)),
+                    "testing string slice"
+                );
+                assert_eq!(
+                    $expected,
+                    super::$trim_fn(cow_str_wrapper!(String::from($input))),
+                    "testing `String`"
+                );
+
+                struct Data;
+                impl Display for Data {
+                    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                        f.write_str($input)
+                    }
                 }
+                assert_eq!(
+                    $expected,
+                    super::$trim_fn(cow_str_wrapper!(Data)),
+                    "testing `Display`"
+                );
             }
-            assert_eq!(
-                $expected,
-                $trim_fn(cow_str_wrapper!(Data)),
-                "testing `Display`"
-            );
-        }
-    };
-}
+        };
+    }
 
-test!(test_trim, "\t\n Hello world!\t \n", trim, "Hello world!");
-test!(
-    test_trim_start,
-    "\t\n Hello world!\t \n",
-    trim_start,
-    "Hello world!\t \n"
-);
-test!(
-    test_trim_end,
-    "\t\n Hello world!\t \n",
-    trim_end,
-    "\t\n Hello world!"
-);
+    test!(test_trim, "\t\n Hello world!\t \n", trim, "Hello world!");
+    test!(
+        test_trim_start,
+        "\t\n Hello world!\t \n",
+        trim_start,
+        "Hello world!\t \n"
+    );
+    test!(
+        test_trim_end,
+        "\t\n Hello world!\t \n",
+        trim_end,
+        "\t\n Hello world!"
+    );
+}

@@ -205,23 +205,29 @@ pub(crate) struct State<'a> {
     pub(crate) has_content: bool,
 }
 
-#[test]
-#[should_panic = "entered unreachable code: Attempted to add variable to stack, but no stack \
-                  present"]
-fn local_variables_add_to_empty_stack() {
-    LocalVariables {
-        active: HashSet::new(),
-        stack: vec![],
-    }
-    .add(HashSet::new());
-}
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use std::collections::HashSet;
 
-#[test]
-#[should_panic = "entered unreachable code: Attempted to pop stack, but no stack remained"]
-fn local_variables_pop_empty_stack() {
-    LocalVariables {
-        active: HashSet::new(),
-        stack: vec![],
+    #[test]
+    #[should_panic = "entered unreachable code: Attempted to add variable to stack, but no stack \
+                      present"]
+    fn local_variables_add_to_empty_stack() {
+        super::LocalVariables {
+            active: HashSet::new(),
+            stack: vec![],
+        }
+        .add(HashSet::new());
     }
-    .pop_stack();
+
+    #[test]
+    #[should_panic = "entered unreachable code: Attempted to pop stack, but no stack remained"]
+    fn local_variables_pop_empty_stack() {
+        super::LocalVariables {
+            active: HashSet::new(),
+            stack: vec![],
+        }
+        .pop_stack();
+    }
 }

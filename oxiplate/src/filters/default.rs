@@ -20,8 +20,12 @@ pub fn default<T>(expression: Option<T>, default: T) -> T {
     expression.unwrap_or(default)
 }
 
-#[test]
-fn numbers() {
-    assert_eq!(19, default(Some(19), 89));
-    assert_eq!(89, default(None, 89));
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    #[test]
+    fn numbers() {
+        assert_eq!(19, super::default(Some(19), 89));
+        assert_eq!(89, super::default(None, 89));
+    }
 }
