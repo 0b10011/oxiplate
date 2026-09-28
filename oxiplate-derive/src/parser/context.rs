@@ -63,8 +63,6 @@ where
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use std::assert_matches;
-
     use crate::parser::{Error, Parser as _, cut, take};
     use crate::source::test_source;
     use crate::template::TokenKind;
@@ -91,15 +89,40 @@ mod tests {
             .parse(TokenSlice::new(&tokens, &eof))
             .expect_err("Error expected");
 
-        assert_matches!(
-            error,
-            Error::Recoverable {
-                message,
-                source: _,
-                previous_error: Some(_),
-                is_eof: false
-            } if &message == "Context"
-        );
+        let Error::Recoverable {
+            message,
+            source: _,
+            previous_error,
+            is_eof,
+        } = error
+        else {
+            panic!("First error expected to be a recoverable error");
+        };
+
+        if &message != "Context" {
+            panic!(r#"`message` expected to be "Context", found: {message}"#);
+        } else if is_eof {
+            panic!("End of file not expected");
+        }
+
+        let Some(Error::Recoverable {
+            message,
+            source: _,
+            previous_error,
+            is_eof,
+        }) = previous_error.as_deref()
+        else {
+            panic!("Second error expected to be a recoverable error");
+        };
+
+        let expected = "Expected token kind `Ampersand`, found `StaticText`";
+        if message != expected {
+            panic!(r#"`message` expected to be "{expected}", found: {message}"#);
+        } else if *is_eof {
+            panic!("End of file not expected");
+        } else if previous_error.is_some() {
+            panic!("Error stack only expected to be 2 deep, found: {previous_error:?}");
+        }
     }
 
     #[test]
@@ -115,14 +138,57 @@ mod tests {
         .parse(TokenSlice::new(&tokens, &eof))
         .expect_err("Error expected");
 
-        assert_matches!(
-            error,
-            Error::Unrecoverable {
-                message,
-                source: _,
-                previous_error: Some(_),
-                is_eof: false
-            } if &message == "Additional context"
-        );
+        let Error::Unrecoverable {
+            message,
+            source: _,
+            previous_error,
+            is_eof,
+        } = error
+        else {
+            panic!("First error expected to be an unrecoverable error");
+        };
+
+        let expected = "Additional context";
+        if &message != expected {
+            panic!(r#"`message` expected to be "{expected}", found: {message}"#);
+        } else if is_eof {
+            panic!("End of file not expected");
+        }
+
+        let Some(Error::Unrecoverable {
+            message,
+            source: _,
+            previous_error,
+            is_eof,
+        }) = previous_error.as_deref()
+        else {
+            panic!("Second error expected to be an unrecoverable error");
+        };
+
+        let expected = "Expected `&`";
+        if message != expected {
+            panic!(r#"`message` expected to be "{expected}", found: {message}"#);
+        } else if *is_eof {
+            panic!("End of file not expected");
+        }
+
+        let Some(Error::Recoverable {
+            message,
+            source: _,
+            previous_error,
+            is_eof,
+        }) = previous_error.as_deref()
+        else {
+            panic!("Third error expected to be a recoverable error");
+        };
+
+        let expected = "Expected token kind `Ampersand`, found `StaticText`";
+        if message != expected {
+            panic!(r#"`message` expected to be "{expected}", found: {message}"#);
+        } else if *is_eof {
+            panic!("End of file not expected");
+        } else if previous_error.is_some() {
+            panic!("Error stack only expected to be 3 deep, found: {previous_error:?}");
+        }
     }
 }
