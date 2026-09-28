@@ -59,3 +59,70 @@ where
         }
     }
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use std::assert_matches;
+
+    use crate::parser::{Error, Parser as _, cut, take};
+    use crate::source::test_source;
+    use crate::template::TokenKind;
+    use crate::tokenizer::{Eof, Token, TokenSlice};
+
+    #[test]
+    fn ok() {
+        test_source!(source = "&");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(TokenKind::Ampersand, &source, None))];
+        super::context("Context", take(TokenKind::Ampersand))
+            .parse(TokenSlice::new(&tokens, &eof))
+            .expect("Ok expected");
+    }
+
+    #[test]
+    fn recoverable() {
+        test_source!(source = "Hello world");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(TokenKind::StaticText, &source, None))];
+        let error = super::context("Context", take(TokenKind::Ampersand))
+            .parse(TokenSlice::new(&tokens, &eof))
+            .expect_err("Error expected");
+
+        assert_matches!(
+            error,
+            Error::Recoverable {
+                message,
+                source: _,
+                previous_error: Some(_),
+                is_eof: false
+            } if &message == "Context"
+        );
+    }
+
+    #[test]
+    fn unrecoverable() {
+        test_source!(source = "Hello world");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(TokenKind::StaticText, &source, None))];
+        let error = super::context(
+            "Additional context",
+            cut("Expected `&`", take(TokenKind::Ampersand)),
+        )
+        .parse(TokenSlice::new(&tokens, &eof))
+        .expect_err("Error expected");
+
+        assert_matches!(
+            error,
+            Error::Unrecoverable {
+                message,
+                source: _,
+                previous_error: Some(_),
+                is_eof: false
+            } if &message == "Additional context"
+        );
+    }
+}
