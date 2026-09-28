@@ -1,0 +1,5 @@
+error: Unexpected statement in `for` statement; is an `endfor` statement missing?
+ --> tests/broken/for/for-else-with-case.rs:4:59
+  |
+4 | #[oxiplate_inline("{%- for number in numbers -%}{% else %}{% case 19 %}{% endfor %}")]
+  |                                                           ^^^^^^^^^^^^^
