@@ -27,7 +27,7 @@ book-build:
 
 # Update expected output for broken and expansion tests to the current output.
 [group("General Commands")]
-update-test-output: format clippy-strict
+update-test-output: format clippy-strict rebuild-config-test-crates
     # Update broken test results
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 

@@ -158,6 +158,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-escaper-groups-value"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-escaper-table"
 version = "0.0.0"
 dependencies = [
