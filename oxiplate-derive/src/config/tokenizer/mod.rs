@@ -1,3 +1,5 @@
+mod kind;
+
 pub use self::kind::TokenKind;
 use super::Token;
 use crate::Source;
@@ -26,8 +28,6 @@ macro_rules! hex {
         'a' ..= 'f' | 'A' ..= 'F' | '0' ..= '9'
     };
 }
-
-mod kind;
 
 pub fn tokens_and_eof(source: Source) -> (Vec<Result<Token, UnexpectedTokenError>>, Eof) {
     let tokens = Tokens::new(source);

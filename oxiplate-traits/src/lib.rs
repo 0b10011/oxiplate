@@ -10,10 +10,10 @@ mod escaper;
 mod render;
 mod unescaped_text;
 
-pub use cow_str::{CowStr, CowStrWrapper, FastCowStr, ToCowStr, ToCowStrWrapper};
-pub use escaper::Escaper;
-pub use render::Render;
-pub use unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
+pub use self::cow_str::{CowStr, CowStrWrapper, FastCowStr, ToCowStr, ToCowStrWrapper};
+pub use self::escaper::Escaper;
+pub use self::render::Render;
+pub use self::unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 
 /// Macro to efficiently convert a value to a `CowStrWrapper`
 /// for unit testing filters that deal with string-like values.

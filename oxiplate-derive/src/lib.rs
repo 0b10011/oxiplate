@@ -29,12 +29,12 @@ use syn::{
     Attribute, Data, DeriveInput, Expr, ExprLit, Ident, Lit, LitStr, MetaList, MetaNameValue,
 };
 
-use crate::config::OptimizedRenderer;
-pub(crate) use crate::source::Source;
-use crate::source::SourceOwned;
-pub(crate) use crate::state::State;
-use crate::state::{Fields, LocalVariables, build_config};
-use crate::template::{TokenSlice, parse, tokens_and_eof};
+use self::config::OptimizedRenderer;
+pub(crate) use self::source::Source;
+use self::source::SourceOwned;
+pub(crate) use self::state::State;
+use self::state::{Fields, LocalVariables, build_config};
+use self::template::{TokenSlice, parse, tokens_and_eof};
 
 type BuiltTokens = (proc_macro2::TokenStream, usize);
 

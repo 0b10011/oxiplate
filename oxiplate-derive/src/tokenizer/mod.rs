@@ -6,9 +6,8 @@ use std::fmt::Debug;
 
 pub use self::buffered_source::BufferedSource;
 pub use self::slice::TokenSlice;
-pub use self::token::Token;
+pub use self::token::{ParseError, Token};
 use crate::Source;
-pub use crate::tokenizer::token::ParseError;
 
 pub(super) type Tokens<'a, K> = &'a [Result<Token<'a, K>, UnexpectedTokenError<'a>>];
 

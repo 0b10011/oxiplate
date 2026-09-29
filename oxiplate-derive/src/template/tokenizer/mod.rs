@@ -3,14 +3,11 @@ mod expression;
 mod kind;
 mod r#static;
 
-use self::expression::consume_ident;
+use self::comment::consume_comment;
+use self::expression::{consume_expression_token, consume_ident};
 pub use self::kind::{TagKind, TokenKind, WhitespacePreference};
+use self::r#static::{consume_possible_tag_start, consume_static_text, consume_static_whitespace};
 use crate::Source;
-use crate::template::tokenizer::comment::consume_comment;
-use crate::template::tokenizer::expression::consume_expression_token;
-use crate::template::tokenizer::r#static::{
-    consume_possible_tag_start, consume_static_text, consume_static_whitespace,
-};
 pub use crate::tokenizer::Eof;
 use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 

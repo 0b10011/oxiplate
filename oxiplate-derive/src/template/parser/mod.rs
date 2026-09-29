@@ -6,16 +6,15 @@ mod r#static;
 mod template;
 mod writ;
 
-use item::Item;
-use statement::Statement;
-use r#static::Static;
-pub(crate) use template::parse;
-use writ::Writ;
-
+use self::item::Item;
+use self::statement::Statement;
+use self::r#static::Static;
+use self::template::Template;
+pub(crate) use self::template::parse;
+use self::writ::Writ;
+use super::tokenizer::TokenKind;
 use crate::Source;
 use crate::parser::Error;
-use crate::template::parser::template::Template;
-use crate::template::tokenizer::TokenKind;
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
 

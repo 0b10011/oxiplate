@@ -1,8 +1,3 @@
-use std::mem;
-
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-
 mod arguments;
 mod array;
 mod call;
@@ -17,22 +12,27 @@ mod path;
 mod prefix_operator;
 mod tuple;
 
+use std::mem;
+
+use proc_macro2::TokenStream;
+use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+
 use self::arguments::arguments;
+use self::array::Array;
+use self::call::Call;
 use self::concat::Concat;
+use self::fields::Fields;
+use self::group::Group;
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 pub(super) use self::path::Identifier;
 use self::path::Path;
+use self::tuple::Tuple;
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::{Operator, parse_operator};
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::parser::{Parser as _, alt, cut, ignore_recoverable_errors, into, many0, take};
-use crate::template::parser::expression::array::Array;
-use crate::template::parser::expression::call::Call;
-use crate::template::parser::expression::fields::Fields;
-use crate::template::parser::expression::group::Group;
-use crate::template::parser::expression::tuple::Tuple;
 use crate::template::tokenizer::{TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
@@ -921,10 +921,10 @@ fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
+    use super::Char;
+    use super::concat::Concat;
     use crate::State;
     use crate::source::test_source;
-    use crate::template::parser::expression::Char;
-    use crate::template::parser::expression::concat::Concat;
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \

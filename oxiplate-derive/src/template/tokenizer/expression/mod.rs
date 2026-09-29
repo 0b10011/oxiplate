@@ -2,15 +2,14 @@ mod char;
 mod number;
 mod string;
 
-use super::Token;
-use crate::Source;
-use crate::template::tokenizer::expression::char::consume_char_or_lifetime;
-use crate::template::tokenizer::expression::number::{consume_alternative_base, consume_decimal};
-use crate::template::tokenizer::expression::string::{consume_raw_string, consume_string};
-use crate::template::tokenizer::{
-    Context, Res, TagKind, TokenKind, WhitespacePreference, consume_possible_tag_end,
+use self::char::consume_char_or_lifetime;
+use self::number::{consume_alternative_base, consume_decimal};
+use self::string::{consume_raw_string, consume_string};
+use super::{
+    Context, Res, TagKind, Token, TokenKind, WhitespacePreference, consume_possible_tag_end,
     consume_possible_tag_end_whitespace_adjustment, whitespace,
 };
+use crate::Source;
 use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 
 #[allow(clippy::too_many_lines)]
