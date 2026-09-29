@@ -294,6 +294,7 @@ impl<'a> Writ<'a> {
                         #group #sep #escaper
                     });
                     if let Ok(path) = path {
+                        // FIXME: What of `oxiplate_derive` is being used?
                         return (
                             quote_spanned! {span=>
                                 (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
