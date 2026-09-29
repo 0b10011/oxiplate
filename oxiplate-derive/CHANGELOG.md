@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.6](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.5...oxiplate-derive-v0.19.6) - 2026-09-29
+
+### Fixed
+
+- improved fall-through errors for malformed template definition strings
+- improved error messages for mismatched char pairs in oxiplate.toml
+
+### Other
+
+- fixed context tests for msrv and expanded what's tested
+- added tests for unexpected statements getting `to_tokens()` called
+- added tests for unexpected statement kinds in for/else statements
+- added unit tests for unreachable edge cases
+- added unit tests for `context()` parser covering result types
+- moved unit tests to `test` mod and stopped tracking coverage for them
+- added tests for unreachable state stack management
+- adjusted how failed span merging is tested to workaround coverage limitation
+- fixed coverage reporting for unreachable escape workaround code
+- added test for missing inline template string
+- cleaned up `parse_code_literal()` a bit
+- added tests for out-of-range unicode escape values
+- added test for failed span merging
+- added tests to cover some unreachable writ code dealing with escaper configuration
+- added test for trailing comma in arrays
+- added test for unexpected statement in if/else statement
+- started returning error directly instead of going through macro to send expected error message and increase coverage
+- improved test coverage for `-` or `_` in comments
+- improved test coverage
+- fixed name of command to rebuild config test crates
+- added test for out of bounds range end for `Source`
+- added tests to explicitly cover multi-byte single character tokens with errors at the end of the template
+
 ## [0.19.5](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.4...oxiplate-derive-v0.19.5) - 2026-09-25
 
 ### Fixed
