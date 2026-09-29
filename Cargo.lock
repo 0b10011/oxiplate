@@ -270,6 +270,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-tables"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-template"
 version = "0.0.0"
 dependencies = [
