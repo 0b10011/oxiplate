@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use super::Source;
 
-pub struct Token<'a, K: Debug + PartialEq + Eq> {
+pub(crate) struct Token<'a, K: Debug + PartialEq + Eq> {
     source: Source<'a>,
     kind: K,
 }
@@ -34,7 +34,7 @@ impl<K: Debug + PartialEq + Eq> Debug for Token<'_, K> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct ParseError {
+pub(crate) struct ParseError {
     message: &'static str,
 }
 

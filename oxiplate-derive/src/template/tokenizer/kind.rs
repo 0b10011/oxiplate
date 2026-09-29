@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Eq)]
-pub enum TokenKind {
+pub(crate) enum TokenKind {
     StaticText,
     StaticWhitespace,
 
@@ -114,14 +114,14 @@ pub enum TokenKind {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum TagKind {
+pub(crate) enum TagKind {
     Writ,
     Statement,
     Comment,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum WhitespacePreference {
+pub(crate) enum WhitespacePreference {
     /// Remove all matched whitespace.
     /// Tags that suggest this: `{{- foo -}}` and `{-}`
     Remove,

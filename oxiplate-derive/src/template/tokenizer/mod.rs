@@ -5,14 +5,14 @@ mod r#static;
 
 use self::comment::consume_comment;
 use self::expression::{consume_expression_token, consume_ident};
-pub use self::kind::{TagKind, TokenKind, WhitespacePreference};
+pub(crate) use self::kind::{TagKind, TokenKind, WhitespacePreference};
 use self::r#static::{consume_possible_tag_start, consume_static_text, consume_static_whitespace};
 use crate::Source;
-pub use crate::tokenizer::Eof;
+pub(crate) use crate::tokenizer::Eof;
 use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 
-pub type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
-pub type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
+pub(crate) type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
+pub(crate) type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
 
 type Res<'a> = (Option<Context>, Result<Token<'a>, UnexpectedTokenError<'a>>);
 
@@ -35,7 +35,7 @@ macro_rules! whitespace {
 
 pub(super) use whitespace;
 
-pub fn tokens_and_eof(template: Source) -> (Vec<Result<Token, UnexpectedTokenError>>, Eof) {
+pub(crate) fn tokens_and_eof(template: Source) -> (Vec<Result<Token, UnexpectedTokenError>>, Eof) {
     let tokens = Tokens::new(template);
     let eof = tokens.source.eof();
 
@@ -43,7 +43,7 @@ pub fn tokens_and_eof(template: Source) -> (Vec<Result<Token, UnexpectedTokenErr
 }
 
 #[derive(Debug)]
-pub struct Tokens<'a> {
+pub(crate) struct Tokens<'a> {
     source: BufferedSource<'a>,
     context: Context,
     char_pair_stack: Vec<CharPairKind>,

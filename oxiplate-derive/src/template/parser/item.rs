@@ -134,7 +134,7 @@ impl<'a> Item<'a> {
 }
 
 #[derive(Debug)]
-pub struct TagOpen<'a> {
+pub(crate) struct TagOpen<'a> {
     source: Source<'a>,
     kind: TagKind,
     whitespace_preference: WhitespacePreference,

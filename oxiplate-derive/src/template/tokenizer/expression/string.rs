@@ -16,7 +16,7 @@ fn parse_string(source: &mut BufferedSource) -> Result<String, ParseError> {
     Err(ParseError::new("Unclosed string"))
 }
 
-pub fn consume_string<'a>(
+pub(crate) fn consume_string<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
@@ -52,7 +52,7 @@ pub fn consume_string<'a>(
     }
 }
 
-pub fn consume_raw_string<'a>(
+pub(crate) fn consume_raw_string<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {

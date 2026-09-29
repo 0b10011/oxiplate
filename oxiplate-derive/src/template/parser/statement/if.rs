@@ -267,7 +267,7 @@ pub(super) fn parse_endif(tokens: TokenSlice) -> Res<Statement> {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct ElseIf<'a>(IfType<'a>);
+pub(crate) struct ElseIf<'a>(IfType<'a>);
 
 impl<'a> From<ElseIf<'a>> for StatementKind<'a> {
     fn from(statement: ElseIf<'a>) -> Self {

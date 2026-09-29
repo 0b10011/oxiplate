@@ -19,11 +19,11 @@ use super::{Error, Parser, Res, TokenSlice};
 /// ))
 /// .parse(tokens)?;
 /// ```
-pub fn alt<P>(parsers: P) -> Alt<P> {
+pub(crate) fn alt<P>(parsers: P) -> Alt<P> {
     Alt { parsers }
 }
 
-pub struct Alt<P> {
+pub(crate) struct Alt<P> {
     parsers: P,
 }
 

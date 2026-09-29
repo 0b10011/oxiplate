@@ -13,13 +13,13 @@ use super::{Error, Parser, Res, TokenSlice};
 /// .parse(tokens)?;
 /// ```
 #[allow(dead_code)]
-pub fn fail<'a, P>() -> Fail<'a, P> {
+pub(crate) fn fail<'a, P>() -> Fail<'a, P> {
     Fail {
         phantom_data: PhantomData,
     }
 }
 
-pub struct Fail<'a, P> {
+pub(crate) struct Fail<'a, P> {
     phantom_data: PhantomData<&'a P>,
 }
 

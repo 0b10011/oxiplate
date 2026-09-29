@@ -15,7 +15,7 @@ use crate::template::tokenizer::TokenSlice;
 use crate::{BuiltTokens, State, internal_error};
 
 #[derive(Debug)]
-pub struct Block<'a> {
+pub(crate) struct Block<'a> {
     pub(super) name: Identifier<'a>,
     pub(super) prefix: Template<'a>,
     pub(super) suffix: Option<Template<'a>>,

@@ -1,6 +1,6 @@
 mod kind;
 
-pub use self::kind::TokenKind;
+pub(crate) use self::kind::TokenKind;
 use super::Token;
 use crate::Source;
 use crate::tokenizer::{BufferedSource, Eof, UnexpectedTokenError};
@@ -29,7 +29,7 @@ macro_rules! hex {
     };
 }
 
-pub fn tokens_and_eof(source: Source) -> (Vec<Result<Token, UnexpectedTokenError>>, Eof) {
+pub(crate) fn tokens_and_eof(source: Source) -> (Vec<Result<Token, UnexpectedTokenError>>, Eof) {
     let tokens = Tokens::new(source);
     let eof = tokens.source.eof();
 
@@ -37,13 +37,13 @@ pub fn tokens_and_eof(source: Source) -> (Vec<Result<Token, UnexpectedTokenError
 }
 
 #[derive(Debug)]
-pub struct Tokens<'a> {
+pub(crate) struct Tokens<'a> {
     source: BufferedSource<'a>,
     char_pair_stack: Vec<CharPairKind>,
 }
 
 impl<'a> Tokens<'a> {
-    pub fn new(template: Source<'a>) -> Self {
+    pub(crate) fn new(template: Source<'a>) -> Self {
         Self {
             source: template.into(),
             char_pair_stack: vec![],

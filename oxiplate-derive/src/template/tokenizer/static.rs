@@ -2,7 +2,7 @@ use crate::template::tokenizer::kind::WhitespacePreference;
 use crate::template::tokenizer::{Context, Res, TagKind, TokenKind, whitespace};
 use crate::tokenizer::{BufferedSource, Token};
 
-pub fn consume_static_whitespace<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
+pub(crate) fn consume_static_whitespace<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     let source = source
         .consume_while(|char| matches!(char, whitespace!()))
         .expect("Buffer should contain at least one whitespace");
@@ -14,7 +14,7 @@ pub fn consume_static_whitespace<'a>(source: &mut BufferedSource<'a>) -> Res<'a>
 }
 
 #[allow(clippy::unnested_or_patterns)]
-pub fn consume_static_text<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
+pub(crate) fn consume_static_text<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     let source = source
         .consume_until(|char| matches!(char, '{' | whitespace!()))
         .expect("Buffer should contain at least one character");
@@ -22,7 +22,7 @@ pub fn consume_static_text<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     (None, Ok(Token::new(TokenKind::StaticText, &source, None)))
 }
 
-pub fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
+pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     let (new_context, kind) = match source.peek() {
         Some('{') => {
             let _ = source.next();

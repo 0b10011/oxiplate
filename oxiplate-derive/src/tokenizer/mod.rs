@@ -4,15 +4,15 @@ mod token;
 
 use std::fmt::Debug;
 
-pub use self::buffered_source::BufferedSource;
-pub use self::slice::TokenSlice;
-pub use self::token::{ParseError, Token};
+pub(crate) use self::buffered_source::BufferedSource;
+pub(crate) use self::slice::TokenSlice;
+pub(crate) use self::token::{ParseError, Token};
 use crate::Source;
 
 pub(super) type Tokens<'a, K> = &'a [Result<Token<'a, K>, UnexpectedTokenError<'a>>];
 
 #[derive(Debug)]
-pub struct Eof<'a> {
+pub(crate) struct Eof<'a> {
     source: Source<'a>,
 }
 
@@ -28,7 +28,7 @@ impl<'a> Eof<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct UnexpectedTokenError<'a> {
+pub(crate) struct UnexpectedTokenError<'a> {
     message: &'static str,
     source: Source<'a>,
     is_eof: bool,

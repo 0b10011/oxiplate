@@ -12,7 +12,7 @@ use crate::template::tokenizer::TokenSlice;
 use crate::{BuiltTokens, Source, State, internal_error};
 
 #[derive(Debug)]
-pub struct DefaultEscaper<'a> {
+pub(crate) struct DefaultEscaper<'a> {
     pub(crate) tag: Keyword<'a>,
     pub(crate) escaper: Identifier<'a>,
     pub(crate) can_replace_inferred_escaper: bool,

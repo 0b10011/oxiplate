@@ -13,7 +13,7 @@ use crate::Source;
 use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 
 #[allow(clippy::too_many_lines)]
-pub fn consume_expression_token<'a>(
+pub(crate) fn consume_expression_token<'a>(
     source: &mut BufferedSource<'a>,
     has_unclosed_char_pairs: bool,
     in_tag_kind: &TagKind,
@@ -144,7 +144,7 @@ pub fn consume_expression_token<'a>(
     (None, Ok(Token::new(kind, &source, leading_whitespace)))
 }
 
-pub fn consume_ident<'a>(
+pub(crate) fn consume_ident<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {

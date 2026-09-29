@@ -13,7 +13,7 @@ use crate::template::tokenizer::TokenSlice;
 use crate::{BuiltTokens, State};
 
 #[derive(Debug)]
-pub struct Extends<'a> {
+pub(crate) struct Extends<'a> {
     blocks: HashMap<&'a str, (Template<'a>, Option<Template<'a>>)>,
     path: String<'a>,
     template: Template<'a>,

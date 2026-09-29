@@ -4,7 +4,7 @@ use super::{Eof, Token, Tokens};
 use crate::tokenizer::UnexpectedTokenError;
 
 #[derive(Debug)]
-pub struct TokenSlice<'a, K: Debug + PartialEq + Eq>(
+pub(crate) struct TokenSlice<'a, K: Debug + PartialEq + Eq>(
     &'a [Result<Token<'a, K>, UnexpectedTokenError<'a>>],
     &'a Eof<'a>,
 );

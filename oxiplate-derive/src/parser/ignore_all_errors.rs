@@ -13,7 +13,7 @@ use super::{Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn ignore_all_errors<'a, K, P>(parser: P) -> Opt<'a, K, P>
+pub(crate) fn ignore_all_errors<'a, K, P>(parser: P) -> Opt<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -24,7 +24,7 @@ where
     }
 }
 
-pub struct Opt<'a, K, P>
+pub(crate) struct Opt<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,

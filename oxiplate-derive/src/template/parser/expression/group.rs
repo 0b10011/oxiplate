@@ -10,7 +10,7 @@ use crate::{Source, State};
 /// A parenthesized group.
 /// E.g., `(a + b)`.
 #[derive(Debug)]
-pub struct Group<'a> {
+pub(crate) struct Group<'a> {
     /// Expression contained by the parentheses.
     expression: Box<Expression<'a>>,
 

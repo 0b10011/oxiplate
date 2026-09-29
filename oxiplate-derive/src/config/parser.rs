@@ -27,7 +27,7 @@ impl<'a> TableOrValue<'a> {
     }
 }
 
-pub fn parse(tokens: TokenSlice) -> Res<Config> {
+pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
     let (tokens, items) = parse_all(Item::parse).parse(tokens)?;
 
     let (mut data, source) = parse_data(items)?;
@@ -532,7 +532,7 @@ struct Key<'a> {
 }
 
 impl<'a> Key<'a> {
-    pub fn source(&self) -> &'a Source<'a> {
+    pub(crate) fn source(&self) -> &'a Source<'a> {
         self.source
     }
 }
@@ -544,7 +544,7 @@ enum Value<'a> {
 }
 
 impl<'a> Value<'a> {
-    pub fn source(&self) -> &'a Source<'a> {
+    pub(crate) fn source(&self) -> &'a Source<'a> {
         match self {
             Self::Bool(bool_value) => bool_value.source(),
             Self::String(string_value) => string_value.source(),
@@ -559,7 +559,7 @@ struct StringValue<'a> {
 }
 
 impl<'a> StringValue<'a> {
-    pub fn source(&self) -> &'a Source<'a> {
+    pub(crate) fn source(&self) -> &'a Source<'a> {
         self.source
     }
 }
@@ -587,7 +587,7 @@ struct BoolValue<'a> {
 }
 
 impl<'a> BoolValue<'a> {
-    pub fn source(&self) -> &'a Source<'a> {
+    pub(crate) fn source(&self) -> &'a Source<'a> {
         self.source
     }
 }

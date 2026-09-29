@@ -6,7 +6,7 @@ use crate::{Source, SourceOwned};
 
 /// A clonable range within a template with a buffer for parsing.
 #[derive(Clone, Debug)]
-pub struct BufferedSource<'a> {
+pub(crate) struct BufferedSource<'a> {
     original: &'a SourceOwned,
     range: Range<usize>,
     buffer_length: usize,

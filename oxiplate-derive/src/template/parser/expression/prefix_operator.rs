@@ -65,7 +65,7 @@ pub(super) fn parse_prefixed_expression(tokens: TokenSlice<'_>) -> Res<'_, Expre
 }
 
 #[derive(Debug)]
-pub struct PrefixOperator<'a> {
+pub(crate) struct PrefixOperator<'a> {
     source: &'a Source<'a>,
     kind: PrefixOperatorKind,
 }

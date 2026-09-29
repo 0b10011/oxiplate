@@ -11,7 +11,7 @@ use super::{Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn into<'a, K, P, O>(parser: P) -> Into<'a, K, P, O>
+pub(crate) fn into<'a, K, P, O>(parser: P) -> Into<'a, K, P, O>
 where
     O: std::convert::From<<P as Parser<'a, K>>::Output>,
     K: Debug + PartialEq + Eq,
@@ -24,7 +24,7 @@ where
     }
 }
 
-pub struct Into<'a, K, P, O>
+pub(crate) struct Into<'a, K, P, O>
 where
     O: std::convert::From<<P as Parser<'a, K>>::Output>,
     K: Debug + PartialEq + Eq,

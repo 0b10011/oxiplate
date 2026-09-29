@@ -28,14 +28,14 @@ type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
 type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
 
 #[cfg(not(feature = "config"))]
-pub fn read_config() -> Result<Config, syn::Error> {
+pub(crate) fn read_config() -> Result<Config, syn::Error> {
     Ok(Config::default())
 }
 
 /// Read the user-defined `/oxiplate.toml` if possible,
 /// otherwise generate a default `Config`.
 #[cfg(feature = "config")]
-pub fn read_config() -> Result<Config, syn::Error> {
+pub(crate) fn read_config() -> Result<Config, syn::Error> {
     use crate::config::parser::parse;
     use crate::config::tokenizer::tokens_and_eof;
     use crate::tokenizer::TokenSlice;
@@ -78,7 +78,7 @@ fn convert_error(error: &Error) -> syn::Error {
 }
 
 /// Build the path to the user-defined `/oxiplate.toml`.
-pub fn config_path() -> PathBuf {
+pub(crate) fn config_path() -> PathBuf {
     let root = PathBuf::from(
         env::var("CARGO_MANIFEST_DIR_OVERRIDE")
             .or(env::var("CARGO_MANIFEST_DIR"))

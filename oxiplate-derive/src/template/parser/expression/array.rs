@@ -7,7 +7,7 @@ use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
-pub struct Array<'a> {
+pub(crate) struct Array<'a> {
     items: Vec<ArrayItem<'a>>,
     length_expression: Option<(Source<'a>, Box<Expression<'a>>)>,
     source: Source<'a>,

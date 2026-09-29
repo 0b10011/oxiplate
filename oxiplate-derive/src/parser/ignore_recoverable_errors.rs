@@ -12,7 +12,7 @@ use super::{Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn ignore_recoverable_errors<'a, K, P>(parser: P) -> IgnoreRecoverableErrors<'a, K, P>
+pub(crate) fn ignore_recoverable_errors<'a, K, P>(parser: P) -> IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -23,7 +23,7 @@ where
     }
 }
 
-pub struct IgnoreRecoverableErrors<'a, K, P>
+pub(crate) struct IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,

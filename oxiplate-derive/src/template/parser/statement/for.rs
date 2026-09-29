@@ -15,7 +15,7 @@ use crate::template::tokenizer::TokenSlice;
 use crate::{BuiltTokens, Source, internal_error};
 
 #[derive(Debug)]
-pub struct For<'a> {
+pub(crate) struct For<'a> {
     #[allow(clippy::struct_field_names)]
     for_keyword: Keyword<'a>,
     pattern: Pattern<'a>,

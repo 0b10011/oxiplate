@@ -10,14 +10,14 @@ use crate::tokenizer::Token;
 /// let (tokens, token) = take(TokenKind::StaticText).parse(tokens)?;
 /// ```
 #[inline]
-pub fn take<'a, K: Debug + PartialEq + Eq>(expected_token_kind: K) -> Take<'a, K> {
+pub(crate) fn take<'a, K: Debug + PartialEq + Eq>(expected_token_kind: K) -> Take<'a, K> {
     Take {
         expected_token_kind,
         phantom_data: PhantomData,
     }
 }
 
-pub struct Take<'a, K> {
+pub(crate) struct Take<'a, K> {
     expected_token_kind: K,
     phantom_data: PhantomData<&'a ()>,
 }

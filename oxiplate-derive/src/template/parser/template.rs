@@ -86,7 +86,7 @@ pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -
     }
 }
 
-pub fn try_parse<'a, 'b: 'a>(
+pub(crate) fn try_parse<'a, 'b: 'a>(
     state: &mut State<'b>,
     tokens: TokenSlice<'a>,
 ) -> Res<'a, BuiltTokens> {

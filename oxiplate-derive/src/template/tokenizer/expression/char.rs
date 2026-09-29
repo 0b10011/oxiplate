@@ -130,7 +130,7 @@ fn parse_char_end(source: &mut BufferedSource) -> Result<(), ParseError> {
 /// Parse and consume a char literal (e.g., `'a'`) or lifetime (e.g., `'a`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
 /// See: <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
-pub fn consume_char_or_lifetime<'a>(
+pub(crate) fn consume_char_or_lifetime<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {

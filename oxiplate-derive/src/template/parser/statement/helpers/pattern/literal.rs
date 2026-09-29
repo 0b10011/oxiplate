@@ -10,7 +10,7 @@ use crate::template::tokenizer::TokenSlice;
 /// A literal value to match against.
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#matching-literals>
 #[derive(Debug)]
-pub enum Literal<'a> {
+pub(crate) enum Literal<'a> {
     Bool(Bool<'a>),
     Integer(Integer<'a>),
     Float(Float<'a>),

@@ -12,27 +12,27 @@ mod take;
 
 use std::fmt::Debug;
 
-pub use alt::alt;
-pub use context::context;
-pub use cut::cut;
+pub(crate) use alt::alt;
+pub(crate) use context::context;
+pub(crate) use cut::cut;
 #[allow(unused)]
-pub use fail::fail;
-pub use ignore_all_errors::ignore_all_errors;
+pub(crate) use fail::fail;
+pub(crate) use ignore_all_errors::ignore_all_errors;
 #[allow(unused)]
-pub use ignore_recoverable_errors::ignore_recoverable_errors;
-pub use into::into;
-pub use many0::many0;
-pub use many1::many1;
-pub use parse_all::parse_all;
-pub use take::take;
+pub(crate) use ignore_recoverable_errors::ignore_recoverable_errors;
+pub(crate) use into::into;
+pub(crate) use many0::many0;
+pub(crate) use many1::many1;
+pub(crate) use parse_all::parse_all;
+pub(crate) use take::take;
 
 use crate::Source;
 use crate::tokenizer::{TokenSlice, UnexpectedTokenError};
 
-pub type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
+pub(crate) type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
 
 #[derive(Debug)]
-pub enum Error<'a> {
+pub(crate) enum Error<'a> {
     Recoverable {
         message: String,
         source: Source<'a>,
@@ -109,7 +109,7 @@ impl<'a> From<UnexpectedTokenError<'a>> for Error<'a> {
     }
 }
 
-pub trait Parser<'a, K: Debug + PartialEq + Eq> {
+pub(crate) trait Parser<'a, K: Debug + PartialEq + Eq> {
     type Output;
 
     #[must_use]

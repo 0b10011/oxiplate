@@ -12,7 +12,7 @@ use super::{Error, Parser, Res, TokenSlice};
 /// ))
 /// .parse(tokens)?;
 /// ```
-pub fn context<'a, K, P>(message: &'static str, parser: P) -> Context<'a, K, P>
+pub(crate) fn context<'a, K, P>(message: &'static str, parser: P) -> Context<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -24,7 +24,7 @@ where
     }
 }
 
-pub struct Context<'a, K, P>
+pub(crate) struct Context<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,

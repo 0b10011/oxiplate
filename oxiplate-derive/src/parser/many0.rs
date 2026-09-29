@@ -11,7 +11,7 @@ use super::{Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn many0<'a, K, P>(parser: P) -> Many0<'a, K, P>
+pub(crate) fn many0<'a, K, P>(parser: P) -> Many0<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -22,7 +22,7 @@ where
     }
 }
 
-pub struct Many0<'a, K, P>
+pub(crate) struct Many0<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,

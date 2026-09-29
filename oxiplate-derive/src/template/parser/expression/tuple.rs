@@ -7,7 +7,7 @@ use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
 use crate::{BuiltTokens, Source, State};
 
 #[derive(Debug)]
-pub struct Tuple<'a> {
+pub(crate) struct Tuple<'a> {
     items: Vec<TupleItem<'a>>,
     source: Source<'a>,
 }

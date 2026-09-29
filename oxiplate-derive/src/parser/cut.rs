@@ -15,7 +15,7 @@ use super::{Error, Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn cut<'a, K, P>(message: &'static str, parser: P) -> Cut<'a, K, P>
+pub(crate) fn cut<'a, K, P>(message: &'static str, parser: P) -> Cut<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -27,7 +27,7 @@ where
     }
 }
 
-pub struct Cut<'a, K, P>
+pub(crate) struct Cut<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,

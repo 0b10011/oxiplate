@@ -12,7 +12,7 @@ use crate::template::tokenizer::TokenSlice;
 use crate::{BuiltTokens, State, oxiplate_internal};
 
 #[derive(Debug)]
-pub struct Include<'a> {
+pub(crate) struct Include<'a> {
     path: String<'a>,
 }
 

@@ -6,7 +6,7 @@ use crate::tokenizer::{BufferedSource, ParseError, UnexpectedTokenError};
 /// Parse decimal and floating-point literals.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
 /// See: <https://doc.rust-lang.org/reference/tokens.html#floating-point-literals>
-pub fn consume_decimal<'a>(
+pub(crate) fn consume_decimal<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
@@ -105,7 +105,7 @@ fn parse_exponent(source: &mut BufferedSource) -> Result<bool, ParseError> {
 /// Parse alternative base number literals with a `0b`, `0x`, and `0o` prefixes.
 /// Will fail if there's not at least one valid digit following the prefix.
 /// See: <https://doc.rust-lang.org/reference/tokens.html#integer-literals>
-pub fn consume_alternative_base<'a>(
+pub(crate) fn consume_alternative_base<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {

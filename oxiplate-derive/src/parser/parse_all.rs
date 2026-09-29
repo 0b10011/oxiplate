@@ -12,7 +12,7 @@ use super::{Parser, Res, TokenSlice};
 /// )
 /// .parse(tokens)?;
 /// ```
-pub fn parse_all<'a, K, P>(parser: P) -> ParseAll<'a, K, P>
+pub(crate) fn parse_all<'a, K, P>(parser: P) -> ParseAll<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
@@ -23,7 +23,7 @@ where
     }
 }
 
-pub struct ParseAll<'a, K, P>
+pub(crate) struct ParseAll<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
     P: Parser<'a, K>,
