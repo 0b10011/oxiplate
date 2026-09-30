@@ -1,16 +1,10 @@
-use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned};
-
 use super::comment::comment;
-use super::statement::statement;
+use super::statement::{StatementKind, statement};
 use super::r#static::StaticType;
 use super::writ::writ;
 use super::{Statement, Static, Writ};
-use crate::parser::{Error, Parser as _, cut, ignore_recoverable_errors, take};
-use crate::template::parser::Res;
-use crate::template::parser::statement::StatementKind;
-use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice, WhitespacePreference};
-use crate::{Source, State};
+use crate::template::parser::prelude::*;
+use crate::template::tokenizer::{TagKind, WhitespacePreference};
 
 pub(super) enum ItemToken {
     StaticText(TokenStream, usize),

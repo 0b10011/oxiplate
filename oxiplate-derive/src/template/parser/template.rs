@@ -1,16 +1,11 @@
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote};
-
 use super::item::{ItemToken, parse_tag};
+use super::prelude::*;
 use super::r#static::parse_static;
 use super::{Item, Static};
 #[cfg(coverage_nightly)]
 use crate::Source;
-use crate::parser::{Parser as _, alt, ignore_recoverable_errors, parse_all, take};
-use crate::template::parser::Res;
 use crate::template::parser::item::parse_trailing_whitespace;
-use crate::template::tokenizer::{TokenKind, TokenSlice, WhitespacePreference};
-use crate::{BuiltTokens, State, internal_error};
+use crate::template::tokenizer::WhitespacePreference;
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]

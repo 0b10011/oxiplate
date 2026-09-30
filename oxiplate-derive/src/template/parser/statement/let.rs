@@ -1,15 +1,9 @@
 use std::collections::HashSet;
 
-use quote::quote_spanned;
-
-use super::super::expression::{Keyword, expression};
+use super::helpers::pattern::Pattern;
 use super::{State, Statement, StatementKind};
-use crate::parser::{Parser as _, cut, take};
-use crate::template::parser::Res;
-use crate::template::parser::expression::{Expression, KeywordParser};
-use crate::template::parser::statement::helpers::pattern::Pattern;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source};
+use crate::template::parser::expression::{Expression, Keyword, KeywordParser, expression};
+use crate::template::parser::prelude::*;
 
 /// `let` statement for saving values to variables.
 #[derive(Debug)]

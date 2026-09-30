@@ -1,11 +1,5 @@
-use proc_macro2::TokenStream;
-use quote::ToTokens;
-
-use crate::parser::{Parser as _, take};
-use crate::template::parser::Res;
-use crate::template::parser::expression::generics::args::GenericArg;
-use crate::template::tokenizer::TokenKind;
-use crate::{Source, TokenSlice};
+use super::args::GenericArg;
+use crate::template::parser::prelude::*;
 
 /// See <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
 #[derive(Debug)]

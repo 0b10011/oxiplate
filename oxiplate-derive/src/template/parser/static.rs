@@ -1,10 +1,5 @@
-use quote::quote_spanned;
-
 use super::Item;
-use crate::parser::{Parser as _, alt, take};
-use crate::template::parser::Res;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);

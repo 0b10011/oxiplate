@@ -1,10 +1,6 @@
-use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned};
-
-use super::{Expression, Res, expression};
-use crate::parser::{Parser as _, context, ignore_recoverable_errors, many1, take};
-use crate::template::tokenizer::{Token, TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source, State};
+use super::{Expression, expression};
+use crate::template::parser::prelude::*;
+use crate::template::tokenizer::Token;
 
 #[derive(Debug)]
 pub(crate) struct Tuple<'a> {

@@ -1,10 +1,4 @@
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote_spanned};
-
-use super::super::Res;
-use crate::parser::{Parser as _, alt, take};
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, internal_error};
+use crate::template::parser::prelude::*;
 
 pub(super) fn parse_operator(tokens: TokenSlice) -> Res<Operator> {
     let (tokens, token) = alt((

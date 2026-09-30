@@ -1,16 +1,12 @@
 use std::collections::HashMap;
 
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
 use syn::{Ident, LitStr};
 
 use super::{Statement, StatementKind, StaticType};
-use crate::parser::{Parser as _, cut};
+use crate::template::parser::Item;
 use crate::template::parser::expression::{KeywordParser, String};
+use crate::template::parser::prelude::*;
 use crate::template::parser::template::Template;
-use crate::template::parser::{Item, Res};
-use crate::template::tokenizer::TokenSlice;
-use crate::{BuiltTokens, State};
 
 #[derive(Debug)]
 pub(crate) struct Extends<'a> {

@@ -1,12 +1,5 @@
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote_spanned};
-
-use super::Res;
-use crate::Source;
-use crate::parser::Parser;
-use crate::template::parser::Error;
-use crate::template::parser::expression::Identifier;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
+use super::Identifier;
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct Keyword<'a> {

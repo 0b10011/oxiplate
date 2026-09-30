@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 
-use proc_macro2::{Span, TokenStream};
-use quote::{quote, quote_spanned};
+use proc_macro2::Span;
 use syn::spanned::Spanned;
 use syn::token::PathSep;
 use syn::{Path, PathSegment};
@@ -10,10 +9,8 @@ use super::Item;
 use super::expression::{Expression, Identifier, expression};
 use super::item::tag_end;
 use crate::config::EscaperGroup;
-use crate::parser::{Parser as _, cut, ignore_recoverable_errors, take};
-use crate::template::parser::Res;
-use crate::template::tokenizer::{TagKind, TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source, State};
+use crate::template::parser::prelude::*;
+use crate::template::tokenizer::TagKind;
 
 enum EscaperType<'a> {
     Default,

@@ -1,15 +1,8 @@
 use std::collections::HashSet;
 
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote, quote_spanned};
-
-use super::Pattern;
-use crate::parser::{Parser as _, alt, context, cut, into, many0, take};
-use crate::template::parser::Res;
+use super::{Path, Pattern};
 use crate::template::parser::expression::Identifier;
-use crate::template::parser::statement::helpers::pattern::Path;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{BuiltTokens, Source, State};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) enum Struct<'a> {

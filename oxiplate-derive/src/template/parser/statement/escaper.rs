@@ -1,15 +1,9 @@
-use proc_macro2::TokenStream;
-use quote::quote_spanned;
 use syn::LitStr;
 use syn::spanned::Spanned as _;
 
-use super::super::expression::Identifier;
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, alt, cut};
-use crate::template::parser::Res;
-use crate::template::parser::expression::{Keyword, KeywordParser};
-use crate::template::tokenizer::TokenSlice;
-use crate::{BuiltTokens, Source, State, internal_error};
+use crate::template::parser::expression::{Identifier, Keyword, KeywordParser};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct DefaultEscaper<'a> {

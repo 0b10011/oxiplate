@@ -1,14 +1,8 @@
 use std::collections::HashSet;
 
-use proc_macro2::TokenStream;
-use quote::quote_spanned;
-
 use super::Pattern;
-use crate::parser::{Parser as _, cut, take};
-use crate::template::parser::Res;
 use crate::template::parser::expression::Identifier;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct Bind<'a> {

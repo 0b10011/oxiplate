@@ -1,12 +1,6 @@
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote_spanned};
-
 use super::Generics;
 use super::lifetime::Lifetime;
-use crate::parser::{Parser as _, ignore_recoverable_errors, into, many0, take};
-use crate::template::parser::Res;
-use crate::template::tokenizer::TokenKind;
-use crate::{Source, TokenSlice};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(super) struct GenericArgs<'a> {

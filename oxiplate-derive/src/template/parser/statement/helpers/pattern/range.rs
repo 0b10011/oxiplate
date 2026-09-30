@@ -1,12 +1,6 @@
-use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned};
-
 use super::Pattern;
-use crate::parser::{Parser as _, alt, ignore_all_errors, ignore_recoverable_errors, into, take};
-use crate::template::parser::Res;
 use crate::template::parser::expression::{Char, Float, Integer, Number};
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) enum Range<'a> {

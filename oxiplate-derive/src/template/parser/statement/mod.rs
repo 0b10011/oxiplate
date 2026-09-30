@@ -8,17 +8,14 @@ mod include;
 mod r#let;
 mod r#match;
 
-use quote::quote_spanned;
-
 pub(crate) use self::escaper::DefaultEscaper;
 use self::r#let::Let;
 use super::item::tag_end;
 use super::r#static::StaticType;
 use super::template::parse_item;
 use super::{Error, Item, Res};
-use crate::parser::{Parser as _, alt, cut, into};
-use crate::template::tokenizer::{TagKind, TokenSlice};
-use crate::{BuiltTokens, Source, State};
+use crate::template::parser::prelude::*;
+use crate::template::tokenizer::TagKind;
 
 #[derive(Debug)]
 pub(crate) struct Statement<'a> {

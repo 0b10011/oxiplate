@@ -1,9 +1,7 @@
 use super::Item;
 use super::item::tag_end;
-use crate::parser::{Parser as _, cut, many0, take};
-use crate::template::parser::Res;
-use crate::template::tokenizer::{TagKind, TokenKind};
-use crate::{Source, TokenSlice};
+use crate::template::parser::prelude::*;
+use crate::template::tokenizer::TagKind;
 
 pub(super) fn comment<'a>(
     open_tag_source: Source<'a>,

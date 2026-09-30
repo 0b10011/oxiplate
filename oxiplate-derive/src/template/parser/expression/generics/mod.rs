@@ -1,14 +1,8 @@
 mod args;
 mod lifetime;
 
-use proc_macro2::TokenStream;
-use quote::ToTokens;
-
 use self::args::GenericArgs;
-use super::Res;
-use crate::Source;
-use crate::parser::{Parser as _, into};
-use crate::template::tokenizer::TokenSlice;
+use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
 #[derive(Debug)]

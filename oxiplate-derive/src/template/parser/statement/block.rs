@@ -1,18 +1,13 @@
 use std::collections::{HashMap, VecDeque};
 
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote};
 #[cfg(feature = "better-internal-errors")]
 use syn::spanned::Spanned;
 
-use super::super::expression::Identifier;
-use super::super::{Item, Res};
 use super::{Statement, StatementKind};
-use crate::parser::{Parser as _, cut};
-use crate::template::parser::expression::KeywordParser;
+use crate::template::parser::Item;
+use crate::template::parser::expression::{Identifier, KeywordParser};
+use crate::template::parser::prelude::*;
 use crate::template::parser::template::Template;
-use crate::template::tokenizer::TokenSlice;
-use crate::{BuiltTokens, State, internal_error};
 
 #[derive(Debug)]
 pub(crate) struct Block<'a> {

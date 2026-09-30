@@ -31,6 +31,13 @@ use crate::tokenizer::{TokenSlice, UnexpectedTokenError};
 
 pub(crate) type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
 
+pub(crate) mod prelude {
+    pub(crate) use super::{
+        Error, Parser, alt, context, cut, fail, ignore_all_errors, ignore_recoverable_errors, into,
+        many0, many1, parse_all, take,
+    };
+}
+
 #[derive(Debug)]
 pub(crate) enum Error<'a> {
     Recoverable {

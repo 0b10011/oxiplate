@@ -7,16 +7,24 @@ mod template;
 mod writ;
 
 use self::item::Item;
+use self::prelude::*;
 use self::statement::Statement;
 use self::r#static::Static;
 use self::template::Template;
 pub(crate) use self::template::parse;
 use self::writ::Writ;
-use super::tokenizer::TokenKind;
-use crate::Source;
-use crate::parser::Error;
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
+
+mod prelude {
+    pub(super) use proc_macro2::TokenStream;
+    pub(super) use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
+
+    pub(super) use super::Res;
+    pub(super) use crate::parser::prelude::*;
+    pub(super) use crate::template::tokenizer::TokenKind;
+    pub(super) use crate::{BuiltTokens, Source, State, TokenSlice, internal_error};
+}
 
 impl<'a> Error<'a> {
     pub fn source(&self) -> &Source<'a> {

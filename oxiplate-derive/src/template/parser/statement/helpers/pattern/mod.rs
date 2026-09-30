@@ -7,20 +7,14 @@ mod tuple;
 
 use std::collections::HashSet;
 
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-
 use self::array::Array;
 use self::bind::Bind;
 use self::literal::Literal;
 use self::range::Range;
 use self::r#struct::Struct;
 use self::tuple::Tuple;
-use crate::parser::{Parser as _, alt, cut, ignore_all_errors, into, many1, take};
-use crate::template::parser::Res;
 use crate::template::parser::expression::Identifier;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) enum Pattern<'a> {

@@ -1,12 +1,7 @@
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt as _, quote, quote_spanned};
 use syn::token::Dot;
 
-use crate::parser::{Parser as _, many1, take};
-use crate::template::parser::Res;
-use crate::template::parser::expression::{Expression, Identifier, NestedExpression};
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use super::{Expression, Identifier, NestedExpression};
+use crate::template::parser::prelude::*;
 
 /// A field or method.
 #[derive(Debug)]

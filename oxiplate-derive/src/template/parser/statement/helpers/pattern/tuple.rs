@@ -1,13 +1,7 @@
 use std::collections::HashSet;
 
-use proc_macro2::TokenStream;
-use quote::{TokenStreamExt, quote_spanned};
-
 use super::Pattern;
-use crate::parser::{Parser as _, context, cut, ignore_recoverable_errors, many1, take};
-use crate::template::parser::Res;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct Tuple<'a> {

@@ -1,12 +1,8 @@
-use proc_macro2::TokenStream;
-use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 use syn::spanned::Spanned;
 
-use super::{Expression, Res};
-use crate::parser::{Parser as _, alt, cut, fail, ignore_recoverable_errors, many0, take};
-use crate::template::parser::expression::generics::Generics;
-use crate::template::tokenizer::{TokenKind, TokenSlice};
-use crate::{Source, State};
+use super::Expression;
+use super::generics::Generics;
+use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
