@@ -60,7 +60,7 @@ impl ToTokens for Segment<'_> {
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
 #[derive(Debug)]
-enum IdentSegment<'a> {
+pub(super) enum IdentSegment<'a> {
     Identifier(Identifier<'a>),
     /// `Self`, `self`, `super`, `crate`
     Keyword(Source<'a>),
@@ -68,7 +68,7 @@ enum IdentSegment<'a> {
 
 impl<'a> IdentSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
-    fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, ident_segment) = alt((
             take(TokenKind::Ident),
             take(TokenKind::SelfCurrentModule),
@@ -88,7 +88,7 @@ impl<'a> IdentSegment<'a> {
         Ok((tokens, ident_segment))
     }
 
-    fn source(&self) -> &Source<'a> {
+    pub(super) fn source(&self) -> &Source<'a> {
         match self {
             Self::Identifier(identifier) => identifier.source(),
             Self::Keyword(source) => source,

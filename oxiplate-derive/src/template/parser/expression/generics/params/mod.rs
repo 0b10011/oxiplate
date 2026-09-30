@@ -1,25 +1,27 @@
-use super::Generics;
-use super::lifetime::Lifetime;
-use super::r#type::Type;
 use crate::template::parser::prelude::*;
 
-/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
 #[derive(Debug)]
-pub(super) struct GenericArgs<'a> {
-    first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
-    last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
+pub(super) struct GenericParams<'a> {
+    /// `Source` is the comma (`,`)
+    first_generics: Vec<(GenericParam, Source<'a>)>,
+
+    /// `Source` is the comma (`,`)
+    last_generic: Option<(GenericParam, Option<Source<'a>>)>,
+
+    /// `Source` is the full list including wrapping `<` and `>`
     source: Source<'a>,
 }
 
-impl<'a> GenericArgs<'a> {
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+impl<'a> GenericParams<'a> {
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericArg::parse, take(TokenKind::Comma))),
+                many0((GenericParam::parse, take(TokenKind::Comma))),
                 ignore_recoverable_errors((
-                    GenericArg::parse,
+                    GenericParam::parse,
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
@@ -70,7 +72,7 @@ impl<'a> GenericArgs<'a> {
     }
 }
 
-impl ToTokens for GenericArgs<'_> {
+impl ToTokens for GenericParams<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut inner_tokens = TokenStream::new();
 
@@ -92,59 +94,46 @@ impl ToTokens for GenericArgs<'_> {
     }
 }
 
-impl<'a> From<GenericArgs<'a>> for Generics<'a> {
-    fn from(value: GenericArgs<'a>) -> Self {
-        Self::GenericArgs(value)
-    }
-}
-
-/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParam>
 #[derive(Debug)]
-pub(super) enum GenericArg<'a> {
-    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
-    Lifetime(Lifetime<'a>),
+pub(super) enum GenericParam {
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
+    #[expect(dead_code, reason = "Not yet implemented")]
+    Lifetime,
 
-    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
-    Type(Type<'a>),
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
+    #[expect(dead_code, reason = "Not yet implemented")]
+    Type,
 
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
     #[expect(dead_code, reason = "Not yet implemented")]
     Const,
-
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Binding,
-
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Bounds,
 }
 
-impl<'a> GenericArg<'a> {
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+impl<'a> GenericParam {
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(Lifetime::parse), into(Type::parse))).parse(tokens)
+        let _ = tokens;
+        todo!("GenericParam::parse() not yet written");
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
-            Self::Lifetime(lifetime) => lifetime.source().clone(),
-            Self::Type(r#type) => r#type.source(),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding => todo!("GenericArgsBinding not yet handled"),
-            Self::Bounds => todo!("GenericArgsBounds not yet handled"),
+            Self::Lifetime => todo!("GenericParam::Lifetime.source() not yet written"),
+            Self::Type => todo!("GenericParam::Type.source() not yet written"),
+            Self::Const => todo!("GenericParam::Const.source() not yet written"),
         }
     }
 }
 
-impl ToTokens for GenericArg<'_> {
+impl ToTokens for GenericParam {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        let _ = tokens;
+
         match self {
-            Self::Lifetime(lifetime) => lifetime.to_tokens(tokens),
-            Self::Type(r#type) => r#type.to_tokens(tokens),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding => todo!("GenericArgsBinding not yet handled"),
-            Self::Bounds => todo!("GenericArgsBounds not yet handled"),
+            Self::Lifetime => todo!("GenericParam::Lifetime.to_tokens() not yet written"),
+            Self::Type => todo!("GenericParam::Type.to_tokens() not yet written"),
+            Self::Const => todo!("GenericParam::Const.to_tokens() not yet written"),
         }
     }
 }
