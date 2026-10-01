@@ -46,8 +46,11 @@ impl<'a> Type<'a> {
 
 impl ToTokens for Type<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let _ = tokens;
-        todo!("to_tokens() not yet implemented");
+        match self {
+            Self::NoBounds(no_bounds) => no_bounds.to_tokens(tokens),
+            Self::ImplTrait => todo!("Type::ImplTrait.source() not yet implemented"),
+            Self::TraitObject => todo!("Type::TraitObject.source() not yet implemented"),
+        }
     }
 }
 
