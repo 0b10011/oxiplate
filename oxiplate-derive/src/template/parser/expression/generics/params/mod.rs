@@ -1,13 +1,16 @@
+mod r#type;
+
+use self::r#type::TypeParam;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
 #[derive(Debug)]
 pub(super) struct GenericParams<'a> {
     /// `Source` is the comma (`,`)
-    first_generics: Vec<(GenericParam, Source<'a>)>,
+    first_generics: Vec<(GenericParam<'a>, Source<'a>)>,
 
     /// `Source` is the comma (`,`)
-    last_generic: Option<(GenericParam, Option<Source<'a>>)>,
+    last_generic: Option<(GenericParam<'a>, Option<Source<'a>>)>,
 
     /// `Source` is the full list including wrapping `<` and `>`
     source: Source<'a>,
@@ -96,43 +99,39 @@ impl ToTokens for GenericParams<'_> {
 
 /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParam>
 #[derive(Debug)]
-pub(super) enum GenericParam {
+pub(super) enum GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
     #[expect(dead_code, reason = "Not yet implemented")]
     Lifetime,
 
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Type,
+    Type(TypeParam<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
     #[expect(dead_code, reason = "Not yet implemented")]
     Const,
 }
 
-impl<'a> GenericParam {
+impl<'a> GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let _ = tokens;
-        todo!("GenericParam::parse() not yet written");
+        into(TypeParam::parse).parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::Lifetime => todo!("GenericParam::Lifetime.source() not yet written"),
-            Self::Type => todo!("GenericParam::Type.source() not yet written"),
+            Self::Type(type_param) => type_param.source().clone(),
             Self::Const => todo!("GenericParam::Const.source() not yet written"),
         }
     }
 }
 
-impl ToTokens for GenericParam {
+impl ToTokens for GenericParam<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let _ = tokens;
-
         match self {
             Self::Lifetime => todo!("GenericParam::Lifetime.to_tokens() not yet written"),
-            Self::Type => todo!("GenericParam::Type.to_tokens() not yet written"),
+            Self::Type(type_param) => type_param.to_tokens(tokens),
             Self::Const => todo!("GenericParam::Const.to_tokens() not yet written"),
         }
     }
