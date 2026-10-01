@@ -1,4 +1,5 @@
 use super::Generics;
+use super::binding::Binding;
 use super::lifetime::Lifetime;
 use super::r#type::Type;
 use crate::template::parser::prelude::*;
@@ -112,8 +113,7 @@ pub(super) enum GenericArg<'a> {
     Const,
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Binding,
+    Binding(Binding<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -123,7 +123,12 @@ pub(super) enum GenericArg<'a> {
 impl<'a> GenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(Lifetime::parse), into(Type::parse))).parse(tokens)
+        alt((
+            into(Lifetime::parse),
+            into(Type::parse),
+            into(Binding::parse),
+        ))
+        .parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -131,7 +136,7 @@ impl<'a> GenericArg<'a> {
             Self::Lifetime(lifetime) => lifetime.source().clone(),
             Self::Type(r#type) => r#type.source(),
             Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding => todo!("GenericArgsBinding not yet handled"),
+            Self::Binding(binding) => binding.source(),
             Self::Bounds => todo!("GenericArgsBounds not yet handled"),
         }
     }
@@ -143,7 +148,7 @@ impl ToTokens for GenericArg<'_> {
             Self::Lifetime(lifetime) => lifetime.to_tokens(tokens),
             Self::Type(r#type) => r#type.to_tokens(tokens),
             Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding => todo!("GenericArgsBinding not yet handled"),
+            Self::Binding(binding) => binding.to_tokens(tokens),
             Self::Bounds => todo!("GenericArgsBounds not yet handled"),
         }
     }

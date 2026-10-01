@@ -8,12 +8,12 @@ pub(crate) struct PathSegment<'a> {
     ident_segment: IdentSegment<'a>,
 
     /// `Source` is optional path separator (`::`).
-    generics: Option<(Option<Source<'a>>, GenericArgs<'a>)>,
+    generics: Option<(Option<Source<'a>>, Box<GenericArgs<'a>>)>,
 }
 
 impl<'a> PathSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
             IdentSegment::parse,
             ignore_recoverable_errors((
@@ -25,6 +25,7 @@ impl<'a> PathSegment<'a> {
 
         let generics = generics.map(|(separator, generics)| {
             let separator = separator.map(|separator| separator.source().clone());
+            let generics = Box::new(generics);
 
             (separator, generics)
         });
@@ -38,7 +39,7 @@ impl<'a> PathSegment<'a> {
         ))
     }
 
-    pub(super) fn source(&self) -> Source<'a> {
+    pub(crate) fn source(&self) -> Source<'a> {
         let mut source = self.ident_segment.source().clone();
 
         if let Some((separator, generics)) = &self.generics {

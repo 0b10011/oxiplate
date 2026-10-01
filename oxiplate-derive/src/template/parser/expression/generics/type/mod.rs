@@ -6,7 +6,7 @@ mod impl_trait_one_bound;
 mod no_bounds;
 mod parenthesized;
 mod path;
-mod path_segment;
+pub(crate) mod path_segment;
 mod trait_bound;
 mod trait_bound_inner;
 
