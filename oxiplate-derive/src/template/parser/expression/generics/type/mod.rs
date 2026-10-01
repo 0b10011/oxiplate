@@ -2,6 +2,8 @@ use self::no_bounds::NoBounds;
 use super::args::GenericArg;
 use crate::template::parser::prelude::*;
 
+mod bound;
+pub(crate) mod bounds;
 mod impl_trait_one_bound;
 mod no_bounds;
 mod parenthesized;
@@ -9,6 +11,8 @@ mod path;
 pub(crate) mod path_segment;
 mod trait_bound;
 mod trait_bound_inner;
+mod use_bound;
+mod use_bound_generic_args;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
 #[derive(Debug)]

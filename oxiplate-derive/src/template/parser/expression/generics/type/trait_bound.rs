@@ -13,7 +13,7 @@ pub(crate) enum TraitBound<'a> {
 
 impl<'a> TraitBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, result) = ignore_recoverable_errors((
             take(TokenKind::OpenParenthese),
             TraitBoundInner::parse,
@@ -47,7 +47,7 @@ impl<'a> TraitBound<'a> {
         Ok((tokens, trait_bound))
     }
 
-    pub(super) fn source(&self) -> Source<'a> {
+    pub(crate) fn source(&self) -> Source<'a> {
         match self {
             Self::Standalone(trait_bound) => trait_bound.source(),
             Self::Parenthesized {

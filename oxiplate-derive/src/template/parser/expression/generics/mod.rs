@@ -1,5 +1,6 @@
 mod args;
 mod binding;
+mod bounds;
 mod lifetime;
 mod params;
 mod r#type;

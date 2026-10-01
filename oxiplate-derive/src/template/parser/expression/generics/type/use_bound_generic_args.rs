@@ -1,27 +1,26 @@
-use super::Generics;
-use super::binding::Binding;
-use super::bounds::Bounds;
-use super::lifetime::Lifetime;
-use super::r#type::Type;
+use crate::template::parser::expression::Identifier;
+use crate::template::parser::expression::generics::lifetime::Lifetime;
 use crate::template::parser::prelude::*;
 
-/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
 #[derive(Debug)]
-pub(super) struct GenericArgs<'a> {
-    first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
-    last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
+pub(super) struct UseBoundGenericArgs<'a> {
+    first_generics: Vec<(UseBoundGenericArg<'a>, Source<'a>)>,
+    last_generic: Option<(UseBoundGenericArg<'a>, Option<Source<'a>>)>,
+
+    /// Full source, including wrapping `<` and `>`.
     source: Source<'a>,
 }
 
-impl<'a> GenericArgs<'a> {
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+impl<'a> UseBoundGenericArgs<'a> {
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericArg::parse, take(TokenKind::Comma))),
+                many0((UseBoundGenericArg::parse, take(TokenKind::Comma))),
                 ignore_recoverable_errors((
-                    GenericArg::parse,
+                    UseBoundGenericArg::parse,
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
@@ -72,7 +71,7 @@ impl<'a> GenericArgs<'a> {
     }
 }
 
-impl ToTokens for GenericArgs<'_> {
+impl ToTokens for UseBoundGenericArgs<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut inner_tokens = TokenStream::new();
 
@@ -94,63 +93,62 @@ impl ToTokens for GenericArgs<'_> {
     }
 }
 
-impl<'a> From<GenericArgs<'a>> for Generics<'a> {
-    fn from(value: GenericArgs<'a>) -> Self {
-        Self::GenericArgs(value)
-    }
-}
-
-/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArg>
 #[derive(Debug)]
-pub(super) enum GenericArg<'a> {
+pub(super) enum UseBoundGenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
     Lifetime(Lifetime<'a>),
 
-    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
-    Type(Type<'a>),
+    /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
+    Identifier(Identifier<'a>),
 
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Const,
-
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
-    Binding(Binding<'a>),
-
-    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
-    Bounds(Bounds<'a>),
+    /// `Self`
+    SelfKeyword(Source<'a>),
 }
 
-impl<'a> GenericArg<'a> {
+impl<'a> UseBoundGenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(Lifetime::parse),
-            into(Type::parse),
-            into(Binding::parse),
-            into(Bounds::parse),
-        ))
-        .parse(tokens)
+        let (tokens, keyword) =
+            ignore_recoverable_errors(take(TokenKind::SelfCurrentType)).parse(tokens)?;
+
+        if let Some(keyword) = keyword {
+            return Ok((tokens, Self::SelfKeyword(keyword.source().clone())));
+        }
+
+        alt((into(Lifetime::parse), into(Identifier::parse))).parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.source().clone(),
-            Self::Type(r#type) => r#type.source(),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding(binding) => binding.source(),
-            Self::Bounds(bounds) => bounds.source(),
+            Self::Identifier(identifier) => identifier.source().clone(),
+            Self::SelfKeyword(keyword) => keyword.clone(),
         }
     }
 }
 
-impl ToTokens for GenericArg<'_> {
+impl ToTokens for UseBoundGenericArg<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             Self::Lifetime(lifetime) => lifetime.to_tokens(tokens),
-            Self::Type(r#type) => r#type.to_tokens(tokens),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding(binding) => binding.to_tokens(tokens),
-            Self::Bounds(bounds) => bounds.to_tokens(tokens),
+            Self::Identifier(identifier) => identifier.to_tokens(tokens),
+            Self::SelfKeyword(keyword) => {
+                let span = keyword.span_token();
+                tokens.append_all(quote_spanned! {span=> Self });
+            }
         }
+    }
+}
+
+impl<'a> From<Identifier<'a>> for UseBoundGenericArg<'a> {
+    fn from(value: Identifier<'a>) -> Self {
+        Self::Identifier(value)
+    }
+}
+
+impl<'a> From<Lifetime<'a>> for UseBoundGenericArg<'a> {
+    fn from(value: Lifetime<'a>) -> Self {
+        Self::Lifetime(value)
     }
 }
