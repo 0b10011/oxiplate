@@ -8,11 +8,13 @@ mod path;
 pub(crate) mod path_segment;
 mod trait_bound;
 mod trait_bound_inner;
+mod trait_object;
 mod use_bound;
 mod use_bound_generic_args;
 
 use self::impl_trait::ImplTraitType;
 use self::no_bounds::NoBounds;
+use self::trait_object::TraitObjectType;
 use super::args::GenericArg;
 use crate::template::parser::prelude::*;
 
@@ -26,21 +28,25 @@ pub(super) enum Type<'a> {
     ImplTrait(ImplTraitType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    TraitObject,
+    TraitObject(TraitObjectType<'a>),
 }
 
 impl<'a> Type<'a> {
     /// See: <>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(NoBounds::parse), into(ImplTraitType::parse))).parse(tokens)
+        alt((
+            into(NoBounds::parse),
+            into(ImplTraitType::parse),
+            into(TraitObjectType::parse),
+        ))
+        .parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::NoBounds(no_bounds) => no_bounds.source(),
             Self::ImplTrait(impl_trait_type) => impl_trait_type.source(),
-            Self::TraitObject => todo!("Type::TraitObject.source() not yet implemented"),
+            Self::TraitObject(trait_object_type) => trait_object_type.source(),
         }
     }
 }
@@ -50,7 +56,7 @@ impl ToTokens for Type<'_> {
         match self {
             Self::NoBounds(no_bounds) => no_bounds.to_tokens(tokens),
             Self::ImplTrait(impl_trait_type) => impl_trait_type.to_tokens(tokens),
-            Self::TraitObject => todo!("Type::TraitObject.to_tokens() not yet implemented"),
+            Self::TraitObject(trait_object_type) => trait_object_type.to_tokens(tokens),
         }
     }
 }
