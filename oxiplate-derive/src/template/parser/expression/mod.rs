@@ -541,7 +541,7 @@ impl<'a> Expression<'a> {
                 quote! { compile_error!("Placeholder expression was never replaced.") },
                 EstimatedLength::new(0),
             ),
-            Expression::Path(path) => path.to_tokens(state),
+            Expression::Path(path) => path.to_tokens_with_state(state),
             Expression::Group(group) => group.to_tokens(state),
             Expression::Array(array) => array.to_tokens_with_state(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),

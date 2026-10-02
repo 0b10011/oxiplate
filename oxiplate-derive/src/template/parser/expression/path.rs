@@ -227,24 +227,6 @@ impl<'a> Path<'a> {
         }
     }
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let span = self.segment.source().span_token();
-        if let Some(identifier) = self.template_field(state) {
-            (
-                quote_spanned! {span=> self.#identifier },
-                EstimatedLength::new(1),
-            )
-        } else {
-            let separator = &self.separator;
-            let segment = &self.segment;
-            let mut tokens = quote! { #separator #segment };
-            for (separator, segment) in &self.additional_segments {
-                tokens.append_all(quote! { #separator #segment });
-            }
-            (tokens, EstimatedLength::new(1))
-        }
-    }
-
     /// Get the `Source` for the entire path.
     pub fn source(&self) -> Source<'a> {
         let mut source = if let Some(separator) = &self.separator {
@@ -265,6 +247,27 @@ impl<'a> Path<'a> {
         source
     }
 }
+
+impl<'a> ToTokensWithState<'a> for Path<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let span = self.segment.source().span_token();
+        if let Some(identifier) = self.template_field(state) {
+            (
+                quote_spanned! {span=> self.#identifier },
+                EstimatedLength::new(1),
+            )
+        } else {
+            let separator = &self.separator;
+            let segment = &self.segment;
+            let mut tokens = quote! { #separator #segment };
+            for (separator, segment) in &self.additional_segments {
+                tokens.append_all(quote! { #separator #segment });
+            }
+            (tokens, EstimatedLength::new(1))
+        }
+    }
+}
+
 impl<'a> From<Path<'a>> for Expression<'a> {
     fn from(value: Path<'a>) -> Self {
         Expression::Path(value)
