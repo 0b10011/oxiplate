@@ -137,7 +137,7 @@ impl<'a> Statement<'a> {
                 let span = self.source.span_token();
                 Err((
                     quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
-                    0,
+                    EstimatedLength::new(0),
                 ))
             }};
         }
@@ -153,7 +153,7 @@ impl<'a> Statement<'a> {
                     let span = self.source.span_token();
                     Err((
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
-                        0,
+                        EstimatedLength::new(0),
                     ))
                 } else {
                     Ok(statement.to_tokens(state))
@@ -346,9 +346,9 @@ fn eof<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use crate::State;
     use crate::source::test_source;
     use crate::template::parser::statement::r#match::Case;
+    use crate::{EstimatedLength, State};
 
     macro_rules! unexpected_statement_for_to_tokens {
         ($function_name:ident, $tag:literal, $tag_name:literal, $kind:ident) => {
@@ -362,7 +362,11 @@ mod tests {
                 .to_tokens(&mut State::new_for_test())
                 .expect_err("Error TokenStream expected");
 
-                assert_eq!(length, 0, "Length should be 0 due to compile error");
+                assert_eq!(
+                    length,
+                    EstimatedLength::new(0),
+                    "Length should be 0 due to compile error"
+                );
                 assert_eq!(
                     format!("{tokens}"),
                     concat!(
@@ -393,7 +397,11 @@ mod tests {
         .to_tokens(&mut State::new_for_test())
         .expect_err("Error TokenStream expected");
 
-        assert_eq!(length, 0, "Length should be 0 due to compile error");
+        assert_eq!(
+            length,
+            EstimatedLength::new(0),
+            "Length should be 0 due to compile error"
+        );
         assert_eq!(
             format!("{tokens}"),
             r#"compile_error ! (concat ! ("Unexpected '" , "case" , "' statement")) ;"#,

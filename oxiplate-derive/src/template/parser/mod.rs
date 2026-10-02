@@ -6,6 +6,8 @@ mod r#static;
 mod template;
 mod writ;
 
+use std::ops::{Add, AddAssign, Mul};
+
 use self::item::Item;
 use self::prelude::*;
 use self::statement::Statement;
@@ -20,7 +22,7 @@ mod prelude {
     pub(super) use proc_macro2::TokenStream;
     pub(super) use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
-    pub(super) use super::Res;
+    pub(super) use super::{EstimatedLength, Res, ToTokensWithMutState, ToTokensWithState};
     pub(super) use crate::parser::prelude::*;
     pub(super) use crate::template::tokenizer::TokenKind;
     pub(super) use crate::{BuiltTokens, Source, State, TokenSlice, internal_error};
@@ -88,4 +90,56 @@ impl<'a> From<Error<'a>> for Template<'a> {
 
         Self(items)
     }
+}
+
+/// Estimated length of template output.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct EstimatedLength(usize);
+
+impl EstimatedLength {
+    pub fn new(estimated_length: usize) -> Self {
+        Self(estimated_length)
+    }
+}
+
+impl Add<EstimatedLength> for EstimatedLength {
+    type Output = EstimatedLength;
+
+    fn add(self, rhs: EstimatedLength) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign<EstimatedLength> for EstimatedLength {
+    fn add_assign(&mut self, rhs: EstimatedLength) {
+        self.0 += rhs.0;
+    }
+}
+
+impl Mul<usize> for EstimatedLength {
+    type Output = EstimatedLength;
+
+    fn mul(self, rhs: usize) -> Self::Output {
+        Self(self.0 * rhs)
+    }
+}
+
+impl ToTokens for EstimatedLength {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        self.0.to_tokens(tokens);
+    }
+}
+
+/// `ToTokens` but with immutable state.
+/// Used by expressions and patterns.
+trait ToTokensWithState<'a> {
+    #[must_use]
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens;
+}
+
+/// `ToTokens` but with mutable state.
+/// Used by statements.
+trait ToTokensWithMutState<'a> {
+    #[must_use]
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens;
 }

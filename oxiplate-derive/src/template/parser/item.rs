@@ -7,10 +7,10 @@ use crate::template::parser::prelude::*;
 use crate::template::tokenizer::{TagKind, WhitespacePreference};
 
 pub(super) enum ItemToken {
-    StaticText(TokenStream, usize),
-    DynamicText(TokenStream, usize),
+    StaticText(TokenStream, EstimatedLength),
+    DynamicText(TokenStream, EstimatedLength),
     Comment,
-    Statement(TokenStream, usize),
+    Statement(TokenStream, EstimatedLength),
 }
 
 /// One piece of a template.
@@ -121,7 +121,10 @@ impl<'a> Item<'a> {
                 consumed_source: _,
             } => {
                 let span = error_source.span_token();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
+                ItemToken::Statement(
+                    quote_spanned! {span=> compile_error!(#message); },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }

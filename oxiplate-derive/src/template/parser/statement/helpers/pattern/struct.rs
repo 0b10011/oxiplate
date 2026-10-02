@@ -230,9 +230,12 @@ impl<'a> Field<'a> {
         if let Some(value) = &self.value {
             let span = self.source.span_token();
             let value = value.to_tokens(state);
-            (quote_spanned! {span=> #name: #value }, 0)
+            (
+                quote_spanned! {span=> #name: #value },
+                EstimatedLength::new(0),
+            )
         } else {
-            (quote! { #name }, 0)
+            (quote! { #name }, EstimatedLength::new(0))
         }
     }
 }

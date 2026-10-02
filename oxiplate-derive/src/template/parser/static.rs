@@ -8,7 +8,10 @@ impl Static<'_> {
     pub fn to_token(&self) -> BuiltTokens {
         let text = &self.0;
         let span = self.1.span_token();
-        (quote_spanned! { span => #text }, text.len())
+        (
+            quote_spanned! { span => #text },
+            EstimatedLength::new(text.len()),
+        )
     }
 }
 

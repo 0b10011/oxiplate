@@ -539,7 +539,7 @@ impl<'a> Expression<'a> {
         match self {
             Expression::Placeholder => (
                 quote! { compile_error!("Placeholder expression was never replaced.") },
-                0,
+                EstimatedLength::new(0),
             ),
             Expression::Path(path) => path.to_tokens(state),
             Expression::Group(group) => group.to_tokens(state),
@@ -593,7 +593,7 @@ impl<'a> Expression<'a> {
             Expression::Bool(bool) => bool.to_tokens(),
             Expression::FullRange { source, .. } => {
                 let span = source.span_token();
-                (quote_spanned! {span=> .. }, 0)
+                (quote_spanned! {span=> .. }, EstimatedLength::new(0))
             }
             Expression::Index(expression, open_bracket, range, _close_bracket) => {
                 let span = open_bracket.span_token();
@@ -687,7 +687,7 @@ impl<'a> Expression<'a> {
                     quote_spanned! {span=>
                         compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
                     },
-                    0,
+                    EstimatedLength::new(0),
                 )
             }
         } else {
@@ -918,8 +918,8 @@ fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
 mod test {
     use super::Char;
     use super::concat::Concat;
-    use crate::State;
     use crate::source::test_source;
+    use crate::{EstimatedLength, State};
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
@@ -1062,7 +1062,7 @@ mod test {
     fn to_tokens() {
         let (tokens, length) = super::Expression::Placeholder.to_tokens(&State::new_for_test());
 
-        assert_eq!(length, 0);
+        assert_eq!(length, EstimatedLength::new(0));
         assert_eq!(
             format!("{tokens}"),
             r#"compile_error ! ("Placeholder expression was never replaced.")"#

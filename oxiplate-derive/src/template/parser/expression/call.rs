@@ -34,9 +34,9 @@ impl<'a> Call<'a> {
 
         match &*self.expression {
             Expression::Path(path) if path.template_field(state).is_some() => {
-                (quote! { (#expression) #arguments }, 1)
+                (quote! { (#expression) #arguments }, EstimatedLength::new(1))
             }
-            _ => (quote! { #expression #arguments }, 1),
+            _ => (quote! { #expression #arguments }, EstimatedLength::new(1)),
         }
     }
 

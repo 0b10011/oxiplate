@@ -40,7 +40,7 @@ impl<'a> Fields<'a> {
     }
 
     /// Build token stream for the group.
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let (expression, estimated_length) = self.expression.to_tokens(state);
         tokens.append_all(expression);

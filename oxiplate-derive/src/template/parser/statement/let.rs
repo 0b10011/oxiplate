@@ -75,7 +75,7 @@ impl<'a> Let<'a> {
 
         (
             quote_spanned! {span=> #keyword #pattern #operator #expr; },
-            0,
+            EstimatedLength::new(0),
         )
     }
 }

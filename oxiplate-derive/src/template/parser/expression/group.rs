@@ -47,7 +47,7 @@ impl<'a> Group<'a> {
     }
 
     /// Build token stream for the group.
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let (expression, expression_length) = self.expression.to_tokens(state);
         let span = self.source().span_token();
         (quote_spanned! {span=> ( #expression ) }, expression_length)

@@ -31,7 +31,7 @@ impl DefaultEscaper<'_> {
             let tag = quote_spanned! {tag_span=> #tag };
             Err((
                 quote_spanned! {span=> compile_error!(concat!("Unexpected '", #tag, "' statement after already setting the default escaper group")); },
-                0,
+                EstimatedLength::new(0),
             ))
         } else if state.has_content {
             let span = statement_source.span_token();
@@ -40,7 +40,7 @@ impl DefaultEscaper<'_> {
             let tag = quote_spanned! {tag_span=> #tag };
             Err((
                 quote_spanned! {span=> compile_error!(concat!("Unexpected '", #tag, "' statement after content already present in template")); },
-                0,
+                EstimatedLength::new(0),
             ))
         } else {
             if !self.can_replace_inferred_escaper {
@@ -60,7 +60,7 @@ impl DefaultEscaper<'_> {
                                     "`. If this was intentional, consider using `replace_escaper_group` instead."
                                 ));
                             },
-                            0,
+                            EstimatedLength::new(0),
                         ))?;
                     }
                 }
@@ -90,10 +90,10 @@ impl DefaultEscaper<'_> {
                            #available_escaper_groups,
                        ));
                     },
-                    0,
+                    EstimatedLength::new(0),
                 ))?;
             }
-            Ok((TokenStream::new(), 0))
+            Ok((TokenStream::new(), EstimatedLength::new(0)))
         }
     }
 }

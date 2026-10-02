@@ -51,7 +51,7 @@ impl<'a> Tuple<'a> {
     pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let mut items = vec![];
         let span = self.source.span_token();
-        let mut expression_length = usize::MAX;
+        let mut expression_length = EstimatedLength::new(usize::MAX);
         for item in &self.items {
             let (item, item_length) = item.to_tokens(state);
             items.push(item);

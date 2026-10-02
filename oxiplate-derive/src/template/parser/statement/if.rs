@@ -91,7 +91,7 @@ impl<'a> If<'a> {
 
     pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = usize::MAX;
+        let mut estimated_length = EstimatedLength::new(usize::MAX);
 
         let mut is_elseif = false;
         for (expression, template) in &self.ifs {
@@ -100,7 +100,7 @@ impl<'a> If<'a> {
             match expression {
                 IfType::If(expression) => {
                     let (expression, _expression_length) = expression.to_tokens(state);
-                    let (template, template_length) = template.to_tokens(state);
+                    let (template, template_length) = template.to_tokens_with_mut_state(state);
                     estimated_length = estimated_length.min(template_length);
                     if is_elseif {
                         tokens.append_all(quote! { else if #expression { #template } });
@@ -118,7 +118,7 @@ impl<'a> If<'a> {
                             .map(ToString::to_string)
                             .collect(),
                     );
-                    let (template, template_length) = template.to_tokens(state);
+                    let (template, template_length) = template.to_tokens_with_mut_state(state);
                     estimated_length = estimated_length.min(template_length);
 
                     let pattern = pattern.to_tokens(state);
@@ -139,7 +139,7 @@ impl<'a> If<'a> {
         if let Some(template) = &self.otherwise {
             state.local_variables.push_stack();
 
-            let (template, template_length) = template.to_tokens(state);
+            let (template, template_length) = template.to_tokens_with_mut_state(state);
             estimated_length = estimated_length.min(template_length);
             tokens.append_all(quote! { else { #template } });
 

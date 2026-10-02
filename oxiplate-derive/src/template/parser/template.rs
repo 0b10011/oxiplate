@@ -11,7 +11,7 @@ use crate::template::tokenizer::WhitespacePreference;
 #[derive(Debug)]
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
-impl<'a> Template<'a> {
+impl Template<'_> {
     #[cfg(coverage_nightly)]
     pub fn source(&self) -> Option<Source<'_>> {
         let mut source: Option<Source<'_>> = None;
@@ -34,10 +34,12 @@ impl<'a> Template<'a> {
 
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
+}
 
-    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> (TokenStream, usize) {
+impl<'a> ToTokensWithMutState<'a> for Template<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
+        let mut estimated_length = EstimatedLength::new(0);
 
         let mut str_tokens = vec![];
         for item in &self.0 {
@@ -77,7 +79,7 @@ impl<'a> Template<'a> {
 pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -> BuiltTokens {
     match try_parse(state, tokens) {
         Ok((_, template)) => template,
-        Err(error) => Into::<Template>::into(error).to_tokens(state),
+        Err(error) => Into::<Template>::into(error).to_tokens_with_mut_state(state),
     }
 }
 
@@ -98,7 +100,7 @@ pub(crate) fn try_parse<'a, 'b: 'a>(
     #[cfg(coverage_nightly)]
     let _ = template.source();
 
-    Ok((tokens, template.to_tokens(state)))
+    Ok((tokens, template.to_tokens_with_mut_state(state)))
 }
 
 pub(crate) fn parse_item(tokens: TokenSlice) -> Res<Vec<Item>> {

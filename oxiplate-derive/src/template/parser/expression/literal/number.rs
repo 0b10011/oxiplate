@@ -29,7 +29,10 @@ impl<'a> Integer<'a> {
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitInt::new(self.source.as_str(), self.source.span_token());
-        (quote! { #literal }, self.source.as_str().len())
+        (
+            quote! { #literal },
+            EstimatedLength::new(self.source.as_str().len()),
+        )
     }
 }
 
@@ -62,7 +65,10 @@ impl<'a> Float<'a> {
 
     pub(crate) fn to_tokens(&self) -> BuiltTokens {
         let literal = ::syn::LitFloat::new(self.source.as_str(), self.source.span_token());
-        (quote! { #literal }, self.source.as_str().len())
+        (
+            quote! { #literal },
+            EstimatedLength::new(self.source.as_str().len()),
+        )
     }
 }
 

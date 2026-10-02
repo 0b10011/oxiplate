@@ -12,7 +12,7 @@ impl<'a> Concat<'a> {
         {
             let mut format_tokens = vec![];
             let mut argument_tokens = vec![];
-            let mut estimated_length = 0;
+            let mut estimated_length = EstimatedLength::new(0);
             let mut expressions = Vec::with_capacity(self.additional_expressions.len() + 1);
             expressions.push(self.first_expression.as_ref());
             for (_tilde, expression) in &self.additional_expressions {
@@ -21,7 +21,7 @@ impl<'a> Concat<'a> {
 
             for expression in expressions {
                 if let Expression::String(string) = expression {
-                    estimated_length += string.as_str().len();
+                    estimated_length += EstimatedLength::new(string.as_str().len());
                     let string = syn::LitStr::new(string.as_str(), string.source().span_token());
                     format_tokens.push(quote! { #string });
                 } else {

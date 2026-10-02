@@ -82,7 +82,7 @@ impl<'a> For<'a> {
 
     pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
+        let mut estimated_length = EstimatedLength::new(0);
 
         let For {
             for_keyword,
@@ -104,14 +104,14 @@ impl<'a> For<'a> {
                 .map(ToString::to_string)
                 .collect(),
         );
-        let (template, template_length) = template.to_tokens(state);
+        let (template, template_length) = template.to_tokens_with_mut_state(state);
 
         // Loops will very likely run at least twice.
         estimated_length += template_length * 2;
 
         let pattern = pattern.to_tokens(state);
         if let Some(otherwise) = otherwise {
-            let (otherwise, otherwise_length) = otherwise.to_tokens(state);
+            let (otherwise, otherwise_length) = otherwise.to_tokens_with_mut_state(state);
             estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
@@ -205,7 +205,7 @@ impl<'a> Break<'a> {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, EstimatedLength::new(0))
     }
 }
 
@@ -240,7 +240,7 @@ impl<'a> Continue<'a> {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, EstimatedLength::new(0))
     }
 }
 

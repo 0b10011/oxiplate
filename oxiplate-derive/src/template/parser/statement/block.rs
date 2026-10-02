@@ -79,12 +79,18 @@ impl<'a> Block<'a> {
         let block = HashMap::from([(
             self.name.as_str(),
             (
-                self.prefix.to_tokens(state),
-                self.suffix.as_ref().map(|suffix| suffix.to_tokens(state)),
+                self.prefix.to_tokens_with_mut_state(state),
+                self.suffix
+                    .as_ref()
+                    .map(|suffix| suffix.to_tokens_with_mut_state(state)),
             ),
         )]);
         block_stack.push_back(&block);
-        let tokens = self.build_block((quote! {}, 0), (Some(quote! {}), 0), block_stack);
+        let tokens = self.build_block(
+            (quote! {}, EstimatedLength::new(0)),
+            (Some(quote! {}), EstimatedLength::new(0)),
+            block_stack,
+        );
         state.local_variables.pop_stack();
         tokens
     }
@@ -92,7 +98,7 @@ impl<'a> Block<'a> {
     fn build_block<'b: 'a>(
         &self,
         (child_prefix, child_prefix_length): BuiltTokens,
-        (child_suffix, child_suffix_length): (Option<TokenStream>, usize),
+        (child_suffix, child_suffix_length): (Option<TokenStream>, EstimatedLength),
         mut block_stack: VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
     ) -> BuiltTokens {
         let mut estimated_length = child_prefix_length + child_suffix_length;
@@ -115,17 +121,20 @@ impl<'a> Block<'a> {
             let (prefix, prefix_length) = prefix;
 
             if let Some(child_suffix) = child_suffix {
-                let (suffix, suffix_length) = suffix.as_ref().map_or((None, 0), |template| {
-                    let (template, estimated_length) = template;
-                    (Some(template), *estimated_length)
-                });
+                let (suffix, suffix_length) =
+                    suffix
+                        .as_ref()
+                        .map_or((None, EstimatedLength::new(0)), |template| {
+                            let (template, estimated_length) = template;
+                            (Some(template), *estimated_length)
+                        });
 
                 if !block_stack.is_empty() {
                     return if suffix.is_some() {
                         self.build_block(
                             (
                                 quote! { #child_prefix #prefix },
-                                child_prefix_length + prefix_length,
+                                child_prefix_length + *prefix_length,
                             ),
                             (
                                 Some(quote! { #suffix #child_suffix }),
@@ -137,15 +146,15 @@ impl<'a> Block<'a> {
                         self.build_block(
                             (
                                 quote! { #child_prefix #prefix #child_suffix },
-                                child_prefix_length + prefix_length + child_suffix_length,
+                                child_prefix_length + *prefix_length + child_suffix_length,
                             ),
-                            (None, 0),
+                            (None, EstimatedLength::new(0)),
                             block_stack,
                         )
                     };
                 }
 
-                estimated_length += prefix_length + suffix_length;
+                estimated_length += *prefix_length + suffix_length;
                 tokens.append_all(quote! {{
                     { #child_prefix }
                     { #prefix }

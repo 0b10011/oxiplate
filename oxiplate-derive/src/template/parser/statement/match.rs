@@ -72,7 +72,7 @@ impl<'a> Match<'a> {
 
     pub(crate) fn to_tokens(&self, state: &mut State) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = usize::MAX;
+        let mut estimated_length = EstimatedLength::new(usize::MAX);
 
         let mut cases = TokenStream::new();
         for case in &self.cases {
@@ -82,7 +82,7 @@ impl<'a> Match<'a> {
         }
 
         let (expression, _expression_length) = self.expression.to_tokens(state);
-        let (errors, _errors_length) = self.errors.to_tokens(state);
+        let (errors, _errors_length) = self.errors.to_tokens_with_mut_state(state);
 
         tokens.append_all(quote! { #errors match #expression { #cases } });
 
@@ -228,7 +228,7 @@ impl<'a> Case<'a> {
             tokens.append_all(guard.to_tokens(state));
         }
 
-        let (template, estimated_length) = self.template.to_tokens(state);
+        let (template, estimated_length) = self.template.to_tokens_with_mut_state(state);
         tokens.append_all(quote! { => { #template } });
 
         state.local_variables.pop_stack();

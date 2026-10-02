@@ -20,7 +20,10 @@ enum EscaperType<'a> {
 
 macro_rules! token_error {
     ($span:ident, $message:literal $(,)?) => {
-        (quote_spanned! {$span=> compile_error!($message); }, 0)
+        (
+            quote_spanned! {$span=> compile_error!($message); },
+            EstimatedLength::new(0),
+        )
     };
 }
 
@@ -40,9 +43,9 @@ impl<'a> Writ<'a> {
     }
 
     pub(crate) fn to_token(&self, state: &State<'_>) -> BuiltTokens {
-        let mut estimated_length = 0;
+        let mut estimated_length = EstimatedLength::new(0);
 
-        let (text, text_length) = &self.expression.to_tokens(state);
+        let (text, text_length) = self.expression.to_tokens(state);
         estimated_length += text_length;
 
         let span = self.source.span_token();
@@ -53,17 +56,17 @@ impl<'a> Writ<'a> {
         };
 
         match escaper_type {
-            EscaperType::Default => Self::escaper_default(state, span, text, estimated_length),
+            EscaperType::Default => Self::escaper_default(state, span, &text, estimated_length),
             EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
                 state,
                 &group,
                 group_span,
                 escaper,
                 span,
-                text,
+                &text,
                 estimated_length,
             ),
-            EscaperType::Raw => Self::escaper_raw(text, estimated_length),
+            EscaperType::Raw => Self::escaper_raw(&text, estimated_length),
         }
     }
 
@@ -85,7 +88,7 @@ impl<'a> Writ<'a> {
                         quote_spanned! {span=>
                             compile_error!("Invalid escaper group specified");
                         },
-                        0,
+                        EstimatedLength::new(0),
                     ))
                 }
             }
@@ -104,7 +107,7 @@ impl<'a> Writ<'a> {
                 } else if state.failed_to_set_default_escaper_group {
                     Err((
                         quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
-                        0,
+                        EstimatedLength::new(0),
                     ))
                 } else if let Some((name, group)) = &state.inferred_escaper_group {
                     Ok(EscaperType::Specified(
@@ -130,7 +133,7 @@ impl<'a> Writ<'a> {
                             quote_spanned! {span=>
                                 compile_error!(concat!("Escaper could not be found because an invalid fallback escaper group `", #fallback_group, "` was specified in `/oxiplate.toml`. Specify the escaper group in the writ, or fix the fallback escaper group in `/oxiplate.toml`."));
                             },
-                            0,
+                            EstimatedLength::new(0),
                         ))
                     }
                 } else {
@@ -143,7 +146,7 @@ impl<'a> Writ<'a> {
                                 r#"An escaper other than "raw" is specified, but the `config` feature is turned off, so no escaper groups are defined that might otherwise match."#
                             );
                         },
-                        0,
+                        EstimatedLength::new(0),
                     ));
 
                     #[cfg(all(feature = "config", feature = "built-in-escapers"))]
@@ -153,7 +156,7 @@ impl<'a> Writ<'a> {
                                 r#"No escaper group was selected and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`."#
                             );
                         },
-                        0,
+                        EstimatedLength::new(0),
                     ));
 
                     #[cfg(all(feature = "config", not(feature = "built-in-escapers")))]
@@ -163,7 +166,7 @@ impl<'a> Writ<'a> {
                                 r#"No fallback escaper group defined and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`, or turn on the `built-in-escapers` Oxiplate feature."#,
                             );
                         },
-                        0,
+                        EstimatedLength::new(0),
                     ));
                 }
             }
@@ -175,7 +178,7 @@ impl<'a> Writ<'a> {
         state: &State,
         span: Span,
         text: &TokenStream,
-        estimated_length: usize,
+        estimated_length: EstimatedLength,
     ) -> BuiltTokens {
         if state.config.require_specifying_escaper {
             return token_error!(
@@ -185,7 +188,7 @@ impl<'a> Writ<'a> {
         } else if state.failed_to_set_default_escaper_group {
             return (
                 quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
-                0,
+                EstimatedLength::new(0),
             );
         }
 
@@ -273,12 +276,12 @@ impl<'a> Writ<'a> {
         escaper: &Identifier,
         span: Span,
         text: &TokenStream,
-        estimated_length: usize,
+        estimated_length: EstimatedLength,
     ) -> BuiltTokens {
         if state.failed_to_set_default_escaper_group {
             return (
                 quote! { compile_error!("Some writ tokens were not generated due to an error setting the default escaper group."); },
-                0,
+                EstimatedLength::new(0),
             );
         }
 
@@ -309,7 +312,7 @@ impl<'a> Writ<'a> {
         token_error!(span, r"Failed to build escape function call")
     }
 
-    fn escaper_raw(text: &TokenStream, estimated_length: usize) -> BuiltTokens {
+    fn escaper_raw(text: &TokenStream, estimated_length: EstimatedLength) -> BuiltTokens {
         let span = text.span();
 
         #[cfg(not(feature = "_oxiplate"))]

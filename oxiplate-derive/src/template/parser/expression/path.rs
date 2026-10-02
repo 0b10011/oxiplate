@@ -227,10 +227,13 @@ impl<'a> Path<'a> {
         }
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
         let span = self.segment.source().span_token();
         if let Some(identifier) = self.template_field(state) {
-            (quote_spanned! {span=> self.#identifier }, 1)
+            (
+                quote_spanned! {span=> self.#identifier },
+                EstimatedLength::new(1),
+            )
         } else {
             let separator = &self.separator;
             let segment = &self.segment;
@@ -238,7 +241,7 @@ impl<'a> Path<'a> {
             for (separator, segment) in &self.additional_segments {
                 tokens.append_all(quote! { #separator #segment });
             }
-            (tokens, 1)
+            (tokens, EstimatedLength::new(1))
         }
     }
 
