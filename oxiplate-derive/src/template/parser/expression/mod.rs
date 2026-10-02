@@ -7,6 +7,7 @@ mod cow;
 mod fields;
 mod generics;
 mod group;
+mod index;
 mod keyword;
 mod literal;
 mod operator;
@@ -24,6 +25,7 @@ use self::concat::Concat;
 use self::cow::Cow;
 use self::fields::Fields;
 use self::group::Group;
+use self::index::Index;
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 pub(super) use self::path::Identifier;
@@ -69,12 +71,7 @@ pub(crate) enum Expression<'a> {
     /// See:
     /// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
     /// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
-    Index(
-        Box<Expression<'a>>,
-        Source<'a>,
-        Box<Expression<'a>>,
-        Source<'a>,
-    ),
+    Index(Index<'a>),
 
     /// `expr | filter(args)`
     Filter {
@@ -120,7 +117,7 @@ impl<'a> Expression<'a> {
             | Self::Cow { .. } => (),
 
             // Fix the precedence of the leftmost expression.
-            Self::Index(left, _, _, _) => left.fix_precedence(),
+            Self::Index(index) => index.expression.fix_precedence(),
             Self::Calc(calc) => calc.left.fix_precedence(),
             Self::Filter { expression, .. } => expression.fix_precedence(),
             Self::Fields(fields) => {
@@ -186,7 +183,7 @@ impl<'a> Expression<'a> {
             | Self::Cow { .. } => return false,
 
             // Grab the leftmost expression.
-            Self::Index(left, _, _, _) => left,
+            Self::Index(index) => &index.expression,
             Self::Calc(calc) => &calc.left,
             Self::Filter { expression, .. } => expression,
             Self::Fields(fields) => fields.expression.as_ref(),
@@ -227,11 +224,11 @@ impl<'a> Expression<'a> {
             ),
 
             // Take the leftmost expression and return it.
-            Self::Index(left, _, _, _) => mem::take(left),
+            Self::Index(index) => mem::take(&mut index.expression),
             Self::Calc(calc) => mem::take(&mut calc.left),
             Self::Filter { expression, .. } => mem::take(expression),
             Self::Fields(fields) => mem::take(&mut fields.expression),
-            Self::Concat(concat) => mem::take(concat.first_expression.as_mut()),
+            Self::Concat(concat) => mem::take(&mut concat.first_expression),
             Self::Call(call) => mem::take(&mut call.expression),
         }
     }
@@ -267,7 +264,7 @@ impl<'a> Expression<'a> {
             }
 
             // Take a mutable reference to the placeholder.
-            Self::Index(left, _, _, _) => left.as_mut(),
+            Self::Index(index) => index.expression.as_mut(),
             Self::Calc(calc) => calc.left.as_mut(),
             Self::Filter { expression, .. } => expression.as_mut(),
             Self::Fields(fields) => fields.expression.as_mut(),
@@ -305,7 +302,7 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::Index(_, _, _, _)
+            | Self::Index(_)
             | Self::Filter { .. }
             | Self::Path(_)
             | Self::Fields(_)
@@ -346,7 +343,7 @@ impl<'a> Expression<'a> {
             | Self::Group(_)
             | Self::Array(_)
             | Self::Tuple(_)
-            | Self::Index(_, _, _, _)
+            | Self::Index(_)
             | Self::Filter { .. }
             | Self::Path(_)
             | Self::Fields(_)
@@ -393,7 +390,7 @@ impl<'a> Expression<'a> {
             Self::Fields(_)
             | Self::Call(_)
             | Self::Path(_)
-            | Self::Index(_, _, _, _)
+            | Self::Index(_)
             | Self::Calc(_)
             | Self::Prefixed(_, _) => u8::MAX,
 
@@ -525,9 +522,10 @@ impl<'a> Expression<'a> {
                     right.merge_joinable();
                 }
             }
-            Self::Prefixed(_, expression) | Self::Index(expression, _, _, _) => {
+            Self::Prefixed(_, expression) => {
                 expression.merge_joinable();
             }
+            Self::Index(index) => index.expression.merge_joinable(),
             Self::Cow(cow) => cow.expression.merge_joinable(),
             Self::Filter { expression, .. } => expression.merge_joinable(),
             Self::Fields(fields) => fields.expression.merge_joinable(),
@@ -561,15 +559,7 @@ impl<'a> Expression<'a> {
                 let span = source.span_token();
                 (quote_spanned! {span=> .. }, 0)
             }
-            Expression::Index(expression, open_bracket, range, _close_bracket) => {
-                let span = open_bracket.span_token();
-                let (expression, estimated_length) = expression.to_tokens(state);
-                let (range, _range_length) = range.to_tokens(state);
-                (
-                    quote_spanned! {span=> #expression [ #range ] },
-                    estimated_length,
-                )
-            }
+            Expression::Index(index) => index.to_tokens(state),
             Expression::Filter {
                 name,
                 expression,
@@ -710,11 +700,7 @@ impl<'a> Expression<'a> {
                 .source()
                 .clone()
                 .merge(&expression.source(), "Expression should follow operator"),
-            Expression::Index(left, open_bracket, index, close_bracket) => left
-                .source()
-                .merge(open_bracket, "Open bracket should follow left expression")
-                .merge(&index.source(), "Index should follow open bracket")
-                .merge(close_bracket, "Close bracket should follow index"),
+            Expression::Index(index) => index.source().clone(),
             Expression::Fields(fields) => fields.source().clone(),
             Expression::Call(call) => call.source().clone(),
         }
@@ -749,7 +735,7 @@ pub(super) fn expression<'a>(
                 filters,
                 Concat::parser,
                 Calc::parse,
-                index,
+                Index::parse,
                 Fields::parser,
                 Call::parser,
             )))
@@ -777,31 +763,6 @@ fn full_range(tokens: TokenSlice) -> Res<Expression> {
         Expression::FullRange {
             source: token.source().clone(),
         },
-    ))
-}
-
-/// Parses an index expression (`expr[expr]`).
-/// See: <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
-fn index<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-    let (tokens, (open, (range, close))) = (
-        take(TokenKind::OpenBracket),
-        cut(
-            "Expected an expression",
-            (expression(true), take(TokenKind::CloseBracket)),
-        ),
-    )
-        .parse(tokens)?;
-
-    Ok((
-        tokens,
-        Box::new(|expression: Expression<'a>| {
-            Expression::Index(
-                Box::new(expression),
-                open.source().clone(),
-                Box::new(range),
-                close.source().clone(),
-            )
-        }),
     ))
 }
 
