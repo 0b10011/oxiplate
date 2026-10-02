@@ -5,6 +5,7 @@ mod call;
 mod concat;
 mod cow;
 mod fields;
+mod filter;
 mod generics;
 mod group;
 mod index;
@@ -17,13 +18,13 @@ mod tuple;
 
 use std::mem;
 
-use self::arguments::arguments;
 use self::array::Array;
 use self::calc::Calc;
 use self::call::Call;
 use self::concat::Concat;
 use self::cow::Cow;
 use self::fields::Fields;
+use self::filter::Filter;
 use self::group::Group;
 use self::index::Index;
 pub(super) use self::keyword::{Keyword, KeywordParser};
@@ -32,7 +33,6 @@ pub(super) use self::path::Identifier;
 use self::path::Path;
 use self::tuple::Tuple;
 use super::Res;
-use super::expression::arguments::ArgumentsGroup;
 use super::expression::operator::parse_operator;
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::template::parser::prelude::*;
@@ -74,13 +74,7 @@ pub(crate) enum Expression<'a> {
     Index(Index<'a>),
 
     /// `expr | filter(args)`
-    Filter {
-        name: Identifier<'a>,
-        expression: Box<Expression<'a>>,
-        vertical_bar: Source<'a>,
-        cow_prefix: Option<Source<'a>>,
-        arguments: Option<ArgumentsGroup<'a>>,
-    },
+    Filter(Filter<'a>),
 
     /// `expr.field`
     Fields(Fields<'a>),
@@ -119,7 +113,7 @@ impl<'a> Expression<'a> {
             // Fix the precedence of the leftmost expression.
             Self::Index(index) => index.expression.fix_precedence(),
             Self::Calc(calc) => calc.left.fix_precedence(),
-            Self::Filter { expression, .. } => expression.fix_precedence(),
+            Self::Filter(filter) => filter.expression.fix_precedence(),
             Self::Fields(fields) => {
                 fields.expression.as_mut().fix_precedence();
             }
@@ -185,7 +179,7 @@ impl<'a> Expression<'a> {
             // Grab the leftmost expression.
             Self::Index(index) => &index.expression,
             Self::Calc(calc) => &calc.left,
-            Self::Filter { expression, .. } => expression,
+            Self::Filter(filter) => &filter.expression,
             Self::Fields(fields) => fields.expression.as_ref(),
             Self::Concat(concat) => concat.first_expression.as_ref(),
             Self::Call(call) => call.expression.as_ref(),
@@ -226,7 +220,7 @@ impl<'a> Expression<'a> {
             // Take the leftmost expression and return it.
             Self::Index(index) => mem::take(&mut index.expression),
             Self::Calc(calc) => mem::take(&mut calc.left),
-            Self::Filter { expression, .. } => mem::take(expression),
+            Self::Filter(filter) => mem::take(&mut filter.expression),
             Self::Fields(fields) => mem::take(&mut fields.expression),
             Self::Concat(concat) => mem::take(&mut concat.first_expression),
             Self::Call(call) => mem::take(&mut call.expression),
@@ -266,7 +260,7 @@ impl<'a> Expression<'a> {
             // Take a mutable reference to the placeholder.
             Self::Index(index) => index.expression.as_mut(),
             Self::Calc(calc) => calc.left.as_mut(),
-            Self::Filter { expression, .. } => expression.as_mut(),
+            Self::Filter(filter) => filter.expression.as_mut(),
             Self::Fields(fields) => fields.expression.as_mut(),
             Self::Concat(concat) => concat.first_expression.as_mut(),
             Self::Call(call) => call.expression.as_mut(),
@@ -527,7 +521,7 @@ impl<'a> Expression<'a> {
             }
             Self::Index(index) => index.expression.merge_joinable(),
             Self::Cow(cow) => cow.expression.merge_joinable(),
-            Self::Filter { expression, .. } => expression.merge_joinable(),
+            Self::Filter(filter) => filter.expression.merge_joinable(),
             Self::Fields(fields) => fields.expression.merge_joinable(),
             Self::Call(call) => call.expression.merge_joinable(),
         }
@@ -560,99 +554,9 @@ impl<'a> Expression<'a> {
                 (quote_spanned! {span=> .. }, 0)
             }
             Expression::Index(index) => index.to_tokens(state),
-            Expression::Filter {
-                name,
-                expression,
-                vertical_bar,
-                cow_prefix,
-                arguments,
-            } => Self::filter(
-                state,
-                name,
-                expression,
-                vertical_bar,
-                cow_prefix.as_ref(),
-                arguments.as_ref(),
-                &self.source(),
-            ),
+            Expression::Filter(filter) => filter.to_tokens(state),
             Expression::Fields(fields) => fields.to_tokens(state),
             Expression::Call(call) => call.to_tokens(state),
-        }
-    }
-
-    /// Generate tokens for a filter expression.
-    fn filter(
-        state: &State,
-        name: &Identifier,
-        expression: &Expression,
-        vertical_bar: &Source,
-        cow_prefix: Option<&Source>,
-        arguments: Option<&ArgumentsGroup>,
-        source: &Source,
-    ) -> BuiltTokens {
-        let (expression, estimated_length) = expression.to_tokens(state);
-        let mut argument_tokens = expression;
-
-        let arguments = if let Some(arguments) = arguments {
-            if let Some((first_argument, remaining_arguments, _trailing_comma)) =
-                &arguments.arguments
-            {
-                // First argument
-                let comma_span = vertical_bar.span_token();
-                argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                argument_tokens.append_all(first_argument.to_tokens(state).0);
-
-                // Remaining arguments
-                for (comma, expression) in remaining_arguments {
-                    let comma_span = comma.span_token();
-                    argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                    argument_tokens.append_all(expression.to_tokens(state).0);
-                }
-            }
-
-            let mut group =
-                proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            group.set_span(source.span_token());
-            group.to_token_stream()
-        } else {
-            let mut group =
-                proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, argument_tokens);
-            group.set_span(name.source().span_token());
-            group.to_token_stream()
-        };
-
-        let span = name.source().span_token();
-        if let Some(cow_prefix) = cow_prefix {
-            let span = cow_prefix.span_token();
-
-            if cfg!(feature = "_oxiplate") {
-                (
-                    quote_spanned! {span=>
-                        ::oxiplate::CowStrWrapper::new(
-                            (
-                                &&::oxiplate::ToCowStrWrapper::new(
-                                    &(filters_for_oxiplate::#name #arguments)
-                                )
-                            ).to_cow_str()
-                        )
-                    },
-                    estimated_length,
-                )
-            } else {
-                (
-                    quote_spanned! {span=>
-                        compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
-                    },
-                    0,
-                )
-            }
-        } else {
-            (
-                quote_spanned! {span=>
-                    filters_for_oxiplate::#name #arguments
-                },
-                estimated_length,
-            )
         }
     }
 
@@ -673,24 +577,7 @@ impl<'a> Expression<'a> {
             Expression::Bool(value) => value.source().clone(),
             Expression::Calc(calc) => calc.source().clone(),
             Expression::FullRange { source, .. } => source.clone(),
-            Expression::Filter {
-                name,
-                expression,
-                vertical_bar,
-                cow_prefix,
-                arguments,
-            } => expression
-                .source()
-                .merge(
-                    vertical_bar,
-                    "Vertical bar should follow leading whitespace",
-                )
-                .merge_some(cow_prefix.as_ref(), "Cow prefix should follow whitespace")
-                .merge(name.source(), "Filter name should follow whitespace")
-                .merge_some(
-                    arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
-                    "Arguments should follow trailing whitespace",
-                ),
+            Expression::Filter(filter) => filter.source(),
             Expression::Cow(cow) => cow.source().clone(),
             Expression::Group(group) => group.source().clone(),
             Expression::Array(array) => array.source().clone(),
@@ -732,7 +619,7 @@ pub(super) fn expression<'a>(
 
         let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) =
             many0(alt((
-                filters,
+                Filter::parse,
                 Concat::parser,
                 Calc::parse,
                 Index::parse,
@@ -764,27 +651,6 @@ fn full_range(tokens: TokenSlice) -> Res<Expression> {
             source: token.source().clone(),
         },
     ))
-}
-
-/// Parses filters (`expr | filter()`).
-fn filters<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-    let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
-        take(TokenKind::VerticalBar),
-        ignore_recoverable_errors(take(TokenKind::GreaterThan)),
-        cut("Expected a filter name", Identifier::parse),
-        ignore_recoverable_errors(arguments),
-    )
-        .parse(tokens)?;
-
-    let callback = Box::new(move |expression: Expression<'a>| Expression::Filter {
-        name,
-        expression: Box::new(expression),
-        vertical_bar: vertical_bar.source().clone(),
-        cow_prefix: cow_prefix.map(|token| token.source().clone()),
-        arguments,
-    });
-
-    Ok((tokens, callback))
 }
 
 #[cfg(test)]
