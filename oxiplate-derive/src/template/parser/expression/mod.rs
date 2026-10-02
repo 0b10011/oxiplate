@@ -3,6 +3,7 @@ mod array;
 mod calc;
 mod call;
 mod concat;
+mod cow;
 mod fields;
 mod generics;
 mod group;
@@ -20,6 +21,7 @@ use self::array::Array;
 use self::calc::Calc;
 use self::call::Call;
 use self::concat::Concat;
+use self::cow::Cow;
 use self::fields::Fields;
 use self::group::Group;
 pub(super) use self::keyword::{Keyword, KeywordParser};
@@ -54,10 +56,7 @@ pub(crate) enum Expression<'a> {
     Concat(Concat<'a>),
     Calc(Calc<'a>),
     Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
-    Cow {
-        prefix: Source<'a>,
-        expression: Box<Expression<'a>>,
-    },
+    Cow(Cow<'a>),
 
     /// `..` that represents a range
     /// where the start/end matches whatever it is applied to.
@@ -322,7 +321,7 @@ impl<'a> Expression<'a> {
                 None => None,
             },
             Self::Prefixed(_, right) => Some(mem::take(right)),
-            Self::Cow { expression, .. } => Some(mem::take(expression)),
+            Self::Cow(cow) => Some(mem::take(cow.expression.as_mut())),
         }
     }
 
@@ -368,7 +367,7 @@ impl<'a> Expression<'a> {
                 None => unreachable!("Only placeholder expressions should ever be overwritten"),
             },
             Self::Prefixed(_, right) => right,
-            Self::Cow { expression, .. } => expression,
+            Self::Cow(cow) => cow.expression.as_mut(),
         };
 
         // Ensure the expression is actually a placeholder.
@@ -526,11 +525,10 @@ impl<'a> Expression<'a> {
                     right.merge_joinable();
                 }
             }
-            Self::Prefixed(_, expression)
-            | Self::Cow { expression, .. }
-            | Self::Index(expression, _, _, _) => {
+            Self::Prefixed(_, expression) | Self::Index(expression, _, _, _) => {
                 expression.merge_joinable();
             }
+            Self::Cow(cow) => cow.expression.merge_joinable(),
             Self::Filter { expression, .. } => expression.merge_joinable(),
             Self::Fields(fields) => fields.expression.merge_joinable(),
             Self::Call(call) => call.expression.merge_joinable(),
@@ -553,25 +551,7 @@ impl<'a> Expression<'a> {
                 let (expression, expression_length) = expression.to_tokens(state);
                 (quote! { #operator #expression }, expression_length)
             }
-            Expression::Cow {
-                prefix, expression, ..
-            } => {
-                #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
-                let (expression, expression_length) = expression.to_tokens(state);
-                let span = prefix.span_token();
-
-                #[cfg(feature = "_oxiplate")]
-                let expression = quote_spanned! {span=>
-                    ::oxiplate::CowStrWrapper::new((&&::oxiplate::ToCowStrWrapper::new(&(#expression))).to_cow_str())
-                };
-
-                #[cfg(not(feature = "_oxiplate"))]
-                let expression = quote_spanned! {span=>
-                    compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
-                };
-
-                (expression, expression_length)
-            }
+            Expression::Cow(cow) => cow.to_tokens(state),
             Expression::Char(char) => char.to_tokens(),
             Expression::String(string) => string.to_tokens(),
             Expression::Integer(number) => number.to_tokens(),
@@ -721,9 +701,7 @@ impl<'a> Expression<'a> {
                     arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
                     "Arguments should follow trailing whitespace",
                 ),
-            Expression::Cow { prefix, expression } => prefix
-                .clone()
-                .merge(&expression.source(), "Expression should follow whitespace"),
+            Expression::Cow(cow) => cow.source().clone(),
             Expression::Group(group) => group.source().clone(),
             Expression::Array(array) => array.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
@@ -748,7 +726,7 @@ pub(super) fn expression<'a>(
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
     move |tokens| {
         let (tokens, mut expression) = alt((
-            parse_cow_prefix,
+            into(Cow::parse),
             into(Char::parse),
             into(String::parse),
             into(Number::parse),
@@ -846,22 +824,6 @@ fn filters<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
     });
 
     Ok((tokens, callback))
-}
-
-fn parse_cow_prefix(tokens: TokenSlice) -> Res<Expression> {
-    let (tokens, (prefix, expression)) = (
-        take(TokenKind::GreaterThan),
-        cut("Expected an expression after cow prefix", expression(false)),
-    )
-        .parse(tokens)?;
-
-    Ok((
-        tokens,
-        Expression::Cow {
-            prefix: prefix.source().clone(),
-            expression: Box::new(expression),
-        },
-    ))
 }
 
 #[cfg(test)]
