@@ -4,6 +4,7 @@ use super::never::Never;
 use super::parenthesized::ParenthesizedType;
 use super::path::TypePath;
 use super::raw_pointer::RawPointerType;
+use super::reference::ReferenceType;
 use super::trait_object_one_bound::TraitObjectTypeOneBound;
 use super::tuple::TupleType;
 use crate::template::parser::prelude::*;
@@ -34,8 +35,7 @@ pub(crate) enum TypeNoBounds<'a> {
     RawPointer(RawPointerType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Reference,
+    Reference(ReferenceType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -73,6 +73,7 @@ impl<'a> TypeNoBounds<'a> {
             into(TupleType::parse),
             into(Never::parse),
             into(RawPointerType::parse),
+            into(ReferenceType::parse),
         ))
         .parse(tokens)
     }
@@ -88,7 +89,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::Tuple(tuple_type) => tuple_type.source().clone(),
             Self::Never(never) => never.source().clone(),
             Self::RawPointer(raw_pointer) => raw_pointer.source(),
-            Self::Reference => todo!("NoBounds::Reference.source() not yet implemented"),
+            Self::Reference(reference) => reference.source(),
             Self::Array => todo!("NoBounds::Array.source() not yet implemented"),
             Self::Slice => todo!("NoBounds::Slice.source() not yet implemented"),
             Self::Inferred => todo!("NoBounds::Inferred.source() not yet implemented"),
@@ -115,7 +116,7 @@ impl ToTokens for TypeNoBounds<'_> {
             Self::Tuple(tuple_type) => tuple_type.to_tokens(tokens),
             Self::Never(never) => never.to_tokens(tokens),
             Self::RawPointer(raw_pointer) => raw_pointer.to_tokens(tokens),
-            Self::Reference => todo!("NoBounds::Reference.to_tokens() not yet implemented"),
+            Self::Reference(reference) => reference.to_tokens(tokens),
             Self::Array => todo!("NoBounds::Array.to_tokens() not yet implemented"),
             Self::Slice => todo!("NoBounds::Slice.to_tokens() not yet implemented"),
             Self::Inferred => todo!("NoBounds::Inferred.to_tokens() not yet implemented"),

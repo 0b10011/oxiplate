@@ -1,7 +1,7 @@
 use super::args::GenericArg;
 use crate::template::parser::prelude::*;
 
-/// See <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
+/// See <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
 #[derive(Debug)]
 pub(super) struct Lifetime<'a>(Source<'a>);
 
