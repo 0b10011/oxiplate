@@ -60,7 +60,7 @@ impl<'a> Item<'a> {
         match self {
             Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
-                let (text, estimated_length) = writ.to_token(state);
+                let (text, estimated_length) = writ.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::DynamicText(text, estimated_length)
             }

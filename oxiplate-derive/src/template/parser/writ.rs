@@ -42,34 +42,6 @@ impl<'a> Writ<'a> {
         &self.source
     }
 
-    pub(crate) fn to_token(&self, state: &State<'_>) -> BuiltTokens {
-        let mut estimated_length = EstimatedLength::new(0);
-
-        let (text, text_length) = self.expression.to_tokens(state);
-        estimated_length += text_length;
-
-        let span = self.source.span_token();
-
-        let escaper_type: EscaperType = match self.escaper_type(state) {
-            Ok(escaper_type) => escaper_type,
-            Err(tokens) => return tokens,
-        };
-
-        match escaper_type {
-            EscaperType::Default => Self::escaper_default(state, span, &text, estimated_length),
-            EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
-                state,
-                &group,
-                group_span,
-                escaper,
-                span,
-                &text,
-                estimated_length,
-            ),
-            EscaperType::Raw => Self::escaper_raw(&text, estimated_length),
-        }
-    }
-
     fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, BuiltTokens> {
         match &self.escaper {
             Some(Escaper {
@@ -330,6 +302,36 @@ impl<'a> Writ<'a> {
             },
             estimated_length,
         );
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Writ<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut estimated_length = EstimatedLength::new(0);
+
+        let (text, text_length) = self.expression.to_tokens(state);
+        estimated_length += text_length;
+
+        let span = self.source.span_token();
+
+        let escaper_type: EscaperType = match self.escaper_type(state) {
+            Ok(escaper_type) => escaper_type,
+            Err(tokens) => return tokens,
+        };
+
+        match escaper_type {
+            EscaperType::Default => Self::escaper_default(state, span, &text, estimated_length),
+            EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
+                state,
+                &group,
+                group_span,
+                escaper,
+                span,
+                &text,
+                estimated_length,
+            ),
+            EscaperType::Raw => Self::escaper_raw(&text, estimated_length),
+        }
     }
 }
 
