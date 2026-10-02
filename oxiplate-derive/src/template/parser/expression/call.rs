@@ -30,7 +30,7 @@ impl<'a> Call<'a> {
     /// Generates token stream for entire call expression.
     pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
         let (expression, _estimated_length) = self.expression.to_tokens(state);
-        let arguments = self.arguments.to_tokens(state);
+        let (arguments, _estimated_length) = self.arguments.to_tokens_with_state(state);
 
         match &*self.expression {
             Expression::Path(path) if path.template_field(state).is_some() => {
