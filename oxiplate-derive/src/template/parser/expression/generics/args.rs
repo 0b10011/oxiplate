@@ -1,4 +1,4 @@
-use super::Generics;
+use super::GenericArgs;
 use super::binding::Binding;
 use super::bounds::Bounds;
 use super::lifetime::Lifetime;
@@ -7,13 +7,13 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
 #[derive(Debug)]
-pub(super) struct GenericArgs<'a> {
+pub(super) struct GenericArgList<'a> {
     first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
     last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
     source: Source<'a>,
 }
 
-impl<'a> GenericArgs<'a> {
+impl<'a> GenericArgList<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
@@ -72,7 +72,7 @@ impl<'a> GenericArgs<'a> {
     }
 }
 
-impl ToTokens for GenericArgs<'_> {
+impl ToTokens for GenericArgList<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut inner_tokens = TokenStream::new();
 
@@ -94,9 +94,9 @@ impl ToTokens for GenericArgs<'_> {
     }
 }
 
-impl<'a> From<GenericArgs<'a>> for Generics<'a> {
-    fn from(value: GenericArgs<'a>) -> Self {
-        Self::GenericArgs(value)
+impl<'a> From<GenericArgList<'a>> for GenericArgs<'a> {
+    fn from(value: GenericArgList<'a>) -> Self {
+        Self::List(value)
     }
 }
 

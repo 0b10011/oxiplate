@@ -1,26 +1,26 @@
 use super::Type;
-use super::impl_trait_one_bound::ImplTraitOneBound;
+use super::impl_trait_one_bound::ImplTraitTypeOneBound;
 use super::never::Never;
-use super::parenthesized::Parenthesized;
-use super::path::Path;
+use super::parenthesized::ParenthesizedType;
+use super::path::TypePath;
 use super::trait_object_one_bound::TraitObjectTypeOneBound;
 use super::tuple::TupleType;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
 #[derive(Debug)]
-pub(crate) enum NoBounds<'a> {
+pub(crate) enum TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
-    Parenthesized(Parenthesized<'a>),
+    Parenthesized(ParenthesizedType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
-    ImplTraitOneBound(ImplTraitOneBound<'a>),
+    ImplTraitOneBound(ImplTraitTypeOneBound<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
     TraitObjectOneBound(TraitObjectTypeOneBound<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
-    Path(Path<'a>),
+    Path(TypePath<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/tuple.html#railroad-TupleType>
     Tuple(TupleType<'a>),
@@ -62,14 +62,14 @@ pub(crate) enum NoBounds<'a> {
     MacroInvocation,
 }
 
-impl<'a> NoBounds<'a> {
+impl<'a> TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            into(Parenthesized::parse),
-            into(ImplTraitOneBound::parse),
+            into(ParenthesizedType::parse),
+            into(ImplTraitTypeOneBound::parse),
             into(TraitObjectTypeOneBound::parse),
-            into(Path::parse),
+            into(TypePath::parse),
             into(TupleType::parse),
             into(Never::parse),
         ))
@@ -102,7 +102,7 @@ impl<'a> NoBounds<'a> {
     }
 }
 
-impl ToTokens for NoBounds<'_> {
+impl ToTokens for TypeNoBounds<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             Self::Parenthesized(parenthesized) => parenthesized.to_tokens(tokens),
@@ -129,8 +129,8 @@ impl ToTokens for NoBounds<'_> {
     }
 }
 
-impl<'a> From<NoBounds<'a>> for Type<'a> {
-    fn from(value: NoBounds<'a>) -> Self {
+impl<'a> From<TypeNoBounds<'a>> for Type<'a> {
+    fn from(value: TypeNoBounds<'a>) -> Self {
         Self::NoBounds(value)
     }
 }

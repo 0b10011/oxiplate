@@ -1,12 +1,12 @@
 use super::args::GenericArg;
 use super::r#type::Type;
-use super::r#type::path_segment::PathSegment;
+use super::r#type::path_segment::TypePathSegment;
 use crate::template::parser::prelude::*;
 
 /// See <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
 #[derive(Debug)]
 pub(super) struct Binding<'a> {
-    path_segment: PathSegment<'a>,
+    path_segment: TypePathSegment<'a>,
     equals: Source<'a>,
     r#type: Type<'a>,
 }
@@ -15,7 +15,7 @@ impl<'a> Binding<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (path_segment, equals, r#type)) =
-            (PathSegment::parse, take(TokenKind::Equal), Type::parse).parse(tokens)?;
+            (TypePathSegment::parse, take(TokenKind::Equal), Type::parse).parse(tokens)?;
 
         let equals = equals.source().clone();
 

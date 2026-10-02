@@ -1,9 +1,9 @@
-use super::no_bounds::NoBounds;
+use super::no_bounds::TypeNoBounds;
 use super::trait_bound::TraitBound;
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::prelude::*;
 
-/// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
+/// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
 #[derive(Debug)]
 pub(crate) enum TraitObjectTypeOneBound<'a> {
     Static {
@@ -16,7 +16,7 @@ pub(crate) enum TraitObjectTypeOneBound<'a> {
 }
 
 impl<'a> TraitObjectTypeOneBound<'a> {
-    /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
+    /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, r#dyn) =
             ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;
@@ -56,7 +56,7 @@ impl ToTokens for TraitObjectTypeOneBound<'_> {
     }
 }
 
-impl<'a> From<TraitObjectTypeOneBound<'a>> for NoBounds<'a> {
+impl<'a> From<TraitObjectTypeOneBound<'a>> for TypeNoBounds<'a> {
     fn from(value: TraitObjectTypeOneBound<'a>) -> Self {
         Self::TraitObjectOneBound(value)
     }

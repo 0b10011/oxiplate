@@ -1,4 +1,4 @@
-use super::no_bounds::NoBounds;
+use super::no_bounds::TypeNoBounds;
 use crate::template::parser::prelude::*;
 
 /// `!`
@@ -29,8 +29,8 @@ impl ToTokens for Never<'_> {
     }
 }
 
-impl<'a> From<Never<'a>> for NoBounds<'a> {
+impl<'a> From<Never<'a>> for TypeNoBounds<'a> {
     fn from(value: Never<'a>) -> Self {
-        NoBounds::Never(value)
+        TypeNoBounds::Never(value)
     }
 }

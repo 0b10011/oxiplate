@@ -1,15 +1,15 @@
 use super::Type;
-use super::no_bounds::NoBounds;
+use super::no_bounds::TypeNoBounds;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
 #[derive(Debug)]
-pub(crate) struct Parenthesized<'a> {
+pub(crate) struct ParenthesizedType<'a> {
     r#type: Box<Type<'a>>,
     source: Source<'a>,
 }
 
-impl<'a> Parenthesized<'a> {
+impl<'a> ParenthesizedType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (open, r#type, close)) = (
@@ -39,7 +39,7 @@ impl<'a> Parenthesized<'a> {
     }
 }
 
-impl ToTokens for Parenthesized<'_> {
+impl ToTokens for ParenthesizedType<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let span = self.source.span_token();
         let ty = &self.r#type;
@@ -47,8 +47,8 @@ impl ToTokens for Parenthesized<'_> {
     }
 }
 
-impl<'a> From<Parenthesized<'a>> for NoBounds<'a> {
-    fn from(value: Parenthesized<'a>) -> Self {
+impl<'a> From<ParenthesizedType<'a>> for TypeNoBounds<'a> {
+    fn from(value: ParenthesizedType<'a>) -> Self {
         Self::Parenthesized(value)
     }
 }

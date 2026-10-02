@@ -1,22 +1,22 @@
-use super::no_bounds::NoBounds;
-use super::path_segment::PathSegment;
+use super::no_bounds::TypeNoBounds;
+use super::path_segment::TypePathSegment;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
 #[derive(Debug)]
-pub(crate) struct Path<'a> {
+pub(crate) struct TypePath<'a> {
     leading_separator: Option<Source<'a>>,
-    first_segment: Box<PathSegment<'a>>,
-    additional_segments: Vec<(Source<'a>, PathSegment<'a>)>,
+    first_segment: Box<TypePathSegment<'a>>,
+    additional_segments: Vec<(Source<'a>, TypePathSegment<'a>)>,
 }
 
-impl<'a> Path<'a> {
+impl<'a> TypePath<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (leading_separator, first_segment, additional_segments)) = (
             ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-            PathSegment::parse,
-            many0((take(TokenKind::PathSeparator), PathSegment::parse)),
+            TypePathSegment::parse,
+            many0((take(TokenKind::PathSeparator), TypePathSegment::parse)),
         )
             .parse(tokens)?;
 
@@ -57,7 +57,7 @@ impl<'a> Path<'a> {
     }
 }
 
-impl ToTokens for Path<'_> {
+impl ToTokens for TypePath<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         if let Some(separator) = &self.leading_separator {
             let span = separator.span_token();
@@ -75,8 +75,8 @@ impl ToTokens for Path<'_> {
     }
 }
 
-impl<'a> From<Path<'a>> for NoBounds<'a> {
-    fn from(value: Path<'a>) -> Self {
+impl<'a> From<TypePath<'a>> for TypeNoBounds<'a> {
+    fn from(value: TypePath<'a>) -> Self {
         Self::Path(value)
     }
 }

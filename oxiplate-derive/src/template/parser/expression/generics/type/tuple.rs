@@ -1,5 +1,5 @@
 use super::Type;
-use super::no_bounds::NoBounds;
+use super::no_bounds::TypeNoBounds;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types/tuple.html#railroad-TupleType>
@@ -70,7 +70,7 @@ impl ToTokens for TupleType<'_> {
     }
 }
 
-impl<'a> From<TupleType<'a>> for NoBounds<'a> {
+impl<'a> From<TupleType<'a>> for TypeNoBounds<'a> {
     fn from(value: TupleType<'a>) -> Self {
         Self::Tuple(value)
     }

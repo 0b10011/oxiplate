@@ -1,16 +1,16 @@
-use super::no_bounds::NoBounds;
+use super::no_bounds::TypeNoBounds;
 use super::trait_bound::TraitBound;
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
 #[derive(Debug)]
-pub(crate) struct ImplTraitOneBound<'a> {
+pub(crate) struct ImplTraitTypeOneBound<'a> {
     r#impl: Source<'a>,
     trait_bound: Option<TraitBound<'a>>,
 }
 
-impl<'a> ImplTraitOneBound<'a> {
+impl<'a> ImplTraitTypeOneBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (r#impl, trait_bound)) = (
@@ -39,7 +39,7 @@ impl<'a> ImplTraitOneBound<'a> {
     }
 }
 
-impl ToTokens for ImplTraitOneBound<'_> {
+impl ToTokens for ImplTraitTypeOneBound<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let span = self.r#impl.span_token();
         tokens.append_all(quote_spanned! {span=> impl });
@@ -50,8 +50,8 @@ impl ToTokens for ImplTraitOneBound<'_> {
     }
 }
 
-impl<'a> From<ImplTraitOneBound<'a>> for NoBounds<'a> {
-    fn from(value: ImplTraitOneBound<'a>) -> Self {
+impl<'a> From<ImplTraitTypeOneBound<'a>> for TypeNoBounds<'a> {
+    fn from(value: ImplTraitTypeOneBound<'a>) -> Self {
         Self::ImplTraitOneBound(value)
     }
 }

@@ -16,7 +16,7 @@ mod use_bound;
 mod use_bound_generic_args;
 
 use self::impl_trait::ImplTraitType;
-use self::no_bounds::NoBounds;
+use self::no_bounds::TypeNoBounds;
 use self::trait_object::TraitObjectType;
 use super::args::GenericArg;
 use crate::template::parser::prelude::*;
@@ -25,7 +25,7 @@ use crate::template::parser::prelude::*;
 #[derive(Debug)]
 pub(super) enum Type<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
-    NoBounds(NoBounds<'a>),
+    NoBounds(TypeNoBounds<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
     ImplTrait(ImplTraitType<'a>),
@@ -38,7 +38,7 @@ impl<'a> Type<'a> {
     /// See: <>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            into(NoBounds::parse),
+            into(TypeNoBounds::parse),
             into(ImplTraitType::parse),
             into(TraitObjectType::parse),
         ))

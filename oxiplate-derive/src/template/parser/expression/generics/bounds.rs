@@ -1,12 +1,12 @@
 use super::args::GenericArg;
 use super::r#type::bounds::Bounds as TraitBounds;
-use super::r#type::path_segment::PathSegment;
+use super::r#type::path_segment::TypePathSegment;
 use crate::template::parser::prelude::*;
 
 /// See <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
 #[derive(Debug)]
 pub(super) struct Bounds<'a> {
-    path_segment: PathSegment<'a>,
+    path_segment: TypePathSegment<'a>,
     colon: Source<'a>,
 
     #[expect(clippy::struct_field_names)]
@@ -17,7 +17,7 @@ impl<'a> Bounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (path_segment, colon, bounds)) = (
-            PathSegment::parse,
+            TypePathSegment::parse,
             take(TokenKind::Colon),
             ignore_recoverable_errors(TraitBounds::parse),
         )

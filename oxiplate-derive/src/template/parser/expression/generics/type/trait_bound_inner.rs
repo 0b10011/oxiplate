@@ -1,4 +1,4 @@
-use super::path::Path;
+use super::path::TypePath;
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::expression::generics::params::GenericParams;
 use crate::template::parser::prelude::*;
@@ -7,7 +7,7 @@ use crate::template::parser::prelude::*;
 #[derive(Debug)]
 pub(crate) struct TraitBoundInner<'a> {
     prefix: Option<TraitBoundPrefix<'a>>,
-    type_path: Path<'a>,
+    type_path: TypePath<'a>,
 }
 
 impl<'a> TraitBoundInner<'a> {
@@ -16,7 +16,7 @@ impl<'a> TraitBoundInner<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (prefix, type_path)) = (
             ignore_recoverable_errors(TraitBoundPrefix::parse),
-            Path::parse,
+            TypePath::parse,
         )
             .parse(tokens)?;
 

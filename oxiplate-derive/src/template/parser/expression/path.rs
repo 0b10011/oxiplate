@@ -1,14 +1,14 @@
 use syn::spanned::Spanned;
 
 use super::Expression;
-use super::generics::Generics;
+use super::generics::GenericArgs;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
 pub(crate) struct Segment<'a> {
     ident_segment: IdentSegment<'a>,
-    generics: Option<(Separator<'a>, Generics<'a>)>,
+    generics: Option<(Separator<'a>, GenericArgs<'a>)>,
 }
 
 impl<'a> Segment<'a> {
@@ -16,7 +16,7 @@ impl<'a> Segment<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
             IdentSegment::parse,
-            ignore_recoverable_errors((take(TokenKind::PathSeparator), Generics::parse)),
+            ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parse)),
         )
             .parse(tokens)?;
 
