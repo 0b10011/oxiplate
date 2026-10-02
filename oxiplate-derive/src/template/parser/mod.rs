@@ -130,16 +130,25 @@ impl ToTokens for EstimatedLength {
     }
 }
 
-/// `ToTokens` but with immutable state.
-/// Used by expressions and patterns.
+/// `ToTokens` but with an immutable state.
+/// Implemented by expressions and patterns.
 trait ToTokensWithState<'a> {
+    /// Builds token stream and estimated length with an immutable state.
+    /// Implemented by expressions and patterns.
+    ///
+    /// Immutable state allows longer borrowing of things like escaper names.
     #[must_use]
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens;
 }
 
-/// `ToTokens` but with mutable state.
-/// Used by statements.
+/// `ToTokens` but with a mutable state.
+/// Implemented by statements.
+///
+/// Mutable state allows adding/changing local variables,
+/// default escaper group, and more.
 trait ToTokensWithMutState<'a> {
+    /// Builds token stream and estimated length with a mutable state.
+    /// Implemented by statements.
     #[must_use]
     fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens;
 }
