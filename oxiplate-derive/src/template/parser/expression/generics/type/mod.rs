@@ -7,6 +7,7 @@ mod no_bounds;
 mod parenthesized;
 mod path;
 pub(crate) mod path_segment;
+mod raw_pointer;
 mod trait_bound;
 mod trait_bound_inner;
 mod trait_object;

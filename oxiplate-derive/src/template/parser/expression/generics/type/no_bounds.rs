@@ -3,6 +3,7 @@ use super::impl_trait_one_bound::ImplTraitTypeOneBound;
 use super::never::Never;
 use super::parenthesized::ParenthesizedType;
 use super::path::TypePath;
+use super::raw_pointer::RawPointerType;
 use super::trait_object_one_bound::TraitObjectTypeOneBound;
 use super::tuple::TupleType;
 use crate::template::parser::prelude::*;
@@ -30,8 +31,7 @@ pub(crate) enum TypeNoBounds<'a> {
     Never(Never<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-RawPointerType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    RawPointer,
+    RawPointer(RawPointerType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -72,6 +72,7 @@ impl<'a> TypeNoBounds<'a> {
             into(TypePath::parse),
             into(TupleType::parse),
             into(Never::parse),
+            into(RawPointerType::parse),
         ))
         .parse(tokens)
     }
@@ -86,7 +87,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::Path(type_path) => type_path.source().clone(),
             Self::Tuple(tuple_type) => tuple_type.source().clone(),
             Self::Never(never) => never.source().clone(),
-            Self::RawPointer => todo!("NoBounds::RawPointer.source() not yet implemented"),
+            Self::RawPointer(raw_pointer) => raw_pointer.source(),
             Self::Reference => todo!("NoBounds::Reference.source() not yet implemented"),
             Self::Array => todo!("NoBounds::Array.source() not yet implemented"),
             Self::Slice => todo!("NoBounds::Slice.source() not yet implemented"),
@@ -113,7 +114,7 @@ impl ToTokens for TypeNoBounds<'_> {
             Self::Path(path) => path.to_tokens(tokens),
             Self::Tuple(tuple_type) => tuple_type.to_tokens(tokens),
             Self::Never(never) => never.to_tokens(tokens),
-            Self::RawPointer => todo!("NoBounds::RawPointer.to_tokens() not yet implemented"),
+            Self::RawPointer(raw_pointer) => raw_pointer.to_tokens(tokens),
             Self::Reference => todo!("NoBounds::Reference.to_tokens() not yet implemented"),
             Self::Array => todo!("NoBounds::Array.to_tokens() not yet implemented"),
             Self::Slice => todo!("NoBounds::Slice.to_tokens() not yet implemented"),
