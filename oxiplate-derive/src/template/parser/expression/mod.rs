@@ -543,7 +543,7 @@ impl<'a> Expression<'a> {
             ),
             Expression::Path(path) => path.to_tokens(state),
             Expression::Group(group) => group.to_tokens(state),
-            Expression::Array(array) => array.to_tokens(state),
+            Expression::Array(array) => array.to_tokens_with_state(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
             Expression::Calc {

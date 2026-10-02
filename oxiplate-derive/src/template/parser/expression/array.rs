@@ -67,8 +67,10 @@ impl<'a> Array<'a> {
     pub fn source(&self) -> &Source<'a> {
         &self.source
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Array<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut items = vec![];
         let span = self.source.span_token();
         let mut expression_length = EstimatedLength::new(usize::MAX);
