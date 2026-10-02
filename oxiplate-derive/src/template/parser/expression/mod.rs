@@ -34,6 +34,7 @@ use crate::template::parser::prelude::*;
 type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
 
 #[derive(Debug, Default)]
+#[expect(clippy::large_enum_variant)]
 pub(crate) enum Expression<'a> {
     /// Placeholder expression used during precedence fixing.
     /// Will generate a compile error if not replaced.

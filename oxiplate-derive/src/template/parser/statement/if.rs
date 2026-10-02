@@ -6,6 +6,7 @@ use crate::template::parser::template::Template;
 use crate::template::parser::{Item, Res};
 
 #[derive(Debug)]
+#[expect(clippy::large_enum_variant)]
 pub(crate) enum IfType<'a> {
     If(Expression<'a>),
     IfLet(Pattern<'a>, Box<Expression<'a>>),

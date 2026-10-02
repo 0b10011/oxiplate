@@ -11,6 +11,7 @@ use crate::template::parser::prelude::*;
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
 #[derive(Debug)]
 #[allow(private_interfaces)]
+#[expect(clippy::large_enum_variant)]
 pub(super) enum GenericArgs<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
     List(GenericArgList<'a>),
