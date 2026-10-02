@@ -542,10 +542,10 @@ impl<'a> Expression<'a> {
                 EstimatedLength::new(0),
             ),
             Expression::Path(path) => path.to_tokens_with_state(state),
-            Expression::Group(group) => group.to_tokens(state),
+            Expression::Group(group) => group.to_tokens_with_state(state),
             Expression::Array(array) => array.to_tokens_with_state(state),
-            Expression::Tuple(tuple) => tuple.to_tokens(state),
-            Expression::Concat(concat) => concat.to_tokens(state),
+            Expression::Tuple(tuple) => tuple.to_tokens_with_state(state),
+            Expression::Concat(concat) => concat.to_tokens_with_state(state),
             Expression::Calc {
                 left,
                 operator,
