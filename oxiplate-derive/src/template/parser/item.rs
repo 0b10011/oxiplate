@@ -103,7 +103,7 @@ impl<'a> Item<'a> {
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
             }
             Item::Static(text, _static_type) => {
-                let (text, estimated_length) = text.to_token();
+                let (text, estimated_length) = text.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::StaticText(text, estimated_length)
             }
@@ -111,7 +111,7 @@ impl<'a> Item<'a> {
                 if whitespace.0.is_empty() {
                     ItemToken::Comment
                 } else {
-                    let (text, estimated_length) = whitespace.to_token();
+                    let (text, estimated_length) = whitespace.to_tokens_with_state(state);
                     ItemToken::StaticText(text, estimated_length)
                 }
             }

@@ -4,8 +4,8 @@ use crate::template::parser::prelude::*;
 #[derive(Debug)]
 pub(crate) struct Static<'a>(pub &'a str, pub Source<'a>);
 
-impl Static<'_> {
-    pub fn to_token(&self) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Static<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let text = &self.0;
         let span = self.1.span_token();
         (
