@@ -2,6 +2,7 @@ use super::Type;
 use super::impl_trait_one_bound::ImplTraitOneBound;
 use super::parenthesized::Parenthesized;
 use super::path::Path;
+use super::trait_object_one_bound::TraitObjectTypeOneBound;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
@@ -14,8 +15,7 @@ pub(crate) enum NoBounds<'a> {
     ImplTraitOneBound(ImplTraitOneBound<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    TraitObjectOneBound,
+    TraitObjectOneBound(TraitObjectTypeOneBound<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
     Path(Path<'a>),
@@ -64,15 +64,20 @@ pub(crate) enum NoBounds<'a> {
 impl<'a> NoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(Parenthesized::parse), into(ImplTraitOneBound::parse))).parse(tokens)
+        alt((
+            into(Parenthesized::parse),
+            into(ImplTraitOneBound::parse),
+            into(TraitObjectTypeOneBound::parse),
+        ))
+        .parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::Parenthesized(parenthesized) => parenthesized.source().clone(),
             Self::ImplTraitOneBound(impl_trait_one_bound) => impl_trait_one_bound.source(),
-            Self::TraitObjectOneBound => {
-                todo!("NoBounds::TraitObjectOneBound.source() not yet implemented")
+            Self::TraitObjectOneBound(trait_object_type_one_bound) => {
+                trait_object_type_one_bound.source()
             }
             Self::Path(type_path) => type_path.source().clone(),
             Self::Tuple => todo!("NoBounds::Tuple.source() not yet implemented"),
@@ -98,8 +103,8 @@ impl ToTokens for NoBounds<'_> {
         match self {
             Self::Parenthesized(parenthesized) => parenthesized.to_tokens(tokens),
             Self::ImplTraitOneBound(impl_trait_one_bound) => impl_trait_one_bound.to_tokens(tokens),
-            Self::TraitObjectOneBound => {
-                todo!("NoBounds::TraitObjectOneBound.to_tokens() not yet implemented")
+            Self::TraitObjectOneBound(trait_object_type_one_bound) => {
+                trait_object_type_one_bound.to_tokens(tokens);
             }
             Self::Path(path) => path.to_tokens(tokens),
             Self::Tuple => todo!("NoBounds::Tuple.to_tokens() not yet implemented"),

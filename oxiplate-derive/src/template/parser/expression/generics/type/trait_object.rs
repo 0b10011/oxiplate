@@ -27,7 +27,8 @@ impl<'a> TraitObjectType<'a> {
         }
 
         let (tokens, bounds) = Bounds::parse(tokens)?;
-        return Ok((tokens, Self::Static { bounds }));
+
+        Ok((tokens, Self::Static { bounds }))
     }
 
     pub(super) fn source(&self) -> Source<'a> {
