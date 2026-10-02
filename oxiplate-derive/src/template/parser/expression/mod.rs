@@ -1,5 +1,6 @@
 mod arguments;
 mod array;
+mod calc;
 mod call;
 mod concat;
 mod fields;
@@ -16,6 +17,7 @@ use std::mem;
 
 use self::arguments::arguments;
 use self::array::Array;
+use self::calc::Calc;
 use self::call::Call;
 use self::concat::Concat;
 use self::fields::Fields;
@@ -27,7 +29,7 @@ use self::path::Path;
 use self::tuple::Tuple;
 use super::Res;
 use super::expression::arguments::ArgumentsGroup;
-use super::expression::operator::{Operator, parse_operator};
+use super::expression::operator::parse_operator;
 use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::template::parser::prelude::*;
 
@@ -50,11 +52,7 @@ pub(crate) enum Expression<'a> {
     Array(Array<'a>),
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
-    Calc {
-        left: Box<Expression<'a>>,
-        operator: Operator<'a>,
-        right: Box<Option<Expression<'a>>>,
-    },
+    Calc(Calc<'a>),
     Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
     Cow {
         prefix: Source<'a>,
@@ -123,7 +121,8 @@ impl<'a> Expression<'a> {
             | Self::Cow { .. } => (),
 
             // Fix the precedence of the leftmost expression.
-            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.fix_precedence(),
+            Self::Index(left, _, _, _) => left.fix_precedence(),
+            Self::Calc(calc) => calc.left.fix_precedence(),
             Self::Filter { expression, .. } => expression.fix_precedence(),
             Self::Fields(fields) => {
                 fields.expression.as_mut().fix_precedence();
@@ -188,7 +187,8 @@ impl<'a> Expression<'a> {
             | Self::Cow { .. } => return false,
 
             // Grab the leftmost expression.
-            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left,
+            Self::Index(left, _, _, _) => left,
+            Self::Calc(calc) => &calc.left,
             Self::Filter { expression, .. } => expression,
             Self::Fields(fields) => fields.expression.as_ref(),
             Self::Concat(concat) => concat.first_expression.as_ref(),
@@ -228,7 +228,8 @@ impl<'a> Expression<'a> {
             ),
 
             // Take the leftmost expression and return it.
-            Self::Index(left, _, _, _) | Self::Calc { left, .. } => mem::take(left),
+            Self::Index(left, _, _, _) => mem::take(left),
+            Self::Calc(calc) => mem::take(&mut calc.left),
             Self::Filter { expression, .. } => mem::take(expression),
             Self::Fields(fields) => mem::take(&mut fields.expression),
             Self::Concat(concat) => mem::take(concat.first_expression.as_mut()),
@@ -267,7 +268,8 @@ impl<'a> Expression<'a> {
             }
 
             // Take a mutable reference to the placeholder.
-            Self::Index(left, _, _, _) | Self::Calc { left, .. } => left.as_mut(),
+            Self::Index(left, _, _, _) => left.as_mut(),
+            Self::Calc(calc) => calc.left.as_mut(),
             Self::Filter { expression, .. } => expression.as_mut(),
             Self::Fields(fields) => fields.expression.as_mut(),
             Self::Concat(concat) => concat.first_expression.as_mut(),
@@ -315,7 +317,7 @@ impl<'a> Expression<'a> {
                 Some((_tilde, expression)) => Some(mem::take(expression)),
                 None => unreachable!("Concats should always contain at least 2 expressions"),
             },
-            Self::Calc { right, .. } => match right.as_mut() {
+            Self::Calc(calc) => match calc.right.as_mut() {
                 Some(right) => Some(mem::take(right)),
                 None => None,
             },
@@ -361,7 +363,7 @@ impl<'a> Expression<'a> {
                 Some((_tilde, last)) => last,
                 None => unreachable!("Concats should have at least 2 expressions"),
             },
-            Self::Calc { right, .. } => match right.as_mut() {
+            Self::Calc(calc) => match calc.right.as_mut() {
                 Some(right) => right,
                 None => unreachable!("Only placeholder expressions should ever be overwritten"),
             },
@@ -393,7 +395,7 @@ impl<'a> Expression<'a> {
             | Self::Call(_)
             | Self::Path(_)
             | Self::Index(_, _, _, _)
-            | Self::Calc { .. }
+            | Self::Calc(_)
             | Self::Prefixed(_, _) => u8::MAX,
 
             // Oxiplate expressions
@@ -518,9 +520,9 @@ impl<'a> Expression<'a> {
             // Expressions that allow nesting,
             // like the expression between brackets in index expressions,
             // already handled merging joinable.
-            Self::Calc { left, right, .. } => {
-                left.merge_joinable();
-                if let Some(right) = right.as_mut() {
+            Self::Calc(calc) => {
+                calc.left.merge_joinable();
+                if let Some(right) = calc.right.as_mut() {
                     right.merge_joinable();
                 }
             }
@@ -546,23 +548,7 @@ impl<'a> Expression<'a> {
             Expression::Array(array) => array.to_tokens(state),
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
-            Expression::Calc {
-                left,
-                operator,
-                right,
-                ..
-            } => {
-                let (left, left_length) = left.to_tokens(state);
-                let (right, right_length) = if let Some(right) = right.as_ref() {
-                    right.to_tokens(state)
-                } else {
-                    (TokenStream::new(), left_length)
-                };
-                (
-                    quote! { #left #operator #right },
-                    left_length.min(right_length),
-                )
-            }
+            Expression::Calc(calc) => calc.to_tokens(state),
             Expression::Prefixed(operator, expression) => {
                 let (expression, expression_length) = expression.to_tokens(state);
                 (quote! { #operator #expression }, expression_length)
@@ -715,20 +701,7 @@ impl<'a> Expression<'a> {
             Expression::Integer(value) => value.source().clone(),
             Expression::Float(value) => value.source().clone(),
             Expression::Bool(value) => value.source().clone(),
-            Expression::Calc {
-                left,
-                operator,
-                right,
-            } => {
-                if let Some(right) = right.as_ref() {
-                    left.source()
-                        .merge(operator.source(), "Operator should follow whitespace")
-                        .merge(&right.source(), "Right expression should follow whitespace")
-                } else {
-                    left.source()
-                        .merge(operator.source(), "Operator should follow left expression")
-                }
-            }
+            Expression::Calc(calc) => calc.source().clone(),
             Expression::FullRange { source, .. } => source.clone(),
             Expression::Filter {
                 name,
@@ -797,7 +770,7 @@ pub(super) fn expression<'a>(
             many0(alt((
                 filters,
                 Concat::parser,
-                calc,
+                Calc::parse,
                 index,
                 Fields::parser,
                 Call::parser,
@@ -814,28 +787,6 @@ pub(super) fn expression<'a>(
 
         Ok((tokens, expression))
     }
-}
-
-fn calc<'a>(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-    let (tokens, operator) = parse_operator.parse(tokens)?;
-
-    let (tokens, right) = if operator.requires_expression_after() {
-        let (tokens, expression) =
-            cut("Expected an expression", expression(false)).parse(tokens)?;
-        (tokens, Some(expression))
-    } else {
-        ignore_recoverable_errors(expression(false)).parse(tokens)?
-    };
-
-    let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
-        Expression::Calc {
-            left: Box::new(left),
-            operator,
-            right: Box::new(right),
-        }
-    });
-
-    Ok((tokens, callback))
 }
 
 /// Parses a full range expression (`..`).
