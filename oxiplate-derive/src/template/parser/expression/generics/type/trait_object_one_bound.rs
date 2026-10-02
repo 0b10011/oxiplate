@@ -27,7 +27,8 @@ impl<'a> TraitObjectTypeOneBound<'a> {
         }
 
         let (tokens, bounds) = TraitBound::parse(tokens)?;
-        return Ok((tokens, Self::Static { bounds }));
+
+        Ok((tokens, Self::Static { bounds }))
     }
 
     pub(super) fn source(&self) -> Source<'a> {

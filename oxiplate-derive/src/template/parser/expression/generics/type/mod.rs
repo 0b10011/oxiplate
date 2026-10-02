@@ -10,6 +10,7 @@ mod trait_bound;
 mod trait_bound_inner;
 mod trait_object;
 mod trait_object_one_bound;
+mod tuple;
 mod use_bound;
 mod use_bound_generic_args;
 
