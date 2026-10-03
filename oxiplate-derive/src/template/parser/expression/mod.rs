@@ -15,6 +15,7 @@ mod literal;
 mod operator;
 mod path;
 mod prefix_operator;
+mod prefixed;
 mod tuple;
 
 use std::mem;
@@ -33,10 +34,10 @@ pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 pub(super) use self::path::Identifier;
 use self::path::Path;
+use self::prefixed::Prefixed;
 use self::tuple::Tuple;
 use super::Res;
 use super::expression::operator::parse_operator;
-use super::expression::prefix_operator::{PrefixOperator, parse_prefixed_expression};
 use crate::template::parser::prelude::*;
 
 type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
@@ -59,7 +60,7 @@ pub(crate) enum Expression<'a> {
     Tuple(Tuple<'a>),
     Concat(Concat<'a>),
     Calc(Calc<'a>),
-    Prefixed(PrefixOperator<'a>, Box<Expression<'a>>),
+    Prefixed(Prefixed<'a>),
     Cow(Cow<'a>),
 
     /// `..` that represents a range
@@ -107,7 +108,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Path(_)
-            | Self::Prefixed(_, _)
+            | Self::Prefixed(_)
             | Self::Cow { .. } => (),
 
             // Fix the precedence of the leftmost expression.
@@ -173,7 +174,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Path(_)
-            | Self::Prefixed(_, _)
+            | Self::Prefixed(_)
             | Self::Cow { .. } => return false,
 
             // Grab the leftmost expression.
@@ -211,7 +212,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Path(_)
-            | Self::Prefixed(_, _)
+            | Self::Prefixed(_)
             | Self::Cow { .. } => unreachable!(
                 "Expressions without an expression on the left should never have `take_left()` \
                  called for them"
@@ -249,7 +250,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Path(_)
-            | Self::Prefixed(_, _)
+            | Self::Prefixed(_)
             | Self::Cow { .. } => {
                 unreachable!(
                     "Only expressions that hold an expression on the left side should ever be \
@@ -311,7 +312,7 @@ impl<'a> Expression<'a> {
                 Some(right) => Some(mem::take(right)),
                 None => None,
             },
-            Self::Prefixed(_, right) => Some(mem::take(right)),
+            Self::Prefixed(prefixed) => Some(mem::take(&mut prefixed.expression)),
             Self::Cow(cow) => Some(mem::take(cow.expression.as_mut())),
         }
     }
@@ -357,7 +358,7 @@ impl<'a> Expression<'a> {
                 Some(right) => right,
                 None => unreachable!("Only placeholder expressions should ever be overwritten"),
             },
-            Self::Prefixed(_, right) => right,
+            Self::Prefixed(prefixed) => &mut prefixed.expression,
             Self::Cow(cow) => cow.expression.as_mut(),
         };
 
@@ -386,7 +387,7 @@ impl<'a> Expression<'a> {
             | Self::Path(_)
             | Self::Index(_)
             | Self::Calc(_)
-            | Self::Prefixed(_, _) => u8::MAX,
+            | Self::Prefixed(_) => u8::MAX,
 
             // Oxiplate expressions
             Self::Concat(_) => 3,
@@ -516,8 +517,8 @@ impl<'a> Expression<'a> {
                     right.merge_joinable();
                 }
             }
-            Self::Prefixed(_, expression) => {
-                expression.merge_joinable();
+            Self::Prefixed(prefixed) => {
+                prefixed.expression.merge_joinable();
             }
             Self::Index(index) => index.expression.merge_joinable(),
             Self::Cow(cow) => cow.expression.merge_joinable(),
@@ -539,10 +540,7 @@ impl<'a> Expression<'a> {
             Expression::Tuple(tuple) => tuple.to_tokens(state),
             Expression::Concat(concat) => concat.to_tokens(state),
             Expression::Calc(calc) => calc.to_tokens(state),
-            Expression::Prefixed(operator, expression) => {
-                let (expression, expression_length) = expression.to_tokens(state);
-                (quote! { #operator #expression }, expression_length)
-            }
+            Expression::Prefixed(prefixed) => prefixed.to_tokens(state),
             Expression::Cow(cow) => cow.to_tokens(state),
             Expression::Char(char) => char.to_tokens(),
             Expression::String(string) => string.to_tokens(),
@@ -580,10 +578,7 @@ impl<'a> Expression<'a> {
             Expression::Array(array) => array.source().clone(),
             Expression::Tuple(tuple) => tuple.source().clone(),
             Expression::Concat(concat) => concat.source().clone(),
-            Expression::Prefixed(prefix_operator, expression) => prefix_operator
-                .source()
-                .clone()
-                .merge(&expression.source(), "Expression should follow operator"),
+            Expression::Prefixed(prefixed) => prefixed.source().clone(),
             Expression::Index(index) => index.source().clone(),
             Expression::Fields(fields) => fields.source().clone(),
             Expression::Call(call) => call.source().clone(),
@@ -602,7 +597,7 @@ pub(super) fn expression<'a>(
             into(Number::parse),
             into(Bool::parse),
             into(Path::parser),
-            parse_prefixed_expression,
+            into(Prefixed::parse),
             into(Group::parse),
             Tuple::parse,
             Array::parse,
