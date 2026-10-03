@@ -38,9 +38,10 @@ impl<'a> Fields<'a> {
         }
         source
     }
+}
 
-    /// Build token stream for the group.
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Fields<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         let (expression, estimated_length) = self.expression.to_tokens(state);
         tokens.append_all(expression);

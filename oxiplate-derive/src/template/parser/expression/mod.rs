@@ -550,7 +550,7 @@ impl<'a> Expression<'a> {
             Expression::FullRange(full_range) => full_range.to_tokens_with_state(state),
             Expression::Index(index) => index.to_tokens_with_state(state),
             Expression::Filter(filter) => filter.to_tokens_with_state(state),
-            Expression::Fields(fields) => fields.to_tokens(state),
+            Expression::Fields(fields) => fields.to_tokens_with_state(state),
             Expression::Call(call) => call.to_tokens(state),
         }
     }
