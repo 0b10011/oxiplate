@@ -73,10 +73,10 @@ impl<'a> Pattern<'a> {
 
     pub fn to_tokens(&self, state: &State) -> TokenStream {
         match self {
-            Self::Literal(value) => value.to_tokens(),
+            Self::Literal(value) => value.to_tokens_with_state(state).0,
             Self::Ident(value) => quote! { #value },
             Self::Bind(value) => value.to_tokens(state),
-            Self::Range(value) => value.to_tokens(state),
+            Self::Range(value) => value.to_tokens_with_state(state).0,
             Self::Struct(value) => value.to_tokens(state),
             Self::Array(value) => value.to_tokens(state),
             Self::Tuple(value) => value.to_tokens(state),

@@ -542,7 +542,7 @@ impl<'a> Expression<'a> {
             Expression::Calc(calc) => calc.to_tokens_with_state(state),
             Expression::Prefixed(prefixed) => prefixed.to_tokens_with_state(state),
             Expression::Cow(cow) => cow.to_tokens_with_state(state),
-            Expression::Char(char) => char.to_tokens(),
+            Expression::Char(char) => char.to_tokens_with_state(state),
             Expression::String(string) => string.to_tokens(),
             Expression::Integer(number) => number.to_tokens(),
             Expression::Float(number) => number.to_tokens(),
