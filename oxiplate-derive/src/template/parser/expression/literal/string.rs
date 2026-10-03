@@ -36,8 +36,10 @@ impl<'a> String<'a> {
     pub(crate) fn source(&self) -> &Source<'a> {
         self.source
     }
+}
 
-    pub(crate) fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for String<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let literal = ::syn::LitStr::new(&self.value, self.source.span_token());
         (
             quote! { #literal },

@@ -43,7 +43,7 @@ impl<'a> ToTokensWithState<'a> for Literal<'a> {
             Self::Bool(bool) => bool.to_tokens(),
             Self::Integer(integer) => integer.to_tokens(),
             Self::Float(float) => float.to_tokens(),
-            Self::String(string) => string.to_tokens(),
+            Self::String(string) => string.to_tokens_with_state(state),
             Self::Char(char) => char.to_tokens_with_state(state),
         }
     }
