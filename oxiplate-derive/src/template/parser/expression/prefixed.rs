@@ -33,19 +33,20 @@ impl<'a> Prefixed<'a> {
         ))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let operator = &self.operator;
-        let (expression, expression_length) = self.expression.to_tokens(state);
-        (quote! { #operator #expression }, expression_length)
-    }
-
     /// Builds source for entire expression.
     pub fn source(&self) -> Source<'a> {
         self.operator.source().clone().merge(
             &self.expression.source(),
             "Expression should follow operator",
         )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Prefixed<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let operator = &self.operator;
+        let (expression, expression_length) = self.expression.to_tokens(state);
+        (quote! { #operator #expression }, expression_length)
     }
 }
 
