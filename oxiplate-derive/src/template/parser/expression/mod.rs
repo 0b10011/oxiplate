@@ -545,7 +545,7 @@ impl<'a> Expression<'a> {
             Expression::Char(char) => char.to_tokens_with_state(state),
             Expression::String(string) => string.to_tokens_with_state(state),
             Expression::Integer(number) => number.to_tokens_with_state(state),
-            Expression::Float(number) => number.to_tokens(),
+            Expression::Float(number) => number.to_tokens_with_state(state),
             Expression::Bool(bool) => bool.to_tokens(),
             Expression::FullRange(full_range) => full_range.to_tokens(state),
             Expression::Index(index) => index.to_tokens(state),
