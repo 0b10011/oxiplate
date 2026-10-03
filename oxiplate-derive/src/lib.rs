@@ -34,9 +34,9 @@ pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::{Fields, LocalVariables, build_config};
-use self::template::{TokenSlice, parse, tokens_and_eof};
+use self::template::{EstimatedLength, TokenSlice, parse, tokens_and_eof};
 
-type BuiltTokens = (proc_macro2::TokenStream, usize);
+type BuiltTokens = (proc_macro2::TokenStream, EstimatedLength);
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -122,10 +122,10 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
     blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
-) -> (TokenStream, usize) {
+) -> (TokenStream, EstimatedLength) {
     let input = match syn::parse(input) {
         Ok(input) => input,
-        Err(err) => return (err.to_compile_error().into(), 0),
+        Err(err) => return (err.to_compile_error().into(), EstimatedLength::new(0)),
     };
     parse_input(&input, blocks)
 }
@@ -136,21 +136,21 @@ pub(crate) fn oxiplate_internal(
 fn parse_input(
     input: &DeriveInput,
     blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
-) -> (TokenStream, usize) {
+) -> (TokenStream, EstimatedLength) {
     let DeriveInput {
         ident, generics, ..
     } = &input;
 
     let (template, estimated_length, template_type, optimized_renderer): (
         proc_macro2::TokenStream,
-        usize,
+        EstimatedLength,
         TemplateType,
         OptimizedRenderer,
     ) = match parse_template_and_data(input, blocks) {
         Ok(data) => data,
         Err((err, template_type, optimized_renderer)) => (
             err.to_compile_error(),
-            0,
+            EstimatedLength::new(0),
             template_type.unwrap_or(TemplateType::Inline),
             optimized_renderer,
         ),
@@ -225,7 +225,7 @@ fn parse_input(
 
 type ParsedTemplate = (
     proc_macro2::TokenStream,
-    usize,
+    EstimatedLength,
     TemplateType,
     OptimizedRenderer,
 );
@@ -342,9 +342,11 @@ fn process_parsed_tokens<'a>(
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
                 }
             };
-            Ok((template, 0))
+            Ok((template, EstimatedLength::new(0)))
         }
-        Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
+        Err(ParsedEscaperError::ParseError(compile_error)) => {
+            Ok((compile_error, EstimatedLength::new(0)))
+        }
         Ok((span, input, origin, inferred_escaper_group_name)) => {
             let code = parse_code_literal(
                 &input.into(),

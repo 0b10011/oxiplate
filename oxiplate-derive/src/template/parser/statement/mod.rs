@@ -128,17 +128,14 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(
-        &self,
-        state: &mut State<'b>,
-    ) -> Result<BuiltTokens, BuiltTokens> {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         macro_rules! unexpected {
             ($tag:literal) => {{
                 let span = self.source.span_token();
-                Err((
+                (
                     quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
-                    0,
-                ))
+                    EstimatedLength::new(0),
+                )
             }};
         }
 
@@ -146,35 +143,35 @@ impl<'a> Statement<'a> {
 
         let tokens = match &self.kind {
             StatementKind::DefaultEscaper(default_escaper) => {
-                default_escaper.to_tokens(state, &self.source)
+                default_escaper.to_tokens_with_mut_state(state)
             }
             StatementKind::Extends(statement) => {
                 if state.has_content {
                     let span = self.source.span_token();
-                    Err((
+                    (
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
-                        0,
-                    ))
+                        EstimatedLength::new(0),
+                    )
                 } else {
-                    Ok(statement.to_tokens(state))
+                    statement.to_tokens_with_mut_state(state)
                 }
             }
-            StatementKind::Block(block) => Ok(block.to_tokens(state)),
+            StatementKind::Block(block) => block.to_tokens_with_mut_state(state),
             StatementKind::Parent => unexpected!("parent"),
             StatementKind::EndBlock => unexpected!("endblock"),
-            StatementKind::Include(statement) => Ok(statement.to_tokens(state)),
-            StatementKind::If(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Include(statement) => statement.to_tokens_with_state(state),
+            StatementKind::If(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::ElseIf(_) => unexpected!("elseif"),
             StatementKind::Else => unexpected!("else"),
             StatementKind::EndIf => unexpected!("endif"),
-            StatementKind::For(statement) => Ok(statement.to_tokens(state)),
-            StatementKind::Continue(statement) => Ok(statement.to_tokens()),
-            StatementKind::Break(statement) => Ok(statement.to_tokens()),
+            StatementKind::For(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::Continue(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::Break(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::EndFor => unexpected!("endfor"),
-            StatementKind::Match(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Match(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::Case(_) => unexpected!("case"),
             StatementKind::EndMatch => unexpected!("endmatch"),
-            StatementKind::Let(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Let(statement) => statement.to_tokens_with_state(state),
         };
 
         state.local_variables.pop_stack();
@@ -346,9 +343,9 @@ fn eof<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use crate::State;
     use crate::source::test_source;
     use crate::template::parser::statement::r#match::Case;
+    use crate::{EstimatedLength, State};
 
     macro_rules! unexpected_statement_for_to_tokens {
         ($function_name:ident, $tag:literal, $tag_name:literal, $kind:ident) => {
@@ -359,10 +356,13 @@ mod tests {
                     source,
                     kind: super::StatementKind::$kind,
                 }
-                .to_tokens(&mut State::new_for_test())
-                .expect_err("Error TokenStream expected");
+                .to_tokens(&mut State::new_for_test());
 
-                assert_eq!(length, 0, "Length should be 0 due to compile error");
+                assert_eq!(
+                    length,
+                    EstimatedLength::new(0),
+                    "Length should be 0 due to compile error"
+                );
                 assert_eq!(
                     format!("{tokens}"),
                     concat!(
@@ -390,10 +390,13 @@ mod tests {
             source,
             kind: super::StatementKind::Case(Case::new_for_test(&integer_source)),
         }
-        .to_tokens(&mut State::new_for_test())
-        .expect_err("Error TokenStream expected");
+        .to_tokens(&mut State::new_for_test());
 
-        assert_eq!(length, 0, "Length should be 0 due to compile error");
+        assert_eq!(
+            length,
+            EstimatedLength::new(0),
+            "Length should be 0 due to compile error"
+        );
         assert_eq!(
             format!("{tokens}"),
             r#"compile_error ! (concat ! ("Unexpected '" , "case" , "' statement")) ;"#,

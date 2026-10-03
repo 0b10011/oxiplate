@@ -26,10 +26,19 @@ impl<'a> Cow<'a> {
         ))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
+    /// Builds source for entire expression.
+    pub fn source(&self) -> Source<'a> {
+        self.prefix.clone().merge(
+            &self.expression.source(),
+            "Expression should follow whitespace",
+        )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Cow<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
-        let (expression, expression_length) = self.expression.to_tokens(state);
+        let (expression, expression_length) = self.expression.to_tokens_with_state(state);
         let span = self.prefix.span_token();
 
         #[cfg(feature = "_oxiplate")]
@@ -43,14 +52,6 @@ impl<'a> Cow<'a> {
         };
 
         (expression, expression_length)
-    }
-
-    /// Builds source for entire expression.
-    pub fn source(&self) -> Source<'a> {
-        self.prefix.clone().merge(
-            &self.expression.source(),
-            "Expression should follow whitespace",
-        )
     }
 }
 
