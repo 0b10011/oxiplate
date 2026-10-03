@@ -539,7 +539,7 @@ impl<'a> Expression<'a> {
             Expression::Array(array) => array.to_tokens_with_state(state),
             Expression::Tuple(tuple) => tuple.to_tokens_with_state(state),
             Expression::Concat(concat) => concat.to_tokens_with_state(state),
-            Expression::Calc(calc) => calc.to_tokens(state),
+            Expression::Calc(calc) => calc.to_tokens_with_state(state),
             Expression::Prefixed(prefixed) => prefixed.to_tokens(state),
             Expression::Cow(cow) => cow.to_tokens(state),
             Expression::Char(char) => char.to_tokens(),
