@@ -26,8 +26,10 @@ impl<'a> Integer<'a> {
     pub(crate) fn source(&self) -> &Source<'a> {
         self.source
     }
+}
 
-    pub(crate) fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Integer<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let literal = ::syn::LitInt::new(self.source.as_str(), self.source.span_token());
         (
             quote! { #literal },

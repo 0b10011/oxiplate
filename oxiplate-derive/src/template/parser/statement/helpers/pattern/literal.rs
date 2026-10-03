@@ -41,7 +41,7 @@ impl<'a> ToTokensWithState<'a> for Literal<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
             Self::Bool(bool) => bool.to_tokens(),
-            Self::Integer(integer) => integer.to_tokens(),
+            Self::Integer(integer) => integer.to_tokens_with_state(state),
             Self::Float(float) => float.to_tokens(),
             Self::String(string) => string.to_tokens_with_state(state),
             Self::Char(char) => char.to_tokens_with_state(state),
