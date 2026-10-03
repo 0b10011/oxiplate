@@ -36,8 +36,28 @@ impl<'a> Filter<'a> {
         Ok((tokens, callback))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
+    /// Builds source for entire expression.
+    pub fn source(&self) -> Source<'a> {
+        self.expression
+            .source()
+            .merge(
+                &self.vertical_bar,
+                "Vertical bar should follow leading whitespace",
+            )
+            .merge_some(
+                self.cow_prefix.as_ref(),
+                "Cow prefix should follow whitespace",
+            )
+            .merge(self.name.source(), "Filter name should follow whitespace")
+            .merge_some(
+                self.arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
+                "Arguments should follow trailing whitespace",
+            )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Filter<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let (expression, estimated_length) = self.expression.to_tokens(state);
         let mut argument_tokens = expression;
 
@@ -103,25 +123,6 @@ impl<'a> Filter<'a> {
                 estimated_length,
             )
         }
-    }
-
-    /// Builds source for entire expression.
-    pub fn source(&self) -> Source<'a> {
-        self.expression
-            .source()
-            .merge(
-                &self.vertical_bar,
-                "Vertical bar should follow leading whitespace",
-            )
-            .merge_some(
-                self.cow_prefix.as_ref(),
-                "Cow prefix should follow whitespace",
-            )
-            .merge(self.name.source(), "Filter name should follow whitespace")
-            .merge_some(
-                self.arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
-                "Arguments should follow trailing whitespace",
-            )
     }
 }
 
