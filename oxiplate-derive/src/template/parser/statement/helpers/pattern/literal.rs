@@ -40,7 +40,7 @@ impl<'a> Literal<'a> {
 impl<'a> ToTokensWithState<'a> for Literal<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Bool(bool) => bool.to_tokens(),
+            Self::Bool(bool) => bool.to_tokens_with_state(state),
             Self::Integer(integer) => integer.to_tokens_with_state(state),
             Self::Float(float) => float.to_tokens_with_state(state),
             Self::String(string) => string.to_tokens_with_state(state),
