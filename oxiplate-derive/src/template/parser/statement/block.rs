@@ -73,28 +73,6 @@ impl<'a> Block<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
-        state.local_variables.push_stack();
-        let mut block_stack = state.blocks.clone();
-        let block = HashMap::from([(
-            self.name.as_str(),
-            (
-                self.prefix.to_tokens_with_mut_state(state),
-                self.suffix
-                    .as_ref()
-                    .map(|suffix| suffix.to_tokens_with_mut_state(state)),
-            ),
-        )]);
-        block_stack.push_back(&block);
-        let tokens = self.build_block(
-            (quote! {}, EstimatedLength::new(0)),
-            (Some(quote! {}), EstimatedLength::new(0)),
-            block_stack,
-        );
-        state.local_variables.pop_stack();
-        tokens
-    }
-
     fn build_block<'b: 'a>(
         &self,
         (child_prefix, child_prefix_length): BuiltTokens,
@@ -181,6 +159,30 @@ impl<'a> Block<'a> {
             });
         }
         (tokens, estimated_length)
+    }
+}
+
+impl<'a> ToTokensWithMutState<'a> for Block<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
+        state.local_variables.push_stack();
+        let mut block_stack = state.blocks.clone();
+        let block = HashMap::from([(
+            self.name.as_str(),
+            (
+                self.prefix.to_tokens_with_mut_state(state),
+                self.suffix
+                    .as_ref()
+                    .map(|suffix| suffix.to_tokens_with_mut_state(state)),
+            ),
+        )]);
+        block_stack.push_back(&block);
+        let tokens = self.build_block(
+            (quote! {}, EstimatedLength::new(0)),
+            (Some(quote! {}), EstimatedLength::new(0)),
+            block_stack,
+        );
+        state.local_variables.pop_stack();
+        tokens
     }
 }
 

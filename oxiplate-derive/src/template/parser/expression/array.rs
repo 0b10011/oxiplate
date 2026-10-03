@@ -75,14 +75,14 @@ impl<'a> ToTokensWithState<'a> for Array<'a> {
         let span = self.source.span_token();
         let mut expression_length = EstimatedLength::new(usize::MAX);
         for item in &self.items {
-            let (item, item_length) = item.to_tokens(state);
+            let (item, item_length) = item.to_tokens_with_state(state);
             items.push(item);
             expression_length = expression_length.min(item_length);
         }
 
         let length_expression =
             if let Some((ref semicolon, ref expression)) = self.length_expression {
-                let (expression, _expression_length) = expression.to_tokens(state);
+                let (expression, _expression_length) = expression.to_tokens_with_state(state);
                 let span = semicolon.span_token();
 
                 quote_spanned! {span=>
@@ -139,9 +139,11 @@ impl<'a> ArrayItem<'a> {
             ))
         }
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (expression, expression_length) = self.expression.to_tokens(state);
+impl<'a> ToTokensWithState<'a> for ArrayItem<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (expression, expression_length) = self.expression.to_tokens_with_state(state);
         let comma = self.comma.clone().map_or_else(TokenStream::new, |comma| {
             let span = comma.span_token();
             quote_spanned! {span=> , }

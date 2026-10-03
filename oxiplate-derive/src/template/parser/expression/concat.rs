@@ -71,7 +71,7 @@ impl<'a> ToTokensWithState<'a> for Concat<'a> {
             } else {
                 let span = expression.source().span_token();
                 format_tokens.push(quote_spanned! {span=> "{}" });
-                let (expression, expression_length) = expression.to_tokens(state);
+                let (expression, expression_length) = expression.to_tokens_with_state(state);
                 estimated_length += expression_length;
                 argument_tokens.push(quote!(#expression));
             }

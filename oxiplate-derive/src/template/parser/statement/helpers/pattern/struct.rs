@@ -36,12 +36,14 @@ impl<'a> Struct<'a> {
             Self::Unit(_path) => HashSet::new(),
         }
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Struct<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Named(named_struct) => named_struct.to_tokens(state),
-            Self::Tuple(tuple_struct) => tuple_struct.to_tokens(state),
-            Self::Unit(path) => path.to_tokens(),
+            Self::Named(named_struct) => named_struct.to_tokens_with_state(state),
+            Self::Tuple(tuple_struct) => tuple_struct.to_tokens_with_state(state),
+            Self::Unit(path) => path.to_tokens_with_state(state),
         }
     }
 }
@@ -138,22 +140,25 @@ impl<'a> NamedStruct<'a> {
 
         vars
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let path = self.path.to_tokens();
+impl<'a> ToTokensWithState<'a> for NamedStruct<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (path, _estimated_length) = self.path.to_tokens_with_state(state);
 
-        let (mut tokens, _expected_length) = self.first_field.to_tokens(state);
+        let (mut tokens, mut estimated_length) = self.first_field.to_tokens_with_state(state);
 
         for (comma, value) in &self.additional_fields {
             let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
-            let (value, _expected_length) = value.to_tokens(state);
+            let (value, value_estimated_length) = value.to_tokens_with_state(state);
+            estimated_length += value_estimated_length;
             tokens.append_all([comma, value]);
         }
 
         let span = self.source.span_token();
 
-        quote_spanned! {span=> #path { #tokens } }
+        (quote_spanned! {span=> #path { #tokens } }, estimated_length)
     }
 }
 
@@ -223,13 +228,15 @@ impl<'a> Field<'a> {
 
         value.get_variables()
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Field<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let name = &self.name;
 
         if let Some(value) = &self.value {
             let span = self.source.span_token();
-            let value = value.to_tokens(state);
+            let (value, _estimated_length) = value.to_tokens_with_state(state);
             (
                 quote_spanned! {span=> #name: #value },
                 EstimatedLength::new(0),
@@ -317,22 +324,25 @@ impl<'a> TupleStruct<'a> {
 
         vars
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let path = self.path.to_tokens();
+impl<'a> ToTokensWithState<'a> for TupleStruct<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (path, _estimated_length) = self.path.to_tokens_with_state(state);
 
-        let mut tokens = self.first_field.to_tokens(state);
+        let (mut tokens, mut estimated_length) = self.first_field.to_tokens_with_state(state);
 
         for (comma, value) in &self.additional_fields {
             let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
-            let value = value.to_tokens(state);
+            let (value, value_estimated_length) = value.to_tokens_with_state(state);
+            estimated_length += value_estimated_length;
             tokens.append_all([comma, value]);
         }
 
         let span = self.source.span_token();
 
-        quote_spanned! {span=> #path(#tokens) }
+        (quote_spanned! {span=> #path(#tokens) }, estimated_length)
     }
 }
 

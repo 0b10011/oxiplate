@@ -66,8 +66,10 @@ impl<'a> Extends<'a> {
             }
         }
     }
+}
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
+impl<'a> ToTokensWithMutState<'a> for Extends<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let span = self.path.source().span_token();
         let path = LitStr::new(self.path.as_str(), span);
 

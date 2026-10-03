@@ -309,7 +309,7 @@ impl<'a> ToTokensWithState<'a> for Writ<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut estimated_length = EstimatedLength::new(0);
 
-        let (text, text_length) = self.expression.to_tokens(state);
+        let (text, text_length) = self.expression.to_tokens_with_state(state);
         estimated_length += text_length;
 
         let span = self.source.span_token();

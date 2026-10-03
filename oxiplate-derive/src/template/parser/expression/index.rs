@@ -61,8 +61,8 @@ impl<'a> Index<'a> {
 impl<'a> ToTokensWithState<'a> for Index<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.brackets.span_token();
-        let (expression, estimated_length) = self.expression.to_tokens(state);
-        let (range, _range_length) = self.index.to_tokens(state);
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
+        let (range, _range_length) = self.index.to_tokens_with_state(state);
         (
             quote_spanned! {span=> #expression [ #range ] },
             estimated_length,

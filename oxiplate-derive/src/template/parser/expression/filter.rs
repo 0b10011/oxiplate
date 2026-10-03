@@ -58,7 +58,7 @@ impl<'a> Filter<'a> {
 
 impl<'a> ToTokensWithState<'a> for Filter<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let (expression, estimated_length) = self.expression.to_tokens(state);
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
         let mut argument_tokens = expression;
 
         let arguments = if let Some(arguments) = &self.arguments {
@@ -68,13 +68,13 @@ impl<'a> ToTokensWithState<'a> for Filter<'a> {
                 // First argument
                 let comma_span = self.vertical_bar.span_token();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                argument_tokens.append_all(first_argument.to_tokens(state).0);
+                argument_tokens.append_all(first_argument.to_tokens_with_state(state).0);
 
                 // Remaining arguments
                 for (comma, expression) in remaining_arguments {
                     let comma_span = comma.span_token();
                     argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                    argument_tokens.append_all(expression.to_tokens(state).0);
+                    argument_tokens.append_all(expression.to_tokens_with_state(state).0);
                 }
             }
 

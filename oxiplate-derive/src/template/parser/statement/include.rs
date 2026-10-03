@@ -18,8 +18,8 @@ impl<'a> From<Include<'a>> for StatementKind<'a> {
     }
 }
 
-impl Include<'_> {
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Include<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
         let span = self.path.source().span_token();

@@ -48,10 +48,10 @@ impl<'a> Calc<'a> {
 
 impl<'a> ToTokensWithState<'a> for Calc<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let (left, left_length) = self.left.to_tokens(state);
+        let (left, left_length) = self.left.to_tokens_with_state(state);
         let operator = &self.operator;
         let (right, right_length) = if let Some(right) = self.right.as_ref() {
-            right.to_tokens(state)
+            right.to_tokens_with_state(state)
         } else {
             (TokenStream::new(), left_length)
         };

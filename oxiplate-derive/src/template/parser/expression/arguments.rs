@@ -47,13 +47,13 @@ impl<'a> ToTokensWithState<'a> for ArgumentsGroup<'a> {
 
         if let Some((first_argument, remaining_arguments, _trailing_comma)) = &self.arguments {
             // First argument
-            tokens.append_all(first_argument.to_tokens(state).0);
+            tokens.append_all(first_argument.to_tokens_with_state(state).0);
 
             // Remaining arguments
             for (comma, expression) in remaining_arguments {
                 let comma_span = comma.span_token();
                 tokens.append_all(quote_spanned! {comma_span=> , });
-                tokens.append_all(expression.to_tokens(state).0);
+                tokens.append_all(expression.to_tokens_with_state(state).0);
             }
         }
 

@@ -63,15 +63,16 @@ impl<'a> Let<'a> {
     pub fn variables(&'a self) -> HashSet<&'a str> {
         self.pattern.get_variables()
     }
+}
 
-    /// Build token stream for the statement.
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Let<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.source.span_token();
         let keyword = &self.keyword;
-        let pattern = self.pattern.to_tokens(state);
+        let (pattern, _estimated_length) = self.pattern.to_tokens_with_state(state);
         let operator_span = self.operator.span_token();
         let operator = quote_spanned! {operator_span=> = };
-        let (expr, _estimated_length) = self.expr.to_tokens(state);
+        let (expr, _estimated_length) = self.expr.to_tokens_with_state(state);
 
         (
             quote_spanned! {span=> #keyword #pattern #operator #expr; },

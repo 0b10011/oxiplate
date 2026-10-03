@@ -65,16 +65,7 @@ impl<'a> Item<'a> {
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
-                let (statement_tokens, estimated_length) = match statement.to_tokens(state) {
-                    Ok(result) => result,
-                    Err(result) => {
-                        if let StatementKind::DefaultEscaper(_) = statement.kind {
-                            state.failed_to_set_default_escaper_group = true;
-                        }
-
-                        result
-                    }
-                };
+                let (statement_tokens, estimated_length) = statement.to_tokens(state);
                 state.has_content = true;
 
                 if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {

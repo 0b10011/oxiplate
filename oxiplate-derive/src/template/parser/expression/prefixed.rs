@@ -45,7 +45,7 @@ impl<'a> Prefixed<'a> {
 impl<'a> ToTokensWithState<'a> for Prefixed<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let operator = &self.operator;
-        let (expression, expression_length) = self.expression.to_tokens(state);
+        let (expression, expression_length) = self.expression.to_tokens_with_state(state);
         (quote! { #operator #expression }, expression_length)
     }
 }

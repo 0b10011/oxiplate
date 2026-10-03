@@ -38,7 +38,7 @@ impl<'a> Call<'a> {
 
 impl<'a> ToTokensWithState<'a> for Call<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let (expression, _estimated_length) = self.expression.to_tokens(state);
+        let (expression, _estimated_length) = self.expression.to_tokens_with_state(state);
         let (arguments, _estimated_length) = self.arguments.to_tokens_with_state(state);
 
         match &*self.expression {

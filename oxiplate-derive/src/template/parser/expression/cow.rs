@@ -38,7 +38,7 @@ impl<'a> Cow<'a> {
 impl<'a> ToTokensWithState<'a> for Cow<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         #[cfg_attr(not(feature = "_oxiplate"), allow(unused_variables))]
-        let (expression, expression_length) = self.expression.to_tokens(state);
+        let (expression, expression_length) = self.expression.to_tokens_with_state(state);
         let span = self.prefix.span_token();
 
         #[cfg(feature = "_oxiplate")]
