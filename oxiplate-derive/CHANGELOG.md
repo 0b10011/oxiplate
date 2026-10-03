@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.7](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.6...oxiplate-derive-v0.19.7) - 2026-10-03
+
+### Other
+
+- moved prefixed expression handling to separate module
+- moved full range expression handling to separate module
+- moved filter expression handling into separate module
+- moved index expression handling into separate module
+- moved cow prefixed expression handling into separate module
+- moved calc expression handling into separate module
+- reduced import boilerplate across parser files
+- added test for unexpected table with no values
+- added test for nested tables with errors
+- added test for `escaper_groups` set to a value instead of a table
+- replaced `pub` with `pub(crate)` throughout modules to make privacy boundary more clear
+- cleaned up imports across the repo a bit
+
 ## [0.19.6](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.5...oxiplate-derive-v0.19.6) - 2026-09-29
 
 ### Fixed
