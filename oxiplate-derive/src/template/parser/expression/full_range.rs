@@ -29,15 +29,16 @@ impl<'a> FullRange<'a> {
         ))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, _state: &State) -> BuiltTokens {
-        let span = self.source.span_token();
-        (quote_spanned! {span=> .. }, EstimatedLength::new(0))
-    }
-
     /// Builds source for entire expression.
     pub fn source(&self) -> &Source<'a> {
         &self.source
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for FullRange<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+        let span = self.source.span_token();
+        (quote_spanned! {span=> .. }, EstimatedLength::new(0))
     }
 }
 

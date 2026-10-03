@@ -530,10 +530,12 @@ impl<'a> Expression<'a> {
 
     pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
         match self {
-            Expression::Placeholder => (
-                quote! { compile_error!("Placeholder expression was never replaced.") },
-                EstimatedLength::new(0),
-            ),
+            Expression::Placeholder => {
+                return (
+                    quote! { compile_error!("Placeholder expression was never replaced.") },
+                    EstimatedLength::new(0),
+                );
+            }
             Expression::Path(path) => path.to_tokens_with_state(state),
             Expression::Group(group) => group.to_tokens_with_state(state),
             Expression::Array(array) => array.to_tokens_with_state(state),
@@ -547,7 +549,7 @@ impl<'a> Expression<'a> {
             Expression::Integer(number) => number.to_tokens_with_state(state),
             Expression::Float(number) => number.to_tokens_with_state(state),
             Expression::Bool(bool) => bool.to_tokens_with_state(state),
-            Expression::FullRange(full_range) => full_range.to_tokens(state),
+            Expression::FullRange(full_range) => full_range.to_tokens_with_state(state),
             Expression::Index(index) => index.to_tokens(state),
             Expression::Filter(filter) => filter.to_tokens(state),
             Expression::Fields(fields) => fields.to_tokens(state),
