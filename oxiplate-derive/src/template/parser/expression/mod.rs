@@ -6,6 +6,7 @@ mod concat;
 mod cow;
 mod fields;
 mod filter;
+mod full_range;
 mod generics;
 mod group;
 mod index;
@@ -25,6 +26,7 @@ use self::concat::Concat;
 use self::cow::Cow;
 use self::fields::Fields;
 use self::filter::Filter;
+use self::full_range::FullRange;
 use self::group::Group;
 use self::index::Index;
 pub(super) use self::keyword::{Keyword, KeywordParser};
@@ -63,9 +65,7 @@ pub(crate) enum Expression<'a> {
     /// `..` that represents a range
     /// where the start/end matches whatever it is applied to.
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
-    FullRange {
-        source: Source<'a>,
-    },
+    FullRange(FullRange<'a>),
 
     /// `expr[expr]`
     /// See:
@@ -549,10 +549,7 @@ impl<'a> Expression<'a> {
             Expression::Integer(number) => number.to_tokens(),
             Expression::Float(number) => number.to_tokens(),
             Expression::Bool(bool) => bool.to_tokens(),
-            Expression::FullRange { source, .. } => {
-                let span = source.span_token();
-                (quote_spanned! {span=> .. }, 0)
-            }
+            Expression::FullRange(full_range) => full_range.to_tokens(state),
             Expression::Index(index) => index.to_tokens(state),
             Expression::Filter(filter) => filter.to_tokens(state),
             Expression::Fields(fields) => fields.to_tokens(state),
@@ -576,7 +573,7 @@ impl<'a> Expression<'a> {
             Expression::Float(value) => value.source().clone(),
             Expression::Bool(value) => value.source().clone(),
             Expression::Calc(calc) => calc.source().clone(),
-            Expression::FullRange { source, .. } => source.clone(),
+            Expression::FullRange(full_range) => full_range.source().clone(),
             Expression::Filter(filter) => filter.source(),
             Expression::Cow(cow) => cow.source().clone(),
             Expression::Group(group) => group.source().clone(),
@@ -609,7 +606,7 @@ pub(super) fn expression<'a>(
             into(Group::parse),
             Tuple::parse,
             Array::parse,
-            full_range,
+            into(FullRange::parse),
         ))
         .parse(tokens)?;
 
@@ -640,19 +637,6 @@ pub(super) fn expression<'a>(
     }
 }
 
-/// Parses a full range expression (`..`).
-/// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
-fn full_range(tokens: TokenSlice) -> Res<Expression> {
-    let (tokens, token) = take(TokenKind::RangeExclusive).parse(tokens)?;
-
-    Ok((
-        tokens,
-        Expression::FullRange {
-            source: token.source().clone(),
-        },
-    ))
-}
-
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
@@ -660,6 +644,7 @@ mod test {
     use super::concat::Concat;
     use crate::State;
     use crate::source::test_source;
+    use crate::template::parser::expression::full_range::FullRange;
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
@@ -687,7 +672,7 @@ mod test {
                       on the left should never have `take_left()` called for them"]
     fn take_left_on_full_range() {
         test_source!(source = "..");
-        super::Expression::FullRange { source }.take_left();
+        super::Expression::FullRange(FullRange::new_for_test(source)).take_left();
     }
 
     #[test]
@@ -702,7 +687,8 @@ mod test {
                       expression on the left side should ever be given a left expression"]
     fn give_left_on_full_range() {
         test_source!(source = "..");
-        super::Expression::FullRange { source }.give_left(&mut super::Expression::Placeholder);
+        super::Expression::FullRange(FullRange::new_for_test(source))
+            .give_left(&mut super::Expression::Placeholder);
     }
 
     #[test]
@@ -753,7 +739,8 @@ mod test {
                       expression on the right side should ever be given a right expression"]
     fn give_right_on_full_range() {
         test_source!(source = "..");
-        super::Expression::FullRange { source }.give_right(&mut super::Expression::Placeholder);
+        super::Expression::FullRange(FullRange::new_for_test(source))
+            .give_right(&mut super::Expression::Placeholder);
     }
 
     #[test]
