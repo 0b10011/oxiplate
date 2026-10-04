@@ -50,22 +50,23 @@ impl<'a> Index<'a> {
         ))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let span = self.brackets.span_token();
-        let (expression, estimated_length) = self.expression.to_tokens(state);
-        let (range, _range_length) = self.index.to_tokens(state);
-        (
-            quote_spanned! {span=> #expression [ #range ] },
-            estimated_length,
-        )
-    }
-
     /// Builds source for entire expression.
     pub fn source(&self) -> Source<'a> {
         self.expression
             .source()
             .merge(&self.brackets, "`[index]` should follow expression")
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Index<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let span = self.brackets.span_token();
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
+        let (range, _range_length) = self.index.to_tokens_with_state(state);
+        (
+            quote_spanned! {span=> #expression [ #range ] },
+            estimated_length,
+        )
     }
 }
 

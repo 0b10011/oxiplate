@@ -79,10 +79,12 @@ impl<'a> For<'a> {
     pub(crate) fn get_active_variables(&'a self) -> HashSet<&'a str> {
         self.pattern.get_variables()
     }
+}
 
-    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
+impl<'a> ToTokensWithMutState<'a> for For<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
+        let mut estimated_length = EstimatedLength::new(0);
 
         let For {
             for_keyword,
@@ -94,7 +96,7 @@ impl<'a> For<'a> {
             is_ended: _,
         } = self;
 
-        let (expression, _expression_length) = expression.to_tokens(state);
+        let (expression, _expression_length) = expression.to_tokens_with_state(state);
 
         state.local_variables.push_stack();
 
@@ -104,14 +106,14 @@ impl<'a> For<'a> {
                 .map(ToString::to_string)
                 .collect(),
         );
-        let (template, template_length) = template.to_tokens(state);
+        let (template, template_length) = template.to_tokens_with_mut_state(state);
 
         // Loops will very likely run at least twice.
         estimated_length += template_length * 2;
 
-        let pattern = pattern.to_tokens(state);
+        let (pattern, _estimated_length) = pattern.to_tokens_with_state(state);
         if let Some(otherwise) = otherwise {
-            let (otherwise, otherwise_length) = otherwise.to_tokens(state);
+            let (otherwise, otherwise_length) = otherwise.to_tokens_with_mut_state(state);
             estimated_length = estimated_length.min(otherwise_length);
             tokens.append_all(quote! {
                 {
@@ -200,12 +202,14 @@ impl<'a> Break<'a> {
     pub fn source(&self) -> &Source<'a> {
         self.0.source()
     }
+}
 
-    pub fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithMutState<'a> for Break<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, _state: &mut State<'b>) -> BuiltTokens {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, EstimatedLength::new(0))
     }
 }
 
@@ -235,12 +239,14 @@ impl<'a> Continue<'a> {
     pub fn source(&self) -> &Source<'a> {
         self.0.source()
     }
+}
 
-    pub fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithMutState<'a> for Continue<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, _state: &mut State<'b>) -> BuiltTokens {
         let span = self.0.source().span_token();
         let keyword = &self.0;
 
-        (quote_spanned! {span=> #keyword; }, 0)
+        (quote_spanned! {span=> #keyword; }, EstimatedLength::new(0))
     }
 }
 

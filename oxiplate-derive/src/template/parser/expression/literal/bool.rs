@@ -33,10 +33,12 @@ impl<'a> Bool<'a> {
     pub(crate) fn source(&self) -> &Source<'a> {
         self.source
     }
+}
 
-    pub(crate) fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Bool<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let literal = ::syn::LitBool::new(self.value, self.source.span_token());
-        (quote! { #literal }, 0)
+        (quote! { #literal }, EstimatedLength::new(0))
     }
 }
 

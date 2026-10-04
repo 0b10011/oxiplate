@@ -27,24 +27,25 @@ impl<'a> Call<'a> {
         ))
     }
 
-    /// Generates token stream for entire call expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (expression, _estimated_length) = self.expression.to_tokens(state);
-        let arguments = self.arguments.to_tokens(state);
-
-        match &*self.expression {
-            Expression::Path(path) if path.template_field(state).is_some() => {
-                (quote! { (#expression) #arguments }, 1)
-            }
-            _ => (quote! { #expression #arguments }, 1),
-        }
-    }
-
     /// Builds source for entire call expression.
     pub fn source(&self) -> Source<'a> {
         self.expression.source().merge(
             &self.arguments.source(),
             "Arguments expected after expression",
         )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Call<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (expression, _estimated_length) = self.expression.to_tokens_with_state(state);
+        let (arguments, _estimated_length) = self.arguments.to_tokens_with_state(state);
+
+        match &*self.expression {
+            Expression::Path(path) if path.template_field(state).is_some() => {
+                (quote! { (#expression) #arguments }, EstimatedLength::new(1))
+            }
+            _ => (quote! { #expression #arguments }, EstimatedLength::new(1)),
+        }
     }
 }

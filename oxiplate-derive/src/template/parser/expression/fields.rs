@@ -1,5 +1,3 @@
-use syn::token::Dot;
-
 use super::{Expression, Identifier, NestedExpression};
 use crate::template::parser::prelude::*;
 
@@ -38,14 +36,15 @@ impl<'a> Fields<'a> {
         }
         source
     }
+}
 
-    /// Build token stream for the group.
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
+impl<'a> ToTokensWithState<'a> for Fields<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let (expression, estimated_length) = self.expression.to_tokens(state);
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
         tokens.append_all(expression);
         for field in &self.fields {
-            tokens.append_all(field.to_tokens());
+            field.to_tokens(&mut tokens);
         }
         (tokens, estimated_length)
     }
@@ -76,20 +75,19 @@ impl<'a> Field<'a> {
         ))
     }
 
-    pub fn to_tokens(&self) -> TokenStream {
-        let span = self.dot.span_token();
-        let dot = syn::parse2::<Dot>(quote_spanned! {span=> . })
-            .expect("Dot should be able to be parsed properly here");
-
-        let ident = &self.ident;
-        quote! { #dot #ident }
-    }
-
     /// Get the `Source` for the field.
     pub(crate) fn source(&self) -> Source<'a> {
         self.dot.clone().merge(
             self.ident.source(),
             "Field or method name should immediately follow the dot",
         )
+    }
+}
+
+impl ToTokens for Field<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let span = self.dot.span_token();
+        let ident = &self.ident;
+        tokens.append_all(quote_spanned! {span=> . #ident });
     }
 }

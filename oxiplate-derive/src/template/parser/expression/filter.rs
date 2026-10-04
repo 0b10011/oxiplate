@@ -36,9 +36,29 @@ impl<'a> Filter<'a> {
         Ok((tokens, callback))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (expression, estimated_length) = self.expression.to_tokens(state);
+    /// Builds source for entire expression.
+    pub fn source(&self) -> Source<'a> {
+        self.expression
+            .source()
+            .merge(
+                &self.vertical_bar,
+                "Vertical bar should follow leading whitespace",
+            )
+            .merge_some(
+                self.cow_prefix.as_ref(),
+                "Cow prefix should follow whitespace",
+            )
+            .merge(self.name.source(), "Filter name should follow whitespace")
+            .merge_some(
+                self.arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
+                "Arguments should follow trailing whitespace",
+            )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Filter<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
         let mut argument_tokens = expression;
 
         let arguments = if let Some(arguments) = &self.arguments {
@@ -48,13 +68,13 @@ impl<'a> Filter<'a> {
                 // First argument
                 let comma_span = self.vertical_bar.span_token();
                 argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                argument_tokens.append_all(first_argument.to_tokens(state).0);
+                argument_tokens.append_all(first_argument.to_tokens_with_state(state).0);
 
                 // Remaining arguments
                 for (comma, expression) in remaining_arguments {
                     let comma_span = comma.span_token();
                     argument_tokens.append_all(quote_spanned! {comma_span=> , });
-                    argument_tokens.append_all(expression.to_tokens(state).0);
+                    argument_tokens.append_all(expression.to_tokens_with_state(state).0);
                 }
             }
 
@@ -92,7 +112,7 @@ impl<'a> Filter<'a> {
                     quote_spanned! {span=>
                         compile_error!("Cow prefix requires the `oxiplate` library due to trait usage")
                     },
-                    0,
+                    EstimatedLength::new(0),
                 )
             }
         } else {
@@ -103,25 +123,6 @@ impl<'a> Filter<'a> {
                 estimated_length,
             )
         }
-    }
-
-    /// Builds source for entire expression.
-    pub fn source(&self) -> Source<'a> {
-        self.expression
-            .source()
-            .merge(
-                &self.vertical_bar,
-                "Vertical bar should follow leading whitespace",
-            )
-            .merge_some(
-                self.cow_prefix.as_ref(),
-                "Cow prefix should follow whitespace",
-            )
-            .merge(self.name.source(), "Filter name should follow whitespace")
-            .merge_some(
-                self.arguments.as_ref().map(ArgumentsGroup::source).as_ref(),
-                "Arguments should follow trailing whitespace",
-            )
     }
 }
 
