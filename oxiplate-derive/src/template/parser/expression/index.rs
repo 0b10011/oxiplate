@@ -69,9 +69,3 @@ impl<'a> ToTokensWithState<'a> for Index<'a> {
         )
     }
 }
-
-impl<'a> From<Index<'a>> for Expression<'a> {
-    fn from(value: Index<'a>) -> Self {
-        Self::Index(value)
-    }
-}

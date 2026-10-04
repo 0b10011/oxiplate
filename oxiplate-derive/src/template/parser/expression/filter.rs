@@ -125,9 +125,3 @@ impl<'a> ToTokensWithState<'a> for Filter<'a> {
         }
     }
 }
-
-impl<'a> From<Filter<'a>> for Expression<'a> {
-    fn from(value: Filter<'a>) -> Self {
-        Self::Filter(value)
-    }
-}
