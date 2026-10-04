@@ -70,25 +70,6 @@ impl<'a> Match<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &mut State) -> BuiltTokens {
-        let mut tokens = TokenStream::new();
-        let mut estimated_length = usize::MAX;
-
-        let mut cases = TokenStream::new();
-        for case in &self.cases {
-            let (case, case_length) = case.to_tokens(state);
-            estimated_length = estimated_length.min(case_length);
-            cases.append_all(case);
-        }
-
-        let (expression, _expression_length) = self.expression.to_tokens(state);
-        let (errors, _errors_length) = self.errors.to_tokens(state);
-
-        tokens.append_all(quote! { #errors match #expression { #cases } });
-
-        (tokens, estimated_length)
-    }
-
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
         let (tokens, (statement, expression)) = (
             KeywordParser::new("match"),
@@ -125,6 +106,27 @@ impl<'a> Match<'a> {
                 source: output.source().clone(),
             },
         ))
+    }
+}
+
+impl<'a> ToTokensWithMutState<'a> for Match<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+        let mut estimated_length = EstimatedLength::new(usize::MAX);
+
+        let mut cases = TokenStream::new();
+        for case in &self.cases {
+            let (case, case_length) = case.to_tokens(state);
+            estimated_length = estimated_length.min(case_length);
+            cases.append_all(case);
+        }
+
+        let (expression, _expression_length) = self.expression.to_tokens_with_state(state);
+        let (errors, _errors_length) = self.errors.to_tokens_with_mut_state(state);
+
+        tokens.append_all(quote! { #errors match #expression { #cases } });
+
+        (tokens, estimated_length)
     }
 }
 
@@ -207,13 +209,13 @@ impl<'a> Case<'a> {
     }
 
     pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
-        let mut tokens = self.first_pattern.to_tokens(state);
+        let (mut tokens, _estimated_length) = self.first_pattern.to_tokens_with_state(state);
 
         state.local_variables.push_stack();
 
         for (operator, pattern) in &self.additional_patterns {
             let span = operator.span_token();
-            let pattern = pattern.to_tokens(state);
+            let (pattern, _estimated_length) = pattern.to_tokens_with_state(state);
             tokens.append_all(quote_spanned! {span=> | #pattern });
         }
 
@@ -225,10 +227,11 @@ impl<'a> Case<'a> {
         );
 
         if let Some(guard) = &self.guard {
-            tokens.append_all(guard.to_tokens(state));
+            let (guard, _estimated_length) = guard.to_tokens_with_state(state);
+            tokens.append_all(guard);
         }
 
-        let (template, estimated_length) = self.template.to_tokens(state);
+        let (template, estimated_length) = self.template.to_tokens_with_mut_state(state);
         tokens.append_all(quote! { => { #template } });
 
         state.local_variables.pop_stack();
@@ -275,11 +278,16 @@ impl<'a> Guard<'a> {
     pub fn source(&self) -> &Source<'a> {
         &self.source
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Guard<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let if_span = self.if_tag.span_token();
-        let (expression, _estimated_length) = self.expression.to_tokens(state);
+        let (expression, _estimated_length) = self.expression.to_tokens_with_state(state);
 
-        quote_spanned! {if_span=> if #expression }
+        (
+            quote_spanned! {if_span=> if #expression },
+            EstimatedLength::new(0),
+        )
     }
 }

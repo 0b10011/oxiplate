@@ -176,8 +176,10 @@ impl<'a> Range<'a> {
             | Self::Full { operator: source } => source,
         }
     }
+}
 
-    pub fn to_tokens(&self, _state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Range<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let (from, operator, to) = match self {
             Self::From {
                 from,
@@ -227,10 +229,14 @@ impl<'a> Range<'a> {
             }
         };
 
-        let from = from.map_or_else(TokenStream::new, Value::to_tokens);
-        let to = to.map_or_else(TokenStream::new, Value::to_tokens);
+        let from = from.map_or_else(TokenStream::new, |value| {
+            value.to_tokens_with_state(state).0
+        });
+        let to = to.map_or_else(TokenStream::new, |value| {
+            value.to_tokens_with_state(state).0
+        });
 
-        quote! { #from #operator #to }
+        (quote! { #from #operator #to }, EstimatedLength::new(0))
     }
 }
 
@@ -259,12 +265,14 @@ impl<'a> Value<'a> {
             Self::Char(char) => char.source(),
         }
     }
+}
 
-    pub fn to_tokens(&self) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Value<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Integer(integer) => integer.to_tokens().0,
-            Self::Float(float) => float.to_tokens().0,
-            Self::Char(char) => char.to_tokens().0,
+            Self::Integer(integer) => integer.to_tokens_with_state(state),
+            Self::Float(float) => float.to_tokens_with_state(state),
+            Self::Char(char) => char.to_tokens_with_state(state),
         }
     }
 }

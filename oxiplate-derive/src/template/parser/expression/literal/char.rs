@@ -40,10 +40,12 @@ impl<'a> Char<'a> {
     pub(crate) fn source(&self) -> &Source<'a> {
         self.source
     }
+}
 
-    pub(crate) fn to_tokens(&self) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Char<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let literal = ::syn::LitChar::new(self.value, self.source.span_token());
-        (quote! { #literal }, 1)
+        (quote! { #literal }, EstimatedLength::new(1))
     }
 }
 

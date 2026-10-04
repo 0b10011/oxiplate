@@ -7,10 +7,10 @@ use crate::template::parser::prelude::*;
 use crate::template::tokenizer::{TagKind, WhitespacePreference};
 
 pub(super) enum ItemToken {
-    StaticText(TokenStream, usize),
-    DynamicText(TokenStream, usize),
+    StaticText(TokenStream, EstimatedLength),
+    DynamicText(TokenStream, EstimatedLength),
     Comment,
-    Statement(TokenStream, usize),
+    Statement(TokenStream, EstimatedLength),
 }
 
 /// One piece of a template.
@@ -60,21 +60,12 @@ impl<'a> Item<'a> {
         match self {
             Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
-                let (text, estimated_length) = writ.to_token(state);
+                let (text, estimated_length) = writ.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
-                let (statement_tokens, estimated_length) = match statement.to_tokens(state) {
-                    Ok(result) => result,
-                    Err(result) => {
-                        if let StatementKind::DefaultEscaper(_) = statement.kind {
-                            state.failed_to_set_default_escaper_group = true;
-                        }
-
-                        result
-                    }
-                };
+                let (statement_tokens, estimated_length) = statement.to_tokens(state);
                 state.has_content = true;
 
                 if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
@@ -103,7 +94,7 @@ impl<'a> Item<'a> {
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
             }
             Item::Static(text, _static_type) => {
-                let (text, estimated_length) = text.to_token();
+                let (text, estimated_length) = text.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::StaticText(text, estimated_length)
             }
@@ -111,7 +102,7 @@ impl<'a> Item<'a> {
                 if whitespace.0.is_empty() {
                     ItemToken::Comment
                 } else {
-                    let (text, estimated_length) = whitespace.to_token();
+                    let (text, estimated_length) = whitespace.to_tokens_with_state(state);
                     ItemToken::StaticText(text, estimated_length)
                 }
             }
@@ -121,7 +112,10 @@ impl<'a> Item<'a> {
                 consumed_source: _,
             } => {
                 let span = error_source.span_token();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
+                ItemToken::Statement(
+                    quote_spanned! {span=> compile_error!(#message); },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }

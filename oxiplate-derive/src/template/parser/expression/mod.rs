@@ -528,33 +528,6 @@ impl<'a> Expression<'a> {
         }
     }
 
-    pub(crate) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        match self {
-            Expression::Placeholder => (
-                quote! { compile_error!("Placeholder expression was never replaced.") },
-                0,
-            ),
-            Expression::Path(path) => path.to_tokens(state),
-            Expression::Group(group) => group.to_tokens(state),
-            Expression::Array(array) => array.to_tokens(state),
-            Expression::Tuple(tuple) => tuple.to_tokens(state),
-            Expression::Concat(concat) => concat.to_tokens(state),
-            Expression::Calc(calc) => calc.to_tokens(state),
-            Expression::Prefixed(prefixed) => prefixed.to_tokens(state),
-            Expression::Cow(cow) => cow.to_tokens(state),
-            Expression::Char(char) => char.to_tokens(),
-            Expression::String(string) => string.to_tokens(),
-            Expression::Integer(number) => number.to_tokens(),
-            Expression::Float(number) => number.to_tokens(),
-            Expression::Bool(bool) => bool.to_tokens(),
-            Expression::FullRange(full_range) => full_range.to_tokens(state),
-            Expression::Index(index) => index.to_tokens(state),
-            Expression::Filter(filter) => filter.to_tokens(state),
-            Expression::Fields(fields) => fields.to_tokens(state),
-            Expression::Call(call) => call.to_tokens(state),
-        }
-    }
-
     /// Get the `Source` for the expression.
     pub(crate) fn source(&self) -> Source<'a> {
         match self {
@@ -582,6 +555,35 @@ impl<'a> Expression<'a> {
             Expression::Index(index) => index.source().clone(),
             Expression::Fields(fields) => fields.source().clone(),
             Expression::Call(call) => call.source().clone(),
+        }
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Expression<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        match self {
+            Expression::Placeholder => (
+                quote! { compile_error!("Placeholder expression was never replaced.") },
+                EstimatedLength::new(0),
+            ),
+            Expression::Path(path) => path.to_tokens_with_state(state),
+            Expression::Group(group) => group.to_tokens_with_state(state),
+            Expression::Array(array) => array.to_tokens_with_state(state),
+            Expression::Tuple(tuple) => tuple.to_tokens_with_state(state),
+            Expression::Concat(concat) => concat.to_tokens_with_state(state),
+            Expression::Calc(calc) => calc.to_tokens_with_state(state),
+            Expression::Prefixed(prefixed) => prefixed.to_tokens_with_state(state),
+            Expression::Cow(cow) => cow.to_tokens_with_state(state),
+            Expression::Char(char) => char.to_tokens_with_state(state),
+            Expression::String(string) => string.to_tokens_with_state(state),
+            Expression::Integer(number) => number.to_tokens_with_state(state),
+            Expression::Float(number) => number.to_tokens_with_state(state),
+            Expression::Bool(bool) => bool.to_tokens_with_state(state),
+            Expression::FullRange(full_range) => full_range.to_tokens_with_state(state),
+            Expression::Index(index) => index.to_tokens_with_state(state),
+            Expression::Filter(filter) => filter.to_tokens_with_state(state),
+            Expression::Fields(fields) => fields.to_tokens_with_state(state),
+            Expression::Call(call) => call.to_tokens_with_state(state),
         }
     }
 }
@@ -637,9 +639,10 @@ pub(super) fn expression<'a>(
 mod test {
     use super::Char;
     use super::concat::Concat;
-    use crate::State;
     use crate::source::test_source;
+    use crate::template::parser::ToTokensWithState;
     use crate::template::parser::expression::full_range::FullRange;
+    use crate::{EstimatedLength, State};
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: Placeholder expression should not \
@@ -782,9 +785,10 @@ mod test {
 
     #[test]
     fn to_tokens() {
-        let (tokens, length) = super::Expression::Placeholder.to_tokens(&State::new_for_test());
+        let (tokens, length) =
+            super::Expression::Placeholder.to_tokens_with_state(&State::new_for_test());
 
-        assert_eq!(length, 0);
+        assert_eq!(length, EstimatedLength::new(0));
         assert_eq!(
             format!("{tokens}"),
             r#"compile_error ! ("Placeholder expression was never replaced.")"#

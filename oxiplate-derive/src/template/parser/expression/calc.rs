@@ -34,22 +34,6 @@ impl<'a> Calc<'a> {
         Ok((tokens, callback))
     }
 
-    /// Generates token stream for entire expression.
-    pub(super) fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (left, left_length) = self.left.to_tokens(state);
-        let operator = &self.operator;
-        let (right, right_length) = if let Some(right) = self.right.as_ref() {
-            right.to_tokens(state)
-        } else {
-            (TokenStream::new(), left_length)
-        };
-
-        (
-            quote! { #left #operator #right },
-            left_length.min(right_length),
-        )
-    }
-
     /// Builds source for entire expression.
     pub fn source(&self) -> Source<'a> {
         self.left
@@ -59,5 +43,22 @@ impl<'a> Calc<'a> {
                 self.right.as_deref().map(Expression::source).as_ref(),
                 "Right expression should follow whitespace",
             )
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Calc<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (left, left_length) = self.left.to_tokens_with_state(state);
+        let operator = &self.operator;
+        let (right, right_length) = if let Some(right) = self.right.as_ref() {
+            right.to_tokens_with_state(state)
+        } else {
+            (TokenStream::new(), left_length)
+        };
+
+        (
+            quote! { #left #operator #right },
+            left_length.min(right_length),
+        )
     }
 }
