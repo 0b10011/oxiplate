@@ -13,6 +13,7 @@ use crate::template::parser::template::Template;
 pub(crate) struct Block<'a> {
     pub(super) name: Identifier<'a>,
     pub(super) prefix: Template<'a>,
+    parent_source: Option<Source<'a>>,
     pub(super) suffix: Option<Template<'a>>,
     pub(super) is_ended: bool,
 }
@@ -42,9 +43,10 @@ impl<'a> Block<'a> {
                         message: "Only one parent statement is allowed in a block statement"
                             .to_string(),
                         error_source: source.clone(),
-                        consumed_source: source,
+                        consumed_source: source.clone(),
                     });
                 } else {
+                    self.parent_source = Some(source);
                     self.suffix = Some(Template(vec![]));
                 }
             }
@@ -170,9 +172,13 @@ impl<'a> ToTokensWithMutState<'a> for Block<'a> {
             self.name.as_str(),
             (
                 self.prefix.to_tokens_with_mut_state(state),
-                self.suffix
-                    .as_ref()
-                    .map(|suffix| suffix.to_tokens_with_mut_state(state)),
+                // Top-level blocks (i.e. not in an extends statement)
+                // will never have a parent statement,
+                // and therefore never have a suffix.
+                self.suffix.as_ref().map(|_suffix| {
+                    let span = self.parent_source.as_ref().expect("Parent source should be set when suffix is").span_token();
+                    (quote_spanned! {span=> compile_error!("`parent` statement not expected in top-level block. It is only allowed in `block` statements that are in `extends` statements."); }, EstimatedLength::new(0))
+                }),
             ),
         )]);
         block_stack.push_back(&block);
@@ -212,6 +218,7 @@ pub(super) fn parse_block(tokens: TokenSlice) -> Res<Statement> {
             kind: Block {
                 name,
                 prefix: Template(vec![]),
+                parent_source: None,
                 suffix: None,
                 is_ended: false,
             }

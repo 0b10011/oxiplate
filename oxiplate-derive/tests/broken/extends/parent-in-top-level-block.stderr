@@ -1,0 +1,5 @@
+error: `parent` statement not expected in top-level block. It is only allowed in `block` statements that are in `extends` statements.
+ --> tests/broken/extends/parent-in-top-level-block.rs:4:44
+  |
+4 | #[oxiplate_inline(r#"{% block content %}foo{% parent %}bar{% endblock %}"#)]
+  |                                            ^^^^^^^^^^^^
