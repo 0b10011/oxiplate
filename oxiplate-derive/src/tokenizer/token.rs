@@ -33,6 +33,12 @@ impl<K: Debug + PartialEq + Eq> Debug for Token<'_, K> {
     }
 }
 
+impl<'a, K: Debug + PartialEq + Eq> From<&Token<'a, K>> for Source<'a> {
+    fn from(value: &Token<'a, K>) -> Self {
+        value.source().clone()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct ParseError {
     message: &'static str,
