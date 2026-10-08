@@ -141,7 +141,10 @@ pub(crate) fn consume_expression_token<'a>(
         .consume()
         .expect("Buffer should contain at least one character");
 
-    (None, Ok(Token::new(kind, &source, leading_whitespace)))
+    (
+        None,
+        Ok((Token::new(kind, &source, leading_whitespace), None)),
+    )
 }
 
 pub(crate) fn consume_ident<'a>(
@@ -165,7 +168,7 @@ pub(crate) fn consume_ident<'a>(
     };
 
     let token = match kind {
-        Ok(kind) => Ok(Token::new(kind, &source, leading_whitespace)),
+        Ok(kind) => Ok((Token::new(kind, &source, leading_whitespace), None)),
         Err(message) => Err(UnexpectedTokenError::new(message, source)),
     };
 

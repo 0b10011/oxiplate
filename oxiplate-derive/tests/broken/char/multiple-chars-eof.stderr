@@ -1,5 +1,5 @@
-error: End of file encountered while parsing a lifetime.
+error: Expected an expression.
  --> tests/broken/char/multiple-chars-eof.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ 'hello")]
-  |                        ^^^^^^
+  |                        ^

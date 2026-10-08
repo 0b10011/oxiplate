@@ -37,13 +37,13 @@ impl<'a> GenericArgs<'a> {
 
         for (generic, comma) in &first_generics {
             source = source
-                .merge(generic.source(), "Generic expected after `,` or `<`")
+                .merge(&generic.source(), "Generic expected after `,` or `<`")
                 .merge(comma.source(), "`,` expected after generic");
         }
 
         if let Some((generic, comma)) = &last_generic {
             source = source
-                .merge(generic.source(), "Generic expected after `,` or `<`")
+                .merge(&generic.source(), "Generic expected after `,` or `<`")
                 .merge_some(comma.as_ref(), "`,` expected after last generic");
         }
 
@@ -105,7 +105,7 @@ impl<'a> GenericArg<'a> {
         into(Lifetime::parse).parse(tokens)
     }
 
-    pub(super) fn source(&self) -> &Source<'a> {
+    pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.source(),
         }

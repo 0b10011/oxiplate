@@ -27,7 +27,10 @@ pub(crate) fn consume_decimal<'a>(
                 .expect("At least one digit and `.` already consumed");
             return (
                 None,
-                Ok(Token::new(TokenKind::Float, &source, leading_whitespace)),
+                Ok((
+                    Token::new(TokenKind::Float, &source, leading_whitespace),
+                    None,
+                )),
             );
         }
         source.next_while(|char| matches!(char, '_' | '0'..='9'));
@@ -76,10 +79,13 @@ pub(crate) fn consume_decimal<'a>(
 
     (
         None,
-        Ok(Token::new(
-            kind,
-            &source.consume().expect("At least one digit was parsed"),
-            leading_whitespace,
+        Ok((
+            Token::new(
+                kind,
+                &source.consume().expect("At least one digit was parsed"),
+                leading_whitespace,
+            ),
+            None,
         )),
     )
 }
@@ -113,7 +119,10 @@ pub(crate) fn consume_alternative_base<'a>(
         let source = source.consume().expect("Buffer should contain `0`");
         return (
             None,
-            Ok(Token::new(TokenKind::Integer, &source, leading_whitespace)),
+            Ok((
+                Token::new(TokenKind::Integer, &source, leading_whitespace),
+                None,
+            )),
         );
     };
 
@@ -145,7 +154,10 @@ pub(crate) fn consume_alternative_base<'a>(
             let source = source.consume().expect("Buffer should contain `0`");
             return (
                 None,
-                Ok(Token::new(TokenKind::Integer, &source, leading_whitespace)),
+                Ok((
+                    Token::new(TokenKind::Integer, &source, leading_whitespace),
+                    None,
+                )),
             );
         }
     };
@@ -184,7 +196,10 @@ pub(crate) fn consume_alternative_base<'a>(
 
     (
         None,
-        Ok(Token::new(TokenKind::Integer, &number, leading_whitespace)),
+        Ok((
+            Token::new(TokenKind::Integer, &number, leading_whitespace),
+            None,
+        )),
     )
 }
 

@@ -1,30 +1,48 @@
 use super::Token;
 use crate::Source;
-use crate::template::tokenizer::Res;
+use crate::template::tokenizer::expression::consume_ident;
 use crate::template::tokenizer::kind::TokenKind;
+use crate::template::tokenizer::{Context, Res};
 use crate::tokenizer::{BufferedSource, ParseError, UnexpectedTokenError};
 
-/// Chars and lifetimes both start with `'`.
-/// This helps differentiate them
-/// since they're parsed at the same time.
-enum CharOrLifetime<'a> {
-    Char(char),
-    Lifetime(Source<'a>),
+macro_rules! error {
+    ($message:expr, $source:ident) => {
+        (
+            None::<Context>,
+            Err(UnexpectedTokenError::new($message, $source)),
+        )
+    };
 }
 
 /// Parse char literal (e.g., `'a'`) or lifetime (e.g., `'a`).
 /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
 /// See: <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
-fn parse_char_or_lifetime<'a>(
+pub fn consume_char_or_lifetime<'a>(
     source: &mut BufferedSource<'a>,
-) -> Result<CharOrLifetime<'a>, ParseError> {
-    macro_rules! error {
-        ($source:ident, $error:literal) => {{
-            parse_char_end($source)?;
-            return Err(ParseError::new($error));
-        }};
+    leading_whitespace: Option<Source<'a>>,
+) -> Res<'a> {
+    // Check if this is a lifetime instead of a char.
+    if matches!(
+        source.peek_2(),
+        Some(
+            [
+                'a'..='z' | 'A'..='Z' | '_',
+                second,
+            ],
+        ) if second != '\''
+    ) {
+        consume_lifetime(source, leading_whitespace)
+    } else {
+        consume_char(source, leading_whitespace)
     }
+}
 
+/// Parse char literal (e.g., `'a'`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
+pub fn consume_char<'a>(
+    source: &mut BufferedSource<'a>,
+    leading_whitespace: Option<Source<'a>>,
+) -> Res<'a> {
     let char = match source.next() {
         Some('\\') => match source.next() {
             Some(char @ ('\'' | '"' | '\\')) => char,
@@ -32,14 +50,25 @@ fn parse_char_or_lifetime<'a>(
             Some('r') => '\r',
             Some('t') => '\t',
             Some('0') => '\0',
-            Some(_char) => error!(
-                source,
-                r#"Unknown character escape. Expected `\\`, `\"`, `\'`, `\n`, `\r`, `\t`, or `\0`"#
-            ),
+            Some(_char) => {
+                let source = source
+                    .consume()
+                    .expect("Buffer should contain `'` at least");
+
+                return error!(
+                    r#"Unknown character escape. Expected `\\`, `\"`, `\'`, `\n`, `\r`, `\t`, or `\0`"#,
+                    source
+                );
+            }
             None => {
-                return Err(ParseError::new(
+                let source = source
+                    .consume()
+                    .expect("Buffer should contain `'` at least");
+
+                return error!(
                     "End of file encountered while parsing a character literal",
-                ));
+                    source
+                );
             }
         },
 
@@ -52,55 +81,89 @@ fn parse_char_or_lifetime<'a>(
         Some('\t') => '\t',
 
         Some('\'') => {
-            return Err(ParseError::new(
-                "No character specified in the character literal",
-            ));
+            let source = source
+                .consume()
+                .expect("Buffer should contain `'` at least");
+
+            return error!("No character specified in the character literal", source);
         }
 
-        Some(char) if source.peek() == Some('\'') => char,
-
-        Some('a'..='z' | 'A'..='Z' | '_') => {
-            let matched =
-                source.next_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'));
-
-            match source.peek() {
-                // Single character followed by `'`
-                // should have already been checked for by this point.
-                Some('\'') => {
-                    let _ = source.next();
-                    return Err(ParseError::new(
-                        r#"More than one character present in character literal. Consider using `"` instead of `'` to use a string literal instead."#,
-                    ));
-                }
-                None => {
-                    let message = if matched == 0 {
-                        "End of file encountered while parsing a character literal"
-                    } else {
-                        "End of file encountered while parsing a lifetime."
-                    };
-                    return Err(ParseError::new(message));
-                }
-                _ => (),
-            }
-
-            return Ok(CharOrLifetime::Lifetime(
-                source
-                    .consume()
-                    .expect("Buffer should be at least one character"),
-            ));
-        }
-
-        // Error will get caught by `parse_char_end()`
+        // If the character isn't followed by `'`,
+        // that'll get caught at the end by `parse_char_end()`
         Some(char) => char,
 
         None => {
-            return Err(ParseError::new(
+            let source = source
+                .consume()
+                .expect("Buffer should contain `'` at least");
+
+            return error!(
                 "End of file encountered while parsing a character literal",
-            ));
+                source
+            );
         }
     };
 
-    parse_char_end(source).map(|()| CharOrLifetime::Char(char))
+    if let Err(error) = parse_char_end(source) {
+        let source = source
+            .consume()
+            .expect("Buffer should contain `'` at least");
+
+        return error!(error.message(), source);
+    }
+
+    let source = source
+        .consume()
+        .expect("Buffer should contain `'` at least");
+
+    (
+        None,
+        Ok((
+            Token::new(TokenKind::Char(char), &source, leading_whitespace),
+            None,
+        )),
+    )
+}
+
+/// Parse lifetime (e.g., `'a`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
+pub fn consume_lifetime<'a>(
+    source: &mut BufferedSource<'a>,
+    leading_whitespace: Option<Source<'a>>,
+) -> Res<'a> {
+    let apostrophe = source.consume().expect("Buffer should contain `'`");
+    let (_context, identifier) = consume_ident(source, None);
+    let identifier = match identifier {
+        Ok((identifier, None)) => identifier,
+        Ok((first, Some(second))) => {
+            unreachable!(
+                "Identifiers should always be a single token. Found {:?} and {:?}",
+                first, second
+            );
+        }
+        err @ Err(_) => return (None, err),
+    };
+
+    // `'` not allowed immediately following lifetime
+    if source.next_if(|char| char == '\'') {
+        let trailing_apostrophe = source.consume().expect("Buffer should contain `'`");
+        let source = apostrophe
+            .merge(identifier.source(), "Identifier should be after `'`")
+            .merge(&trailing_apostrophe, "`'` should be after identifier");
+
+        return error!(
+            r#"More than one character present in character literal. Consider using `"` instead of `'` to use a string literal instead."#,
+            source
+        );
+    }
+
+    (
+        None,
+        Ok((
+            Token::new(TokenKind::Apostrophe, &apostrophe, leading_whitespace),
+            Some(identifier),
+        )),
+    )
 }
 
 fn parse_char_end(source: &mut BufferedSource) -> Result<(), ParseError> {
@@ -124,44 +187,5 @@ fn parse_char_end(source: &mut BufferedSource) -> Result<(), ParseError> {
         None => Err(ParseError::new(
             "End of file encountered while parsing a character literal",
         )),
-    }
-}
-
-/// Parse and consume a char literal (e.g., `'a'`) or lifetime (e.g., `'a`).
-/// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
-/// See: <https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels>
-pub(crate) fn consume_char_or_lifetime<'a>(
-    source: &mut BufferedSource<'a>,
-    leading_whitespace: Option<Source<'a>>,
-) -> Res<'a> {
-    match parse_char_or_lifetime(source) {
-        Ok(CharOrLifetime::Char(char)) => {
-            let source = source
-                .consume()
-                .expect("Buffer should contain `'` at least");
-
-            (
-                None,
-                Ok(Token::new(
-                    TokenKind::Char(char),
-                    &source,
-                    leading_whitespace,
-                )),
-            )
-        }
-        Ok(CharOrLifetime::Lifetime(source)) => (
-            None,
-            Ok(Token::new(TokenKind::Lifetime, &source, leading_whitespace)),
-        ),
-        Err(parse_error) => {
-            let source = source
-                .consume()
-                .expect("Buffer should contain `'` at least");
-
-            (
-                None,
-                Err(UnexpectedTokenError::new(parse_error.message(), source)),
-            )
-        }
     }
 }

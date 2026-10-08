@@ -9,7 +9,7 @@ pub(crate) fn consume_static_whitespace<'a>(source: &mut BufferedSource<'a>) -> 
 
     (
         None,
-        Ok(Token::new(TokenKind::StaticWhitespace, &source, None)),
+        Ok((Token::new(TokenKind::StaticWhitespace, &source, None), None)),
     )
 }
 
@@ -19,7 +19,10 @@ pub(crate) fn consume_static_text<'a>(source: &mut BufferedSource<'a>) -> Res<'a
         .consume_until(|char| matches!(char, '{' | whitespace!()))
         .expect("Buffer should contain at least one character");
 
-    (None, Ok(Token::new(TokenKind::StaticText, &source, None)))
+    (
+        None,
+        Ok((Token::new(TokenKind::StaticText, &source, None), None)),
+    )
 }
 
 pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
@@ -70,7 +73,7 @@ pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) ->
                     (TokenKind::StaticText, source)
                 }
             };
-            return (None, Ok(Token::new(kind, &source, None)));
+            return (None, Ok((Token::new(kind, &source, None), None)));
         }
     };
 
@@ -92,12 +95,15 @@ pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) ->
 
     (
         new_context,
-        Ok(Token::new(
-            TokenKind::TagStart {
-                kind,
-                whitespace_preference,
-            },
-            &source,
+        Ok((
+            Token::new(
+                TokenKind::TagStart {
+                    kind,
+                    whitespace_preference,
+                },
+                &source,
+                None,
+            ),
             None,
         )),
     )
