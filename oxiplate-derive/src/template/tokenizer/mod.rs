@@ -73,6 +73,11 @@ impl<'a> Tokens<'a> {
             Context::Static => match self.source.next()? {
                 '{' => consume_possible_tag_start(&mut self.source),
                 whitespace!() => consume_static_whitespace(&mut self.source),
+                #[cfg(feature = "_unreachable")]
+                '@' => {
+                    let source = self.source.consume().expect("Should contain `@`");
+                    (None, Ok((Token::new(TokenKind::At, &source, None), None)))
+                }
                 _ => consume_static_text(&mut self.source),
             },
             Context::Comment => {

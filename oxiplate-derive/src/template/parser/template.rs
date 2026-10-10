@@ -117,6 +117,8 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
             take(TokenKind::WhitespaceAdjustmentTag {
                 whitespace_preference: WhitespacePreference::Replace,
             }),
+            #[cfg(feature = "_unreachable")]
+            take(TokenKind::At),
         )),
     )
         .parse(tokens)?;
