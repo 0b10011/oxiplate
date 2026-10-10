@@ -1,4 +1,4 @@
-use crate::template::tokenizer::kind::WhitespacePreference;
+use super::{WhitespaceAdjustmentTagPreference, WhitespacePreference};
 use crate::template::tokenizer::{Context, Res, TagKind, TokenKind, whitespace};
 use crate::tokenizer::{BufferedSource, Token};
 
@@ -49,7 +49,7 @@ pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) ->
 
                     (
                         TokenKind::WhitespaceAdjustmentTag {
-                            whitespace_preference: WhitespacePreference::Remove,
+                            whitespace_preference: WhitespaceAdjustmentTagPreference::Remove,
                         },
                         source,
                     )
@@ -61,7 +61,7 @@ pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) ->
                     let source = source.consume().expect("Buffer should contain `{_}`");
                     (
                         TokenKind::WhitespaceAdjustmentTag {
-                            whitespace_preference: WhitespacePreference::Replace,
+                            whitespace_preference: WhitespaceAdjustmentTagPreference::Replace,
                         },
                         source,
                     )

@@ -7,7 +7,9 @@ use std::mem::take;
 
 use self::comment::consume_comment;
 use self::expression::{consume_expression_token, consume_ident};
-pub(crate) use self::kind::{TagKind, TokenKind, WhitespacePreference};
+pub(crate) use self::kind::{
+    TagKind, TokenKind, WhitespaceAdjustmentTagPreference, WhitespacePreference,
+};
 use self::r#static::{consume_possible_tag_start, consume_static_text, consume_static_whitespace};
 use crate::Source;
 pub(crate) use crate::tokenizer::Eof;

@@ -215,7 +215,7 @@ pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Sourc
 
 pub(super) fn parse_trailing_whitespace<'a>(
     end_tag: &'a Source<'a>,
-    whitespace_preference: &'a WhitespacePreference,
+    whitespace_preference: WhitespacePreference,
     allow_skipping_replacement: bool,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, Option<Item<'a>>> + 'a {
     move |tokens| {
@@ -241,14 +241,14 @@ pub(super) fn parse_trailing_whitespace<'a>(
                 TokenKind::TagStart {
                     whitespace_preference,
                     ..
-                }
-                | TokenKind::WhitespaceAdjustmentTag {
+                } => whitespace_preference.to_owned(),
+                TokenKind::WhitespaceAdjustmentTag {
                     whitespace_preference,
-                } => whitespace_preference,
-                _ => &WhitespacePreference::Indifferent,
+                } => whitespace_preference.to_owned().into(),
+                _ => WhitespacePreference::Indifferent,
             };
 
-            match (whitespace_preference, next_whitespace_preference) {
+            match (&whitespace_preference, next_whitespace_preference) {
                 (WhitespacePreference::Remove, WhitespacePreference::Replace)
                 | (WhitespacePreference::Replace, WhitespacePreference::Remove) => {
                     let consumed_source = end_tag.with_collapsed_to_end();
@@ -343,7 +343,7 @@ pub(crate) fn tag_end<'a>(
         }
 
         let (tokens, trailing_whitespace) =
-            parse_trailing_whitespace(token.source(), whitespace_preference, false)
+            parse_trailing_whitespace(token.source(), whitespace_preference.to_owned(), false)
                 .parse(tokens)?;
 
         Ok((tokens, (trailing_whitespace, token.source().clone())))
