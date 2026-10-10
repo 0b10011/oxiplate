@@ -22,18 +22,15 @@ pub fn consume_char_or_lifetime<'a>(
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
     // Check if this is a lifetime instead of a char.
-    if matches!(
-        source.peek_2(),
-        Some(
-            [
-                'a'..='z' | 'A'..='Z' | '_',
-                second,
-            ],
-        ) if second != '\''
-    ) {
-        consume_lifetime(source, leading_whitespace)
-    } else {
-        consume_char(source, leading_whitespace)
+    match source.peek_2() {
+        // Single quoted char.
+        Some([_, '\'']) => consume_char(source, leading_whitespace),
+
+        // Possible lifetime, definitely not a char.
+        Some(['a'..='z' | 'A'..='Z' | '_', _]) => consume_lifetime(source, leading_whitespace),
+
+        // Invalid syntax; neither a char or lifetime.
+        _ => consume_char(source, leading_whitespace),
     }
 }
 
