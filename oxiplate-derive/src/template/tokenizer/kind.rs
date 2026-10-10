@@ -33,7 +33,6 @@ pub(crate) enum TokenKind {
 
     Bool(bool),
     Char(char),
-    Lifetime,
     Integer,
     Float,
 
@@ -45,6 +44,8 @@ pub(crate) enum TokenKind {
     #[allow(clippy::box_collection)]
     RawString(Box<String>),
 
+    /// `'`
+    Apostrophe,
     /// `(`
     OpenParenthese,
     /// `)`
