@@ -55,7 +55,7 @@ impl<'a> Writ<'a> {
                         escaper,
                     ))
                 } else {
-                    let span = group.span();
+                    let span = group.source().span_token();
                     Err((
                         quote_spanned! {span=>
                             compile_error!("Invalid escaper group specified");
@@ -109,7 +109,7 @@ impl<'a> Writ<'a> {
                         ))
                     }
                 } else {
-                    let span = escaper.span();
+                    let span = escaper.source().span_token();
 
                     #[cfg(not(feature = "config"))]
                     return Err((
@@ -258,7 +258,7 @@ impl<'a> Writ<'a> {
         }
 
         if let Ok(escaper) =
-            syn::LitStr::new(escaper.as_str(), escaper.span()).parse::<PathSegment>()
+            syn::LitStr::new(escaper.as_str(), escaper.source().span_token()).parse::<PathSegment>()
         {
             if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
                 if let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>() {

@@ -1,3 +1,5 @@
+use proc_macro2::Literal;
+
 use super::{Expression, NestedExpression, expression};
 use crate::template::parser::prelude::*;
 
@@ -66,8 +68,9 @@ impl<'a> ToTokensWithState<'a> for Concat<'a> {
         for expression in expressions {
             if let Expression::String(string) = expression {
                 estimated_length += EstimatedLength::new(string.as_str().len());
-                let string = syn::LitStr::new(string.as_str(), string.source().span_token());
-                format_tokens.push(quote! { #string });
+                let mut literal = Literal::string(string.as_str());
+                literal.set_span(string.source().span_token());
+                format_tokens.push(quote! { #literal });
             } else {
                 let span = expression.source().span_token();
                 format_tokens.push(quote_spanned! {span=> "{}" });

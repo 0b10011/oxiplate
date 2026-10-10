@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 
-use syn::{Ident, LitStr};
+use proc_macro2::{Ident, Literal};
 
 use super::{Statement, StatementKind};
 use crate::oxiplate_internal;
@@ -40,7 +40,8 @@ impl<'a> ToTokensWithMutState<'a> for Include<'a> {
         // and `foo` in a template
         // can be turned into `self.foo`
         // in the generated Rust code.
-        let include_path = LitStr::new(self.path.as_str(), self.path.source().span_token());
+        let mut include_path = Literal::string(self.path.as_str());
+        include_path.set_span(self.path.source().span_token());
         let fields = state.fields.iter().map(|field| Ident::new_raw(field, span));
         let template = quote_spanned! {span=>
             #[derive(#oxiplate)]

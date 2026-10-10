@@ -1,3 +1,5 @@
+use proc_macro2::Literal;
+
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -44,7 +46,8 @@ impl<'a> Char<'a> {
 
 impl<'a> ToTokensWithState<'a> for Char<'a> {
     fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
-        let literal = ::syn::LitChar::new(self.value, self.source.span_token());
+        let mut literal = Literal::character(self.value);
+        literal.set_span(self.source.span_token());
         (quote! { #literal }, EstimatedLength::new(1))
     }
 }

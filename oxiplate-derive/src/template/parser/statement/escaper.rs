@@ -1,5 +1,4 @@
-use syn::LitStr;
-use syn::spanned::Spanned as _;
+use proc_macro2::Literal;
 
 use super::{Statement, StatementKind};
 use crate::template::parser::expression::{Identifier, Keyword, KeywordParser};
@@ -25,7 +24,7 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
 
             let span = self.tag.source().span_token();
             let tag = self.tag.source().as_str();
-            let tag_span = self.tag.span();
+            let tag_span = self.tag.source().span_token();
             let tag = quote_spanned! {tag_span=> #tag };
 
             return (
@@ -37,7 +36,7 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
 
             let span = self.tag.source().span_token();
             let tag = self.tag.source().as_str();
-            let tag_span = self.tag.span();
+            let tag_span = self.tag.source().span_token();
             let tag = quote_spanned! {tag_span=> #tag };
 
             return (
@@ -50,7 +49,8 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
                 if inferred_escaper_group.0 != self.escaper.as_str() {
                     state.failed_to_set_default_escaper_group = true;
 
-                    let default_escaper = LitStr::new(self.escaper.as_str(), self.escaper.span());
+                    let mut default_escaper = Literal::string(self.escaper.as_str());
+                    default_escaper.set_span(self.escaper.source().span_token());
                     let inferred_escaper_group = &inferred_escaper_group.0;
                     let span = self.escaper.source().span_token();
 
@@ -76,8 +76,9 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
         {
             state.failed_to_set_default_escaper_group = true;
 
-            let span = self.escaper.span();
-            let default_escaper = LitStr::new(self.escaper.as_str(), span);
+            let span = self.escaper.source().span_token();
+            let mut default_escaper = Literal::string(self.escaper.as_str());
+            default_escaper.set_span(span);
             let mut available_escaper_groups = state
                 .config
                 .escaper_groups
@@ -85,7 +86,9 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
                 .map(|key| &**key)
                 .collect::<Vec<&str>>();
             available_escaper_groups.sort_unstable();
-            let available_escaper_groups = LitStr::new(&available_escaper_groups.join(", "), span);
+            let mut available_escaper_groups =
+                Literal::string(&available_escaper_groups.join(", "));
+            available_escaper_groups.set_span(span);
 
             return (
                 quote_spanned! {span=>

@@ -1,3 +1,5 @@
+use proc_macro2::Ident;
+
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -37,7 +39,8 @@ impl<'a> Bool<'a> {
 
 impl<'a> ToTokensWithState<'a> for Bool<'a> {
     fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
-        let literal = ::syn::LitBool::new(self.value, self.source.span_token());
+        let ident = if self.value { "true" } else { "false" };
+        let literal = Ident::new(ident, self.source.span_token());
         (quote! { #literal }, EstimatedLength::new(0))
     }
 }
