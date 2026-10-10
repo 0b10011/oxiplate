@@ -16,7 +16,7 @@ impl<'a> Prefixed<'a> {
 
         let (tokens, expression) = if operator.cut_if_not_followed_by_expression() {
             cut(
-                "Expected an expression after prefix operator",
+                "Expected an expression after the operator",
                 expression(false),
             )
             .parse(tokens)?

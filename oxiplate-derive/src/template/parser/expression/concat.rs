@@ -14,7 +14,7 @@ impl<'a> Concat<'a> {
     pub(super) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
         let (tokens, concats) = many1((
             take(TokenKind::Tilde),
-            cut("Expected an expression", expression(false)),
+            cut("Expected an expression after `~`", expression(false)),
         ))
         .parse(tokens)?;
 

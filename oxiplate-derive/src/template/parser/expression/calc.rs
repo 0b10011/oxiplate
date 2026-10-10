@@ -16,8 +16,11 @@ impl<'a> Calc<'a> {
         let (tokens, operator) = parse_operator.parse(tokens)?;
 
         let (tokens, right) = if operator.requires_expression_after() {
-            let (tokens, expression) =
-                cut("Expected an expression", expression(false)).parse(tokens)?;
+            let (tokens, expression) = cut(
+                "Expected an expression after the operator",
+                expression(false),
+            )
+            .parse(tokens)?;
             (tokens, Some(expression))
         } else {
             ignore_recoverable_errors(expression(false)).parse(tokens)?

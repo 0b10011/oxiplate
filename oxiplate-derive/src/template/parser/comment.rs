@@ -9,7 +9,10 @@ pub(super) fn comment<'a>(
     move |tokens| {
         let (tokens, (comment_text, (trailing_whitespace, close_tag))) = (
             many0(take(TokenKind::Comment)),
-            cut("Expected `#}`, `-#}`, or `_#}`", tag_end(TagKind::Comment)),
+            cut(
+                "End of file encountered while parsing a comment. Expected `#}`, `-#}`, or `_#}`",
+                tag_end(TagKind::Comment),
+            ),
         )
             .parse(tokens)?;
 

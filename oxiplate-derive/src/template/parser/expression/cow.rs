@@ -13,7 +13,10 @@ impl<'a> Cow<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (prefix, expression)) = (
             take(TokenKind::GreaterThan),
-            cut("Expected an expression after cow prefix", expression(false)),
+            cut(
+                "Expected an expression after cow prefix (`>`)",
+                expression(false),
+            ),
         )
             .parse(tokens)?;
 

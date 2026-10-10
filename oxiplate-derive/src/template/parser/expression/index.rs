@@ -27,7 +27,7 @@ impl<'a> Index<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
         let (tokens, (open_bracket, index, close_bracket)) = (
             take(TokenKind::OpenBracket),
-            cut("Expected an expression", expression(true)),
+            cut("Expected an expression after `[`", expression(true)),
             cut("Expected `]`", take(TokenKind::CloseBracket)),
         )
             .parse(tokens)?;

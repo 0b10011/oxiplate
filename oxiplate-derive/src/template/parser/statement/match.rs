@@ -73,7 +73,7 @@ impl<'a> Match<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
         let (tokens, (statement, expression)) = (
             KeywordParser::new("match"),
-            cut(r#"Expected an expression after "match""#, expression(true)),
+            cut("Expected an expression after `match`", expression(true)),
         )
             .parse(tokens)?;
 
