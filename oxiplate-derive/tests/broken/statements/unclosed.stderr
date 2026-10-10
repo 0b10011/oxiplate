@@ -1,0 +1,5 @@
+error: End of file encountered while parsing a statement. Expected `%}`, `-%}`, or `_%}`
+ --> tests/broken/statements/unclosed.rs:4:30
+  |
+4 | #[oxiplate_inline("{% continue")]
+  |                              ^
