@@ -138,7 +138,7 @@ pub(crate) fn parse_tag(tokens: TokenSlice) -> Res<Vec<Item>> {
     let (tokens, (leading_whitespace, open, source)) = tag_start.parse(tokens)?;
 
     let (tokens, (tag, trailing_whitespace)) = match open.kind {
-        TagKind::Writ => cut("Expected a writ expression", writ(source)).parse(tokens)?,
+        TagKind::Writ => cut("Expected an expression or escaper", writ(source)).parse(tokens)?,
         TagKind::Statement => cut("Expected a statement", statement(source)).parse(tokens)?,
         TagKind::Comment => cut("Expected a comment", comment(source)).parse(tokens)?,
     };
@@ -318,15 +318,39 @@ pub(crate) fn tag_end<'a>(
     expected_kind: TagKind,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Option<Item<'a>>, Source<'a>)> {
     move |tokens| {
-        let (tokens, token) = tokens.take()?;
+        let (tokens, token) = match tokens.clone().take() {
+            Err(err) if err.is_eof() => {
+                let message = match expected_kind {
+                    TagKind::Writ => {
+                        "End of file encountered while parsing a writ. Expected `}}`, `-}}`, or \
+                         `_}}`"
+                    }
+                    TagKind::Statement => {
+                        "End of file encountered while parsing a statement. Expected `%}`, `-%}`, \
+                         or `_%}`"
+                    }
+                    TagKind::Comment => {
+                        "End of file encountered while parsing a comment. Expected `#}`, `-#}`, or \
+                         `_#}`"
+                    }
+                };
+                return cut(message, fail()).parse(tokens);
+            }
+            result => result,
+        }?;
 
         let TokenKind::TagEnd {
             kind,
             whitespace_preference,
         } = token.kind()
         else {
-            return Err(Error::Recoverable {
-                message: format!("Expected `TagEnd`, found `{:?}`", token.kind()),
+            let expected_end_tags = match expected_kind {
+                TagKind::Writ => "`}}`, `-}}`, or `_}}`",
+                TagKind::Statement => "`%}`, `-%}`, or `_%}`",
+                TagKind::Comment => "`#}`, `-#}`, or `+#}`",
+            };
+            return Err(Error::Unrecoverable {
+                message: format!("Expected {expected_end_tags}"),
                 source: token.source().clone(),
                 previous_error: None,
                 is_eof: false,

@@ -6,7 +6,7 @@ use self::char::consume_char_or_lifetime;
 use self::number::{consume_alternative_base, consume_decimal};
 use self::string::{consume_raw_string, consume_string};
 use super::{
-    Context, Res, TagKind, Token, TokenKind, WhitespacePreference, consume_possible_tag_end,
+    Res, TagKind, Token, TokenKind, WhitespacePreference, consume_possible_tag_end,
     consume_possible_tag_end_whitespace_adjustment, whitespace,
 };
 use crate::Source;
@@ -17,7 +17,7 @@ pub(crate) fn consume_expression_token<'a>(
     source: &mut BufferedSource<'a>,
     has_unclosed_char_pairs: bool,
     in_tag_kind: &TagKind,
-) -> Res<'a> {
+) -> Option<Res<'a>> {
     let leading_whitespace = source
         .consume_while(|char| matches!(char, whitespace!()))
         .ok();
@@ -32,106 +32,84 @@ pub(crate) fn consume_expression_token<'a>(
         }};
     }
 
-    let kind = match source.next() {
-        Some('"') => return consume_string(source, leading_whitespace),
-        Some('#') => return consume_raw_string(source, leading_whitespace),
-        Some('\'') => return consume_char_or_lifetime(source, leading_whitespace),
-        Some('}') => {
-            return consume_possible_tag_end(
+    let kind = match source.next()? {
+        '"' => return Some(consume_string(source, leading_whitespace)),
+        '#' => return Some(consume_raw_string(source, leading_whitespace)),
+        '\'' => return Some(consume_char_or_lifetime(source, leading_whitespace)),
+        '}' => {
+            return Some(consume_possible_tag_end(
                 source,
                 leading_whitespace,
                 TagKind::Writ,
                 has_unclosed_char_pairs,
-            );
+            ));
         }
-        Some('%') => {
-            return consume_possible_tag_end(
+        '%' => {
+            return Some(consume_possible_tag_end(
                 source,
                 leading_whitespace,
                 TagKind::Statement,
                 has_unclosed_char_pairs,
-            );
+            ));
         }
-        Some('(') => TokenKind::OpenParenthese,
-        Some(')') => TokenKind::CloseParenthese,
-        Some('[') => TokenKind::OpenBracket,
-        Some(']') => TokenKind::CloseBracket,
-        Some('{') => TokenKind::OpenBrace,
-        Some('+') => TokenKind::Plus,
-        Some('-') => {
-            return consume_possible_tag_end_whitespace_adjustment(
+        '(' => TokenKind::OpenParenthese,
+        ')' => TokenKind::CloseParenthese,
+        '[' => TokenKind::OpenBracket,
+        ']' => TokenKind::CloseBracket,
+        '{' => TokenKind::OpenBrace,
+        '+' => TokenKind::Plus,
+        '-' => {
+            return Some(consume_possible_tag_end_whitespace_adjustment(
                 source,
                 leading_whitespace,
                 in_tag_kind,
                 has_unclosed_char_pairs,
                 WhitespacePreference::Remove,
-            );
+            ));
         }
-        Some('_') => {
-            return consume_possible_tag_end_whitespace_adjustment(
+        '_' => {
+            return Some(consume_possible_tag_end_whitespace_adjustment(
                 source,
                 leading_whitespace,
                 in_tag_kind,
                 has_unclosed_char_pairs,
                 WhitespacePreference::Replace,
-            );
+            ));
         }
-        Some('*') => TokenKind::Asterisk,
-        Some('/') => TokenKind::ForwardSlash,
-        Some('~') => TokenKind::Tilde,
-        Some(',') => TokenKind::Comma,
-        Some(':') => if_matches!(':' => PathSeparator else Colon),
-        Some(';') => TokenKind::Semicolon,
-        Some('&') => if_matches!('&' => And else Ampersand),
-        Some('!') => if_matches!('=' => NotEq else Exclamation),
-        Some('=') => if_matches!('=' => Eq else Equal),
-        Some('<') => if_matches!('=' => LessThanOrEqualTo else LessThan),
-        Some('>') => if_matches!('=' => GreaterThanOrEqualTo else GreaterThan),
-        Some('|') => if_matches!('|' => Or else VerticalBar),
-        Some('.') => {
+        '*' => TokenKind::Asterisk,
+        '/' => TokenKind::ForwardSlash,
+        '~' => TokenKind::Tilde,
+        ',' => TokenKind::Comma,
+        ':' => if_matches!(':' => PathSeparator else Colon),
+        ';' => TokenKind::Semicolon,
+        '&' => if_matches!('&' => And else Ampersand),
+        '!' => if_matches!('=' => NotEq else Exclamation),
+        '=' => if_matches!('=' => Eq else Equal),
+        '<' => if_matches!('=' => LessThanOrEqualTo else LessThan),
+        '>' => if_matches!('=' => GreaterThanOrEqualTo else GreaterThan),
+        '|' => if_matches!('|' => Or else VerticalBar),
+        '.' => {
             if source.next_if(|char| char == '.') {
                 if_matches!('=' => RangeInclusive else RangeExclusive)
             } else {
                 TokenKind::Period
             }
         }
-        Some('@') => TokenKind::At,
-        Some('a'..='z' | 'A'..='Z') => return consume_ident(source, leading_whitespace),
-        Some('0') => return consume_alternative_base(source, leading_whitespace),
-        Some('1'..='9') => return consume_decimal(source, leading_whitespace),
-        Some(_) => {
+        '@' => TokenKind::At,
+        'a'..='z' | 'A'..='Z' => return Some(consume_ident(source, leading_whitespace)),
+        '0' => return Some(consume_alternative_base(source, leading_whitespace)),
+        '1'..='9' => return Some(consume_decimal(source, leading_whitespace)),
+        _ => {
             let source = source
                 .consume()
                 .expect("Buffer should contain at least one char");
-            return (
+            return Some((
                 None,
                 Err(UnexpectedTokenError::new(
                     "Unexpected character in expression",
                     source,
                 )),
-            );
-        }
-        None => {
-            let message = match in_tag_kind {
-                TagKind::Writ => {
-                    "End of file encountered while parsing a writ. Expected `}}`, `-}}`, or `_}}`"
-                }
-                TagKind::Statement => {
-                    "End of file encountered while parsing a statement. Expected `%}`, `-%}`, or \
-                     `_%}`"
-                }
-                TagKind::Comment => {
-                    unreachable!("Expressions should not be parsed in comments")
-                }
-            };
-
-            return (
-                Some(Context::Static),
-                Err(UnexpectedTokenError::new(
-                    message,
-                    source.eof().source().clone(),
-                )),
-            );
+            ));
         }
     };
 
@@ -139,10 +117,10 @@ pub(crate) fn consume_expression_token<'a>(
         .consume()
         .expect("Buffer should contain at least one character");
 
-    (
+    Some((
         None,
         Ok((Token::new(kind, &source, leading_whitespace), None)),
-    )
+    ))
 }
 
 pub(crate) fn consume_ident<'a>(

@@ -1,4 +1,4 @@
-error: End of file encountered while parsing a statement. Expected `%}`, `-%}`, or `_%}`
+error: Expected an expression after the operator
  --> templates/operator-at-end-of-template.oxip
   |
   | {% if 19 +

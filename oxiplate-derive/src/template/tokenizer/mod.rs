@@ -83,36 +83,28 @@ impl<'a> Tokens<'a> {
                 _ => consume_static_text(&mut self.source),
             },
             Context::Comment => {
-                let (new_context, token) = match self.source.next() {
-                    Some('-') => consume_possible_tag_end_whitespace_adjustment(
+                let (new_context, token) = match self.source.next()? {
+                    '-' => consume_possible_tag_end_whitespace_adjustment(
                         &mut self.source,
                         None,
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Remove,
                     ),
-                    Some('_') => consume_possible_tag_end_whitespace_adjustment(
+                    '_' => consume_possible_tag_end_whitespace_adjustment(
                         &mut self.source,
                         None,
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Replace,
                     ),
-                    Some('#') => consume_possible_tag_end(
+                    '#' => consume_possible_tag_end(
                         &mut self.source,
                         None,
                         TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                     ),
-                    Some(_char) => consume_comment(&mut self.source),
-                    None => (
-                        Some(Context::Static),
-                        Err(UnexpectedTokenError::new(
-                            "End of file encountered while parsing a comment. Expected `#}`, \
-                             `-#}`, or `_#}`",
-                            self.source.eof().source().clone(),
-                        )),
-                    ),
+                    _char => consume_comment(&mut self.source),
                 };
                 (new_context, token)
             }
@@ -120,12 +112,12 @@ impl<'a> Tokens<'a> {
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Statement,
-            ),
+            )?,
             Context::Writ => consume_expression_token(
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Writ,
-            ),
+            )?,
         };
 
         Some(context_and_tokens)

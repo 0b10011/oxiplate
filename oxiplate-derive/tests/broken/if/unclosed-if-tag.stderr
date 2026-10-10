@@ -1,4 +1,4 @@
-error: "%}" expected
+error: Expected `%}`, `-%}`, or `_%}`
  --> tests/broken/if/unclosed-if-tag.rs:4:37
   |
 4 | #[oxiplate_inline("{%- if should_do {{ action }}")]

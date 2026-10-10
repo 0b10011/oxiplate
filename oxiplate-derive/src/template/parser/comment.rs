@@ -7,14 +7,8 @@ pub(super) fn comment<'a>(
     open_tag_source: Source<'a>,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
     move |tokens| {
-        let (tokens, (comment_text, (trailing_whitespace, close_tag))) = (
-            many0(take(TokenKind::Comment)),
-            cut(
-                "End of file encountered while parsing a comment. Expected `#}`, `-#}`, or `_#}`",
-                tag_end(TagKind::Comment),
-            ),
-        )
-            .parse(tokens)?;
+        let (tokens, (comment_text, (trailing_whitespace, close_tag))) =
+            (many0(take(TokenKind::Comment)), tag_end(TagKind::Comment)).parse(tokens)?;
 
         let mut comment = open_tag_source.clone();
 

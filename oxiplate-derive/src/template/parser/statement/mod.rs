@@ -221,7 +221,7 @@ pub(super) fn statement<'a>(
 
         // Parse the closing tag and any trailing whitespace
         let (tokens, (mut trailing_whitespace, close_tag)) =
-            cut(r#""%}" expected"#, tag_end(TagKind::Statement)).parse(tokens)?;
+            tag_end(TagKind::Statement).parse(tokens)?;
 
         statement.wrap_source(open_tag_source.clone(), &close_tag);
 
@@ -238,12 +238,7 @@ pub(super) fn statement<'a>(
                     return Ok(eof(tokens, statement, trailing_whitespace));
                 }
 
-                let (new_tokens, items) = match statement_item(tokens)? {
-                    (new_tokens, Some(items)) => (new_tokens, items),
-                    (tokens, None) => {
-                        return Ok(eof(tokens, statement, trailing_whitespace));
-                    }
-                };
+                let (new_tokens, items) = statement_item(tokens)?;
                 tokens = new_tokens;
 
                 for item in items {
@@ -281,18 +276,8 @@ pub(super) fn statement<'a>(
     }
 }
 
-fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Option<Vec<Item>>), Error> {
-    let eof = tokens.eof();
-    match cut("Failed to parse contents of statement", parse_item).parse(tokens) {
-        Ok((tokens, items)) => Ok((tokens, Some(items))),
-        Err(err) => {
-            if err.is_eof() {
-                Ok((TokenSlice::new(&[], eof), None))
-            } else {
-                Err(err)
-            }
-        }
-    }
+fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Vec<Item>), Error> {
+    cut("Failed to parse contents of statement", parse_item).parse(tokens)
 }
 
 fn eof<'a>(
