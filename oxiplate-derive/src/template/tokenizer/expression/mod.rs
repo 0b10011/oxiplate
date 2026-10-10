@@ -41,7 +41,6 @@ pub(crate) fn consume_expression_token<'a>(
                 source,
                 leading_whitespace,
                 TagKind::Writ,
-                in_tag_kind,
                 has_unclosed_char_pairs,
             );
         }
@@ -50,7 +49,6 @@ pub(crate) fn consume_expression_token<'a>(
                 source,
                 leading_whitespace,
                 TagKind::Statement,
-                in_tag_kind,
                 has_unclosed_char_pairs,
             );
         }

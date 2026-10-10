@@ -334,8 +334,15 @@ pub(crate) fn tag_end<'a>(
         };
 
         if *kind != expected_kind {
+            let expected_end_tags = match expected_kind {
+                TagKind::Writ => "`}}`, `-}}`, or `_}}`",
+                TagKind::Statement => "`%}`, `-%}`, or `_%}`",
+                TagKind::Comment => {
+                    unreachable!("Comment should treat anything other than `#}}` as comment text")
+                }
+            };
             return Err(Error::Unrecoverable {
-                message: format!("Expected `{expected_kind:?}`, found `{kind:?}`"),
+                message: format!("Expected {expected_end_tags}"),
                 source: token.source().clone(),
                 previous_error: None,
                 is_eof: false,

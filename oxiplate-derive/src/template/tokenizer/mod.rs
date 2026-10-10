@@ -102,7 +102,6 @@ impl<'a> Tokens<'a> {
                         &mut self.source,
                         None,
                         TagKind::Comment,
-                        &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                     ),
                     Some(_char) => consume_comment(&mut self.source),
@@ -225,7 +224,6 @@ fn consume_possible_tag_end<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
     tag_end_kind: TagKind,
-    in_tag_kind: &TagKind,
     has_unclosed_char_pairs: bool,
 ) -> Res<'a> {
     if has_unclosed_char_pairs || source.peek() != Some('}') {
@@ -250,42 +248,20 @@ fn consume_possible_tag_end<'a>(
         .consume()
         .expect("Buffer should contain `}}`, `%}`, or `#}`");
 
-    if tag_end_kind == *in_tag_kind {
-        // Ending current tag
-        (
-            Some(Context::Static),
-            Ok((
-                Token::new(
-                    TokenKind::TagEnd {
-                        kind: tag_end_kind,
-                        whitespace_preference: WhitespacePreference::Indifferent,
-                    },
-                    &source,
-                    leading_whitespace,
-                ),
-                None,
-            )),
-        )
-    } else {
-        // Ending wrong tag
-        let message = match in_tag_kind {
-            TagKind::Writ => "Expected `}}`, `-}}`, or `_}}`",
-            TagKind::Statement => "Expected `%}`, `-%}`, or `_%}`",
-            TagKind::Comment => {
-                unreachable!("Comment should treat anything other than `#}}` as comment text")
-            }
-        };
-        (
+    (
+        Some(Context::Static),
+        Ok((
+            Token::new(
+                TokenKind::TagEnd {
+                    kind: tag_end_kind,
+                    whitespace_preference: WhitespacePreference::Indifferent,
+                },
+                &source,
+                leading_whitespace,
+            ),
             None,
-            Err(UnexpectedTokenError::new(
-                message,
-                source.append_to_leading_whitespace(
-                    leading_whitespace,
-                    "Tag end should follow whitespace",
-                ),
-            )),
-        )
-    }
+        )),
+    )
 }
 
 fn consume_possible_tag_end_whitespace_adjustment<'a>(
