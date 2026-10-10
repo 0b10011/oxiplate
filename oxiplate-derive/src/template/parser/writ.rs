@@ -1,9 +1,8 @@
 use std::fmt::Debug;
 
-use proc_macro2::Span;
+use proc_macro2::{Ident, Span};
+use syn::Path;
 use syn::spanned::Spanned;
-use syn::token::PathSep;
-use syn::{Path, PathSegment};
 
 use super::Item;
 use super::expression::{Expression, Identifier, expression};
@@ -257,28 +256,20 @@ impl<'a> Writ<'a> {
             );
         }
 
-        if let Ok(escaper) =
-            syn::LitStr::new(escaper.as_str(), escaper.source().span_token()).parse::<PathSegment>()
-        {
-            if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
-                if let Ok(sep) = syn::LitStr::new("::", group_span).parse::<PathSep>() {
-                    let path = syn::parse2::<Path>(quote! {
-                        #group #sep #escaper
-                    });
-                    if let Ok(path) = path {
-                        // FIXME: What of `oxiplate_derive` is being used?
-                        return (
-                            quote_spanned! {span=>
-                                (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
-                                    oxiplate_formatter,
-                                    &#path,
-                                )?
-                            },
-                            estimated_length,
-                        );
-                    }
-                }
-            }
+        let escaper = Ident::new(escaper.as_str(), escaper.source().span_token());
+        if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
+            let path = quote_spanned! {group_span=> #group :: #escaper };
+
+            // FIXME: What if `oxiplate_derive` is being used?
+            return (
+                quote_spanned! {span=>
+                    (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_escape(
+                        oxiplate_formatter,
+                        &#path,
+                    )?
+                },
+                estimated_length,
+            );
         }
 
         token_error!(span, r"Failed to build escape function call")
