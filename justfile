@@ -190,7 +190,9 @@ run-against-libs command test-arguments="":
         --exclude oxiplate-test-slow-escape-ints \
         --exclude oxiplate-test-unreachable \
         --exclude oxiplate-test-unreachable-config \
-        --exclude oxiplate-test-unreachable-stable -- {{ test-arguments }}
+        --exclude oxiplate-test-unreachable-stable \
+        --exclude oxiplate-test-unreachable-template-dir-absolute \
+        -- {{ test-arguments }}
 
 [private]
 run-against-all command test-arguments="": (run-against-stable command test-arguments) (run-against-unstable command test-arguments) check-strict (run-against-broken command)
@@ -208,6 +210,7 @@ run-against-unstable command test-arguments="":
     {{ command }} --package oxiplate-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-config -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-stable -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-unreachable-template-dir-absolute -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-file-extension-inferrence-off -- {{ test-arguments }}
     {{ command }} --package oxiplate-derive-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-derive-test-unreachable-stable -- {{ test-arguments }}

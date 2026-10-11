@@ -526,6 +526,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-unreachable-template-dir-absolute"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-traits"
 version = "0.2.3"
 dependencies = [
