@@ -36,7 +36,7 @@ impl<'a> Error<'a> {
                 if let Some(err) = errors.first() {
                     err.source()
                 } else {
-                    unimplemented!("There should always be at least one error present");
+                    unreachable!("There should always be at least one error present");
                 }
             }
         }
@@ -151,4 +151,16 @@ trait ToTokensWithMutState<'a> {
     /// Implemented by statements.
     #[must_use]
     fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: There should always be at least \
+                      one error present"]
+    fn empty_multiple() {
+        let _ = Error::Multiple(vec![]).source();
+    }
 }
