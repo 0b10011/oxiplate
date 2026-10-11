@@ -106,7 +106,6 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
         // Compare tokens as a string to avoid having to parse unnecessarily.
         if input.to_string()
             == r#"#[oxiplate_inline("hello world")] struct UnreachableUnparseableInput;"#
-                .to_string()
         {
             // Unparseable code that would otherwise fail before reaching this point.
             quote! { struct 19foo; }.into()
@@ -962,7 +961,11 @@ fn percent_encode_byte(byte: u8) -> &'static str {
     let index = usize::from(byte) * 3;
     // SAFETY: ENC_TABLE is ascii-only, so any subset of it should be
     // ascii-only too, which is valid utf8.
-    unsafe { str::from_utf8_unchecked(&ENC_TABLE[index..index + 3]) }
+    // `str:from_utf8_unchecked()` is only available since Rust 1.87.0.
+    #[expect(clippy::incompatible_msrv)]
+    unsafe {
+        str::from_utf8_unchecked(&ENC_TABLE[index..index + 3])
+    }
 }
 
 pub(crate) use internal_error;

@@ -28,6 +28,7 @@ type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
 type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
 
 #[cfg(not(feature = "config"))]
+#[expect(clippy::unnecessary_wraps)]
 pub(crate) fn read_config() -> Result<Config, syn::Error> {
     Ok(Config::default())
 }
@@ -150,6 +151,7 @@ impl Deref for InferEscaperGroupFromFileExtension {
 }
 
 #[derive(Clone)]
+#[cfg_attr(not(feature = "_oxiplate"), derive(Default))]
 pub(crate) struct OptimizedRenderer(bool);
 
 impl OptimizedRenderer {
@@ -158,13 +160,10 @@ impl OptimizedRenderer {
     }
 }
 
+#[cfg(feature = "_oxiplate")]
 impl Default for OptimizedRenderer {
     fn default() -> Self {
-        #[cfg(feature = "_oxiplate")]
-        return Self(true);
-
-        #[cfg(not(feature = "_oxiplate"))]
-        Self(false)
+        Self(true)
     }
 }
 
