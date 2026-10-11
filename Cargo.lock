@@ -414,6 +414,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-default-html-using-carriage-returns"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-default-json"
 version = "0.0.0"
 dependencies = [
