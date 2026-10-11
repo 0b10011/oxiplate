@@ -311,10 +311,35 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         );
     }
 
+    unchecked_consume_tag_end_whitespace_adjustment(
+        source,
+        leading_whitespace,
+        in_tag_kind,
+        tag_end_kind.expect("`None` should have just been checked for"),
+        whitespace_preference,
+    )
+}
+
+/// IMPORTANT: Call `consume_possible_tag_end_whitespace_adjustment()` instead.
+///
+/// This will consume the next two characters
+/// without verifying they match the end tag specified.
+/// The other function will take care of validation,
+/// and handle comments better.
+///
+/// This function is separated out
+/// to cover an otherwise uncoverable edge case
+/// with a mismatched end tag within a comment.
+fn unchecked_consume_tag_end_whitespace_adjustment<'a>(
+    source: &mut BufferedSource<'a>,
+    leading_whitespace: Option<Source<'a>>,
+    in_tag_kind: &TagKind,
+    tag_end_kind: TagKind,
+    whitespace_preference: WhitespacePreference,
+) -> Res<'a> {
     let _ = source.next();
     let _ = source.next();
 
-    let tag_end_kind = tag_end_kind.expect("`None` should have just been checked for");
     let source = source
         .consume()
         .expect("Buffer should contain `_}}`, `_%}`, `_#}`, `-}}`, `-%}`, or `-#}`");
@@ -438,5 +463,26 @@ mod tests {
 
         let error = result.expect_err("Result should be an error");
         assert_eq!(error.message(), "Expected `}}`, `-}}`, or `_}}`")
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat anything \
+                      other than `#}` as comment text"]
+    fn consume_possible_tag_end_whitespace_mismatched_comment() {
+        test_source!(source = "-%}");
+        let mut buffer: BufferedSource = source.into();
+        let _ = buffer.next();
+
+        let (new_context, result) = super::unchecked_consume_tag_end_whitespace_adjustment(
+            &mut buffer,
+            None,
+            &TagKind::Comment,
+            TagKind::Statement,
+            WhitespacePreference::Remove,
+        );
+
+        assert!(new_context.is_none());
+
+        let _ = result.unwrap();
     }
 }
