@@ -3,3 +3,8 @@ error[E0425]: cannot find value `title` in this scope
   |
   | <title>{{ title }}</title>
   |           ^^^^^ not found in this scope
+  |
+ ::: tests/broken/extends/extends-similar-variable-name.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro
