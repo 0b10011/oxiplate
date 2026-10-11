@@ -622,17 +622,11 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                     })
                 },
                 AppendPathError::CanonicalizeError(path_buf, error) => {
-                    if using_default_template_dir {
-                        unreachable!(
-                            "Failed to normalize default template directory. Original error: {error}",
-                        );
-                    }
-
-                    let path_buf = path_buf.to_string_lossy();
-                    let error = error.to_string();
-                    ParsedEscaperError::ParseError(quote_spanned! {span=>
-                        compile_error!(concat!("Failed to normalize `", #path_buf, "`. Original error: ", #error));
-                    })
+                    unreachable!(
+                        "Failed to normalize template directory `{}` ({}). Original error: {error}",
+                        path_buf.to_string_lossy(),
+                        if using_default_template_dir { "default" } else { "`OXIP_TEMPLATE_DIR` environment variable" },
+                    );
                 },
                 AppendPathError::PrefixNotPresent { prefix, final_path } => {
                     #[cfg(feature = "_unreachable")]
@@ -839,6 +833,8 @@ impl<P: AsRef<Path>> AppendPath<P> for PathBuf {
                 prefix: self.clone(),
                 final_path: new_path,
             });
+        } else if cfg!(feature = "_unreachable") {
+            // Skip rest of checks so `canonicalize()` can fail.
         } else if !new_path.exists() {
             return Err(AppendPathError::DoesNotExist(new_path));
         } else if new_path.is_symlink() {
