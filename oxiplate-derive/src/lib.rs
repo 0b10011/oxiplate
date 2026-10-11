@@ -427,21 +427,12 @@ fn parse_code_literal(
     // Expand macros
     #[cfg(feature = "external-template-spans")]
     let Ok(input) = input.expand_expr() else {
-        let invalid_attribute_message = match template_type {
-            TemplateType::Path | TemplateType::Inline => {
-                r#"Must provide either an external or internal template:
+        return Err(syn::Error::new(
+            span,
+            r#"Must provide either an external or internal template:
 External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
-Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
-            }
-            TemplateType::Extends => {
-                r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
-            }
-            TemplateType::Include => {
-                r#"Must provide a path to a template that exists. E.g., `{% include "path/to/template.html.oxip" %}`"#
-            }
-        };
-
-        return Err(syn::Error::new(span, invalid_attribute_message));
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
+        ));
     };
 
     #[cfg(not(feature = "external-template-spans"))]
