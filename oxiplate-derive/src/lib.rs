@@ -288,7 +288,7 @@ fn parse_template_and_data(
     let (template, estimated_length): BuiltTokens = process_parsed_tokens(
         parsed_tokens,
         &mut state,
-        #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
+        #[cfg(feature = "_oxiplate")]
         &template_type,
     )
     .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
@@ -314,8 +314,7 @@ type ParsedTokens = Result<
 fn process_parsed_tokens<'a>(
     parsed_tokens: ParsedTokens,
     state: &'a mut State<'a>,
-    #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
-    template_type: &TemplateType,
+    #[cfg(feature = "_oxiplate")] template_type: &TemplateType,
 ) -> Result<BuiltTokens, syn::Error> {
     match parsed_tokens {
         #[cfg(feature = "_oxiplate")]
@@ -637,6 +636,9 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                     })
                 },
                 AppendPathError::PrefixNotPresent { prefix, final_path } => {
+                    #[cfg(feature = "_unreachable")]
+                    let using_default_template_dir = true;
+
                     if using_default_template_dir {
                         let _ = prefix;
                         let _ = final_path;
