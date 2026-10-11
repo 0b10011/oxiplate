@@ -334,7 +334,9 @@ pub(crate) fn tag_end<'a>(
             let expected_end_tags = match expected_kind {
                 TagKind::Writ => "`}}`, `-}}`, or `_}}`",
                 TagKind::Statement => "`%}`, `-%}`, or `_%}`",
-                TagKind::Comment => "`#}`, `-#}`, or `+#}`",
+                TagKind::Comment => unreachable!(
+                    "Comment should treat any token other than tag end as comment text"
+                ),
             };
             return Err(Error::Unrecoverable {
                 message: format!("Expected {expected_end_tags}"),
@@ -349,7 +351,9 @@ pub(crate) fn tag_end<'a>(
                 TagKind::Writ => "`}}`, `-}}`, or `_}}`",
                 TagKind::Statement => "`%}`, `-%}`, or `_%}`",
                 TagKind::Comment => {
-                    unreachable!("Comment should treat anything other than `#}}` as comment text")
+                    unreachable!(
+                        "Comment should treat any tag end kind other than comment as comment text"
+                    )
                 }
             };
             return Err(Error::Unrecoverable {
@@ -392,4 +396,45 @@ pub(crate) fn tag_open(tokens: TokenSlice) -> Res<TagOpen> {
             whitespace_preference: whitespace_preference.clone(),
         },
     ))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::tokenizer::Token;
+    use crate::tokenizer::Eof;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat any token \
+                      other than tag end as comment text"]
+    fn tag_end_non_tag_end() {
+        test_source!(source = "&");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(TokenKind::Ampersand, &source, None))];
+        let tokens = TokenSlice::new(&tokens, &eof);
+
+        let _ = tag_end(TagKind::Comment).parse(tokens).unwrap();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat any tag end \
+                      kind other than comment as comment text"]
+    fn tag_end_non_comment_tag_end() {
+        test_source!(source = "&");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(
+            TokenKind::TagEnd {
+                kind: TagKind::Writ,
+                whitespace_preference: WhitespacePreference::Indifferent,
+            },
+            &source,
+            None,
+        ))];
+        let tokens = TokenSlice::new(&tokens, &eof);
+
+        let _ = tag_end(TagKind::Comment).parse(tokens).unwrap();
+    }
 }
