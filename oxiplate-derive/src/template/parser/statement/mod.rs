@@ -331,7 +331,7 @@ mod tests {
     use super::*;
     use crate::source::test_source;
     use crate::template::parser::statement::r#match::Case;
-    use crate::tokenizer::BufferedSource;
+    use crate::tokenizer::{BufferedSource, Eof};
     use crate::{EstimatedLength, State};
 
     macro_rules! unexpected_statement_for_to_tokens {
@@ -412,5 +412,21 @@ mod tests {
             kind: StatementKind::Else,
         }
         .add_item(Item::Comment(comment_source))
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: These blocks should never fail to \
+                      be closed because of EOF"]
+    fn eof_on_else() {
+        test_source!(source = "");
+
+        let _ = eof(
+            TokenSlice::new(&[], &Eof::for_test(source.clone())),
+            Statement {
+                source,
+                kind: StatementKind::Else,
+            },
+            None,
+        );
     }
 }
