@@ -211,7 +211,7 @@ tuple!(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use crate::parser::{Parser as _, take};
+    use super::*;
     use crate::source::test_source;
     use crate::template::TokenKind;
     use crate::tokenizer::{Eof, TokenSlice};
@@ -237,5 +237,33 @@ mod tests {
         )
             .parse(TokenSlice::new(&[], &Eof::for_test(source)))
             .unwrap();
+    }
+
+    #[test]
+    fn multiple_is_recoverable() {
+        test_source!(source = "");
+
+        let error = Error::Multiple(vec![
+            Error::Recoverable {
+                message: "Recoverable!".to_owned(),
+                source: source.clone(),
+                previous_error: None,
+                is_eof: false,
+            },
+            Error::Recoverable {
+                message: "Recoverable!".to_owned(),
+                source: source.clone(),
+                previous_error: None,
+                is_eof: false,
+            },
+            Error::Unrecoverable {
+                message: "Unrecoverable!".to_owned(),
+                source: source.clone(),
+                previous_error: None,
+                is_eof: false,
+            },
+        ]);
+
+        assert_eq!(false, error.is_recoverable());
     }
 }
