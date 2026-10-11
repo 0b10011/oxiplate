@@ -129,16 +129,9 @@ pub fn consume_lifetime<'a>(
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
     let apostrophe = source.consume().expect("Buffer should contain `'`");
-    let (_context, identifier) = consume_ident(source, None);
-    let identifier = match identifier {
-        Ok((identifier, None)) => identifier,
-        Ok((first, Some(second))) => {
-            unreachable!(
-                "Identifiers should always be a single token. Found {:?} and {:?}",
-                first, second
-            );
-        }
-        err @ Err(_) => return (None, err),
+    let (_context, identifier) = match consume_ident(source, None) {
+        (context, Ok(token)) => (context, token),
+        (context, Err(err)) => return (context, Err(err)),
     };
 
     // `'` not allowed immediately following lifetime

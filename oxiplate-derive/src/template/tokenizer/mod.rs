@@ -18,10 +18,7 @@ use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 pub(crate) type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
 pub(crate) type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
 
-type Res<'a> = (
-    Option<Context>,
-    Result<(Token<'a>, Option<Token<'a>>), UnexpectedTokenError<'a>>,
-);
+type Res<'a> = (Option<Context>, NextTokens<'a>);
 
 type NextTokens<'a> = Result<(Token<'a>, Option<Token<'a>>), UnexpectedTokenError<'a>>;
 
@@ -299,7 +296,9 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
             ),
             (Remove, Writ | Statement) => TokenKind::Minus,
             (Replace, Writ | Statement) => {
-                return consume_ident(source, leading_whitespace);
+                let (new_context, result) = consume_ident(source, leading_whitespace);
+
+                return (new_context, result.map(|token| (token, None)));
             }
             (Remove | Replace, Comment) => TokenKind::Comment,
         };

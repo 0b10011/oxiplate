@@ -6,7 +6,7 @@ use self::char::consume_char_or_lifetime;
 use self::number::{consume_alternative_base, consume_decimal};
 use self::string::{consume_raw_string, consume_string};
 use super::{
-    Res, TagKind, Token, TokenKind, WhitespacePreference, consume_possible_tag_end,
+    Context, Res, TagKind, Token, TokenKind, WhitespacePreference, consume_possible_tag_end,
     consume_possible_tag_end_whitespace_adjustment, whitespace,
 };
 use crate::Source;
@@ -96,7 +96,11 @@ pub(crate) fn consume_expression_token<'a>(
             }
         }
         '@' => TokenKind::At,
-        'a'..='z' | 'A'..='Z' => return Some(consume_ident(source, leading_whitespace)),
+        'a'..='z' | 'A'..='Z' => {
+            let (new_context, result) = consume_ident(source, leading_whitespace);
+
+            return Some((new_context, result.map(|token| (token, None))));
+        }
         '0' => return Some(consume_alternative_base(source, leading_whitespace)),
         '1'..='9' => return Some(consume_decimal(source, leading_whitespace)),
         _ => {
@@ -126,7 +130,7 @@ pub(crate) fn consume_expression_token<'a>(
 pub(crate) fn consume_ident<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
-) -> Res<'a> {
+) -> (Option<Context>, Result<Token<'a>, UnexpectedTokenError<'a>>) {
     let source = source
         .consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
         .expect("Buffer should contain at least one character");
@@ -144,7 +148,7 @@ pub(crate) fn consume_ident<'a>(
     };
 
     let token = match kind {
-        Ok(kind) => Ok((Token::new(kind, &source, leading_whitespace), None)),
+        Ok(kind) => Ok(Token::new(kind, &source, leading_whitespace)),
         Err(message) => Err(UnexpectedTokenError::new(message, source)),
     };
 
