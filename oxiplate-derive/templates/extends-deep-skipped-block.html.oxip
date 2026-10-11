@@ -1,0 +1,5 @@
+{% extends "extends-inner-wrapper-without-block.html.oxip" %}
+{% block content -%}
+  <h2>{{ title }}</h2>
+  <div>{{ message }}</div>
+{%- endblock %}
