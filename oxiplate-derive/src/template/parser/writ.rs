@@ -223,7 +223,7 @@ impl<'a> Writ<'a> {
             let default_group = &default_group.0;
             (
                 quote_spanned! {span=>
-                    compile_error!("Default escaper set without using `oxiplate`: {}" #default_group)
+                    compile_error!(concat!("Default escaper set without using `oxiplate`: ", #default_group))
                 },
                 estimated_length,
             )

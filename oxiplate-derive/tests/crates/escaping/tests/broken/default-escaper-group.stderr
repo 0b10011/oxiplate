@@ -1,0 +1,5 @@
+error: Default escaper set without using `oxiplate`: foo
+ --> tests/broken/default-escaper-group.rs:4:53
+  |
+4 | #[oxiplate_inline(r#"{% default_escaper_group foo %}{{ "hello world" }}"#)]
+  |                                                     ^^^^^^^^^^^^^^^^^^^
