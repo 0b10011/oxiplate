@@ -351,8 +351,6 @@ fn process_parsed_tokens<'a>(
             let code = parse_code_literal(
                 &input.into(),
                 #[cfg(feature = "external-template-spans")]
-                template_type,
-                #[cfg(feature = "external-template-spans")]
                 span,
             )?;
 
@@ -421,7 +419,6 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
 
 fn parse_code_literal(
     input: &TokenStream,
-    #[cfg(feature = "external-template-spans")] template_type: &TemplateType,
     #[cfg(feature = "external-template-spans")] span: Span,
 ) -> Result<LitStr, syn::Error> {
     // Expand macros
