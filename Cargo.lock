@@ -342,6 +342,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-escaping-fallback"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-optimized-renderer"
 version = "0.0.0"
 dependencies = [

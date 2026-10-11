@@ -1,0 +1,4 @@
+fallback_escaper_group = "foo"
+
+[escaper_groups]
+foo.escaper = "::foo"
