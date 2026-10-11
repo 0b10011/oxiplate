@@ -361,14 +361,13 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use std::assert_matches;
-
     use proc_macro2::Span;
     use syn::LitStr;
 
+    use super::{TagKind, WhitespacePreference};
     use crate::Source;
     use crate::source::{SourceOwned, test_source};
-    use crate::template::tokenizer::{TagKind, WhitespacePreference};
+    use crate::tokenizer::BufferedSource;
 
     #[test]
     fn test() {
@@ -418,7 +417,27 @@ mod tests {
             WhitespacePreference::Indifferent,
         );
 
-        assert_matches!(new_context, None);
+        assert!(new_context.is_none());
         result.unwrap();
+    }
+
+    #[test]
+    fn consume_possible_tag_end_whitespace_mismatched() {
+        test_source!(source = "-%}");
+        let mut buffer: BufferedSource = source.into();
+        let _ = buffer.next();
+
+        let (new_context, result) = super::consume_possible_tag_end_whitespace_adjustment(
+            &mut buffer,
+            None,
+            &TagKind::Writ,
+            false,
+            WhitespacePreference::Remove,
+        );
+
+        assert!(new_context.is_none());
+
+        let error = result.expect_err("Result should be an error");
+        assert_eq!(error.message(), "Expected `}}`, `-}}`, or `_}}`")
     }
 }
