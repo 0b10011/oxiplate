@@ -361,11 +361,14 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
+    use std::assert_matches;
+
     use proc_macro2::Span;
     use syn::LitStr;
 
     use crate::Source;
-    use crate::source::SourceOwned;
+    use crate::source::{SourceOwned, test_source};
+    use crate::template::tokenizer::{TagKind, WhitespacePreference};
 
     #[test]
     fn test() {
@@ -399,5 +402,23 @@ mod tests {
                 "StaticText[b]",
             ],
         );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Tag end parser for whitespace \
+                      adjustment should never be called when indifferent about whitespace"]
+    fn consume_possible_tag_end_whitespace_indifferent() {
+        test_source!(source = "hello world");
+
+        let (new_context, result) = super::consume_possible_tag_end_whitespace_adjustment(
+            &mut source.into(),
+            None,
+            &TagKind::Writ,
+            false,
+            WhitespacePreference::Indifferent,
+        );
+
+        assert_matches!(new_context, None);
+        result.unwrap();
     }
 }
