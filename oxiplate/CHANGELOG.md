@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.9](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.8...oxiplate-v0.19.9) - 2026-10-11
+
+### Fixed
+
+- stopped setting default escaper when it is disallowed to ensure all errors bubble up on the first compile
+- fixed compile error when default escaper is set when not using `oxiplate`
+- improved error messages when end of file is encountered
+- improved error messages when an expression is expected
+
+### Other
+
+- added test for unclosed statement tag
+- stopped short-circuiting tokenizer when coming across mismatched tag ends to avoid checking there and in the parser
+- switched to dedicated enum for whitespace adjustment tag preference to reduce unreachable lines
+- added test for unhandled whitespace adjustment tag
+- removed unnecessary `syn` usages in writs code
+- removed several unnecessary `syn` usages
+- removed syn from lifetime token building ([#359](https://github.com/0b10011/oxiplate/pull/359))
+
 ## [0.19.8](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.7...oxiplate-v0.19.8) - 2026-10-04
 
 ### Fixed
