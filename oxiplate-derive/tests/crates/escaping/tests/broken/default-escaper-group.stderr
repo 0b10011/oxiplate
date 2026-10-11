@@ -1,4 +1,10 @@
-error: Default escaper set without using `oxiplate`: foo
+error: The default escaper group can only be set when using `oxiplate`; `oxiplate-derive` does not support escaping on its own.
+ --> tests/broken/default-escaper-group.rs:4:25
+  |
+4 | #[oxiplate_inline(r#"{% default_escaper_group foo %}{{ "hello world" }}"#)]
+  |                         ^^^^^^^^^^^^^^^^^^^^^
+
+error: No escaper is specified, it could not be inferred from the template's file extension, and there was also no fallback escaper group defined. Check to make sure the template's file extension is correct. If escaping is not wanted in ANY files, set `fallback_escaper_group = "raw"` in `/oxiplate.toml`. If escaping is not wanted just in this one instance, prefix the writ with `raw:`.
  --> tests/broken/default-escaper-group.rs:4:53
   |
 4 | #[oxiplate_inline(r#"{% default_escaper_group foo %}{{ "hello world" }}"#)]

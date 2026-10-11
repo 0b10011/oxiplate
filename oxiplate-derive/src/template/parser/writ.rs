@@ -223,9 +223,13 @@ impl<'a> Writ<'a> {
             let default_group = &default_group.0;
             (
                 quote_spanned! {span=>
-                    compile_error!(concat!("Default escaper set without using `oxiplate`: ", #default_group))
+                    compile_error!(concat!(
+                        "Attempting to escape using the default escaper within the group `",
+                        #default_group,
+                        "`, but escaping is only available when using `oxiplate`; not when using `oxiplate-derive` directly. Consider using `oxiplate` instead or setting `fallback_escaper_group` to `raw` in `/oxiplate.toml` to turn off escaping.",
+                    ))
                 },
-                estimated_length,
+                EstimatedLength::new(0),
             )
         } else {
             (

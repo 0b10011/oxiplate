@@ -19,7 +19,17 @@ impl<'a> From<DefaultEscaper<'a>> for StatementKind<'a> {
 
 impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
     fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
-        if state.default_escaper_group.is_some() {
+        if cfg!(not(feature = "_oxiplate")) {
+            let span = self.tag.source().span_token();
+            return (
+                quote_spanned! {span=>
+                    compile_error!(
+                        "The default escaper group can only be set when using `oxiplate`; `oxiplate-derive` does not support escaping on its own."
+                    );
+                },
+                EstimatedLength::new(0),
+            );
+        } else if state.default_escaper_group.is_some() {
             state.failed_to_set_default_escaper_group = true;
 
             let span = self.tag.source().span_token();
@@ -69,11 +79,14 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
                 }
             }
         }
-        if !state
-            .config
-            .escaper_groups
-            .contains_key(self.escaper.as_str())
+
+        if let Some(default_escaper_group) = state.config.escaper_groups.get(self.escaper.as_str())
         {
+            state.default_escaper_group = Some((
+                self.escaper.as_str().to_owned(),
+                default_escaper_group.clone(),
+            ));
+        } else {
             state.failed_to_set_default_escaper_group = true;
 
             let span = self.escaper.source().span_token();

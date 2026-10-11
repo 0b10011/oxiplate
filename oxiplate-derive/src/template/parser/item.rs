@@ -68,19 +68,6 @@ impl<'a> Item<'a> {
                 let (statement_tokens, estimated_length) = statement.to_tokens(state);
                 state.has_content = true;
 
-                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
-                    if let Some(default_escaper_group) = state
-                        .config
-                        .escaper_groups
-                        .get(default_escaper.escaper.as_str())
-                    {
-                        state.default_escaper_group = Some((
-                            default_escaper.escaper.as_str().to_owned(),
-                            default_escaper_group.clone(),
-                        ));
-                    }
-                }
-
                 if let StatementKind::Let(statement) = &statement.kind {
                     state.local_variables.add(
                         statement
