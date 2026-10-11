@@ -328,8 +328,10 @@ fn eof<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
+    use super::*;
     use crate::source::test_source;
     use crate::template::parser::statement::r#match::Case;
+    use crate::tokenizer::BufferedSource;
     use crate::{EstimatedLength, State};
 
     macro_rules! unexpected_statement_for_to_tokens {
@@ -337,9 +339,9 @@ mod tests {
             #[test]
             fn $function_name() {
                 test_source!(source = $tag);
-                let (tokens, length) = super::Statement {
+                let (tokens, length) = Statement {
                     source,
-                    kind: super::StatementKind::$kind,
+                    kind: StatementKind::$kind,
                 }
                 .to_tokens(&mut State::new_for_test());
 
@@ -371,9 +373,9 @@ mod tests {
     fn case_to_tokens() {
         test_source!(source = "{% case 19 %}");
         test_source!(integer_source = "19");
-        let (tokens, length) = super::Statement {
+        let (tokens, length) = Statement {
             source,
-            kind: super::StatementKind::Case(Case::new_for_test(&integer_source)),
+            kind: StatementKind::Case(Case::new_for_test(&integer_source)),
         }
         .to_tokens(&mut State::new_for_test());
 
@@ -388,5 +390,27 @@ mod tests {
             "`{}` should result in a compile error",
             "{% case %}",
         );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: add_item() should not be called \
+                      for this kind of statement"]
+    fn add_item_on_else() {
+        test_source!(source = "{% else %}{# hello world #}");
+        let mut buffer: BufferedSource = source.into();
+
+        let _ = buffer.next();
+        buffer.next_until(|char| char == '{');
+        let source = buffer.consume().unwrap();
+
+        buffer.next_until(|char| char == '}');
+        let _ = buffer.next();
+        let comment_source = buffer.consume().unwrap();
+
+        Statement {
+            source,
+            kind: StatementKind::Else,
+        }
+        .add_item(Item::Comment(comment_source))
     }
 }
