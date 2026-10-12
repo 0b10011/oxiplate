@@ -77,6 +77,14 @@ impl<'a> Tokens<'a> {
                     let source = self.source.consume().expect("Should contain `@`");
                     (None, Ok((Token::new(TokenKind::At, &source, None), None)))
                 }
+                #[cfg(feature = "_unreachable")]
+                '?' => {
+                    let source = self.source.consume().expect("Should contain `?`");
+                    (
+                        None,
+                        Err(UnexpectedTokenError::new("Unexpected `?`", source)),
+                    )
+                }
                 _ => consume_static_text(&mut self.source),
             },
             Context::Comment => {
