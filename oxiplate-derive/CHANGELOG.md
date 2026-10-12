@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.8](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.7...oxiplate-derive-v0.19.8) - 2026-10-12
+
+### Fixed
+
+- stopped setting default escaper when it is disallowed to ensure all errors bubble up on the first compile
+- fixed compile error when default escaper is set when not using `oxiplate`
+- improved error messages when end of file is encountered
+- improved error messages when an expression is expected
+
+### Other
+
+- updated toolchain to nightly-2026-10-09
+- added test for template paths that can't be canonicalized
+- added test for templates dir path that can't be canonicalized
+- added test for `Error::Multiple` containing 0 errors
+- added test to cover mismatched end tag in a comment that's otherwise unreachable
+- added test for unclosed literal string in config
+- added test for checking if multiple errors are recoverable
+- added test for index expressions
+- added test for unclosed `match` statement
+- added test for calling `eof()` with an unsupported statement
+- added test for calling `add_item()` on unsupported statement
+- added test for blocks not present in intermediate templates
+- added tests for calling `tag_end()` in a comment when the token isn't `#}`
+- changed `consume_ident()` to return a single token to avoid uncovered cases
+- added test for calling function with mismatched end tag
+- added test for calling function when the whitespace preference is indifferent
+- changed `just clippy-strict` to run against more build variations to catch warnings more reliably
+- fixed another warning introduced by previous commit
+- fixed warning introduced in previous commit
+- removed targeted error messages that'll never be used since the input for those will always be a string literal
+- removed `better-errors` feature from new tests to avoid breaking stable builds
+- added tests to cover the various ways to set the default escaper group
+- added test for unclosed statement tag
+- stopped short-circuiting tokenizer when coming across mismatched tag ends to avoid checking there and in the parser
+- switched to dedicated enum for whitespace adjustment tag preference to reduce unreachable lines
+- added test for unhandled whitespace adjustment tag
+- removed unnecessary `syn` usages in writs code
+- removed several unnecessary `syn` usages
+- removed syn from lifetime token building ([#359](https://github.com/0b10011/oxiplate/pull/359))
+
 ## [0.19.7](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.6...oxiplate-derive-v0.19.7) - 2026-10-04
 
 ### Fixed
