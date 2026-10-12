@@ -155,12 +155,56 @@ trait ToTokensWithMutState<'a> {
 
 #[cfg(test)]
 mod test {
+    use super::item::Item;
     use super::*;
+    use crate::source::test_source;
+    use crate::tokenizer::BufferedSource;
 
     #[test]
     #[should_panic = "internal error: entered unreachable code: There should always be at least \
                       one error present"]
     fn empty_multiple() {
         let _ = Error::Multiple(vec![]).source();
+    }
+
+    #[test]
+    fn multiple_into_template() {
+        test_source!(source = "mock source");
+        let mut buffer: BufferedSource = source.into();
+
+        let _ = buffer.next_while(|_char| true);
+        let source_a = buffer
+            .consume()
+            .expect("Buffer should contain entire source");
+
+        let eof = buffer.eof();
+        let source_b = eof.source();
+
+        let errors = Error::Multiple(vec![
+            Error::Recoverable {
+                message: "A recoverable error".to_owned(),
+                source: source_a,
+                previous_error: None,
+                is_eof: false,
+            },
+            Error::Recoverable {
+                message: "End of file".to_owned(),
+                source: source_b.clone(),
+                previous_error: None,
+                is_eof: true,
+            },
+        ]);
+        let template: Template = errors.into();
+        let compile_errors = template.0;
+
+        let mut error_messages = Vec::with_capacity(compile_errors.len());
+        for compile_error in compile_errors {
+            let Item::CompileError { message, .. } = compile_error else {
+                panic!("Unexpected item: {compile_error:#?}");
+            };
+
+            error_messages.push(message);
+        }
+        assert_eq!(vec!["A recoverable error", "End of file"], error_messages);
     }
 }
