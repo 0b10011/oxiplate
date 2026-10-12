@@ -30,7 +30,9 @@ impl<'a> TableOrValue<'a> {
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
     let (tokens, items) = parse_all(Item::parse).parse(tokens)?;
 
-    let (mut data, source) = parse_data(items)?;
+    let (mut data, config_source) = parse_data(items)?;
+
+    let config_source = config_source.unwrap_or_else(|| tokens.eof().source().clone());
 
     let mut config = Config::default();
 
@@ -41,11 +43,14 @@ pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
                     TableOrValue::Value(Value::$expected_kind(value)) => {
                         config.$field = value.into();
                     }
-                    _ => {
+                    TableOrValue::Value(value) => {
                         return Err(Error::unrecoverable(
                             $message.to_string(),
-                            source.unwrap_or_else(|| tokens.eof().source().clone()),
+                            value.source().clone(),
                         ));
+                    }
+                    TableOrValue::Table(_) => {
+                        return Err(Error::unrecoverable($message.to_string(), config_source));
                     }
                 }
             }

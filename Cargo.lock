@@ -182,7 +182,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-fallback-escaper-group-table"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-string"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-table"
 version = "0.0.0"
 dependencies = [
  "oxiplate-derive",
@@ -271,6 +287,14 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-require-specifying-escaper-string"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-derive-test-config-require-specifying-escaper-table"
 version = "0.0.0"
 dependencies = [
  "oxiplate-derive",
