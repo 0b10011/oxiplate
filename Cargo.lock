@@ -246,6 +246,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-optimized-renderer-table"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-overwriting-value-with-table"
 version = "0.0.0"
 dependencies = [

@@ -56,25 +56,25 @@ pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
         "fallback_escaper_group",
         fallback_escaper_group,
         String,
-        "Boolean value not allowed for `fallback_escaper_group`",
+        "Expected `fallback_escaper_group` to be a string",
     );
     set_field!(
         "require_specifying_escaper",
         require_specifying_escaper,
         Bool,
-        "String value not allowed for `require_specifying_escaper`",
+        "Expected `require_specifying_escaper` to be `true` or `false`",
     );
     set_field!(
         "infer_escaper_group_from_file_extension",
         infer_escaper_group_from_file_extension,
         Bool,
-        "String value not allowed for `infer_escaper_group_from_file_extension`",
+        "Expected `infer_escaper_group_from_file_extension` to be `true` or `false`",
     );
     set_field!(
         "optimized_renderer",
         optimized_renderer,
         Bool,
-        "String value not allowed for `optimized_renderer`",
+        "Expected `optimized_renderer` to be `true` or `false`",
     );
 
     if let Some(escaper_groups) = data.remove("escaper_groups") {

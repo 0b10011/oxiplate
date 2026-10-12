@@ -1,4 +1,4 @@
-error: Failed to parse `/oxiplate.toml`: String value not allowed for `require_specifying_escaper`
+error: Failed to parse `/oxiplate.toml`: Expected `require_specifying_escaper` to be `true` or `false`
  --> tests/broken/require-specifying-escaper-string.rs:3:10
   |
 3 | #[derive(Oxiplate)]

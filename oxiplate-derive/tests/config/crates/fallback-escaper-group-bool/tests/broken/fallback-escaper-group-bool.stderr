@@ -1,4 +1,4 @@
-error: Failed to parse `/oxiplate.toml`: Boolean value not allowed for `fallback_escaper_group`
+error: Failed to parse `/oxiplate.toml`: Expected `fallback_escaper_group` to be a string
  --> tests/broken/fallback-escaper-group-bool.rs:3:10
   |
 3 | #[derive(Oxiplate)]

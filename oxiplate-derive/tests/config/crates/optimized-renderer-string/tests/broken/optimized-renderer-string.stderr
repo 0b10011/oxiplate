@@ -1,4 +1,4 @@
-error: Failed to parse `/oxiplate.toml`: String value not allowed for `optimized_renderer`
+error: Failed to parse `/oxiplate.toml`: Expected `optimized_renderer` to be `true` or `false`
  --> tests/broken/optimized-renderer-string.rs:3:10
   |
 3 | #[derive(Oxiplate)]

@@ -1,4 +1,4 @@
-error: Failed to parse `/oxiplate.toml`: String value not allowed for `infer_escaper_group_from_file_extension`
+error: Failed to parse `/oxiplate.toml`: Expected `infer_escaper_group_from_file_extension` to be `true` or `false`
  --> tests/broken/infer-escaper-group-from-file-extension-string.rs:3:10
   |
 3 | #[derive(Oxiplate)]
