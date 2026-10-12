@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.9](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.8...oxiplate-derive-v0.19.9) - 2026-10-12
+
+### Added
+
+- added proper spans for config parsing errors
+
+### Fixed
+
+- improved span for unexpected value errors in config
+- improved error messages when top-level config keys are set to unexpected types
+
+### Other
+
+- added test to cover unexpected tokens after whitespace following the end of a tag
+- added test for converting `Error::Multiple` into `Template`
+
 ## [0.19.8](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.7...oxiplate-derive-v0.19.8) - 2026-10-12
 
 ### Fixed
