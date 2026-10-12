@@ -1,7 +1,12 @@
 error: Failed to parse `/oxiplate.toml`: End of file encountered while parsing basic string
- --> tests/broken/unexpected-escape-sequence-unclosed-string.rs:3:10
+ --> oxiplate.toml
+  |
+  | foo = "\" \\ \b \e \f \n \r \t \x0f \u00ff \U0000ffff \w
+  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+ ::: tests/broken/unexpected-escape-sequence-unclosed-string.rs:3:10
   |
 3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
+  |          -------- in this derive macro expansion
   |
   = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

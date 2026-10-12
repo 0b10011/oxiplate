@@ -155,7 +155,7 @@ fn parse_escaper_groups<'a>(
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`; table found"
+                             escaper enum (e.g., `::your_package::Escaper`); table found"
                         ),
                         tokens.eof().source().clone(),
                     ));
@@ -164,7 +164,7 @@ fn parse_escaper_groups<'a>(
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`; `{}` found",
+                             escaper enum (e.g., `::your_package::Escaper`); `{}` found",
                             value.value
                         ),
                         tokens.eof().source().clone(),

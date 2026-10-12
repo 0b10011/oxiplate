@@ -1,7 +1,13 @@
 error: Failed to parse `/oxiplate.toml`: Expected `require_specifying_escaper` to be `true` or `false`
- --> tests/broken/require-specifying-escaper-table.rs:3:10
+ --> oxiplate.toml
   |
-3 | #[derive(Oxiplate)]
-  |          ^^^^^^^^
+  | / [require_specifying_escaper]
+  | | value = "true"
+  | |_______________^
+  |
+ ::: tests/broken/require-specifying-escaper-table.rs:3:10
+  |
+3 |   #[derive(Oxiplate)]
+  |            -------- in this derive macro expansion
   |
   = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -37,18 +37,46 @@ pub(crate) fn read_config() -> Result<Config, syn::Error> {
 /// otherwise generate a default `Config`.
 #[cfg(feature = "config")]
 pub(crate) fn read_config() -> Result<Config, syn::Error> {
+    use proc_macro::TokenStream;
+
     use crate::config::parser::parse;
     use crate::config::tokenizer::tokens_and_eof;
     use crate::tokenizer::TokenSlice;
 
     let path = config_path();
-    let code = if let Ok(toml) = fs::read_to_string(path.clone()) {
-        LitStr::new(&toml, Span::mixed_site())
-    } else {
+    if !matches!(fs::exists(&path), Ok(true)) {
         return Ok(Config::default());
+    }
+    let span = Span::mixed_site();
+
+    #[cfg(feature = "external-template-spans")]
+    let tokens: TokenStream = {
+        let path = syn::LitStr::new(&path.to_string_lossy(), span);
+        let tokens: TokenStream = quote::quote_spanned!(span=> include_str!(#path)).into();
+
+        // Expand macros
+        let Ok(tokens) = tokens.expand_expr() else {
+            return Err(syn::Error::new(
+                span,
+                r#"Internal Oxiplate error: Unable to expand `include_str!()` macro when reading `/oxiplate.toml`"#,
+            ));
+        };
+
+        tokens
     };
 
-    let span = Span::mixed_site();
+    #[cfg(not(feature = "external-template-spans"))]
+    let tokens: TokenStream = {
+        let template_string = std::fs::read_to_string(&path)
+            .expect("Template has already been checked to exist; perhaps a permissions issue?");
+
+        quote::quote_spanned! {span=> #template_string }.into()
+    };
+
+    // Parse the string and token out of the expanded expression
+    let parser = |input: syn::parse::ParseStream| input.parse::<LitStr>();
+    let code = syn::parse::Parser::parse(parser, tokens)?;
+
     let origin = Some(path);
     let owned_source = SourceOwned::new(&code, span, origin);
     let source = Source::new(&owned_source);
@@ -62,12 +90,15 @@ pub(crate) fn read_config() -> Result<Config, syn::Error> {
 #[cfg(feature = "config")]
 fn convert_error(error: &Error) -> syn::Error {
     match error {
-        Error::Recoverable { message, .. } | Error::Unrecoverable { message, .. } => {
-            syn::Error::new(
-                Span::mixed_site(),
-                format!("Failed to parse `/oxiplate.toml`: {message}"),
-            )
+        Error::Recoverable {
+            message, source, ..
         }
+        | Error::Unrecoverable {
+            message, source, ..
+        } => syn::Error::new(
+            source.span_token(),
+            format!("Failed to parse `/oxiplate.toml`: {message}"),
+        ),
         Error::Multiple(errors) => {
             let Some(error) = errors.first() else {
                 unreachable!("`Error::Multiple` should always contain at least one error");

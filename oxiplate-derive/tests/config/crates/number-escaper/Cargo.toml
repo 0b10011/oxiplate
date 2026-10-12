@@ -6,7 +6,7 @@ edition.workspace = true
 
 [dev-dependencies]
 trybuild = "1.0.116, < 1.0.120"
-oxiplate-derive = { path = "../../../../" }
+oxiplate-derive = { path = "../../../../", features = ["better-errors"] }
 
 [lints]
 workspace = true
