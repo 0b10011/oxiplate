@@ -1,6 +1,7 @@
 use super::Type;
 use super::array::ArrayType;
 use super::impl_trait_one_bound::ImplTraitTypeOneBound;
+use super::inferred::InferredType;
 use super::never::Never;
 use super::parenthesized::ParenthesizedType;
 use super::path::TypePath;
@@ -46,8 +47,7 @@ pub(crate) enum TypeNoBounds<'a> {
     Slice(SliceType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Inferred,
+    Inferred(InferredType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -76,6 +76,7 @@ impl<'a> TypeNoBounds<'a> {
             into(ReferenceType::parse),
             into(ArrayType::parse),
             into(SliceType::parse),
+            into(InferredType::parse),
         ))
         .parse(tokens)
     }
@@ -94,7 +95,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::Reference(reference) => reference.source(),
             Self::Array(array) => array.source().to_owned(),
             Self::Slice(slice) => slice.source().to_owned(),
-            Self::Inferred => todo!("NoBounds::Inferred.source() not yet implemented"),
+            Self::Inferred(inferred) => inferred.source().to_owned(),
             Self::QualifiedPathIn => {
                 todo!("NoBounds::QualifiedPathIn.source() not yet implemented")
             }
@@ -123,7 +124,7 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
             Self::Reference(reference) => reference.to_tokens_with_state(state),
             Self::Array(array) => array.to_tokens_with_state(state),
             Self::Slice(slice) => slice.to_tokens_with_state(state),
-            Self::Inferred => todo!("NoBounds::Inferred.to_tokens() not yet implemented"),
+            Self::Inferred(inferred) => inferred.to_tokens_with_state(state),
             Self::QualifiedPathIn => {
                 todo!("NoBounds::QualifiedPathIn.to_tokens() not yet implemented")
             }

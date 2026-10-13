@@ -3,6 +3,7 @@ mod bound;
 pub(crate) mod bounds;
 mod impl_trait;
 mod impl_trait_one_bound;
+mod inferred;
 mod never;
 mod no_bounds;
 mod parenthesized;
