@@ -38,7 +38,7 @@ impl<'a> ReferenceType<'a> {
         self.borrow
             .clone()
             .merge_some(
-                self.lifetime.as_ref().map(Lifetime::source),
+                self.lifetime.as_ref().map(Lifetime::source).as_ref(),
                 "Lifetime expected after `&`",
             )
             .merge_some(self.r#mut.as_ref(), "`mut` expected after `&` or lifetime")
