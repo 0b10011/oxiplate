@@ -1,0 +1,12 @@
+error: Failed to parse `/oxiplate.toml`: Expected `'` to end literal string
+ --> oxiplate.toml
+  |
+  | foo = 'bar
+  |       ^^^^
+  |
+ ::: tests/broken/unclosed-literal-string.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro expansion
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -70,16 +70,18 @@ impl<'a> Pattern<'a> {
             Self::Literal(_) | Self::Range(_) => HashSet::new(),
         }
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Pattern<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Literal(value) => value.to_tokens(),
-            Self::Ident(value) => quote! { #value },
-            Self::Bind(value) => value.to_tokens(state),
-            Self::Range(value) => value.to_tokens(state),
-            Self::Struct(value) => value.to_tokens(state),
-            Self::Array(value) => value.to_tokens(state),
-            Self::Tuple(value) => value.to_tokens(state),
+            Self::Literal(value) => value.to_tokens_with_state(state),
+            Self::Ident(value) => (quote! { #value }, EstimatedLength::new(1)),
+            Self::Bind(value) => value.to_tokens_with_state(state),
+            Self::Range(value) => value.to_tokens_with_state(state),
+            Self::Struct(value) => value.to_tokens_with_state(state),
+            Self::Array(value) => value.to_tokens_with_state(state),
+            Self::Tuple(value) => value.to_tokens_with_state(state),
         }
     }
 }
@@ -162,8 +164,10 @@ impl<'a> Path<'a> {
     pub fn source(&self) -> &Source<'a> {
         &self.source
     }
+}
 
-    pub fn to_tokens(&self) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Path<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
         for (segment, colons) in &self.segments {
@@ -174,6 +178,6 @@ impl<'a> Path<'a> {
 
         self.name.to_tokens(&mut tokens);
 
-        tokens
+        (tokens, EstimatedLength::new(1))
     }
 }

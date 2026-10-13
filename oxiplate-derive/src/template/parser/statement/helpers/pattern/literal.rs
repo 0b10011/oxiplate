@@ -35,15 +35,16 @@ impl<'a> Literal<'a> {
             Self::Char(char) => char.source(),
         }
     }
+}
 
-    /// Build the token stream for the literal pattern.
-    pub fn to_tokens(&self) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Literal<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Bool(bool) => bool.to_tokens().0,
-            Self::Integer(integer) => integer.to_tokens().0,
-            Self::Float(float) => float.to_tokens().0,
-            Self::String(string) => string.to_tokens().0,
-            Self::Char(char) => char.to_tokens().0,
+            Self::Bool(bool) => bool.to_tokens_with_state(state),
+            Self::Integer(integer) => integer.to_tokens_with_state(state),
+            Self::Float(float) => float.to_tokens_with_state(state),
+            Self::String(string) => string.to_tokens_with_state(state),
+            Self::Char(char) => char.to_tokens_with_state(state),
         }
     }
 }

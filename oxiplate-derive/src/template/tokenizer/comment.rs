@@ -8,5 +8,8 @@ pub(crate) fn consume_comment<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
         .consume_until(|char| matches!(char, '#' | '-' | '_'))
         .expect("Buffer should contain at least one character");
 
-    (None, Ok(Token::new(TokenKind::Comment, &source, None)))
+    (
+        None,
+        Ok((Token::new(TokenKind::Comment, &source, None), None)),
+    )
 }

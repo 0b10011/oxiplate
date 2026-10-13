@@ -1,7 +1,6 @@
-use crate::template::parser::expression::{Expression, expression};
 use crate::template::parser::prelude::*;
 
-fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
+pub(super) fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
     let (tokens, token) = alt((
         take(TokenKind::Ampersand),
         take(TokenKind::And),
@@ -39,24 +38,6 @@ fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
         },
     ))
 }
-pub(super) fn parse_prefixed_expression(tokens: TokenSlice<'_>) -> Res<'_, Expression<'_>> {
-    let (tokens, prefix_operator) = parse_prefix_operator.parse(tokens)?;
-
-    let (tokens, expression) = if prefix_operator.cut_if_not_followed_by_expression() {
-        cut(
-            "Expected an expression after prefix operator",
-            expression(false),
-        )
-        .parse(tokens)?
-    } else {
-        expression(false).parse(tokens)?
-    };
-
-    Ok((
-        tokens,
-        Expression::Prefixed(prefix_operator, Box::new(expression)),
-    ))
-}
 
 #[derive(Debug)]
 pub(crate) struct PrefixOperator<'a> {
@@ -86,7 +67,7 @@ enum PrefixOperatorKind {
 }
 
 impl<'a> PrefixOperator<'a> {
-    fn cut_if_not_followed_by_expression(&self) -> bool {
+    pub(super) fn cut_if_not_followed_by_expression(&self) -> bool {
         match self.kind {
             PrefixOperatorKind::Borrow
             | PrefixOperatorKind::DoubleBorrow

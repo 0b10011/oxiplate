@@ -44,7 +44,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
 name = "oxiplate"
-version = "0.19.7"
+version = "0.19.10"
 dependencies = [
  "oxiplate-derive",
  "oxiplate-traits",
@@ -53,7 +53,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive"
-version = "0.19.6"
+version = "0.19.9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -182,7 +182,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-fallback-escaper-group-table"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-string"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-derive-test-config-infer-escaper-group-from-file-extension-table"
 version = "0.0.0"
 dependencies = [
  "oxiplate-derive",
@@ -246,6 +262,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-optimized-renderer-table"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-overwriting-value-with-table"
 version = "0.0.0"
 dependencies = [
@@ -270,6 +294,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-config-require-specifying-escaper-table"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-config-tables"
 version = "0.0.0"
 dependencies = [
@@ -279,6 +311,14 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive-test-config-template"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-derive-test-config-unclosed-literal-string"
 version = "0.0.0"
 dependencies = [
  "oxiplate-derive",
@@ -334,6 +374,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-derive-test-escaping"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-derive-test-escaping-fallback"
+version = "0.0.0"
+dependencies = [
+ "oxiplate-derive",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-derive-test-optimized-renderer"
 version = "0.0.0"
 dependencies = [
@@ -366,6 +422,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-config-no-escaper-in-group"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-test-config-with-feature-turned-off"
 version = "0.0.0"
 dependencies = [
@@ -375,6 +439,14 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-test-default-html"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
+name = "oxiplate-test-default-html-using-carriage-returns"
 version = "0.0.0"
 dependencies = [
  "oxiplate",
@@ -510,8 +582,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxiplate-test-unreachable-template-dir-absolute"
+version = "0.0.0"
+dependencies = [
+ "oxiplate",
+ "trybuild",
+]
+
+[[package]]
 name = "oxiplate-traits"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "itoa",
 ]

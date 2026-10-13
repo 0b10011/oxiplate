@@ -1,0 +1,5 @@
+error: Attempting to escape using the default escaper within the group `foo`, but escaping is only available when using `oxiplate`; not when using `oxiplate-derive` directly. Consider using `oxiplate` instead or setting `fallback_escaper_group` to `raw` in `/oxiplate.toml` to turn off escaping.
+ --> tests/broken/fallback.rs:4:22
+  |
+4 | #[oxiplate_inline(r#"{{ "hello world" }}"#)]
+  |                      ^^^^^^^^^^^^^^^^^^^

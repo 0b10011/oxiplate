@@ -1,0 +1,5 @@
+error: `oxiplate_formatter` is a reserved name
+ --> tests/broken/lifetimes/reserved.rs:8:37
+  |
+8 | #[oxiplate_inline(r#"{{ function::<'oxiplate_formatter, 'oxiplate_loop_had_item>(left, right) }}"#)]
+  |                                     ^^^^^^^^^^^^^^^^^^

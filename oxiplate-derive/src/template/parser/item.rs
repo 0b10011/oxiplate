@@ -7,10 +7,10 @@ use crate::template::parser::prelude::*;
 use crate::template::tokenizer::{TagKind, WhitespacePreference};
 
 pub(super) enum ItemToken {
-    StaticText(TokenStream, usize),
-    DynamicText(TokenStream, usize),
+    StaticText(TokenStream, EstimatedLength),
+    DynamicText(TokenStream, EstimatedLength),
     Comment,
-    Statement(TokenStream, usize),
+    Statement(TokenStream, EstimatedLength),
 }
 
 /// One piece of a template.
@@ -60,35 +60,13 @@ impl<'a> Item<'a> {
         match self {
             Item::Comment(_source) => ItemToken::Comment,
             Item::Writ(writ) => {
-                let (text, estimated_length) = writ.to_token(state);
+                let (text, estimated_length) = writ.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::DynamicText(text, estimated_length)
             }
             Item::Statement(statement) => {
-                let (statement_tokens, estimated_length) = match statement.to_tokens(state) {
-                    Ok(result) => result,
-                    Err(result) => {
-                        if let StatementKind::DefaultEscaper(_) = statement.kind {
-                            state.failed_to_set_default_escaper_group = true;
-                        }
-
-                        result
-                    }
-                };
+                let (statement_tokens, estimated_length) = statement.to_tokens(state);
                 state.has_content = true;
-
-                if let StatementKind::DefaultEscaper(default_escaper) = &statement.kind {
-                    if let Some(default_escaper_group) = state
-                        .config
-                        .escaper_groups
-                        .get(default_escaper.escaper.as_str())
-                    {
-                        state.default_escaper_group = Some((
-                            default_escaper.escaper.as_str().to_owned(),
-                            default_escaper_group.clone(),
-                        ));
-                    }
-                }
 
                 if let StatementKind::Let(statement) = &statement.kind {
                     state.local_variables.add(
@@ -103,7 +81,7 @@ impl<'a> Item<'a> {
                 ItemToken::Statement(quote! { #statement_tokens }, estimated_length)
             }
             Item::Static(text, _static_type) => {
-                let (text, estimated_length) = text.to_token();
+                let (text, estimated_length) = text.to_tokens_with_state(state);
                 state.has_content = true;
                 ItemToken::StaticText(text, estimated_length)
             }
@@ -111,7 +89,7 @@ impl<'a> Item<'a> {
                 if whitespace.0.is_empty() {
                     ItemToken::Comment
                 } else {
-                    let (text, estimated_length) = whitespace.to_token();
+                    let (text, estimated_length) = whitespace.to_tokens_with_state(state);
                     ItemToken::StaticText(text, estimated_length)
                 }
             }
@@ -121,7 +99,10 @@ impl<'a> Item<'a> {
                 consumed_source: _,
             } => {
                 let span = error_source.span_token();
-                ItemToken::Statement(quote_spanned! {span=> compile_error!(#message); }, 0)
+                ItemToken::Statement(
+                    quote_spanned! {span=> compile_error!(#message); },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }
@@ -144,7 +125,7 @@ pub(crate) fn parse_tag(tokens: TokenSlice) -> Res<Vec<Item>> {
     let (tokens, (leading_whitespace, open, source)) = tag_start.parse(tokens)?;
 
     let (tokens, (tag, trailing_whitespace)) = match open.kind {
-        TagKind::Writ => cut("Expected a writ expression", writ(source)).parse(tokens)?,
+        TagKind::Writ => cut("Expected an expression or escaper", writ(source)).parse(tokens)?,
         TagKind::Statement => cut("Expected a statement", statement(source)).parse(tokens)?,
         TagKind::Comment => cut("Expected a comment", comment(source)).parse(tokens)?,
     };
@@ -221,7 +202,7 @@ pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Sourc
 
 pub(super) fn parse_trailing_whitespace<'a>(
     end_tag: &'a Source<'a>,
-    whitespace_preference: &'a WhitespacePreference,
+    whitespace_preference: WhitespacePreference,
     allow_skipping_replacement: bool,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, Option<Item<'a>>> + 'a {
     move |tokens| {
@@ -247,14 +228,14 @@ pub(super) fn parse_trailing_whitespace<'a>(
                 TokenKind::TagStart {
                     whitespace_preference,
                     ..
-                }
-                | TokenKind::WhitespaceAdjustmentTag {
+                } => whitespace_preference.to_owned(),
+                TokenKind::WhitespaceAdjustmentTag {
                     whitespace_preference,
-                } => whitespace_preference,
-                _ => &WhitespacePreference::Indifferent,
+                } => whitespace_preference.to_owned().into(),
+                _ => WhitespacePreference::Indifferent,
             };
 
-            match (whitespace_preference, next_whitespace_preference) {
+            match (&whitespace_preference, next_whitespace_preference) {
                 (WhitespacePreference::Remove, WhitespacePreference::Replace)
                 | (WhitespacePreference::Replace, WhitespacePreference::Remove) => {
                     let consumed_source = end_tag.with_collapsed_to_end();
@@ -324,15 +305,41 @@ pub(crate) fn tag_end<'a>(
     expected_kind: TagKind,
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Option<Item<'a>>, Source<'a>)> {
     move |tokens| {
-        let (tokens, token) = tokens.take()?;
+        let (tokens, token) = match tokens.clone().take() {
+            Err(err) if err.is_eof() => {
+                let message = match expected_kind {
+                    TagKind::Writ => {
+                        "End of file encountered while parsing a writ. Expected `}}`, `-}}`, or \
+                         `_}}`"
+                    }
+                    TagKind::Statement => {
+                        "End of file encountered while parsing a statement. Expected `%}`, `-%}`, \
+                         or `_%}`"
+                    }
+                    TagKind::Comment => {
+                        "End of file encountered while parsing a comment. Expected `#}`, `-#}`, or \
+                         `_#}`"
+                    }
+                };
+                return cut(message, fail()).parse(tokens);
+            }
+            result => result,
+        }?;
 
         let TokenKind::TagEnd {
             kind,
             whitespace_preference,
         } = token.kind()
         else {
-            return Err(Error::Recoverable {
-                message: format!("Expected `TagEnd`, found `{:?}`", token.kind()),
+            let expected_end_tags = match expected_kind {
+                TagKind::Writ => "`}}`, `-}}`, or `_}}`",
+                TagKind::Statement => "`%}`, `-%}`, or `_%}`",
+                TagKind::Comment => unreachable!(
+                    "Comment should treat any token other than tag end as comment text"
+                ),
+            };
+            return Err(Error::Unrecoverable {
+                message: format!("Expected {expected_end_tags}"),
                 source: token.source().clone(),
                 previous_error: None,
                 is_eof: false,
@@ -340,8 +347,17 @@ pub(crate) fn tag_end<'a>(
         };
 
         if *kind != expected_kind {
+            let expected_end_tags = match expected_kind {
+                TagKind::Writ => "`}}`, `-}}`, or `_}}`",
+                TagKind::Statement => "`%}`, `-%}`, or `_%}`",
+                TagKind::Comment => {
+                    unreachable!(
+                        "Comment should treat any tag end kind other than comment as comment text"
+                    )
+                }
+            };
             return Err(Error::Unrecoverable {
-                message: format!("Expected `{expected_kind:?}`, found `{kind:?}`"),
+                message: format!("Expected {expected_end_tags}"),
                 source: token.source().clone(),
                 previous_error: None,
                 is_eof: false,
@@ -349,7 +365,7 @@ pub(crate) fn tag_end<'a>(
         }
 
         let (tokens, trailing_whitespace) =
-            parse_trailing_whitespace(token.source(), whitespace_preference, false)
+            parse_trailing_whitespace(token.source(), whitespace_preference.to_owned(), false)
                 .parse(tokens)?;
 
         Ok((tokens, (trailing_whitespace, token.source().clone())))
@@ -380,4 +396,45 @@ pub(crate) fn tag_open(tokens: TokenSlice) -> Res<TagOpen> {
             whitespace_preference: whitespace_preference.clone(),
         },
     ))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::tokenizer::Token;
+    use crate::tokenizer::Eof;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat any token \
+                      other than tag end as comment text"]
+    fn tag_end_non_tag_end() {
+        test_source!(source = "&");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(TokenKind::Ampersand, &source, None))];
+        let tokens = TokenSlice::new(&tokens, &eof);
+
+        let _ = tag_end(TagKind::Comment).parse(tokens).unwrap();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat any tag end \
+                      kind other than comment as comment text"]
+    fn tag_end_non_comment_tag_end() {
+        test_source!(source = "&");
+
+        let eof = Eof::for_test(source.clone());
+        let tokens = [Ok(Token::new(
+            TokenKind::TagEnd {
+                kind: TagKind::Writ,
+                whitespace_preference: WhitespacePreference::Indifferent,
+            },
+            &source,
+            None,
+        ))];
+        let tokens = TokenSlice::new(&tokens, &eof);
+
+        let _ = tag_end(TagKind::Comment).parse(tokens).unwrap();
+    }
 }

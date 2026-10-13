@@ -3,9 +3,13 @@ mod expression;
 mod kind;
 mod r#static;
 
+use std::mem::take;
+
 use self::comment::consume_comment;
 use self::expression::{consume_expression_token, consume_ident};
-pub(crate) use self::kind::{TagKind, TokenKind, WhitespacePreference};
+pub(crate) use self::kind::{
+    TagKind, TokenKind, WhitespaceAdjustmentTagPreference, WhitespacePreference,
+};
 use self::r#static::{consume_possible_tag_start, consume_static_text, consume_static_whitespace};
 use crate::Source;
 pub(crate) use crate::tokenizer::Eof;
@@ -14,7 +18,9 @@ use crate::tokenizer::{BufferedSource, UnexpectedTokenError};
 pub(crate) type Token<'a> = crate::tokenizer::Token<'a, TokenKind>;
 pub(crate) type TokenSlice<'a> = crate::tokenizer::TokenSlice<'a, TokenKind>;
 
-type Res<'a> = (Option<Context>, Result<Token<'a>, UnexpectedTokenError<'a>>);
+type Res<'a> = (Option<Context>, NextTokens<'a>);
+
+type NextTokens<'a> = Result<(Token<'a>, Option<Token<'a>>), UnexpectedTokenError<'a>>;
 
 /// See: <https://doc.rust-lang.org/reference/whitespace.html>
 macro_rules! whitespace {
@@ -47,6 +53,7 @@ pub(crate) struct Tokens<'a> {
     source: BufferedSource<'a>,
     context: Context,
     char_pair_stack: Vec<CharPairKind>,
+    next_token: Option<Token<'a>>,
 }
 
 impl<'a> Tokens<'a> {
@@ -55,52 +62,54 @@ impl<'a> Tokens<'a> {
             source: template.into(),
             context: Context::Static,
             char_pair_stack: vec![],
+            next_token: None,
         }
     }
-}
 
-impl<'a> Iterator for Tokens<'a> {
-    type Item = Result<Token<'a>, UnexpectedTokenError<'a>>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let (new_context, token): (Option<Context>, Self::Item) = match self.context {
+    /// Get the updated context and next 1 or 2 tokens.
+    pub(self) fn context_and_tokens(&mut self) -> Option<(Option<Context>, NextTokens<'a>)> {
+        let context_and_tokens = match self.context {
             Context::Static => match self.source.next()? {
                 '{' => consume_possible_tag_start(&mut self.source),
                 whitespace!() => consume_static_whitespace(&mut self.source),
+                #[cfg(feature = "_unreachable")]
+                '@' => {
+                    let source = self.source.consume().expect("Should contain `@`");
+                    (None, Ok((Token::new(TokenKind::At, &source, None), None)))
+                }
+                #[cfg(feature = "_unreachable")]
+                '?' => {
+                    let source = self.source.consume().expect("Should contain `?`");
+                    (
+                        None,
+                        Err(UnexpectedTokenError::new("Unexpected `?`", source)),
+                    )
+                }
                 _ => consume_static_text(&mut self.source),
             },
             Context::Comment => {
-                let (new_context, token) = match self.source.next() {
-                    Some('-') => consume_possible_tag_end_whitespace_adjustment(
+                let (new_context, token) = match self.source.next()? {
+                    '-' => consume_possible_tag_end_whitespace_adjustment(
                         &mut self.source,
                         None,
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Remove,
                     ),
-                    Some('_') => consume_possible_tag_end_whitespace_adjustment(
+                    '_' => consume_possible_tag_end_whitespace_adjustment(
                         &mut self.source,
                         None,
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Replace,
                     ),
-                    Some('#') => consume_possible_tag_end(
+                    '#' => consume_possible_tag_end(
                         &mut self.source,
                         None,
                         TagKind::Comment,
-                        &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                     ),
-                    Some(_char) => consume_comment(&mut self.source),
-                    None => (
-                        Some(Context::Static),
-                        Err(UnexpectedTokenError::new(
-                            "End of file encountered while parsing a comment. Expected `#}`, \
-                             `-#}`, or `_#}`",
-                            self.source.eof().source().clone(),
-                        )),
-                    ),
+                    _char => consume_comment(&mut self.source),
                 };
                 (new_context, token)
             }
@@ -108,21 +117,40 @@ impl<'a> Iterator for Tokens<'a> {
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Statement,
-            ),
+            )?,
             Context::Writ => consume_expression_token(
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Writ,
-            ),
+            )?,
         };
+
+        Some(context_and_tokens)
+    }
+}
+
+impl<'a> Iterator for Tokens<'a> {
+    type Item = Result<Token<'a>, UnexpectedTokenError<'a>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.next_token.is_some() {
+            let next_token =
+                take(&mut self.next_token).expect("Just checked if a value was contained");
+            return Some(Ok(next_token));
+        }
+
+        let (new_context, tokens) = self.context_and_tokens()?;
 
         if let Some(new_context) = new_context {
             self.context = new_context;
         }
 
-        let token = match token {
-            Ok(token) => token,
-            err => return Some(err),
+        let token = match tokens {
+            Ok((token, next_token)) => {
+                self.next_token = next_token;
+                token
+            }
+            Err(err) => return Some(Err(err)),
         };
 
         // Ensure all char pairs are matched.
@@ -193,7 +221,6 @@ fn consume_possible_tag_end<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
     tag_end_kind: TagKind,
-    in_tag_kind: &TagKind,
     has_unclosed_char_pairs: bool,
 ) -> Res<'a> {
     if has_unclosed_char_pairs || source.peek() != Some('}') {
@@ -207,7 +234,10 @@ fn consume_possible_tag_end<'a>(
             TagKind::Comment => TokenKind::Comment,
         };
 
-        return (None, Ok(Token::new(kind, &source, leading_whitespace)));
+        return (
+            None,
+            Ok((Token::new(kind, &source, leading_whitespace), None)),
+        );
     }
 
     let _ = source.next();
@@ -215,39 +245,20 @@ fn consume_possible_tag_end<'a>(
         .consume()
         .expect("Buffer should contain `}}`, `%}`, or `#}`");
 
-    if tag_end_kind == *in_tag_kind {
-        // Ending current tag
-        (
-            Some(Context::Static),
-            Ok(Token::new(
+    (
+        Some(Context::Static),
+        Ok((
+            Token::new(
                 TokenKind::TagEnd {
                     kind: tag_end_kind,
                     whitespace_preference: WhitespacePreference::Indifferent,
                 },
                 &source,
                 leading_whitespace,
-            )),
-        )
-    } else {
-        // Ending wrong tag
-        let message = match in_tag_kind {
-            TagKind::Writ => "Expected `}}`, `-}}`, or `_}}`",
-            TagKind::Statement => "Expected `%}`, `-%}`, or `_%}`",
-            TagKind::Comment => {
-                unreachable!("Comment should treat anything other than `#}}` as comment text")
-            }
-        };
-        (
+            ),
             None,
-            Err(UnexpectedTokenError::new(
-                message,
-                source.append_to_leading_whitespace(
-                    leading_whitespace,
-                    "Tag end should follow whitespace",
-                ),
-            )),
-        )
-    }
+        )),
+    )
 }
 
 fn consume_possible_tag_end_whitespace_adjustment<'a>(
@@ -269,10 +280,13 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         if let Some(TagKind::Statement | TagKind::Writ) = tag_end_kind {
             return (
                 None,
-                Ok(Token::new(
-                    TokenKind::Comment,
-                    &source.consume().expect("Buffer should contain `-` or `_`"),
-                    leading_whitespace,
+                Ok((
+                    Token::new(
+                        TokenKind::Comment,
+                        &source.consume().expect("Buffer should contain `-` or `_`"),
+                        leading_whitespace,
+                    ),
+                    None,
                 )),
             );
         }
@@ -290,20 +304,50 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
             ),
             (Remove, Writ | Statement) => TokenKind::Minus,
             (Replace, Writ | Statement) => {
-                return consume_ident(source, leading_whitespace);
+                let (new_context, result) = consume_ident(source, leading_whitespace);
+
+                return (new_context, result.map(|token| (token, None)));
             }
             (Remove | Replace, Comment) => TokenKind::Comment,
         };
 
         let source = source.consume().expect("Buffer should contain `-` or `_`");
 
-        return (None, Ok(Token::new(kind, &source, leading_whitespace)));
+        return (
+            None,
+            Ok((Token::new(kind, &source, leading_whitespace), None)),
+        );
     }
 
+    unchecked_consume_tag_end_whitespace_adjustment(
+        source,
+        leading_whitespace,
+        in_tag_kind,
+        tag_end_kind.expect("`None` should have just been checked for"),
+        whitespace_preference,
+    )
+}
+
+/// IMPORTANT: Call `consume_possible_tag_end_whitespace_adjustment()` instead.
+///
+/// This will consume the next two characters
+/// without verifying they match the end tag specified.
+/// The other function will take care of validation,
+/// and handle comments better.
+///
+/// This function is separated out
+/// to cover an otherwise uncoverable edge case
+/// with a mismatched end tag within a comment.
+fn unchecked_consume_tag_end_whitespace_adjustment<'a>(
+    source: &mut BufferedSource<'a>,
+    leading_whitespace: Option<Source<'a>>,
+    in_tag_kind: &TagKind,
+    tag_end_kind: TagKind,
+    whitespace_preference: WhitespacePreference,
+) -> Res<'a> {
     let _ = source.next();
     let _ = source.next();
 
-    let tag_end_kind = tag_end_kind.expect("`None` should have just been checked for");
     let source = source
         .consume()
         .expect("Buffer should contain `_}}`, `_%}`, `_#}`, `-}}`, `-%}`, or `-#}`");
@@ -312,13 +356,16 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         // Ending current tag
         (
             Some(Context::Static),
-            Ok(Token::new(
-                TokenKind::TagEnd {
-                    kind: tag_end_kind,
-                    whitespace_preference,
-                },
-                &source,
-                leading_whitespace,
+            Ok((
+                Token::new(
+                    TokenKind::TagEnd {
+                        kind: tag_end_kind,
+                        whitespace_preference,
+                    },
+                    &source,
+                    leading_whitespace,
+                ),
+                None,
             )),
         )
     } else {
@@ -349,8 +396,10 @@ mod tests {
     use proc_macro2::Span;
     use syn::LitStr;
 
+    use super::{TagKind, WhitespacePreference};
     use crate::Source;
-    use crate::source::SourceOwned;
+    use crate::source::{SourceOwned, test_source};
+    use crate::tokenizer::BufferedSource;
 
     #[test]
     fn test() {
@@ -384,5 +433,64 @@ mod tests {
                 "StaticText[b]",
             ],
         );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Tag end parser for whitespace \
+                      adjustment should never be called when indifferent about whitespace"]
+    fn consume_possible_tag_end_whitespace_indifferent() {
+        test_source!(source = "hello world");
+
+        let (new_context, result) = super::consume_possible_tag_end_whitespace_adjustment(
+            &mut source.into(),
+            None,
+            &TagKind::Writ,
+            false,
+            WhitespacePreference::Indifferent,
+        );
+
+        assert!(new_context.is_none());
+        result.unwrap();
+    }
+
+    #[test]
+    fn consume_possible_tag_end_whitespace_mismatched() {
+        test_source!(source = "-%}");
+        let mut buffer: BufferedSource = source.into();
+        let _ = buffer.next();
+
+        let (new_context, result) = super::consume_possible_tag_end_whitespace_adjustment(
+            &mut buffer,
+            None,
+            &TagKind::Writ,
+            false,
+            WhitespacePreference::Remove,
+        );
+
+        assert!(new_context.is_none());
+
+        let error = result.expect_err("Result should be an error");
+        assert_eq!(error.message(), "Expected `}}`, `-}}`, or `_}}`")
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Comment should treat anything \
+                      other than `#}` as comment text"]
+    fn consume_possible_tag_end_whitespace_mismatched_comment() {
+        test_source!(source = "-%}");
+        let mut buffer: BufferedSource = source.into();
+        let _ = buffer.next();
+
+        let (new_context, result) = super::unchecked_consume_tag_end_whitespace_adjustment(
+            &mut buffer,
+            None,
+            &TagKind::Comment,
+            TagKind::Statement,
+            WhitespacePreference::Remove,
+        );
+
+        assert!(new_context.is_none());
+
+        let _ = result.unwrap();
     }
 }

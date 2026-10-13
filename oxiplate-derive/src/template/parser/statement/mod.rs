@@ -128,17 +128,14 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub(crate) fn to_tokens<'b: 'a>(
-        &self,
-        state: &mut State<'b>,
-    ) -> Result<BuiltTokens, BuiltTokens> {
+    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
         macro_rules! unexpected {
             ($tag:literal) => {{
                 let span = self.source.span_token();
-                Err((
+                (
                     quote_spanned! {span=> compile_error!(concat!("Unexpected '", $tag, "' statement")); },
-                    0,
-                ))
+                    EstimatedLength::new(0),
+                )
             }};
         }
 
@@ -146,35 +143,35 @@ impl<'a> Statement<'a> {
 
         let tokens = match &self.kind {
             StatementKind::DefaultEscaper(default_escaper) => {
-                default_escaper.to_tokens(state, &self.source)
+                default_escaper.to_tokens_with_mut_state(state)
             }
             StatementKind::Extends(statement) => {
                 if state.has_content {
                     let span = self.source.span_token();
-                    Err((
+                    (
                         quote_spanned! {span=> compile_error!("Unexpected 'extends' statement after content already present in template"); },
-                        0,
-                    ))
+                        EstimatedLength::new(0),
+                    )
                 } else {
-                    Ok(statement.to_tokens(state))
+                    statement.to_tokens_with_mut_state(state)
                 }
             }
-            StatementKind::Block(block) => Ok(block.to_tokens(state)),
+            StatementKind::Block(block) => block.to_tokens_with_mut_state(state),
             StatementKind::Parent => unexpected!("parent"),
             StatementKind::EndBlock => unexpected!("endblock"),
-            StatementKind::Include(statement) => Ok(statement.to_tokens(state)),
-            StatementKind::If(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Include(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::If(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::ElseIf(_) => unexpected!("elseif"),
             StatementKind::Else => unexpected!("else"),
             StatementKind::EndIf => unexpected!("endif"),
-            StatementKind::For(statement) => Ok(statement.to_tokens(state)),
-            StatementKind::Continue(statement) => Ok(statement.to_tokens()),
-            StatementKind::Break(statement) => Ok(statement.to_tokens()),
+            StatementKind::For(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::Continue(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::Break(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::EndFor => unexpected!("endfor"),
-            StatementKind::Match(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Match(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::Case(_) => unexpected!("case"),
             StatementKind::EndMatch => unexpected!("endmatch"),
-            StatementKind::Let(statement) => Ok(statement.to_tokens(state)),
+            StatementKind::Let(statement) => statement.to_tokens_with_mut_state(state),
         };
 
         state.local_variables.pop_stack();
@@ -224,7 +221,7 @@ pub(super) fn statement<'a>(
 
         // Parse the closing tag and any trailing whitespace
         let (tokens, (mut trailing_whitespace, close_tag)) =
-            cut(r#""%}" expected"#, tag_end(TagKind::Statement)).parse(tokens)?;
+            tag_end(TagKind::Statement).parse(tokens)?;
 
         statement.wrap_source(open_tag_source.clone(), &close_tag);
 
@@ -241,12 +238,7 @@ pub(super) fn statement<'a>(
                     return Ok(eof(tokens, statement, trailing_whitespace));
                 }
 
-                let (new_tokens, items) = match statement_item(tokens)? {
-                    (new_tokens, Some(items)) => (new_tokens, items),
-                    (tokens, None) => {
-                        return Ok(eof(tokens, statement, trailing_whitespace));
-                    }
-                };
+                let (new_tokens, items) = statement_item(tokens)?;
                 tokens = new_tokens;
 
                 for item in items {
@@ -284,18 +276,8 @@ pub(super) fn statement<'a>(
     }
 }
 
-fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Option<Vec<Item>>), Error> {
-    let eof = tokens.eof();
-    match cut("Failed to parse contents of statement", parse_item).parse(tokens) {
-        Ok((tokens, items)) => Ok((tokens, Some(items))),
-        Err(err) => {
-            if err.is_eof() {
-                Ok((TokenSlice::new(&[], eof), None))
-            } else {
-                Err(err)
-            }
-        }
-    }
+fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Vec<Item>), Error> {
+    cut("Failed to parse contents of statement", parse_item).parse(tokens)
 }
 
 fn eof<'a>(
@@ -346,23 +328,28 @@ fn eof<'a>(
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
-    use crate::State;
+    use super::*;
     use crate::source::test_source;
     use crate::template::parser::statement::r#match::Case;
+    use crate::tokenizer::{BufferedSource, Eof};
+    use crate::{EstimatedLength, State};
 
     macro_rules! unexpected_statement_for_to_tokens {
         ($function_name:ident, $tag:literal, $tag_name:literal, $kind:ident) => {
             #[test]
             fn $function_name() {
                 test_source!(source = $tag);
-                let (tokens, length) = super::Statement {
+                let (tokens, length) = Statement {
                     source,
-                    kind: super::StatementKind::$kind,
+                    kind: StatementKind::$kind,
                 }
-                .to_tokens(&mut State::new_for_test())
-                .expect_err("Error TokenStream expected");
+                .to_tokens(&mut State::new_for_test());
 
-                assert_eq!(length, 0, "Length should be 0 due to compile error");
+                assert_eq!(
+                    length,
+                    EstimatedLength::new(0),
+                    "Length should be 0 due to compile error"
+                );
                 assert_eq!(
                     format!("{tokens}"),
                     concat!(
@@ -386,19 +373,60 @@ mod tests {
     fn case_to_tokens() {
         test_source!(source = "{% case 19 %}");
         test_source!(integer_source = "19");
-        let (tokens, length) = super::Statement {
+        let (tokens, length) = Statement {
             source,
-            kind: super::StatementKind::Case(Case::new_for_test(&integer_source)),
+            kind: StatementKind::Case(Case::new_for_test(&integer_source)),
         }
-        .to_tokens(&mut State::new_for_test())
-        .expect_err("Error TokenStream expected");
+        .to_tokens(&mut State::new_for_test());
 
-        assert_eq!(length, 0, "Length should be 0 due to compile error");
+        assert_eq!(
+            length,
+            EstimatedLength::new(0),
+            "Length should be 0 due to compile error"
+        );
         assert_eq!(
             format!("{tokens}"),
             r#"compile_error ! (concat ! ("Unexpected '" , "case" , "' statement")) ;"#,
             "`{}` should result in a compile error",
             "{% case %}",
+        );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: add_item() should not be called \
+                      for this kind of statement"]
+    fn add_item_on_else() {
+        test_source!(source = "{% else %}{# hello world #}");
+        let mut buffer: BufferedSource = source.into();
+
+        let _ = buffer.next();
+        buffer.next_until(|char| char == '{');
+        let source = buffer.consume().unwrap();
+
+        buffer.next_until(|char| char == '}');
+        let _ = buffer.next();
+        let comment_source = buffer.consume().unwrap();
+
+        Statement {
+            source,
+            kind: StatementKind::Else,
+        }
+        .add_item(Item::Comment(comment_source))
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: These blocks should never fail to \
+                      be closed because of EOF"]
+    fn eof_on_else() {
+        test_source!(source = "");
+
+        let _ = eof(
+            TokenSlice::new(&[], &Eof::for_test(source.clone())),
+            Statement {
+                source,
+                kind: StatementKind::Else,
+            },
+            None,
         );
     }
 }

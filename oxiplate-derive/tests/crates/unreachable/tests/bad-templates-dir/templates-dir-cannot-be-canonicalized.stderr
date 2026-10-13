@@ -1,0 +1,20 @@
+error: proc-macro derive panicked
+ --> tests/bad-templates-dir/templates-dir-cannot-be-canonicalized.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: Failed to normalize template directory `$DIR/ /templates-do-not-exist` (`OXIP_TEMPLATE_DIR` environment variable). Original error: No such file or directory (os error 2)
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+ --> tests/bad-templates-dir/templates-dir-cannot-be-canonicalized.rs:8:13
+  |
+8 |     print!("{Data}");
+  |             ^^^^^^ `Data` cannot be formatted with the default formatter
+  |
+help: the trait `std::fmt::Display` is not implemented for `Data`
+ --> tests/bad-templates-dir/templates-dir-cannot-be-canonicalized.rs:5:1
+  |
+5 | struct Data;
+  | ^^^^^^^^^^^
+  = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead

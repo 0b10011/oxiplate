@@ -1,0 +1,5 @@
+error: Failed to canonicalize path: `$DIR/templates/this isn't a valid path`. Original error: No such file or directory (os error 2)
+ --> tests/broken/template-path-cant-be-canonicalized.rs:4:14
+  |
+4 | #[oxiplate = "this isn't a valid path"]
+  |              ^^^^^^^^^^^^^^^^^^^^^^^^^

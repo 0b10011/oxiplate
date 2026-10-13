@@ -16,26 +16,6 @@ pub(crate) struct ArgumentsGroup<'a> {
 }
 
 impl<'a> ArgumentsGroup<'a> {
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
-        let mut tokens = TokenStream::new();
-
-        if let Some((first_argument, remaining_arguments, _trailing_comma)) = &self.arguments {
-            // First argument
-            tokens.append_all(first_argument.to_tokens(state).0);
-
-            // Remaining arguments
-            for (comma, expression) in remaining_arguments {
-                let comma_span = comma.span_token();
-                tokens.append_all(quote_spanned! {comma_span=> , });
-                tokens.append_all(expression.to_tokens(state).0);
-            }
-        }
-
-        let mut group = proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, tokens);
-        group.set_span(self.source().span_token());
-        group.to_token_stream()
-    }
-
     /// Get the `Source` for the entire arguments group.
     pub fn source(&self) -> Source<'a> {
         let mut source = self.open_paren.clone();
@@ -58,6 +38,28 @@ impl<'a> ArgumentsGroup<'a> {
         );
 
         source
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for ArgumentsGroup<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
+        if let Some((first_argument, remaining_arguments, _trailing_comma)) = &self.arguments {
+            // First argument
+            tokens.append_all(first_argument.to_tokens_with_state(state).0);
+
+            // Remaining arguments
+            for (comma, expression) in remaining_arguments {
+                let comma_span = comma.span_token();
+                tokens.append_all(quote_spanned! {comma_span=> , });
+                tokens.append_all(expression.to_tokens_with_state(state).0);
+            }
+        }
+
+        let mut group = proc_macro2::Group::new(proc_macro2::Delimiter::Parenthesis, tokens);
+        group.set_span(self.source().span_token());
+        (group.to_token_stream(), EstimatedLength::new(0))
     }
 }
 

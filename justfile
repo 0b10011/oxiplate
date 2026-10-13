@@ -53,7 +53,7 @@ rebuild-config-test-crates:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-09-29" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-10-13" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -72,16 +72,31 @@ format-check: && (format-broken "rustfmt --check")
 format-broken command:
     find -type d -name broken -print0 | xargs -0 -I{} find '{}' -name '*.rs' -print0 | xargs -0 -n 999 {{ command }}
 
-# Run `cargo clippy` against all packages.
+# Run `cargo clippy` against all packages with all features turned on.
 [group("Lint")]
 clippy: check
-    cargo clippy --locked --workspace
+    cargo clippy --locked --workspace --features oxiplate/better-errors,oxiplate-derive/better-errors
 
-# Run `cargo clippy` against all packages, denying warnings.
+# Run `cargo clippy` against all packages and various combinations of features, denying warnings.
 [group("Lint")]
-clippy-strict: check-strict
-    @echo "Checking clippy lints..."
+clippy-strict: check-strict \
+    (clippy-features "--workspace" "oxiplate/better-errors,oxiplate-derive/better-errors") && \
+    (clippy-features "--workspace" "oxiplate/better-internal-errors,oxiplate-derive/better-internal-errors") \
+    (clippy-features "--workspace" "oxiplate/external-template-spans,oxiplate-derive/external-template-spans") \
+    (clippy-features "--workspace" "oxiplate/config,oxiplate-derive/config") \
+    (clippy-features "--workspace" "oxiplate/fast-escape-ints,oxiplate-traits/fast-escape-ints") \
+    (clippy-features "--workspace" "oxiplate/built-in-escapers,oxiplate-derive/built-in-escapers") \
+    (clippy-features "--workspace" "oxiplate/_unreachable,oxiplate-derive/_unreachable")\
+    (clippy-features "--package oxiplate-derive" "oxiplate-derive/better-errors") \
+    (clippy-features "--package oxiplate-derive" "oxiplate-derive/better-internal-errors") \
+    (clippy-features "--package oxiplate-derive" "oxiplate-derive/external-template-spans") \
+    (clippy-features "--package oxiplate-derive" "oxiplate-derive/config") \
+    (clippy-features "--package oxiplate-derive" "oxiplate-derive/_unreachable")
     cargo clippy --locked --workspace -- -Dwarnings
+    cargo clippy --locked --workspace --no-default-features -- -Dwarnings
+
+clippy-features options features:
+    cargo clippy --locked {{ options }} --no-default-features --features {{ features }} -- -Dwarnings
 
 # Run check against all packages.
 [group("Test")]
@@ -168,6 +183,7 @@ run-against-libs command test-arguments="":
     {{ command }} --package oxiplate-derive -- {{ test-arguments }}
     {{ command }} --workspace \
         --exclude oxiplate-derive \
+        --exclude oxiplate-derive-test-config-* \
         --exclude oxiplate-derive-test-unreachable \
         --exclude oxiplate-derive-test-unreachable-stable \
         --exclude oxiplate-test-fast-escape-type-priority \
@@ -175,7 +191,9 @@ run-against-libs command test-arguments="":
         --exclude oxiplate-test-slow-escape-ints \
         --exclude oxiplate-test-unreachable \
         --exclude oxiplate-test-unreachable-config \
-        --exclude oxiplate-test-unreachable-stable -- {{ test-arguments }}
+        --exclude oxiplate-test-unreachable-stable \
+        --exclude oxiplate-test-unreachable-template-dir-absolute \
+        -- {{ test-arguments }}
 
 [private]
 run-against-all command test-arguments="": (run-against-stable command test-arguments) (run-against-unstable command test-arguments) check-strict (run-against-broken command)
@@ -193,7 +211,9 @@ run-against-unstable command test-arguments="":
     {{ command }} --package oxiplate-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-config -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-unreachable-stable -- {{ test-arguments }}
+    {{ command }} --package oxiplate-test-unreachable-template-dir-absolute -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-file-extension-inferrence-off -- {{ test-arguments }}
+    {{ command }} --package oxiplate-derive-test-config-* -- {{ test-arguments }}
     {{ command }} --package oxiplate-derive-test-unreachable -- {{ test-arguments }}
     {{ command }} --package oxiplate-derive-test-unreachable-stable -- {{ test-arguments }}
 

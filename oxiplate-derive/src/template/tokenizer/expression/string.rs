@@ -28,10 +28,13 @@ pub(crate) fn consume_string<'a>(
 
             (
                 None,
-                Ok(Token::new(
-                    TokenKind::String(Box::new(string)),
-                    &source,
-                    leading_whitespace,
+                Ok((
+                    Token::new(
+                        TokenKind::String(Box::new(string)),
+                        &source,
+                        leading_whitespace,
+                    ),
+                    None,
                 )),
             )
         }
@@ -90,10 +93,13 @@ pub(crate) fn consume_raw_string<'a>(
                         .expect("Full string should be in the buffer");
                     return (
                         None,
-                        Ok(Token::new(
-                            TokenKind::RawString(Box::new(string)),
-                            &source,
-                            leading_whitespace,
+                        Ok((
+                            Token::new(
+                                TokenKind::RawString(Box::new(string)),
+                                &source,
+                                leading_whitespace,
+                            ),
+                            None,
                         )),
                     );
                 } else if closing_hashes > opening_hashes {

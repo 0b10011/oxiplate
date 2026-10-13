@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::fs;
 
 use syn::DeriveInput;
-#[cfg(not(feature = "_unreachable"))]
+#[cfg(not(all(feature = "_unreachable", feature = "config")))]
 use syn::spanned::Spanned;
 
 use crate::BuiltTokens;

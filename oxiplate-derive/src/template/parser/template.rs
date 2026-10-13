@@ -5,13 +5,13 @@ use super::{Item, Static};
 #[cfg(coverage_nightly)]
 use crate::Source;
 use crate::template::parser::item::parse_trailing_whitespace;
-use crate::template::tokenizer::WhitespacePreference;
+use crate::template::tokenizer::WhitespaceAdjustmentTagPreference;
 
 /// Collection of items in the template and estimated output length.
 #[derive(Debug)]
 pub(crate) struct Template<'a>(pub(crate) Vec<Item<'a>>);
 
-impl<'a> Template<'a> {
+impl Template<'_> {
     #[cfg(coverage_nightly)]
     pub fn source(&self) -> Option<Source<'_>> {
         let mut source: Option<Source<'_>> = None;
@@ -34,10 +34,12 @@ impl<'a> Template<'a> {
 
         tokens.append_all(quote! { oxiplate_formatter.write_str(#concat_tokens)?; });
     }
+}
 
-    pub fn to_tokens<'b: 'a>(&'a self, state: &mut State<'b>) -> (TokenStream, usize) {
+impl<'a> ToTokensWithMutState<'a> for Template<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
-        let mut estimated_length = 0;
+        let mut estimated_length = EstimatedLength::new(0);
 
         let mut str_tokens = vec![];
         for item in &self.0 {
@@ -77,7 +79,7 @@ impl<'a> Template<'a> {
 pub(crate) fn parse<'a, 'b: 'a>(state: &mut State<'b>, tokens: TokenSlice<'a>) -> BuiltTokens {
     match try_parse(state, tokens) {
         Ok((_, template)) => template,
-        Err(error) => Into::<Template>::into(error).to_tokens(state),
+        Err(error) => Into::<Template>::into(error).to_tokens_with_mut_state(state),
     }
 }
 
@@ -98,7 +100,7 @@ pub(crate) fn try_parse<'a, 'b: 'a>(
     #[cfg(coverage_nightly)]
     let _ = template.source();
 
-    Ok((tokens, template.to_tokens(state)))
+    Ok((tokens, template.to_tokens_with_mut_state(state)))
 }
 
 pub(crate) fn parse_item(tokens: TokenSlice) -> Res<Vec<Item>> {
@@ -110,11 +112,13 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
         ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
         alt((
             take(TokenKind::WhitespaceAdjustmentTag {
-                whitespace_preference: WhitespacePreference::Remove,
+                whitespace_preference: WhitespaceAdjustmentTagPreference::Remove,
             }),
             take(TokenKind::WhitespaceAdjustmentTag {
-                whitespace_preference: WhitespacePreference::Replace,
+                whitespace_preference: WhitespaceAdjustmentTagPreference::Replace,
             }),
+            #[cfg(feature = "_unreachable")]
+            take(TokenKind::At),
         )),
     )
         .parse(tokens)?;
@@ -131,7 +135,7 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
 
     let (tokens, trailing_whitespace) = parse_trailing_whitespace(
         tag.source(),
-        whitespace_preference,
+        whitespace_preference.to_owned().into(),
         leading_whitespace.is_some(),
     )
     .parse(tokens)?;
@@ -152,7 +156,7 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
         );
 
     let whitespace = match (has_whitespace, whitespace_preference) {
-        (true, WhitespacePreference::Replace) => {
+        (true, WhitespaceAdjustmentTagPreference::Replace) => {
             let space = if leading_whitespace.is_some()
                 || matches!(&trailing_whitespace, Some(Item::Whitespace(Static(" ", _))))
             {
@@ -162,7 +166,7 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
             };
             vec![Item::Whitespace(Static(space, source))]
         }
-        (false, WhitespacePreference::Replace) => vec![Item::CompileError {
+        (false, WhitespaceAdjustmentTagPreference::Replace) => vec![Item::CompileError {
             message: "Whitespace replace tag `{_}` used between non-whitespace. Either add \
                       whitespace or remove this tag."
                 .to_string(),
@@ -171,10 +175,9 @@ pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
         }],
         // Return the tag as a comment to keep contiguous source
         // without actually outputting anything.
-        (_, WhitespacePreference::Remove) => {
+        (_, WhitespaceAdjustmentTagPreference::Remove) => {
             vec![Item::Whitespace(Static("", source))]
         }
-        _ => unreachable!("Only whitespace control tags should be matched"),
     };
 
     Ok((tokens, whitespace))

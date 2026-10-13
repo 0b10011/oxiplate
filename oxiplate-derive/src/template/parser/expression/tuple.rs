@@ -47,13 +47,15 @@ impl<'a> Tuple<'a> {
     pub fn source(&self) -> &Source<'a> {
         &self.source
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
+impl<'a> ToTokensWithState<'a> for Tuple<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut items = vec![];
         let span = self.source.span_token();
-        let mut expression_length = usize::MAX;
+        let mut expression_length = EstimatedLength::new(usize::MAX);
         for item in &self.items {
-            let (item, item_length) = item.to_tokens(state);
+            let (item, item_length) = item.to_tokens_with_state(state);
             items.push(item);
             expression_length = expression_length.min(item_length);
         }
@@ -101,9 +103,11 @@ impl<'a> TupleItem<'a> {
             ))
         }
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> BuiltTokens {
-        let (expression, expression_length) = self.expression.to_tokens(state);
+impl<'a> ToTokensWithState<'a> for TupleItem<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let (expression, expression_length) = self.expression.to_tokens_with_state(state);
         let comma = self.comma.clone().map_or_else(TokenStream::new, |comma| {
             let span = comma.span_token();
             quote_spanned! {span=> , }

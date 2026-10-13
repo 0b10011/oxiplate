@@ -30,7 +30,9 @@ impl<'a> TableOrValue<'a> {
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
     let (tokens, items) = parse_all(Item::parse).parse(tokens)?;
 
-    let (mut data, source) = parse_data(items)?;
+    let (mut data, config_source) = parse_data(items)?;
+
+    let config_source = config_source.unwrap_or_else(|| tokens.eof().source().clone());
 
     let mut config = Config::default();
 
@@ -41,11 +43,14 @@ pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
                     TableOrValue::Value(Value::$expected_kind(value)) => {
                         config.$field = value.into();
                     }
-                    _ => {
+                    TableOrValue::Value(value) => {
                         return Err(Error::unrecoverable(
                             $message.to_string(),
-                            source.unwrap_or_else(|| tokens.eof().source().clone()),
+                            value.source().clone(),
                         ));
+                    }
+                    TableOrValue::Table(_) => {
+                        return Err(Error::unrecoverable($message.to_string(), config_source));
                     }
                 }
             }
@@ -56,25 +61,25 @@ pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
         "fallback_escaper_group",
         fallback_escaper_group,
         String,
-        "Boolean value not allowed for `fallback_escaper_group`",
+        "Expected `fallback_escaper_group` to be a string",
     );
     set_field!(
         "require_specifying_escaper",
         require_specifying_escaper,
         Bool,
-        "String value not allowed for `require_specifying_escaper`",
+        "Expected `require_specifying_escaper` to be `true` or `false`",
     );
     set_field!(
         "infer_escaper_group_from_file_extension",
         infer_escaper_group_from_file_extension,
         Bool,
-        "String value not allowed for `infer_escaper_group_from_file_extension`",
+        "Expected `infer_escaper_group_from_file_extension` to be `true` or `false`",
     );
     set_field!(
         "optimized_renderer",
         optimized_renderer,
         Bool,
-        "String value not allowed for `optimized_renderer`",
+        "Expected `optimized_renderer` to be `true` or `false`",
     );
 
     if let Some(escaper_groups) = data.remove("escaper_groups") {
@@ -150,7 +155,7 @@ fn parse_escaper_groups<'a>(
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`; table found"
+                             escaper enum (e.g., `::your_package::Escaper`); table found"
                         ),
                         tokens.eof().source().clone(),
                     ));
@@ -159,7 +164,7 @@ fn parse_escaper_groups<'a>(
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`; `{}` found",
+                             escaper enum (e.g., `::your_package::Escaper`); `{}` found",
                             value.value
                         ),
                         tokens.eof().source().clone(),

@@ -34,9 +34,9 @@ pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::{Fields, LocalVariables, build_config};
-use self::template::{TokenSlice, parse, tokens_and_eof};
+use self::template::{EstimatedLength, TokenSlice, parse, tokens_and_eof};
 
-type BuiltTokens = (proc_macro2::TokenStream, usize);
+type BuiltTokens = (proc_macro2::TokenStream, EstimatedLength);
 
 /// Derives the `::std::fmt::Display` implementation for a template's struct.
 ///
@@ -106,7 +106,6 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
         // Compare tokens as a string to avoid having to parse unnecessarily.
         if input.to_string()
             == r#"#[oxiplate_inline("hello world")] struct UnreachableUnparseableInput;"#
-                .to_string()
         {
             // Unparseable code that would otherwise fail before reaching this point.
             quote! { struct 19foo; }.into()
@@ -122,10 +121,10 @@ pub fn oxiplate(input: TokenStream) -> TokenStream {
 pub(crate) fn oxiplate_internal(
     input: TokenStream,
     blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
-) -> (TokenStream, usize) {
+) -> (TokenStream, EstimatedLength) {
     let input = match syn::parse(input) {
         Ok(input) => input,
-        Err(err) => return (err.to_compile_error().into(), 0),
+        Err(err) => return (err.to_compile_error().into(), EstimatedLength::new(0)),
     };
     parse_input(&input, blocks)
 }
@@ -136,21 +135,21 @@ pub(crate) fn oxiplate_internal(
 fn parse_input(
     input: &DeriveInput,
     blocks: &VecDeque<&HashMap<&str, (BuiltTokens, Option<BuiltTokens>)>>,
-) -> (TokenStream, usize) {
+) -> (TokenStream, EstimatedLength) {
     let DeriveInput {
         ident, generics, ..
     } = &input;
 
     let (template, estimated_length, template_type, optimized_renderer): (
         proc_macro2::TokenStream,
-        usize,
+        EstimatedLength,
         TemplateType,
         OptimizedRenderer,
     ) = match parse_template_and_data(input, blocks) {
         Ok(data) => data,
         Err((err, template_type, optimized_renderer)) => (
             err.to_compile_error(),
-            0,
+            EstimatedLength::new(0),
             template_type.unwrap_or(TemplateType::Inline),
             optimized_renderer,
         ),
@@ -225,7 +224,7 @@ fn parse_input(
 
 type ParsedTemplate = (
     proc_macro2::TokenStream,
-    usize,
+    EstimatedLength,
     TemplateType,
     OptimizedRenderer,
 );
@@ -288,7 +287,7 @@ fn parse_template_and_data(
     let (template, estimated_length): BuiltTokens = process_parsed_tokens(
         parsed_tokens,
         &mut state,
-        #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
+        #[cfg(feature = "_oxiplate")]
         &template_type,
     )
     .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
@@ -314,8 +313,7 @@ type ParsedTokens = Result<
 fn process_parsed_tokens<'a>(
     parsed_tokens: ParsedTokens,
     state: &'a mut State<'a>,
-    #[cfg(any(feature = "_oxiplate", feature = "external-template-spans"))]
-    template_type: &TemplateType,
+    #[cfg(feature = "_oxiplate")] template_type: &TemplateType,
 ) -> Result<BuiltTokens, syn::Error> {
     match parsed_tokens {
         #[cfg(feature = "_oxiplate")]
@@ -342,14 +340,14 @@ fn process_parsed_tokens<'a>(
                     quote_spanned! {span=> compile_error!(concat!("The specified escaper group `", #escaper, "` is not registered in `/oxiplate.toml`. Registered escaper groups: ", #available_escaper_groups)); }
                 }
             };
-            Ok((template, 0))
+            Ok((template, EstimatedLength::new(0)))
         }
-        Err(ParsedEscaperError::ParseError(compile_error)) => Ok((compile_error, 0)),
+        Err(ParsedEscaperError::ParseError(compile_error)) => {
+            Ok((compile_error, EstimatedLength::new(0)))
+        }
         Ok((span, input, origin, inferred_escaper_group_name)) => {
             let code = parse_code_literal(
                 &input.into(),
-                #[cfg(feature = "external-template-spans")]
-                template_type,
                 #[cfg(feature = "external-template-spans")]
                 span,
             )?;
@@ -419,27 +417,17 @@ Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
 
 fn parse_code_literal(
     input: &TokenStream,
-    #[cfg(feature = "external-template-spans")] template_type: &TemplateType,
     #[cfg(feature = "external-template-spans")] span: Span,
 ) -> Result<LitStr, syn::Error> {
     // Expand macros
     #[cfg(feature = "external-template-spans")]
     let Ok(input) = input.expand_expr() else {
-        let invalid_attribute_message = match template_type {
-            TemplateType::Path | TemplateType::Inline => {
-                r#"Must provide either an external or internal template:
+        return Err(syn::Error::new(
+            span,
+            r#"Must provide either an external or internal template:
 External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
-Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#
-            }
-            TemplateType::Extends => {
-                r#"Must provide a path to a template that exists. E.g., `{% extends "path/to/template.html.oxip" %}`"#
-            }
-            TemplateType::Include => {
-                r#"Must provide a path to a template that exists. E.g., `{% include "path/to/template.html.oxip" %}`"#
-            }
-        };
-
-        return Err(syn::Error::new(span, invalid_attribute_message));
+Internal: #[oxiplate_inline(html: "{{ your_var }}")]"#,
+        ));
     };
 
     #[cfg(not(feature = "external-template-spans"))]
@@ -634,19 +622,16 @@ fn templates_dir(span: Span) -> Result<PathBuf, ParsedEscaperError> {
                     })
                 },
                 AppendPathError::CanonicalizeError(path_buf, error) => {
-                    if using_default_template_dir {
-                        unreachable!(
-                            "Failed to normalize default template directory. Original error: {error}",
-                        );
-                    }
-
-                    let path_buf = path_buf.to_string_lossy();
-                    let error = error.to_string();
-                    ParsedEscaperError::ParseError(quote_spanned! {span=>
-                        compile_error!(concat!("Failed to normalize `", #path_buf, "`. Original error: ", #error));
-                    })
+                    unreachable!(
+                        "Failed to normalize template directory `{}` ({}). Original error: {error}",
+                        path_buf.to_string_lossy(),
+                        if using_default_template_dir { "default" } else { "`OXIP_TEMPLATE_DIR` environment variable" },
+                    );
                 },
                 AppendPathError::PrefixNotPresent { prefix, final_path } => {
+                    #[cfg(feature = "_unreachable")]
+                    let using_default_template_dir = true;
+
                     if using_default_template_dir {
                         let _ = prefix;
                         let _ = final_path;
@@ -848,6 +833,8 @@ impl<P: AsRef<Path>> AppendPath<P> for PathBuf {
                 prefix: self.clone(),
                 final_path: new_path,
             });
+        } else if cfg!(feature = "_unreachable") {
+            // Skip rest of checks so `canonicalize()` can fail.
         } else if !new_path.exists() {
             return Err(AppendPathError::DoesNotExist(new_path));
         } else if new_path.is_symlink() {
@@ -970,7 +957,11 @@ fn percent_encode_byte(byte: u8) -> &'static str {
     let index = usize::from(byte) * 3;
     // SAFETY: ENC_TABLE is ascii-only, so any subset of it should be
     // ascii-only too, which is valid utf8.
-    unsafe { str::from_utf8_unchecked(&ENC_TABLE[index..index + 3]) }
+    // `str:from_utf8_unchecked()` is only available since Rust 1.87.0.
+    #[expect(clippy::incompatible_msrv)]
+    unsafe {
+        str::from_utf8_unchecked(&ENC_TABLE[index..index + 3])
+    }
 }
 
 pub(crate) use internal_error;

@@ -1,6 +1,9 @@
 error[E0425]: cannot find value `foo` in this scope
  --> tests/broken/strings/concat-all-types-span.rs:6:5
   |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro
+...
 6 |     foo
   |     ^^^ not found in this scope
 

@@ -1,4 +1,4 @@
-error: Expected an expression
+error: Expected an expression after `in`
  --> tests/broken/for/for-no-expression.rs:6:19
   |
 6 | {%- for number in -%}

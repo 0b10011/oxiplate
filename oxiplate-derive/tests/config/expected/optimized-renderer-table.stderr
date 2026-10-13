@@ -1,0 +1,13 @@
+error: Failed to parse `/oxiplate.toml`: Expected `optimized_renderer` to be `true` or `false`
+ --> oxiplate.toml
+  |
+  | / [optimized_renderer]
+  | | should_use = "true"
+  | |____________________^
+  |
+ ::: tests/broken/optimized-renderer-table.rs:3:10
+  |
+3 |   #[derive(Oxiplate)]
+  |            -------- in this derive macro expansion
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,0 +1,20 @@
+error: proc-macro derive panicked
+ --> tests/broken/absolute.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: `default_template_dir` variable in `oxiplate-derive` code must be a relative path; example: 'templates' instead of '/templates'. Provided: /templates
+
+error[E0599]: no method named `render` found for struct `Data` in the current scope
+ --> tests/broken/absolute.rs:8:21
+  |
+5 | struct Data;
+  | ----------- method `render` not found for this struct
+...
+8 |     assert_eq!(Data.render().unwrap(), "Hello world!");
+  |                     ^^^^^^ method not found in `Data`
+  |
+  = help: items from traits can only be used if the trait is implemented and in scope
+  = note: the following trait defines an item `render`, perhaps you need to implement it:
+          candidate #1: `Render`

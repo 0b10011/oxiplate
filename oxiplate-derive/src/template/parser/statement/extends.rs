@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use syn::{Ident, LitStr};
+use proc_macro2::{Ident, Literal};
 
 use super::{Statement, StatementKind, StaticType};
 use crate::template::parser::Item;
@@ -66,17 +66,20 @@ impl<'a> Extends<'a> {
             }
         }
     }
+}
 
-    pub(crate) fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
+impl<'a> ToTokensWithMutState<'a> for Extends<'a> {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let span = self.path.source().span_token();
-        let path = LitStr::new(self.path.as_str(), span);
+        let mut path = Literal::string(self.path.as_str());
+        path.set_span(span);
 
         #[cfg(feature = "_oxiplate")]
         let oxiplate = quote_spanned! {span=> ::oxiplate::Oxiplate };
         #[cfg(not(feature = "_oxiplate"))]
         let oxiplate = quote_spanned! {span=> ::oxiplate_derive::Oxiplate };
 
-        let (template, _template_length) = &self.template.to_tokens(state);
+        let (template, _template_length) = &self.template.to_tokens_with_mut_state(state);
         let mut tokens: TokenStream = quote! { #template };
 
         // `Template` doesn't include types for any fields
@@ -100,11 +103,14 @@ impl<'a> Extends<'a> {
         let mut blocks = HashMap::new();
         for (name, block) in &self.blocks {
             state.local_variables.push_stack();
-            let prefix = block.0.to_tokens(state);
+            let prefix = block.0.to_tokens_with_mut_state(state);
             state.local_variables.pop_stack();
 
             state.local_variables.push_stack();
-            let suffix = block.1.as_ref().map(|suffix| suffix.to_tokens(state));
+            let suffix = block
+                .1
+                .as_ref()
+                .map(|suffix| suffix.to_tokens_with_mut_state(state));
             state.local_variables.pop_stack();
 
             blocks.insert(*name, (prefix, suffix));

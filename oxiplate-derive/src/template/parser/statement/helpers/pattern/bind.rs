@@ -45,12 +45,15 @@ impl<'a> Bind<'a> {
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
         HashSet::from([self.ident.as_str()])
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Bind<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let ident = &self.ident;
         let span = self.at.span_token();
-        let pattern = self.pattern.to_tokens(state);
-        quote_spanned! {span=> #ident @ #pattern }
+        let (pattern, estimated_length) = self.pattern.to_tokens_with_state(state);
+
+        (quote_spanned! {span=> #ident @ #pattern }, estimated_length)
     }
 }
 

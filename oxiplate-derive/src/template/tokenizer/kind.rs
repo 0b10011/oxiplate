@@ -16,7 +16,7 @@ pub(crate) enum TokenKind {
 
     /// `{-}` and `{_}`
     WhitespaceAdjustmentTag {
-        whitespace_preference: WhitespacePreference,
+        whitespace_preference: WhitespaceAdjustmentTagPreference,
     },
 
     Ident,
@@ -33,7 +33,6 @@ pub(crate) enum TokenKind {
 
     Bool(bool),
     Char(char),
-    Lifetime,
     Integer,
     Float,
 
@@ -45,6 +44,8 @@ pub(crate) enum TokenKind {
     #[allow(clippy::box_collection)]
     RawString(Box<String>),
 
+    /// `'`
+    Apostrophe,
     /// `(`
     OpenParenthese,
     /// `)`
@@ -136,4 +137,22 @@ pub(crate) enum WhitespacePreference {
     /// otherwise leave the whitespace unchanged.
     /// Tag that suggests this: `{{ foo }}`
     Indifferent,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum WhitespaceAdjustmentTagPreference {
+    /// Remove all matched whitespace (`{-}`).
+    Remove,
+
+    /// Replace all matched whitespace with a single space (`{_}`).
+    Replace,
+}
+
+impl From<WhitespaceAdjustmentTagPreference> for WhitespacePreference {
+    fn from(value: WhitespaceAdjustmentTagPreference) -> Self {
+        match value {
+            WhitespaceAdjustmentTagPreference::Remove => Self::Remove,
+            WhitespaceAdjustmentTagPreference::Replace => Self::Replace,
+        }
+    }
 }

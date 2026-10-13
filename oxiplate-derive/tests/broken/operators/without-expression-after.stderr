@@ -1,4 +1,4 @@
-error: Expected an expression
+error: Expected an expression after the operator
  --> tests/broken/operators/without-expression-after.rs:4:27
   |
 4 | #[oxiplate_inline("{{ a + }}")]

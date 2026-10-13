@@ -1,4 +1,4 @@
-use syn::spanned::Spanned;
+use proc_macro2::Ident;
 
 use super::Expression;
 use super::generics::GenericArgs;
@@ -51,7 +51,7 @@ impl ToTokens for Segment<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         self.ident_segment.to_tokens(tokens);
         if let Some((separator, generics)) = &self.generics {
-            let span = separator.span();
+            let span = separator.source().span_token();
             tokens.append_all(quote_spanned! {span=> :: });
             generics.to_tokens(tokens);
         }
@@ -101,7 +101,7 @@ impl ToTokens for IdentSegment<'_> {
         match self {
             Self::Identifier(identifier) => identifier.to_tokens(tokens),
             Self::Keyword(source) => {
-                let identifier = syn::Ident::new(source.as_str(), source.span_token());
+                let identifier = Ident::new(source.as_str(), source.span_token());
                 identifier.to_tokens(tokens);
             }
         }
@@ -168,9 +168,9 @@ impl ToTokens for Identifier<'_> {
             | "macro_rules" | "match" | "mod" | "move" | "mut" | "override" | "priv" | "pub"
             | "ref" | "return" | "static" | "struct" | "trait" | "true" | "try" | "type"
             | "typeof" | "union" | "unsafe" | "unsized" | "use" | "virtual" | "where" | "while"
-            | "yield" => syn::Ident::new_raw(self.source.as_str(), self.source.span_token()),
+            | "yield" => Ident::new_raw(self.source.as_str(), self.source.span_token()),
 
-            _ => syn::Ident::new(self.source.as_str(), self.source.span_token()),
+            _ => Ident::new(self.source.as_str(), self.source.span_token()),
         };
 
         tokens.append_all(quote! { #ident });
@@ -227,21 +227,6 @@ impl<'a> Path<'a> {
         }
     }
 
-    pub fn to_tokens(&self, state: &State) -> (TokenStream, usize) {
-        let span = self.segment.source().span_token();
-        if let Some(identifier) = self.template_field(state) {
-            (quote_spanned! {span=> self.#identifier }, 1)
-        } else {
-            let separator = &self.separator;
-            let segment = &self.segment;
-            let mut tokens = quote! { #separator #segment };
-            for (separator, segment) in &self.additional_segments {
-                tokens.append_all(quote! { #separator #segment });
-            }
-            (tokens, 1)
-        }
-    }
-
     /// Get the `Source` for the entire path.
     pub fn source(&self) -> Source<'a> {
         let mut source = if let Some(separator) = &self.separator {
@@ -262,6 +247,27 @@ impl<'a> Path<'a> {
         source
     }
 }
+
+impl<'a> ToTokensWithState<'a> for Path<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let span = self.segment.source().span_token();
+        if let Some(identifier) = self.template_field(state) {
+            (
+                quote_spanned! {span=> self.#identifier },
+                EstimatedLength::new(1),
+            )
+        } else {
+            let separator = &self.separator;
+            let segment = &self.segment;
+            let mut tokens = quote! { #separator #segment };
+            for (separator, segment) in &self.additional_segments {
+                tokens.append_all(quote! { #separator #segment });
+            }
+            (tokens, EstimatedLength::new(1))
+        }
+    }
+}
+
 impl<'a> From<Path<'a>> for Expression<'a> {
     fn from(value: Path<'a>) -> Self {
         Expression::Path(value)
@@ -270,6 +276,12 @@ impl<'a> From<Path<'a>> for Expression<'a> {
 
 #[derive(Debug)]
 struct Separator<'a>(Source<'a>);
+
+impl<'a> Separator<'a> {
+    fn source(&self) -> &Source<'a> {
+        &self.0
+    }
+}
 
 impl ToTokens for Separator<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {

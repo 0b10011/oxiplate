@@ -1,3 +1,5 @@
+use proc_macro2::Ident;
+
 use super::Identifier;
 use crate::template::parser::prelude::*;
 
@@ -15,7 +17,7 @@ impl<'a> Keyword<'a> {
 impl ToTokens for Keyword<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let span = self.source.span_token();
-        let keyword = syn::Ident::new(self.source.as_str(), span);
+        let keyword = Ident::new(self.source.as_str(), span);
         tokens.append_all(quote_spanned! {span=> #keyword });
     }
 }

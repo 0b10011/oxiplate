@@ -83,24 +83,30 @@ impl<'a> Array<'a> {
 
         vars
     }
+}
 
-    pub fn to_tokens(&self, state: &State) -> TokenStream {
+impl<'a> ToTokensWithState<'a> for Array<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
+        let mut estimated_length = EstimatedLength::new(0);
 
         for (value, comma) in &self.values {
             let comma_span = comma.span_token();
             let comma = quote_spanned! {comma_span=> , };
-            let value = value.to_tokens(state);
+            let (value, value_estimated_length) = value.to_tokens_with_state(state);
             tokens.append_all([value, comma]);
+            estimated_length += value_estimated_length;
         }
 
         if let Some(last_value) = &self.last_value {
-            tokens.append_all(last_value.to_tokens(state));
+            let (last_value, last_value_estimated_length) = last_value.to_tokens_with_state(state);
+            estimated_length += last_value_estimated_length;
+            tokens.append_all(last_value);
         }
 
         let span = self.source.span_token();
 
-        quote_spanned! {span=> [#tokens] }
+        (quote_spanned! {span=> [#tokens] }, estimated_length)
     }
 }
 

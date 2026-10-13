@@ -2,4 +2,4 @@ error: Unknown character escape. Expected `\\`, `\"`, `\'`, `\n`, `\r`, `\t`, or
  --> tests/broken/char/unescapable.rs:4:24
   |
 4 | #[oxiplate_inline(r"{{ '\%' }}")]
-  |                        ^^^^
+  |                        ^^^

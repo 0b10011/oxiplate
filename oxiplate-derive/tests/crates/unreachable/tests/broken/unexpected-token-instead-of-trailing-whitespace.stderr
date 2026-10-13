@@ -1,0 +1,5 @@
+error: Unexpected `?`
+  --> tests/broken/unexpected-token-instead-of-trailing-whitespace.rs:10:43
+   |
+10 | #[oxiplate_inline(r#"{{ "hello world" -}} ?"#)]
+   |                                           ^
