@@ -6,6 +6,7 @@ use super::parenthesized::ParenthesizedType;
 use super::path::TypePath;
 use super::raw_pointer::RawPointerType;
 use super::reference::ReferenceType;
+use super::slice::SliceType;
 use super::trait_object_one_bound::TraitObjectTypeOneBound;
 use super::tuple::TupleType;
 use crate::template::parser::prelude::*;
@@ -42,8 +43,7 @@ pub(crate) enum TypeNoBounds<'a> {
     Array(ArrayType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/slice.html#railroad-SliceType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Slice,
+    Slice(SliceType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -75,6 +75,7 @@ impl<'a> TypeNoBounds<'a> {
             into(RawPointerType::parse),
             into(ReferenceType::parse),
             into(ArrayType::parse),
+            into(SliceType::parse),
         ))
         .parse(tokens)
     }
@@ -92,7 +93,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::RawPointer(raw_pointer) => raw_pointer.source(),
             Self::Reference(reference) => reference.source(),
             Self::Array(array) => array.source().to_owned(),
-            Self::Slice => todo!("NoBounds::Slice.source() not yet implemented"),
+            Self::Slice(slice) => slice.source().to_owned(),
             Self::Inferred => todo!("NoBounds::Inferred.source() not yet implemented"),
             Self::QualifiedPathIn => {
                 todo!("NoBounds::QualifiedPathIn.source() not yet implemented")
@@ -121,7 +122,7 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
             Self::RawPointer(raw_pointer) => raw_pointer.to_tokens_with_state(state),
             Self::Reference(reference) => reference.to_tokens_with_state(state),
             Self::Array(array) => array.to_tokens_with_state(state),
-            Self::Slice => todo!("NoBounds::Slice.to_tokens() not yet implemented"),
+            Self::Slice(slice) => slice.to_tokens_with_state(state),
             Self::Inferred => todo!("NoBounds::Inferred.to_tokens() not yet implemented"),
             Self::QualifiedPathIn => {
                 todo!("NoBounds::QualifiedPathIn.to_tokens() not yet implemented")
