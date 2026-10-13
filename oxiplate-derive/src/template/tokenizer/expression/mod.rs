@@ -127,6 +127,7 @@ pub(crate) fn consume_expression_token<'a>(
     ))
 }
 
+/// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
 pub(crate) fn consume_ident<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
