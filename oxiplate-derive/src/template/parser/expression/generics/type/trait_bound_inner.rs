@@ -31,10 +31,16 @@ impl<'a> TraitBoundInner<'a> {
     }
 }
 
-impl ToTokens for TraitBoundInner<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.prefix.to_tokens(tokens);
-        self.type_path.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for TraitBoundInner<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
+        if let Some(prefix) = &self.prefix {
+            tokens.append_all(prefix.to_tokens_with_state(state).0);
+        }
+        tokens.append_all(self.type_path.to_tokens_with_state(state).0);
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 
@@ -84,20 +90,23 @@ impl<'a> TraitBoundPrefix<'a> {
     }
 }
 
-impl ToTokens for TraitBoundPrefix<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TraitBoundPrefix<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
             Self::QuestionMark(source) => {
                 let span = source.span_token();
-                tokens.append_all(quote_spanned! {span=> ? });
+                (quote_spanned! {span=> ? }, EstimatedLength::new(0))
             }
             Self::ForLifetimes {
                 r#for,
                 generic_params,
             } => {
                 let span = r#for.span_token();
-                tokens.append_all(quote_spanned! {span=> for });
-                generic_params.to_tokens(tokens);
+                let generic_params = generic_params.to_tokens_with_state(state).0;
+                (
+                    quote_spanned! {span=> for #generic_params },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }

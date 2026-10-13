@@ -56,16 +56,18 @@ impl<'a> TypeParam<'a> {
     }
 }
 
-impl ToTokens for TypeParam<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.identifier.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for TypeParam<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
+        self.identifier.to_tokens(&mut tokens);
 
         if let Some((colon, bounds)) = &self.bounds {
             let span = colon.span_token();
             tokens.append_all(quote_spanned! {span=> : });
 
             if let Some(bounds) = bounds {
-                bounds.to_tokens(tokens);
+                tokens.append_all(bounds.to_tokens_with_state(state).0);
             }
         }
 
@@ -73,8 +75,10 @@ impl ToTokens for TypeParam<'_> {
             let span = equals.span_token();
             tokens.append_all(quote_spanned! {span=> = });
 
-            r#type.to_tokens(tokens);
+            tokens.append_all(r#type.to_tokens_with_state(state).0);
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

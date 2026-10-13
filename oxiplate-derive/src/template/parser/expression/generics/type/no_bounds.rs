@@ -1,4 +1,5 @@
 use super::Type;
+use super::array::ArrayType;
 use super::impl_trait_one_bound::ImplTraitTypeOneBound;
 use super::never::Never;
 use super::parenthesized::ParenthesizedType;
@@ -38,8 +39,7 @@ pub(crate) enum TypeNoBounds<'a> {
     Reference(ReferenceType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Array,
+    Array(ArrayType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/slice.html#railroad-SliceType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -74,6 +74,7 @@ impl<'a> TypeNoBounds<'a> {
             into(Never::parse),
             into(RawPointerType::parse),
             into(ReferenceType::parse),
+            into(ArrayType::parse),
         ))
         .parse(tokens)
     }
@@ -90,7 +91,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::Never(never) => never.source().clone(),
             Self::RawPointer(raw_pointer) => raw_pointer.source(),
             Self::Reference(reference) => reference.source(),
-            Self::Array => todo!("NoBounds::Array.source() not yet implemented"),
+            Self::Array(array) => array.source().to_owned(),
             Self::Slice => todo!("NoBounds::Slice.source() not yet implemented"),
             Self::Inferred => todo!("NoBounds::Inferred.source() not yet implemented"),
             Self::QualifiedPathIn => {
@@ -104,20 +105,22 @@ impl<'a> TypeNoBounds<'a> {
     }
 }
 
-impl ToTokens for TypeNoBounds<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Parenthesized(parenthesized) => parenthesized.to_tokens(tokens),
-            Self::ImplTraitOneBound(impl_trait_one_bound) => impl_trait_one_bound.to_tokens(tokens),
-            Self::TraitObjectOneBound(trait_object_type_one_bound) => {
-                trait_object_type_one_bound.to_tokens(tokens);
+            Self::Parenthesized(parenthesized) => parenthesized.to_tokens_with_state(state),
+            Self::ImplTraitOneBound(impl_trait_one_bound) => {
+                impl_trait_one_bound.to_tokens_with_state(state)
             }
-            Self::Path(path) => path.to_tokens(tokens),
-            Self::Tuple(tuple_type) => tuple_type.to_tokens(tokens),
-            Self::Never(never) => never.to_tokens(tokens),
-            Self::RawPointer(raw_pointer) => raw_pointer.to_tokens(tokens),
-            Self::Reference(reference) => reference.to_tokens(tokens),
-            Self::Array => todo!("NoBounds::Array.to_tokens() not yet implemented"),
+            Self::TraitObjectOneBound(trait_object_type_one_bound) => {
+                trait_object_type_one_bound.to_tokens_with_state(state)
+            }
+            Self::Path(path) => path.to_tokens_with_state(state),
+            Self::Tuple(tuple_type) => tuple_type.to_tokens_with_state(state),
+            Self::Never(never) => never.to_tokens_with_state(state),
+            Self::RawPointer(raw_pointer) => raw_pointer.to_tokens_with_state(state),
+            Self::Reference(reference) => reference.to_tokens_with_state(state),
+            Self::Array(array) => array.to_tokens_with_state(state),
             Self::Slice => todo!("NoBounds::Slice.to_tokens() not yet implemented"),
             Self::Inferred => todo!("NoBounds::Inferred.to_tokens() not yet implemented"),
             Self::QualifiedPathIn => {

@@ -42,15 +42,30 @@ impl<'a> TraitObjectTypeOneBound<'a> {
     }
 }
 
-impl ToTokens for TraitObjectTypeOneBound<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TraitObjectTypeOneBound<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Static { bounds } => bounds.to_tokens(tokens),
-            Self::Dynamic { r#dyn, bounds } => {
+            Self::Static { bounds } => bounds.to_tokens_with_state(state),
+            Self::Dynamic {
+                r#dyn,
+                bounds: None,
+            } => {
                 let span = r#dyn.span_token();
-                tokens.append_all(quote_spanned! {span=> dyn });
 
-                bounds.to_tokens(tokens);
+                (quote_spanned! {span=> dyn }, EstimatedLength::new(0))
+            }
+            Self::Dynamic {
+                r#dyn,
+                bounds: Some(bounds),
+            } => {
+                let span = r#dyn.span_token();
+
+                let bounds = bounds.to_tokens_with_state(state).0;
+
+                (
+                    quote_spanned! {span=> dyn #bounds },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }

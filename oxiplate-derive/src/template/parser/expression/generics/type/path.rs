@@ -57,21 +57,25 @@ impl<'a> TypePath<'a> {
     }
 }
 
-impl ToTokens for TypePath<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TypePath<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
         if let Some(separator) = &self.leading_separator {
             let span = separator.span_token();
             tokens.append_all(quote_spanned! {span=> :: });
         }
 
-        self.first_segment.to_tokens(tokens);
+        tokens.append_all(self.first_segment.to_tokens_with_state(state).0);
 
         for (separator, segment) in &self.additional_segments {
             let span = separator.span_token();
             tokens.append_all(quote_spanned! {span=> :: });
 
-            segment.to_tokens(tokens);
+            tokens.append_all(segment.to_tokens_with_state(state).0);
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

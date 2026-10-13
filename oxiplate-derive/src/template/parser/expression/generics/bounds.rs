@@ -47,12 +47,19 @@ impl<'a> Bounds<'a> {
     }
 }
 
-impl ToTokens for Bounds<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.path_segment.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for Bounds<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.colon.span_token();
-        tokens.append_all(quote_spanned! {span=> : });
-        self.bounds.to_tokens(tokens);
+
+        let path_segment = self.path_segment.to_tokens_with_state(state).0;
+        let tokens = if let Some(bounds) = &self.bounds {
+            let bounds = bounds.to_tokens_with_state(state).0;
+            quote_spanned! {span=> #path_segment : #bounds }
+        } else {
+            quote_spanned! {span=> #path_segment : }
+        };
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

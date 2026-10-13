@@ -1,3 +1,4 @@
+mod array;
 mod bound;
 pub(crate) mod bounds;
 mod impl_trait;
@@ -56,12 +57,12 @@ impl<'a> Type<'a> {
     }
 }
 
-impl ToTokens for Type<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for Type<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::NoBounds(no_bounds) => no_bounds.to_tokens(tokens),
-            Self::ImplTrait(impl_trait_type) => impl_trait_type.to_tokens(tokens),
-            Self::TraitObject(trait_object_type) => trait_object_type.to_tokens(tokens),
+            Self::NoBounds(no_bounds) => no_bounds.to_tokens_with_state(state),
+            Self::ImplTrait(impl_trait_type) => impl_trait_type.to_tokens_with_state(state),
+            Self::TraitObject(trait_object_type) => trait_object_type.to_tokens_with_state(state),
         }
     }
 }

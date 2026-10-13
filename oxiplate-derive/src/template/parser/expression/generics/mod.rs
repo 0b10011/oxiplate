@@ -35,11 +35,11 @@ impl<'a> GenericArgs<'a> {
     }
 }
 
-impl ToTokens for GenericArgs<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for GenericArgs<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::List(generic_args) => generic_args.to_tokens(tokens),
-            Self::Types(type_list) => type_list.to_tokens(tokens),
+            Self::List(generic_args) => generic_args.to_tokens_with_state(state),
+            Self::Types(type_list) => type_list.to_tokens_with_state(state),
         }
     }
 }

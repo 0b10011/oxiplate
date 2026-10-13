@@ -22,10 +22,10 @@ impl<'a> Never<'a> {
     }
 }
 
-impl ToTokens for Never<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for Never<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let span = self.source.span_token();
-        tokens.append_all(quote_spanned! {span=> ! });
+        (quote_spanned! {span=> ! }, EstimatedLength::new(0))
     }
 }
 

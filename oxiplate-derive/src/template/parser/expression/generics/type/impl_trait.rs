@@ -39,14 +39,18 @@ impl<'a> ImplTraitType<'a> {
     }
 }
 
-impl ToTokens for ImplTraitType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for ImplTraitType<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.r#impl.span_token();
-        tokens.append_all(quote_spanned! {span=> impl });
 
-        if let Some(bounds) = &self.bounds {
-            bounds.to_tokens(tokens);
-        }
+        let tokens = if let Some(bounds) = &self.bounds {
+            let bounds = bounds.to_tokens_with_state(state).0;
+            quote_spanned! {span=> impl #bounds }
+        } else {
+            quote_spanned! {span=> impl }
+        };
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

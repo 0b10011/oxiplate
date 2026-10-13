@@ -38,12 +38,17 @@ impl<'a> Binding<'a> {
     }
 }
 
-impl ToTokens for Binding<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.path_segment.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for Binding<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.equals.span_token();
-        tokens.append_all(quote_spanned! {span=> = });
-        self.r#type.to_tokens(tokens);
+
+        let path_segment = self.path_segment.to_tokens_with_state(state).0;
+        let r#type = self.r#type.to_tokens_with_state(state).0;
+
+        (
+            quote_spanned! {span=> #path_segment = #r#type },
+            EstimatedLength::new(0),
+        )
     }
 }
 

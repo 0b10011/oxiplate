@@ -68,17 +68,18 @@ impl<'a> TypeList<'a> {
     }
 }
 
-impl ToTokens for TypeList<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TypeList<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut inner_tokens = TokenStream::new();
 
         for (ty, comma) in &self.first_types {
             let span = comma.span_token();
+            let ty = ty.to_tokens_with_state(state).0;
             inner_tokens.append_all(quote_spanned! {span=> #ty, });
         }
 
         if let Some((ty, comma)) = &self.last_type {
-            ty.to_tokens(&mut inner_tokens);
+            inner_tokens.append_all(ty.to_tokens_with_state(state).0);
             if let Some(comma) = comma {
                 let span = comma.span_token();
                 inner_tokens.append_all(quote_spanned! {span=> , });
@@ -86,7 +87,10 @@ impl ToTokens for TypeList<'_> {
         }
 
         let span = self.source.span_token();
-        tokens.append_all(quote_spanned! {span=> <#inner_tokens> });
+        (
+            quote_spanned! {span=> <#inner_tokens> },
+            EstimatedLength::new(0),
+        )
     }
 }
 

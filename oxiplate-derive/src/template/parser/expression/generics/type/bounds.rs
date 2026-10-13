@@ -67,21 +67,25 @@ impl<'a> Bounds<'a> {
     }
 }
 
-impl ToTokens for Bounds<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for Bounds<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
         for (bound, plus) in &self.first_bounds {
-            bound.to_tokens(tokens);
+            tokens.append_all(bound.to_tokens_with_state(state).0);
             let span = plus.span_token();
             tokens.append_all(quote_spanned! {span=> + });
         }
 
         if let Some((bound, plus)) = &self.last_bound {
-            bound.to_tokens(tokens);
+            tokens.append_all(bound.to_tokens_with_state(state).0);
 
             if let Some(plus) = plus {
                 let span = plus.span_token();
                 tokens.append_all(quote_spanned! {span=> + });
             }
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }

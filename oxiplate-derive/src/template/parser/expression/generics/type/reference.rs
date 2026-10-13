@@ -49,19 +49,24 @@ impl<'a> ReferenceType<'a> {
     }
 }
 
-impl ToTokens for ReferenceType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for ReferenceType<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
         let span = self.borrow.span_token();
         tokens.append_all(quote_spanned! {span=> & });
 
-        self.lifetime.to_tokens(tokens);
+        self.lifetime.to_tokens(&mut tokens);
 
         if let Some(r#mut) = &self.r#mut {
             let span = r#mut.span_token();
             tokens.append_all(quote_spanned! {span=> mut });
         }
 
-        self.type_no_bounds.to_tokens(tokens);
+        let (type_no_bounds, _estimated_length) = self.type_no_bounds.to_tokens_with_state(state);
+        tokens.append_all(type_no_bounds);
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

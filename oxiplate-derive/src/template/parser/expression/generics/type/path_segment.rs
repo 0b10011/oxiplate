@@ -55,9 +55,11 @@ impl<'a> TypePathSegment<'a> {
     }
 }
 
-impl ToTokens for TypePathSegment<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.ident_segment.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for TypePathSegment<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
+        self.ident_segment.to_tokens(&mut tokens);
 
         if let Some((separator, generics)) = &self.generics {
             if let Some(separator) = separator {
@@ -65,7 +67,9 @@ impl ToTokens for TypePathSegment<'_> {
                 tokens.append_all(quote_spanned! {span=> :: });
             }
 
-            generics.to_tokens(tokens);
+            tokens.append_all(generics.to_tokens_with_state(state).0);
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }

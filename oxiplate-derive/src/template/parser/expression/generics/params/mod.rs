@@ -75,17 +75,18 @@ impl<'a> GenericParams<'a> {
     }
 }
 
-impl ToTokens for GenericParams<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for GenericParams<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut inner_tokens = TokenStream::new();
 
         for (arg, comma) in &self.first_generics {
             let span = comma.span_token();
+            let arg = arg.to_tokens_with_state(state).0;
             inner_tokens.append_all(quote_spanned! {span=> #arg, });
         }
 
         if let Some((generic, comma)) = &self.last_generic {
-            generic.to_tokens(&mut inner_tokens);
+            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
             if let Some(comma) = comma {
                 let span = comma.span_token();
                 inner_tokens.append_all(quote_spanned! {span=> , });
@@ -93,7 +94,11 @@ impl ToTokens for GenericParams<'_> {
         }
 
         let span = self.source.span_token();
-        tokens.append_all(quote_spanned! {span=> <#inner_tokens> });
+
+        (
+            quote_spanned! {span=> <#inner_tokens> },
+            EstimatedLength::new(0),
+        )
     }
 }
 
@@ -127,11 +132,11 @@ impl<'a> GenericParam<'a> {
     }
 }
 
-impl ToTokens for GenericParam<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for GenericParam<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
             Self::Lifetime => todo!("GenericParam::Lifetime.to_tokens() not yet written"),
-            Self::Type(type_param) => type_param.to_tokens(tokens),
+            Self::Type(type_param) => type_param.to_tokens_with_state(state),
             Self::Const => todo!("GenericParam::Const.to_tokens() not yet written"),
         }
     }

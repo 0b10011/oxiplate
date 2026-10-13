@@ -47,14 +47,17 @@ impl<'a> Segment<'a> {
     }
 }
 
-impl ToTokens for Segment<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.ident_segment.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for Segment<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+        self.ident_segment.to_tokens(&mut tokens);
         if let Some((separator, generics)) = &self.generics {
             let span = separator.source().span_token();
             tokens.append_all(quote_spanned! {span=> :: });
-            generics.to_tokens(tokens);
+            tokens.append_all(generics.to_tokens_with_state(state).0);
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 
@@ -258,9 +261,10 @@ impl<'a> ToTokensWithState<'a> for Path<'a> {
             )
         } else {
             let separator = &self.separator;
-            let segment = &self.segment;
+            let segment = &self.segment.to_tokens_with_state(state).0;
             let mut tokens = quote! { #separator #segment };
             for (separator, segment) in &self.additional_segments {
+                let segment = segment.to_tokens_with_state(state).0;
                 tokens.append_all(quote! { #separator #segment });
             }
             (tokens, EstimatedLength::new(1))

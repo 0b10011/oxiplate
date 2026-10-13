@@ -39,11 +39,12 @@ impl<'a> ParenthesizedType<'a> {
     }
 }
 
-impl ToTokens for ParenthesizedType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for ParenthesizedType<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.source.span_token();
-        let ty = &self.r#type;
-        tokens.append_all(quote_spanned! {span=> ( #ty ) });
+        let (ty, _estimated_length) = &self.r#type.to_tokens_with_state(state);
+
+        (quote_spanned! {span=> ( #ty ) }, EstimatedLength::new(0))
     }
 }
 

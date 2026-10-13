@@ -73,8 +73,10 @@ impl<'a> RawPointerType<'a> {
     }
 }
 
-impl ToTokens for RawPointerType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for RawPointerType<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+
         match &self {
             Self::Mut {
                 deref,
@@ -85,7 +87,9 @@ impl ToTokens for RawPointerType<'_> {
                 tokens.append_all(quote_spanned! {span=> * });
                 let span = r#mut.span_token();
                 tokens.append_all(quote_spanned! {span=> mut });
-                type_no_bounds.to_tokens(tokens);
+                let (type_no_bounds, _estimated_length) =
+                    type_no_bounds.to_tokens_with_state(state);
+                tokens.append_all(type_no_bounds);
             }
             Self::Const {
                 deref,
@@ -96,9 +100,13 @@ impl ToTokens for RawPointerType<'_> {
                 tokens.append_all(quote_spanned! {span=> * });
                 let span = r#const.span_token();
                 tokens.append_all(quote_spanned! {span=> const });
-                type_no_bounds.to_tokens(tokens);
+                let (type_no_bounds, _estimated_length) =
+                    type_no_bounds.to_tokens_with_state(state);
+                tokens.append_all(type_no_bounds);
             }
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 

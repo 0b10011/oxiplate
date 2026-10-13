@@ -54,19 +54,26 @@ impl<'a> TupleType<'a> {
     }
 }
 
-impl ToTokens for TupleType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TupleType<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let first_types = self.first_types.iter().map(|(r#type, comma)| {
             let span = comma.span_token();
+            let r#type = r#type.to_tokens_with_state(state).0;
             quote_spanned! {span=> #r#type , }
         });
-        let last_type = &self.last_type;
+        let last_type = self
+            .last_type
+            .as_ref()
+            .map(|r#type| r#type.to_tokens_with_state(state).0);
         let span = self.source.span_token();
-        tokens.append_all(quote_spanned! {span=>
-            (
-                #(#first_types)* #last_type
-            )
-        });
+        (
+            quote_spanned! {span=>
+                (
+                    #(#first_types)* #last_type
+                )
+            },
+            EstimatedLength::new(0),
+        )
     }
 }
 

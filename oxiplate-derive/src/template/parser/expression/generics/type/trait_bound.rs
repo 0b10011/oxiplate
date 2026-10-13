@@ -58,16 +58,20 @@ impl<'a> TraitBound<'a> {
     }
 }
 
-impl ToTokens for TraitBound<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for TraitBound<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Standalone(trait_bound) => trait_bound.to_tokens(tokens),
+            Self::Standalone(trait_bound) => trait_bound.to_tokens_with_state(state),
             Self::Parenthesized {
                 trait_bound,
                 source,
             } => {
                 let span = source.span_token();
-                tokens.append_all(quote_spanned! {span=> impl #trait_bound });
+                let trait_bound = trait_bound.to_tokens_with_state(state).0;
+                (
+                    quote_spanned! {span=> impl #trait_bound },
+                    EstimatedLength::new(0),
+                )
             }
         }
     }
