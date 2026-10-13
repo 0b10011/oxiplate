@@ -5,6 +5,7 @@ use super::inferred::InferredType;
 use super::never::Never;
 use super::parenthesized::ParenthesizedType;
 use super::path::TypePath;
+use super::qualified_path::QualifiedPathInType;
 use super::raw_pointer::RawPointerType;
 use super::reference::ReferenceType;
 use super::slice::SliceType;
@@ -50,8 +51,7 @@ pub(crate) enum TypeNoBounds<'a> {
     Inferred(InferredType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    QualifiedPathIn,
+    QualifiedPathIn(QualifiedPathInType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/function-pointer.html#railroad-BareFunctionType>
     #[expect(dead_code, reason = "Not yet implemented")]
@@ -77,6 +77,7 @@ impl<'a> TypeNoBounds<'a> {
             into(ArrayType::parse),
             into(SliceType::parse),
             into(InferredType::parse),
+            into(QualifiedPathInType::parse),
         ))
         .parse(tokens)
     }
@@ -96,9 +97,7 @@ impl<'a> TypeNoBounds<'a> {
             Self::Array(array) => array.source().to_owned(),
             Self::Slice(slice) => slice.source().to_owned(),
             Self::Inferred(inferred) => inferred.source().to_owned(),
-            Self::QualifiedPathIn => {
-                todo!("NoBounds::QualifiedPathIn.source() not yet implemented")
-            }
+            Self::QualifiedPathIn(qualified_path) => qualified_path.source(),
             Self::BareFunction => todo!("NoBounds::BareFunction.source() not yet implemented"),
             Self::MacroInvocation => {
                 todo!("NoBounds::MacroInvocation.source() not yet implemented")
@@ -125,9 +124,7 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
             Self::Array(array) => array.to_tokens_with_state(state),
             Self::Slice(slice) => slice.to_tokens_with_state(state),
             Self::Inferred(inferred) => inferred.to_tokens_with_state(state),
-            Self::QualifiedPathIn => {
-                todo!("NoBounds::QualifiedPathIn.to_tokens() not yet implemented")
-            }
+            Self::QualifiedPathIn(qualified_path) => qualified_path.to_tokens_with_state(state),
             Self::BareFunction => todo!("NoBounds::BareFunction.to_tokens() not yet implemented"),
             Self::MacroInvocation => {
                 todo!("NoBounds::MacroInvocation.to_tokens() not yet implemented")

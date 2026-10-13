@@ -12,7 +12,9 @@ pub(crate) struct TypePath<'a> {
 
 impl<'a> TypePath<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser::expression::generics) fn parse(
+        tokens: TokenSlice<'a>,
+    ) -> Res<'a, Self> {
         let (tokens, (leading_separator, first_segment, additional_segments)) = (
             ignore_recoverable_errors(take(TokenKind::PathSeparator)),
             TypePathSegment::parse,
@@ -41,7 +43,7 @@ impl<'a> TypePath<'a> {
         ))
     }
 
-    pub(super) fn source(&self) -> Source<'a> {
+    pub(in crate::template::parser::expression::generics) fn source(&self) -> Source<'a> {
         let mut source = self.first_segment.source().clone().append_to_some(
             self.leading_separator.clone(),
             "First segment expected after `::`",

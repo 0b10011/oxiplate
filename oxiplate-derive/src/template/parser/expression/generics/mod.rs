@@ -3,6 +3,7 @@ mod binding;
 mod bounds;
 mod lifetime;
 mod params;
+mod qualified_path;
 mod r#type;
 mod types;
 
