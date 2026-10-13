@@ -1,5 +1,8 @@
+mod lifetime;
+mod lifetime_bounds;
 mod r#type;
 
+use self::lifetime::LifetimeParam;
 use self::r#type::TypeParam;
 use crate::template::parser::prelude::*;
 
@@ -106,8 +109,7 @@ impl<'a> ToTokensWithState<'a> for GenericParams<'a> {
 #[derive(Debug)]
 pub(super) enum GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Lifetime,
+    Lifetime(LifetimeParam<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
     Type(TypeParam<'a>),
@@ -120,12 +122,12 @@ pub(super) enum GenericParam<'a> {
 impl<'a> GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        into(TypeParam::parse).parse(tokens)
+        alt((into(LifetimeParam::parse), into(TypeParam::parse))).parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
-            Self::Lifetime => todo!("GenericParam::Lifetime.source() not yet written"),
+            Self::Lifetime(lifetime) => lifetime.source(),
             Self::Type(type_param) => type_param.source().clone(),
             Self::Const => todo!("GenericParam::Const.source() not yet written"),
         }
@@ -135,7 +137,7 @@ impl<'a> GenericParam<'a> {
 impl<'a> ToTokensWithState<'a> for GenericParam<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Lifetime => todo!("GenericParam::Lifetime.to_tokens() not yet written"),
+            Self::Lifetime(lifetime) => lifetime.to_tokens_with_state(state),
             Self::Type(type_param) => type_param.to_tokens_with_state(state),
             Self::Const => todo!("GenericParam::Const.to_tokens() not yet written"),
         }
