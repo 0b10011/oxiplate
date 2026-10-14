@@ -1,6 +1,6 @@
 # Configuration
 
-Oxiplate uses a file named `oxiplate.toml` to store configuration settings. The file must be located in the crate's manifest directory, alongside `Cargo.toml`.
+Oxiplate uses a file named `oxiplate.toml` to store configuration settings. The file must be located in your crate's manifest directory, alongside `Cargo.toml`.
 
 If the file is missing or cannot be read, Oxiplate uses its default configuration.
 
@@ -10,7 +10,7 @@ The configuration file controls how escaper groups are selected, whether they mu
 
 The `fallback_escaper_group` setting specifies the escaper group to use when Oxiplate cannot determine a group from the template or its file extension.
 
-If an escaper group is not specified in a [writ](writs/index.md), the [`oxiplate_inline` attribute](templates/writs/escaping.md#escaping-templates-without-matching-file-extensions), or the [template](templates/statements/default-escaper-group.md) that contains it, and also cannot be inferred from that template's file extension, the group specified in `fallback_escaper_group` is used instead. If no fallback escaper group is set in these cases, a compile-time error will occur.
+If an escaper group is not specified in a [writ](templates/writs/README.md), the [`oxiplate_inline` attribute](templates/writs/escaping.md#escaping-templates-without-matching-file-extensions), or the [template](templates/statements/default-escaper-group.md) that contains it, and also cannot be inferred from that template's file extension, the group specified in `fallback_escaper_group` is used instead. If no fallback escaper group is set in these cases and a writ is not prefixed with `raw:`, a compile-time error will occur.
 
 For example, to use `html` as the fallback escaper group:
 
@@ -46,7 +46,7 @@ When enabled, Oxiplate uses the file extension to determine the escaper group wh
 
 The default value is `true`.
 
-The `.oxip` extension is used for Oxiplate templates and does not, by itself, identify an escaper group. The `.raw` extension can be used for templates that should be treated as raw text.
+The `.oxip` extension is used for Oxiplate templates and does not, by itself, identify an escaper group. The `.raw` extension is ignored when inferring, so it never selects an escaper group.
 
 When this setting is `false`, Oxiplate does not infer escaper groups from file extensions. If no escaper group can be determined through another applicable setting or declaration, a compile-time error may occur.
 
