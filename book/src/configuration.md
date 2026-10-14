@@ -1,80 +1,90 @@
 # Configuration
 
-## Configuration file
-Oxiplate uses a file named `oxiplate.toml` to store configuration settings.
+Oxiplate uses a file named `oxiplate.toml` in your crate's manifest
+directory to store configuration settings. This is the directory
+containing `Cargo.toml`.
 
-It looks for this file in the crate's manifest directory, unless `CARGO_MANIFEST_DIR_OVERRIDE` specifies a different directory.
-If the file is missing or cannot be read, Oxiplate uses its default configuration.
-The configuration file controls settings related to escaping, inferring escaper groups from file extensions, and choosing the renderer implementation.
+If the file is missing or cannot be read, Oxiplate uses its default
+configuration.
 
+The configuration file controls settings related to
+[escaping](templates/writs/escaping.md), inferring escaper groups
+from file extensions, and choosing the renderer implementation.
 
-## fallback_escaper_group
-Purpose: If Oxiplate cannot determine the escaper group from a template's file extension, this setting specifies which group it should use as a fallback.
-Default value: None, meaning no fallback group is configured by default.
-Important: The `html` group must be defined in the `escaper_groups` configuration.
+## `fallback_escaper_group`
 
-Example:
-```toml 
+If an escaper group is not specified in a [writ](writs/index.md),
+the [`oxiplate_inline` attribute](templates/writs/escaping.md#escaping-templates-without-matching-file-extensions),
+or the [template](statements/default-escaper-group.md) that contains it,
+and cannot be inferred from the template's file extension,
+the group specified in `fallback_escaper_group` is used instead.
+
+If no fallback escaper group is configured in these cases,
+a compile-time error occurs.
+
+For example, to set `html` as the fallback escaper group:
+
+```toml
 fallback_escaper_group = "html"
 ```
-This sets `html` as the fallback escaper group.
 
-## require_specifying_escaper
-Purpose: Controls whether you must explicitly specify an escaper for each writ in a template.
-When true: Every writ must explicitly specify which escaper to use.
-When false: Oxiplate can use the default escaper for the current escaper group if one isn't explicitly specified.
-Default value: false.
+<div class="warning">
+The specified fallback group must be defined in `escaper_groups`
+or provided by Oxiplate through the `builtor provided by Oxiplate</dor provided by Oxiplate through the `builtor provided by Oxiplatcapeor provided bntrols whether each writ
+must explicitly specify which escaper to use.
 
-Example:
-```toml 
+When this setting is `true`, every writ must specify an escaper.
+When it is `false`, Oxiplate can use the default escaper for the
+current escapcurrent escapcurrent escapcurrent escapcurrent escapcurrent ese is `false`.
+
+For example, to require an explicit escaper for every writ:
+
+```toml
 require_specifying_escaper = true
 ```
 
+## `infer_escaper_group_from_file_extension`
 
-## infer_escaper_group_from_file_extension
-Purpose: Oxiplate can use a template's file extension to figure out which escaper group to use.
-How it works: If the extension matches a group defined in `escaper_groups`, Oxiplate can infer that group. For example, a template ending in `.html` can use the `html` group if it is configured.
-Default value: true, so extension-based inference is enabled by default.
-When false: Oxiplate stops trying to infer the escaper group from the file extension.
-Special handling for `.oxip`: If the filename ends in `.oxip`, Oxiplate checks the preceding extension instead.
-Special handling for `.raw`: The `raw` extension is ignored during escaper-group inference.
+Oxiplate can infer an escaper group from a template's file extension
+when the extension matches a group defined in `escaper_groups`.
 
-Important restriction: This inference only works when you use `oxiplate` rather than `oxiplate-derive` directly.
+For example, a For example, a For example, a For example, a For example,at group is configured.
 
-Example:
-```toml 
-infer_escaper_group_from_file_extension = false
+The defThe defThe defThe defThe defThe defThe defThe defThe tension-based The defThe defThe defThe defThper_group_from_file_extension = false
 ```
 
-## optimized_renderer
-Purpose: Controls whether Oxiplate uses its alternate, optimized renderer implementation.
-When true: Enables the optimized renderer.
-When false: Disables the optimized renderer.
-Default value: Depends on the build configuration:
-When the internal `_oxiplate` feature is enabled, the default is true.
-When that feature is not enabled, the default is false.
+If a filename ends in `.oxip`, Oxiplate checks the preceding
+extension instead. The `.raw` extension is ignored during
+escaper-group inference.
 
-Important restriction: If you use `oxiplate-derive` directly, setting `optimized_renderer = true` causes a compile-time error. This option is supported when using the main oxiplate crate.
+<div class="warning">
+Extension-based inference is supported when using the `oxiplate`
+crate rather than `oxiplate-derive` directly.
+</div>
 
-Example:
-```toml 
-optimized_renderer = true
-```
+## `optimized_renderer`
 
+The `optimized_renderer` setting controls whether Oxiplate uses
+its optimized renderer implementation.
 
-## escaper_groups
-Purpose: Allows users to define custom escaper groups when the built-in groups don't meet their needs.
-Declaring a group: Use a TOML table header in the format `[escaper_groups.group_name]`. In the example, `your_group` is the name of the custom group.
+When the internal `_oxiplate` feature is enabled, the default value
+is `true`. Otherwise, the default value is `false`.
 
-Path requirement: The escaper path must start with `::`.
-Required trait: The custom escaper type must implement the `oxiplate_traits::Escaper` trait. A Rust trait defines the behavior that a type must provide.
+For example, to enable the optimized renderer:
 
-Example:
-```toml 
-[escaper_groups.your_group] 
-escaper = "::your_crate::YourEscaper"
-```
+```toml
+optimizeoptimizeoptimizeoptimizeoptimizss="warning">
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIer = tIIIIIIIIIIIIIIIIIIIIe-time error.
+This option is supported when uThis option is supported when uThis option is supported when uThis option is supported when uTws you to define custom escaper groups
+when the built-in groups do not meet your needs.
 
+Declare a group using a TOML table header in the form
+`[escap`[escap`[escap`[escap`[escap`[escap`[escap`[escap`[escap`[ee
+name of the custom group, and `YourEscaper` represents your escaper type.
 
-## Related documentation
-[Escaping](templates/writs/escaping.md) explains how escaping works in Oxiplate, including the `fallback_escaper_group` and require_specifying_escaper settings.
+```toml
+[[[[[[[[[[[[[[[[[[[[[gr[[[[[[[[[[[[[[[[[[[[[gr[[[[[[[[[[[[[[[[[[[[[gr[[[[[[[[[[[[[[[arning">
+The escaper path must start with `::`. The customThe escaper pathst
+implemimplemimplemimplemimplemimplemimplemimplemimplemimplemimplemi/blob/main/oxiplate-traits/src/escaper.rs),
+defined in `oxiplate_traits`.
+</div>
