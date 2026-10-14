@@ -49,7 +49,7 @@ enum TraitBoundPrefix<'a> {
     QuestionMark(Source<'a>),
     ForLifetimes {
         r#for: Source<'a>,
-        generic_params: GenericParams<'a>,
+        generic_params: Box<GenericParams<'a>>,
     },
 }
 
@@ -71,7 +71,7 @@ impl<'a> TraitBoundPrefix<'a> {
             tokens,
             Self::ForLifetimes {
                 r#for: r#for.source().clone(),
-                generic_params,
+                generic_params: Box::new(generic_params),
             },
         ))
     }

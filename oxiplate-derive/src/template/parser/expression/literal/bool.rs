@@ -1,5 +1,6 @@
 use proc_macro2::Ident;
 
+use super::LiteralExpression;
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -49,5 +50,11 @@ impl<'a> ToTokensWithState<'a> for Bool<'a> {
 impl<'a> From<Bool<'a>> for Expression<'a> {
     fn from(value: Bool<'a>) -> Self {
         Expression::Bool(value)
+    }
+}
+
+impl<'a> From<Bool<'a>> for LiteralExpression<'a> {
+    fn from(value: Bool<'a>) -> Self {
+        Self::Bool(value)
     }
 }

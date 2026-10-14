@@ -1,19 +1,20 @@
+use super::LiteralExpression;
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
-pub(crate) struct Integer<'a> {
+pub(in crate::template::parser) struct Integer<'a> {
     source: &'a Source<'a>,
 }
 
 impl<'a> Integer<'a> {
     #[cfg(test)]
-    pub fn new_for_test(source: &'a Source<'a>) -> Self {
+    pub(in crate::template::parser) fn new_for_test(source: &'a Source<'a>) -> Self {
         Self { source }
     }
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
-    fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, integer) = take(TokenKind::Integer).parse(tokens)?;
 
         Ok((
@@ -24,7 +25,7 @@ impl<'a> Integer<'a> {
         ))
     }
 
-    pub(crate) fn source(&self) -> &Source<'a> {
+    pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
         self.source
     }
 }
@@ -45,13 +46,19 @@ impl<'a> From<Integer<'a>> for Number<'a> {
     }
 }
 
+impl<'a> From<Integer<'a>> for LiteralExpression<'a> {
+    fn from(value: Integer<'a>) -> Self {
+        Self::Integer(value)
+    }
+}
+
 #[derive(Debug)]
-pub(crate) struct Float<'a> {
+pub(in crate::template::parser) struct Float<'a> {
     source: Source<'a>,
 }
 
 impl<'a> Float<'a> {
-    fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, float) = take(TokenKind::Float).parse(tokens)?;
 
         Ok((
@@ -62,7 +69,7 @@ impl<'a> Float<'a> {
         ))
     }
 
-    pub(crate) fn source(&self) -> &Source<'a> {
+    pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
         &self.source
     }
 }
@@ -80,6 +87,12 @@ impl<'a> ToTokensWithState<'a> for Float<'a> {
 impl<'a> From<Float<'a>> for Number<'a> {
     fn from(value: Float<'a>) -> Self {
         Number::Float(value)
+    }
+}
+
+impl<'a> From<Float<'a>> for LiteralExpression<'a> {
+    fn from(value: Float<'a>) -> Self {
+        Self::Float(value)
     }
 }
 

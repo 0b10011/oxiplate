@@ -1,5 +1,6 @@
 use proc_macro2::Literal;
 
+use super::LiteralExpression;
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -55,5 +56,11 @@ impl<'a> ToTokensWithState<'a> for Char<'a> {
 impl<'a> From<Char<'a>> for Expression<'a> {
     fn from(value: Char<'a>) -> Self {
         Expression::Char(value)
+    }
+}
+
+impl<'a> From<Char<'a>> for LiteralExpression<'a> {
+    fn from(value: Char<'a>) -> Self {
+        Self::Char(value)
     }
 }

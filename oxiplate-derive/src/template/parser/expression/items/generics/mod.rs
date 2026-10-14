@@ -1,6 +1,8 @@
+pub(in crate::template::parser) mod r#const;
 pub(in crate::template::parser) mod lifetime;
 pub(in crate::template::parser) mod r#type;
 
+use self::r#const::ConstParam;
 use self::lifetime::LifetimeParam;
 use self::r#type::TypeParam;
 use crate::template::parser::prelude::*;
@@ -114,21 +116,25 @@ pub(super) enum GenericParam<'a> {
     Type(TypeParam<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Const,
+    Const(ConstParam<'a>),
 }
 
 impl<'a> GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(LifetimeParam::parse), into(TypeParam::parse))).parse(tokens)
+        alt((
+            into(LifetimeParam::parse),
+            into(TypeParam::parse),
+            into(ConstParam::parse),
+        ))
+        .parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.source(),
             Self::Type(type_param) => type_param.source().clone(),
-            Self::Const => todo!("GenericParam::Const.source() not yet written"),
+            Self::Const(constant) => constant.source().clone(),
         }
     }
 }
@@ -138,7 +144,7 @@ impl<'a> ToTokensWithState<'a> for GenericParam<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.to_tokens_with_state(state),
             Self::Type(type_param) => type_param.to_tokens_with_state(state),
-            Self::Const => todo!("GenericParam::Const.to_tokens() not yet written"),
+            Self::Const(constant) => constant.to_tokens_with_state(state),
         }
     }
 }
