@@ -1,7 +1,7 @@
 use proc_macro2::Ident;
 
 use super::Expression;
-use super::generics::GenericArgs;
+use super::paths::GenericArgs;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>

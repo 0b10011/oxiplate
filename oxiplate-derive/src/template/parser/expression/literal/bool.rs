@@ -10,7 +10,8 @@ pub(crate) struct Bool<'a> {
 }
 
 impl<'a> Bool<'a> {
-    /// Parses a bool value: `true` or `false`
+    /// Parses a bool value: `true` or `false`.
+    /// See: <https://doc.rust-lang.org/reference/types/boolean.html>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = tokens.take()?;
 

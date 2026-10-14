@@ -10,6 +10,7 @@ pub(crate) struct String<'a> {
 }
 
 impl<'a> String<'a> {
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = tokens.take()?;
 

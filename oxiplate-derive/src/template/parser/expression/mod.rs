@@ -7,16 +7,19 @@ mod cow;
 mod fields;
 mod filter;
 mod full_range;
-mod generics;
 mod group;
 mod index;
+mod items;
 mod keyword;
 mod literal;
 mod operator;
 mod path;
+mod paths;
 mod prefix_operator;
 mod prefixed;
+mod trait_bounds;
 mod tuple;
+mod types;
 
 use std::mem;
 

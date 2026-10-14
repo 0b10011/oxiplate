@@ -12,6 +12,7 @@ impl<'a> Integer<'a> {
         Self { source }
     }
 
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
     fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, integer) = take(TokenKind::Integer).parse(tokens)?;
 
