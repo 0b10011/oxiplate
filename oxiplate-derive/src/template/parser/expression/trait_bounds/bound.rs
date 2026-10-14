@@ -38,15 +38,11 @@ impl<'a> Bound<'a> {
 
 impl<'a> ToTokensWithState<'a> for Bound<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let mut tokens = TokenStream::new();
-
         match self {
-            Self::Lifetime(lifetime) => lifetime.to_tokens(&mut tokens),
-            Self::TraitBound(trait_bound) => return trait_bound.to_tokens_with_state(state),
-            Self::UseBound(use_bound) => use_bound.to_tokens(&mut tokens),
+            Self::Lifetime(lifetime) => lifetime.to_tokens_with_state(state),
+            Self::TraitBound(trait_bound) => trait_bound.to_tokens_with_state(state),
+            Self::UseBound(use_bound) => use_bound.to_tokens_with_state(state),
         }
-
-        (tokens, EstimatedLength::new(0))
     }
 }
 

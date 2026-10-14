@@ -80,3 +80,46 @@ impl<'a> ToTokensWithState<'a> for LiteralExpression<'a> {
         }
     }
 }
+
+/// `LiteralExpression` with an optional leading `-`.
+/// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+#[derive(Debug)]
+pub(in crate::template::parser) struct PossiblyNegativeLiteralExpression<'a> {
+    /// Optional `-`.
+    sign: Option<Source<'a>>,
+    literal: LiteralExpression<'a>,
+}
+
+impl<'a> PossiblyNegativeLiteralExpression<'a> {
+    /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        let (tokens, (sign, literal)) = (
+            ignore_recoverable_errors(into(take(TokenKind::Minus))),
+            LiteralExpression::parse,
+        )
+            .parse(tokens)?;
+
+        Ok((tokens, Self { sign, literal }))
+    }
+
+    pub(in crate::template::parser) fn source(&self) -> Source<'a> {
+        self.literal
+            .source()
+            .append_to_some(self.sign.clone(), "`-` expected before literal expression")
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for PossiblyNegativeLiteralExpression<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        if let Some(sign) = &self.sign {
+            let span = sign.span_token();
+            let (literal, estimated_length) = self.literal.to_tokens_with_state(state);
+            (
+                quote_spanned! {span=> - #literal },
+                estimated_length + EstimatedLength::new(1),
+            )
+        } else {
+            self.literal.to_tokens_with_state(state)
+        }
+    }
+}

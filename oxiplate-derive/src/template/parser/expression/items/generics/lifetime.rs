@@ -44,7 +44,7 @@ impl<'a> ToTokensWithState<'a> for LifetimeParam<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
-        self.lifetime.to_tokens(&mut tokens);
+        tokens.append_all(self.lifetime.to_tokens_with_state(state).0);
 
         if let Some((colon, bounds)) = &self.bounds {
             let span = colon.span_token();

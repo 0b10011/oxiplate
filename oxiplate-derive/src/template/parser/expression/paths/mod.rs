@@ -1,10 +1,12 @@
 pub(in crate::template::parser) mod args;
 pub(in crate::template::parser) mod binding;
 pub(in crate::template::parser) mod bounds;
+pub(in crate::template::parser) mod generic_args_const;
 pub(in crate::template::parser) mod path;
 pub(in crate::template::parser) mod path_segment;
 pub(in crate::template::parser) mod qualified_path;
 pub(in crate::template::parser) mod qualified_path_in;
+pub(in crate::template::parser) mod simple_path_segment;
 pub(in crate::template::parser) mod types;
 
 use self::args::GenericArgList;

@@ -1,6 +1,7 @@
 use super::GenericArgs;
 use super::binding::Binding;
 use super::bounds::GenericArgsBounds;
+use super::generic_args_const::GenericArgsConst;
 use crate::template::parser::expression::trait_bounds::lifetime::Lifetime;
 use crate::template::parser::expression::types::Type;
 use crate::template::parser::prelude::*;
@@ -115,8 +116,7 @@ pub(in crate::template::parser) enum GenericArg<'a> {
     Type(Type<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
-    #[expect(dead_code, reason = "Not yet implemented")]
-    Const,
+    Const(GenericArgsConst<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
     Binding(Binding<'a>),
@@ -131,6 +131,7 @@ impl<'a> GenericArg<'a> {
         alt((
             into(Lifetime::parse),
             into(Type::parse),
+            into(GenericArgsConst::parse),
             into(Binding::parse),
             into(GenericArgsBounds::parse),
         ))
@@ -141,7 +142,7 @@ impl<'a> GenericArg<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.source().clone(),
             Self::Type(r#type) => r#type.source(),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
+            Self::Const(generic_args_const) => generic_args_const.source(),
             Self::Binding(binding) => binding.source(),
             Self::Bounds(bounds) => bounds.source(),
         }
@@ -150,16 +151,12 @@ impl<'a> GenericArg<'a> {
 
 impl<'a> ToTokensWithState<'a> for GenericArg<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let mut tokens = TokenStream::new();
-
         match self {
-            Self::Lifetime(lifetime) => lifetime.to_tokens(&mut tokens),
-            Self::Type(r#type) => return r#type.to_tokens_with_state(state),
-            Self::Const => todo!("GenericArgsConst not yet handled"),
-            Self::Binding(binding) => return binding.to_tokens_with_state(state),
-            Self::Bounds(bounds) => return bounds.to_tokens_with_state(state),
+            Self::Lifetime(lifetime) => lifetime.to_tokens_with_state(state),
+            Self::Type(r#type) => r#type.to_tokens_with_state(state),
+            Self::Const(generic_args_const) => generic_args_const.to_tokens_with_state(state),
+            Self::Binding(binding) => binding.to_tokens_with_state(state),
+            Self::Bounds(bounds) => bounds.to_tokens_with_state(state),
         }
-
-        (tokens, EstimatedLength::new(0))
     }
 }

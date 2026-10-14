@@ -37,10 +37,15 @@ impl<'a> UseBound<'a> {
     }
 }
 
-impl ToTokens for UseBound<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for UseBound<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.r#use.span_token();
-        tokens.append_all(quote_spanned! {span=> use });
-        self.use_bound_generic_args.to_tokens(tokens);
+        let (use_bound_generic_args, estimated_length) =
+            self.use_bound_generic_args.to_tokens_with_state(state);
+
+        (
+            quote_spanned! {span=> use #use_bound_generic_args },
+            estimated_length,
+        )
     }
 }

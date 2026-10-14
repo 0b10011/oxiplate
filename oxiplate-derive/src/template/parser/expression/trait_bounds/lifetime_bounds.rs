@@ -58,17 +58,17 @@ impl<'a> LifetimeBounds<'a> {
 }
 
 impl<'a> ToTokensWithState<'a> for LifetimeBounds<'a> {
-    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
 
         for (bound, plus) in &self.first_bounds {
-            bound.to_tokens(&mut tokens);
+            tokens.append_all(bound.to_tokens_with_state(state).0);
             let span = plus.span_token();
             tokens.append_all(quote_spanned! {span=> + });
         }
 
         if let Some(bound) = &self.last_bound {
-            bound.to_tokens(&mut tokens);
+            tokens.append_all(bound.to_tokens_with_state(state).0);
         }
 
         (tokens, EstimatedLength::new(0))

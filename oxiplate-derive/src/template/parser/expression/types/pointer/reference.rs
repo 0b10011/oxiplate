@@ -56,7 +56,9 @@ impl<'a> ToTokensWithState<'a> for ReferenceType<'a> {
         let span = self.borrow.span_token();
         tokens.append_all(quote_spanned! {span=> & });
 
-        self.lifetime.to_tokens(&mut tokens);
+        if let Some(lifetime) = &self.lifetime {
+            tokens.append_all(lifetime.to_tokens_with_state(state).0);
+        }
 
         if let Some(r#mut) = &self.r#mut {
             let span = r#mut.span_token();

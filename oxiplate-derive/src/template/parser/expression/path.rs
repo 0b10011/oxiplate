@@ -293,3 +293,42 @@ impl ToTokens for Separator<'_> {
         tokens.append_all(quote_spanned! {span=> :: });
     }
 }
+
+macro_rules! keyword {
+    ($name:ident, $keyword:expr) => {
+        #[derive(Debug)]
+        pub(in crate::template::parser) struct $name<'a> {
+            source: Source<'a>,
+        }
+
+        impl<'a> $name<'a> {
+            pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+                let (tokens, keyword) = take(TokenKind::$name).parse(tokens)?;
+
+                Ok((
+                    tokens,
+                    Self {
+                        source: keyword.source().to_owned(),
+                    },
+                ))
+            }
+
+            pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
+                &self.source
+            }
+        }
+
+        impl<'a> ToTokensWithState<'a> for $name<'a> {
+            fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+                let span = self.source.span_token();
+
+                (quote_spanned! {span=> $keyword }, EstimatedLength::new(0))
+            }
+        }
+    };
+}
+
+keyword!(Super, super);
+keyword!(SelfCurrentModule, self);
+keyword!(SelfCurrentType, Self);
+keyword!(Crate, crate);

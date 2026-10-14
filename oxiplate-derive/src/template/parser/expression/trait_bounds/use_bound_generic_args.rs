@@ -1,5 +1,6 @@
 use super::lifetime::Lifetime;
 use crate::template::parser::expression::Identifier;
+use crate::template::parser::expression::path::SelfCurrentType;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
@@ -71,17 +72,18 @@ impl<'a> UseBoundGenericArgs<'a> {
     }
 }
 
-impl ToTokens for UseBoundGenericArgs<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for UseBoundGenericArgs<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut inner_tokens = TokenStream::new();
 
         for (arg, comma) in &self.first_generics {
             let span = comma.span_token();
+            let arg = arg.to_tokens_with_state(state).0;
             inner_tokens.append_all(quote_spanned! {span=> #arg, });
         }
 
         if let Some((generic, comma)) = &self.last_generic {
-            generic.to_tokens(&mut inner_tokens);
+            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
             if let Some(comma) = comma {
                 let span = comma.span_token();
                 inner_tokens.append_all(quote_spanned! {span=> , });
@@ -89,7 +91,10 @@ impl ToTokens for UseBoundGenericArgs<'_> {
         }
 
         let span = self.source.span_token();
-        tokens.append_all(quote_spanned! {span=> <#inner_tokens> });
+        (
+            quote_spanned! {span=> <#inner_tokens> },
+            EstimatedLength::new(0),
+        )
     }
 }
 
@@ -103,17 +108,16 @@ pub(super) enum UseBoundGenericArg<'a> {
     Identifier(Identifier<'a>),
 
     /// `Self`
-    SelfKeyword(Source<'a>),
+    SelfKeyword(SelfCurrentType<'a>),
 }
 
 impl<'a> UseBoundGenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, keyword) =
-            ignore_recoverable_errors(take(TokenKind::SelfCurrentType)).parse(tokens)?;
+        let (tokens, keyword) = ignore_recoverable_errors(SelfCurrentType::parse).parse(tokens)?;
 
         if let Some(keyword) = keyword {
-            return Ok((tokens, Self::SelfKeyword(keyword.source().clone())));
+            return Ok((tokens, Self::SelfKeyword(keyword)));
         }
 
         alt((into(Lifetime::parse), into(Identifier::parse))).parse(tokens)
@@ -123,20 +127,17 @@ impl<'a> UseBoundGenericArg<'a> {
         match self {
             Self::Lifetime(lifetime) => lifetime.source().clone(),
             Self::Identifier(identifier) => identifier.source().clone(),
-            Self::SelfKeyword(keyword) => keyword.clone(),
+            Self::SelfKeyword(keyword) => keyword.source().to_owned(),
         }
     }
 }
 
-impl ToTokens for UseBoundGenericArg<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for UseBoundGenericArg<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::Lifetime(lifetime) => lifetime.to_tokens(tokens),
-            Self::Identifier(identifier) => identifier.to_tokens(tokens),
-            Self::SelfKeyword(keyword) => {
-                let span = keyword.span_token();
-                tokens.append_all(quote_spanned! {span=> Self });
-            }
+            Self::Lifetime(lifetime) => lifetime.to_tokens_with_state(state),
+            Self::Identifier(identifier) => (identifier.to_token_stream(), EstimatedLength::new(0)),
+            Self::SelfKeyword(keyword) => keyword.to_tokens_with_state(state),
         }
     }
 }

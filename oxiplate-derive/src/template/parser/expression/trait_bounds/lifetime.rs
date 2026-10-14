@@ -33,15 +33,15 @@ impl<'a> Lifetime<'a> {
     }
 }
 
-impl ToTokens for Lifetime<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for Lifetime<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
         let mut apostrophe = Punct::new('\'', proc_macro2::Spacing::Joint);
         apostrophe.set_span(self.apostrophe.span_token());
-        apostrophe.to_tokens(tokens);
 
         let identifier_source = self.identifier.source();
         let identifier = Ident::new(identifier_source.as_str(), identifier_source.span_token());
-        identifier.to_tokens(tokens);
+
+        (quote! { #apostrophe #identifier }, EstimatedLength::new(0))
     }
 }
 
