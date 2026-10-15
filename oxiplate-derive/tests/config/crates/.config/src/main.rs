@@ -83,8 +83,11 @@ fn clear_directory_except_readme_and_template(destination: &Path) -> Result<(), 
     for entry in fs::read_dir(destination)? {
         let entry = entry?;
 
-        // Skip `README.md` and `.template` directory
-        if matches!(entry.file_name().to_str(), Some("README.md" | ".template")) {
+        // Skip `README.md` and special directories
+        if matches!(
+            entry.file_name().to_str(),
+            Some("README.md" | ".config" | ".template")
+        ) {
             continue;
         }
 

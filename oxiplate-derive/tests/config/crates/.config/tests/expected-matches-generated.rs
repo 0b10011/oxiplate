@@ -4,8 +4,8 @@ use std::{env, fs};
 
 #[test]
 fn stderr_matches() -> Result<(), Box<dyn Error>> {
-    let tests_destination = Path::new("../../config/tests/");
-    let crates_destination = Path::new("../../config/crates/");
+    let tests_destination = Path::new("../../tests/");
+    let crates_destination = Path::new("../");
 
     assert!(
         tests_destination.is_dir(),
@@ -74,8 +74,8 @@ fn stderr_matches() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn config_matches() -> Result<(), Box<dyn Error>> {
-    let expected_destination = Path::new("../../config/tests/");
-    let crates_destination = Path::new("../../config/crates/");
+    let expected_destination = Path::new("../../tests/");
+    let crates_destination = Path::new("../");
 
     assert!(
         expected_destination.is_dir(),
