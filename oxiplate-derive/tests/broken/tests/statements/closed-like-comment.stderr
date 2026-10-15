@@ -1,0 +1,5 @@
+error: Malformed raw string. Expected `"` after opening hashes (e.g., `###"hello world"###`)
+ --> tests/broken/tests/statements/closed-like-comment.rs:4:32
+  |
+4 | #[oxiplate_inline("{% continue #}")]
+  |                                ^

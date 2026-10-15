@@ -1,5 +1,0 @@
-error: Expected 'in'
- --> tests/broken/for/for-no-in.rs:6:16
-  |
-6 | {%- for number numbers -%}
-  |                ^^^^^^^

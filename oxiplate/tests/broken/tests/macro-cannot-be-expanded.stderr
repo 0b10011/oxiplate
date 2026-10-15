@@ -1,0 +1,20 @@
+error: Must provide either an external or internal template:
+       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/macro-cannot-be-expanded.rs:4:25
+  |
+4 | #[oxiplate_inline(html: format!("oops"))]
+  |                         ^^^^^^^^^^^^^^^
+
+error: Incorrect syntax for external template. Should look something like:
+       #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+ --> tests/broken/tests/macro-cannot-be-expanded.rs:8:1
+  |
+8 | #[oxiplate = format!("oops")]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: attribute value must be a literal
+ --> tests/broken/tests/macro-cannot-be-expanded.rs:8:14
+  |
+8 | #[oxiplate = format!("oops")]
+  |              ^^^^^^^^^^^^^^^

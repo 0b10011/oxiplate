@@ -1,0 +1,5 @@
+error: Only block statements are allowed here, along with comments and whitespace.
+ --> tests/broken/tests/extends/extends-extends.rs:5:49
+  |
+5 |     r#"{% extends "extends-wrapper.html.oxip" %}{% extends "extends-wrapper.html.oxip" %}"#
+  |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

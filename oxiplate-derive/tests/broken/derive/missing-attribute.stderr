@@ -1,7 +1,0 @@
-error: Expected an attribute named `oxiplate_inline` or `oxiplate` to specify the template:
-       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
-       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
- --> tests/broken/derive/missing-attribute.rs:4:8
-  |
-4 | struct Data;
-  |        ^^^^

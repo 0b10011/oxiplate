@@ -1,0 +1,12 @@
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/colon.rs:4:19
+  |
+4 | #[oxiplate_inline(:)]
+  |                   ^
+
+error: unsupported expression; enable syn's features=["full"]
+ --> tests/broken/tests/derive/colon.rs:4:19
+  |
+4 | #[oxiplate_inline(:)]
+  |                   ^

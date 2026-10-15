@@ -1,0 +1,24 @@
+error: Expected an attribute named `oxiplate_inline` or `oxiplate` to specify the template:
+       External: #[oxiplate = "path/to/template/from/templates/directory.html.oxip"]
+       Internal: #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/attribute-typo.rs:5:8
+  |
+5 | struct Data;
+  |        ^^^^
+
+error: cannot find attribute `oxiplatee` in this scope
+ --> tests/broken/tests/derive/attribute-typo.rs:4:3
+  |
+4 | #[oxiplatee = ""]
+  |   ^^^^^^^^^
+  |
+help: a derive helper attribute with a similar name exists
+  |
+4 - #[oxiplatee = ""]
+4 + #[oxiplate = ""]
+  |
+help: the derive macro `Oxiplate` accepts the similarly named `oxiplate` attribute
+  |
+4 - #[oxiplatee = ""]
+4 + #[oxiplate = ""]
+  |

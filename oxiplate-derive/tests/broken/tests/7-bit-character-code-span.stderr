@@ -1,0 +1,5 @@
+error: Expected an expression in the writ
+ --> tests/broken/tests/7-bit-character-code-span.rs:4:30
+  |
+4 | #[oxiplate_inline("hello\x41{{")]
+  |                              ^

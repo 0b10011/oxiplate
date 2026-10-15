@@ -1,5 +1,0 @@
-error: Expected `%}`, `-%}`, or `_%}`
- --> tests/broken/statements/closed-like-writ-whitespace-remove.rs:4:32
-  |
-4 | #[oxiplate_inline("{% continue -}}")]
-  |                                ^^^

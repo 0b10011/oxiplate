@@ -1,0 +1,23 @@
+error: Whitespace replace character `_` used before non-whitespace. Either add whitespace or change how whitespace is handled after this tag.
+ --> tests/broken/tests/whitespace/replace-no-whitespace-statement.rs:6:12
+  |
+6 | {% block a _%}{%_ endblock %}
+  |            ^^^
+
+error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
+ --> tests/broken/tests/whitespace/replace-no-whitespace-statement.rs:6:15
+  |
+6 | {% block a _%}{%_ endblock %}
+  |               ^^^
+
+error: Whitespace replace character `_` used before non-whitespace. Either add whitespace or change how whitespace is handled after this tag.
+ --> tests/broken/tests/whitespace/replace-no-whitespace-statement.rs:7:12
+  |
+7 | {% block b _%}{% endblock %}
+  |            ^^^
+
+error: Whitespace replace character `_` used after non-whitespace. Either add whitespace or change how whitespace is handled before this tag.
+ --> tests/broken/tests/whitespace/replace-no-whitespace-statement.rs:8:14
+  |
+8 | {% block c %}{%_ endblock %}
+  |              ^^^

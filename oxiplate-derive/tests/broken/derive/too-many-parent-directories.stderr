@@ -1,5 +1,0 @@
-error: Path does not exist: `$DIR/templates/../../../../../../../../../../../../../../../../../../README.md`
- --> tests/broken/derive/too-many-parent-directories.rs:4:14
-  |
-4 | #[oxiplate = "../../../../../../../../../../../../../../../../../../README.md"]
-  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

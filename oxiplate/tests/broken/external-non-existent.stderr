@@ -1,5 +1,0 @@
-error: Path does not exist: `$DIR/templates/external-non-existent.html.oxip`
- --> tests/broken/external-non-existent.rs:4:14
-  |
-4 | #[oxiplate = "external-non-existent.html.oxip"]
-  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

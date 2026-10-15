@@ -1,5 +1,0 @@
-error: Unclosed character literal. Expected `'` after first character
- --> tests/broken/char/multiple-chars-eof-non-ident.rs:4:24
-  |
-4 | #[oxiplate_inline(r"{{ '*hello")]
-  |                        ^^^^^^^

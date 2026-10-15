@@ -1,7 +1,0 @@
-error[E0425]: cannot find value `foo` in this scope
- --> tests/broken/strings/escaped-rust-string.rs:4:25
-  |
-3 | #[derive(Oxiplate)]
-  |          -------- in this derive macro
-4 | #[oxiplate_inline("\"{{ foo }}\"")]
-  |                         ^^^ not found in this scope

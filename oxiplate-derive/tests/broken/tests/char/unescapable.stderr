@@ -1,0 +1,5 @@
+error: Unknown character escape. Expected `\\`, `\"`, `\'`, `\n`, `\r`, `\t`, or `\0`
+ --> tests/broken/tests/char/unescapable.rs:4:24
+  |
+4 | #[oxiplate_inline(r"{{ '\%' }}")]
+  |                        ^^^

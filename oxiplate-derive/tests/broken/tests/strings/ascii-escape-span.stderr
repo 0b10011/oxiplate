@@ -1,0 +1,5 @@
+error: Expected an expression in the writ
+ --> tests/broken/tests/strings/ascii-escape-span.rs:4:28
+  |
+4 | #[oxiplate_inline("hello\n{{")]
+  |                            ^

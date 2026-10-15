@@ -1,5 +1,0 @@
-error: End of file encountered while parsing a writ. Expected `}}`, `-}}`, or `_}}`
- --> tests/broken/numbers/eof-after-zero.rs:4:23
-  |
-4 | #[oxiplate_inline("{{ 0")]
-  |                       ^

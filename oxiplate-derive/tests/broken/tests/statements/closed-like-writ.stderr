@@ -1,0 +1,5 @@
+error: Expected `%}`, `-%}`, or `_%}`
+ --> tests/broken/tests/statements/closed-like-writ.rs:4:32
+  |
+4 | #[oxiplate_inline("{% continue }}")]
+  |                                ^^

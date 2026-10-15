@@ -1,5 +1,0 @@
-error: Expected an expression in the writ
- --> tests/broken/operators/unreachable-prefix-operator.rs:5:23
-  |
-5 | #[oxiplate_inline("{{ =a }}")]
-  |                       ^

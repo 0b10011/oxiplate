@@ -1,0 +1,5 @@
+error: Expected an expression after the operator
+ --> tests/broken/tests/operators/operator-at-end-of-template.rs:4:31
+  |
+4 | #[oxiplate_inline(r#"{% if 19 +"#)]
+  |                               ^

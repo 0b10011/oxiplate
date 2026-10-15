@@ -1,0 +1,12 @@
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/unescaped-quotation-marks.rs:4:30
+  |
+4 | #[oxiplate_inline(html: "foo""bar")]
+  |                              ^^^^^
+
+error: unexpected token
+ --> tests/broken/tests/derive/unescaped-quotation-marks.rs:4:30
+  |
+4 | #[oxiplate_inline(html: "foo""bar")]
+  |                              ^^^^^

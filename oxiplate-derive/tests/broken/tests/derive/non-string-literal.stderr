@@ -1,0 +1,12 @@
+error: expected string literal
+ --> tests/broken/tests/derive/non-string-literal.rs:4:19
+  |
+4 | #[oxiplate_inline(19)]
+  |                   ^^
+
+error: Incorrect syntax for external template. Should look something like:
+       #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
+ --> tests/broken/tests/derive/non-string-literal.rs:8:1
+  |
+8 | #[oxiplate = 19]
+  | ^^^^^^^^^^^^^^^^

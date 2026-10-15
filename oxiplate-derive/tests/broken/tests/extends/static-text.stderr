@@ -1,0 +1,5 @@
+error: Text is not allowed here. Only comments, whitespace, and block statements are allowed.
+ --> tests/broken/tests/extends/static-text.rs:4:63
+  |
+4 | #[oxiplate_inline(r#"{% extends "multiple-blocks.html.oxip" %}hello"#)]
+  |                                                               ^^^^^

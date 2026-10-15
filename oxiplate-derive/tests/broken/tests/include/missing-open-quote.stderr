@@ -1,0 +1,5 @@
+error: Expected path to template to include (e.g., `{% include "path/to/template.html.oxip" %}`)
+ --> tests/broken/tests/include/missing-open-quote.rs:4:33
+  |
+4 | #[oxiplate_inline(r#"{% include include.html.oxip" %}"#)]
+  |                                 ^^^^^^^

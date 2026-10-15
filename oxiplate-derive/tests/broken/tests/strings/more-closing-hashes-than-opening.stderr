@@ -1,0 +1,5 @@
+error: The number of hashes (`#`) before and after the string should be the same
+ --> tests/broken/tests/strings/more-closing-hashes-than-opening.rs:4:27
+  |
+4 | #[oxiplate_inline(r###"{{ #"hello world"## }}"###)]
+  |                           ^^^^^^^^^^^^^^^^

@@ -1,0 +1,7 @@
+error: Raw string never closed
+ --> tests/broken/tests/strings/raw-string.rs:6:5
+  |
+6 |   {{- ##"hello world"# -}}
+  |  _____^
+7 | |  "#####
+  | |_^
