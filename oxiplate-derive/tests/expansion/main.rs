@@ -28,7 +28,7 @@ mod test {
             let actual_expansion_path = actual_destination.join(entry.file_name());
 
             // Skip non-files (directories)
-            if !entry.file_type()?.is_file() || entry.file_name().to_str() == Some("expansion.rs") {
+            if !entry.file_type()?.is_file() {
                 continue;
             }
 
