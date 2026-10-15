@@ -32,7 +32,7 @@ update-test-output: format clippy-strict rebuild-config-test-crates
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 
     # Update config test output
-    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/expected/
+    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
 
     # Update expansion test results
     cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true

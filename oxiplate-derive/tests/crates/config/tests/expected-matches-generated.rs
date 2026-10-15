@@ -4,12 +4,12 @@ use std::{env, fs};
 
 #[test]
 fn stderr_matches() -> Result<(), Box<dyn Error>> {
-    let expected_destination = Path::new("../../config/expected/");
+    let tests_destination = Path::new("../../config/tests/");
     let crates_destination = Path::new("../../config/crates/");
 
     assert!(
-        expected_destination.is_dir(),
-        "Expected destination {expected_destination:?} is not a directory. Current directory: {:?}",
+        tests_destination.is_dir(),
+        "Expected destination {tests_destination:?} is not a directory. Current directory: {:?}",
         env::current_dir()
     );
     assert!(
@@ -19,7 +19,7 @@ fn stderr_matches() -> Result<(), Box<dyn Error>> {
     );
 
     let mut mismatched = 0;
-    for entry in fs::read_dir(expected_destination)? {
+    for entry in fs::read_dir(tests_destination)? {
         let entry = entry?;
 
         // Skip non-files (directories) and non-stderr files
@@ -74,7 +74,7 @@ fn stderr_matches() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn config_matches() -> Result<(), Box<dyn Error>> {
-    let expected_destination = Path::new("../../config/expected/");
+    let expected_destination = Path::new("../../config/tests/");
     let crates_destination = Path::new("../../config/crates/");
 
     assert!(

@@ -4,13 +4,13 @@ use std::path::Path;
 
 #[allow(clippy::unnecessary_debug_formatting)]
 pub fn main() -> Result<(), Box<dyn Error>> {
-    let expected_destination = Path::new("oxiplate-derive/tests/config/expected/");
+    let tests_destination = Path::new("oxiplate-derive/tests/config/tests/");
     let template_dir = Path::new("oxiplate-derive/tests/config/crates/.template/");
     let crates_destination = Path::new("oxiplate-derive/tests/config/crates/");
 
     assert!(
-        expected_destination.is_dir(),
-        "Expected destination {expected_destination:?} is not a directory"
+        tests_destination.is_dir(),
+        "Expected destination {tests_destination:?} is not a directory"
     );
     assert!(
         template_dir.is_dir(),
@@ -23,7 +23,7 @@ pub fn main() -> Result<(), Box<dyn Error>> {
 
     clear_directory_except_readme_and_template(crates_destination)?;
 
-    for entry in fs::read_dir(expected_destination)? {
+    for entry in fs::read_dir(tests_destination)? {
         let entry = entry?;
 
         // Skip non-files (directories) and non-toml files
@@ -40,8 +40,8 @@ pub fn main() -> Result<(), Box<dyn Error>> {
             .ok_or("failed to read filename")?
             .to_str()
             .ok_or("failed to convert filename to a str")?;
-        let toml = expected_destination.join(format!("{base_name}.toml"));
-        let stderr = expected_destination.join(format!("{base_name}.stderr"));
+        let toml = tests_destination.join(format!("{base_name}.toml"));
+        let stderr = tests_destination.join(format!("{base_name}.stderr"));
         let package_dir = crates_destination.join(base_name);
 
         copy_directory(template_dir, &package_dir)
