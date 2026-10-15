@@ -94,12 +94,15 @@ impl<'a> From<ConstParam<'a>> for GenericParam<'a> {
 /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
 #[derive(Debug)]
 pub(crate) enum ConstParamValue<'a> {
-    #[expect(
-        dead_code,
-        reason = "Block expressions will produce a compile error when encountered"
-    )]
+    /// See: <https://doc.rust-lang.org/reference/expressions/block-expr.html#railroad-BlockExpression>
+    #[expect(dead_code, reason = "`BlockExpression` isn't currently supported")]
     BlockExpression,
+
+    /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
     Identifier(Identifier<'a>),
+
+    /// `LiteralExpression` with optional leading `-`.
+    /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
     Literal {
         negative: Option<Source<'a>>,
         literal: LiteralExpression<'a>,
@@ -124,7 +127,7 @@ impl<'a> ConstParamValue<'a> {
     pub fn source(&self) -> Source<'a> {
         match self {
             Self::BlockExpression => {
-                unreachable!("Block expressions as const param values not yet supported")
+                unreachable!("`ConstParamValue::BlockExpression` isn't currently supported")
             }
             Self::Identifier(identifier) => identifier.source().to_owned(),
             Self::Literal { negative, literal } => literal
@@ -139,7 +142,7 @@ impl<'a> ToTokensWithState<'a> for ConstParamValue<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
             Self::BlockExpression => {
-                unreachable!("Block expressions as const param values not yet supported")
+                unreachable!("`ConstParamValue::BlockExpression` isn't currently supported")
             }
             Self::Identifier(identifier) => {
                 let mut tokens = TokenStream::new();

@@ -54,11 +54,17 @@ pub(crate) enum TypeNoBounds<'a> {
     QualifiedPathIn(QualifiedPathInType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/function-pointer.html#railroad-BareFunctionType>
-    #[expect(dead_code, reason = "Not yet implemented")]
+    #[expect(
+        dead_code,
+        reason = "`TypeNoBounds::BareFunction` isn't currently supported"
+    )]
     BareFunction,
 
     /// See: <https://doc.rust-lang.org/reference/macros.html#railroad-MacroInvocation>
-    #[expect(dead_code, reason = "Not yet implemented")]
+    #[expect(
+        dead_code,
+        reason = "`TypeNoBounds::MacroInvocation` isn't currently supported"
+    )]
     MacroInvocation,
 }
 
@@ -98,9 +104,11 @@ impl<'a> TypeNoBounds<'a> {
             Self::Slice(slice) => slice.source().to_owned(),
             Self::Inferred(inferred) => inferred.source().to_owned(),
             Self::QualifiedPathIn(qualified_path) => qualified_path.source(),
-            Self::BareFunction => todo!("NoBounds::BareFunction.source() not yet implemented"),
+            Self::BareFunction => {
+                unreachable!("`TypeNoBounds::BareFunction` isn't currently supported")
+            }
             Self::MacroInvocation => {
-                todo!("NoBounds::MacroInvocation.source() not yet implemented")
+                unreachable!("`TypeNoBounds::MacroInvocation` isn't currently supported")
             }
         }
     }
@@ -125,9 +133,11 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
             Self::Slice(slice) => slice.to_tokens_with_state(state),
             Self::Inferred(inferred) => inferred.to_tokens_with_state(state),
             Self::QualifiedPathIn(qualified_path) => qualified_path.to_tokens_with_state(state),
-            Self::BareFunction => todo!("NoBounds::BareFunction.to_tokens() not yet implemented"),
+            Self::BareFunction => {
+                unreachable!("`TypeNoBounds::BareFunction` isn't currently supported")
+            }
             Self::MacroInvocation => {
-                todo!("NoBounds::MacroInvocation.to_tokens() not yet implemented")
+                unreachable!("`TypeNoBounds::MacroInvocation` isn't currently supported")
             }
         }
     }

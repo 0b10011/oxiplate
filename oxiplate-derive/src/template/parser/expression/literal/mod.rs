@@ -12,22 +12,46 @@ use crate::template::parser::prelude::*;
 /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
 #[derive(Debug)]
 pub(in crate::template::parser) enum LiteralExpression<'a> {
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-CHAR_LITERAL>
     Char(Char<'a>),
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
     String(String<'a>),
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_STRING_LITERAL>
+    #[expect(dead_code, reason = "Raw string literals aren't currently supported")]
     RawString,
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-BYTE_LITERAL>
+    #[expect(dead_code, reason = "Byte literals aren't currently supported")]
     Byte,
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-BYTE_STRING_LITERAL>
+    #[expect(dead_code, reason = "Byte string literals aren't currently supported")]
     ByteString,
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_BYTE_STRING_LITERAL>
+    #[expect(
+        dead_code,
+        reason = "Raw byte string literals aren't currently supported"
+    )]
     RawByteString,
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-C_STRING_LITERAL>
+    #[expect(dead_code, reason = "C string literals aren't currently supported")]
     CString,
-    #[expect(dead_code, reason = "Not yet implemented")]
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_C_STRING_LITERAL>
+    #[expect(dead_code, reason = "Raw C string literals aren't currently supported")]
     RawCString,
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-INTEGER_LITERAL>
     Integer(Integer<'a>),
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-FLOAT_LITERAL>
     Float(Float<'a>),
+
+    /// `true` or `false`
     Bool(Bool<'a>),
 }
 
@@ -50,12 +74,14 @@ impl<'a> LiteralExpression<'a> {
         match self {
             Self::Char(char) => char.source(),
             Self::String(string) => string.source(),
-            Self::RawString
-            | Self::Byte
-            | Self::ByteString
-            | Self::RawByteString
-            | Self::CString
-            | Self::RawCString => unreachable!("These literals are not yet implemented"),
+            Self::RawString => unreachable!("Raw string literals aren't currently supported"),
+            Self::Byte => unreachable!("Byte literals aren't currently supported"),
+            Self::ByteString => unreachable!("Byte string literals aren't currently supported"),
+            Self::RawByteString => {
+                unreachable!("Raw byte string literals aren't currently supported")
+            }
+            Self::CString => unreachable!("C string literals aren't currently supported"),
+            Self::RawCString => unreachable!("Raw C string literals aren't currently supported"),
             Self::Integer(integer) => integer.source(),
             Self::Float(float) => float.source(),
             Self::Bool(bool) => bool.source(),
@@ -68,12 +94,14 @@ impl<'a> ToTokensWithState<'a> for LiteralExpression<'a> {
         match self {
             Self::Char(char) => char.to_tokens_with_state(state),
             Self::String(string) => string.to_tokens_with_state(state),
-            Self::RawString
-            | Self::Byte
-            | Self::ByteString
-            | Self::RawByteString
-            | Self::CString
-            | Self::RawCString => unreachable!("These literals are not yet implemented"),
+            Self::RawString => unreachable!("Raw string literals aren't currently supported"),
+            Self::Byte => unreachable!("Byte literals aren't currently supported"),
+            Self::ByteString => unreachable!("Byte string literals aren't currently supported"),
+            Self::RawByteString => {
+                unreachable!("Raw byte string literals aren't currently supported")
+            }
+            Self::CString => unreachable!("C string literals aren't currently supported"),
+            Self::RawCString => unreachable!("Raw C string literals aren't currently supported"),
             Self::Integer(integer) => integer.to_tokens_with_state(state),
             Self::Float(float) => float.to_tokens_with_state(state),
             Self::Bool(bool) => bool.to_tokens_with_state(state),

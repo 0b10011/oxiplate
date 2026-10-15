@@ -7,7 +7,7 @@ use crate::template::parser::prelude::*;
 #[derive(Debug)]
 pub(in crate::template::parser) enum GenericArgsConst<'a> {
     /// See: <https://doc.rust-lang.org/reference/expressions/block-expr.html#railroad-BlockExpression>
-    #[expect(dead_code, reason = "This is not yet implemented")]
+    #[expect(dead_code, reason = "`BlockExpression` isn't currently supported")]
     BlockExpression,
 
     /// `LiteralExpression` with possible leading `-`.
@@ -44,7 +44,9 @@ impl<'a> GenericArgsConst<'a> {
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
         match self {
-            Self::BlockExpression => unreachable!("Block expressions not yet supported"),
+            Self::BlockExpression => {
+                unreachable!("`GenericArgsConst::BlockExpression` isn't currently supported")
+            }
             Self::LiteralExpression(literal) => literal.source(),
             Self::SimplePathSegment(simple_path_segment) => simple_path_segment.source().to_owned(),
         }
@@ -54,7 +56,9 @@ impl<'a> GenericArgsConst<'a> {
 impl<'a> ToTokensWithState<'a> for GenericArgsConst<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
-            Self::BlockExpression => unreachable!("Block expressions not yet supported"),
+            Self::BlockExpression => {
+                unreachable!("`GenericArgsConst::BlockExpression` isn't currently supported")
+            }
             Self::LiteralExpression(literal) => literal.to_tokens_with_state(state),
             Self::SimplePathSegment(simple_path_segment) => {
                 simple_path_segment.to_tokens_with_state(state)
