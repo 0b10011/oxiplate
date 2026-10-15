@@ -3,7 +3,7 @@ name = "clippy-tests"
 edition = "2024"
 
 [dependencies]
-oxiplate-derive = { path = "../../" }
+oxiplate-derive = { path = "../../../" }
 
 [workspace]
 # This cannot be part of the main workspace because the package fails to build intentionally

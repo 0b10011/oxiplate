@@ -40,7 +40,7 @@ update-test-output: format clippy-strict rebuild-config-test-crates
     [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
 
     # Update clippy test results
-    [ ! -f ./oxiplate-derive/tests/clippy/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/actual/*.stderr ./oxiplate-derive/tests/clippy/expected/
+    [ ! -f ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
 
     echo "Test output updated successfully!"
 

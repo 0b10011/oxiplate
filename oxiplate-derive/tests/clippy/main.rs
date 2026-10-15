@@ -14,7 +14,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
         stdout: _stdout,
         stderr,
     } = Command::new("cargo")
-        .args(["build", "--manifest-path", "tests/clippy/Cargo.toml"])
+        .args(["build", "--manifest-path", "tests/clippy/crate/Cargo.toml"])
         .output()?;
     if !status.success() {
         Err(format!(
@@ -23,10 +23,10 @@ fn clippy() -> Result<(), Box<dyn Error>> {
         ))?;
     }
 
-    let expected_destination = Path::new("tests/clippy/expected/");
-    let actual_destination = Path::new("tests/clippy/actual/");
+    let expected_destination = Path::new("tests/clippy/crate/expected/");
+    let actual_destination = Path::new("tests/clippy/crate/actual/");
     let mut mismatched = 0;
-    for entry in fs::read_dir("tests/clippy/src/bin")? {
+    for entry in fs::read_dir("tests/clippy/crate/src/bin")? {
         let entry = entry?;
         let expected_output_path =
             expected_destination.join(format!("{}.stderr", entry.file_name().to_string_lossy()));
@@ -65,7 +65,7 @@ fn clippy() -> Result<(), Box<dyn Error>> {
                 "--bin",
                 &test_name,
                 "--manifest-path",
-                "tests/clippy/Cargo.toml",
+                "tests/clippy/crate/Cargo.toml",
             ])
             .output()?;
         if status.success() {
@@ -113,8 +113,8 @@ fn clippy() -> Result<(), Box<dyn Error>> {
             mismatched += 1;
             writeln!(
                 std::io::stdout(),
-                "expansion of {test_name} ... tests/clippy/expected/{test_name}.rs.stderr is \
-                 missing"
+                "expansion of {test_name} ... tests/clippy/crate/expected/{test_name}.rs.stderr \
+                 is missing"
             )?;
         }
     }
