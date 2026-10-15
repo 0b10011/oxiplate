@@ -5,6 +5,7 @@
 # Setting up the Rust project
 
 - [Getting started](getting-started.md)
+- [Configuration](configuration.md)
 
 # Building templates
 
