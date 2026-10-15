@@ -1,11 +1,14 @@
 # Configuration
 
 Oxiplate uses a file named `oxiplate.toml` to store configuration settings.
-The file must be located in your crate's manifest directory, alongside `Cargo.toml`.
+The file must be located in your crate's manifest directory,
+alongside `Cargo.toml`.
 
 If the file is missing or cannot be read, Oxiplate uses its default configuration.
 
-The configuration file controls how escaper groups are selected, whether they must be specified explicitly, and which renderer implementation is used.
+The configuration file controls how escaper groups are selected,
+whether they must be specified explicitly,
+and which renderer implementation is used.
 It can also define custom escaper groups.
 
 ## `fallback_escaper_group`
@@ -17,7 +20,8 @@ the [`oxiplate_inline` attribute](templates/writs/escaping.md#escaping-templates
 or the [template](templates/statements/default-escaper-group.md) that contains it,
 and also cannot be inferred from that template's file extension,
 the group specified in `fallback_escaper_group` is used instead.
-If no fallback escaper group is set in these cases and a writ is not prefixed with `raw:`, a compile-time error will occur.
+If no fallback escaper group is set in these cases and a writ is not prefixed with `raw:`,
+a compile-time error will occur.
 
 For example, to use `html` as the fallback escaper group:
 
@@ -59,7 +63,8 @@ The `.oxip` extension is used for Oxiplate templates and does not, by itself, id
 The `.raw` extension is ignored when inferring, so it never selects an escaper group.
 
 When this setting is `false`, Oxiplate does not infer escaper groups from file extensions.
-If no escaper group can be determined through another applicable setting or declaration, a compile-time error may occur.
+If no escaper group can be determined through another applicable setting or declaration,
+a compile-time error may occur.
 
 For example, to disable inference from file extensions:
 
@@ -74,7 +79,8 @@ The `optimized_renderer` setting controls whether Oxiplate uses its optimized re
 When enabled, Oxiplate uses the optimized rendering path where supported.
 When disabled, it uses the regular renderer.
 
-By default, the optimized renderer is enabled when the internal `_oxiplate` feature is enabled, which is the case when using the main `oxiplate` crate.
+By default, the optimized renderer is enabled when the internal `_oxiplate` feature is enabled,
+which is the case when using the main `oxiplate` crate.
 Otherwise, the default is `false`.
 
 For example, to enable the optimized renderer explicitly:
