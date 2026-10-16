@@ -58,7 +58,7 @@ struct Homepage {
 
 fn main() {
     let template = Homepage {
-        site_name: "Your Site"
+        site_name: "Your Site",
         title: "Oxiplate Example",
         message: "Hello world!",
     };
