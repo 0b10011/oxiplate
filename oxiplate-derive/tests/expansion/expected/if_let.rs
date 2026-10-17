@@ -7,6 +7,7 @@ extern crate alloc;
 use alloc::string::String;
 use alloc::vec::Vec;
 use alloc::{format, vec};
+
 use oxiplate_derive::Oxiplate;
 enum Name {
     Actual(String),
@@ -44,10 +45,7 @@ struct Data {
     name: Result<Name, ()>,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if let Ok(name) = &self.name {
@@ -57,16 +55,14 @@ impl ::core::fmt::Display for Data {
                     oxiplate_formatter
                         .write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
                     oxiplate_formatter.write_str(" cats named ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(name)))?;
+                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
                     oxiplate_formatter.write_str("!")?;
                 } else if let Name::Nickname { name } = name {
                     oxiplate_formatter.write_str("Found ")?;
                     oxiplate_formatter
                         .write_str(&alloc::string::ToString::to_string(&(cats_count)))?;
                     oxiplate_formatter.write_str(" cats nicknamed ")?;
-                    oxiplate_formatter
-                        .write_str(&alloc::string::ToString::to_string(&(name)))?;
+                    oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(name)))?;
                     oxiplate_formatter.write_str("!")?;
                 } else {
                     oxiplate_formatter.write_str("Found ")?;
@@ -78,16 +74,12 @@ impl ::core::fmt::Display for Data {
                 if let Name::Actual(missing_name) = &name {
                     oxiplate_formatter.write_str("No cats named ")?;
                     oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(&(missing_name)),
-                        )?;
+                        .write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
                     oxiplate_formatter.write_str(" found :(")?;
                 } else if let Name::Nickname { name: missing_name } = &name {
                     oxiplate_formatter.write_str("No cats nicknamed ")?;
                     oxiplate_formatter
-                        .write_str(
-                            &alloc::string::ToString::to_string(&(missing_name)),
-                        )?;
+                        .write_str(&alloc::string::ToString::to_string(&(missing_name)))?;
                     oxiplate_formatter.write_str(" found :(")?;
                 } else {
                     oxiplate_formatter.write_str("No cats found :(")?;
@@ -129,9 +121,7 @@ fn test_count() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Found 5 cats!",
         ) {
             (left_val, right_val) => {
@@ -178,9 +168,7 @@ fn test_count_name() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Found 5 cats named Sam!",
         ) {
             (left_val, right_val) => {
@@ -215,7 +203,10 @@ pub static test_name: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_name())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_name()),
+    ),
 };
 fn test_name() {
     let data = Data {
@@ -226,9 +217,7 @@ fn test_name() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"No cats nicknamed Sam found :(",
         ) {
             (left_val, right_val) => {
@@ -263,7 +252,10 @@ pub static test_none: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_none())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_none()),
+    ),
 };
 fn test_none() {
     let data = Data {
@@ -272,9 +264,7 @@ fn test_none() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"No cats found :(",
         ) {
             (left_val, right_val) => {
@@ -312,15 +302,24 @@ struct MultipleWrapper {
     multiple: Multiple,
 }
 impl ::core::fmt::Display for MultipleWrapper {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
+        if let Multiple {
+            a: 10,
+            b: 'b',
+            c: "19",
+            d: false,
+        } = self.multiple
+        {
             oxiplate_formatter.write_str("bad")?;
-        } else if let Multiple { a: 10, b: 'b', c: "19", d: true } = self.multiple {
+        } else if let Multiple {
+            a: 10,
+            b: 'b',
+            c: "19",
+            d: true,
+        } = self.multiple
+        {
             oxiplate_formatter.write_str("yes")?;
         } else {
             oxiplate_formatter.write_str("no")?;
@@ -356,19 +355,17 @@ fn test_multiple() {
         match (
             &"yes",
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        MultipleWrapper {
-                            multiple: Multiple {
-                                a: 10,
-                                b: 'b',
-                                c: "19",
-                                d: true,
-                            },
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    MultipleWrapper {
+                        multiple: Multiple {
+                            a: 10,
+                            b: 'b',
+                            c: "19",
+                            d: true,
                         },
-                    ),
-                )
+                    },
+                ))
             }),
         ) {
             (left_val, right_val) => {
@@ -410,13 +407,14 @@ struct Outer {
     b: MiddleB,
 }
 impl ::core::fmt::Display for Outer {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
+        if let MiddleA {
+            a: InnerA { value: 42 },
+            b: InnerB(b),
+        } = self.a
+        {
             oxiplate_formatter.write_str("a.b: ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
         } else if let MiddleB(InnerA { value: a }, InnerB(42)) = self.b {
@@ -444,24 +442,25 @@ pub static nested: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(nested())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(nested()),
+    ),
 };
 fn nested() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Outer {
-                            a: MiddleA {
-                                a: InnerA { value: 42 },
-                                b: InnerB(19),
-                            },
-                            b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 42 },
+                            b: InnerB(19),
                         },
-                    ),
-                )
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                    },
+                ))
             }),
             &"a.b: 19",
         ) {
@@ -481,18 +480,16 @@ fn nested() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Outer {
-                            a: MiddleA {
-                                a: InnerA { value: 64 },
-                                b: InnerB(19),
-                            },
-                            b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 64 },
+                            b: InnerB(19),
                         },
-                    ),
-                )
+                        b: MiddleB(InnerA { value: 89 }, InnerB(42)),
+                    },
+                ))
             }),
             &"b.a: 89",
         ) {
@@ -512,18 +509,16 @@ fn nested() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Outer {
-                            a: MiddleA {
-                                a: InnerA { value: 64 },
-                                b: InnerB(19),
-                            },
-                            b: MiddleB(InnerA { value: 89 }, InnerB(16)),
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Outer {
+                        a: MiddleA {
+                            a: InnerA { value: 64 },
+                            b: InnerB(19),
                         },
-                    ),
-                )
+                        b: MiddleB(InnerA { value: 89 }, InnerB(16)),
+                    },
+                ))
             }),
             &"",
         ) {
@@ -559,7 +554,10 @@ pub static array: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(array())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(array()),
+    ),
 };
 fn array() {
     #[oxiplate_inline(
@@ -572,23 +570,15 @@ fn array() {
         data: [usize; 3],
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             if let [a, b, c] = self.data[..] {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(
-                                    format_args!("{0} + {1} = {2} ... probably", a, b, c),
-                                )
-                            })),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0} + {1} = {2} ... probably", a, b, c))
+                    })),
+                ))?;
             }
             ::core::result::Result::Ok(())
         }
@@ -648,10 +638,7 @@ fn empty_array() {
         data: [usize; 0],
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             if let [] = self.data {
@@ -715,27 +702,18 @@ fn rest_unnamed() {
         data: Vec<&'static str>,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             if let [a, .., c] = self.data[..] {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(
-                                    format_args!(
-                                        "{0} comes before some items followed by {1}",
-                                        a,
-                                        c,
-                                    ),
-                                )
-                            })),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!(
+                            "{0} comes before some items followed by {1}",
+                            a, c,
+                        ))
+                    })),
+                ))?;
             }
             ::core::result::Result::Ok(())
         }
@@ -743,19 +721,17 @@ fn rest_unnamed() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Data {
-                            data: ::alloc::boxed::box_assume_init_into_vec_unsafe(
-                                ::alloc::intrinsics::write_box_via_move(
-                                    ::alloc::boxed::Box::new_uninit(),
-                                    ["a", "b", "c", "d", "e"],
-                                ),
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        data: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+                            ::alloc::intrinsics::write_box_via_move(
+                                ::alloc::boxed::Box::new_uninit(),
+                                ["a", "b", "c", "d", "e"],
                             ),
-                        },
-                    ),
-                )
+                        ),
+                    },
+                ))
             }),
             &"a comes before some items followed by e",
         ) {
@@ -807,28 +783,20 @@ fn rest_named() {
         data: [&'static str; 5],
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             if let [a, b @ .., c] = self.data {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(
-                                    format_args!(
-                                        "{0} comes before {1} items followed by {2}",
-                                        a,
-                                        b.len(),
-                                        c,
-                                    ),
-                                )
-                            })),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!(
+                            "{0} comes before {1} items followed by {2}",
+                            a,
+                            b.len(),
+                            c,
+                        ))
+                    })),
+                ))?;
             }
             ::core::result::Result::Ok(())
         }
@@ -836,14 +804,12 @@ fn rest_named() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Data {
-                            data: ["a", "b", "c", "d", "e"],
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        data: ["a", "b", "c", "d", "e"],
+                    },
+                ))
             }),
             &"a comes before 3 items followed by e",
         ) {
@@ -866,18 +832,16 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &array,
-            &empty_array,
-            &nested,
-            &rest_named,
-            &rest_unnamed,
-            &test_count,
-            &test_count_name,
-            &test_multiple,
-            &test_name,
-            &test_none,
-        ],
-    )
+    test::test_main_env_args(&[
+        &array,
+        &empty_array,
+        &nested,
+        &rest_named,
+        &rest_unnamed,
+        &test_count,
+        &test_count_name,
+        &test_multiple,
+        &test_name,
+        &test_none,
+    ])
 }

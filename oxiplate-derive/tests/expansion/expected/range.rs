@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -20,10 +21,7 @@ struct RangeToExclusive {
     b: isize,
 }
 impl ::core::fmt::Display for RangeToExclusive {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -120,10 +118,7 @@ struct RangeToInclusive {
     b: isize,
 }
 impl ::core::fmt::Display for RangeToInclusive {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -220,10 +215,7 @@ struct RangeFrom {
     a: i8,
 }
 impl ::core::fmt::Display for RangeFrom {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -325,10 +317,7 @@ struct RangeExclusive {
     b: i8,
 }
 impl ::core::fmt::Display for RangeExclusive {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -450,10 +439,7 @@ struct RangeInclusive {
     b: i8,
 }
 impl ::core::fmt::Display for RangeInclusive {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -570,29 +556,20 @@ struct RangeFull {
     a: &'static str,
 }
 impl ::core::fmt::Display for RangeFull {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[..])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[..])))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[2..])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[2..])))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[..2])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[..2])))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[..=2])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[..=2])))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[2..4])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[2..4])))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a[2..=4])))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -646,14 +623,12 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &range_exclusive,
-            &range_from,
-            &range_full,
-            &range_inclusive,
-            &range_to_exclusive,
-            &range_to_inclusive,
-        ],
-    )
+    test::test_main_env_args(&[
+        &range_exclusive,
+        &range_from,
+        &range_full,
+        &range_inclusive,
+        &range_to_exclusive,
+        &range_to_inclusive,
+    ])
 }

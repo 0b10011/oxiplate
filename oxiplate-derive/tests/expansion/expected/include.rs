@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r#"{% include "extends.html.oxip" %}"#)]
 struct Include {
@@ -12,23 +13,17 @@ struct Include {
     message: &'static str,
 }
 impl ::core::fmt::Display for Include {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -53,7 +48,10 @@ pub static include: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(include())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(include()),
+    ),
 };
 fn include() {
     let data = Include {
@@ -62,11 +60,9 @@ fn include() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
-            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
-         world!</p>\n",
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  \
+              <p>Hello world!</p>\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -88,20 +84,15 @@ struct IncludeDeep {
     message: &'static str,
 }
 impl ::core::fmt::Display for IncludeDeep {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<h1>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str("</h1>\n")?;
         oxiplate_formatter.write_str("<p>foo</p>\n")?;
         oxiplate_formatter.write_str("\n<p>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
         oxiplate_formatter.write_str("</p>\n")?;
         ::core::result::Result::Ok(())
     }
@@ -136,9 +127,7 @@ fn include_deep() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"<h1>Oxiplate Example</h1>\n<p>foo</p>\n\n<p>Hello world!</p>\n",
         ) {
             (left_val, right_val) => {

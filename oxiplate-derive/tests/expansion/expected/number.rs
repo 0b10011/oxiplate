@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -24,10 +25,7 @@ oct: {{ -0o0 }} {{ -0o0_00 }} {{ -0o23 }} {{ -0o12 + -0o11 }} {{ -0o01_234_567 }
 )]
 struct Data;
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\ndec: ")?;
@@ -39,8 +37,7 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(10 + 9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(1_234_567_890)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(1_234_567_890)))?;
         oxiplate_formatter.write_str("\nfloat: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(19.)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -50,11 +47,9 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(190.0e-1)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(1_234_567.8e-9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(1_234_567.8e-9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(1_234_567_890e0)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(1_234_567_890e0)))?;
         oxiplate_formatter.write_str("\nbin: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0b0)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -62,8 +57,7 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0b1_0011)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0b_1010 + 9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0b_1010 + 9)))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0b01)))?;
         oxiplate_formatter.write_str("\nhex: ")?;
@@ -73,14 +67,11 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0x13)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0x_a + 0x9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0x_a + 0x9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0x_23_45_67_89)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0x_23_45_67_89)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0x_01_ab_cd_ef)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0x_01_ab_cd_ef)))?;
         oxiplate_formatter.write_str("\noct: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0o0)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -88,11 +79,9 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0o23)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0o12 + 0o11)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0o12 + 0o11)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(0o01_234_567)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(0o01_234_567)))?;
         oxiplate_formatter.write_str("\n\ndec: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -102,8 +91,7 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-10 + -9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-1_234_567_890)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-1_234_567_890)))?;
         oxiplate_formatter.write_str("\nfloat: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-19.)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -113,11 +101,9 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-190.0e-1)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-1_234_567.8e-9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-1_234_567.8e-9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-1_234_567_890e0)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-1_234_567_890e0)))?;
         oxiplate_formatter.write_str("\nbin: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0b0)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -125,8 +111,7 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0b1_0011)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0b_1010 + -9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0b_1010 + -9)))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0b01)))?;
         oxiplate_formatter.write_str("\nhex: ")?;
@@ -136,14 +121,11 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0x13)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0x_a + -0x9)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0x_a + -0x9)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0x_23_45_67_89)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0x_23_45_67_89)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0x_01_ab_cd_ef)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0x_01_ab_cd_ef)))?;
         oxiplate_formatter.write_str("\noct: ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0o0)))?;
         oxiplate_formatter.write_str(" ")?;
@@ -151,11 +133,9 @@ impl ::core::fmt::Display for Data {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0o23)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0o12 + -0o11)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0o12 + -0o11)))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(-0o01_234_567)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(-0o01_234_567)))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -177,15 +157,16 @@ pub static field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
 };
 fn field() {
     let data = Data;
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"
 dec: 0 0 19 19 1234567890
 float: 19 19 19000000000 19 0.0012345678 1234567890

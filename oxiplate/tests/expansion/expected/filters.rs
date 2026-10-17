@@ -5,27 +5,22 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
     use alloc::borrow::{Cow, ToOwned};
     use alloc::format;
+
     use oxiplate::CowStr;
-    pub fn respond<'a, E: CowStr<'a>, R: CowStr<'a>>(
-        expression: E,
-        response: R,
-    ) -> Cow<'a, str> {
+    pub fn respond<'a, E: CowStr<'a>, R: CowStr<'a>>(expression: E, response: R) -> Cow<'a, str> {
         let expression = expression.cow_str();
         let response = response.cow_str();
         match expression.as_ref() {
             "hello" => response,
-            _ => {
-                ::alloc::__export::must_use({
-                        ::alloc::fmt::format(
-                            format_args!("did not understand: {0}", expression),
-                        )
-                    })
-                    .into()
-            }
+            _ => ::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("did not understand: {0}", expression))
+            })
+            .into(),
         }
     }
     pub fn shorten<'a, E: CowStr<'a>>(expression: E, max_length: usize) -> Cow<'a, str> {
@@ -34,20 +29,16 @@ mod filters_for_oxiplate {
             expression
         } else {
             match expression {
-                Cow::Borrowed(expression) => {
-                    Cow::Borrowed(&expression[0..=max_length - 1])
-                }
-                Cow::Owned(expression) => {
-                    Cow::Owned(expression[0..=max_length - 1].to_owned())
-                }
+                Cow::Borrowed(expression) => Cow::Borrowed(&expression[0..=max_length - 1]),
+                Cow::Owned(expression) => Cow::Owned(expression[0..=max_length - 1].to_owned()),
             }
         }
     }
     pub fn pad(expression: usize, max_length: usize) -> Cow<'static, str> {
         ::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0:1$}", expression, max_length))
-            })
-            .into()
+            ::alloc::fmt::format(format_args!("{0:1$}", expression, max_length))
+        })
+        .into()
     }
 }
 #[oxiplate_inline(r#"{{ raw: >message | >respond(>"world") }}"#)]
@@ -55,10 +46,7 @@ struct Respond {
     message: &'static str,
 }
 impl ::core::fmt::Display for Respond {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -77,8 +65,7 @@ impl ::oxiplate::Render for Respond {
                 (&&::oxiplate::ToCowStrWrapper::new(
                     &(filters_for_oxiplate::respond(
                         ::oxiplate::CowStrWrapper::new(
-                            (&&::oxiplate::ToCowStrWrapper::new(&(self.message)))
-                                .to_cow_str(),
+                            (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
                         ),
                         ::oxiplate::CowStrWrapper::new(
                             (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
@@ -110,7 +97,10 @@ pub static respond: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(respond())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(respond()),
+    ),
 };
 fn respond() {
     {
@@ -160,10 +150,7 @@ struct Shorten {
     max_length: usize,
 }
 impl ::core::fmt::Display for Shorten {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -207,21 +194,22 @@ pub static shorten: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(shorten())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(shorten()),
+    ),
 };
 fn shorten() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Shorten {
-                            message: "hello",
-                            max_length: 2,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Shorten {
+                        message: "hello",
+                        max_length: 2,
+                    },
+                ))
             }),
             &"he",
         ) {
@@ -241,15 +229,13 @@ fn shorten() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Shorten {
-                            message: "goodbye",
-                            max_length: 3,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Shorten {
+                        message: "goodbye",
+                        max_length: 3,
+                    },
+                ))
             }),
             &"goo",
         ) {
@@ -273,10 +259,7 @@ struct Pad {
     length: usize,
 }
 impl ::core::fmt::Display for Pad {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -315,13 +298,22 @@ pub static pad: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(pad())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(pad()),
+    ),
 };
 fn pad() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Pad { number: 19, length: 2 }))
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Pad {
+                        number: 19,
+                        length: 2
+                    }
+                ))
             }),
             &"19",
         ) {
@@ -341,7 +333,13 @@ fn pad() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Pad { number: 19, length: 3 }))
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Pad {
+                        number: 19,
+                        length: 3
+                    }
+                ))
             }),
             &" 19",
         ) {
@@ -365,10 +363,7 @@ struct Multiple {
     length: usize,
 }
 impl ::core::fmt::Display for Multiple {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -388,12 +383,10 @@ impl ::oxiplate::Render for Multiple {
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(filters_for_oxiplate::respond(
                             ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&(self.message)))
-                                    .to_cow_str(),
+                                (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
                             ),
                             ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&("world")))
-                                    .to_cow_str(),
+                                (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
                             ),
                         )),
                     ))
@@ -424,21 +417,22 @@ pub static multiple: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(multiple())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(multiple()),
+    ),
 };
 fn multiple() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Multiple {
-                            message: "hello",
-                            length: 6,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 6,
+                    },
+                ))
             }),
             &"world",
         ) {
@@ -458,15 +452,13 @@ fn multiple() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Multiple {
-                            message: "hello",
-                            length: 5,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 5,
+                    },
+                ))
             }),
             &"world",
         ) {
@@ -486,15 +478,13 @@ fn multiple() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Multiple {
-                            message: "hello",
-                            length: 4,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Multiple {
+                        message: "hello",
+                        length: 4,
+                    },
+                ))
             }),
             &"worl",
         ) {

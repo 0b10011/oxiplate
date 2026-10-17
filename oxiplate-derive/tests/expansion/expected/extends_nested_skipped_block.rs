@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "./extends-deep-skipped-block.html.oxip"]
 struct AbsoluteData {
@@ -12,23 +13,17 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::core::fmt::Display for AbsoluteData {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h2>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</h2>\n  <div>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             oxiplate_formatter.write_str("</div>")?;
         }
         {}
@@ -54,7 +49,10 @@ pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(absolute()),
+    ),
 };
 fn absolute() {
     let data = AbsoluteData {
@@ -63,11 +61,9 @@ fn absolute() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
-         <div>Hello world!</div>\n",
+              <div>Hello world!</div>\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

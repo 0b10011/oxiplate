@@ -5,20 +5,17 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{{ message }}")]
 struct Variable {
     message: &'static str,
 }
 impl ::core::fmt::Display for Variable {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -40,7 +37,10 @@ pub static variable: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
 };
 fn variable() {
     let data = Variable {
@@ -48,9 +48,7 @@ fn variable() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Hello world!",
         ) {
             (left_val, right_val) => {
@@ -73,17 +71,12 @@ struct Variables {
     message: &'static str,
 }
 impl ::core::fmt::Display for Variables {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str(" / ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -105,7 +98,10 @@ pub static variables: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variables())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variables()),
+    ),
 };
 fn variables() {
     let data = Variables {
@@ -114,9 +110,7 @@ fn variables() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Foo Bar / Hello world!",
         ) {
             (left_val, right_val) => {

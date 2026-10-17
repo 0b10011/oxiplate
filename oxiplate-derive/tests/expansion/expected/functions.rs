@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 extern crate test;
 #[rustc_test_marker = "self_function"]
@@ -35,10 +36,7 @@ fn self_function() {
         value: usize,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter
@@ -114,19 +112,13 @@ fn expression_function() {
         value: usize,
     }
     impl<'a> ::core::fmt::Display for Data<'a> {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             for i in 0..self.functions.len() {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(self.functions[i](self.value)),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(self.functions[i](self.value)),
+                ))?;
                 oxiplate_formatter.write_str("\n")?;
             }
             ::core::result::Result::Ok(())
@@ -135,15 +127,13 @@ fn expression_function() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Data {
-                            functions: &[|i| i - 1, |i| i, |i| i + 1, |i| i * 2],
-                            value: 19,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        functions: &[|i| i - 1, |i| i, |i| i + 1, |i| i * 2],
+                        value: 19,
+                    },
+                ))
             }),
             &"18\n19\n20\n38\n",
         ) {
@@ -193,16 +183,12 @@ fn crate_function() {
         value: usize,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(crate::triple(self.value))),
-                )?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(crate::triple(self.value)),
+            ))?;
             ::core::result::Result::Ok(())
         }
     }
@@ -256,25 +242,24 @@ fn global_path() {
         value: &'static str,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(::core::borrow::Borrow::borrow(self.value)),
-                    ),
-                )?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(::core::borrow::Borrow::borrow(self.value)),
+            ))?;
             ::core::result::Result::Ok(())
         }
     }
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Data { value: "hello world" }))
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        value: "hello world"
+                    }
+                ))
             }),
             &"hello world",
         ) {
@@ -297,7 +282,10 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[&crate_function, &expression_function, &global_path, &self_function],
-    )
+    test::test_main_env_args(&[
+        &crate_function,
+        &expression_function,
+        &global_path,
+        &self_function,
+    ])
 }

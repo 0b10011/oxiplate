@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 extern crate test;
 #[rustc_test_marker = "test_assignment"]
@@ -33,23 +34,17 @@ fn test_assignment() {
     #[oxiplate_inline(r#"{%- let array = [ "a" ;  3 ] -%}{{ array.join("") }}"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             let array = ["a"; 3];
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(array.join(""))))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(array.join(""))))?;
             ::core::result::Result::Ok(())
         }
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"aaa",
         ) {
             (left_val, right_val) => {
@@ -93,26 +88,20 @@ fn test_array_of_string_slices_in_writ() {
     #[oxiplate_inline(r#"[{{ ["a", "b", "c"].join("") }}]"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(["a", "b", "c"].join(""))),
-                )?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(["a", "b", "c"].join("")),
+            ))?;
             oxiplate_formatter.write_str("]")?;
             ::core::result::Result::Ok(())
         }
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[abc]",
         ) {
             (left_val, right_val) => {
@@ -132,50 +121,45 @@ fn test_array_of_string_slices_in_writ() {
 extern crate test;
 #[rustc_test_marker = "test_array_of_string_slices_in_writ_trailing_comma"]
 #[doc(hidden)]
-pub static test_array_of_string_slices_in_writ_trailing_comma: test::TestDescAndFn = test::TestDescAndFn {
-    desc: test::TestDesc {
-        name: test::StaticTestName("test_array_of_string_slices_in_writ_trailing_comma"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/array.rs",
-        start_line: 28usize,
-        start_col: 4usize,
-        end_line: 28usize,
-        end_col: 54usize,
-        compile_fail: false,
-        no_run: false,
-        should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
-    },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(test_array_of_string_slices_in_writ_trailing_comma()),
-    ),
-};
+pub static test_array_of_string_slices_in_writ_trailing_comma: test::TestDescAndFn =
+    test::TestDescAndFn {
+        desc: test::TestDesc {
+            name: test::StaticTestName("test_array_of_string_slices_in_writ_trailing_comma"),
+            ignore: false,
+            ignore_message: ::core::option::Option::None,
+            source_file: "oxiplate-derive/tests/array.rs",
+            start_line: 28usize,
+            start_col: 4usize,
+            end_line: 28usize,
+            end_col: 54usize,
+            compile_fail: false,
+            no_run: false,
+            should_panic: test::ShouldPanic::No,
+            test_type: test::TestType::IntegrationTest,
+        },
+        testfn: test::StaticTestFn(
+            #[coverage(off)]
+            || test::assert_test_result(test_array_of_string_slices_in_writ_trailing_comma()),
+        ),
+    };
 fn test_array_of_string_slices_in_writ_trailing_comma() {
     #[oxiplate_inline(r#"[{{ ["a", "b", "c",].join("") }}]"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(&(["a", "b", "c"].join(""))),
-                )?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(["a", "b", "c"].join("")),
+            ))?;
             oxiplate_formatter.write_str("]")?;
             ::core::result::Result::Ok(())
         }
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[abc]",
         ) {
             (left_val, right_val) => {
@@ -225,16 +209,12 @@ fn test_array_of_numbers_in_for_loop() {
     )]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
             for elem in [1, 2, 3] {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(elem)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(elem)))?;
             }
             oxiplate_formatter.write_str("]")?;
             ::core::result::Result::Ok(())
@@ -242,9 +222,7 @@ fn test_array_of_numbers_in_for_loop() {
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[123]",
         ) {
             (left_val, right_val) => {
@@ -288,28 +266,20 @@ fn test_array_of_expressions() {
     #[oxiplate_inline(r#"[{{ ["a", "b", &"c".to_uppercase()].join("") }}]"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
-            oxiplate_formatter
-                .write_str(
-                    &alloc::string::ToString::to_string(
-                        &(["a", "b", &"c".to_uppercase()].join("")),
-                    ),
-                )?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(["a", "b", &"c".to_uppercase()].join("")),
+            ))?;
             oxiplate_formatter.write_str("]")?;
             ::core::result::Result::Ok(())
         }
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[abC]",
         ) {
             (left_val, right_val) => {
@@ -353,10 +323,7 @@ fn test_repeat() {
     #[oxiplate_inline(r#"[{{ ["a"; 3].join("") }}]"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
@@ -368,9 +335,7 @@ fn test_repeat() {
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[aaa]",
         ) {
             (left_val, right_val) => {
@@ -414,10 +379,7 @@ fn test_repeat_empty() {
     #[oxiplate_inline(r#"[{{ ["a"; 0].join("") }}]"#)]
     struct Array;
     impl ::core::fmt::Display for Array {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("[")?;
@@ -429,9 +391,7 @@ fn test_repeat_empty() {
     }
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Array))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Array)) }),
             &"[]",
         ) {
             (left_val, right_val) => {
@@ -453,15 +413,13 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &test_array_of_expressions,
-            &test_array_of_numbers_in_for_loop,
-            &test_array_of_string_slices_in_writ,
-            &test_array_of_string_slices_in_writ_trailing_comma,
-            &test_assignment,
-            &test_repeat,
-            &test_repeat_empty,
-        ],
-    )
+    test::test_main_env_args(&[
+        &test_array_of_expressions,
+        &test_array_of_numbers_in_for_loop,
+        &test_array_of_string_slices_in_writ,
+        &test_array_of_string_slices_in_writ_trailing_comma,
+        &test_assignment,
+        &test_repeat,
+        &test_repeat_empty,
+    ])
 }

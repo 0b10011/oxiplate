@@ -3,6 +3,7 @@
 extern crate core;
 #[prelude_import]
 use core::prelude::rust_2024::*;
+
 use oxiplate::prelude::*;
 #[oxiplate_inline(
     html:r#"
@@ -17,10 +18,7 @@ struct Data {
     title: Option<&'static str>,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -45,11 +43,10 @@ impl ::oxiplate::Render for Data {
         oxiplate_formatter.write_str("</title>\n")?;
         if let Some(title) = self.title {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(title)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(title))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             oxiplate_formatter.write_str("</h1>\n")?;
         }
         ::core::result::Result::Ok(())
@@ -73,7 +70,10 @@ pub static some: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(some())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(some()),
+    ),
 };
 fn some() {
     {
@@ -86,8 +86,8 @@ fn some() {
             &Data {
                 title: Some("Hello world!"),
             }
-                .render()
-                .unwrap(),
+            .render()
+            .unwrap(),
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -121,7 +121,10 @@ pub static none: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(none())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(none()),
+    ),
 };
 fn none() {
     {

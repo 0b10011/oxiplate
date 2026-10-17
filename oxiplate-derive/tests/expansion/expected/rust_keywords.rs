@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -19,19 +20,14 @@ struct Data {
     r#else: &'static str,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if !self.r#ref.is_empty() {
             oxiplate_formatter.write_str("Referee: ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
         } else {
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.r#else)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.r#else)))?;
         }
         ::core::result::Result::Ok(())
     }
@@ -54,7 +50,10 @@ pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_if()),
+    ),
 };
 fn test_if() {
     let data = Data {
@@ -63,9 +62,7 @@ fn test_if() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Referee: Jax",
         ) {
             (left_val, right_val) => {
@@ -100,7 +97,10 @@ pub static test_else: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_else())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_else()),
+    ),
 };
 fn test_else() {
     let data = Data {
@@ -109,9 +109,7 @@ fn test_else() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"No referee available",
         ) {
             (left_val, right_val) => {
@@ -146,7 +144,10 @@ pub static include: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(include())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(include()),
+    ),
 };
 fn include() {
     #[oxiplate_inline(
@@ -162,15 +163,11 @@ Referee: {{ ref }}
         r#ref: &'static str,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.r#ref)))?;
             oxiplate_formatter.write_str("</title>\n<article>")?;
             {
                 {}

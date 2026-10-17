@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 mod filters_for_oxiplate {
     extern crate alloc;
@@ -26,27 +27,19 @@ struct Respond {
     respond: &'static bool,
 }
 impl ::core::fmt::Display for Respond {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(
-                    &(::alloc::__export::must_use({
-                        ::alloc::fmt::format(
-                            format_args!(
-                                "{0} {1} {2}",
-                                filters_for_oxiplate::respond(self.message, *self.respond),
-                                9 + 5 * 2,
-                                (filters_for_oxiplate::respond(self.message, !self.respond)),
-                            ),
-                        )
-                    })),
-                ),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0} {1} {2}",
+                    filters_for_oxiplate::respond(self.message, *self.respond),
+                    9 + 5 * 2,
+                    (filters_for_oxiplate::respond(self.message, !self.respond)),
+                ))
+            })),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -77,15 +70,13 @@ fn combination() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Respond {
-                            message: "hello",
-                            respond: &false,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Respond {
+                        message: "hello",
+                        respond: &false,
+                    },
+                ))
             }),
             &"world 19 WORLD",
         ) {

@@ -6,6 +6,7 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use alloc::string::String;
+
 use oxiplate_derive::Oxiplate;
 struct User {
     name: &'static str,
@@ -23,16 +24,12 @@ struct Data {
     user: User,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.user.display_name())),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name()),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -54,7 +51,10 @@ pub static field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
 };
 fn field() {
     let data = Data {
@@ -65,9 +65,7 @@ fn field() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Floating Air LLC (Kiera)",
         ) {
             (left_val, right_val) => {
@@ -89,10 +87,7 @@ struct Argument {
     user: User,
 }
 impl ::core::fmt::Display for Argument {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if self.user.display_name().contains("i") {
@@ -133,9 +128,7 @@ fn field_with_argument() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"yup!",
         ) {
             (left_val, right_val) => {
@@ -159,25 +152,16 @@ struct Arguments {
     user: User,
 }
 impl ::core::fmt::Display for Arguments {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(
-                    &(self.user.display_name().replace("a", "@")),
-                ),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name().replace("a", "@")),
+        ))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(
-                    &(self.user.display_name().replace("a", "@")),
-                ),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name().replace("a", "@")),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -213,9 +197,7 @@ fn field_with_arguments() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Flo@ting Air LLC (Kier@) Flo@ting Air LLC (Kier@)",
         ) {
             (left_val, right_val) => {
@@ -237,14 +219,10 @@ struct Callback {
     foo: fn() -> &'static str,
 }
 impl ::core::fmt::Display for Callback {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -266,16 +244,22 @@ pub static callback: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(callback())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(callback()),
+    ),
 };
 fn callback() {
     {
         match (
             &"hello world",
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!("{0}", Callback { foo: || "hello world" }),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Callback {
+                        foo: || "hello world"
+                    }
+                ))
             }),
         ) {
             (left_val, right_val) => {
@@ -297,7 +281,10 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[&callback, &field, &field_with_argument, &field_with_arguments],
-    )
+    test::test_main_env_args(&[
+        &callback,
+        &field,
+        &field_with_argument,
+        &field_with_arguments,
+    ])
 }

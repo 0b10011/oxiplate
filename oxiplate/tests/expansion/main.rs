@@ -14,7 +14,7 @@ mod test {
     use std::fs;
     use std::io::Write;
     use std::path::Path;
-    use std::process::{Command, Output};
+    use std::process::{Command, Output, Stdio};
 
     pub(super) fn expansion() -> Result<(), Box<dyn super::Error>> {
         let expected_destination = Path::new("tests/expansion/expected/");
@@ -61,7 +61,31 @@ mod test {
                 Err(String::from_utf8_lossy(&stderr))?;
             }
 
-            let actual_expansion = String::from_utf8_lossy(&stdout);
+            let mut actual_expansion = String::from_utf8(stdout)?;
+
+            // Try to use formatted code from `rustfmt`.
+            let mut rustfmt = Command::new("rustfmt")
+                .args([
+                    "--color",
+                    "never",
+                    "--edition",
+                    "2024",
+                    "--style-edition",
+                    "2024",
+                ])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()?;
+            rustfmt
+                .stdin
+                .as_mut()
+                .expect("Failed to get mutable STDIN")
+                .write_all(actual_expansion.as_bytes())?;
+            let output = rustfmt.wait_with_output()?;
+            if output.status.success() {
+                actual_expansion = String::from_utf8(output.stdout)?;
+            }
 
             if let Ok(expected_expansion) = std::fs::read_to_string(&expected_expansion_path) {
                 let same = actual_expansion.lines().eq(expected_expansion.lines());

@@ -3,16 +3,14 @@
 extern crate core;
 #[prelude_import]
 use core::prelude::rust_2024::*;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate = "replace-escaper.html.oxip"]
 struct Html {
     name: &'static str,
 }
 impl ::core::fmt::Display for Html {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -27,23 +25,20 @@ impl ::oxiplate::Render for Html {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+        )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::your_group::YourEscaper::foo,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::your_group::YourEscaper::foo,
+        )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::your_group::YourEscaper::bar,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::your_group::YourEscaper::bar,
+        )?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
@@ -66,7 +61,10 @@ pub static html: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(html())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(html()),
+    ),
 };
 fn html() {
     {
@@ -92,11 +90,14 @@ foo b@r
         }
     };
     {
-        match (&Html { name: r#"hello"# }.render().unwrap(), &r#"
+        match (
+            &Html { name: r#"hello"# }.render().unwrap(),
+            &r#"
 hello
 hello
 hello
-"#) {
+"#,
+        ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
                     let kind = ::core::panicking::AssertKind::Eq;

@@ -2,6 +2,7 @@
 extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
+
 use oxiplate_derive::Oxiplate;
 mod std {}
 #[oxiplate_inline("{{ foo }}")]
@@ -9,10 +10,7 @@ struct Data {
     foo: &'static str,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.foo)))?;
@@ -43,7 +41,9 @@ pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn overridden_std() {
-    let data = Data { foo: "Hello world!" };
+    let data = Data {
+        foo: "Hello world!",
+    };
     {
         ::std::io::_print(format_args!("{0}", data));
     };

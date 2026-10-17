@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "{-}
@@ -28,10 +29,7 @@ struct Math {
     c: usize,
 }
 impl ::core::fmt::Display for Math {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("1 + 2 = ")?;
@@ -78,10 +76,9 @@ impl ::core::fmt::Display for Math {
         oxiplate_formatter.write_str(" * ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.min + self.min * self.max)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.min + self.min * self.max),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
         oxiplate_formatter.write_str(" + ")?;
@@ -89,10 +86,9 @@ impl ::core::fmt::Display for Math {
         oxiplate_formatter.write_str(" / ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.max + self.max / self.min)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.max + self.max / self.min),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
         oxiplate_formatter.write_str(" - ")?;
@@ -100,10 +96,9 @@ impl ::core::fmt::Display for Math {
         oxiplate_formatter.write_str(" % ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.min)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.max - self.min % self.min)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.max - self.min % self.min),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a)))?;
         oxiplate_formatter.write_str(" - ")?;
@@ -111,10 +106,9 @@ impl ::core::fmt::Display for Math {
         oxiplate_formatter.write_str(" * ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.c)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.a - self.b * self.c)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.a - self.b * self.c),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.a)))?;
         oxiplate_formatter.write_str(" / ")?;
@@ -122,10 +116,9 @@ impl ::core::fmt::Display for Math {
         oxiplate_formatter.write_str(" + ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.c)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.a / self.b + self.c)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.a / self.b + self.c),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -147,7 +140,10 @@ pub static test_math: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_math())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_math()),
+    ),
 };
 fn test_math() {
     let data = Math {
@@ -159,9 +155,7 @@ fn test_math() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"1 + 2 = 3
 89 + 19 = 108
 89 - 19 = 70
@@ -202,10 +196,7 @@ struct Comparisons {
     max: i16,
 }
 impl ::core::fmt::Display for Comparisons {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.max)))?;
@@ -279,9 +270,7 @@ fn test_comparisons() {
     let data = Comparisons { min: 19, max: 89 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"89 == 19 = false
 89 != 19 = true
 89 > 19 = true
@@ -325,18 +314,16 @@ struct OrAnd {
     no2: bool,
 }
 impl ::core::fmt::Display for OrAnd {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" || ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.yes || self.yes2)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.yes || self.yes2),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" || ")?;
@@ -363,8 +350,9 @@ impl ::core::fmt::Display for OrAnd {
         oxiplate_formatter.write_str(" && ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.yes && self.yes2)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.yes && self.yes2),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" && ")?;
@@ -393,10 +381,9 @@ impl ::core::fmt::Display for OrAnd {
         oxiplate_formatter.write_str(" && ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.yes || self.no && self.no2)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.yes || self.no && self.no2),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
         oxiplate_formatter.write_str(" || ")?;
@@ -404,10 +391,9 @@ impl ::core::fmt::Display for OrAnd {
         oxiplate_formatter.write_str(" && ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.no || self.yes && self.no2)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.no || self.yes && self.no2),
+        ))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.no)))?;
         oxiplate_formatter.write_str(" || ")?;
@@ -415,10 +401,9 @@ impl ::core::fmt::Display for OrAnd {
         oxiplate_formatter.write_str(" && ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.yes)))?;
         oxiplate_formatter.write_str(" = ")?;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.no || self.yes && self.yes2)),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.no || self.yes && self.yes2),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -454,9 +439,7 @@ fn test_or_and() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"true || true = true
 true || false = true
 false || true = true
@@ -499,10 +482,7 @@ struct OrderOfOperations {
     c: usize,
 }
 impl ::core::fmt::Display for OrderOfOperations {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if self.a - self.b < self.c + self.b {
@@ -545,16 +525,10 @@ pub static test_order_of_operations: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn test_order_of_operations() {
-    let data = OrderOfOperations {
-        a: 16,
-        b: 8,
-        c: 2,
-    };
+    let data = OrderOfOperations { a: 16, b: 8, c: 2 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"8 < 10",
         ) {
             (left_val, right_val) => {
@@ -576,7 +550,10 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[&test_comparisons, &test_math, &test_or_and, &test_order_of_operations],
-    )
+    test::test_main_env_args(&[
+        &test_comparisons,
+        &test_math,
+        &test_or_and,
+        &test_order_of_operations,
+    ])
 }

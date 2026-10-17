@@ -6,6 +6,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use ::core::assert_eq;
 use ::oxiplate_derive::Oxiplate;
 #[oxiplate = "extends.html.oxip"]
@@ -14,23 +15,17 @@ struct Data {
     message: &'static str,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -64,18 +59,16 @@ fn no_implicit_prelude() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Data {
-                            title: "Oxiplate Example",
-                            message: "Hello world!",
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        title: "Oxiplate Example",
+                        message: "Hello world!",
+                    },
+                ))
             }),
-            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
-         world!</p>\n",
+            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  \
+              <p>Hello world!</p>\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

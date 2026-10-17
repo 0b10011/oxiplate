@@ -5,14 +5,12 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{# Hashes (#) are allowed anywhere in a comment #}")]
 struct Hashes;
 impl ::core::fmt::Display for Hashes {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         ::core::result::Result::Ok(())
@@ -36,14 +34,15 @@ pub static hashes: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(hashes())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(hashes()),
+    ),
 };
 fn hashes() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Hashes))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Hashes)) }),
             &"",
         ) {
             (left_val, right_val) => {
@@ -66,10 +65,7 @@ fn hashes() {
 )]
 struct TagEnds;
 impl ::core::fmt::Display for TagEnds {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         ::core::result::Result::Ok(())
@@ -93,14 +89,15 @@ pub static tag_ends: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(tag_ends())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(tag_ends()),
+    ),
 };
 fn tag_ends() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", TagEnds))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", TagEnds)) }),
             &"",
         ) {
             (left_val, right_val) => {

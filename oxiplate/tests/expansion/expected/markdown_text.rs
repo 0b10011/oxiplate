@@ -6,6 +6,7 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(
     html:"{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"
@@ -14,10 +15,7 @@ struct Data<'a> {
     messages: Vec<&'a str>,
 }
 impl<'a> ::core::fmt::Display for Data<'a> {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -33,11 +31,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &::oxiplate::escapers::markdown::MarkdownEscaper::text,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(message))).oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+            )?;
             oxiplate_formatter.write_str("\n")?;
         }
         ::core::result::Result::Ok(())
@@ -61,7 +58,10 @@ pub static variable: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
 };
 fn variable() {
     let data = Data {

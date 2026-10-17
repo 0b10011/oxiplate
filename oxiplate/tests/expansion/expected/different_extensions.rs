@@ -3,16 +3,14 @@
 extern crate core;
 #[prelude_import]
 use core::prelude::rust_2024::*;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate = "html-with-different-extension.tmpl"]
 struct Html {
     name: &'static str,
 }
 impl ::core::fmt::Display for Html {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -27,23 +25,20 @@ impl ::oxiplate::Render for Html {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::html::HtmlEscaper::attr,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::html::HtmlEscaper::attr,
+        )?;
         oxiplate_formatter.write_str("\">Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+        )?;
         oxiplate_formatter.write_str("!</p>\n<p>Goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::html::HtmlEscaper::text,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::html::HtmlEscaper::text,
+        )?;
         oxiplate_formatter.write_str("!</p>\n")?;
         ::core::result::Result::Ok(())
     }
@@ -66,7 +61,10 @@ pub static html: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(html())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(html()),
+    ),
 };
 fn html() {
     {
@@ -74,8 +72,8 @@ fn html() {
             &Html {
                 name: r#"Hunt "<html>" Mill"#,
             }
-                .render()
-                .unwrap(),
+            .render()
+            .unwrap(),
             &r#"<!DOCTYPE html>
 <p title="Hello Hunt &#34;<html>&#34; Mill">Hello Hunt "&lt;html>" Mill!</p>
 <p>Goodbye Hunt "&lt;html>" Mill!</p>
@@ -100,10 +98,7 @@ struct Json {
     name: &'static str,
 }
 impl ::core::fmt::Display for Json {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -118,17 +113,15 @@ impl ::oxiplate::Render for Json {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
+        )?;
         oxiplate_formatter.write_str("\",\n    \"bar\": \"goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::json::JsonEscaper::substring,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::json::JsonEscaper::substring,
+        )?;
         oxiplate_formatter.write_str("\"\n}\n")?;
         ::core::result::Result::Ok(())
     }
@@ -151,7 +144,10 @@ pub static json: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(json())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(json()),
+    ),
 };
 fn json() {
     {
@@ -159,8 +155,8 @@ fn json() {
             &Json {
                 name: r#"Jane "JSON" Sonder"#,
             }
-                .render()
-                .unwrap(),
+            .render()
+            .unwrap(),
             &r#"{
     "foo": "hello Jane \"JSON\" Sonder",
     "bar": "goodbye Jane \"JSON\" Sonder"

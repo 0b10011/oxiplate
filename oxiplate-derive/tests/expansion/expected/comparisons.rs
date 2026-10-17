@@ -5,16 +5,14 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r#"{% if value == "foo" %}bar{% endif %}"#)]
 struct Comparison {
     value: &'static str,
 }
 impl ::core::fmt::Display for Comparison {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if self.value == "foo" {
@@ -50,9 +48,7 @@ fn test_equals_string() {
     let data = Comparison { value: "foo" };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"bar",
         ) {
             (left_val, right_val) => {
@@ -96,9 +92,7 @@ fn test_does_not_equal_string() {
     let data = Comparison { value: "baz" };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"",
         ) {
             (left_val, right_val) => {

@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate::prelude::*;
 struct User {
     name: &'static str,
@@ -19,10 +20,7 @@ struct Data {
     user: User,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -38,34 +36,25 @@ impl ::oxiplate::Render for Data {
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(
-            &(filters_for_oxiplate::trim(
-                ::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(
-                                format_args!(" ({0}) ", (9 + 5 * 2) * 100 + 89),
-                            )
-                        })),
-                    ))
-                        .to_cow_str(),
-                ),
-            )),
+            &(filters_for_oxiplate::trim(::oxiplate::CowStrWrapper::new(
+                (&&::oxiplate::ToCowStrWrapper::new(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!(" ({0}) ", (9 + 5 * 2) * 100 + 89))
+                    })),
+                ))
+                    .to_cow_str(),
+            ))),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0} is awesome",
-                        filters_for_oxiplate::upper(
-                            ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&(self.user.name)))
-                                    .to_cow_str(),
-                            ),
-                        ),
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0} is awesome",
+                    filters_for_oxiplate::upper(::oxiplate::CowStrWrapper::new(
+                        (&&::oxiplate::ToCowStrWrapper::new(&(self.user.name))).to_cow_str(),
+                    ),),
+                ))
             })),
         ))
             .oxiplate_raw(oxiplate_formatter)?;
@@ -91,15 +80,18 @@ pub static field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
 };
 fn field() {
-    let data = Data { user: User { name: "Liv" } };
+    let data = Data {
+        user: User { name: "Liv" },
+    };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"
 (1989)
 LIV is awesome

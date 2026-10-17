@@ -5,19 +5,19 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline(r#"{# _#}
+#[oxiplate_inline(
+    r#"{# _#}
 {% if value %}foo{% endif _%}
 {{ "bar" _}}
-"#)]
+"#
+)]
 struct Data {
     value: bool,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(" ")?;
@@ -57,9 +57,7 @@ fn adjusted_whitespace() {
     let data = Data { value: true };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &" foo bar ",
         ) {
             (left_val, right_val) => {

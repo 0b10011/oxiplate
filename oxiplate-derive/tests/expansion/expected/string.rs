@@ -5,20 +5,17 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r###"{{ ##"jane #"the deer"# doe"## }}"###)]
 struct RawString {}
 impl ::core::fmt::Display for RawString {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&("jane #\"the deer\"# doe")),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &("jane #\"the deer\"# doe"),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -49,9 +46,7 @@ fn raw_string() {
     let template = RawString {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &r###"jane #"the deer"# doe"###,
         ) {
             (left_val, right_val) => {
@@ -71,10 +66,7 @@ fn raw_string() {
 #[oxiplate_inline(r#"{{ "" }}"#)]
 struct EmptyString {}
 impl ::core::fmt::Display for EmptyString {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("")))?;
@@ -108,9 +100,7 @@ fn empty_string() {
     let template = EmptyString {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"",
         ) {
             (left_val, right_val) => {
@@ -130,10 +120,7 @@ fn empty_string() {
 #[oxiplate_inline("\x00 \x0F \x0f \x7F")]
 struct SevenBitEscapes;
 impl ::core::fmt::Display for SevenBitEscapes {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\u{0} \u{f} \u{f} \u{7f}")?;
@@ -188,10 +175,7 @@ fn seven_bit_escapes() {
 #[oxiplate_inline("\u{0} \u{10ffff}")]
 struct UnicodeEscapes;
 impl ::core::fmt::Display for UnicodeEscapes {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\u{0} \u{10ffff}")?;
@@ -248,7 +232,10 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[&empty_string, &raw_string, &seven_bit_escapes, &unicode_escapes],
-    )
+    test::test_main_env_args(&[
+        &empty_string,
+        &raw_string,
+        &seven_bit_escapes,
+        &unicode_escapes,
+    ])
 }

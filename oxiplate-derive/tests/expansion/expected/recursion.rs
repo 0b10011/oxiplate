@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 extern crate test;
 #[rustc_test_marker = "recursion"]
@@ -24,29 +25,25 @@ pub static recursion: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(recursion())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(recursion()),
+    ),
 };
 fn recursion() {
-    #[oxiplate_inline(
-        r#"{{name}} ({% for child in children %}{{ child }}, {% endfor %})"#
-    )]
+    #[oxiplate_inline(r#"{{name}} ({% for child in children %}{{ child }}, {% endfor %})"#)]
     struct Person<'a> {
         name: &'a str,
         children: &'a [Person<'a>],
     }
     impl<'a> ::core::fmt::Display for Person<'a> {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.name)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.name)))?;
             oxiplate_formatter.write_str(" (")?;
             for child in self.children {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(child)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(child)))?;
                 oxiplate_formatter.write_str(", ")?;
             }
             oxiplate_formatter.write_str(")")?;
@@ -64,15 +61,13 @@ fn recursion() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Person {
-                            name: "Jen",
-                            children: &[john],
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Person {
+                        name: "Jen",
+                        children: &[john],
+                    },
+                ))
             }),
             &"Jen (John (Jane (), ), )",
         ) {

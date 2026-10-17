@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r#"{{ name ~ " (" ~ company ~ ")" }}"#)]
 struct User {
@@ -12,22 +13,14 @@ struct User {
     company: &'static str,
 }
 impl ::core::fmt::Display for User {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(
-                    &(::alloc::__export::must_use({
-                        ::alloc::fmt::format(
-                            format_args!("{0} ({1})", self.name, self.company),
-                        )
-                    })),
-                ),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0} ({1})", self.name, self.company))
+            })),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -49,7 +42,10 @@ pub static variable: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
 };
 fn variable() {
     let data = User {
@@ -58,9 +54,7 @@ fn variable() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Xavier (XYZ Company)",
         ) {
             (left_val, right_val) => {
@@ -80,14 +74,10 @@ fn variable() {
 #[oxiplate_inline(r#"{{ "hello" ~ " " ~ "world" }}"#)]
 struct ConcatStrings;
 impl ::core::fmt::Display for ConcatStrings {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("hello world")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("hello world")))?;
         ::core::result::Result::Ok(())
     }
 }

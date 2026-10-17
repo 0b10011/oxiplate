@@ -5,16 +5,14 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r"{% if value == 5 %}bar{% endif %}")]
 struct Comparison {
     value: u8,
 }
 impl ::core::fmt::Display for Comparison {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if self.value == 5 {
@@ -41,15 +39,16 @@ pub static test_5u8: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5u8())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_5u8()),
+    ),
 };
 fn test_5u8() {
     let data = Comparison { value: 5u8 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"bar",
         ) {
             (left_val, right_val) => {
@@ -84,15 +83,16 @@ pub static test_5: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_5())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_5()),
+    ),
 };
 fn test_5() {
     let data = Comparison { value: 5 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"bar",
         ) {
             (left_val, right_val) => {
@@ -127,15 +127,16 @@ pub static test_4u8: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4u8())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_4u8()),
+    ),
 };
 fn test_4u8() {
     let data = Comparison { value: 4u8 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"",
         ) {
             (left_val, right_val) => {
@@ -170,15 +171,16 @@ pub static test_4: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_4())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_4()),
+    ),
 };
 fn test_4() {
     let data = Comparison { value: 4 };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"",
         ) {
             (left_val, right_val) => {

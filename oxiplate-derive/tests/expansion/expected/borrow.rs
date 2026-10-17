@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 struct User<'a> {
     name: &'a str,
@@ -14,14 +15,10 @@ struct Data<'a> {
     user: &'a User<'a>,
 }
 impl<'a> ::core::fmt::Display for Data<'a> {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.user.name)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.user.name)))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -43,7 +40,10 @@ pub static field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
 };
 fn field() {
     let name = "Liv";
@@ -51,9 +51,7 @@ fn field() {
     let data = Data { user: &user };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Liv",
         ) {
             (left_val, right_val) => {
@@ -111,10 +109,7 @@ fn ref_and_deref() {
         value: &'static &'static str,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             if **&self.value == "a" {
@@ -122,12 +117,10 @@ fn ref_and_deref() {
             } else if self.value == &"b" {
                 oxiplate_formatter.write_str("borrowed string slice")?;
             } else if &*self.value == &&*"c" {
-                oxiplate_formatter
-                    .write_str("double borrowed and dereferenced string slice")?;
+                oxiplate_formatter.write_str("double borrowed and dereferenced string slice")?;
             } else {
                 oxiplate_formatter.write_str("no match for \"")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 oxiplate_formatter.write_str("\"")?;
             }
             ::core::result::Result::Ok(())
@@ -252,18 +245,14 @@ fn test_ref_deref_assign() {
         value: &'static &'static str,
     }
     impl ::core::fmt::Display for Data {
-        fn fmt(
-            &self,
-            oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-        ) -> ::core::fmt::Result {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             let new_value = &**self.value;
             if new_value == "a" {
                 oxiplate_formatter.write_str("A")?;
             } else {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(new_value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(new_value)))?;
             }
             ::core::result::Result::Ok(())
         }

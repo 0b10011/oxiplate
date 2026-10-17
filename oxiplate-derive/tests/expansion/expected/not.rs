@@ -5,19 +5,19 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("
+#[oxiplate_inline(
+    "
 {%- if !foo -%}
     Yay
-{%- endif %}")]
+{%- endif %}"
+)]
 struct Not {
     foo: bool,
 }
 impl ::core::fmt::Display for Not {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if !self.foo {
@@ -44,15 +44,16 @@ pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_if()),
+    ),
 };
 fn test_if() {
     let not = Not { foo: false };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", not))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
             &"Yay",
         ) {
             (left_val, right_val) => {
@@ -71,9 +72,7 @@ fn test_if() {
     let not = Not { foo: true };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", not))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
             &"",
         ) {
             (left_val, right_val) => {

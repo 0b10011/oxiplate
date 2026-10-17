@@ -5,20 +5,20 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("
+#[oxiplate_inline(
+    "
 {%- if let (a,) = (a,) -%}
     {{ a }}
 {%- endif -%}
-")]
+"
+)]
 struct Single {
     a: usize,
 }
 impl ::core::fmt::Display for Single {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if let (a,) = (self.a,) {
@@ -45,7 +45,10 @@ pub static single: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(single())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(single()),
+    ),
 };
 fn single() {
     {
@@ -81,10 +84,7 @@ struct Double {
     b: usize,
 }
 impl ::core::fmt::Display for Double {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if let (a, b) = (self.b, self.a) {
@@ -115,7 +115,10 @@ pub static double: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(double())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(double()),
+    ),
 };
 fn double() {
     {
@@ -158,10 +161,7 @@ struct Several {
     e: usize,
 }
 impl ::core::fmt::Display for Several {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {
@@ -196,24 +196,25 @@ pub static several: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(several())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(several()),
+    ),
 };
 fn several() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Several {
-                            a: 5,
-                            b: 4,
-                            c: 3,
-                            d: 2,
-                            e: 1,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Several {
+                        a: 5,
+                        b: 4,
+                        c: 3,
+                        d: 2,
+                        e: 1,
+                    },
+                ))
             }),
             &"1 2 3 4 5",
         ) {

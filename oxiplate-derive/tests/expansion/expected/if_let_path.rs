@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 enum Type {
     Text(&'static str),
@@ -23,10 +24,7 @@ struct Data {
     ty: Type,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if let Type::Text(text) = self.ty {
@@ -36,8 +34,7 @@ impl ::core::fmt::Display for Data {
             oxiplate_formatter.write_str(" + ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(right)))?;
             oxiplate_formatter.write_str(" = ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(left + right)))?;
         }
         ::core::result::Result::Ok(())
     }
@@ -60,15 +57,18 @@ pub static text: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(text())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(text()),
+    ),
 };
 fn text() {
-    let data = Data { ty: Type::Text("foo") };
+    let data = Data {
+        ty: Type::Text("foo"),
+    };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"foo",
         ) {
             (left_val, right_val) => {
@@ -103,15 +103,18 @@ pub static numbers: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(numbers())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(numbers()),
+    ),
 };
 fn numbers() {
-    let data = Data { ty: Type::Numbers(10, 9) };
+    let data = Data {
+        ty: Type::Numbers(10, 9),
+    };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"10 + 9 = 19",
         ) {
             (left_val, right_val) => {

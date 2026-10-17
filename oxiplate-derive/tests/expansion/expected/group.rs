@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("{{ c * (a + b) }}")]
 struct GroupCalc {
@@ -13,16 +14,12 @@ struct GroupCalc {
     c: usize,
 }
 impl ::core::fmt::Display for GroupCalc {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(&(self.c * (self.a + self.b))),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.c * (self.a + self.b)),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }

@@ -2,6 +2,7 @@
 extern crate std;
 #[prelude_import]
 use std::prelude::rust_2024::*;
+
 use oxiplate::prelude::*;
 #[oxiplate_inline(
     html:"
@@ -21,10 +22,7 @@ struct Loop {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for Loop {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -44,23 +42,20 @@ impl ::oxiplate::Render for Loop {
                 oxiplate_formatter.write_str("first: ")?;
             }
             oxiplate_formatter.write_str("#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index1)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index1))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             oxiplate_formatter.write_str(" (#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index0)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index0))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             oxiplate_formatter.write_str(") ")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(value)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(value))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             if r#loop.is_last {
                 oxiplate_formatter.write_str(" LAST!")?;
             }
@@ -87,7 +82,10 @@ pub static test_loop: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_loop())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_loop()),
+    ),
 };
 fn test_loop() {
     let data = Loop {
@@ -100,9 +98,7 @@ fn test_loop() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &r"
 first: #1 (#0) 19
 #2 (#1) 89

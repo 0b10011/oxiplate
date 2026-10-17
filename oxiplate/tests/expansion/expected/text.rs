@@ -6,6 +6,7 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(
     html:"{% for message in &messages %}\n<p>{{ text: message }}</p>{% endfor %}\n"
@@ -14,10 +15,7 @@ struct Data<'a> {
     messages: Vec<&'a str>,
 }
 impl<'a> ::core::fmt::Display for Data<'a> {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -33,11 +31,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n<p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &::oxiplate::escapers::html::HtmlEscaper::text,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(message))).oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -62,14 +59,20 @@ pub static variable: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
 };
 fn variable() {
     let data = Data {
         messages: ::alloc::boxed::box_assume_init_into_vec_unsafe(
             ::alloc::intrinsics::write_box_via_move(
                 ::alloc::boxed::Box::new_uninit(),
-                ["Hello world!", "&reg;</p><script>alert('hey');</script><p>&#153;"],
+                [
+                    "Hello world!",
+                    "&reg;</p><script>alert('hey');</script><p>&#153;",
+                ],
             ),
         ),
     };

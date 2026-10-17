@@ -3,16 +3,14 @@
 extern crate core;
 #[prelude_import]
 use core::prelude::rust_2024::*;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(html:"<!--{{ comment: comment }}-->")]
 struct Data<'a> {
     comment: &'a str,
 }
 impl<'a> ::core::fmt::Display for Data<'a> {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -27,11 +25,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!--")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::html::HtmlEscaper::comment,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::html::HtmlEscaper::comment,
+        )?;
         oxiplate_formatter.write_str("-->")?;
         ::core::result::Result::Ok(())
     }
@@ -54,7 +51,10 @@ pub static comment: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(comment())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(comment()),
+    ),
 };
 fn comment() {
     let comments = [
@@ -64,8 +64,16 @@ fn comment() {
             "Comment characters are normally fine as long as they're not in a special place or \
              grouped with others in a specific way",
         ),
-        ("> hello", "<!--› hello-->", "Text must not start with the string `>`"),
-        ("-> hey", "<!--−› hey-->", "Text must not start with the string `->`"),
+        (
+            "> hello",
+            "<!--› hello-->",
+            "Text must not start with the string `>`",
+        ),
+        (
+            "-> hey",
+            "<!--−› hey-->",
+            "Text must not start with the string `->`",
+        ),
         (
             "hello <!-- world",
             "<!--hello ‹ǃ−− world-->",
@@ -81,7 +89,11 @@ fn comment() {
             "<!--baz −−ǃ› qux-->",
             "Text must not contain the string `--!>`",
         ),
-        ("hey <!-", "<!--hey ‹ǃ−-->", "Text must not end with the string `<!-`"),
+        (
+            "hey <!-",
+            "<!--hey ‹ǃ−-->",
+            "Text must not end with the string `<!-`",
+        ),
         (
             "- hi",
             "<!--− hi-->",
@@ -106,8 +118,16 @@ fn comment() {
             "Hyphens at the end of a comment are not allowed in XML because it can cause double \
              hyphens",
         ),
-        ("hi--bye", "<!--hi−−bye-->", "Double hyphens are not allowed in XML"),
-        ("hi---bye", "<!--hi−−−bye-->", "Double hyphens are not allowed in XML"),
+        (
+            "hi--bye",
+            "<!--hi−−bye-->",
+            "Double hyphens are not allowed in XML",
+        ),
+        (
+            "hi---bye",
+            "<!--hi−−−bye-->",
+            "Double hyphens are not allowed in XML",
+        ),
     ];
     for (comment, expected, reason) in comments {
         let data = Data { comment };

@@ -5,24 +5,19 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r#"{{ ["foo", "bar"][1] ~ "..." }}"#)]
 struct Data;
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                &alloc::string::ToString::to_string(
-                    &(::alloc::__export::must_use({
-                        ::alloc::fmt::format(format_args!("{0}...", ["foo", "bar"][1]))
-                    })),
-                ),
-            )?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}...", ["foo", "bar"][1]))
+            })),
+        ))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -44,14 +39,15 @@ pub static index: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(index())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(index()),
+    ),
 };
 fn index() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Data)) }),
             &"bar...",
         ) {
             (left_val, right_val) => {

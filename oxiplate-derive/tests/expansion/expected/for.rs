@@ -6,6 +6,7 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::vec::Vec;
 use alloc::{format, vec};
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     r#"
@@ -19,22 +20,16 @@ struct Data {
     values: Vec<&'static str>,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for a in &self.values {
             for b in &self.values {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
-                            })),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
+                    })),
+                ))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
         }
@@ -59,7 +54,10 @@ pub static test_for: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_for())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_for()),
+    ),
 };
 fn test_for() {
     let data = Data {
@@ -72,9 +70,7 @@ fn test_for() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"foo - foo<br>foo - bar<br>bar - foo<br>bar - bar<br>",
         ) {
             (left_val, right_val) => {
@@ -101,10 +97,7 @@ struct Accounts {
     people: Vec<Person>,
 }
 impl ::core::fmt::Display for Accounts {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for Person { name } in &self.people {
@@ -151,9 +144,7 @@ fn test_method_calls() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Zoe<br>Alice<br>",
         ) {
             (left_val, right_val) => {
@@ -183,21 +174,16 @@ struct ShadowVariable {
     value: &'static str,
 }
 impl ::core::fmt::Display for ShadowVariable {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("!\n")?;
         for value in &self.values {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str("\n")?;
         }
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str(" again :D")?;
         ::core::result::Result::Ok(())
     }
@@ -237,9 +223,7 @@ fn test_shadow_variable() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"hello world!
 foo
 bar
@@ -270,15 +254,11 @@ struct Functions {
     functions: Vec<fn() -> i32>,
 }
 impl ::core::fmt::Display for Functions {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for function in &self.functions {
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(function())))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(function())))?;
             oxiplate_formatter.write_str("\n")?;
         }
         ::core::result::Result::Ok(())
@@ -318,9 +298,7 @@ fn test_function_variables() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19\n89\n",
         ) {
             (left_val, right_val) => {
@@ -349,18 +327,14 @@ struct ForElse {
     values: Vec<&'static str>,
 }
 impl ::core::fmt::Display for ForElse {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
             let mut oxiplate_loop_had_item = false;
             for value in &self.values {
                 oxiplate_loop_had_item = true;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
             if !oxiplate_loop_had_item {
@@ -399,9 +373,7 @@ fn test_for_else() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"No values :(",
         ) {
             (left_val, right_val) => {
@@ -432,10 +404,7 @@ struct Continue {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for Continue {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for value in &self.values {
@@ -482,9 +451,7 @@ fn test_continue() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19 89 ",
         ) {
             (left_val, right_val) => {
@@ -515,10 +482,7 @@ struct Break {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for Break {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for value in &self.values {
@@ -565,9 +529,7 @@ fn test_break() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19 23 ",
         ) {
             (left_val, right_val) => {
@@ -596,10 +558,7 @@ struct BreakElse {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for BreakElse {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
@@ -641,17 +600,12 @@ pub static test_break_else: test::TestDescAndFn = test::TestDescAndFn {
 fn test_break_else() {
     let data = BreakElse {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
-            ::alloc::intrinsics::write_box_via_move(
-                ::alloc::boxed::Box::new_uninit(),
-                [19, 89],
-            ),
+            ::alloc::intrinsics::write_box_via_move(::alloc::boxed::Box::new_uninit(), [19, 89]),
         ),
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"",
         ) {
             (left_val, right_val) => {
@@ -673,16 +627,14 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &test_break,
-            &test_break_else,
-            &test_continue,
-            &test_for,
-            &test_for_else,
-            &test_function_variables,
-            &test_method_calls,
-            &test_shadow_variable,
-        ],
-    )
+    test::test_main_env_args(&[
+        &test_break,
+        &test_break_else,
+        &test_continue,
+        &test_for,
+        &test_for_else,
+        &test_function_variables,
+        &test_method_calls,
+        &test_shadow_variable,
+    ])
 }

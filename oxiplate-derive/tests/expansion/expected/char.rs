@@ -5,14 +5,12 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(r"{{ 'a' }}")]
 struct A;
 impl ::core::fmt::Display for A {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('a')))?;
@@ -37,14 +35,15 @@ pub static a: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(a())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(a()),
+    ),
 };
 fn a() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", A))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", A)) }),
             &"a",
         ) {
             (left_val, right_val) => {
@@ -64,10 +63,7 @@ fn a() {
 #[oxiplate_inline(r"{{ '\'' }}")]
 struct SingleQuote;
 impl ::core::fmt::Display for SingleQuote {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\'')))?;
@@ -122,10 +118,7 @@ fn single_quote() {
 #[oxiplate_inline(r#"{{ '\"' }}"#)]
 struct DoubleQuote;
 impl ::core::fmt::Display for DoubleQuote {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('"')))?;
@@ -180,10 +173,7 @@ fn double_quote() {
 #[oxiplate_inline(r"{{ '\\' }}")]
 struct Slash;
 impl ::core::fmt::Display for Slash {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\\')))?;
@@ -208,14 +198,15 @@ pub static slash: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(slash())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(slash()),
+    ),
 };
 fn slash() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Slash))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Slash)) }),
             &r"\",
         ) {
             (left_val, right_val) => {
@@ -235,10 +226,7 @@ fn slash() {
 #[oxiplate_inline("{{ '\n' }} {{ '\\n' }}")]
 struct NewLine;
 impl ::core::fmt::Display for NewLine {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\n')))?;
@@ -265,14 +253,15 @@ pub static new_line: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(new_line())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(new_line()),
+    ),
 };
 fn new_line() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", NewLine))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", NewLine)) }),
             &"\n \n",
         ) {
             (left_val, right_val) => {
@@ -292,10 +281,7 @@ fn new_line() {
 #[oxiplate_inline("{{ '\r' }} {{ '\\r' }}")]
 struct CarriageReturn;
 impl ::core::fmt::Display for CarriageReturn {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\r')))?;
@@ -352,10 +338,7 @@ fn carriage_return() {
 #[oxiplate_inline("{{ '\t' }} {{ '\\t' }}")]
 struct Tab;
 impl ::core::fmt::Display for Tab {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\t')))?;
@@ -382,14 +365,15 @@ pub static tab: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(tab())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(tab()),
+    ),
 };
 fn tab() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Tab))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Tab)) }),
             &"\t \t",
         ) {
             (left_val, right_val) => {
@@ -409,10 +393,7 @@ fn tab() {
 #[oxiplate_inline(r"{{ '\0' }}")]
 struct Null;
 impl ::core::fmt::Display for Null {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&('\0')))?;
@@ -437,14 +418,15 @@ pub static null: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(null())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(null()),
+    ),
 };
 fn null() {
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", Null))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Null)) }),
             &"\0",
         ) {
             (left_val, right_val) => {
@@ -466,16 +448,14 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &a,
-            &carriage_return,
-            &double_quote,
-            &new_line,
-            &null,
-            &single_quote,
-            &slash,
-            &tab,
-        ],
-    )
+    test::test_main_env_args(&[
+        &a,
+        &carriage_return,
+        &double_quote,
+        &new_line,
+        &null,
+        &single_quote,
+        &slash,
+        &tab,
+    ])
 }

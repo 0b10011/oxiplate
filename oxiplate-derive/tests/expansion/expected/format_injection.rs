@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting \
@@ -12,16 +13,13 @@ use oxiplate_derive::Oxiplate;
 )]
 struct Data {}
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(
-                "Braces ({ and }) are formatting characters in Rust and must be escaped if used in formatting strings. {}",
-            )?;
+        oxiplate_formatter.write_str(
+            "Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
+             formatting strings. {}",
+        )?;
         ::core::result::Result::Ok(())
     }
 }
@@ -53,11 +51,9 @@ fn format_injection() {
     let data = Data {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Braces ({ and }) are formatting characters in Rust and must be escaped if used in \
-         formatting strings. {}",
+              formatting strings. {}",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

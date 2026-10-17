@@ -5,14 +5,12 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline("Hello  \t\n {_} \r\n\t wor{-}ld \n\t {-} \t\n !")]
 struct AdjustedWhitespace {}
 impl ::core::fmt::Display for AdjustedWhitespace {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("Hello world!")?;
@@ -46,9 +44,7 @@ fn adjusted_whitespace() {
     let template = AdjustedWhitespace {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"Hello world!",
         ) {
             (left_val, right_val) => {
@@ -74,15 +70,11 @@ struct WritWhitespaceControl {
     name: &'static str,
 }
 impl ::core::fmt::Display for WritWhitespaceControl {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("Hello ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.username)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.username)))?;
         oxiplate_formatter.write_str(" (")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.name)))?;
         oxiplate_formatter.write_str(")!")?;
@@ -119,9 +111,7 @@ fn writ_whitespace_control() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"Hello dia (Diana)!",
         ) {
             (left_val, right_val) => {
@@ -144,10 +134,7 @@ fn writ_whitespace_control() {
 )]
 struct CommentWhitespaceControl {}
 impl ::core::fmt::Display for CommentWhitespaceControl {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("Hello  ()!")?;
@@ -181,9 +168,7 @@ fn comment_whitespace_control() {
     let template = CommentWhitespaceControl {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"Hello  ()!",
         ) {
             (left_val, right_val) => {
@@ -223,10 +208,7 @@ fn comment_whitespace_control() {
 )]
 struct AdjacentTags {}
 impl ::core::fmt::Display for AdjacentTags {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("\n")?;
@@ -241,23 +223,19 @@ impl ::core::fmt::Display for AdjacentTags {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replace")))?;
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("removetag")))?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("leave")))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("leave")))?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("removetag")))?;
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("leave")))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("leave")))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
         oxiplate_formatter.write_str("\n\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("remove")))?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("leave")))?;
@@ -265,13 +243,11 @@ impl ::core::fmt::Display for AdjacentTags {
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("remove")))?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("remove")))?;
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("removetag")))?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("remove")))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("remove")))?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("removetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("removetag")))?;
         oxiplate_formatter.write_str("\n\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replace")))?;
         oxiplate_formatter.write_str(" ")?;
@@ -281,15 +257,13 @@ impl ::core::fmt::Display for AdjacentTags {
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replace")))?;
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
         oxiplate_formatter.write_str(" ")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replace")))?;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replace")))?;
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&("replacetag")))?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
@@ -321,9 +295,7 @@ fn adjacent_tags() {
     let template = AdjacentTags {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"
 leave  leave
 leaveremove
@@ -361,10 +333,7 @@ replace replacetag
 #[oxiplate_inline(" \t\r\n{")]
 struct WhitespaceOnly;
 impl ::core::fmt::Display for WhitespaceOnly {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str(" \t\r\n{")?;
@@ -421,13 +390,11 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &adjacent_tags,
-            &adjusted_whitespace,
-            &comment_whitespace_control,
-            &whitespace_only,
-            &writ_whitespace_control,
-        ],
-    )
+    test::test_main_env_args(&[
+        &adjacent_tags,
+        &adjusted_whitespace,
+        &comment_whitespace_control,
+        &whitespace_only,
+        &writ_whitespace_control,
+    ])
 }

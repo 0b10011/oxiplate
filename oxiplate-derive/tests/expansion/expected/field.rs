@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 struct User {
     name: &'static str,
@@ -14,14 +15,10 @@ struct Data {
     user: User,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.user.name)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.user.name)))?;
         ::core::result::Result::Ok(())
     }
 }
@@ -43,15 +40,18 @@ pub static field: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(field())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
 };
 fn field() {
-    let data = Data { user: User { name: "Liv" } };
+    let data = Data {
+        user: User { name: "Liv" },
+    };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Liv",
         ) {
             (left_val, right_val) => {

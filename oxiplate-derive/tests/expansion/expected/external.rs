@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "external.html.oxip"]
 struct AbsoluteData {
@@ -12,18 +13,13 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::core::fmt::Display for AbsoluteData {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<h1>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
         oxiplate_formatter.write_str("</h1>\n<p>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
         oxiplate_formatter.write_str("</p>\n")?;
         ::core::result::Result::Ok(())
     }
@@ -46,7 +42,10 @@ pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(absolute()),
+    ),
 };
 fn absolute() {
     let data = AbsoluteData {
@@ -55,9 +54,7 @@ fn absolute() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"<h1>Oxiplate Example</h1>\n<p>Hello world!</p>\n",
         ) {
             (left_val, right_val) => {
@@ -104,9 +101,7 @@ fn absolute_2() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"<h1>Oxiplate Example #2</h1>\n<p>Goodbye world!</p>\n",
         ) {
             (left_val, right_val) => {

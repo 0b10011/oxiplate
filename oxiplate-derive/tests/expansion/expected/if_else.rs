@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     "
@@ -19,21 +20,16 @@ struct Data {
     action: &'static str,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         if self.do_this {
             oxiplate_formatter.write_str("This then ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.action)))?;
             oxiplate_formatter.write_str(" :D")?;
         } else {
             oxiplate_formatter.write_str("Can\'t ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.action)))?;
             oxiplate_formatter.write_str(" :(")?;
         }
         ::core::result::Result::Ok(())
@@ -57,7 +53,10 @@ pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_if()),
+    ),
 };
 fn test_if() {
     let data = Data {
@@ -66,9 +65,7 @@ fn test_if() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"This then do something :D",
         ) {
             (left_val, right_val) => {
@@ -103,7 +100,10 @@ pub static test_else: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_else())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_else()),
+    ),
 };
 fn test_else() {
     let data = Data {
@@ -112,9 +112,7 @@ fn test_else() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Can't do something :(",
         ) {
             (left_val, right_val) => {

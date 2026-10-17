@@ -5,6 +5,7 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate = "extends.html.oxip"]
 struct AbsoluteData {
@@ -12,10 +13,7 @@ struct AbsoluteData {
     message: &'static str,
 }
 impl ::core::fmt::Display for AbsoluteData {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -30,25 +28,22 @@ impl ::oxiplate::Render for AbsoluteData {
         use ::core::fmt::Write as _;
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
-            .oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
+            oxiplate_formatter,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+        )?;
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_escape(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -73,7 +68,10 @@ pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(absolute())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(absolute()),
+    ),
 };
 fn absolute() {
     let data = AbsoluteData {
@@ -82,11 +80,9 @@ fn absolute() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
-            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  <p>Hello \
-         world!</p>\n",
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  \
+              <p>Hello world!</p>\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

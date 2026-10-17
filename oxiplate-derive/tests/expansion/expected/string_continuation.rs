@@ -5,15 +5,15 @@ extern crate core;
 use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
+
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("\
-    hello world")]
+#[oxiplate_inline(
+    "\
+    hello world"
+)]
 struct Data {}
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("hello world")?;
@@ -47,9 +47,7 @@ fn external_unicode() {
     let template = Data {};
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", template)) }),
             &"hello world",
         ) {
             (left_val, right_val) => {
