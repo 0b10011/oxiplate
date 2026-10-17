@@ -1,11 +1,6 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::vec::Vec;
 use alloc::{format, vec};
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     r#"
@@ -24,20 +19,15 @@ struct Set {
     value: &'static str,
 }
 impl ::core::fmt::Display for Set {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         let _underscored_value = 19;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
         let ignored_value = 19;
         let _ = ignored_value;
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         let value = 19;
         oxiplate_formatter.write_str("\n")?;
         oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
@@ -49,32 +39,35 @@ impl ::core::fmt::Display for Set {
     }
 }
 extern crate test;
-#[rustc_test_marker = "set"]
+#[rustc_test_marker = "r#let::set"]
 #[doc(hidden)]
 pub static set: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("set"),
+        name: test::StaticTestName("r#let::set"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 29usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 29usize,
+        end_line: 25usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(set())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(set()),
+    ),
 };
 fn set() {
-    let data = Set { value: "Hello world!" };
+    let data = Set {
+        value: "Hello world!",
+    };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19\nHello world!\n19\n89\n",
         ) {
             (left_val, right_val) => {
@@ -117,71 +110,69 @@ struct ShadowIf {
     value: &'static str,
 }
 impl ::core::fmt::Display for ShadowIf {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         if self.value == "Hello world!" {
             oxiplate_formatter.write_str("if ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             let value = 19;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
         } else if self.value == "Goodbye world!" {
             oxiplate_formatter.write_str("elseif ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             let value = 89;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
         } else {
             oxiplate_formatter.write_str("else ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             let value = 42;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
         }
         oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "shadow_if"]
+#[rustc_test_marker = "r#let::shadow_if"]
 #[doc(hidden)]
 pub static shadow_if: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("shadow_if"),
+        name: test::StaticTestName("r#let::shadow_if"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 65usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 61usize,
         start_col: 4usize,
-        end_line: 65usize,
+        end_line: 61usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(shadow_if())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(shadow_if()),
+    ),
 };
 fn shadow_if() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!("{0}", ShadowIf { value: "Hello world!" }),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    ShadowIf {
+                        value: "Hello world!"
+                    }
+                ))
             }),
             &"Hello world!\nif Hello world! 19\nHello world!\n",
         ) {
@@ -201,14 +192,12 @@ fn shadow_if() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        ShadowIf {
-                            value: "Goodbye world!",
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    ShadowIf {
+                        value: "Goodbye world!"
+                    }
+                ))
             }),
             &"Goodbye world!\nelseif Goodbye world! 89\nGoodbye world!\n",
         ) {
@@ -265,53 +254,45 @@ struct ShadowFor {
     numbers: Vec<usize>,
 }
 impl ::core::fmt::Display for ShadowFor {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         for number in &self.numbers {
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(number)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(number)))?;
             let value = 19;
             let number = 89;
             oxiplate_formatter.write_str(" ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str(" ")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(number)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(number)))?;
             oxiplate_formatter.write_str("\n")?;
         }
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "shadow_for"]
+#[rustc_test_marker = "r#let::shadow_for"]
 #[doc(hidden)]
 pub static shadow_for: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("shadow_for"),
+        name: test::StaticTestName("r#let::shadow_for"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 111usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 107usize,
         start_col: 4usize,
-        end_line: 111usize,
+        end_line: 107usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -322,23 +303,21 @@ fn shadow_for() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        ShadowFor {
-                            value: "Hello world!",
-                            numbers: ::alloc::boxed::box_assume_init_into_vec_unsafe(
-                                ::alloc::intrinsics::write_box_via_move(
-                                    ::alloc::boxed::Box::new_uninit(),
-                                    [1, 2, 3],
-                                ),
-                            ),
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    ShadowFor {
+                        value: "Hello world!",
+                        numbers: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+                            ::alloc::intrinsics::write_box_via_move(
+                                ::alloc::boxed::Box::new_uninit(),
+                                [1, 2, 3]
+                            )
+                        ),
+                    }
+                ))
             }),
-            &"Hello world!\nHello world! 1 19 89\nHello world! 2 19 89\nHello world! 3 19 89\nHello \
-         world!\n",
+            &"Hello world!\nHello world! 1 19 89\nHello world! 2 19 89\nHello world! 3 19 \
+              89\nHello world!\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -375,58 +354,49 @@ struct ShadowMatch {
     number: usize,
 }
 impl ::core::fmt::Display for ShadowMatch {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         match self.number {
             19 => {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 let value = 19;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("\n")?;
             }
             value => {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 let value = "Goodbye world!";
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("\n")?;
             }
         }
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "shadow_match"]
+#[rustc_test_marker = "r#let::shadow_match"]
 #[doc(hidden)]
 pub static shadow_match: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("shadow_match"),
+        name: test::StaticTestName("r#let::shadow_match"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 148usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 144usize,
         start_col: 4usize,
-        end_line: 148usize,
+        end_line: 144usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -437,15 +407,13 @@ fn shadow_match() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        ShadowMatch {
-                            value: "Hello world!",
-                            number: 19,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    ShadowMatch {
+                        value: "Hello world!",
+                        number: 19
+                    }
+                ))
             }),
             &"Hello world!\nHello world! 19\nHello world!\n",
         ) {
@@ -465,15 +433,13 @@ fn shadow_match() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        ShadowMatch {
-                            value: "Hello world!",
-                            number: 89,
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    ShadowMatch {
+                        value: "Hello world!",
+                        number: 89
+                    }
+                ))
             }),
             &"Hello world!\n89 Goodbye world!\nHello world!\n",
         ) {
@@ -517,70 +483,55 @@ struct Extends {
     value: &'static str,
 }
 impl ::core::fmt::Display for Extends {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("</header>\n<main>")?;
         {
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 let value = 69;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str(" | ")?;
             }
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 let value = 19;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
             {}
             {
                 oxiplate_formatter.write_str(" | ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             }
         }
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("</main>\n")?;
         let value = 42;
         oxiplate_formatter.write_str("<footer>")?;
         {
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 let value = 420;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str(" | ")?;
             }
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 let value = 89;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
             {}
             {
                 oxiplate_formatter.write_str(" | ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
             }
         }
         oxiplate_formatter.write_str(" ")?;
@@ -590,24 +541,27 @@ impl ::core::fmt::Display for Extends {
     }
 }
 extern crate test;
-#[rustc_test_marker = "extends"]
+#[rustc_test_marker = "r#let::extends"]
 #[doc(hidden)]
 pub static extends: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("extends"),
+        name: test::StaticTestName("r#let::extends"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 199usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 195usize,
         start_col: 4usize,
-        end_line: 199usize,
+        end_line: 195usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(extends())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(extends()),
+    ),
 };
 fn extends() {
     {
@@ -640,44 +594,35 @@ struct ExtendsDefault {
     value: &'static str,
 }
 impl ::core::fmt::Display for ExtendsDefault {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("</header>\n<main>")?;
         {
             {}
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
                 let value = 19;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
             {}
             {}
         }
         oxiplate_formatter.write_str(" ")?;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("</main>\n")?;
         let value = 42;
         oxiplate_formatter.write_str("<footer>")?;
         {
             {}
             {
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 let value = 89;
                 oxiplate_formatter.write_str(" ")?;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             }
             {}
             {}
@@ -689,22 +634,22 @@ impl ::core::fmt::Display for ExtendsDefault {
     }
 }
 extern crate test;
-#[rustc_test_marker = "extends_default"]
+#[rustc_test_marker = "r#let::extends_default"]
 #[doc(hidden)]
 pub static extends_default: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("extends_default"),
+        name: test::StaticTestName("r#let::extends_default"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 217usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 213usize,
         start_col: 4usize,
-        end_line: 217usize,
+        end_line: 213usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -715,9 +660,7 @@ fn extends_default() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!("{0}", ExtendsDefault { value: "foo" }),
-                )
+                ::alloc::fmt::format(format_args!("{0}", ExtendsDefault { value: "foo" }))
             }),
             &r#"<!DOCTYPE html>
 <header>foo</header>
@@ -745,10 +688,7 @@ struct Destructure {
     value: DestructureData,
 }
 impl ::core::fmt::Display for Destructure {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         let DestructureData(value) = self.value;
@@ -757,22 +697,22 @@ impl ::core::fmt::Display for Destructure {
     }
 }
 extern crate test;
-#[rustc_test_marker = "destructure"]
+#[rustc_test_marker = "r#let::destructure"]
 #[doc(hidden)]
 pub static destructure: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("destructure"),
+        name: test::StaticTestName("r#let::destructure"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/let.rs",
-        start_line: 237usize,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 233usize,
         start_col: 4usize,
-        end_line: 237usize,
+        end_line: 233usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -783,14 +723,12 @@ fn destructure() {
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(
-                    format_args!(
-                        "{0}",
-                        Destructure {
-                            value: DestructureData(19),
-                        },
-                    ),
-                )
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Destructure {
+                        value: DestructureData(19)
+                    }
+                ))
             }),
             &"19",
         ) {
@@ -807,21 +745,4 @@ fn destructure() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &destructure,
-            &extends,
-            &extends_default,
-            &set,
-            &shadow_for,
-            &shadow_if,
-            &shadow_match,
-        ],
-    )
 }

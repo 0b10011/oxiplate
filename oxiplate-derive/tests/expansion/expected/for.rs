@@ -1,11 +1,6 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::vec::Vec;
 use alloc::{format, vec};
+
 use oxiplate_derive::Oxiplate;
 #[oxiplate_inline(
     r#"
@@ -19,22 +14,16 @@ struct Data {
     values: Vec<&'static str>,
 }
 impl ::core::fmt::Display for Data {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for a in &self.values {
             for b in &self.values {
-                oxiplate_formatter
-                    .write_str(
-                        &alloc::string::ToString::to_string(
-                            &(::alloc::__export::must_use({
-                                ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
-                            })),
-                        ),
-                    )?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!("{0} - {1}", a, b))
+                    })),
+                ))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
         }
@@ -42,24 +31,27 @@ impl ::core::fmt::Display for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_for"]
+#[rustc_test_marker = "r#for::test_for"]
 #[doc(hidden)]
 pub static test_for: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_for"),
+        name: test::StaticTestName("r#for::test_for"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 24usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 20usize,
         start_col: 4usize,
-        end_line: 24usize,
+        end_line: 20usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_for())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_for()),
+    ),
 };
 fn test_for() {
     let data = Data {
@@ -72,9 +64,7 @@ fn test_for() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"foo - foo<br>foo - bar<br>bar - foo<br>bar - bar<br>",
         ) {
             (left_val, right_val) => {
@@ -101,10 +91,7 @@ struct Accounts {
     people: Vec<Person>,
 }
 impl ::core::fmt::Display for Accounts {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for Person { name } in &self.people {
@@ -118,22 +105,22 @@ struct Person {
     name: &'static str,
 }
 extern crate test;
-#[rustc_test_marker = "test_method_calls"]
+#[rustc_test_marker = "r#for::test_method_calls"]
 #[doc(hidden)]
 pub static test_method_calls: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_method_calls"),
+        name: test::StaticTestName("r#for::test_method_calls"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 51usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 47usize,
         start_col: 4usize,
-        end_line: 51usize,
+        end_line: 47usize,
         end_col: 21usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -151,9 +138,7 @@ fn test_method_calls() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"Zoe<br>Alice<br>",
         ) {
             (left_val, right_val) => {
@@ -183,42 +168,37 @@ struct ShadowVariable {
     value: &'static str,
 }
 impl ::core::fmt::Display for ShadowVariable {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str("!\n")?;
         for value in &self.values {
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
             oxiplate_formatter.write_str("\n")?;
         }
-        oxiplate_formatter
-            .write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
         oxiplate_formatter.write_str(" again :D")?;
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_shadow_variable"]
+#[rustc_test_marker = "r#for::test_shadow_variable"]
 #[doc(hidden)]
 pub static test_shadow_variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_shadow_variable"),
+        name: test::StaticTestName("r#for::test_shadow_variable"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 74usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 70usize,
         start_col: 4usize,
-        end_line: 74usize,
+        end_line: 70usize,
         end_col: 24usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -237,9 +217,7 @@ fn test_shadow_variable() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"hello world!
 foo
 bar
@@ -270,37 +248,33 @@ struct Functions {
     functions: Vec<fn() -> i32>,
 }
 impl ::core::fmt::Display for Functions {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for function in &self.functions {
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(function())))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(function())))?;
             oxiplate_formatter.write_str("\n")?;
         }
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_function_variables"]
+#[rustc_test_marker = "r#for::test_function_variables"]
 #[doc(hidden)]
 pub static test_function_variables: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_function_variables"),
+        name: test::StaticTestName("r#for::test_function_variables"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 102usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 98usize,
         start_col: 4usize,
-        end_line: 102usize,
+        end_line: 98usize,
         end_col: 27usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -318,9 +292,7 @@ fn test_function_variables() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19\n89\n",
         ) {
             (left_val, right_val) => {
@@ -349,18 +321,14 @@ struct ForElse {
     values: Vec<&'static str>,
 }
 impl ::core::fmt::Display for ForElse {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
             let mut oxiplate_loop_had_item = false;
             for value in &self.values {
                 oxiplate_loop_had_item = true;
-                oxiplate_formatter
-                    .write_str(&alloc::string::ToString::to_string(&(value)))?;
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
                 oxiplate_formatter.write_str("<br>")?;
             }
             if !oxiplate_loop_had_item {
@@ -371,22 +339,22 @@ impl ::core::fmt::Display for ForElse {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_for_else"]
+#[rustc_test_marker = "r#for::test_for_else"]
 #[doc(hidden)]
 pub static test_for_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_for_else"),
+        name: test::StaticTestName("r#for::test_for_else"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 124usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 120usize,
         start_col: 4usize,
-        end_line: 124usize,
+        end_line: 120usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -399,9 +367,7 @@ fn test_for_else() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"No values :(",
         ) {
             (left_val, right_val) => {
@@ -432,10 +398,7 @@ struct Continue {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for Continue {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for value in &self.values {
@@ -449,22 +412,22 @@ impl ::core::fmt::Display for Continue {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_continue"]
+#[rustc_test_marker = "r#for::test_continue"]
 #[doc(hidden)]
 pub static test_continue: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_continue"),
+        name: test::StaticTestName("r#for::test_continue"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 146usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 142usize,
         start_col: 4usize,
-        end_line: 146usize,
+        end_line: 142usize,
         end_col: 17usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -482,9 +445,7 @@ fn test_continue() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19 89 ",
         ) {
             (left_val, right_val) => {
@@ -515,10 +476,7 @@ struct Break {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for Break {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         for value in &self.values {
@@ -532,22 +490,22 @@ impl ::core::fmt::Display for Break {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_break"]
+#[rustc_test_marker = "r#for::test_break"]
 #[doc(hidden)]
 pub static test_break: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_break"),
+        name: test::StaticTestName("r#for::test_break"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 170usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 166usize,
         start_col: 4usize,
-        end_line: 170usize,
+        end_line: 166usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -565,9 +523,7 @@ fn test_break() {
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"19 23 ",
         ) {
             (left_val, right_val) => {
@@ -596,10 +552,7 @@ struct BreakElse {
     values: Vec<usize>,
 }
 impl ::core::fmt::Display for BreakElse {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
         {
@@ -616,22 +569,22 @@ impl ::core::fmt::Display for BreakElse {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_break_else"]
+#[rustc_test_marker = "r#for::test_break_else"]
 #[doc(hidden)]
 pub static test_break_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_break_else"),
+        name: test::StaticTestName("r#for::test_break_else"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/for.rs",
-        start_line: 192usize,
+        source_file: "oxiplate-derive/tests/integration/for.rs",
+        start_line: 188usize,
         start_col: 4usize,
-        end_line: 192usize,
+        end_line: 188usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -641,17 +594,12 @@ pub static test_break_else: test::TestDescAndFn = test::TestDescAndFn {
 fn test_break_else() {
     let data = BreakElse {
         values: ::alloc::boxed::box_assume_init_into_vec_unsafe(
-            ::alloc::intrinsics::write_box_via_move(
-                ::alloc::boxed::Box::new_uninit(),
-                [19, 89],
-            ),
+            ::alloc::intrinsics::write_box_via_move(::alloc::boxed::Box::new_uninit(), [19, 89]),
         ),
     };
     {
         match (
-            &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", data))
-            }),
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
             &"",
         ) {
             (left_val, right_val) => {
@@ -667,22 +615,4 @@ fn test_break_else() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(
-        &[
-            &test_break,
-            &test_break_else,
-            &test_continue,
-            &test_for,
-            &test_for_else,
-            &test_function_variables,
-            &test_method_calls,
-            &test_shadow_variable,
-        ],
-    )
 }

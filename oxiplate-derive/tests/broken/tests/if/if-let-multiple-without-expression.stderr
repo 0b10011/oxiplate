@@ -1,0 +1,5 @@
+error: Expected `=`
+ --> tests/broken/tests/if/if-let-multiple-without-expression.rs:8:25
+  |
+8 | {%- if let Couple(a, b) -%}
+  |                         ^^^

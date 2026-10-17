@@ -1,0 +1,16 @@
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/only-extension.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `:`
+ --> tests/broken/tests/derive/only-extension.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = note: this error originates in the derive macro `Oxiplate` (in Nightly builds, run with -Z macro-backtrace for more info)

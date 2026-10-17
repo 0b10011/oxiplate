@@ -32,15 +32,13 @@ update-test-output: format clippy-strict rebuild-config-test-crates
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 
     # Update config test output
-    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/expected/
+    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
 
     # Update expansion test results
-    cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
-    [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
-    [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
+    OXIP_EXPANSION=overwrite cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
 
     # Update clippy test results
-    [ ! -f ./oxiplate-derive/tests/clippy/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/actual/*.stderr ./oxiplate-derive/tests/clippy/expected/
+    [ ! -f ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
 
     echo "Test output updated successfully!"
 
@@ -53,7 +51,7 @@ rebuild-config-test-crates:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-10-13" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-10-16" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -239,6 +237,7 @@ setup-test:
 [group("Setup")]
 setup-expansion:
     cargo install cargo-expand
+    rustup component add rustfmt
 
 # Initial setup for test coverage.
 [group("Setup")]

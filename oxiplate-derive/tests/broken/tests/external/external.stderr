@@ -1,0 +1,10 @@
+error[E0425]: cannot find value `message` in this scope
+ --> templates/external.html.oxip
+  |
+  | <p>{{ message }}</p>
+  |       ^^^^^^^ not found in this scope
+  |
+ ::: tests/broken/tests/external/external.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro

@@ -1,5 +1,0 @@
-error: "match" statement is never closed (unexpected end of template)
- --> tests/broken/match/unclosed.rs:4:20
-  |
-4 | #[oxiplate_inline("{% match 19 %}{% case _ %}")]
-  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^

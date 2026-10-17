@@ -1,0 +1,12 @@
+error: Failed to parse inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/inline-unparseable.rs:4:24
+  |
+4 | #[oxiplate_inline(html html html)]
+  |                        ^^^^
+
+error: expected `:`
+ --> tests/broken/tests/derive/inline-unparseable.rs:4:24
+  |
+4 | #[oxiplate_inline(html html html)]
+  |                        ^^^^

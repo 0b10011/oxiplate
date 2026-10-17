@@ -1,0 +1,97 @@
+use alloc::vec;
+use alloc::vec::Vec;
+
+use oxiplate::{Oxiplate, Render};
+#[oxiplate_inline(
+    html:"{% for message in &messages %}\n{{ md.text: message }}\n{% endfor %}"
+)]
+struct Data<'a> {
+    messages: Vec<&'a str>,
+}
+impl<'a> ::core::fmt::Display for Data<'a> {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
+    }
+}
+impl<'a> ::oxiplate::Render for Data<'a> {
+    const ESTIMATED_LENGTH: usize = 6usize;
+    #[inline]
+    fn render_into<W: ::core::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        for message in &self.messages {
+            oxiplate_formatter.write_str("\n")?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(message))).oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+            )?;
+            oxiplate_formatter.write_str("\n")?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "markdown_text::variable"]
+#[doc(hidden)]
+pub static variable: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("markdown_text::variable"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate/tests/integration/markdown_text.rs",
+        start_line: 13usize,
+        start_col: 4usize,
+        end_line: 13usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
+};
+fn variable() {
+    let data = Data {
+        messages: ::alloc::boxed::box_assume_init_into_vec_unsafe(
+            ::alloc::intrinsics::write_box_via_move(
+                ::alloc::boxed::Box::new_uninit(),
+                [
+                    "Hello world!",
+                    "&reg;</p><script>alert('hey');</script><p>&#153;",
+                    "\n\n**oh \t no** ",
+                ],
+            ),
+        ),
+    };
+    {
+        match (
+            &data.render().unwrap(),
+            &r"
+Hello world\!
+
+\&reg\;\<\/p\>\<script\>alert\(\'hey\'\)\;\<\/script\>\<p\>\&\#153\;
+
+\*\*oh no\*\*
+",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

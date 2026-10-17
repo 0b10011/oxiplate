@@ -1,0 +1,5 @@
+error: Expected an expression in the writ
+ --> tests/broken/tests/strings/string-continuation-span.rs:6:6
+  |
+6 |     {{")]
+  |      ^

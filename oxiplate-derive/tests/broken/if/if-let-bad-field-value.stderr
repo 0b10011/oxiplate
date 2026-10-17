@@ -1,5 +1,0 @@
-error: Expected pattern
- --> tests/broken/if/if-let-bad-field-value.rs:6:26
-  |
-6 | {%- if let Data { value: :( } = data -%}
-  |                          ^

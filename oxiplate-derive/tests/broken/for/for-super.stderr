@@ -1,5 +1,0 @@
-error: This is a reserved keyword
- --> tests/broken/for/for-super.rs:4:28
-  |
-4 | #[oxiplate_inline("{%- for super in numbers -%}{{ super }}{% endfor %}")]
-  |                            ^^^^^

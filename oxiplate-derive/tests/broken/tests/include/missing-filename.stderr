@@ -1,0 +1,5 @@
+error: Path is not a file: `$DIR/templates`
+ --> tests/broken/tests/include/missing-filename.rs:4:33
+  |
+4 | #[oxiplate_inline(r#"{% include "" %}"#)]
+  |                                 ^^

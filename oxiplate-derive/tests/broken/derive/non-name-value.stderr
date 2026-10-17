@@ -1,6 +1,0 @@
-error: Incorrect syntax for external template. Should look something like:
-       #[oxiplate = "/path/to/template/from/templates/directory.txt.oxip"]
- --> tests/broken/derive/non-name-value.rs:4:1
-  |
-4 | #[oxiplate("foo")]
-  | ^^^^^^^^^^^^^^^^^^

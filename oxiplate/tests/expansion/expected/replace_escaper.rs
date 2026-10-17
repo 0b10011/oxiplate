@@ -1,0 +1,108 @@
+use oxiplate::{Oxiplate, Render};
+#[oxiplate = "replace-escaper.html.oxip"]
+struct Html {
+    name: &'static str,
+}
+impl ::core::fmt::Display for Html {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        ::oxiplate::Render::render_into(self, oxiplate_formatter)
+    }
+}
+impl ::oxiplate::Render for Html {
+    const ESTIMATED_LENGTH: usize = 7usize;
+    #[inline]
+    fn render_into<W: ::core::fmt::Write>(
+        &self,
+        oxiplate_formatter: &mut W,
+    ) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        oxiplate_formatter.write_str("\n")?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+        )?;
+        oxiplate_formatter.write_str("\n")?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::your_group::YourEscaper::foo,
+        )?;
+        oxiplate_formatter.write_str("\n")?;
+        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+            oxiplate_formatter,
+            &::oxiplate::escapers::your_group::YourEscaper::bar,
+        )?;
+        oxiplate_formatter.write_str("\n")?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "replace_escaper::html"]
+#[doc(hidden)]
+pub static html: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("replace_escaper::html"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate/tests/integration/replace_escaper.rs",
+        start_line: 10usize,
+        start_col: 4usize,
+        end_line: 10usize,
+        end_col: 8usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(html()),
+    ),
+};
+fn html() {
+    {
+        match (
+            &Html { name: r#"foo bar"# }.render().unwrap(),
+            &r#"
+f00 bar
+f00 bar
+foo b@r
+"#,
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+    {
+        match (
+            &Html { name: r#"hello"# }.render().unwrap(),
+            &r#"
+hello
+hello
+hello
+"#,
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

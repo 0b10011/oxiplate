@@ -1,11 +1,6 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
+
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(
     html:"{% for message in &messages %}\n<p>{{ text: message }}</p>{% endfor %}\n"
@@ -14,10 +9,7 @@ struct Data<'a> {
     messages: Vec<&'a str>,
 }
 impl<'a> ::core::fmt::Display for Data<'a> {
-    fn fmt(
-        &self,
-        oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         ::oxiplate::Render::render_into(self, oxiplate_formatter)
     }
 }
@@ -33,11 +25,10 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         use ::oxiplate::{ToCowStr as _, UnescapedText as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n<p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
-                .oxiplate_escape(
-                    oxiplate_formatter,
-                    &::oxiplate::escapers::html::HtmlEscaper::text,
-                )?;
+            (&&::oxiplate::UnescapedTextWrapper::new(&(message))).oxiplate_escape(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -45,31 +36,37 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "variable"]
+#[rustc_test_marker = "text::variable"]
 #[doc(hidden)]
 pub static variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("variable"),
+        name: test::StaticTestName("text::variable"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/text.rs",
-        start_line: 17usize,
+        source_file: "oxiplate/tests/integration/text.rs",
+        start_line: 13usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 13usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(variable())),
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
 };
 fn variable() {
     let data = Data {
         messages: ::alloc::boxed::box_assume_init_into_vec_unsafe(
             ::alloc::intrinsics::write_box_via_move(
                 ::alloc::boxed::Box::new_uninit(),
-                ["Hello world!", "&reg;</p><script>alert('hey');</script><p>&#153;"],
+                [
+                    "Hello world!",
+                    "&reg;</p><script>alert('hey');</script><p>&#153;",
+                ],
             ),
         ),
     };
@@ -94,11 +91,4 @@ fn variable() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&variable])
 }

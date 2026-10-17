@@ -1,0 +1,7 @@
+error[E0369]: cannot add `bool` to `bool`
+ --> tests/broken/tests/operators/add-bools.rs:4:25
+  |
+4 | #[oxiplate_inline("{{ a + b }}")]
+  |                       - ^ - bool
+  |                       |
+  |                       bool

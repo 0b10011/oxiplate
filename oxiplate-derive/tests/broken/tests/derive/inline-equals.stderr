@@ -1,0 +1,6 @@
+error: Incorrect syntax for inline template. Should look something like:
+       #[oxiplate_inline(html: "{{ your_var }}")]
+ --> tests/broken/tests/derive/inline-equals.rs:4:3
+  |
+4 | #[oxiplate_inline = "foo"]
+  |   ^^^^^^^^^^^^^^^^^^^^^^^

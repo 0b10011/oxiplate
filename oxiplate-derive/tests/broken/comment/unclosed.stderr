@@ -1,5 +1,0 @@
-error: End of file encountered while parsing a comment. Expected `#}`, `-#}`, or `_#}`
- --> tests/broken/comment/unclosed.rs:4:30
-  |
-4 | #[oxiplate_inline(r#"{#- # - }"#)]
-  |                              ^

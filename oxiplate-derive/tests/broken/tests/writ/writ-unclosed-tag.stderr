@@ -1,0 +1,5 @@
+error: End of file encountered while parsing a writ. Expected `}}`, `-}}`, or `_}}`
+ --> tests/broken/tests/writ/writ-unclosed-tag.rs:4:25
+  |
+4 | #[oxiplate_inline("{{ foo")]
+  |                         ^

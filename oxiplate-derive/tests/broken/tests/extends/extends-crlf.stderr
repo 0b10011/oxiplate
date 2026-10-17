@@ -1,0 +1,10 @@
+error[E0425]: cannot find value `title` in this scope
+ --> templates/extends-wrapper-crlf.html.oxip
+  |
+  | <title>{{ title }}</title>
+  |           ^^^^^ not found in this scope
+  |
+ ::: tests/broken/tests/extends/extends-crlf.rs:3:10
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro

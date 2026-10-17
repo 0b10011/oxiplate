@@ -1,0 +1,5 @@
+error: Expected `}}`, `-}}`, or `_}}`
+ --> tests/broken/tests/writ/closed-like-statement-whitespace-remove.rs:4:27
+  |
+4 | #[oxiplate_inline("{{ foo -%}")]
+  |                           ^^^

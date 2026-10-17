@@ -1,5 +1,0 @@
-error: Escaping requires the `oxiplate` library, but you appear to be using `oxiplate-derive` directly. Replacing `oxiplate-derive` with `oxiplate` in the dependencies should fix this issue, although you may need to turn off some default features if you want it to work the same way.
- --> tests/broken/derive/escaping.rs:4:19
-  |
-4 | #[oxiplate_inline(html: "{{ var }}")]
-  |                   ^^^^

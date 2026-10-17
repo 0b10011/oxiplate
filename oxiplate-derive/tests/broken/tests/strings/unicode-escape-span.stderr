@@ -1,0 +1,5 @@
+error: Expected an expression in the writ
+ --> tests/broken/tests/strings/unicode-escape-span.rs:4:34
+  |
+4 | #[oxiplate_inline("hello\u{7FFF}{{")]
+  |                                  ^

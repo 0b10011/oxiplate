@@ -1,0 +1,123 @@
+use alloc::format;
+
+use oxiplate_derive::Oxiplate;
+#[oxiplate_inline("{{ message }}")]
+struct Variable {
+    message: &'static str,
+}
+impl ::core::fmt::Display for Variable {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::variables::variable"]
+#[doc(hidden)]
+pub static variable: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::variables::variable"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/variables.rs",
+        start_line: 12usize,
+        start_col: 4usize,
+        end_line: 12usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variable()),
+    ),
+};
+fn variable() {
+    let data = Variable {
+        message: "Hello world!",
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"Hello world!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline("{{ title }} / {{ message }}")]
+struct Variables {
+    title: &'static str,
+    message: &'static str,
+}
+impl ::core::fmt::Display for Variables {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+        oxiplate_formatter.write_str(" / ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::variables::variables"]
+#[doc(hidden)]
+pub static variables: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::variables::variables"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/variables.rs",
+        start_line: 28usize,
+        start_col: 4usize,
+        end_line: 28usize,
+        end_col: 13usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(variables()),
+    ),
+};
+fn variables() {
+    let data = Variables {
+        title: "Foo Bar",
+        message: "Hello world!",
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"Foo Bar / Hello world!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

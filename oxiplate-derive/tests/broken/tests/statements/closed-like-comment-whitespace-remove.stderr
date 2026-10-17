@@ -1,0 +1,5 @@
+error: Expected `%}`, `-%}`, or `_%}`
+ --> tests/broken/tests/statements/closed-like-comment-whitespace-remove.rs:4:32
+  |
+4 | #[oxiplate_inline("{% continue -#}")]
+  |                                ^^^

@@ -1,0 +1,228 @@
+use alloc::format;
+
+use oxiplate_derive::Oxiplate;
+#[oxiplate_inline(
+    "
+{%- if let (a,) = (a,) -%}
+    {{ a }}
+{%- endif -%}
+"
+)]
+struct Single {
+    a: usize,
+}
+impl ::core::fmt::Display for Single {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a,) = (self.a,) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::tuple::single"]
+#[doc(hidden)]
+pub static single: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::tuple::single"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/tuple.rs",
+        start_line: 18usize,
+        start_col: 4usize,
+        end_line: 18usize,
+        end_col: 10usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(single()),
+    ),
+};
+fn single() {
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Single { a: 9 }))
+            }),
+            &"9",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    "
+{%- if let (a, b) = (b, a) -%}
+    {{ a }} + {{ b }} = {{ a + b -}}
+{% endif -%}
+"
+)]
+struct Double {
+    a: usize,
+    b: usize,
+}
+impl ::core::fmt::Display for Double {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a, b) = (self.b, self.a) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+            oxiplate_formatter.write_str(" + ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+            oxiplate_formatter.write_str(" = ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a + b)))?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::tuple::double"]
+#[doc(hidden)]
+pub static double: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::tuple::double"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/tuple.rs",
+        start_line: 36usize,
+        start_col: 4usize,
+        end_line: 36usize,
+        end_col: 10usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(double()),
+    ),
+};
+fn double() {
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Double { a: 10, b: 9 }))
+            }),
+            &"9 + 10 = 19",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    "
+{%- if let (a, b, c, d, e) = (e, d, c, b, a) -%}
+    {{ a _}}
+    {{ b _}}
+    {{ c _}}
+    {{ d _}}
+    {{ e -}}
+{% endif -%}
+"
+)]
+struct Several {
+    a: usize,
+    b: usize,
+    c: usize,
+    d: usize,
+    e: usize,
+}
+impl ::core::fmt::Display for Several {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if let (a, b, c, d, e) = (self.e, self.d, self.c, self.b, self.a) {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(c)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(d)))?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(e)))?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::tuple::several"]
+#[doc(hidden)]
+pub static several: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::tuple::several"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/tuple.rs",
+        start_line: 61usize,
+        start_col: 4usize,
+        end_line: 61usize,
+        end_col: 11usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(several()),
+    ),
+};
+fn several() {
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Several {
+                        a: 5,
+                        b: 4,
+                        c: 3,
+                        d: 2,
+                        e: 1
+                    }
+                ))
+            }),
+            &"1 2 3 4 5",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

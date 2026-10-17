@@ -1,0 +1,5 @@
+error: Expected a pattern after "let"
+ --> tests/broken/tests/patterns/group-instead-of-tuple.rs:6:12
+  |
+6 | {%- if let (a) = (a,) -%}
+  |            ^

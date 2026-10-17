@@ -1,0 +1,5 @@
+error: Expected a field
+  --> tests/broken/tests/if/if-let-malformed-struct.rs:10:20
+   |
+10 | {%- if let Value { % } -%}
+   |                    ^
