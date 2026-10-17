@@ -22,6 +22,12 @@ impl ToTokens for Keyword<'_> {
     }
 }
 
+impl<'a> From<Keyword<'a>> for Source<'a> {
+    fn from(value: Keyword<'a>) -> Self {
+        value.source().clone()
+    }
+}
+
 pub(crate) struct KeywordParser {
     keyword: &'static str,
 }

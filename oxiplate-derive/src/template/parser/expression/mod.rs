@@ -7,16 +7,19 @@ mod cow;
 mod fields;
 mod filter;
 mod full_range;
-mod generics;
 mod group;
 mod index;
+mod items;
 mod keyword;
 mod literal;
 mod operator;
 mod path;
+mod paths;
 mod prefix_operator;
 mod prefixed;
+mod trait_bounds;
 mod tuple;
+mod types;
 
 use std::mem;
 
@@ -43,6 +46,7 @@ use crate::template::parser::prelude::*;
 type NestedExpression<'a> = dyn FnOnce(Expression<'a>) -> Expression<'a> + 'a;
 
 #[derive(Debug, Default)]
+#[expect(clippy::large_enum_variant)]
 pub(crate) enum Expression<'a> {
     /// Placeholder expression used during precedence fixing.
     /// Will generate a compile error if not replaced.

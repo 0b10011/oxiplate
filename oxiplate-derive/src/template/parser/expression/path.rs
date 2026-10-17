@@ -1,14 +1,14 @@
 use proc_macro2::Ident;
 
 use super::Expression;
-use super::generics::Generics;
+use super::paths::GenericArgs;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
 pub(crate) struct Segment<'a> {
     ident_segment: IdentSegment<'a>,
-    generics: Option<(Separator<'a>, Generics<'a>)>,
+    generics: Option<(Separator<'a>, GenericArgs<'a>)>,
 }
 
 impl<'a> Segment<'a> {
@@ -16,7 +16,7 @@ impl<'a> Segment<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
             IdentSegment::parse,
-            ignore_recoverable_errors((take(TokenKind::PathSeparator), Generics::parse)),
+            ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parse)),
         )
             .parse(tokens)?;
 
@@ -47,20 +47,23 @@ impl<'a> Segment<'a> {
     }
 }
 
-impl ToTokens for Segment<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.ident_segment.to_tokens(tokens);
+impl<'a> ToTokensWithState<'a> for Segment<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut tokens = TokenStream::new();
+        self.ident_segment.to_tokens(&mut tokens);
         if let Some((separator, generics)) = &self.generics {
             let span = separator.source().span_token();
             tokens.append_all(quote_spanned! {span=> :: });
-            generics.to_tokens(tokens);
+            tokens.append_all(generics.to_tokens_with_state(state).0);
         }
+
+        (tokens, EstimatedLength::new(0))
     }
 }
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
 #[derive(Debug)]
-enum IdentSegment<'a> {
+pub(super) enum IdentSegment<'a> {
     Identifier(Identifier<'a>),
     /// `Self`, `self`, `super`, `crate`
     Keyword(Source<'a>),
@@ -68,7 +71,7 @@ enum IdentSegment<'a> {
 
 impl<'a> IdentSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
-    fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, ident_segment) = alt((
             take(TokenKind::Ident),
             take(TokenKind::SelfCurrentModule),
@@ -88,7 +91,7 @@ impl<'a> IdentSegment<'a> {
         Ok((tokens, ident_segment))
     }
 
-    fn source(&self) -> &Source<'a> {
+    pub(super) fn source(&self) -> &Source<'a> {
         match self {
             Self::Identifier(identifier) => identifier.source(),
             Self::Keyword(source) => source,
@@ -258,9 +261,10 @@ impl<'a> ToTokensWithState<'a> for Path<'a> {
             )
         } else {
             let separator = &self.separator;
-            let segment = &self.segment;
+            let segment = &self.segment.to_tokens_with_state(state).0;
             let mut tokens = quote! { #separator #segment };
             for (separator, segment) in &self.additional_segments {
+                let segment = segment.to_tokens_with_state(state).0;
                 tokens.append_all(quote! { #separator #segment });
             }
             (tokens, EstimatedLength::new(1))
@@ -289,3 +293,42 @@ impl ToTokens for Separator<'_> {
         tokens.append_all(quote_spanned! {span=> :: });
     }
 }
+
+macro_rules! keyword {
+    ($name:ident, $keyword:expr) => {
+        #[derive(Debug)]
+        pub(in crate::template::parser) struct $name<'a> {
+            source: Source<'a>,
+        }
+
+        impl<'a> $name<'a> {
+            pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+                let (tokens, keyword) = take(TokenKind::$name).parse(tokens)?;
+
+                Ok((
+                    tokens,
+                    Self {
+                        source: keyword.source().to_owned(),
+                    },
+                ))
+            }
+
+            pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
+                &self.source
+            }
+        }
+
+        impl<'a> ToTokensWithState<'a> for $name<'a> {
+            fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+                let span = self.source.span_token();
+
+                (quote_spanned! {span=> $keyword }, EstimatedLength::new(0))
+            }
+        }
+    };
+}
+
+keyword!(Super, super);
+keyword!(SelfCurrentModule, self);
+keyword!(SelfCurrentType, Self);
+keyword!(Crate, crate);
