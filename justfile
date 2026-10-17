@@ -239,6 +239,7 @@ setup-test:
 [group("Setup")]
 setup-expansion:
     cargo install cargo-expand
+    rustup component add rustfmt
 
 # Initial setup for test coverage.
 [group("Setup")]
