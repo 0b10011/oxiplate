@@ -1,17 +1,7 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-
-extern crate alloc;
-
 use alloc::format;
 use alloc::string::String;
 use core::fmt::Display;
-
 use oxiplate_derive::Oxiplate;
-
 enum Name {
     Actual(String),
     Nickname {
@@ -19,7 +9,6 @@ enum Name {
     },
     Missing,
 }
-
 #[oxiplate_inline("
 {%- match (&name, cats_count) -%}
     {%- case ( Ok ( Name::Actual ( name ) ) , Some ( cats_count ) ) -%}
@@ -95,56 +84,30 @@ impl ::core::fmt::Display for Data {
         ::core::result::Result::Ok(())
     }
 }
-
 extern crate test;
-#[rustc_test_marker = "test_count"]
+#[rustc_test_marker = "r#match::test_count"]
 #[doc(hidden)]
 pub static test_count: test::TestDescAndFn =
     test::TestDescAndFn {
-
         desc: test::TestDesc {
-            name: test::StaticTestName("test_count"),
+            name: test::StaticTestName("r#match::test_count"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 45usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 41usize,
             start_col: 4usize,
-            end_line: 45usize,
+            end_line: 41usize,
             end_col: 14usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_count())),
     };
 fn test_count() {
     let data = Data { cats_count: Some(5), name: Ok(Name::Missing) };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     {
         match (&::alloc::__export::must_use({
                             ::alloc::fmt::format(format_args!("{0}", data))
@@ -160,23 +123,23 @@ fn test_count() {
     };
 }
 extern crate test;
-#[rustc_test_marker = "test_count_name"]
+#[rustc_test_marker = "r#match::test_count_name"]
 #[doc(hidden)]
 pub static test_count_name: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("test_count_name"),
+            name: test::StaticTestName("r#match::test_count_name"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 55usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 51usize,
             start_col: 4usize,
-            end_line: 55usize,
+            end_line: 51usize,
             end_col: 19usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_count_name())),
@@ -202,23 +165,23 @@ fn test_count_name() {
     };
 }
 extern crate test;
-#[rustc_test_marker = "test_name"]
+#[rustc_test_marker = "r#match::test_name"]
 #[doc(hidden)]
 pub static test_name: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("test_name"),
+            name: test::StaticTestName("r#match::test_name"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 65usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 61usize,
             start_col: 4usize,
-            end_line: 65usize,
+            end_line: 61usize,
             end_col: 13usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_name())),
@@ -244,23 +207,23 @@ fn test_name() {
     };
 }
 extern crate test;
-#[rustc_test_marker = "test_none"]
+#[rustc_test_marker = "r#match::test_none"]
 #[doc(hidden)]
 pub static test_none: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("test_none"),
+            name: test::StaticTestName("r#match::test_none"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 77usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 73usize,
             start_col: 4usize,
-            end_line: 77usize,
+            end_line: 73usize,
             end_col: 13usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_none())),
@@ -304,7 +267,8 @@ impl ::core::fmt::Display for MultipleWrapper {
         -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        if let Multiple { a: 10, b: 'b', c: "19", d: false } = self.multiple {
+        if let Multiple { a: 10, b: 'b', c: "19", d: false } =
+                self.multiple {
             oxiplate_formatter.write_str("bad")?;
         } else if let Multiple { a: 10, b: 'b', c: "19", d: true } =
                 self.multiple {
@@ -314,23 +278,23 @@ impl ::core::fmt::Display for MultipleWrapper {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_multiple"]
+#[rustc_test_marker = "r#match::test_multiple"]
 #[doc(hidden)]
 pub static test_multiple: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("test_multiple"),
+            name: test::StaticTestName("r#match::test_multiple"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 110usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 106usize,
             start_col: 4usize,
-            end_line: 110usize,
+            end_line: 106usize,
             end_col: 17usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(test_multiple())),
@@ -381,11 +345,13 @@ impl ::core::fmt::Display for Outer {
         -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a {
+        if let MiddleA { a: InnerA { value: 42 }, b: InnerB(b) } = self.a
+            {
             oxiplate_formatter.write_str("a.b: ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(b)))?;
             ;
-        } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) = self.b {
+        } else if let MiddleB(InnerA { value: a }, InnerB(42.19)) = self.b
+            {
             oxiplate_formatter.write_str("b.a: ")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(a)))?;
             ;
@@ -394,23 +360,23 @@ impl ::core::fmt::Display for Outer {
     }
 }
 extern crate test;
-#[rustc_test_marker = "nested"]
+#[rustc_test_marker = "r#match::nested"]
 #[doc(hidden)]
 pub static nested: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("nested"),
+            name: test::StaticTestName("r#match::nested"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 157usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 153usize,
             start_col: 4usize,
-            end_line: 157usize,
+            end_line: 153usize,
             end_col: 10usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(nested())),
@@ -510,23 +476,23 @@ impl ::core::fmt::Display for RangeInteger {
     }
 }
 extern crate test;
-#[rustc_test_marker = "range_integer"]
+#[rustc_test_marker = "r#match::range_integer"]
 #[doc(hidden)]
 pub static range_integer: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("range_integer"),
+            name: test::StaticTestName("r#match::range_integer"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 202usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 198usize,
             start_col: 4usize,
-            end_line: 202usize,
+            end_line: 198usize,
             end_col: 17usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_integer())),
@@ -655,23 +621,23 @@ impl ::core::fmt::Display for RangeFloat {
     }
 }
 extern crate test;
-#[rustc_test_marker = "range_float"]
+#[rustc_test_marker = "r#match::range_float"]
 #[doc(hidden)]
 pub static range_float: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("range_float"),
+            name: test::StaticTestName("r#match::range_float"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 230usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 226usize,
             start_col: 4usize,
-            end_line: 230usize,
+            end_line: 226usize,
             end_col: 15usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_float())),
@@ -812,23 +778,23 @@ impl ::core::fmt::Display for RangeChar {
     }
 }
 extern crate test;
-#[rustc_test_marker = "range_char"]
+#[rustc_test_marker = "r#match::range_char"]
 #[doc(hidden)]
 pub static range_char: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("range_char"),
+            name: test::StaticTestName("r#match::range_char"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 257usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 253usize,
             start_col: 4usize,
-            end_line: 257usize,
+            end_line: 253usize,
             end_col: 14usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(range_char())),
@@ -944,30 +910,32 @@ impl ::core::fmt::Display for MultipleCases {
         match self.value {
             19 => { oxiplate_formatter.write_str("The best number")?; }
             42 => { oxiplate_formatter.write_str("The answer")?; }
-            69 | 420 => { oxiplate_formatter.write_str("Internet number")?; }
+            69 | 420 => {
+                oxiplate_formatter.write_str("Internet number")?;
+            }
             _ => { oxiplate_formatter.write_str("Boring number")?; }
         }
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "multiple_cases"]
+#[rustc_test_marker = "r#match::multiple_cases"]
 #[doc(hidden)]
 pub static multiple_cases: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("multiple_cases"),
+            name: test::StaticTestName("r#match::multiple_cases"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 282usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 278usize,
             start_col: 4usize,
-            end_line: 282usize,
+            end_line: 278usize,
             end_col: 18usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(multiple_cases())),
@@ -1075,23 +1043,23 @@ impl ::core::fmt::Display for Guard {
     }
 }
 extern crate test;
-#[rustc_test_marker = "guard"]
+#[rustc_test_marker = "r#match::guard"]
 #[doc(hidden)]
 pub static guard: test::TestDescAndFn =
     test::TestDescAndFn {
         desc: test::TestDesc {
-            name: test::StaticTestName("guard"),
+            name: test::StaticTestName("r#match::guard"),
             ignore: false,
             ignore_message: ::core::option::Option::None,
-            source_file: "oxiplate-derive/tests/match.rs",
-            start_line: 314usize,
+            source_file: "oxiplate-derive/tests/integration/match.rs",
+            start_line: 310usize,
             start_col: 4usize,
-            end_line: 314usize,
+            end_line: 310usize,
             end_col: 9usize,
             compile_fail: false,
             no_run: false,
             should_panic: test::ShouldPanic::No,
-            test_type: test::TestType::IntegrationTest,
+            test_type: test::TestType::Unknown,
         },
         testfn: test::StaticTestFn(#[coverage(off)] ||
                 test::assert_test_result(guard())),
@@ -1142,13 +1110,4 @@ fn guard() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&guard, &multiple_cases, &nested, &range_char,
-                    &range_float, &range_integer, &test_count, &test_count_name,
-                    &test_multiple, &test_name, &test_none])
 }

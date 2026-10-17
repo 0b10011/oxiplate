@@ -1,9 +1,4 @@
-#![feature(prelude_import)]
 #![no_implicit_prelude]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 
@@ -33,22 +28,22 @@ impl ::core::fmt::Display for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "no_implicit_prelude"]
+#[rustc_test_marker = "no_implicit_prelude::no_implicit_prelude"]
 #[doc(hidden)]
 pub static no_implicit_prelude: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("no_implicit_prelude"),
+        name: test::StaticTestName("no_implicit_prelude::no_implicit_prelude"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/no_implicit_prelude.rs",
-        start_line: 19usize,
+        source_file: "oxiplate-derive/tests/integration/no_implicit_prelude.rs",
+        start_line: 18usize,
         start_col: 4usize,
-        end_line: 19usize,
+        end_line: 18usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -64,7 +59,7 @@ fn no_implicit_prelude() {
                     Data {
                         title: "Oxiplate Example",
                         message: "Hello world!",
-                    },
+                    }
                 ))
             }),
             &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h1>Oxiplate Example</h1>\n  \
@@ -83,11 +78,4 @@ fn no_implicit_prelude() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&no_implicit_prelude])
 }

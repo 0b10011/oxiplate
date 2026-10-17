@@ -1,7 +1,5 @@
-#![feature(prelude_import)]
-extern crate std;
-#[prelude_import]
-use std::prelude::rust_2024::*;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use oxiplate::prelude::*;
 #[oxiplate_inline(
@@ -65,22 +63,22 @@ impl ::oxiplate::Render for Loop {
     }
 }
 extern crate test;
-#[rustc_test_marker = "test_loop"]
+#[rustc_test_marker = "r#loop::test_loop"]
 #[doc(hidden)]
 pub static test_loop: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("test_loop"),
+        name: test::StaticTestName("r#loop::test_loop"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/loop.rs",
-        start_line: 22usize,
+        source_file: "oxiplate/tests/integration/loop.rs",
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 22usize,
+        end_line: 25usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -98,7 +96,7 @@ fn test_loop() {
     };
     {
         match (
-            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &data.render().unwrap(),
             &r"
 first: #1 (#0) 19
 #2 (#1) 89
@@ -118,11 +116,4 @@ first: #1 (#0) 19
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&test_loop])
 }

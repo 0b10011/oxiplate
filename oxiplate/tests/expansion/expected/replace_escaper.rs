@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-
 use oxiplate::{Oxiplate, Render};
 #[oxiplate = "replace-escaper.html.oxip"]
 struct Html {
@@ -44,22 +38,22 @@ impl ::oxiplate::Render for Html {
     }
 }
 extern crate test;
-#[rustc_test_marker = "html"]
+#[rustc_test_marker = "replace_escaper::html"]
 #[doc(hidden)]
 pub static html: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("html"),
+        name: test::StaticTestName("replace_escaper::html"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/replace_escaper.rs",
-        start_line: 12usize,
+        source_file: "oxiplate/tests/integration/replace_escaper.rs",
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 12usize,
+        end_line: 10usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -111,11 +105,4 @@ hello
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&html])
 }

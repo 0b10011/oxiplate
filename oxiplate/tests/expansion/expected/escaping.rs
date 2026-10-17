@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::string::String;
 use core::fmt::{self, Display};
 
@@ -213,22 +207,22 @@ impl<'a> ::oxiplate::Render for Types<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "types"]
+#[rustc_test_marker = "escaping::types"]
 #[doc(hidden)]
 pub static types: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("types"),
+        name: test::StaticTestName("escaping::types"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/escaping.rs",
-        start_line: 73usize,
+        source_file: "oxiplate/tests/integration/escaping.rs",
+        start_line: 69usize,
         start_col: 4usize,
-        end_line: 73usize,
+        end_line: 69usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -301,22 +295,22 @@ Hello world &lt;<script><!--
     };
 }
 extern crate test;
-#[rustc_test_marker = "explicit_and_inferred_escaper_group_in_writ"]
+#[rustc_test_marker = "escaping::explicit_and_inferred_escaper_group_in_writ"]
 #[doc(hidden)]
 pub static explicit_and_inferred_escaper_group_in_writ: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("explicit_and_inferred_escaper_group_in_writ"),
+        name: test::StaticTestName("escaping::explicit_and_inferred_escaper_group_in_writ"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/escaping.rs",
-        start_line: 127usize,
+        source_file: "oxiplate/tests/integration/escaping.rs",
+        start_line: 123usize,
         start_col: 4usize,
-        end_line: 127usize,
+        end_line: 123usize,
         end_col: 47usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -367,11 +361,4 @@ fn explicit_and_inferred_escaper_group_in_writ() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&explicit_and_inferred_escaper_group_in_writ, &types])
 }

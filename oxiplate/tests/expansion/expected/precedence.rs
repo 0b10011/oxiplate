@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate::prelude::*;
@@ -63,22 +57,22 @@ impl ::oxiplate::Render for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "field"]
+#[rustc_test_marker = "precedence::field"]
 #[doc(hidden)]
 pub static field: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("field"),
+        name: test::StaticTestName("precedence::field"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/precedence.rs",
-        start_line: 25usize,
+        source_file: "oxiplate/tests/integration/precedence.rs",
+        start_line: 21usize,
         start_col: 4usize,
-        end_line: 25usize,
+        end_line: 21usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -110,11 +104,4 @@ LIV is awesome
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&field])
 }

@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate_derive::Oxiplate;
@@ -51,22 +45,22 @@ impl ::oxiplate::Render for AbsoluteData {
     }
 }
 extern crate test;
-#[rustc_test_marker = "absolute"]
+#[rustc_test_marker = "extends::absolute"]
 #[doc(hidden)]
 pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("absolute"),
+        name: test::StaticTestName("extends::absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/extends.rs",
-        start_line: 17usize,
+        source_file: "oxiplate/tests/integration/extends.rs",
+        start_line: 13usize,
         start_col: 4usize,
-        end_line: 17usize,
+        end_line: 13usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -97,11 +91,4 @@ fn absolute() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&absolute])
 }

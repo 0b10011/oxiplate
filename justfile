@@ -35,9 +35,7 @@ update-test-output: format clippy-strict rebuild-config-test-crates
     [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
 
     # Update expansion test results
-    cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
-    [ ! -f ./oxiplate/tests/expansion/actual/*.rs ] || mv ./oxiplate/tests/expansion/actual/*.rs ./oxiplate/tests/expansion/expected/
-    [ ! -f ./oxiplate-derive/tests/expansion/actual/*.rs ] || mv ./oxiplate-derive/tests/expansion/actual/*.rs ./oxiplate-derive/tests/expansion/expected/
+    OXIP_EXPANSION=overwrite cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
 
     # Update clippy test results
     [ ! -f ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
