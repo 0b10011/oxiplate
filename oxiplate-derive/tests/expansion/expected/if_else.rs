@@ -6,21 +6,17 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-enum Type {
-    Text(&'static str),
-    Numbers(u8, u8),
-}
 #[oxiplate_inline(
-    r"
-{%- if let Type::Text(text) = ty -%}
-{{ text }}
-{%- elseif let Type::Numbers(left, right) = ty -%}
-{{ left }} + {{ right }} = {{ left + right }}
-{%- endif -%}
-"
+    "
+{%- if do_this -%}
+    This then {{ action }} :D
+{%- else -%}
+    Can't {{ action }} :(
+{%- endif %}"
 )]
 struct Data {
-    ty: Type,
+    do_this: bool,
+    action: &'static str,
 }
 impl ::core::fmt::Display for Data {
     fn fmt(
@@ -29,47 +25,51 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        if let Type::Text(text) = self.ty {
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(text)))?;
-        } else if let Type::Numbers(left, right) = self.ty {
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(left)))?;
-            oxiplate_formatter.write_str(" + ")?;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(right)))?;
-            oxiplate_formatter.write_str(" = ")?;
+        if self.do_this {
+            oxiplate_formatter.write_str("This then ")?;
             oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(left + right)))?;
+                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(" :D")?;
+        } else {
+            oxiplate_formatter.write_str("Can\'t ")?;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(self.action)))?;
+            oxiplate_formatter.write_str(" :(")?;
         }
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "text"]
+#[rustc_test_marker = "test_if"]
 #[doc(hidden)]
-pub static text: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("text"),
+        name: test::StaticTestName("test_if"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/if-let-path.rs",
-        start_line: 29usize,
+        source_file: "oxiplate-derive/tests/if_else.rs",
+        start_line: 24usize,
         start_col: 4usize,
-        end_line: 29usize,
-        end_col: 8usize,
+        end_line: 24usize,
+        end_col: 11usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(text())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_if())),
 };
-fn text() {
-    let data = Data { ty: Type::Text("foo") };
+fn test_if() {
+    let data = Data {
+        do_this: true,
+        action: "do something",
+    };
     {
         match (
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"foo",
+            &"This then do something :D",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -86,33 +86,36 @@ fn text() {
     };
 }
 extern crate test;
-#[rustc_test_marker = "numbers"]
+#[rustc_test_marker = "test_else"]
 #[doc(hidden)]
-pub static numbers: test::TestDescAndFn = test::TestDescAndFn {
+pub static test_else: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("numbers"),
+        name: test::StaticTestName("test_else"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/if-let-path.rs",
-        start_line: 38usize,
+        source_file: "oxiplate-derive/tests/if_else.rs",
+        start_line: 34usize,
         start_col: 4usize,
-        end_line: 38usize,
-        end_col: 11usize,
+        end_line: 34usize,
+        end_col: 13usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(numbers())),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test_else())),
 };
-fn numbers() {
-    let data = Data { ty: Type::Numbers(10, 9) };
+fn test_else() {
+    let data = Data {
+        do_this: false,
+        action: "do something",
+    };
     {
         match (
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"10 + 9 = 19",
+            &"Can't do something :(",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -133,5 +136,5 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&numbers, &text])
+    test::test_main_env_args(&[&test_else, &test_if])
 }

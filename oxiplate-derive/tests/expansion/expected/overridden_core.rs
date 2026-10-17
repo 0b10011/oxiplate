@@ -6,8 +6,11 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-#[oxiplate = "./multiple-blocks-inner.html.oxip"]
-struct Data;
+mod core {}
+#[oxiplate_inline("{{ foo }}")]
+struct Data {
+    foo: &'static str,
+}
 impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
@@ -15,35 +18,23 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter.write_str("<!DOCTYPE html>\n<header>")?;
-        {
-            oxiplate_formatter.write_str("header")?;
-        }
-        oxiplate_formatter.write_str("</header>\n<main>")?;
-        {
-            oxiplate_formatter.write_str("main")?;
-        }
-        oxiplate_formatter.write_str("</main>\n<footer>")?;
-        {
-            oxiplate_formatter.write_str("footer")?;
-        }
-        oxiplate_formatter.write_str("</footer>")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.foo)))?;
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "multiple_blocks"]
+#[rustc_test_marker = "overridden_std"]
 #[doc(hidden)]
-pub static multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
+pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("multiple_blocks"),
+        name: test::StaticTestName("overridden_std"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/multiple-blocks.rs",
-        start_line: 14usize,
+        source_file: "oxiplate-derive/tests/overridden_core.rs",
+        start_line: 18usize,
         start_col: 4usize,
-        end_line: 14usize,
-        end_col: 19usize,
+        end_line: 18usize,
+        end_col: 18usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -51,17 +42,17 @@ pub static multiple_blocks: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
-        || test::assert_test_result(multiple_blocks()),
+        || test::assert_test_result(overridden_std()),
     ),
 };
-fn multiple_blocks() {
-    let data = Data;
+fn overridden_std() {
+    let data = Data { foo: "Hello world!" };
     {
         match (
+            &"Hello world!",
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"<!DOCTYPE html>\n<header>header</header>\n<main>main</main>\n<footer>footer</footer>",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -82,5 +73,5 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&multiple_blocks])
+    test::test_main_env_args(&[&overridden_std])
 }

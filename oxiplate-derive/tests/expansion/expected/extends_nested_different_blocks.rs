@@ -6,32 +6,36 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-#[oxiplate = "extends-deep.html.oxip"]
-struct AbsoluteData<'a> {
-    title: &'a str,
-    message: &'a str,
+#[oxiplate = "./extends-nested-different-blocks.html.oxip"]
+struct AbsoluteData {
+    title: &'static str,
+    message: &'static str,
 }
-impl<'a> ::core::fmt::Display for AbsoluteData<'a> {
+impl ::core::fmt::Display for AbsoluteData {
     fn fmt(
         &self,
         oxiplate_formatter: &mut ::core::fmt::Formatter<'_>,
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+        oxiplate_formatter.write_str("<DOCTYPE html>\n<head>\n  <title>")?;
         oxiplate_formatter
             .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-        oxiplate_formatter.write_str("</title>\n")?;
+        oxiplate_formatter.write_str("</title>\n</head>\n<body>")?;
         {
-            oxiplate_formatter.write_str("<h2>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
-            oxiplate_formatter.write_str("</h2>\n  <div>")?;
-            oxiplate_formatter
-                .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
-            oxiplate_formatter.write_str("</div>")?;
+            oxiplate_formatter.write_str("<main>")?;
+            {
+                oxiplate_formatter.write_str("<h1>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+                oxiplate_formatter.write_str("</h1>\n  <p>")?;
+                oxiplate_formatter
+                    .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                oxiplate_formatter.write_str("</p>")?;
+            }
+            oxiplate_formatter.write_str("</main>")?;
         }
-        oxiplate_formatter.write_str("\n")?;
+        oxiplate_formatter.write_str("</body>\n")?;
         ::core::result::Result::Ok(())
     }
 }
@@ -43,7 +47,7 @@ pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/extends-lifetime.rs",
+        source_file: "oxiplate-derive/tests/extends_nested_different_blocks.rs",
         start_line: 17usize,
         start_col: 4usize,
         end_line: 17usize,
@@ -65,8 +69,9 @@ fn absolute() {
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"<!DOCTYPE html>\n<title>Oxiplate Example</title>\n<h2>Oxiplate Example</h2>\n  \
-         <div>Hello world!</div>\n",
+            &"<DOCTYPE html>\n<head>\n  <title>Oxiplate \
+         Example</title>\n</head>\n<body><main><h1>Oxiplate Example</h1>\n  <p>Hello \
+         world!</p></main></body>\n",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

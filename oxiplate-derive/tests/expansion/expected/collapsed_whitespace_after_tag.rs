@@ -38,7 +38,7 @@ pub static adjusted_whitespace: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("adjusted_whitespace"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/collapsed-whitespace-after-tag.rs",
+        source_file: "oxiplate-derive/tests/collapsed_whitespace_after_tag.rs",
         start_line: 21usize,
         start_col: 4usize,
         end_line: 21usize,

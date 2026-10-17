@@ -44,7 +44,7 @@ pub static absolute: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("absolute"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/extends-nested-skipped-block.rs",
+        source_file: "oxiplate-derive/tests/extends_nested_skipped_block.rs",
         start_line: 17usize,
         start_col: 4usize,
         end_line: 17usize,

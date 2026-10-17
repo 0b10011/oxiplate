@@ -6,9 +6,22 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline("\
-    hello world")]
-struct Data {}
+enum Type {
+    Text(&'static str),
+}
+#[oxiplate_inline(
+    r"
+{%- if check -%}
+bar
+{%- elseif let Type::Text(text) = ty -%}
+{{ text }}
+{%- endif -%}
+"
+)]
+struct Data {
+    check: bool,
+    ty: Type,
+}
 impl ::core::fmt::Display for Data {
     fn fmt(
         &self,
@@ -16,41 +29,45 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter.write_str("hello world")?;
+        if self.check {
+            oxiplate_formatter.write_str("bar")?;
+        } else if let Type::Text(text) = self.ty {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(text)))?;
+        }
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "external_unicode"]
+#[rustc_test_marker = "test"]
 #[doc(hidden)]
-pub static external_unicode: test::TestDescAndFn = test::TestDescAndFn {
+pub static test: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("external_unicode"),
+        name: test::StaticTestName("test"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/string-continuation.rs",
-        start_line: 17usize,
+        source_file: "oxiplate-derive/tests/if_elseif_let_path.rs",
+        start_line: 29usize,
         start_col: 4usize,
-        end_line: 17usize,
-        end_col: 20usize,
+        end_line: 29usize,
+        end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(external_unicode()),
-    ),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test())),
 };
-fn external_unicode() {
-    let template = Data {};
+fn test() {
+    let data = Data {
+        check: false,
+        ty: Type::Text("foo"),
+    };
     {
         match (
             &::alloc::__export::must_use({
-                ::alloc::fmt::format(format_args!("{0}", template))
+                ::alloc::fmt::format(format_args!("{0}", data))
             }),
-            &"hello world",
+            &"foo",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -71,5 +88,5 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&external_unicode])
+    test::test_main_env_args(&[&test])
 }

@@ -33,7 +33,7 @@ pub static format_injection: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("format_injection"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/format-injection.rs",
+        source_file: "oxiplate-derive/tests/format_injection.rs",
         start_line: 18usize,
         start_col: 4usize,
         end_line: 18usize,

@@ -27,7 +27,7 @@ pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("overridden_std"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/overridden-std.rs",
+        source_file: "oxiplate-derive/tests/overridden_std.rs",
         start_line: 12usize,
         start_col: 4usize,
         end_line: 12usize,

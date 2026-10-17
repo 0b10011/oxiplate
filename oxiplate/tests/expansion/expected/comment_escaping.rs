@@ -44,7 +44,7 @@ pub static comment: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("comment"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/comment-escaping.rs",
+        source_file: "oxiplate/tests/comment_escaping.rs",
         start_line: 12usize,
         start_col: 4usize,
         end_line: 12usize,

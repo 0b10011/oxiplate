@@ -45,7 +45,7 @@ pub static no_implicit_prelude: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("no_implicit_prelude"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/no-implicit-prelude.rs",
+        source_file: "oxiplate-derive/tests/no_implicit_prelude.rs",
         start_line: 19usize,
         start_col: 4usize,
         end_line: 19usize,

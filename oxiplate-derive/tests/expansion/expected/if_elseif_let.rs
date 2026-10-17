@@ -6,10 +6,18 @@ use core::prelude::rust_2024::*;
 extern crate alloc;
 use alloc::format;
 use oxiplate_derive::Oxiplate;
-mod core {}
-#[oxiplate_inline("{{ foo }}")]
+#[oxiplate_inline(
+    r"
+{%- if check -%}
+bar
+{%- elseif let Some(text) = ty -%}
+{{ text }}
+{%- endif -%}
+"
+)]
 struct Data {
-    foo: &'static str,
+    check: bool,
+    ty: Option<&'static str>,
 }
 impl ::core::fmt::Display for Data {
     fn fmt(
@@ -18,41 +26,45 @@ impl ::core::fmt::Display for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.foo)))?;
+        if self.check {
+            oxiplate_formatter.write_str("bar")?;
+        } else if let Some(text) = self.ty {
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(text)))?;
+        }
         ::core::result::Result::Ok(())
     }
 }
 extern crate test;
-#[rustc_test_marker = "overridden_std"]
+#[rustc_test_marker = "test"]
 #[doc(hidden)]
-pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
+pub static test: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("overridden_std"),
+        name: test::StaticTestName("test"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/overridden-core.rs",
-        start_line: 18usize,
+        source_file: "oxiplate-derive/tests/if_elseif_let.rs",
+        start_line: 25usize,
         start_col: 4usize,
-        end_line: 18usize,
-        end_col: 18usize,
+        end_line: 25usize,
+        end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(overridden_std()),
-    ),
+    testfn: test::StaticTestFn(#[coverage(off)] || test::assert_test_result(test())),
 };
-fn overridden_std() {
-    let data = Data { foo: "Hello world!" };
+fn test() {
+    let data = Data {
+        check: false,
+        ty: Some("foo"),
+    };
     {
         match (
-            &"Hello world!",
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", data))
             }),
+            &"foo",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -73,5 +85,5 @@ extern crate test;
 #[coverage(off)]
 #[doc(hidden)]
 pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&overridden_std])
+    test::test_main_env_args(&[&test])
 }

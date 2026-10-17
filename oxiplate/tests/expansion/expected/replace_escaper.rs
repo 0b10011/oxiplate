@@ -56,7 +56,7 @@ pub static html: test::TestDescAndFn = test::TestDescAndFn {
         name: test::StaticTestName("html"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/replace-escaper.rs",
+        source_file: "oxiplate/tests/replace_escaper.rs",
         start_line: 12usize,
         start_col: 4usize,
         end_line: 12usize,
