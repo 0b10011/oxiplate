@@ -56,7 +56,7 @@ mod test {
             writeln!(std::io::stdout(), "{name} ... unused",)?;
         }
 
-        if mismatched > 0 {
+        if mismatched > 0 && !should_overwrite {
             Err("One or more expansions test results were mismatched or missing")?;
         }
 
