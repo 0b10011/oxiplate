@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-
 use oxiplate::{Oxiplate, Render};
 #[oxiplate = "html-with-different-extension.tmpl"]
 struct Html {
@@ -44,22 +38,22 @@ impl ::oxiplate::Render for Html {
     }
 }
 extern crate test;
-#[rustc_test_marker = "html"]
+#[rustc_test_marker = "different_extensions::html"]
 #[doc(hidden)]
 pub static html: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("html"),
+        name: test::StaticTestName("different_extensions::html"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/different_extensions.rs",
-        start_line: 12usize,
+        source_file: "oxiplate/tests/integration/different_extensions.rs",
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 12usize,
+        end_line: 10usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -127,22 +121,22 @@ impl ::oxiplate::Render for Json {
     }
 }
 extern crate test;
-#[rustc_test_marker = "json"]
+#[rustc_test_marker = "different_extensions::json"]
 #[doc(hidden)]
 pub static json: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("json"),
+        name: test::StaticTestName("different_extensions::json"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/different_extensions.rs",
-        start_line: 33usize,
+        source_file: "oxiplate/tests/integration/different_extensions.rs",
+        start_line: 31usize,
         start_col: 4usize,
-        end_line: 33usize,
+        end_line: 31usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -176,11 +170,4 @@ fn json() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&html, &json])
 }

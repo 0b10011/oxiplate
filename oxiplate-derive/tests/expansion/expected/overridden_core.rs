@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate_derive::Oxiplate;
@@ -21,22 +15,22 @@ impl ::core::fmt::Display for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "overridden_std"]
+#[rustc_test_marker = "overridden_core::overridden_std"]
 #[doc(hidden)]
 pub static overridden_std: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("overridden_std"),
+        name: test::StaticTestName("overridden_core::overridden_std"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/overridden_core.rs",
-        start_line: 18usize,
+        source_file: "oxiplate-derive/tests/integration/overridden_core.rs",
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 18usize,
+        end_line: 14usize,
         end_col: 18usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -65,11 +59,4 @@ fn overridden_std() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&overridden_std])
 }

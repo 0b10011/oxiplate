@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate_derive::Oxiplate;
@@ -17,22 +11,22 @@ impl ::core::fmt::Display for Hashes {
     }
 }
 extern crate test;
-#[rustc_test_marker = "hashes"]
+#[rustc_test_marker = "comment::hashes"]
 #[doc(hidden)]
 pub static hashes: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("hashes"),
+        name: test::StaticTestName("comment::hashes"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/comment.rs",
-        start_line: 14usize,
+        source_file: "oxiplate-derive/tests/integration/comment.rs",
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 14usize,
+        end_line: 10usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -72,22 +66,22 @@ impl ::core::fmt::Display for TagEnds {
     }
 }
 extern crate test;
-#[rustc_test_marker = "tag_ends"]
+#[rustc_test_marker = "comment::tag_ends"]
 #[doc(hidden)]
 pub static tag_ends: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("tag_ends"),
+        name: test::StaticTestName("comment::tag_ends"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/comment.rs",
-        start_line: 26usize,
+        source_file: "oxiplate-derive/tests/integration/comment.rs",
+        start_line: 22usize,
         start_col: 4usize,
-        end_line: 26usize,
+        end_line: 22usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -113,11 +107,4 @@ fn tag_ends() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&hashes, &tag_ends])
 }

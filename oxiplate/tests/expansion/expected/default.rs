@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-
 use oxiplate::prelude::*;
 #[oxiplate_inline(
     html:r#"
@@ -53,22 +47,22 @@ impl ::oxiplate::Render for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "some"]
+#[rustc_test_marker = "default::some"]
 #[doc(hidden)]
 pub static some: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("some"),
+        name: test::StaticTestName("default::some"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/default.rs",
-        start_line: 18usize,
+        source_file: "oxiplate/tests/integration/default.rs",
+        start_line: 16usize,
         start_col: 4usize,
-        end_line: 18usize,
+        end_line: 16usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -104,22 +98,22 @@ fn some() {
     }
 }
 extern crate test;
-#[rustc_test_marker = "none"]
+#[rustc_test_marker = "default::none"]
 #[doc(hidden)]
 pub static none: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("none"),
+        name: test::StaticTestName("default::none"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/default.rs",
-        start_line: 34usize,
+        source_file: "oxiplate/tests/integration/default.rs",
+        start_line: 32usize,
         start_col: 4usize,
-        end_line: 34usize,
+        end_line: 32usize,
         end_col: 8usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -148,11 +142,4 @@ fn none() {
             }
         }
     }
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&none, &some])
 }

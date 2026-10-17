@@ -1,0 +1,272 @@
+use alloc::format;
+use alloc::string::String;
+
+use oxiplate_derive::Oxiplate;
+struct User {
+    name: &'static str,
+    company: &'static str,
+}
+impl User {
+    pub fn display_name(&self) -> String {
+        ::alloc::__export::must_use({
+            ::alloc::fmt::format(format_args!("{0} ({1})", self.company, self.name))
+        })
+    }
+}
+#[oxiplate_inline("{{ user.display_name() }}")]
+struct Data {
+    user: User,
+}
+impl ::core::fmt::Display for Data {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name()),
+        ))?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::method::field"]
+#[doc(hidden)]
+pub static field: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::method::field"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/method.rs",
+        start_line: 23usize,
+        start_col: 4usize,
+        end_line: 23usize,
+        end_col: 9usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field()),
+    ),
+};
+fn field() {
+    let data = Data {
+        user: User {
+            name: "Kiera",
+            company: "Floating Air LLC",
+        },
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"Floating Air LLC (Kiera)",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline(r#"{% if user.display_name().contains("i") %}yup!{% endif %}"#)]
+struct Argument {
+    user: User,
+}
+impl ::core::fmt::Display for Argument {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if self.user.display_name().contains("i") {
+            oxiplate_formatter.write_str("yup!")?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::method::field_with_argument"]
+#[doc(hidden)]
+pub static field_with_argument: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::method::field_with_argument"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/method.rs",
+        start_line: 41usize,
+        start_col: 4usize,
+        end_line: 41usize,
+        end_col: 23usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field_with_argument()),
+    ),
+};
+fn field_with_argument() {
+    let data = Argument {
+        user: User {
+            name: "Kiera",
+            company: "Floating Air LLC",
+        },
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"yup!",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline(
+    r#"{{ user.display_name().replace("a", "@",) }} {{ user.display_name().replace("a", "@") }}"#
+)]
+struct Arguments {
+    user: User,
+}
+impl ::core::fmt::Display for Arguments {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name().replace("a", "@")),
+        ))?;
+        oxiplate_formatter.write_str(" ")?;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+            &(self.user.display_name().replace("a", "@")),
+        ))?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::method::field_with_arguments"]
+#[doc(hidden)]
+pub static field_with_arguments: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::method::field_with_arguments"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/method.rs",
+        start_line: 61usize,
+        start_col: 4usize,
+        end_line: 61usize,
+        end_col: 24usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(field_with_arguments()),
+    ),
+};
+fn field_with_arguments() {
+    let data = Arguments {
+        user: User {
+            name: "Kiera",
+            company: "Floating Air LLC",
+        },
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"Flo@ting Air LLC (Kier@) Flo@ting Air LLC (Kier@)",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+#[oxiplate_inline(r#"{{ foo() }}"#)]
+struct Callback {
+    foo: fn() -> &'static str,
+}
+impl ::core::fmt::Display for Callback {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&((self.foo)())))?;
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::method::callback"]
+#[doc(hidden)]
+pub static callback: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::method::callback"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/method.rs",
+        start_line: 82usize,
+        start_col: 4usize,
+        end_line: 82usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(callback()),
+    ),
+};
+fn callback() {
+    {
+        match (
+            &"hello world",
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Callback {
+                        foo: || "hello world"
+                    }
+                ))
+            }),
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    }
+}

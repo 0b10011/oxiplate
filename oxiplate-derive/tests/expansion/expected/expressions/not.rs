@@ -1,0 +1,85 @@
+use alloc::format;
+
+use oxiplate_derive::Oxiplate;
+#[oxiplate_inline(
+    "
+{%- if !foo -%}
+    Yay
+{%- endif %}"
+)]
+struct Not {
+    foo: bool,
+}
+impl ::core::fmt::Display for Not {
+    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        extern crate alloc;
+        use ::core::fmt::Write as _;
+        if !self.foo {
+            oxiplate_formatter.write_str("Yay")?;
+        }
+        ::core::result::Result::Ok(())
+    }
+}
+extern crate test;
+#[rustc_test_marker = "expressions::not::test_if"]
+#[doc(hidden)]
+pub static test_if: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::not::test_if"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/not.rs",
+        start_line: 17usize,
+        start_col: 4usize,
+        end_line: 17usize,
+        end_col: 11usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(test_if()),
+    ),
+};
+fn test_if() {
+    let not = Not { foo: false };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
+            &"Yay",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+    let not = Not { foo: true };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", not)) }),
+            &"",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate_derive::Oxiplate;
@@ -80,22 +74,22 @@ impl ::oxiplate::Render for Respond {
     }
 }
 extern crate test;
-#[rustc_test_marker = "respond"]
+#[rustc_test_marker = "filters::respond"]
 #[doc(hidden)]
 pub static respond: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("respond"),
+        name: test::StaticTestName("filters::respond"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/filters.rs",
-        start_line: 50usize,
+        source_file: "oxiplate/tests/integration/filters.rs",
+        start_line: 46usize,
         start_col: 4usize,
-        end_line: 50usize,
+        end_line: 46usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -177,22 +171,22 @@ impl ::oxiplate::Render for Shorten {
     }
 }
 extern crate test;
-#[rustc_test_marker = "shorten"]
+#[rustc_test_marker = "filters::shorten"]
 #[doc(hidden)]
 pub static shorten: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("shorten"),
+        name: test::StaticTestName("filters::shorten"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/filters.rs",
-        start_line: 66usize,
+        source_file: "oxiplate/tests/integration/filters.rs",
+        start_line: 62usize,
         start_col: 4usize,
-        end_line: 66usize,
+        end_line: 62usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -281,22 +275,22 @@ impl ::oxiplate::Render for Pad {
     }
 }
 extern crate test;
-#[rustc_test_marker = "pad"]
+#[rustc_test_marker = "filters::pad"]
 #[doc(hidden)]
 pub static pad: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("pad"),
+        name: test::StaticTestName("filters::pad"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/filters.rs",
-        start_line: 97usize,
+        source_file: "oxiplate/tests/integration/filters.rs",
+        start_line: 93usize,
         start_col: 4usize,
-        end_line: 97usize,
+        end_line: 93usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -400,22 +394,22 @@ impl ::oxiplate::Render for Multiple {
     }
 }
 extern crate test;
-#[rustc_test_marker = "multiple"]
+#[rustc_test_marker = "filters::multiple"]
 #[doc(hidden)]
 pub static multiple: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("multiple"),
+        name: test::StaticTestName("filters::multiple"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/filters.rs",
-        start_line: 128usize,
+        source_file: "oxiplate/tests/integration/filters.rs",
+        start_line: 124usize,
         start_col: 4usize,
-        end_line: 128usize,
+        end_line: 124usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -501,11 +495,4 @@ fn multiple() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&multiple, &pad, &respond, &shorten])
 }

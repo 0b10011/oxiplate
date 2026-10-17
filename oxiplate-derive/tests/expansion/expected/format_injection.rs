@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-extern crate alloc;
 use alloc::format;
 
 use oxiplate_derive::Oxiplate;
@@ -24,22 +18,22 @@ impl ::core::fmt::Display for Data {
     }
 }
 extern crate test;
-#[rustc_test_marker = "format_injection"]
+#[rustc_test_marker = "format_injection::format_injection"]
 #[doc(hidden)]
 pub static format_injection: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("format_injection"),
+        name: test::StaticTestName("format_injection::format_injection"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate-derive/tests/format_injection.rs",
-        start_line: 18usize,
+        source_file: "oxiplate-derive/tests/integration/format_injection.rs",
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 18usize,
+        end_line: 14usize,
         end_col: 20usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -68,11 +62,4 @@ fn format_injection() {
             }
         }
     };
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&format_injection])
 }

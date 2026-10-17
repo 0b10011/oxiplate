@@ -1,9 +1,3 @@
-#![feature(prelude_import)]
-#![no_std]
-extern crate core;
-#[prelude_import]
-use core::prelude::rust_2024::*;
-
 use oxiplate::{Oxiplate, Render};
 #[oxiplate_inline(html:"<!--{{ comment: comment }}-->")]
 struct Data<'a> {
@@ -34,22 +28,22 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "comment"]
+#[rustc_test_marker = "comment_escaping::comment"]
 #[doc(hidden)]
 pub static comment: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("comment"),
+        name: test::StaticTestName("comment_escaping::comment"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/comment_escaping.rs",
-        start_line: 12usize,
+        source_file: "oxiplate/tests/integration/comment_escaping.rs",
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 12usize,
+        end_line: 10usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::IntegrationTest,
+        test_type: test::TestType::Unknown,
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
@@ -147,11 +141,4 @@ fn comment() {
             }
         };
     }
-}
-extern crate test;
-#[rustc_main]
-#[coverage(off)]
-#[doc(hidden)]
-pub fn main() -> test::ExitCode {
-    test::test_main_env_args(&[&comment])
 }
