@@ -92,6 +92,10 @@ jobs:
         if: steps.lookup.outputs.cache-hit != 'true'
         run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
 
+      - name: Fetch dependencies
+        if: steps.lookup.outputs.cache-hit != 'true'
+        run: cargo +${{ inputs.toolchain }} fetch --target host-tuple
+
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
         id: save
