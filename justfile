@@ -142,6 +142,7 @@ coverage: coverage-lcov coverage-html
 # Build LCOV report from running tests with coverage.
 [group("Test")]
 coverage-lcov: coverage-no-report
+    [ -d target/test-coverage ] || mkdir target/test-coverage
     cargo llvm-cov report --lcov --output-path target/test-coverage/lcov.info
 
 # Build HTML report from running tests with coverage.
