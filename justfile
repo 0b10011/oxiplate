@@ -51,7 +51,7 @@ rebuild-config-test-crates:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-10-16" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-10-17" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -147,7 +147,17 @@ coverage-lcov: coverage-no-report
 # Build HTML report from running tests with coverage.
 [group("Test")]
 coverage-html: coverage-no-report
+    # `coverage-no-report` results in the default output directory
+    # being deleted almost immediately,
+    # so the coverage report isn't readable until all of the tests finish.
+    # This will build the report in that directory,
+    # delete the final directory if it exists,
+    # and then move the report to its final directory in a quick `mv` command.
+    # This ensures the report continues to be readable
+    # even if tests are running or fail.
     cargo llvm-cov report --html
+    if [ -d target/test-coverage/html/ ]; then rm -r target/test-coverage/html/; fi
+    mv target/llvm-cov/html/ target/test-coverage/html/
 
 # Build LCOV report for each package from running tests with coverage.
 [group("Test")]
