@@ -6,4 +6,10 @@
     // Fixes `oxiplate-derive` tests
     // that fail when the `oxiplate` feature is enabled.
     "rust-analyzer.check.workspace": false,
+
+    // Match style used throughout codebase.
+    "rust-analyzer.assist.preferSelf": true,
+    "rust-analyzer.imports.granularity.group": "module",
+    "rust-analyzer.imports.merge.glob": false,
+    "rust-analyzer.imports.prefix": "self",
 }
