@@ -1,6 +1,7 @@
 target
 
-# Coverage files
+# Historic locations of coverage files.
+# Moved into `target/test-coverage` on 2026-10-18.
 /lcov.info
 /oxiplate.lcov
 /oxiplate-derive.lcov
