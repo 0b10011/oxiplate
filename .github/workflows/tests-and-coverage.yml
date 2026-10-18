@@ -63,7 +63,7 @@ jobs:
       - name: Coveralls upload
         uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
         with:
-          file: lcov.info
+          file: target/test-coverage/lcov.info
           format: lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
