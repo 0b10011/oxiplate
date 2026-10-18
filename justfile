@@ -142,7 +142,7 @@ coverage: coverage-lcov coverage-html
 # Build LCOV report from running tests with coverage.
 [group("Test")]
 coverage-lcov: coverage-no-report
-    cargo llvm-cov report --lcov --output-path lcov.info
+    cargo llvm-cov report --lcov --output-path target/test-coverage/lcov.info
 
 # Build HTML report from running tests with coverage.
 [group("Test")]
@@ -169,7 +169,7 @@ coverage-lcov-packages: coverage-no-report \
 [private]
 [group("Test")]
 coverage-lcov-package package other-packages: coverage-no-report
-    cargo llvm-cov report --ignore-filename-regex "^$PWD/({{ other-packages }})/" --lcov --output-path {{ package }}.lcov
+    cargo llvm-cov report --ignore-filename-regex "^$PWD/({{ other-packages }})/" --lcov --output-path target/test-coverage/{{ package }}.lcov
 
 # Run tests with coverage without building a report. Typically used with `cargo llvm-cov report`.
 [group("Test")]
