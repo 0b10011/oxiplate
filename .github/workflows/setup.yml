@@ -94,7 +94,7 @@ jobs:
 
       - name: Fetch dependencies
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} fetch --target host-tuple
+        run: cargo +${{ inputs.toolchain }} fetch --locked --target host-tuple
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
