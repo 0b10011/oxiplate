@@ -14,8 +14,11 @@ pub(in crate::template::parser) struct Lifetime<'a> {
 impl<'a> Lifetime<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (apostrophe, identifier)) =
-            (take(TokenKind::Apostrophe), Identifier::parse).parse(tokens)?;
+        let (tokens, (apostrophe, identifier)) = (
+            take(TokenKind::Apostrophe),
+            cut("Expected identifier", Identifier::parse),
+        )
+            .parse(tokens)?;
 
         Ok((
             tokens,

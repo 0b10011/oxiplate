@@ -29,7 +29,7 @@ pub(super) enum Type<'a> {
 }
 
 impl<'a> Type<'a> {
-    /// See: <>
+    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(TypeNoBounds::parse),

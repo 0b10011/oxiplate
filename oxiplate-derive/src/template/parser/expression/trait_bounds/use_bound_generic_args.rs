@@ -25,7 +25,10 @@ impl<'a> UseBoundGenericArgs<'a> {
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
-            take(TokenKind::GreaterThan),
+            cut(
+                "Expected `>` to end use bound generic args",
+                take(TokenKind::GreaterThan),
+            ),
         )
             .parse(tokens)?;
 

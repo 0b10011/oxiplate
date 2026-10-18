@@ -1,5 +1,5 @@
 use super::GenericArgs;
-use super::binding::Binding;
+use super::binding::GenericArgsBinding;
 use super::bounds::GenericArgsBounds;
 use super::generic_args_const::GenericArgsConst;
 use crate::template::parser::expression::trait_bounds::lifetime::Lifetime;
@@ -15,28 +15,31 @@ pub(super) struct GenericArgList<'a> {
 }
 
 impl<'a> GenericArgList<'a> {
+    /// `GenericArgList` plus wrapping `<` and `>`.
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericArg::parse, take(TokenKind::Comma))),
+                many0((GenericArg::parse, into(take(TokenKind::Comma)))),
                 ignore_recoverable_errors((
                     GenericArg::parse,
-                    ignore_recoverable_errors(take(TokenKind::Comma)),
+                    ignore_recoverable_errors(into(take(TokenKind::Comma))),
                 )),
             ),
-            take(TokenKind::GreaterThan),
+            cut(
+                "Expected `>` to end generic arg list",
+                take(TokenKind::GreaterThan),
+            ),
         )
             .parse(tokens)?;
 
         let last_generic = if last_generic.is_some() {
             last_generic
-                .map(|(generic, comma)| (generic, comma.map(|comma| comma.source().clone())))
         } else {
             first_generics
                 .pop()
-                .map(|(generic, comma)| (generic, Some(comma.source().clone())))
+                .map(|(generic, comma)| (generic, Some(comma)))
         };
 
         let mut source = less_than.source().clone();
@@ -44,7 +47,7 @@ impl<'a> GenericArgList<'a> {
         for (generic, comma) in &first_generics {
             source = source
                 .merge(&generic.source(), "Generic expected after `,` or `<`")
-                .merge(comma.source(), "`,` expected after generic");
+                .merge(comma, "`,` expected after generic");
         }
 
         if let Some((generic, comma)) = &last_generic {
@@ -58,10 +61,7 @@ impl<'a> GenericArgList<'a> {
         Ok((
             tokens,
             Self {
-                first_generics: first_generics
-                    .into_iter()
-                    .map(|(generic, comma)| (generic, comma.source().clone()))
-                    .collect(),
+                first_generics,
                 last_generic,
                 source,
             },
@@ -119,7 +119,7 @@ pub(in crate::template::parser) enum GenericArg<'a> {
     Const(GenericArgsConst<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
-    Binding(Binding<'a>),
+    Binding(GenericArgsBinding<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
     Bounds(GenericArgsBounds<'a>),
@@ -130,10 +130,10 @@ impl<'a> GenericArg<'a> {
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(Lifetime::parse),
+            into(GenericArgsBinding::parse),
+            into(GenericArgsBounds::parse),
             into(Type::parse),
             into(GenericArgsConst::parse),
-            into(Binding::parse),
-            into(GenericArgsBounds::parse),
         ))
         .parse(tokens)
     }

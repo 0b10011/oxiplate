@@ -1,4 +1,4 @@
-use super::GenericArgList;
+use super::GenericArgs;
 use crate::template::parser::expression::path::IdentSegment;
 use crate::template::parser::prelude::*;
 
@@ -8,7 +8,7 @@ pub(crate) struct TypePathSegment<'a> {
     ident_segment: IdentSegment<'a>,
 
     /// `Source` is optional path separator (`::`).
-    generics: Option<(Option<Source<'a>>, Box<GenericArgList<'a>>)>,
+    generics: Option<(Option<Source<'a>>, Box<GenericArgs<'a>>)>,
 }
 
 impl<'a> TypePathSegment<'a> {
@@ -18,7 +18,7 @@ impl<'a> TypePathSegment<'a> {
             IdentSegment::parse,
             ignore_recoverable_errors((
                 ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-                GenericArgList::parse,
+                GenericArgs::parse,
             )),
         )
             .parse(tokens)?;

@@ -19,10 +19,19 @@ impl<'a> ConstParam<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (r#const, identifier, colon, r#type, assignment)) = (
             KeywordParser::new("const"),
-            Identifier::parse,
-            into(take(TokenKind::Colon)),
-            Type::parse,
-            ignore_recoverable_errors((into(take(TokenKind::Equal)), ConstParamValue::parse)),
+            cut("Expected an identifier after `const`", Identifier::parse),
+            cut(
+                "Expected `:` after the identifier",
+                into(take(TokenKind::Colon)),
+            ),
+            cut("Expected a type after `:`", Type::parse),
+            ignore_recoverable_errors((
+                into(take(TokenKind::Equal)),
+                cut(
+                    "Expected an identifier, literal expression, or block expression",
+                    ConstParamValue::parse,
+                ),
+            )),
         )
             .parse(tokens)?;
 

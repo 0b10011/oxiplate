@@ -5,19 +5,21 @@ use crate::template::parser::prelude::*;
 
 /// See <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
 #[derive(Debug)]
-pub(in crate::template::parser) struct Binding<'a> {
+pub(in crate::template::parser) struct GenericArgsBinding<'a> {
     path_segment: TypePathSegment<'a>,
     equals: Source<'a>,
     r#type: Type<'a>,
 }
 
-impl<'a> Binding<'a> {
+impl<'a> GenericArgsBinding<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (path_segment, equals, r#type)) =
-            (TypePathSegment::parse, take(TokenKind::Equal), Type::parse).parse(tokens)?;
-
-        let equals = equals.source().clone();
+        let (tokens, (path_segment, equals, r#type)) = (
+            TypePathSegment::parse,
+            into(take(TokenKind::Equal)),
+            cut("Expected type after `=`", Type::parse),
+        )
+            .parse(tokens)?;
 
         Ok((
             tokens,
@@ -38,7 +40,7 @@ impl<'a> Binding<'a> {
     }
 }
 
-impl<'a> ToTokensWithState<'a> for Binding<'a> {
+impl<'a> ToTokensWithState<'a> for GenericArgsBinding<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.equals.span_token();
 
@@ -52,8 +54,8 @@ impl<'a> ToTokensWithState<'a> for Binding<'a> {
     }
 }
 
-impl<'a> From<Binding<'a>> for GenericArg<'a> {
-    fn from(value: Binding<'a>) -> Self {
+impl<'a> From<GenericArgsBinding<'a>> for GenericArg<'a> {
+    fn from(value: GenericArgsBinding<'a>) -> Self {
         Self::Binding(value)
     }
 }

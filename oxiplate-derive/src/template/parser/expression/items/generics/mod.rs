@@ -32,7 +32,10 @@ impl<'a> GenericParams<'a> {
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
-            take(TokenKind::GreaterThan),
+            cut(
+                "Expected `>` to end generic params",
+                take(TokenKind::GreaterThan),
+            ),
         )
             .parse(tokens)?;
 
