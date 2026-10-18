@@ -9,6 +9,7 @@ on:
       cargo-deny-version:
         description: "Version of `cargo-deny` to use"
         type: string
+        default: "0.19.0"
     outputs:
       cache-path:
         description: "Path for restoring cache item"
