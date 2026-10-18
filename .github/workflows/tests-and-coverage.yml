@@ -58,7 +58,7 @@ jobs:
           key: tests-and-coverage-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Run tests and coverage
-        run: just setup-test check-deps setup-coverage coverage-lcov build-no-std ''
+        run: just check-deps setup-coverage coverage-lcov build-no-std ''
 
       - name: Coveralls upload
         uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
@@ -140,7 +140,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: stable
-        run: just setup-test check-deps test-toolchain stable
+        run: just check-deps test-toolchain stable
 
   setup-beta:
     uses: ./.github/workflows/setup.yml
@@ -170,7 +170,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: beta
-        run: just setup-test check-deps test-toolchain beta
+        run: just check-deps test-toolchain beta
 
   book-tests:
     needs: get-toolchain
