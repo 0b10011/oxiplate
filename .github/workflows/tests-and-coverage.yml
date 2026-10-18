@@ -82,6 +82,9 @@ jobs:
       toolchain: ${{ needs.get-msrv.outputs.msrv }}
       # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
       cargo-deny-version: "0.18.3"
+      # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
+      # See: <https://releases.rs/docs/1.91.0/#cargo>
+      fetch-target: "x86_64-unknown-linux-gnu"
 
   test-msrv:
     needs: [get-msrv, setup-msrv]

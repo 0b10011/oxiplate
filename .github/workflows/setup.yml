@@ -10,6 +10,10 @@ on:
         description: "Version of `cargo-deny` to use"
         type: string
         default: "0.19.0"
+      fetch-target:
+        description: "Target for `cargo fetch` to use"
+        type: string
+        default: "host-tuple"
     outputs:
       cache-path:
         description: "Path for restoring cache item"
@@ -45,6 +49,21 @@ jobs:
             exit 1
           fi
           echo "`cargo-deny` version '$VERSION' is in a valid format"
+
+      - name: Validate `fetch-target` format
+        env:
+          TARGET: ${{ inputs.fetch-target }}
+          # Mostly just ensure bash doesn't split it.
+          # Should cover platforms at:
+          # <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
+          TARGET_REGEX: "^[a-zA-Z0-9_-]+$"
+        run: |
+          echo "Checking `fetch-target` '$TARGET' format..."
+          if [[ ! $TARGET =~ $TARGET_REGEX ]]; then
+            echo "'$TARGET' is not in the expected format '$TARGET_REGEX'" 1>&2
+            exit 1
+          fi
+          echo "`fetch-target` '$TARGET' is in a valid format"
 
       # Checkout immediately so file hashing works
       - name: Checkout repository
@@ -86,7 +105,7 @@ jobs:
 
       - name: Fetch dependencies
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} fetch --locked --target host-tuple
+        run: cargo +${{ inputs.toolchain }} fetch --locked --target ${{ inputs.fetch-target }}
 
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
