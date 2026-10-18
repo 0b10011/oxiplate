@@ -84,6 +84,10 @@ jobs:
         with:
           toolchain: ${{ inputs.toolchain }}
 
+      - name: Fetch dependencies
+        if: steps.lookup.outputs.cache-hit != 'true'
+        run: cargo +${{ inputs.toolchain }} fetch --locked --target host-tuple
+
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
         run: cargo +${{ inputs.toolchain }} install --locked just@1.53.0
@@ -91,10 +95,6 @@ jobs:
       - name: Install `cargo-deny`
         if: steps.lookup.outputs.cache-hit != 'true'
         run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
-
-      - name: Fetch dependencies
-        if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} fetch --locked --target host-tuple
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
