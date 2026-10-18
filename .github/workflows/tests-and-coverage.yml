@@ -24,6 +24,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      cargo-deny-version: "0.19.0"
 
   tests-and-coverage:
     needs: [get-toolchain, setup]
@@ -80,6 +81,8 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-msrv.outputs.msrv }}
+      # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
+      cargo-deny-version: "0.18.3"
 
   test-msrv:
     needs: [get-msrv, setup-msrv]
@@ -107,7 +110,6 @@ jobs:
         # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
         # An alternate config is used due to newer keys not being supported.
         run: |
-          cargo install --locked cargo-deny@0.18.3
           cargo deny check --config deny-0.18.3.toml licenses bans sources
           just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
@@ -115,6 +117,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: stable
+      cargo-deny-version: "0.19.0"
 
   test-stable:
     needs: [setup-stable]
@@ -145,6 +148,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: beta
+      cargo-deny-version: "0.19.0"
 
   test-beta:
     needs: [setup-beta]
