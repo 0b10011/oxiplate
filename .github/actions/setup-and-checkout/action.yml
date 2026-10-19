@@ -92,7 +92,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
         {
           echo 'cache-key<<EOF'
-          echo "$CACHE_KEY"
+          echo "$CACHE_KEY" | sed --regexp-extended 's/[^a-zA-Z0-9.:-]/_/g'
           echo 'EOF'
         } >> "$GITHUB_OUTPUT"
 
