@@ -25,18 +25,32 @@ jobs:
     with:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
+  setup-nightly-coverage:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      components: "llvm-tools-preview"
+      setup-coverage: true
+
+  setup-nightly-deny:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      setup-deny: true
+
+  setup-nightly-expansion:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      setup-expansion: true
+
   tests-and-coverage:
-    needs: [get-toolchain]
+    needs: [get-toolchain, setup-nightly-coverage]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          components: "llvm-tools-preview"
-          setup-coverage: true
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -52,8 +66,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-nightly-coverage.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-coverage.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
@@ -76,16 +90,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   check-nightly-deps:
-    needs: [get-toolchain]
+    needs: [get-toolchain, setup-nightly-deny]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          setup-deny: true
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -98,8 +105,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-nightly-deny.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-deny.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Run tests and coverage
@@ -112,24 +119,24 @@ jobs:
       cache-path: ${{ needs.setup-nightly.outputs.cache-path }}
       cache-key: ${{ needs.setup-nightly.outputs.cache-key }}
 
+  setup-msrv:
+    needs: get-msrv
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-msrv.outputs.msrv }}
+      # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
+      just-version: "1.53.0"
+      # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
+      cargo-deny-version: "0.18.3"
+      # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
+      # See: <https://releases.rs/docs/1.91.0/#cargo>
+      fetch-target: "x86_64-unknown-linux-gnu"
+      setup-deny: true
+
   test-msrv:
-    needs: [get-msrv]
+    needs: [get-msrv, setup-msrv]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: ${{ needs.get-msrv.outputs.msrv }}
-          # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
-          just-version: "1.53.0"
-          # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
-          cargo-deny-version: "0.18.3"
-          # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
-          # See: <https://releases.rs/docs/1.91.0/#cargo>
-          fetch-target: "x86_64-unknown-linux-gnu"
-          setup-deny: true
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -142,8 +149,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-msrv.outputs.cache-path }}
+          key: ${{ needs.setup-msrv.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Run tests
@@ -155,16 +162,16 @@ jobs:
           cargo deny check --config deny-0.18.3.toml licenses bans sources
           just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
+  setup-stable:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: stable
+      setup-deny: true
+
   test-stable:
+    needs: [setup-stable]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: stable
-          setup-deny: true
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -177,8 +184,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-stable.outputs.cache-path }}
+          key: ${{ needs.setup-stable.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Run tests
@@ -186,16 +193,16 @@ jobs:
           RUSTUP_TOOLCHAIN: stable
         run: just check-deps stable test-toolchain stable
 
+  setup-beta:
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: beta
+      setup-deny: true
+
   test-beta:
+    needs: [setup-beta]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: beta
-          setup-deny: true
-          
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -208,8 +215,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-beta.outputs.cache-path }}
+          key: ${{ needs.setup-beta.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Run tests
@@ -224,16 +231,9 @@ jobs:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   expansion-tests:
-    needs: [get-toolchain]
+    needs: [get-toolchain, setup-nightly-expansion]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        id: setup
-        uses: ./.github/workflows/setup.yml
-        with:
-          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          setup-expansion: true
-          
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
@@ -245,8 +245,8 @@ jobs:
       - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
+          path: ${{ needs.setup-nightly-expansion.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-expansion.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Cache expansion tests setup
