@@ -49,12 +49,12 @@ runs:
         VERSION_REGEX: "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\\+([0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*))?$"
       shell: bash
       run: |
-        echo "Checking `cargo-deny` version '$VERSION' format..."
+        echo "Checking \`cargo-deny\` version '$VERSION' format..."
         if [[ ! $VERSION =~ $VERSION_REGEX ]]; then
           echo "'$VERSION' is not in the expected format '$VERSION_REGEX'" 1>&2
           exit 1
         fi
-        echo "`cargo-deny` version '$VERSION' is in a valid format"
+        echo "\`cargo-deny\` version '$VERSION' is in a valid format"
 
     - name: 'Validate `fetch-target` format'
       env:
@@ -65,12 +65,12 @@ runs:
         TARGET_REGEX: "^[a-zA-Z0-9_-]+$"
       shell: bash
       run: |
-        echo "Checking `fetch-target` '$TARGET' format..."
+        echo "Checking \`fetch-target\` '$TARGET' format..."
         if [[ ! $TARGET =~ $TARGET_REGEX ]]; then
           echo "'$TARGET' is not in the expected format '$TARGET_REGEX'" 1>&2
           exit 1
         fi
-        echo "`fetch-target` '$TARGET' is in a valid format"
+        echo "\`fetch-target\` '$TARGET' is in a valid format"
 
       # Checkout immediately so file hashing works
     - name: Checkout repository
@@ -82,7 +82,7 @@ runs:
         CACHE_PATH: |
           ~/.cargo/
           target/
-        CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-deny }}:${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock') }}"
+        CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:just@${{ inputs.just-version }}:cargo-deny-${{ inputs.cargo-deny-version }}:target-${{ inputs.fetch-target }}:coverage-${{ inputs.setup-coverage }}:deny-${{ inputs.setup-deny }}:expansion-${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock') }}"
       shell: bash
       run: |
         {
