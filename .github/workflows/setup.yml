@@ -6,6 +6,22 @@ on:
       toolchain:
         description: "Rust toolchain to use"
         type: string
+      just-version:
+        description: "Version of `just` to use"
+        type: string
+        default: "1.59.0"
+      cargo-deny-version:
+        description: "Version of `cargo-deny` to use"
+        type: string
+        default: "0.19.0"
+      fetch-target:
+        description: "Target for `cargo fetch` to use"
+        type: string
+        default: "host-tuple"
+      setup-coverage:
+        description: "Whether to setup test coverage"
+        type: boolean
+        default: false
     outputs:
       cache-path:
         description: "Path for restoring cache item"
@@ -27,6 +43,36 @@ jobs:
       cache-path: ${{ steps.key.outputs.cache-path }}
       cache-key: ${{ steps.key.outputs.cache-key }}
     steps:
+      - name: Validate `cargo-deny` version format
+        env:
+          VERSION: ${{ inputs.cargo-deny-version }}
+          # Regex from <https://semver.org/>
+          # with `[0-9]` instead of `\d`
+          # and `?:` removed.
+          VERSION_REGEX: "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\\+([0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*))?$"
+        run: |
+          echo "Checking `cargo-deny` version '$VERSION' format..."
+          if [[ ! $VERSION =~ $VERSION_REGEX ]]; then
+            echo "'$VERSION' is not in the expected format '$VERSION_REGEX'" 1>&2
+            exit 1
+          fi
+          echo "`cargo-deny` version '$VERSION' is in a valid format"
+
+      - name: Validate `fetch-target` format
+        env:
+          TARGET: ${{ inputs.fetch-target }}
+          # Mostly just ensure bash doesn't split it.
+          # Should cover platforms at:
+          # <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
+          TARGET_REGEX: "^[a-zA-Z0-9_-]+$"
+        run: |
+          echo "Checking `fetch-target` '$TARGET' format..."
+          if [[ ! $TARGET =~ $TARGET_REGEX ]]; then
+            echo "'$TARGET' is not in the expected format '$TARGET_REGEX'" 1>&2
+            exit 1
+          fi
+          echo "`fetch-target` '$TARGET' is in a valid format"
+
       # Checkout immediately so file hashing works
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
@@ -36,6 +82,7 @@ jobs:
         env:
           CACHE_PATH: |
             ~/.cargo/
+            ~/.rustup/
             target/
           CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
         run: |
@@ -65,9 +112,21 @@ jobs:
         with:
           toolchain: ${{ inputs.toolchain }}
 
+      - name: Fetch dependencies
+        if: steps.lookup.outputs.cache-hit != 'true'
+        run: cargo +${{ inputs.toolchain }} fetch --locked --target ${{ inputs.fetch-target }}
+
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} install --locked just@1.53.0
+        run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
+
+      - name: Install `cargo-deny`
+        if: steps.lookup.outputs.cache-hit != 'true'
+        run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
+
+      - name: Setup test coverage
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
+        run: just setup-coverage
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'

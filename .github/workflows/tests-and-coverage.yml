@@ -24,6 +24,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      setup-coverage: true
 
   tests-and-coverage:
     needs: [get-toolchain, setup]
@@ -58,12 +59,12 @@ jobs:
           key: tests-and-coverage-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Run tests and coverage
-        run: just setup-test check-deps setup-coverage coverage-lcov build-no-std ''
+        run: just check-deps '' setup-coverage coverage-lcov build-no-std ''
 
       - name: Coveralls upload
         uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
         with:
-          file: lcov.info
+          file: target/test-coverage/lcov.info
           format: lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,6 +81,13 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-msrv.outputs.msrv }}
+      # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
+      just-version: "1.53.0"
+      # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
+      cargo-deny-version: "0.18.3"
+      # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
+      # See: <https://releases.rs/docs/1.91.0/#cargo>
+      fetch-target: "x86_64-unknown-linux-gnu"
 
   test-msrv:
     needs: [get-msrv, setup-msrv]
@@ -107,7 +115,6 @@ jobs:
         # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
         # An alternate config is used due to newer keys not being supported.
         run: |
-          cargo install --locked cargo-deny@0.18.3
           cargo deny check --config deny-0.18.3.toml licenses bans sources
           just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
@@ -139,7 +146,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: stable
-        run: just setup-test check-deps test-toolchain stable
+        run: just check-deps stable test-toolchain stable
 
   setup-beta:
     uses: ./.github/workflows/setup.yml
@@ -169,7 +176,7 @@ jobs:
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: beta
-        run: just setup-test check-deps test-toolchain beta
+        run: just check-deps beta test-toolchain beta
 
   book-tests:
     needs: get-toolchain
