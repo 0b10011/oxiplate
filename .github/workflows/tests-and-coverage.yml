@@ -63,8 +63,7 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
-      - &restore-setup
-        name: Restore setup cache
+      - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
           path: ${{ needs.setup-nightly-coverage.outputs.cache-path }}
@@ -103,8 +102,7 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
-      - &restore-setup
-        name: Restore setup cache
+      - name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
           path: ${{ needs.setup-nightly-deny.outputs.cache-path }}
@@ -243,7 +241,13 @@ jobs:
           components: "rustfmt"
 
       - *checkout
-      - *restore-setup
+
+      - name: Restore setup cache
+        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+        with:
+          path: ${{ needs.setup-nightly-expansion.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-expansion.outputs.cache-key }}
+          fail-on-cache-miss: true
 
       - name: Cache expansion tests setup
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
@@ -267,7 +271,15 @@ jobs:
           components: rustfmt
 
       - *checkout
-      - *restore-setup
+      
+      - &restore-setup-nightly
+        name: Restore setup cache
+        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+        with:
+          path: ${{ needs.setup-nightly.outputs.cache-path }}
+          key: ${{ needs.setup-nightly.outputs.cache-key }}
+          fail-on-cache-miss: true
+
 
       - name: Check formatting
         run: just format-check
@@ -283,7 +295,7 @@ jobs:
           components: clippy
 
       - *checkout
-      - *restore-setup
+      - *restore-setup-nightly
 
       - name: Check formatting
         run: just clippy-strict
