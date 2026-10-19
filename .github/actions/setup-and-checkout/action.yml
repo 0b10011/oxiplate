@@ -1,0 +1,71 @@
+name: setup-and-checkout
+description: 'Setup environment and checkout repo'
+inputs:
+  toolchain:
+    description: "Rust toolchain to use"
+    type: string
+  components:
+    description: "Rust components to use"
+    type: string
+    default: ""
+  just-version:
+    description: "Version of `just` to use"
+    type: string
+    default: "1.59.0"
+  cargo-deny-version:
+    description: "Version of `cargo-deny` to use"
+    type: string
+    default: "0.19.0"
+  fetch-target:
+    description: "Target for `cargo fetch` to use"
+    type: string
+    default: "host-tuple"
+  setup-coverage:
+    description: "Whether to setup test coverage"
+    type: boolean
+    default: false
+  setup-deny:
+    description: "Whether to setup `cargo-deny`"
+    type: boolean
+    default: false
+  setup-expansion:
+    description: "Whether to setup `cargo-expand`"
+    type: boolean
+    default: false
+  target:
+    description: 'Rust target'
+    type: string
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Setup'
+      id: setup
+      uses: ./github/workflows/setup.yml
+      with:
+        toolchain: ${{ inputs.toolchain }}
+        components: ${{ inputs.components }}
+        just-version: ${{ inputs.just-version }}
+        cargo-deny-version: ${{ inputs.cargo-deny-version }}
+        fetch-target: ${{ inputs.fetch-target }}
+        setup-coverage: ${{ inputs.setup-coverage }}
+        setup-deny: ${{ inputs.setup-deny }}
+        setup-expansion: ${{ inputs.setup-expansion }}
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      with:
+        toolchain: ${{ inputs.toolchain }}
+        components: ${{ inputs.components }}
+        target: ${{ inputs.target }}
+
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+    - name: Restore setup cache
+      uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+      with:
+        path: ${{ steps.setup.outputs.cache-path }}
+        key: ${{ steps.setup.outputs.cache-key }}
+        fail-on-cache-miss: true

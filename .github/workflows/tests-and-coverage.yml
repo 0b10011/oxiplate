@@ -19,56 +19,18 @@ jobs:
   get-toolchain:
     uses: ./.github/workflows/existing-toolchain.yml
 
-  setup-nightly:
-    needs: get-toolchain
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-
-  setup-nightly-coverage:
-    needs: get-toolchain
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-      components: "llvm-tools-preview"
-      setup-coverage: true
-
-  setup-nightly-deny:
-    needs: get-toolchain
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-      setup-deny: true
-
-  setup-nightly-expansion:
-    needs: get-toolchain
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-      setup-expansion: true
-
   tests-and-coverage:
-    needs: [get-toolchain, setup-nightly-coverage]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           components: "clippy, rust-src, llvm-tools-preview"
+          setup-coverage: true
           # For `no_std` build confirmation
           target: "x86_64-unknown-none"
-
-      - &checkout
-        name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-nightly-coverage.outputs.cache-path }}
-          key: ${{ needs.setup-nightly-coverage.outputs.cache-key }}
-          fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
@@ -90,68 +52,58 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   check-nightly-deps:
-    needs: [get-toolchain, setup-nightly-deny]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-
-      - &checkout
-        name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-nightly-deny.outputs.cache-path }}
-          key: ${{ needs.setup-nightly-deny.outputs.cache-key }}
-          fail-on-cache-miss: true
+          setup-deny: true
 
       - name: Run tests and coverage
         run: just check-deps ''
 
   get-msrv:
-    needs: [setup-nightly]
-    uses: ./.github/workflows/msrv.yml
-    with:
-      cache-path: ${{ needs.setup-nightly.outputs.cache-path }}
-      cache-key: ${{ needs.setup-nightly.outputs.cache-key }}
-
-  setup-msrv:
-    needs: get-msrv
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: ${{ needs.get-msrv.outputs.msrv }}
-      # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
-      just-version: "1.53.0"
-      # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
-      cargo-deny-version: "0.18.3"
-      # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
-      # See: <https://releases.rs/docs/1.91.0/#cargo>
-      fetch-target: "x86_64-unknown-linux-gnu"
-      setup-deny: true
-
-  test-msrv:
-    needs: [get-msrv, setup-msrv]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
+        with:
+          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+
+      - name: Get `rust-version` from `/Cargo.toml`
+        id: msrv
+        run: |
+          MSRV="$(just get-msrv)"
+
+          SAFE_REGEX='^[0-9]+\.[0-9]+\.[0-9]+$'
+          if [[ ! $MSRV =~ $SAFE_REGEX ]]; then
+            echo '`rust-version` value in "/Cargo.toml" is not in `#.#.#` format'
+            exit 1
+          fi
+
+          echo "msrv=$MSRV" >> $GITHUB_OUTPUT
+
+  test-msrv:
+    needs: [get-msrv]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-msrv.outputs.msrv }}
+          # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
+          just-version: "1.53.0"
+          # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
+          cargo-deny-version: "0.18.3"
+          # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
+          # See: <https://releases.rs/docs/1.91.0/#cargo>
+          fetch-target: "x86_64-unknown-linux-gnu"
+          setup-deny: true
           # For `no_std` build confirmation
           target: "x86_64-unknown-none"
-
-      - *checkout
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-msrv.outputs.cache-path }}
-          key: ${{ needs.setup-msrv.outputs.cache-key }}
-          fail-on-cache-miss: true
 
       - name: Run tests
         env:
@@ -162,62 +114,32 @@ jobs:
           cargo deny check --config deny-0.18.3.toml licenses bans sources
           just test-toolchain '${{ needs.get-msrv.outputs.msrv }}'
 
-  setup-stable:
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: stable
-      setup-deny: true
-
   test-stable:
-    needs: [setup-stable]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: stable
+          setup-deny: true
           # For `no_std` build confirmation
           target: "x86_64-unknown-none"
-
-      - *checkout
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-stable.outputs.cache-path }}
-          key: ${{ needs.setup-stable.outputs.cache-key }}
-          fail-on-cache-miss: true
 
       - name: Run tests
         env:
           RUSTUP_TOOLCHAIN: stable
         run: just check-deps stable test-toolchain stable
 
-  setup-beta:
-    uses: ./.github/workflows/setup.yml
-    with:
-      toolchain: beta
-      setup-deny: true
-
   test-beta:
-    needs: [setup-beta]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: beta
+          setup-deny: true
           # For `no_std` build confirmation
           target: "x86_64-unknown-none"
-
-      - *checkout
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-beta.outputs.cache-path }}
-          key: ${{ needs.setup-beta.outputs.cache-key }}
-          fail-on-cache-miss: true
 
       - name: Run tests
         env:
@@ -231,23 +153,15 @@ jobs:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   expansion-tests:
-    needs: [get-toolchain, setup-nightly-expansion]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+          setup-expansion: true
           components: "rustfmt"
-
-      - *checkout
-
-      - name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-nightly-expansion.outputs.cache-path }}
-          key: ${{ needs.setup-nightly-expansion.outputs.cache-key }}
-          fail-on-cache-miss: true
 
       - name: Cache expansion tests setup
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
@@ -261,41 +175,27 @@ jobs:
         run: just expansion-tests
 
   check-format:
-    needs: [get-toolchain, setup-nightly]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           components: rustfmt
-
-      - *checkout
-      
-      - &restore-setup-nightly
-        name: Restore setup cache
-        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
-        with:
-          path: ${{ needs.setup-nightly.outputs.cache-path }}
-          key: ${{ needs.setup-nightly.outputs.cache-key }}
-          fail-on-cache-miss: true
-
 
       - name: Check formatting
         run: just format-check
 
   clippy:
-    needs: [get-toolchain, setup-nightly]
+    needs: [get-toolchain]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - name: Setup and checkout
+        uses: ./.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          components: clippy
-
-      - *checkout
-      - *restore-setup-nightly
+          components: rustfmt
 
       - name: Check formatting
         run: just clippy-strict
