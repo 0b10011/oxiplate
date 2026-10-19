@@ -65,13 +65,14 @@ jobs:
         run: just check-deps ''
 
   get-msrv:
-    needs: [get-toolchain]
     runs-on: ubuntu-latest
+    outputs:
+      msrv: ${{ steps.msrv.outputs.msrv }}
     steps:
       - name: Setup and checkout
         uses: $/.github/actions/setup-and-checkout
         with:
-          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+          toolchain: stable
 
       - name: Get `rust-version` from `/Cargo.toml`
         id: msrv
