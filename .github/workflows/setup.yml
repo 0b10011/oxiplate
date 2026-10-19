@@ -6,6 +6,10 @@ on:
       toolchain:
         description: "Rust toolchain to use"
         type: string
+      components:
+        description: "Rust components to use"
+        type: string
+        default: ""
       just-version:
         description: "Version of `just` to use"
         type: string
@@ -82,7 +86,6 @@ jobs:
         env:
           CACHE_PATH: |
             ~/.cargo/
-            ~/.rustup/
             target/
           CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
         run: |
@@ -111,6 +114,7 @@ jobs:
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: ${{ inputs.toolchain }}
+          components: ${{ inputs.components }}
 
       - name: Fetch dependencies
         if: steps.lookup.outputs.cache-hit != 'true'

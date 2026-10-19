@@ -24,6 +24,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      components: "llvm-tools-preview"
       setup-coverage: true
 
   tests-and-coverage:
@@ -34,7 +35,7 @@ jobs:
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          components: clippy, rust-src
+          components: "clippy, rust-src, llvm-tools-preview"
           # For `no_std` build confirmation
           target: "x86_64-unknown-none"
 
