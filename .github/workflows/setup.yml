@@ -6,6 +6,10 @@ on:
       toolchain:
         description: "Rust toolchain to use"
         type: string
+      just-version:
+        description: "Version of `just` to use"
+        type: string
+        default: "1.59.0"
       cargo-deny-version:
         description: "Version of `cargo-deny` to use"
         type: string
@@ -113,7 +117,7 @@ jobs:
 
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} install --locked just@1.59.0
+        run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
 
       - name: Install `cargo-deny`
         if: steps.lookup.outputs.cache-hit != 'true'

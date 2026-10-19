@@ -81,6 +81,8 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-msrv.outputs.msrv }}
+      # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
+      just-version: "1.53.0"
       # cargo-deny@0.18.3 is the latest version to support rust versions prior to 1.88.0.
       cargo-deny-version: "0.18.3"
       # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
