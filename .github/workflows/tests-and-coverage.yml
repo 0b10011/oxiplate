@@ -19,7 +19,7 @@ jobs:
   get-toolchain:
     uses: ./.github/workflows/existing-toolchain.yml
 
-  setup:
+  setup-nightly:
     needs: get-toolchain
     uses: ./.github/workflows/setup.yml
     with:
@@ -29,7 +29,7 @@ jobs:
       setup-expansion: true
 
   tests-and-coverage:
-    needs: [get-toolchain, setup]
+    needs: [get-toolchain, setup-nightly]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
@@ -72,7 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-msrv:
-    needs: [setup]
+    needs: [setup-nightly]
     uses: ./.github/workflows/msrv.yml
     with:
       cache-path: ${{ needs.setup.outputs.cache-path }}
@@ -187,7 +187,7 @@ jobs:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   expansion-tests:
-    needs: [get-toolchain, setup]
+    needs: [get-toolchain, setup-nightly]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
@@ -211,7 +211,7 @@ jobs:
         run: just expansion-tests
 
   check-format:
-    needs: [get-toolchain, setup]
+    needs: [get-toolchain, setup-nightly]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
@@ -227,7 +227,7 @@ jobs:
         run: just format-check
 
   clippy:
-    needs: [get-toolchain, setup]
+    needs: [get-toolchain, setup-nightly]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
