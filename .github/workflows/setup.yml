@@ -26,6 +26,10 @@ on:
         description: "Whether to setup test coverage"
         type: boolean
         default: false
+      setup-deny:
+        description: "Whether to setup `cargo-deny`"
+        type: boolean
+        default: false
       setup-expansion:
         description: "Whether to setup `cargo-expand`"
         type: boolean
@@ -39,7 +43,7 @@ on:
         value: ${{ jobs.setup.outputs.cache-key }}
 
 concurrency:
-  group: "setup:${{ github.workflow }}:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-expansion }}:${{ github.ref }}"
+  group: "setup:${{ github.workflow }}:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-deny }}:${{ inputs.setup-expansion }}:${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
@@ -91,7 +95,7 @@ jobs:
           CACHE_PATH: |
             ~/.cargo/
             target/
-          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
+          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-deny }}:${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
         run: |
           {
             echo 'cache-path<<EOF'
@@ -129,7 +133,7 @@ jobs:
         run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
 
       - name: Install `cargo-deny`
-        if: steps.lookup.outputs.cache-hit != 'true'
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-deny == true
         run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
 
       - name: Setup test coverage

@@ -24,12 +24,31 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+
+  setup-nightly-coverage:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
       components: "llvm-tools-preview"
       setup-coverage: true
+
+  setup-nightly-deny:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+      setup-deny: true
+
+  setup-nightly-expansion:
+    needs: get-toolchain
+    uses: ./.github/workflows/setup.yml
+    with:
+      toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
       setup-expansion: true
 
   tests-and-coverage:
-    needs: [get-toolchain, setup-nightly]
+    needs: [get-toolchain, setup-nightly-coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
@@ -48,8 +67,8 @@ jobs:
         name: Restore setup cache
         uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
         with:
-          path: ${{ needs.setup.outputs.cache-path }}
-          key: ${{ needs.setup.outputs.cache-key }}
+          path: ${{ needs.setup-nightly-coverage.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-coverage.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Cache tests and coverage setup
@@ -61,7 +80,7 @@ jobs:
           key: tests-and-coverage-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Run tests and coverage
-        run: just check-deps '' setup-coverage coverage-lcov build-no-std ''
+        run: just setup-coverage coverage-lcov build-no-std ''
 
       - name: Coveralls upload
         uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
@@ -71,12 +90,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  check-nightly-deps:
+    needs: [get-toolchain, setup-nightly-deny]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
+
+      - &checkout
+        name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+      - &restore-setup
+        name: Restore setup cache
+        uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+        with:
+          path: ${{ needs.setup-nightly-deny.outputs.cache-path }}
+          key: ${{ needs.setup-nightly-deny.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - name: Run tests and coverage
+        run: just check-deps ''
+
   get-msrv:
     needs: [setup-nightly]
     uses: ./.github/workflows/msrv.yml
     with:
-      cache-path: ${{ needs.setup.outputs.cache-path }}
-      cache-key: ${{ needs.setup.outputs.cache-key }}
+      cache-path: ${{ needs.setup-nightly.outputs.cache-path }}
+      cache-key: ${{ needs.setup-nightly.outputs.cache-key }}
 
   setup-msrv:
     needs: get-msrv
@@ -90,6 +133,7 @@ jobs:
       # `cargo fetch` doesn't support "host-tuple" until 1.91.0.
       # See: <https://releases.rs/docs/1.91.0/#cargo>
       fetch-target: "x86_64-unknown-linux-gnu"
+      setup-deny: true
 
   test-msrv:
     needs: [get-msrv, setup-msrv]
@@ -124,6 +168,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: stable
+      setup-deny: true
 
   test-stable:
     needs: [setup-stable]
@@ -154,6 +199,7 @@ jobs:
     uses: ./.github/workflows/setup.yml
     with:
       toolchain: beta
+      setup-deny: true
 
   test-beta:
     needs: [setup-beta]
@@ -187,7 +233,7 @@ jobs:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   expansion-tests:
-    needs: [get-toolchain, setup-nightly]
+    needs: [get-toolchain, setup-nightly-expansion]
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
