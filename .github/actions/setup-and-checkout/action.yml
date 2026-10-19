@@ -42,7 +42,7 @@ runs:
   steps:
     - name: 'Setup'
       id: setup
-      uses: ./github/workflows/setup.yml
+      uses: $/.github/workflows/setup.yml
       with:
         toolchain: ${{ inputs.toolchain }}
         components: ${{ inputs.components }}
