@@ -121,7 +121,7 @@ jobs:
 
       - name: Setup test coverage
         if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
-        run: just setup-coverage ${{ inputs.toolchain }}
+        run: just setup-coverage
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
