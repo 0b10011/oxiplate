@@ -148,6 +148,6 @@ runs:
     - name: Restore setup cache
       uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
       with:
-        path: ${{ steps.setup.outputs.cache-path }}
-        key: ${{ steps.setup.outputs.cache-key }}
+        path: ${{ steps.key.outputs.cache-path }}
+        key: ${{ steps.key.outputs.cache-key }}
         fail-on-cache-miss: true
