@@ -26,6 +26,10 @@ on:
         description: "Whether to setup test coverage"
         type: boolean
         default: false
+      setup-expansion:
+        description: "Whether to setup `cargo-expand`"
+        type: boolean
+        default: false
     outputs:
       cache-path:
         description: "Path for restoring cache item"
@@ -87,7 +91,7 @@ jobs:
           CACHE_PATH: |
             ~/.cargo/
             target/
-          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
+          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
         run: |
           {
             echo 'cache-path<<EOF'
@@ -131,6 +135,10 @@ jobs:
       - name: Setup test coverage
         if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
         run: just setup-coverage
+
+      - name: Setup expansion
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-expansion == true
+        run: just setup-expansion
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'

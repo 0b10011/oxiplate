@@ -26,6 +26,7 @@ jobs:
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
       components: "llvm-tools-preview"
       setup-coverage: true
+      setup-expansion: true
 
   tests-and-coverage:
     needs: [get-toolchain, setup]
@@ -207,7 +208,7 @@ jobs:
           key: expansion-tests-${{ hashFiles('.github/workflows/tests-and-coverage.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
 
       - name: Expansion tests
-        run: just setup-expansion expansion-tests
+        run: just expansion-tests
 
   check-format:
     needs: [get-toolchain, setup]
