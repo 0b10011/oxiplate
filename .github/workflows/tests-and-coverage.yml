@@ -195,7 +195,7 @@ jobs:
         uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
-          components: rustfmt
+          components: clippy
 
       - name: Check formatting
         run: just clippy-strict
