@@ -3,38 +3,29 @@ description: 'Setup environment and checkout repo'
 inputs:
   toolchain:
     description: "Rust toolchain to use"
-    type: string
   components:
     description: "Rust components to use"
-    type: string
     default: ""
   just-version:
     description: "Version of `just` to use"
-    type: string
     default: "1.59.0"
   cargo-deny-version:
     description: "Version of `cargo-deny` to use"
-    type: string
     default: "0.19.0"
   fetch-target:
     description: "Target for `cargo fetch` to use"
-    type: string
     default: "host-tuple"
   setup-coverage:
     description: "Whether to setup test coverage"
-    type: boolean
-    default: false
+    default: 'false'
   setup-deny:
     description: "Whether to setup `cargo-deny`"
-    type: boolean
-    default: false
+    default: 'false'
   setup-expansion:
     description: "Whether to setup `cargo-expand`"
-    type: boolean
-    default: false
+    default: 'false'
   target:
     description: 'Rust target'
-    type: string
     required: false
 
 runs:
@@ -82,7 +73,7 @@ runs:
         CACHE_PATH: |
           ~/.cargo/
           target/
-        CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:just@${{ inputs.just-version }}:cargo-deny-${{ inputs.cargo-deny-version }}:target-${{ inputs.fetch-target }}:coverage-${{ inputs.setup-coverage }}:deny-${{ inputs.setup-deny }}:expansion-${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock') }}"
+        CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:just@${{ inputs.just-version }}:cargo-deny-${{ inputs.cargo-deny-version }}:target-${{ inputs.fetch-target }}:coverage-${{ inputs.setup-coverage }}:deny-${{ inputs.setup-deny }}:expansion-${{ inputs.setup-expansion }}:${{ hashFiles('.github/actions/setup-and-checkout/action.yml', 'justfile', 'Cargo.lock') }}"
       shell: bash
       run: |
         {
@@ -123,17 +114,17 @@ runs:
       run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
 
     - name: Install `cargo-deny`
-      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-deny == true
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-deny == 'true'
       shell: bash
       run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
 
     - name: Setup test coverage
-      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == 'true'
       shell: bash
       run: just setup-coverage
 
     - name: Setup expansion
-      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-expansion == true
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-expansion == 'true'
       shell: bash
       run: just setup-expansion
 
