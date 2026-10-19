@@ -133,8 +133,8 @@ build-no-std toolchain="":
     RUSTFLAGS='-D warnings' cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
 
 [private]
-get-msrv:
-    @cargo metadata --no-deps --format-version 1 \
+get-msrv toolchain="":
+    @cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} metadata --no-deps --format-version 1 \
     | jq --join-output '.packages[] | select(.name == "oxiplate") | .rust_version'
 
 # Build HTML and LCOV reports from running tests with coverage.
