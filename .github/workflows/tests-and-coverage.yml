@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           components: "clippy, rust-src, llvm-tools-preview"
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           setup-deny: true
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-msrv.outputs.msrv }}
           # just@1.53.0 is the latest version to support rust versions prior to 1.89.0.
@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: stable
           setup-deny: true
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: beta
           setup-deny: true
@@ -157,7 +157,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           setup-expansion: true
@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           components: rustfmt
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and checkout
-        uses: ./.github/actions/setup-and-checkout
+        uses: $/.github/actions/setup-and-checkout
         with:
           toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
           components: rustfmt
