@@ -106,13 +106,15 @@ check-strict: (run-against-stable "CARGO_BUILD_WARNINGS=deny RUSTFLAGS='-D warni
 
 # Check dependencies for licenses, bans, and sources
 [group("Test")]
-check-deps:
-    cargo deny check licenses bans sources
+check-deps toolchain="": (cargo toolchain 'deny check licenses bans sources')
 
 # Run tests without coverage.
 [group("Test")]
-test: (run-against-all "cargo test --locked") build-no-std (run-against-libs "cargo test --locked --doc") book-tests expansion-tests
-    cargo test --package oxiplate-derive --test clippy -- --ignored
+test: (run-against-all "cargo test --locked") \
+    build-no-std (run-against-libs "cargo test --locked --doc") \
+    book-tests \
+    expansion-tests \
+    (cargo '' 'test --package oxiplate-derive --test clippy -- --ignored')
 
 # Run stable tests against specified toolchain (target triples not supported).
 [group("Test")]
@@ -128,7 +130,7 @@ test-msrv: (test-toolchain `just get-msrv`)
 [group("Test")]
 [arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]
 build-no-std toolchain="":
-    RUSTFLAGS='-D warnings' cargo {{ if toolchain != "" { '+' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
+    RUSTFLAGS='-D warnings' cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
 
 [private]
 get-msrv:
@@ -232,30 +234,31 @@ run-against-broken command: (run-against-libs f"{{ command }} --test broken --fe
 
 # Initial setup. Run once to install all necessary binaries. Run again to ensure they are all up-to-date.
 [group("Setup"), group("General Commands")]
-setup: setup-dev setup-test setup-expansion setup-coverage setup-book
+setup: setup-dev setup-expansion setup-coverage setup-book
 
 # Initial setup for general development.
 [group("Setup")]
-setup-dev:
-    cargo install just watchexec-cli
-
-# Initial setup for testing
-[group("Setup")]
-setup-test:
-    cargo install --locked cargo-deny@0.19.0
+setup-dev: (cargo-install '' 'just@1.59.0 watchexec-cli@2.3.2')
 
 # Initial setup for expansion tests and debugging.
 [group("Setup")]
-setup-expansion:
-    cargo install cargo-expand
+setup-expansion: (cargo-install '' 'cargo-expand@1.0.127')
     rustup component add rustfmt
 
 # Initial setup for test coverage.
 [group("Setup")]
-setup-coverage: setup-test
-    cargo install cargo-llvm-cov
+setup-coverage: (cargo-install '' 'cargo-llvm-cov@0.9.1')
+    rustup component add llvm-tools-preview
 
 # Initial setup for generating the book.
 [group("Setup")]
-setup-book:
-    cargo install mdbook@0.4.52
+setup-book: (cargo-install '' 'mdbook@0.4.52')
+
+[private]
+[arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]
+cargo-install toolchain packages: (cargo toolchain f'install --locked {{ packages }}')
+
+[private]
+[arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]
+cargo toolchain command:
+    cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} {{ command }}

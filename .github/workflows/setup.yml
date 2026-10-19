@@ -14,6 +14,10 @@ on:
         description: "Target for `cargo fetch` to use"
         type: string
         default: "host-tuple"
+      setup-coverage:
+        description: "Whether to setup test coverage"
+        type: boolean
+        default: false
     outputs:
       cache-path:
         description: "Path for restoring cache item"
@@ -109,11 +113,15 @@ jobs:
 
       - name: Install `just`
         if: steps.lookup.outputs.cache-hit != 'true'
-        run: cargo +${{ inputs.toolchain }} install --locked just@1.53.0
+        run: cargo +${{ inputs.toolchain }} install --locked just@1.59.0
 
       - name: Install `cargo-deny`
         if: steps.lookup.outputs.cache-hit != 'true'
         run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
+
+      - name: Setup test coverage
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
+        run: just setup-coverage ${{ inputs.toolchain }}
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'
