@@ -16,7 +16,6 @@ jobs:
     needs: get-toolchain
     uses: ./.github/workflows/book-setup.yml
     with:
-      # Should match value in `/rust-toolchain.toml`
       toolchain: ${{ needs.get-toolchain.outputs.toolchain }}
 
   book-tests:

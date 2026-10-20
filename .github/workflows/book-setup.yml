@@ -43,7 +43,7 @@ jobs:
           CACHE_PATH: |
             ~/.cargo/
             target/
-          CACHE_KEY: book-setup-${{ hashFiles('.github/workflows/book-setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}
+          CACHE_KEY: book-setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/book-setup.yml', 'justfile', 'Cargo.lock') }}
         run: |
           {
             echo 'cache-path<<EOF'

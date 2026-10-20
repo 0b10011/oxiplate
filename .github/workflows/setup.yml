@@ -6,6 +6,10 @@ on:
       toolchain:
         description: "Rust toolchain to use"
         type: string
+      components:
+        description: "Rust components to use"
+        type: string
+        default: ""
       just-version:
         description: "Version of `just` to use"
         type: string
@@ -22,6 +26,14 @@ on:
         description: "Whether to setup test coverage"
         type: boolean
         default: false
+      setup-deny:
+        description: "Whether to setup `cargo-deny`"
+        type: boolean
+        default: false
+      setup-expansion:
+        description: "Whether to setup `cargo-expand`"
+        type: boolean
+        default: false
     outputs:
       cache-path:
         description: "Path for restoring cache item"
@@ -31,7 +43,7 @@ on:
         value: ${{ jobs.setup.outputs.cache-key }}
 
 concurrency:
-  group: "setup:${{ github.workflow }}:${{ inputs.toolchain }}:${{ github.ref }}"
+  group: "setup:${{ github.workflow }}:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-deny }}:${{ inputs.setup-expansion }}:${{ github.ref }}"
 
 env:
   RUSTUP_AUTO_INSTALL: "0"
@@ -82,9 +94,8 @@ jobs:
         env:
           CACHE_PATH: |
             ~/.cargo/
-            ~/.rustup/
             target/
-          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock', 'rust-toolchain.toml') }}"
+          CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:${{ inputs.just-version }}:${{ inputs.cargo-deny-version }}:${{ inputs.fetch-target }}:${{ inputs.setup-coverage }}:${{ inputs.setup-deny }}:${{ inputs.setup-expansion }}:${{ hashFiles('.github/workflows/setup.yml', 'justfile', 'Cargo.lock') }}"
         run: |
           {
             echo 'cache-path<<EOF'
@@ -111,6 +122,7 @@ jobs:
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: ${{ inputs.toolchain }}
+          components: ${{ inputs.components }}
 
       - name: Fetch dependencies
         if: steps.lookup.outputs.cache-hit != 'true'
@@ -121,12 +133,16 @@ jobs:
         run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
 
       - name: Install `cargo-deny`
-        if: steps.lookup.outputs.cache-hit != 'true'
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-deny == true
         run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
 
       - name: Setup test coverage
         if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == true
         run: just setup-coverage
+
+      - name: Setup expansion
+        if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-expansion == true
+        run: just setup-expansion
 
       - name: Save cache
         if: steps.lookup.outputs.cache-hit != 'true'

@@ -1,0 +1,144 @@
+name: setup-and-checkout
+description: 'Setup environment and checkout repo'
+inputs:
+  toolchain:
+    description: "Rust toolchain to use"
+  components:
+    description: "Rust components to use"
+    default: ""
+  just-version:
+    description: "Version of `just` to use"
+    default: "1.59.0"
+  cargo-deny-version:
+    description: "Version of `cargo-deny` to use"
+    default: "0.19.0"
+  fetch-target:
+    description: "Target for `cargo fetch` to use"
+    default: "host-tuple"
+  setup-coverage:
+    description: "Whether to setup test coverage"
+    default: 'false'
+  setup-deny:
+    description: "Whether to setup `cargo-deny`"
+    default: 'false'
+  setup-expansion:
+    description: "Whether to setup `cargo-expand`"
+    default: 'false'
+  target:
+    description: 'Rust target'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Validate `cargo-deny` version format'
+      env:
+        VERSION: ${{ inputs.cargo-deny-version }}
+        # Regex from <https://semver.org/>
+        # with `[0-9]` instead of `\d`
+        # and `?:` removed.
+        VERSION_REGEX: "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\\+([0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*))?$"
+      shell: bash
+      run: |
+        echo "Checking \`cargo-deny\` version '$VERSION' format..."
+        if [[ ! $VERSION =~ $VERSION_REGEX ]]; then
+          echo "'$VERSION' is not in the expected format '$VERSION_REGEX'" 1>&2
+          exit 1
+        fi
+        echo "\`cargo-deny\` version '$VERSION' is in a valid format"
+
+    - name: 'Validate `fetch-target` format'
+      env:
+        TARGET: ${{ inputs.fetch-target }}
+        # Mostly just ensure bash doesn't split it.
+        # Should cover platforms at:
+        # <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
+        TARGET_REGEX: "^[a-zA-Z0-9_-]+$"
+      shell: bash
+      run: |
+        echo "Checking \`fetch-target\` '$TARGET' format..."
+        if [[ ! $TARGET =~ $TARGET_REGEX ]]; then
+          echo "'$TARGET' is not in the expected format '$TARGET_REGEX'" 1>&2
+          exit 1
+        fi
+        echo "\`fetch-target\` '$TARGET' is in a valid format"
+
+      # Checkout immediately so file hashing works
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+    - name: Save cache path and key to output
+      id: key
+      env:
+        CACHE_PATH: |
+          ~/.cargo/
+          target/
+        CACHE_KEY: "setup:${{ inputs.toolchain }}:${{ inputs.components }}:just@${{ inputs.just-version }}:cargo-deny-${{ inputs.cargo-deny-version }}:target-${{ inputs.fetch-target }}:coverage-${{ inputs.setup-coverage }}:deny-${{ inputs.setup-deny }}:expansion-${{ inputs.setup-expansion }}:${{ hashFiles('.github/actions/setup-and-checkout/action.yml', 'justfile', 'Cargo.lock') }}"
+      shell: bash
+      run: |
+        {
+          echo 'cache-path<<EOF'
+          echo "$CACHE_PATH"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+        {
+          echo 'cache-key<<EOF'
+          echo "$CACHE_KEY" | sed --regexp-extended 's/[^a-zA-Z0-9.:-]/_/g'
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    # If the item already exists, skip to end
+    - name: Lookup cache
+      id: lookup
+      uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+      with:
+        path: ${{ steps.key.outputs.cache-path }}
+        key: ${{ steps.key.outputs.cache-key }}
+        lookup-only: true
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      with:
+        toolchain: ${{ inputs.toolchain }}
+        components: ${{ inputs.components }}
+        target: ${{ inputs.target }}
+
+    - name: Fetch dependencies
+      if: steps.lookup.outputs.cache-hit != 'true'
+      shell: bash
+      run: cargo +${{ inputs.toolchain }} fetch --locked --target ${{ inputs.fetch-target }}
+
+    - name: Install `just`
+      if: steps.lookup.outputs.cache-hit != 'true'
+      shell: bash
+      run: cargo +${{ inputs.toolchain }} install --locked just@${{ inputs.just-version }}
+
+    - name: Install `cargo-deny`
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-deny == 'true'
+      shell: bash
+      run: cargo +${{ inputs.toolchain }} install --locked cargo-deny@${{ inputs.cargo-deny-version }}
+
+    - name: Setup test coverage
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-coverage == 'true'
+      shell: bash
+      run: just setup-coverage
+
+    - name: Setup expansion
+      if: steps.lookup.outputs.cache-hit != 'true' && inputs.setup-expansion == 'true'
+      shell: bash
+      run: just setup-expansion
+
+    - name: Save cache
+      if: steps.lookup.outputs.cache-hit != 'true'
+      id: save
+      uses: actions/cache/save@3edfce9056124e459a23f683a21433670d47daca # v5
+      with:
+        path: ${{ steps.key.outputs.cache-path }}
+        key: ${{ steps.key.outputs.cache-key }}
+
+    - name: Restore setup cache
+      uses: actions/cache/restore@3edfce9056124e459a23f683a21433670d47daca # v5
+      with:
+        path: ${{ steps.key.outputs.cache-path }}
+        key: ${{ steps.key.outputs.cache-key }}
+        fail-on-cache-miss: true

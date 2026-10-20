@@ -51,7 +51,7 @@ rebuild-config-test-crates:
 # Run book tests.
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-10-17" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-10-18" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -133,8 +133,8 @@ build-no-std toolchain="":
     RUSTFLAGS='-D warnings' cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
 
 [private]
-get-msrv:
-    @cargo metadata --no-deps --format-version 1 \
+get-msrv toolchain="":
+    @cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} metadata --no-deps --format-version 1 \
     | jq --join-output '.packages[] | select(.name == "oxiplate") | .rust_version'
 
 # Build HTML and LCOV reports from running tests with coverage.
