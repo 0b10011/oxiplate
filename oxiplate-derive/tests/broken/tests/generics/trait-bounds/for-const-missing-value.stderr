@@ -1,0 +1,5 @@
+error: Expected an identifier, literal expression, or block expression
+ --> tests/broken/tests/generics/trait-bounds/for-const-missing-value.rs:4:57
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<T: for <const FOO: usize =>>::from([19, 89]).join("") }}"#)]
+  |                                                         ^

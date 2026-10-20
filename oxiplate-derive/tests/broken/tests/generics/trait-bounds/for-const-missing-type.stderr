@@ -1,0 +1,5 @@
+error: Expected a type after `:`
+ --> tests/broken/tests/generics/trait-bounds/for-const-missing-type.rs:4:49
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<T: for <const FOO:>>::from([19, 89]).join("") }}"#)]
+  |                                                 ^

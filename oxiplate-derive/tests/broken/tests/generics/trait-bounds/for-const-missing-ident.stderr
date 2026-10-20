@@ -1,0 +1,5 @@
+error: Expected an identifier after `const`
+ --> tests/broken/tests/generics/trait-bounds/for-const-missing-ident.rs:4:44
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<T: for <const>>::from([19, 89]).join("") }}"#)]
+  |                                            ^
