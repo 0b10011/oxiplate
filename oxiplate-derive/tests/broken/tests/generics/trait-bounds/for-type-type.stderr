@@ -1,0 +1,30 @@
+error[E0658]: only lifetime parameters can be used in this context
+  --> tests/broken/tests/generics/trait-bounds/for-type-type.rs:10:39
+   |
+10 | #[oxiplate_inline(r#"{{ Vec::<T: for <Foo = Baz> Bar>::from([19, 89]).join("") }}"#)]
+   |                                       ^^^
+   |
+   = note: see issue #108185 <https://github.com/rust-lang/rust/issues/108185> for more information
+   = help: add `#![feature(non_lifetime_binders)]` to the crate attributes to enable
+
+error: defaults for generic parameters are not allowed in `for<...>` binders
+  --> tests/broken/tests/generics/trait-bounds/for-type-type.rs:10:39
+   |
+10 | #[oxiplate_inline(r#"{{ Vec::<T: for <Foo = Baz> Bar>::from([19, 89]).join("") }}"#)]
+   |                                       ^^^^^^^^^
+
+error[E0229]: associated item constraints are not allowed here
+  --> tests/broken/tests/generics/trait-bounds/for-type-type.rs:10:31
+   |
+10 | #[oxiplate_inline(r#"{{ Vec::<T: for <Foo = Baz> Bar>::from([19, 89]).join("") }}"#)]
+   |                               ^^^^^^^^^^^^^^^^^^^^^^ associated item constraint not allowed here
+
+error[E0599]: the method `join` exists for struct `Vec<{integer}>`, but its trait bounds were not satisfied
+  --> tests/broken/tests/generics/trait-bounds/for-type-type.rs:10:71
+   |
+10 | #[oxiplate_inline(r#"{{ Vec::<T: for <Foo = Baz> Bar>::from([19, 89]).join("") }}"#)]
+   |                                                                       ^^^^ method cannot be called on `Vec<{integer}>` due to unsatisfied trait bounds
+   |
+   = note: the following trait bounds were not satisfied:
+           `[{integer}]: Join<_>`
+           which is required by `<[{integer}] as Join<_>>::Output = _`
