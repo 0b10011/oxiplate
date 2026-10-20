@@ -7,7 +7,9 @@ mod ignore_recoverable_errors;
 mod into;
 mod many0;
 mod many1;
+mod none;
 mod parse_all;
+mod some;
 mod take;
 
 use std::fmt::Debug;
@@ -23,7 +25,9 @@ pub(crate) use ignore_recoverable_errors::ignore_recoverable_errors;
 pub(crate) use into::into;
 pub(crate) use many0::many0;
 pub(crate) use many1::many1;
+pub(crate) use none::none;
 pub(crate) use parse_all::parse_all;
+pub(crate) use some::some;
 pub(crate) use take::take;
 
 use crate::Source;
@@ -34,7 +38,7 @@ pub(crate) type Res<'a, K, S> = Result<(TokenSlice<'a, K>, S), Error<'a>>;
 pub(crate) mod prelude {
     pub(crate) use super::{
         Error, Parser, alt, context, cut, fail, ignore_all_errors, ignore_recoverable_errors, into,
-        many0, many1, parse_all, take,
+        many0, many1, none, parse_all, some, take,
     };
 }
 
