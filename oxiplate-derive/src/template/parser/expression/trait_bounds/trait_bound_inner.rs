@@ -14,11 +14,14 @@ impl<'a> TraitBoundInner<'a> {
     /// Non-parenthesized part of trait bound.
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (prefix, type_path)) = (
-            ignore_recoverable_errors(TraitBoundPrefix::parse),
-            TypePath::parse,
-        )
-            .parse(tokens)?;
+        let (tokens, (prefix, type_path)) = alt((
+            (
+                some(TraitBoundPrefix::parse),
+                cut("Type path expected in trait bound", TypePath::parse),
+            ),
+            (none(), TypePath::parse),
+        ))
+        .parse(tokens)?;
 
         Ok((tokens, Self { prefix, type_path }))
     }
@@ -64,8 +67,11 @@ impl<'a> TraitBoundPrefix<'a> {
             return Ok((tokens, Self::QuestionMark(question_mark.source().clone())));
         }
 
-        let (tokens, (r#for, generic_params)) =
-            (KeywordParser::new("for"), GenericParams::parse).parse(tokens)?;
+        let (tokens, (r#for, generic_params)) = (
+            KeywordParser::new("for"),
+            cut("Generic params expected after `for`", GenericParams::parse),
+        )
+            .parse(tokens)?;
 
         Ok((
             tokens,
