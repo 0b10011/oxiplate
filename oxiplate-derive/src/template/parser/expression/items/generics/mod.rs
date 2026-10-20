@@ -127,8 +127,8 @@ impl<'a> GenericParam<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(LifetimeParam::parse),
-            into(TypeParam::parse),
             into(ConstParam::parse),
+            into(TypeParam::parse),
         ))
         .parse(tokens)
     }
