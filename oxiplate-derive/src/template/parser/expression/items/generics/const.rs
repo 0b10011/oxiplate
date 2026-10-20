@@ -1,5 +1,5 @@
 use super::GenericParam;
-use crate::template::parser::expression::literal::LiteralExpression;
+use crate::template::parser::expression::literal::PossiblyNegativeLiteralExpression;
 use crate::template::parser::expression::types::Type;
 use crate::template::parser::expression::{Identifier, Keyword, KeywordParser};
 use crate::template::parser::prelude::*;
@@ -112,10 +112,7 @@ pub(crate) enum ConstParamValue<'a> {
 
     /// `LiteralExpression` with optional leading `-`.
     /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
-    Literal {
-        negative: Option<Source<'a>>,
-        literal: LiteralExpression<'a>,
-    },
+    Literal(PossiblyNegativeLiteralExpression<'a>),
 }
 
 impl<'a> ConstParamValue<'a> {
@@ -123,10 +120,7 @@ impl<'a> ConstParamValue<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, value): (_, Self) = alt((
             into(Identifier::parse),
-            into((
-                ignore_recoverable_errors(into(take(TokenKind::Minus))),
-                LiteralExpression::parse,
-            )),
+            into(PossiblyNegativeLiteralExpression::parse),
         ))
         .parse(tokens)?;
 
@@ -139,10 +133,7 @@ impl<'a> ConstParamValue<'a> {
                 unreachable!("`ConstParamValue::BlockExpression` isn't currently supported")
             }
             Self::Identifier(identifier) => identifier.source().to_owned(),
-            Self::Literal { negative, literal } => literal
-                .source()
-                .to_owned()
-                .append_to_some(negative.to_owned(), "`-` expected before literal"),
+            Self::Literal(literal) => literal.source(),
         }
     }
 }
@@ -158,18 +149,7 @@ impl<'a> ToTokensWithState<'a> for ConstParamValue<'a> {
                 identifier.to_tokens(&mut tokens);
                 (tokens, EstimatedLength::new(0))
             }
-            Self::Literal {
-                negative: Some(negative),
-                literal,
-            } => {
-                let span = negative.span_token();
-                let literal = literal.to_tokens_with_state(state).0;
-                (quote_spanned! {span=> - #literal }, EstimatedLength::new(0))
-            }
-            Self::Literal {
-                negative: None,
-                literal,
-            } => literal.to_tokens_with_state(state),
+            Self::Literal(literal) => literal.to_tokens_with_state(state),
         }
     }
 }
@@ -180,8 +160,8 @@ impl<'a> From<Identifier<'a>> for ConstParamValue<'a> {
     }
 }
 
-impl<'a> From<(Option<Source<'a>>, LiteralExpression<'a>)> for ConstParamValue<'a> {
-    fn from((negative, literal): (Option<Source<'a>>, LiteralExpression<'a>)) -> Self {
-        Self::Literal { negative, literal }
+impl<'a> From<PossiblyNegativeLiteralExpression<'a>> for ConstParamValue<'a> {
+    fn from(value: PossiblyNegativeLiteralExpression<'a>) -> Self {
+        Self::Literal(value)
     }
 }
