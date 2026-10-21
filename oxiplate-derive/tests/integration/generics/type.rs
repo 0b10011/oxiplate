@@ -9,11 +9,13 @@ fn format<T: Debug>(value: T) -> String {
 }
 
 #[test]
+#[allow(unused_parens)]
 fn string() {
     #[derive(Oxiplate)]
     #[oxiplate_inline(
         r#"
 {{ format(Into::<String>::into(value)) }}
+{{ format(Into::<(String)>::into(value)) }}
 {{ format(Into::<alloc::string::String>::into(value)) }}
 {{ format(Into::<::alloc::string::String>::into(value)) }}
 "#
@@ -25,6 +27,7 @@ fn string() {
     assert_eq!(
         format!("{}", Data { value: "hello" }),
         r#"
+"hello"
 "hello"
 "hello"
 "hello"
