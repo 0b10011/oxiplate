@@ -30,7 +30,13 @@ pub static string: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn string() {
-    #[oxiplate_inline(r#"{{ format(Into::<String>::into(value)) }}"#)]
+    #[oxiplate_inline(
+        r#"
+{{ format(Into::<String>::into(value)) }}
+{{ format(Into::<alloc::string::String>::into(value)) }}
+{{ format(Into::<::alloc::string::String>::into(value)) }}
+"#
+    )]
     struct Data {
         value: &'static str,
     }
@@ -38,9 +44,19 @@ fn string() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
                 &(format(Into::<String>::into(self.value))),
             ))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(format(Into::<alloc::string::String>::into(self.value))),
+            ))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(format(Into::<::alloc::string::String>::into(self.value))),
+            ))?;
+            oxiplate_formatter.write_str("\n")?;
             ::core::result::Result::Ok(())
         }
     }
@@ -49,7 +65,11 @@ fn string() {
             &::alloc::__export::must_use({
                 ::alloc::fmt::format(format_args!("{0}", Data { value: "hello" }))
             }),
-            &r#""hello""#,
+            &r#"
+"hello"
+"hello"
+"hello"
+"#,
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -74,9 +94,9 @@ pub static cow: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 23usize,
+        start_line: 36usize,
         start_col: 4usize,
-        end_line: 23usize,
+        end_line: 36usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -134,9 +154,9 @@ pub static integer: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 36usize,
+        start_line: 49usize,
         start_col: 4usize,
-        end_line: 36usize,
+        end_line: 49usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -149,7 +169,13 @@ pub static integer: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn integer() {
-    #[oxiplate_inline(r#"{{ Into::<u64>::into(unsigned_32) + unsigned_64 }}"#)]
+    use alloc::string::ToString;
+    #[oxiplate_inline(
+        r#"
+{{ Into::<u64>::into(unsigned_32) + unsigned_64 }}
+{{ unsigned_32.to_string().parse::<u64>().unwrap() + unsigned_64 }}
+"#
+    )]
     struct Data {
         unsigned_32: u32,
         unsigned_64: u64,
@@ -158,9 +184,15 @@ fn integer() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
                 &(Into::<u64>::into(self.unsigned_32) + self.unsigned_64),
             ))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(self.unsigned_32.to_string().parse::<u64>().unwrap() + self.unsigned_64),
+            ))?;
+            oxiplate_formatter.write_str("\n")?;
             ::core::result::Result::Ok(())
         }
     }
@@ -175,7 +207,10 @@ fn integer() {
                     }
                 ))
             }),
-            &"19",
+            &"
+19
+19
+",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
