@@ -34,21 +34,31 @@ fn string() {
     #[oxiplate_inline(
         r#"
 {{ format(Into::<String>::into(value)) }}
+{{ format(Into::<&str>::into(value)) }}
+{{ format(Into::<&'a str>::into(value)) }}
 {{ format(Into::<(String)>::into(value)) }}
 {{ format(Into::<alloc::string::String>::into(value)) }}
 {{ format(Into::<::alloc::string::String>::into(value)) }}
 "#
     )]
-    struct Data {
-        value: &'static str,
+    struct Data<'a> {
+        value: &'a str,
     }
-    impl ::core::fmt::Display for Data {
+    impl<'a> ::core::fmt::Display for Data<'a> {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
                 &(format(Into::<String>::into(self.value))),
+            ))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(format(Into::<&str>::into(self.value))),
+            ))?;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(format(Into::<&'a str>::into(self.value))),
             ))?;
             oxiplate_formatter.write_str("\n")?;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
@@ -72,6 +82,8 @@ fn string() {
                 ::alloc::fmt::format(format_args!("{0}", Data { value: "hello" }))
             }),
             &r#"
+"hello"
+"hello"
 "hello"
 "hello"
 "hello"
@@ -101,9 +113,9 @@ pub static cow: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 39usize,
+        start_line: 43usize,
         start_col: 4usize,
-        end_line: 39usize,
+        end_line: 43usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -161,9 +173,9 @@ pub static integer: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 52usize,
+        start_line: 56usize,
         start_col: 4usize,
-        end_line: 52usize,
+        end_line: 56usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -242,9 +254,9 @@ pub static inferred: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 83usize,
+        start_line: 87usize,
         start_col: 4usize,
-        end_line: 83usize,
+        end_line: 87usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,

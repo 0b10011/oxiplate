@@ -15,18 +15,22 @@ fn string() {
     #[oxiplate_inline(
         r#"
 {{ format(Into::<String>::into(value)) }}
+{{ format(Into::<&str>::into(value)) }}
+{{ format(Into::<&'a str>::into(value)) }}
 {{ format(Into::<(String)>::into(value)) }}
 {{ format(Into::<alloc::string::String>::into(value)) }}
 {{ format(Into::<::alloc::string::String>::into(value)) }}
 "#
     )]
-    struct Data {
-        value: &'static str,
+    struct Data<'a> {
+        value: &'a str,
     }
 
     assert_eq!(
         format!("{}", Data { value: "hello" }),
         r#"
+"hello"
+"hello"
 "hello"
 "hello"
 "hello"
