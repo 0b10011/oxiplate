@@ -11,12 +11,25 @@ fn format<T: Debug>(value: T) -> String {
 #[test]
 fn string() {
     #[derive(Oxiplate)]
-    #[oxiplate_inline(r#"{{ format(Into::<String>::into(value)) }}"#)]
+    #[oxiplate_inline(
+        r#"
+{{ format(Into::<String>::into(value)) }}
+{{ format(Into::<alloc::string::String>::into(value)) }}
+{{ format(Into::<::alloc::string::String>::into(value)) }}
+"#
+    )]
     struct Data {
         value: &'static str,
     }
 
-    assert_eq!(format!("{}", Data { value: "hello" }), r#""hello""#);
+    assert_eq!(
+        format!("{}", Data { value: "hello" }),
+        r#"
+"hello"
+"hello"
+"hello"
+"#
+    );
 }
 
 #[test]
@@ -34,8 +47,15 @@ fn cow() {
 
 #[test]
 fn integer() {
+    use alloc::string::ToString;
+
     #[derive(Oxiplate)]
-    #[oxiplate_inline(r#"{{ Into::<u64>::into(unsigned_32) + unsigned_64 }}"#)]
+    #[oxiplate_inline(
+        r#"
+{{ Into::<u64>::into(unsigned_32) + unsigned_64 }}
+{{ unsigned_32.to_string().parse::<u64>().unwrap() + unsigned_64 }}
+"#
+    )]
     struct Data {
         unsigned_32: u32,
         unsigned_64: u64,
@@ -49,6 +69,9 @@ fn integer() {
                 unsigned_64: 9_u64
             }
         ),
-        "19"
+        "
+19
+19
+"
     );
 }

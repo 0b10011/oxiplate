@@ -6,12 +6,12 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
-pub(crate) struct Segment<'a> {
+pub(crate) struct PathExprSegment<'a> {
     ident_segment: IdentSegment<'a>,
     generics: Option<(Separator<'a>, GenericArgs<'a>)>,
 }
 
-impl<'a> Segment<'a> {
+impl<'a> PathExprSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
@@ -47,7 +47,7 @@ impl<'a> Segment<'a> {
     }
 }
 
-impl<'a> ToTokensWithState<'a> for Segment<'a> {
+impl<'a> ToTokensWithState<'a> for PathExprSegment<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         self.ident_segment.to_tokens(&mut tokens);
@@ -183,16 +183,16 @@ impl ToTokens for Identifier<'_> {
 #[derive(Debug)]
 pub(crate) struct Path<'a> {
     separator: Option<Separator<'a>>,
-    segment: Segment<'a>,
-    additional_segments: Vec<(Separator<'a>, Segment<'a>)>,
+    segment: PathExprSegment<'a>,
+    additional_segments: Vec<(Separator<'a>, PathExprSegment<'a>)>,
 }
 impl<'a> Path<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#paths-in-expressions>
     pub(crate) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (separator, segment, additional_segments)) = (
             ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-            Segment::parse,
-            many0((take(TokenKind::PathSeparator), Segment::parse)),
+            PathExprSegment::parse,
+            many0((take(TokenKind::PathSeparator), PathExprSegment::parse)),
         )
             .parse(tokens)?;
 

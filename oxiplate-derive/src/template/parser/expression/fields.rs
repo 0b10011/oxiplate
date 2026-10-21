@@ -1,4 +1,5 @@
-use super::{Expression, Identifier, NestedExpression};
+use super::path::PathExprSegment;
+use super::{Expression, NestedExpression};
 use crate::template::parser::prelude::*;
 
 /// A field or method.
@@ -44,7 +45,7 @@ impl<'a> ToTokensWithState<'a> for Fields<'a> {
         let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
         tokens.append_all(expression);
         for field in &self.fields {
-            field.to_tokens(&mut tokens);
+            tokens.append_all(field.to_tokens_with_state(state).0);
         }
         (tokens, estimated_length)
     }
@@ -59,18 +60,19 @@ impl<'a> From<Fields<'a>> for Expression<'a> {
 #[derive(Debug)]
 pub(crate) struct Field<'a> {
     dot: Source<'a>,
-    ident: Identifier<'a>,
+    segment: PathExprSegment<'a>,
 }
 
 impl<'a> Field<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (dot, ident)) = (take(TokenKind::Period), Identifier::parse).parse(tokens)?;
+        let (tokens, (dot, segment)) =
+            (take(TokenKind::Period), PathExprSegment::parse).parse(tokens)?;
 
         Ok((
             tokens,
             Field {
                 dot: dot.source().clone(),
-                ident,
+                segment,
             },
         ))
     }
@@ -78,16 +80,16 @@ impl<'a> Field<'a> {
     /// Get the `Source` for the field.
     pub(crate) fn source(&self) -> Source<'a> {
         self.dot.clone().merge(
-            self.ident.source(),
+            &self.segment.source(),
             "Field or method name should immediately follow the dot",
         )
     }
 }
 
-impl ToTokens for Field<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl<'a> ToTokensWithState<'a> for Field<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.dot.span_token();
-        let ident = &self.ident;
-        tokens.append_all(quote_spanned! {span=> . #ident });
+        let (segment, estimated_length) = self.segment.to_tokens_with_state(state);
+        (quote_spanned! {span=> . #segment }, estimated_length)
     }
 }
