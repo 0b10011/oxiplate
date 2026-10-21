@@ -75,3 +75,14 @@ fn integer() {
 "
     );
 }
+
+#[test]
+fn inferred() {
+    use alloc::vec::Vec;
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{% for i in Vec::<_>::from([19, 89]) %}{{ i }}{% endfor %}"#)]
+    struct Data;
+
+    assert_eq!(format!("{Data}"), "1989");
+}

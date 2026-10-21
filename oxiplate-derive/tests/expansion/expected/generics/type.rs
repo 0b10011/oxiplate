@@ -226,3 +226,59 @@ fn integer() {
         }
     };
 }
+extern crate test;
+#[rustc_test_marker = "generics::r#type::inferred"]
+#[doc(hidden)]
+pub static inferred: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("generics::r#type::inferred"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/generics/type.rs",
+        start_line: 80usize,
+        start_col: 4usize,
+        end_line: 80usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(inferred()),
+    ),
+};
+fn inferred() {
+    use alloc::vec::Vec;
+    #[oxiplate_inline(r#"{% for i in Vec::<_>::from([19, 89]) %}{{ i }}{% endfor %}"#)]
+    struct Data;
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            for i in Vec::<_>::from([19, 89]) {
+                oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(i)))?;
+            }
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Data)) }),
+            &"1989",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
