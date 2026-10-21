@@ -32,8 +32,8 @@ impl<'a> Type<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            into(TypeNoBounds::parse),
             into(ImplTraitType::parse),
+            into(TypeNoBounds::parse),
             into(TraitObjectType::parse),
         ))
         .parse(tokens)

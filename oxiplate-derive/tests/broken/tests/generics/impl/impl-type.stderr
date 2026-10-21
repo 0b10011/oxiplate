@@ -1,5 +1,5 @@
 error[E0562]: `impl Trait` is not allowed in paths
- --> tests/broken/tests/generics/impl-type.rs:6:31
+ --> tests/broken/tests/generics/impl/impl-type.rs:6:31
   |
 6 | #[oxiplate_inline(r#"{{ Vec::<impl Display>::from([19, 89]).join("") }}"#)]
   |                               ^^^^^^^^^^^^
