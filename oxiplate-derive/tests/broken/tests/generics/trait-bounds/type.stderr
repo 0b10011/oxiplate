@@ -1,0 +1,26 @@
+error[E0277]: the trait bound `Vec<Bar>: From<[{integer}; 2]>` is not satisfied
+ --> tests/broken/tests/generics/trait-bounds/type.rs:6:25
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<self::Bar>::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^^^^^ the trait `From<[{integer}; 2]>` is not implemented for `Vec<Bar>`
+  |
+  = help: the following other types implement trait `From<T>`:
+            `Vec<T, A>` implements `From<BinaryHeap<T, A>>`
+            `Vec<T, A>` implements `From<Box<[T], A>>`
+            `Vec<T, A>` implements `From<VecDeque<T, A>>`
+            `Vec<T>` implements `From<&[T; N]>`
+            `Vec<T>` implements `From<&[T]>`
+            `Vec<T>` implements `From<&mut [T; N]>`
+            `Vec<T>` implements `From<&mut [T]>`
+            `Vec<T>` implements `From<Cow<'_, [T]>>`
+          and $N others
+
+error[E0599]: the method `join` exists for struct `Vec<Bar>`, but its trait bounds were not satisfied
+ --> tests/broken/tests/generics/trait-bounds/type.rs:6:58
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<self::Bar>::from([19, 89]).join("") }}"#)]
+  |                                                          ^^^^ method cannot be called on `Vec<Bar>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `[Bar]: Join<_>`
+          which is required by `<[Bar] as Join<_>>::Output = _`
