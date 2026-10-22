@@ -1,5 +1,6 @@
 use super::GenericArgs;
 use crate::template::parser::expression::types::Type;
+use crate::template::parser::expression::types::no_bounds::TypeNoBounds;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypeList>
@@ -7,64 +8,93 @@ use crate::template::parser::prelude::*;
 pub(super) struct TypeList<'a> {
     first_types: Vec<(Type<'a>, Source<'a>)>,
     last_type: Option<(Type<'a>, Option<Source<'a>>)>,
-    source: Source<'a>,
+
+    /// Source for the full parentheses group.
+    parentheses: Source<'a>,
+
+    /// `Source` is the array `->`.
+    type_no_bounds: Option<(Source<'a>, TypeNoBounds<'a>)>,
 }
 
 impl<'a> TypeList<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypeList>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (less_than, (mut first_types, last_type), greater_than)) = (
-            take(TokenKind::LessThan),
-            (
-                many0((Type::parse, take(TokenKind::Comma))),
-                ignore_recoverable_errors((
-                    Type::parse,
-                    ignore_recoverable_errors(take(TokenKind::Comma)),
-                )),
-            ),
-            take(TokenKind::GreaterThan),
+        type FirstTypes<'a> = Vec<(Type<'a>, Source<'a>)>;
+        type LastType<'a> = Option<(Type<'a>, Option<Source<'a>>)>;
+        type OptionalTypeNoBounds<'a> = Option<(Source<'a>, Source<'a>, TypeNoBounds<'a>)>;
+        let (tokens, (open_paren, mut first_types, last_type, close_paren, type_no_bounds)): (
+            _,
+            (Source, FirstTypes, LastType, Source, OptionalTypeNoBounds),
+        ) = (
+            into(take(TokenKind::OpenParenthese)),
+            many0((Type::parse, into(take(TokenKind::Comma)))),
+            ignore_recoverable_errors((
+                Type::parse,
+                ignore_recoverable_errors(into(take(TokenKind::Comma))),
+            )),
+            into(take(TokenKind::CloseParenthese)),
+            ignore_recoverable_errors((
+                into(take(TokenKind::Minus)),
+                into(take(TokenKind::GreaterThan)),
+                TypeNoBounds::parse,
+            )),
         )
             .parse(tokens)?;
 
         let last_type = if last_type.is_some() {
-            last_type.map(|(ty, comma)| (ty, comma.map(|comma| comma.source().clone())))
+            last_type
         } else {
-            first_types
-                .pop()
-                .map(|(ty, comma)| (ty, Some(comma.source().clone())))
+            first_types.pop().map(|(ty, comma)| (ty, Some(comma)))
         };
 
-        let mut source = less_than.source().clone();
+        let mut parentheses = open_paren;
 
         for (ty, comma) in &first_types {
-            source = source
+            parentheses = parentheses
                 .merge(&ty.source(), "Type expected after `,` or `<`")
-                .merge(comma.source(), "`,` expected after type");
+                .merge(comma, "`,` expected after type");
         }
 
         if let Some((ty, comma)) = &last_type {
-            source = source
+            parentheses = parentheses
                 .merge(&ty.source(), "Type expected after `,` or `<`")
-                .merge_some(comma.as_ref(), "`,` expected after last type");
+                .merge_some(comma.to_owned().as_ref(), "`,` expected after last type");
         }
 
-        source = source.merge(greater_than.source(), "`>` expected after type");
+        parentheses = parentheses.merge(&close_paren, "`>` expected after type");
+
+        let type_no_bounds = if let Some((minus, greater_than, type_no_bounds)) = type_no_bounds {
+            Some((
+                minus.merge(&greater_than, "`>` expected after `-`"),
+                type_no_bounds,
+            ))
+        } else {
+            None
+        };
 
         Ok((
             tokens,
             Self {
-                first_types: first_types
-                    .into_iter()
-                    .map(|(ty, comma)| (ty, comma.source().clone()))
-                    .collect(),
+                first_types: first_types.into_iter().collect(),
                 last_type,
-                source,
+                parentheses,
+                type_no_bounds,
             },
         ))
     }
 
-    pub fn source(&self) -> &Source<'a> {
-        &self.source
+    pub fn source(&self) -> Source<'a> {
+        if let Some((arrow, type_no_bounds)) = &self.type_no_bounds {
+            self.parentheses
+                .clone()
+                .merge(arrow, "`->` expected after type list")
+                .merge(
+                    &type_no_bounds.source(),
+                    "Type no bounds expected after `->`",
+                )
+        } else {
+            self.parentheses.clone()
+        }
     }
 }
 
@@ -86,9 +116,17 @@ impl<'a> ToTokensWithState<'a> for TypeList<'a> {
             }
         }
 
-        let span = self.source.span_token();
+        let type_no_bounds = if let Some((arrow, type_no_bounds)) = &self.type_no_bounds {
+            let span = arrow.span_token();
+            let type_no_bounds = type_no_bounds.to_tokens_with_state(state).0;
+            quote_spanned! {span=> -> #type_no_bounds }
+        } else {
+            quote! {}
+        };
+
+        let span = self.parentheses.span_token();
         (
-            quote_spanned! {span=> <#inner_tokens> },
+            quote_spanned! {span=> ( #inner_tokens ) #type_no_bounds },
             EstimatedLength::new(0),
         )
     }

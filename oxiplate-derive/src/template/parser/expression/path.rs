@@ -40,7 +40,7 @@ impl<'a> PathExprSegment<'a> {
         if let Some((separator, generics)) = &self.generics {
             source = source
                 .merge(&separator.0, "`::` expected after ident segment")
-                .merge(generics.source(), "Generics expected after `::`");
+                .merge(&generics.source(), "Generics expected after `::`");
         }
 
         source

@@ -15,7 +15,7 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
 #[derive(Debug)]
-pub(crate) enum TypeNoBounds<'a> {
+pub(in crate::template::parser) enum TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
     Parenthesized(ParenthesizedType<'a>),
 
@@ -70,7 +70,7 @@ pub(crate) enum TypeNoBounds<'a> {
 
 impl<'a> TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(TupleType::parse),
             into(ParenthesizedType::parse),
@@ -88,7 +88,7 @@ impl<'a> TypeNoBounds<'a> {
         .parse(tokens)
     }
 
-    pub(super) fn source(&self) -> Source<'a> {
+    pub(in crate::template::parser) fn source(&self) -> Source<'a> {
         match self {
             Self::Parenthesized(parenthesized) => parenthesized.source().clone(),
             Self::ImplTraitOneBound(impl_trait_one_bound) => impl_trait_one_bound.source(),

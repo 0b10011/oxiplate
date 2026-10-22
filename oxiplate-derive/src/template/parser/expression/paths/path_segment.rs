@@ -46,7 +46,7 @@ impl<'a> TypePathSegment<'a> {
             source = source
                 .merge_some(separator.as_ref(), "`::` expected after ident segment")
                 .merge(
-                    generics.source(),
+                    &generics.source(),
                     "Generics expected after ident segment or `::`",
                 );
         }

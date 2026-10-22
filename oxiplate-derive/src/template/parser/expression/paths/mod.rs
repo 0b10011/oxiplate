@@ -30,9 +30,9 @@ impl<'a> GenericArgs<'a> {
         alt((into(GenericArgList::parse), into(TypeList::parse))).parse(tokens)
     }
 
-    pub(super) fn source(&self) -> &Source<'a> {
+    pub(super) fn source(&self) -> Source<'a> {
         match self {
-            Self::List(generic_args) => generic_args.source(),
+            Self::List(generic_args) => generic_args.source().to_owned(),
             Self::Types(type_list) => type_list.source(),
         }
     }
