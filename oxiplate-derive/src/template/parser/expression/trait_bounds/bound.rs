@@ -19,8 +19,8 @@ impl<'a> Bound<'a> {
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, bound) = alt((
             into(Lifetime::parse),
-            into(TraitBound::parse),
             into(UseBound::parse),
+            into(TraitBound::parse),
         ))
         .parse(tokens)?;
 
