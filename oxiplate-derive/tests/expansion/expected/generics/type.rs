@@ -374,3 +374,69 @@ fn qualified_path() {
         }
     };
 }
+extern crate test;
+#[rustc_test_marker = "generics::r#type::array"]
+#[doc(hidden)]
+pub static array: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("generics::r#type::array"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/generics/type.rs",
+        start_line: 129usize,
+        start_col: 4usize,
+        end_line: 129usize,
+        end_col: 9usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(array()),
+    ),
+};
+fn array() {
+    #[oxiplate_inline(r#"{{ Into::<[u64; 2]>::into(values).iter().sum::<u64>() + unsigned_64 }}"#)]
+    struct Data {
+        values: (u64, u64),
+        unsigned_64: u64,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(Into::<[u64; 2]>::into(self.values).iter().sum::<u64>() + self.unsigned_64),
+            ))?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        values: (80_u64, 9_u64),
+                        unsigned_64: 1900_u64
+                    }
+                ))
+            }),
+            &"1989",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

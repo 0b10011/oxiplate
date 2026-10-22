@@ -124,3 +124,24 @@ fn qualified_path() {
         "19"
     );
 }
+
+#[test]
+fn array() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ Into::<[u64; 2]>::into(values).iter().sum::<u64>() + unsigned_64 }}"#)]
+    struct Data {
+        values: (u64, u64),
+        unsigned_64: u64,
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                values: (80_u64, 9_u64),
+                unsigned_64: 1900_u64
+            }
+        ),
+        "1989"
+    );
+}
