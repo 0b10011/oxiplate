@@ -1,0 +1,7 @@
+error[E0573]: expected type, found module `crate`
+ --> tests/broken/tests/generics/const-crate.rs:4:31
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- in this derive macro
+4 | #[oxiplate_inline(r#"{{ Vec::<crate>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^ not a type

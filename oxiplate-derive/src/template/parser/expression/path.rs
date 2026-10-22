@@ -111,12 +111,14 @@ impl ToTokens for IdentSegment<'_> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
 #[derive(Debug)]
 pub(crate) struct Identifier<'a> {
     source: &'a Source<'a>,
 }
 
 impl<'a> Identifier<'a> {
+    /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
         let source = token.source();

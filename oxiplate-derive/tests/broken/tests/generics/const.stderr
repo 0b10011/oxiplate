@@ -1,5 +1,5 @@
 error[E0747]: constant provided when a type was expected
- --> tests/broken/tests/generics/const.rs:4:31
+ --> tests/broken/tests/generics/const.rs:6:31
   |
-4 | #[oxiplate_inline(r#"{{ Vec::<19>::from([19, 89]).join("") }}"#)]
-  |                               ^^
+6 | #[oxiplate_inline(r#"{{ Vec::<FOO>::from([19, 89]).join("") }}"#)]
+  |                               ^^^
