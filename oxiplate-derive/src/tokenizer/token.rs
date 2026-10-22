@@ -39,6 +39,12 @@ impl<'a, K: Debug + PartialEq + Eq> From<&Token<'a, K>> for Source<'a> {
     }
 }
 
+impl<'a, K: Debug + PartialEq + Eq> From<&'a Token<'a, K>> for &'a Source<'a> {
+    fn from(value: &'a Token<'a, K>) -> Self {
+        value.source()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct ParseError {
     message: &'static str,

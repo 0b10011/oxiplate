@@ -57,6 +57,7 @@ impl<'a> From<Fields<'a>> for Expression<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
 #[derive(Debug)]
 pub(crate) struct Field<'a> {
     dot: Source<'a>,
@@ -64,7 +65,9 @@ pub(crate) struct Field<'a> {
 }
 
 impl<'a> Field<'a> {
+    /// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+        // FIXME: This should match an identifier after the period
         let (tokens, (dot, segment)) =
             (take(TokenKind::Period), PathExprSegment::parse).parse(tokens)?;
 

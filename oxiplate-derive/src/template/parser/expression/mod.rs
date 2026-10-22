@@ -19,6 +19,7 @@ mod prefix_operator;
 mod prefixed;
 mod trait_bounds;
 mod tuple;
+mod tuple_index;
 mod types;
 
 use std::mem;
@@ -39,6 +40,7 @@ pub(super) use self::path::Identifier;
 use self::path::Path;
 use self::prefixed::Prefixed;
 use self::tuple::Tuple;
+use self::tuple_index::TupleIndexingExpression;
 use super::Res;
 use super::expression::operator::parse_operator;
 use crate::template::parser::prelude::*;
@@ -77,6 +79,11 @@ pub(crate) enum Expression<'a> {
     /// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
     /// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
     Index(Index<'a>),
+
+    /// `expr.tuple_index`
+    /// See:
+    /// - <https://doc.rust-lang.org/reference/expressions/tuple-expr.html#railroad-TupleIndexingExpression>
+    TupleIndex(TupleIndexingExpression<'a>),
 
     /// `expr | filter(args)`
     Filter(Filter<'a>),
@@ -117,6 +124,7 @@ impl<'a> Expression<'a> {
 
             // Fix the precedence of the leftmost expression.
             Self::Index(index) => index.expression.fix_precedence(),
+            Self::TupleIndex(index) => index.expression.fix_precedence(),
             Self::Calc(calc) => calc.left.fix_precedence(),
             Self::Filter(filter) => filter.expression.fix_precedence(),
             Self::Fields(fields) => {
@@ -183,6 +191,7 @@ impl<'a> Expression<'a> {
 
             // Grab the leftmost expression.
             Self::Index(index) => &index.expression,
+            Self::TupleIndex(index) => &index.expression,
             Self::Calc(calc) => &calc.left,
             Self::Filter(filter) => &filter.expression,
             Self::Fields(fields) => fields.expression.as_ref(),
@@ -224,6 +233,7 @@ impl<'a> Expression<'a> {
 
             // Take the leftmost expression and return it.
             Self::Index(index) => mem::take(&mut index.expression),
+            Self::TupleIndex(index) => mem::take(&mut index.expression),
             Self::Calc(calc) => mem::take(&mut calc.left),
             Self::Filter(filter) => mem::take(&mut filter.expression),
             Self::Fields(fields) => mem::take(&mut fields.expression),
@@ -264,6 +274,7 @@ impl<'a> Expression<'a> {
 
             // Take a mutable reference to the placeholder.
             Self::Index(index) => index.expression.as_mut(),
+            Self::TupleIndex(index) => index.expression.as_mut(),
             Self::Calc(calc) => calc.left.as_mut(),
             Self::Filter(filter) => filter.expression.as_mut(),
             Self::Fields(fields) => fields.expression.as_mut(),
@@ -302,6 +313,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Index(_)
+            | Self::TupleIndex(_)
             | Self::Filter { .. }
             | Self::Path(_)
             | Self::Fields(_)
@@ -343,6 +355,7 @@ impl<'a> Expression<'a> {
             | Self::Array(_)
             | Self::Tuple(_)
             | Self::Index(_)
+            | Self::TupleIndex(_)
             | Self::Filter { .. }
             | Self::Path(_)
             | Self::Fields(_)
@@ -390,6 +403,7 @@ impl<'a> Expression<'a> {
             | Self::Call(_)
             | Self::Path(_)
             | Self::Index(_)
+            | Self::TupleIndex(_)
             | Self::Calc(_)
             | Self::Prefixed(_) => u8::MAX,
 
@@ -525,6 +539,7 @@ impl<'a> Expression<'a> {
                 prefixed.expression.merge_joinable();
             }
             Self::Index(index) => index.expression.merge_joinable(),
+            Self::TupleIndex(index) => index.expression.merge_joinable(),
             Self::Cow(cow) => cow.expression.merge_joinable(),
             Self::Filter(filter) => filter.expression.merge_joinable(),
             Self::Fields(fields) => fields.expression.merge_joinable(),
@@ -557,6 +572,7 @@ impl<'a> Expression<'a> {
             Expression::Concat(concat) => concat.source().clone(),
             Expression::Prefixed(prefixed) => prefixed.source().clone(),
             Expression::Index(index) => index.source().clone(),
+            Expression::TupleIndex(index) => index.source().clone(),
             Expression::Fields(fields) => fields.source().clone(),
             Expression::Call(call) => call.source().clone(),
         }
@@ -585,6 +601,7 @@ impl<'a> ToTokensWithState<'a> for Expression<'a> {
             Expression::Bool(bool) => bool.to_tokens_with_state(state),
             Expression::FullRange(full_range) => full_range.to_tokens_with_state(state),
             Expression::Index(index) => index.to_tokens_with_state(state),
+            Expression::TupleIndex(index) => index.to_tokens_with_state(state),
             Expression::Filter(filter) => filter.to_tokens_with_state(state),
             Expression::Fields(fields) => fields.to_tokens_with_state(state),
             Expression::Call(call) => call.to_tokens_with_state(state),
@@ -621,6 +638,7 @@ pub(super) fn expression<'a>(
                 Concat::parser,
                 Calc::parse,
                 Index::parse,
+                TupleIndexingExpression::parse,
                 Fields::parser,
                 Call::parser,
             )))

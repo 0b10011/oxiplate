@@ -33,8 +33,19 @@ pub(crate) enum TokenKind {
 
     Bool(bool),
     Char(char),
-    Integer,
     Float,
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-BIN_LITERAL>
+    BinLiteral,
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-OCT_LITERAL>
+    OctLiteral,
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-HEX_LITERAL>
+    HexLiteral,
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-DEC_LITERAL>
+    DecLiteral,
 
     // Strings and raw strings should be fairly rare in templates,
     // but require 24 extra bytes as-is (32 total due to discriminant).

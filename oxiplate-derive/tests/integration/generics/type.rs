@@ -145,3 +145,24 @@ fn array() {
         "1989"
     );
 }
+
+#[test]
+fn tuple() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ Into::<(u64, u64)>::into(values).0 + Into::<(u64, u64)>::into(values).1 + unsigned_64 }}"#)]
+    struct Data {
+        values: [u64; 2],
+        unsigned_64: u64,
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                values: [80_u64, 9_u64],
+                unsigned_64: 1900_u64
+            }
+        ),
+        "1989"
+    );
+}

@@ -72,11 +72,11 @@ impl<'a> TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
+            into(TupleType::parse),
             into(ParenthesizedType::parse),
             into(ImplTraitTypeOneBound::parse),
             into(TraitObjectTypeOneBound::parse),
             into(TypePath::parse),
-            into(TupleType::parse),
             into(Never::parse),
             into(RawPointerType::parse),
             into(ReferenceType::parse),
