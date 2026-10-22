@@ -15,7 +15,10 @@ impl<'a> QualifiedPathInType<'a> {
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (qualified_path, type_path_segments)) = (
             QualifiedPathType::parse,
-            many1((into(take(TokenKind::PathSeparator)), TypePathSegment::parse)),
+            cut(
+                "`::` and type path segment expected after qualified path type",
+                many1((into(take(TokenKind::PathSeparator)), TypePathSegment::parse)),
+            ),
         )
             .parse(tokens)?;
 

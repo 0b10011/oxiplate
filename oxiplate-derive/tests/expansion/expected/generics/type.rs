@@ -301,3 +301,76 @@ fn inferred() {
         }
     };
 }
+extern crate test;
+#[rustc_test_marker = "generics::r#type::qualified_path"]
+#[doc(hidden)]
+pub static qualified_path: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("generics::r#type::qualified_path"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/generics/type.rs",
+        start_line: 98usize,
+        start_col: 4usize,
+        end_line: 98usize,
+        end_col: 18usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(qualified_path()),
+    ),
+};
+fn qualified_path() {
+    struct Foo;
+    trait Bar {
+        type Baz;
+    }
+    impl Bar for Foo {
+        type Baz = u64;
+    }
+    #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Baz>::into(unsigned_16) + unsigned_64 }}"#)]
+    struct Data {
+        unsigned_16: u16,
+        unsigned_64: u64,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(Into::<<Foo as Bar>::Baz>::into(self.unsigned_16) + self.unsigned_64),
+            ))?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        unsigned_16: 10_u16,
+                        unsigned_64: 9_u64
+                    }
+                ))
+            }),
+            &"19",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}

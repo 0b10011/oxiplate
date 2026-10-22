@@ -93,3 +93,34 @@ fn inferred() {
 
     assert_eq!(format!("{Data}"), "1989");
 }
+
+#[test]
+fn qualified_path() {
+    struct Foo;
+
+    trait Bar {
+        type Baz;
+    }
+
+    impl Bar for Foo {
+        type Baz = u64;
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Baz>::into(unsigned_16) + unsigned_64 }}"#)]
+    struct Data {
+        unsigned_16: u16,
+        unsigned_64: u64,
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                unsigned_16: 10_u16,
+                unsigned_64: 9_u64
+            }
+        ),
+        "19"
+    );
+}

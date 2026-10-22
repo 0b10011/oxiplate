@@ -1,3 +1,5 @@
+use proc_macro2::Ident;
+
 use super::path::TypePath;
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::expression::types::Type;
@@ -50,17 +52,24 @@ impl<'a> QualifiedPathType<'a> {
 
 impl<'a> ToTokensWithState<'a> for QualifiedPathType<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let span = self.source.span_token();
+
         if let Some((r#as, type_path)) = &self.r#as {
-            let span = r#as.span_token();
             let r#type = self.r#type.to_tokens_with_state(state).0;
             let type_path = type_path.to_tokens_with_state(state).0;
+            let r#as = Ident::new(r#as.as_str(), r#as.span_token());
 
             (
-                quote_spanned! {span=> #r#type as #r#type_path },
+                quote_spanned! {span=> < #r#type #r#as #r#type_path > },
                 EstimatedLength::new(0),
             )
         } else {
-            self.r#type.to_tokens_with_state(state)
+            let r#type = self.r#type.to_tokens_with_state(state).0;
+
+            (
+                quote_spanned! {span=> < #r#type > },
+                EstimatedLength::new(0),
+            )
         }
     }
 }
