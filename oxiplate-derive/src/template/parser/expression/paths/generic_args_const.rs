@@ -72,3 +72,122 @@ impl<'a> From<GenericArgsConst<'a>> for GenericArg<'a> {
         Self::Const(value)
     }
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::tokenizer::Token;
+    use crate::tokenizer::Eof;
+
+    #[test]
+    fn simple_path_segment_ident() {
+        test_source!(source = "foo");
+        let source_backup = source.clone();
+
+        let token_slice = [Ok(Token::new(TokenKind::Ident, &source, None))];
+        let eof = Eof::for_test(source);
+        let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Identifier(_))) =
+            GenericArgsConst::parse
+                .parse(TokenSlice::new(&token_slice, &eof))
+                .unwrap()
+        else {
+            panic!("Unexpected value parsed");
+        };
+
+        assert_eq!(
+            value.source().as_str(),
+            source_backup.as_str(),
+            "Source did not match"
+        );
+        assert_eq!(
+            format!("{:?}", value.to_tokens_with_state(&State::new_for_test()).0),
+            format!("{:?}", quote! { foo }),
+            "Tokens did not match"
+        );
+    }
+
+    #[test]
+    fn simple_path_segment_super() {
+        test_source!(source = "super");
+        let source_backup = source.clone();
+
+        let token_slice = [Ok(Token::new(TokenKind::Super, &source, None))];
+        let eof = Eof::for_test(source);
+        let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Super(_))) =
+            GenericArgsConst::parse
+                .parse(TokenSlice::new(&token_slice, &eof))
+                .unwrap()
+        else {
+            panic!("Unexpected value parsed");
+        };
+
+        assert_eq!(
+            value.source().as_str(),
+            source_backup.as_str(),
+            "Source did not match"
+        );
+        assert_eq!(
+            format!("{:?}", value.to_tokens_with_state(&State::new_for_test()).0),
+            format!("{:?}", quote! { super }),
+            "Tokens did not match"
+        );
+    }
+
+    #[test]
+    fn simple_path_segment_self() {
+        test_source!(source = "self");
+        let source_backup = source.clone();
+
+        let token_slice = [Ok(Token::new(TokenKind::SelfCurrentModule, &source, None))];
+        let eof = Eof::for_test(source);
+        let (
+            _,
+            value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::SelfCurrentModule(_)),
+        ) = GenericArgsConst::parse
+            .parse(TokenSlice::new(&token_slice, &eof))
+            .unwrap()
+        else {
+            panic!("Unexpected value parsed");
+        };
+
+        assert_eq!(
+            value.source().as_str(),
+            source_backup.as_str(),
+            "Source did not match"
+        );
+        assert_eq!(
+            format!("{:?}", value.to_tokens_with_state(&State::new_for_test()).0),
+            format!("{:?}", quote! { self }),
+            "Tokens did not match"
+        );
+    }
+
+    #[test]
+    fn simple_path_segment_crate() {
+        test_source!(source = "crate");
+        let source_backup = source.clone();
+
+        let token_slice = [Ok(Token::new(TokenKind::Crate, &source, None))];
+        let eof = Eof::for_test(source);
+        let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Crate(_))) =
+            GenericArgsConst::parse
+                .parse(TokenSlice::new(&token_slice, &eof))
+                .unwrap()
+        else {
+            panic!("Unexpected value parsed");
+        };
+
+        assert_eq!(
+            value.source().as_str(),
+            source_backup.as_str(),
+            "Source did not match"
+        );
+        assert_eq!(
+            format!("{:?}", value.to_tokens_with_state(&State::new_for_test()).0),
+            format!("{:?}", quote! { crate }),
+            "Tokens did not match"
+        );
+    }
+}
