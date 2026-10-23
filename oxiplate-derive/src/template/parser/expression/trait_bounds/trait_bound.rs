@@ -69,7 +69,7 @@ impl<'a> ToTokensWithState<'a> for TraitBound<'a> {
                 let span = source.span_token();
                 let trait_bound = trait_bound.to_tokens_with_state(state).0;
                 (
-                    quote_spanned! {span=> impl #trait_bound },
+                    quote_spanned! {span=> ( #trait_bound ) },
                     EstimatedLength::new(0),
                 )
             }

@@ -3,6 +3,7 @@ use crate::template::parser::expression::items::generics::GenericParams;
 use crate::template::parser::expression::paths::path::TypePath;
 use crate::template::parser::prelude::*;
 
+/// Non-parenthesized part of trait bound.
 /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
 #[derive(Debug)]
 pub(crate) struct TraitBoundInner<'a> {

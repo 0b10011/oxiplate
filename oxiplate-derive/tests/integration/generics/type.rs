@@ -1,3 +1,4 @@
+use alloc::borrow::ToOwned as _;
 use alloc::format;
 use alloc::string::String;
 use core::fmt::Debug;
@@ -165,4 +166,30 @@ fn tuple() {
         ),
         "1989"
     );
+}
+
+#[test]
+fn dyn_type() {
+    trait Foo {
+        fn hello_world(&self) -> String {
+            "Hello world!".to_owned()
+        }
+    }
+    struct Bar;
+    impl Foo for Bar {}
+
+    fn hello<'a, T: Foo + ?Sized + 'a>(foo: &'a T) -> String {
+        foo.hello_world()
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ hello::<dyn Foo + 'a>(value) }}"#)]
+    struct Data<'a, T>
+    where
+        T: Foo,
+    {
+        value: &'a T,
+    }
+
+    assert_eq!(format!("{}", Data { value: &Bar }), "Hello world!");
 }

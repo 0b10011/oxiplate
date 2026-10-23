@@ -33,8 +33,8 @@ impl<'a> Type<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(ImplTraitType::parse),
-            into(TypeNoBounds::parse),
             into(TraitObjectType::parse),
+            into(TypeNoBounds::parse),
         ))
         .parse(tokens)
     }

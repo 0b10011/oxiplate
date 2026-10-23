@@ -1,3 +1,4 @@
+use alloc::borrow::ToOwned as _;
 use alloc::format;
 use alloc::string::String;
 use core::fmt::Debug;
@@ -15,9 +16,9 @@ pub static string: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 13usize,
+        start_line: 14usize,
         start_col: 4usize,
-        end_line: 13usize,
+        end_line: 14usize,
         end_col: 10usize,
         compile_fail: false,
         no_run: false,
@@ -113,9 +114,9 @@ pub static cow: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 43usize,
+        start_line: 44usize,
         start_col: 4usize,
-        end_line: 43usize,
+        end_line: 44usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -173,9 +174,9 @@ pub static integer: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 56usize,
+        start_line: 57usize,
         start_col: 4usize,
-        end_line: 56usize,
+        end_line: 57usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -254,9 +255,9 @@ pub static inferred: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 87usize,
+        start_line: 88usize,
         start_col: 4usize,
-        end_line: 87usize,
+        end_line: 88usize,
         end_col: 12usize,
         compile_fail: false,
         no_run: false,
@@ -310,9 +311,9 @@ pub static qualified_path: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 98usize,
+        start_line: 99usize,
         start_col: 4usize,
-        end_line: 98usize,
+        end_line: 99usize,
         end_col: 18usize,
         compile_fail: false,
         no_run: false,
@@ -383,9 +384,9 @@ pub static array: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 129usize,
+        start_line: 130usize,
         start_col: 4usize,
-        end_line: 129usize,
+        end_line: 130usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
@@ -449,9 +450,9 @@ pub static tuple: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/generics/type.rs",
-        start_line: 150usize,
+        start_line: 151usize,
         start_col: 4usize,
-        end_line: 150usize,
+        end_line: 151usize,
         end_col: 9usize,
         compile_fail: false,
         no_run: false,
@@ -493,6 +494,81 @@ fn tuple() {
                 ))
             }),
             &"1989",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
+extern crate test;
+#[rustc_test_marker = "generics::r#type::dyn_type"]
+#[doc(hidden)]
+pub static dyn_type: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("generics::r#type::dyn_type"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/generics/type.rs",
+        start_line: 172usize,
+        start_col: 4usize,
+        end_line: 172usize,
+        end_col: 12usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(dyn_type()),
+    ),
+};
+fn dyn_type() {
+    trait Foo {
+        fn hello_world(&self) -> String {
+            "Hello world!".to_owned()
+        }
+    }
+    struct Bar;
+    impl Foo for Bar {}
+    fn hello<'a, T: Foo + ?Sized + 'a>(foo: &'a T) -> String {
+        foo.hello_world()
+    }
+    #[oxiplate_inline(r#"{{ hello::<dyn Foo + 'a>(value) }}"#)]
+    struct Data<'a, T>
+    where
+        T: Foo,
+    {
+        value: &'a T,
+    }
+    impl<'a, T> ::core::fmt::Display for Data<'a, T>
+    where
+        T: Foo,
+    {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(hello::<dyn Foo + 'a>(self.value)),
+            ))?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!("{0}", Data { value: &Bar }))
+            }),
+            &"Hello world!",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
