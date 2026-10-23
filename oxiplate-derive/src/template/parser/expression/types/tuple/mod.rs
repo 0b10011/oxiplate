@@ -18,7 +18,7 @@ impl<'a> TupleType<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (open_paren, first_types, last_type, close_paren)) = (
             into(take(TokenKind::OpenParenthese)),
-            many0((Type::parse, into(take(TokenKind::Comma)))),
+            many1((Type::parse, into(take(TokenKind::Comma)))),
             ignore_recoverable_errors(Type::parse),
             into(take(TokenKind::CloseParenthese)),
         )
