@@ -1,0 +1,5 @@
+error[E0747]: constant provided when a type was expected
+ --> tests/broken/tests/generics/string.rs:4:31
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<"hello world">::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^^^^^^^^^
