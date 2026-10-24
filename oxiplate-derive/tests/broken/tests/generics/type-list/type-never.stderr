@@ -1,0 +1,38 @@
+error[E0214]: parenthesized type parameters may only be used with a `Fn` trait
+ --> tests/broken/tests/generics/type-list/type-never.rs:6:25
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> !::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^^^^ only `Fn` traits may use parentheses
+  |
+help: use angle brackets instead
+  |
+6 - #[oxiplate_inline(r#"{{ Vec::(Foo) -> !::from([19, 89]).join("") }}"#)]
+6 + #[oxiplate_inline(r#"{{ Vec::<Foo> -> !::from([19, 89]).join("") }}"#)]
+  |
+
+error[E0277]: the trait bound `Vec<Foo>: From<[{integer}; 2]>` is not satisfied
+ --> tests/broken/tests/generics/type-list/type-never.rs:6:25
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> !::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^^^^ the trait `From<[{integer}; 2]>` is not implemented for `Vec<Foo>`
+  |
+  = help: the following other types implement trait `From<T>`:
+            `Vec<T, A>` implements `From<BinaryHeap<T, A>>`
+            `Vec<T, A>` implements `From<Box<[T], A>>`
+            `Vec<T, A>` implements `From<VecDeque<T, A>>`
+            `Vec<T>` implements `From<&[T; N]>`
+            `Vec<T>` implements `From<&[T]>`
+            `Vec<T>` implements `From<&mut [T; N]>`
+            `Vec<T>` implements `From<&mut [T]>`
+            `Vec<T>` implements `From<Cow<'_, [T]>>`
+          and $N others
+
+error[E0599]: the method `join` exists for struct `Vec<Foo>`, but its trait bounds were not satisfied
+ --> tests/broken/tests/generics/type-list/type-never.rs:6:57
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> !::from([19, 89]).join("") }}"#)]
+  |                                                         ^^^^ method cannot be called on `Vec<Foo>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `[Foo]: Join<_>`
+          which is required by `<[Foo] as Join<_>>::Output = _`
