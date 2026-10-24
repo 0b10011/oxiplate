@@ -111,3 +111,27 @@ impl<'a> ToTokensWithState<'a> for TupleIndex<'a> {
         (self.literal.to_token_stream(), EstimatedLength::new(0))
     }
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::tokenizer::Token;
+    use crate::tokenizer::Eof;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Internal Oxiplate error. Enable \
+                      `better-internal-errors` feature for an easier-to-debug error message. \
+                      Error: Failed to parse tuple index as a literal"]
+    fn malformed_index() {
+        test_source!(source = "19 89");
+
+        TupleIndex::parse
+            .parse(TokenSlice::new(
+                &[Ok(Token::new(TokenKind::DecLiteral, &source, None))],
+                &Eof::for_test(source),
+            ))
+            .unwrap();
+    }
+}
