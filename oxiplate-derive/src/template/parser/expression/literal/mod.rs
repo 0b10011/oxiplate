@@ -19,30 +19,48 @@ pub(in crate::template::parser) enum LiteralExpression<'a> {
     String(String<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_STRING_LITERAL>
-    #[expect(dead_code, reason = "Raw string literals aren't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "Raw string literals aren't currently supported")
+    )]
     RawString,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-BYTE_LITERAL>
-    #[expect(dead_code, reason = "Byte literals aren't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "Byte literals aren't currently supported")
+    )]
     Byte,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-BYTE_STRING_LITERAL>
-    #[expect(dead_code, reason = "Byte string literals aren't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "Byte string literals aren't currently supported")
+    )]
     ByteString,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_BYTE_STRING_LITERAL>
-    #[expect(
-        dead_code,
-        reason = "Raw byte string literals aren't currently supported"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "Raw byte string literals aren't currently supported"
+        )
     )]
     RawByteString,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-C_STRING_LITERAL>
-    #[expect(dead_code, reason = "C string literals aren't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "C string literals aren't currently supported")
+    )]
     CString,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-RAW_C_STRING_LITERAL>
-    #[expect(dead_code, reason = "Raw C string literals aren't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "Raw C string literals aren't currently supported")
+    )]
     RawCString,
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-INTEGER_LITERAL>
@@ -149,5 +167,95 @@ impl<'a> ToTokensWithState<'a> for PossiblyNegativeLiteralExpression<'a> {
         } else {
             self.literal.to_tokens_with_state(state)
         }
+    }
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use super::*;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Byte literals aren't currently \
+                      supported"]
+    fn tokens_byte() {
+        let _ = LiteralExpression::Byte.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Byte string literals aren't \
+                      currently supported"]
+    fn tokens_byte_string() {
+        let _ = LiteralExpression::ByteString.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw byte string literals aren't \
+                      currently supported"]
+    fn tokens_raw_byte_string() {
+        let _ = LiteralExpression::RawByteString.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: C string literals aren't currently \
+                      supported"]
+    fn tokens_c_string() {
+        let _ = LiteralExpression::CString.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw C string literals aren't \
+                      currently supported"]
+    fn tokens_raw_c_string() {
+        let _ = LiteralExpression::RawCString.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw string literals aren't \
+                      currently supported"]
+    fn tokens_raw_string() {
+        let _ = LiteralExpression::RawString.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Byte literals aren't currently \
+                      supported"]
+    fn source_byte() {
+        let _ = LiteralExpression::Byte.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Byte string literals aren't \
+                      currently supported"]
+    fn source_byte_string() {
+        let _ = LiteralExpression::ByteString.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw byte string literals aren't \
+                      currently supported"]
+    fn source_raw_byte_string() {
+        let _ = LiteralExpression::RawByteString.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: C string literals aren't currently \
+                      supported"]
+    fn source_c_string() {
+        let _ = LiteralExpression::CString.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw C string literals aren't \
+                      currently supported"]
+    fn source_raw_c_string() {
+        let _ = LiteralExpression::RawCString.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Raw string literals aren't \
+                      currently supported"]
+    fn source_raw_string() {
+        let _ = LiteralExpression::RawString.source();
     }
 }
