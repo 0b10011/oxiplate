@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.10](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.9...oxiplate-derive-v0.19.10) - 2026-10-24
+
+### Other
+
+- stopped erroring out when expansion tests are overwritten
+- grouped regular integration tests into a single binary in each library to improve organization and expansions ([#373](https://github.com/0b10011/oxiplate/pull/373))
+- started running `rustfmt` against expansions
+- replaced `-` with `_` in test file names to prepere for moving to a single binary for integration tests
+- moved config crate next to the config tests
+- renamed config's `expected` directory to `tests` to make it more clear it contains test files and their expected output
+- moved all files related to clippy tests under the same folder
+- turned test on that was previously broken
+- moved all files related to broken tests under the same folder for each library
+- moved `expansion.rs` to reduce noise in `/tests/`
+
 ## [0.19.9](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.8...oxiplate-derive-v0.19.9) - 2026-10-12
 
 ### Added
