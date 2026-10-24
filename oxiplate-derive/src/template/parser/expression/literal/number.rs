@@ -39,7 +39,7 @@ impl<'a> Integer<'a> {
 
                 internal_error!(
                     source.span_token().unwrap(),
-                    "Failed to parse tuple index as a literal",
+                    "Failed to parse integer",
                     .span_help(error.span().unwrap(), format!("Original error: {error}")
                 ));
             }
@@ -138,5 +138,29 @@ impl<'a> From<Number<'a>> for Expression<'a> {
             Number::Integer(integer) => Expression::Integer(integer),
             Number::Float(float) => Expression::Float(float),
         }
+    }
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::tokenizer::Token;
+    use crate::tokenizer::Eof;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: Internal Oxiplate error. Enable \
+                      `better-internal-errors` feature for an easier-to-debug error message. \
+                      Error: Failed to parse integer"]
+    fn malformed_number() {
+        test_source!(source = "19 89");
+
+        Integer::parse
+            .parse(TokenSlice::new(
+                &[Ok(Token::new(TokenKind::DecLiteral, &source, None))],
+                &Eof::for_test(source),
+            ))
+            .unwrap();
     }
 }
