@@ -1,0 +1,7 @@
+error[E0404]: expected trait, found struct `Bar`
+ --> tests/broken/tests/generics/trait-bounds/dyn-one-bound.rs:6:36
+  |
+5 | #[derive(Oxiplate)]
+  |          -------- in this derive macro
+6 | #[oxiplate_inline(r#"{{ Vec::<&dyn Bar>::from([19, 89]).join("") }}"#)]
+  |                                    ^^^ not a trait
