@@ -1,5 +1,6 @@
 use proc_macro2::Ident;
 
+use super::LiteralExpression;
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -10,7 +11,8 @@ pub(crate) struct Bool<'a> {
 }
 
 impl<'a> Bool<'a> {
-    /// Parses a bool value: `true` or `false`
+    /// Parses a bool value: `true` or `false`.
+    /// See: <https://doc.rust-lang.org/reference/types/boolean.html>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = tokens.take()?;
 
@@ -48,5 +50,11 @@ impl<'a> ToTokensWithState<'a> for Bool<'a> {
 impl<'a> From<Bool<'a>> for Expression<'a> {
     fn from(value: Bool<'a>) -> Self {
         Expression::Bool(value)
+    }
+}
+
+impl<'a> From<Bool<'a>> for LiteralExpression<'a> {
+    fn from(value: Bool<'a>) -> Self {
+        Self::Bool(value)
     }
 }

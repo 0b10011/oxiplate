@@ -1,0 +1,5 @@
+error: `::` and type path segment expected after qualified path type
+  --> tests/broken/tests/generics/qualified-path/qualified-path-separator.rs:15:44
+   |
+15 | #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::>::into(unsigned_16) + unsigned_64 }}"#)]
+   |                                            ^^

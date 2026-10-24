@@ -1,0 +1,18 @@
+error[E0576]: cannot find associated type `Qux` in trait `Bar`
+  --> tests/broken/tests/generics/qualified-path/qualified-path-in.rs:15:46
+   |
+14 | #[derive(Oxiplate)]
+   |          -------- in this derive macro
+15 | #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Qux>::into(unsigned_16) + unsigned_64 }}"#)]
+   |                                              ^^^ not found in `Bar`
+   |
+note: associated type `Baz` defined here
+  --> tests/broken/tests/generics/qualified-path/qualified-path-in.rs:6:5
+   |
+ 6 |     type Baz;
+   |     ^^^^^^^^^
+help: maybe you meant this associated type
+   |
+15 - #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Qux>::into(unsigned_16) + unsigned_64 }}"#)]
+15 + #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Baz>::into(unsigned_16) + unsigned_64 }}"#)]
+   |

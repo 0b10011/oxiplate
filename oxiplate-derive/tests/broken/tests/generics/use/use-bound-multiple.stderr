@@ -1,0 +1,11 @@
+error: `use<...>` precise capturing syntax not allowed in bounds
+ --> tests/broken/tests/generics/use/use-bound-multiple.rs:4:37
+  |
+4 | #[oxiplate_inline(r#"{{ Into::<str: use <'a, 'b, 'c>>::into(value) }}"#)]
+  |                                     ^^^^^^^^^^^^^^^^
+
+error[E0229]: associated item constraints are not allowed here
+ --> tests/broken/tests/generics/use/use-bound-multiple.rs:4:32
+  |
+4 | #[oxiplate_inline(r#"{{ Into::<str: use <'a, 'b, 'c>>::into(value) }}"#)]
+  |                                ^^^^^^^^^^^^^^^^^^^^^ associated item constraint not allowed here

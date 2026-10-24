@@ -1,0 +1,5 @@
+error[E0433]: too many leading `super` keywords within `crate`
+ --> tests/broken/tests/generics/const-super.rs:4:31
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<super>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^ this `super` would go above the crate root

@@ -1,5 +1,6 @@
 use proc_macro2::Literal;
 
+use super::LiteralExpression;
 use crate::template::parser::expression::{Expression, Res};
 use crate::template::parser::prelude::*;
 
@@ -10,6 +11,7 @@ pub(crate) struct String<'a> {
 }
 
 impl<'a> String<'a> {
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = tokens.take()?;
 
@@ -54,5 +56,11 @@ impl<'a> ToTokensWithState<'a> for String<'a> {
 impl<'a> From<String<'a>> for Expression<'a> {
     fn from(value: String<'a>) -> Self {
         Expression::String(value)
+    }
+}
+
+impl<'a> From<String<'a>> for LiteralExpression<'a> {
+    fn from(value: String<'a>) -> Self {
+        Self::String(value)
     }
 }

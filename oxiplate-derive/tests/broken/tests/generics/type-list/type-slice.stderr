@@ -1,0 +1,52 @@
+error[E0277]: the trait bound `Vec<&[_]>: From<[{integer}; 2]>` is not satisfied
+ --> tests/broken/tests/generics/type-list/type-slice.rs:6:25
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<&[_]>::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^ the trait `From<[{integer}; 2]>` is not implemented for `Vec<&[_]>`
+  |
+  = help: the following other types implement trait `From<T>`:
+            `Vec<T, A>` implements `From<BinaryHeap<T, A>>`
+            `Vec<T, A>` implements `From<Box<[T], A>>`
+            `Vec<T, A>` implements `From<VecDeque<T, A>>`
+            `Vec<T>` implements `From<&[T; N]>`
+            `Vec<T>` implements `From<&[T]>`
+            `Vec<T>` implements `From<&mut [T; N]>`
+            `Vec<T>` implements `From<&mut [T]>`
+            `Vec<T>` implements `From<Cow<'_, [T]>>`
+          and $N others
+
+error[E0277]: the trait bound `[&[_]]: Join<&str>` is not satisfied
+ --> tests/broken/tests/generics/type-list/type-slice.rs:6:58
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<&[_]>::from([19, 89]).join("") }}"#)]
+  |                                                     ---- ^^ the nightly-only, unstable trait `Join<&str>` is not implemented for `[&[_]]`
+  |                                                     |
+  |                                                     required by a bound introduced by this call
+  |
+help: the following other types implement trait `Join<Separator>`
+ --> $RUST/std/src/ffi/os_str.rs
+  |
+  | impl<S: Borrow<OsStr>> alloc::slice::Join<&OsStr> for [S] {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `[S]` implements `Join<&OsStr>`
+  |
+ ::: $RUST/alloc/src/str.rs
+  |
+  | impl<S: Borrow<str>> Join<&str> for [S] {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `[S]` implements `Join<&str>`
+  |
+ ::: $RUST/alloc/src/slice.rs
+  |
+  | impl<T: Clone, V: Borrow<[T]>> Join<&T> for [V] {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `[V]` implements `Join<&T>`
+...
+  | impl<T: Clone, V: Borrow<[T]>> Join<&[T]> for [V] {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `[V]` implements `Join<&[T]>`
+note: required by a bound in `std::slice::<impl [T]>::join`
+ --> $RUST/alloc/src/slice.rs
+  |
+  | impl<T> [T] {
+...
+  |     pub fn join<Separator>(&self, sep: Separator) -> <Self as Join<Separator>>::Output
+  |     where
+  |         Self: Join<Separator>,
+  |               ^^^^^^^^^^^^^^^ required by this bound in `std::slice::<impl [T]>::join`

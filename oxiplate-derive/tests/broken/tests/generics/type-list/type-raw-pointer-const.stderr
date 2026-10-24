@@ -1,0 +1,17 @@
+error: expected type, found `19`
+ --> tests/broken/tests/generics/type-list/type-raw-pointer-const.rs:6:59
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> *const usize::from([19, 89]).join("") }}"#)]
+  |                                                           ^^ expected type
+
+error: expected one of `.`, `;`, `?`, `}`, or an operator, found `)`
+ --> tests/broken/tests/generics/type-list/type-raw-pointer-const.rs:6:22
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> *const usize::from([19, 89]).join("") }}"#)]
+  |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected one of `.`, `;`, `?`, `}`, or an operator
+
+error: proc-macro derive produced unparsable tokens
+ --> tests/broken/tests/generics/type-list/type-raw-pointer-const.rs:5:10
+  |
+5 | #[derive(Oxiplate)]
+  |          ^^^^^^^^

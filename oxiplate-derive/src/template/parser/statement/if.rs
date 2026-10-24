@@ -8,7 +8,7 @@ use crate::template::parser::{Item, Res};
 #[derive(Debug)]
 pub(crate) enum IfType<'a> {
     If(Expression<'a>),
-    IfLet(Pattern<'a>, Box<Expression<'a>>),
+    IfLet(Pattern<'a>, Expression<'a>),
 }
 
 #[derive(Debug)]
@@ -202,10 +202,7 @@ fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
             .merge(equal.source(), "`=` expected after pattern")
             .merge(&expression.source(), "Expression expected after `=`");
 
-        Ok((
-            tokens,
-            (IfType::IfLet(pattern, Box::new(expression)), source),
-        ))
+        Ok((tokens, (IfType::IfLet(pattern, expression), source)))
     } else {
         let (tokens, output) =
             cut("Expected an expression after `if`", expression(true)).parse(tokens)?;

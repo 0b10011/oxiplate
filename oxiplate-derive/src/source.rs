@@ -14,7 +14,11 @@ type CharIterator<'a> = Peekable<Enumerate<Chars<'a>>>;
 macro_rules! test_source {
     ($var:ident = $string:literal) => {
         let span = ::proc_macro2::Span::mixed_site();
-        let owned = crate::SourceOwned::new(&::syn::LitStr::new($string, span), span, None);
+        let owned = crate::SourceOwned::new(
+            &::syn::LitStr::new($string, span),
+            span,
+            ::core::option::Option::None,
+        );
         let $var = crate::Source::new(&owned);
     };
 }

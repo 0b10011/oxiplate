@@ -1,0 +1,19 @@
+error: `use<...>` precise capturing syntax not allowed in bounds
+ --> tests/broken/tests/generics/use/use-bound-identifer.rs:6:37
+  |
+6 | #[oxiplate_inline(r#"{{ Into::<str: use <FOO>>::into(value) }}"#)]
+  |                                     ^^^^^^^^^
+
+error[E0799]: expected type or const parameter, found constant `FOO`
+ --> tests/broken/tests/generics/use/use-bound-identifer.rs:6:42
+  |
+5 | #[derive(Oxiplate)]
+  |          -------- in this derive macro
+6 | #[oxiplate_inline(r#"{{ Into::<str: use <FOO>>::into(value) }}"#)]
+  |                                          ^^^ not a type or const parameter
+
+error[E0229]: associated item constraints are not allowed here
+ --> tests/broken/tests/generics/use/use-bound-identifer.rs:6:32
+  |
+6 | #[oxiplate_inline(r#"{{ Into::<str: use <FOO>>::into(value) }}"#)]
+  |                                ^^^^^^^^^^^^^^ associated item constraint not allowed here

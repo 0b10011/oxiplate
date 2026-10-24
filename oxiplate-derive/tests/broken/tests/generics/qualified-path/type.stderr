@@ -1,0 +1,10 @@
+error[E0223]: ambiguous associated type
+  --> tests/broken/tests/generics/qualified-path/type.rs:15:32
+   |
+15 | #[oxiplate_inline(r#"{{ Into::<<Foo>::Baz>::into(unsigned_16) + unsigned_64 }}"#)]
+   |                                ^^^^^^^^^^
+   |
+help: use fully-qualified syntax
+   |
+15 | #[oxiplate_inline(r#"{{ Into::<<Foo as Bar>::Baz>::into(unsigned_16) + unsigned_64 }}"#)]
+   |                                     ++++++

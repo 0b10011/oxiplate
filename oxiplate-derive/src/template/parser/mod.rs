@@ -154,6 +154,7 @@ trait ToTokensWithMutState<'a> {
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
     use super::item::Item;
     use super::*;

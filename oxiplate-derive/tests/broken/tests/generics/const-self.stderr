@@ -1,0 +1,5 @@
+error: attempt to use a non-constant value in a constant
+ --> tests/broken/tests/generics/const-self.rs:4:31
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<self>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^ help: try using `Self`
