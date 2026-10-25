@@ -7,7 +7,7 @@ use crate::template::parser::prelude::*;
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
 pub(crate) struct PathExprSegment<'a> {
-    ident_segment: IdentSegment<'a>,
+    ident_segment: PathIdentSegment<'a>,
     generics: Option<(Separator<'a>, GenericArgs<'a>)>,
 }
 
@@ -15,7 +15,7 @@ impl<'a> PathExprSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
-            IdentSegment::parse,
+            PathIdentSegment::parse,
             ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parse)),
         )
             .parse(tokens)?;
@@ -63,13 +63,13 @@ impl<'a> ToTokensWithState<'a> for PathExprSegment<'a> {
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
 #[derive(Debug)]
-pub(super) enum IdentSegment<'a> {
+pub(super) enum PathIdentSegment<'a> {
     Identifier(Identifier<'a>),
     /// `Self`, `self`, `super`, `crate`
     Keyword(Source<'a>),
 }
 
-impl<'a> IdentSegment<'a> {
+impl<'a> PathIdentSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, ident_segment) = alt((
@@ -82,10 +82,10 @@ impl<'a> IdentSegment<'a> {
         .parse(tokens)?;
 
         let ident_segment = match ident_segment.kind() {
-            TokenKind::Ident => IdentSegment::Identifier(Identifier {
+            TokenKind::Ident => PathIdentSegment::Identifier(Identifier {
                 source: ident_segment.source(),
             }),
-            _ => IdentSegment::Keyword(ident_segment.source().clone()),
+            _ => PathIdentSegment::Keyword(ident_segment.source().clone()),
         };
 
         Ok((tokens, ident_segment))
@@ -99,7 +99,7 @@ impl<'a> IdentSegment<'a> {
     }
 }
 
-impl ToTokens for IdentSegment<'_> {
+impl ToTokens for PathIdentSegment<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             Self::Identifier(identifier) => identifier.to_tokens(tokens),
@@ -118,6 +118,12 @@ pub(crate) struct Identifier<'a> {
 }
 
 impl<'a> Identifier<'a> {
+    /// Helper function to build a type path for a test.
+    #[cfg(test)]
+    pub(crate) fn new_for_test(source: &'a Source<'a>) -> Self {
+        Self { source }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
@@ -219,7 +225,7 @@ impl<'a> Path<'a> {
             return None;
         }
 
-        let IdentSegment::Identifier(identifier) = &self.segment.ident_segment else {
+        let PathIdentSegment::Identifier(identifier) = &self.segment.ident_segment else {
             return None;
         };
 

@@ -11,6 +11,20 @@ pub(crate) struct TypePath<'a> {
 }
 
 impl<'a> TypePath<'a> {
+    /// Helper function to build a type path for a test.
+    #[cfg(test)]
+    pub(crate) fn new_for_test(
+        leading_separator: Option<Source<'a>>,
+        first_segment: Box<TypePathSegment<'a>>,
+        additional_segments: Vec<(Source<'a>, TypePathSegment<'a>)>,
+    ) -> Self {
+        Self {
+            leading_separator,
+            first_segment,
+            additional_segments,
+        }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (leading_separator, first_segment, additional_segments)) = (

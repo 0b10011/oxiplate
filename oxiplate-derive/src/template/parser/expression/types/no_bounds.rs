@@ -54,16 +54,22 @@ pub(in crate::template::parser) enum TypeNoBounds<'a> {
     QualifiedPathIn(QualifiedPathInType<'a>),
 
     /// See: <https://doc.rust-lang.org/reference/types/function-pointer.html#railroad-BareFunctionType>
-    #[expect(
-        dead_code,
-        reason = "`TypeNoBounds::BareFunction` isn't currently supported"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "`TypeNoBounds::BareFunction` isn't currently supported"
+        )
     )]
     BareFunction,
 
     /// See: <https://doc.rust-lang.org/reference/macros.html#railroad-MacroInvocation>
-    #[expect(
-        dead_code,
-        reason = "`TypeNoBounds::MacroInvocation` isn't currently supported"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "`TypeNoBounds::MacroInvocation` isn't currently supported"
+        )
     )]
     MacroInvocation,
 }
@@ -146,5 +152,83 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
 impl<'a> From<TypeNoBounds<'a>> for Type<'a> {
     fn from(value: TypeNoBounds<'a>) -> Self {
         Self::NoBounds(value)
+    }
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use super::*;
+    use crate::source::test_source;
+    use crate::template::parser::expression::Identifier;
+    use crate::template::parser::expression::path::PathIdentSegment;
+    use crate::template::parser::expression::paths::path_segment::TypePathSegment;
+    use crate::tokenizer::BufferedSource;
+
+    /// `TypePath` ends up being parsed by the `TraitObjectTypeOneBound` parser,
+    /// but `TypePath` can't be parsed before it
+    /// because `dyn` is tokenized as an identifier
+    /// and therefore would short-circuit in some cases
+    /// as a path instead of a keyword.
+    #[test]
+    fn type_path() {
+        test_source!(source = "Foo::Bar");
+        let mut buffer: BufferedSource = source.clone().into();
+
+        let foo = buffer.consume_until(|char| char == ':').unwrap();
+        let separator = buffer.consume_while(|char| char == ':').unwrap();
+        let bar = buffer.consume_until(|_| false).unwrap();
+
+        let type_no_bounds = TypeNoBounds::Path(TypePath::new_for_test(
+            None,
+            Box::new(TypePathSegment::new_for_test(
+                PathIdentSegment::Identifier(Identifier::new_for_test(&foo)),
+                None,
+            )),
+            vec![(
+                separator,
+                TypePathSegment::new_for_test(
+                    PathIdentSegment::Identifier(Identifier::new_for_test(&bar)),
+                    None,
+                ),
+            )],
+        ));
+
+        let actual_source = type_no_bounds.source();
+        let actual_tokens = type_no_bounds.to_tokens_with_state(&State::new_for_test());
+
+        assert_eq!(actual_source.as_str(), source.as_str());
+        assert_eq!(
+            format!("{:?}", actual_tokens.0),
+            format!("{:?}", quote! { Foo::Bar })
+        );
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `TypeNoBounds::BareFunction` isn't \
+                      currently supported"]
+    fn tokens_bare_function() {
+        let _ = TypeNoBounds::BareFunction.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `TypeNoBounds::MacroInvocation` \
+                      isn't currently supported"]
+    fn tokens_macro_invocation() {
+        let _ = TypeNoBounds::MacroInvocation.to_tokens_with_state(&State::new_for_test());
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `TypeNoBounds::BareFunction` isn't \
+                      currently supported"]
+    fn source_bare_function() {
+        let _ = TypeNoBounds::BareFunction.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `TypeNoBounds::MacroInvocation` \
+                      isn't currently supported"]
+    fn source_macro_invocation() {
+        let _ = TypeNoBounds::MacroInvocation.source();
     }
 }

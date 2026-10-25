@@ -1,21 +1,33 @@
 use super::GenericArgs;
-use crate::template::parser::expression::path::IdentSegment;
+use crate::template::parser::expression::path::PathIdentSegment;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
 #[derive(Debug)]
 pub(crate) struct TypePathSegment<'a> {
-    ident_segment: IdentSegment<'a>,
+    ident_segment: PathIdentSegment<'a>,
 
     /// `Source` is optional path separator (`::`).
     generics: Option<(Option<Source<'a>>, Box<GenericArgs<'a>>)>,
 }
 
 impl<'a> TypePathSegment<'a> {
+    /// Helper function to build a type path segment for a test.
+    #[cfg(test)]
+    pub(crate) fn new_for_test(
+        ident_segment: PathIdentSegment<'a>,
+        generics: Option<(Option<Source<'a>>, Box<GenericArgs<'a>>)>,
+    ) -> Self {
+        Self {
+            ident_segment,
+            generics,
+        }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
-            IdentSegment::parse,
+            PathIdentSegment::parse,
             ignore_recoverable_errors((
                 ignore_recoverable_errors(take(TokenKind::PathSeparator)),
                 GenericArgs::parse,
