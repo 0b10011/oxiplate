@@ -9,5 +9,7 @@ error[E0308]: mismatched types
 note: method defined here
  --> $RUST/alloc/src/str.rs
   |
+  | impl str {
+...
   |     pub fn repeat(&self, n: usize) -> String {
   |            ^^^^^^
