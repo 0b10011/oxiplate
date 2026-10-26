@@ -179,7 +179,7 @@ mod tests {
         let separator = buffer.consume_while(|char| char == ':').unwrap();
         let bar = buffer.consume_until(|_| false).unwrap();
 
-        let type_no_bounds = TypeNoBounds::Path(TypePath::new_for_test(
+        let type_no_bounds: TypeNoBounds = TypePath::new_for_test(
             None,
             Box::new(TypePathSegment::new_for_test(
                 PathIdentSegment::Identifier(Identifier::new_for_test(&foo)),
@@ -192,7 +192,7 @@ mod tests {
                     None,
                 ),
             )],
-        ));
+        ).into();
 
         let actual_source = type_no_bounds.source();
         let actual_tokens = type_no_bounds.to_tokens_with_state(&State::new_for_test());
