@@ -25,6 +25,8 @@ impl<'a> RawPointerType<'a> {
             alt((
                 into(KeywordParser::new("mut")),
                 into(KeywordParser::new("const")),
+                #[cfg(feature = "_unreachable")]
+                into(KeywordParser::new("qux")),
             )),
             TypeNoBounds::parse,
         )
@@ -41,7 +43,8 @@ impl<'a> RawPointerType<'a> {
                 r#const: keyword,
                 type_no_bounds: Box::new(type_no_bounds),
             },
-            _ => unreachable!(
+            _ => internal_error!(
+                keyword.span_token().unwrap(),
                 "Internal Oxiplate error: Unexpected keyword parsed while parsing raw pointer"
             ),
         };

@@ -1,0 +1,5 @@
+error: Expected `}}`, `-}}`, or `_}}`
+ --> tests/broken/tests/generics/type-list/unexpected-raw-pointer-keyword.rs:6:44
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> *qux usize::from([19, 89]).join("") }}"#)]
+  |                                            ^^^^^
