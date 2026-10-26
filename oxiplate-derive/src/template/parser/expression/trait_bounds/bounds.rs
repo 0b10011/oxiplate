@@ -10,8 +10,7 @@ pub(crate) struct Bounds<'a> {
     /// `Source` is a plus sign (`+`)
     first_bounds: Vec<(Bound<'a>, Source<'a>)>,
 
-    /// `Source` is a plus sign (`+`)
-    last_bound: Option<(Bound<'a>, Option<Source<'a>>)>,
+    last_bound: Option<Bound<'a>>,
 }
 
 impl<'a> Bounds<'a> {
@@ -19,10 +18,9 @@ impl<'a> Bounds<'a> {
     pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (first_bounds, last_bound)) = (
             many0((Bound::parse, into(take(TokenKind::Plus)))),
-            ignore_recoverable_errors((
+            ignore_recoverable_errors(
                 Bound::parse,
-                ignore_recoverable_errors(into(take(TokenKind::Plus))),
-            )),
+            ),
         )
             .parse(tokens)?;
 
@@ -51,12 +49,11 @@ impl<'a> Bounds<'a> {
             );
         }
 
-        if let Some((bound, plus)) = &self.last_bound {
+        if let Some(bound) = &self.last_bound {
             source = Some(
                 bound
                     .source()
-                    .append_to_some(source, "Bound expected")
-                    .merge_some(plus.as_ref(), "`+` expected after bound"),
+                    .append_to_some(source, "Bound expected"),
             );
         }
 
@@ -77,13 +74,8 @@ impl<'a> ToTokensWithState<'a> for Bounds<'a> {
             tokens.append_all(quote_spanned! {span=> + });
         }
 
-        if let Some((bound, plus)) = &self.last_bound {
+        if let Some(bound) = &self.last_bound {
             tokens.append_all(bound.to_tokens_with_state(state).0);
-
-            if let Some(plus) = plus {
-                let span = plus.span_token();
-                tokens.append_all(quote_spanned! {span=> + });
-            }
         }
 
         (tokens, EstimatedLength::new(0))
