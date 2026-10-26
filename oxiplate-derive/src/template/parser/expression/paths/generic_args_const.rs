@@ -7,7 +7,10 @@ use crate::template::parser::prelude::*;
 #[derive(Debug)]
 pub(in crate::template::parser) enum GenericArgsConst<'a> {
     /// See: <https://doc.rust-lang.org/reference/expressions/block-expr.html#railroad-BlockExpression>
-    #[expect(dead_code, reason = "`BlockExpression` isn't currently supported")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "`BlockExpression` isn't currently supported")
+    )]
     BlockExpression,
 
     /// `LiteralExpression` with possible leading `-`.
@@ -80,6 +83,20 @@ mod test {
     use crate::source::test_source;
     use crate::template::tokenizer::Token;
     use crate::tokenizer::Eof;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: \
+                      `GenericArgsConst::BlockExpression` isn't currently supported"]
+    fn block_expression_source() {
+        let _ = GenericArgsConst::BlockExpression.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: \
+                      `GenericArgsConst::BlockExpression` isn't currently supported"]
+    fn block_expression_tokens() {
+        let _ = GenericArgsConst::BlockExpression.to_tokens_with_state(&State::new_for_test());
+    }
 
     #[test]
     fn simple_path_segment_ident() {
