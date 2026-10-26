@@ -104,7 +104,7 @@ impl<'a> From<ConstParam<'a>> for GenericParam<'a> {
 #[derive(Debug)]
 pub(crate) enum ConstParamValue<'a> {
     /// See: <https://doc.rust-lang.org/reference/expressions/block-expr.html#railroad-BlockExpression>
-    #[expect(dead_code, reason = "`BlockExpression` isn't currently supported")]
+    #[cfg_attr(not(test), expect(dead_code, reason = "`BlockExpression` isn't currently supported"))]
     BlockExpression,
 
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
@@ -163,5 +163,23 @@ impl<'a> From<Identifier<'a>> for ConstParamValue<'a> {
 impl<'a> From<PossiblyNegativeLiteralExpression<'a>> for ConstParamValue<'a> {
     fn from(value: PossiblyNegativeLiteralExpression<'a>) -> Self {
         Self::Literal(value)
+    }
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `ConstParamValue::BlockExpression` isn't currently supported"]
+    fn block_expression_source() {
+        ConstParamValue::BlockExpression.source();
+    }
+
+    #[test]
+    #[should_panic = "internal error: entered unreachable code: `ConstParamValue::BlockExpression` isn't currently supported"]
+    fn block_expression_tokens() {
+        let _ = ConstParamValue::BlockExpression.to_tokens_with_state(&State::new_for_test());
     }
 }
