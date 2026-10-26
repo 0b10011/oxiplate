@@ -10,6 +10,13 @@ pub(crate) fn consume_decimal<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
+    // Create unparseable integer.
+    #[cfg(feature = "_unreachable")]
+    if source.peek_2() == Some(['4', ' ']) {
+        let _ = source.next();
+        let _ = source.next();
+    }
+
     // Match the rest of the integer
     source.next_while(|char| matches!(char, '_' | '0'..='9'));
 
