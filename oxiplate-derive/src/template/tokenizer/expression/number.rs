@@ -10,6 +10,13 @@ pub(crate) fn consume_decimal<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,
 ) -> Res<'a> {
+    // Create unparseable integer.
+    #[cfg(feature = "_unreachable")]
+    if source.peek_2() == Some(['4', ' ']) {
+        let _ = source.next();
+        let _ = source.next();
+    }
+
     // Match the rest of the integer
     source.next_while(|char| matches!(char, '_' | '0'..='9'));
 
@@ -58,7 +65,7 @@ pub(crate) fn consume_decimal<'a>(
     } else {
         match parse_exponent(source) {
             Ok(true) => TokenKind::Float,
-            Ok(false) => TokenKind::Integer,
+            Ok(false) => TokenKind::DecLiteral,
             Err(parse_error) => {
                 return (
                     None,
@@ -120,19 +127,19 @@ pub(crate) fn consume_alternative_base<'a>(
         return (
             None,
             Ok((
-                Token::new(TokenKind::Integer, &source, leading_whitespace),
+                Token::new(TokenKind::DecLiteral, &source, leading_whitespace),
                 None,
             )),
         );
     };
 
-    let digit_callback = match char {
+    let (digit_callback, kind): (fn(char) -> bool, TokenKind) = match char {
         // Decimal numbers can have any number of leading zeroes,
         // but alternative bases can't.
         '0'..='9' => return consume_decimal(source, leading_whitespace),
-        'b' => is_bin_digit,
-        'x' => is_hex_digit,
-        'o' => is_oct_digit,
+        'b' => (is_bin_digit, TokenKind::BinLiteral),
+        'x' => (is_hex_digit, TokenKind::HexLiteral),
+        'o' => (is_oct_digit, TokenKind::OctLiteral),
         'a'..='z' | 'A'..='Z' | '_' => {
             // Match other suffix characters
             source.next_while(|char| matches!(char, '0'..='9' | 'a'..='z' | 'A'..='Z' | '_'));
@@ -155,7 +162,7 @@ pub(crate) fn consume_alternative_base<'a>(
             return (
                 None,
                 Ok((
-                    Token::new(TokenKind::Integer, &source, leading_whitespace),
+                    Token::new(TokenKind::DecLiteral, &source, leading_whitespace),
                     None,
                 )),
             );
@@ -196,10 +203,7 @@ pub(crate) fn consume_alternative_base<'a>(
 
     (
         None,
-        Ok((
-            Token::new(TokenKind::Integer, &number, leading_whitespace),
-            None,
-        )),
+        Ok((Token::new(kind, &number, leading_whitespace), None)),
     )
 }
 

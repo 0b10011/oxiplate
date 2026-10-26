@@ -1,0 +1,5 @@
+error: Expected `}}`, `-}}`, or `_}}`
+ --> tests/broken/tests/numbers/unparseable-tuple-index.rs:8:32
+  |
+8 | #[oxiplate_inline("{{ value.14 19 }}")]
+  |                                ^^

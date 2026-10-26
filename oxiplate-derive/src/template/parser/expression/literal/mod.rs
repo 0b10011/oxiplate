@@ -3,7 +3,7 @@ mod char;
 mod number;
 mod string;
 
-pub(crate) use self::bool::Bool;
-pub(crate) use self::char::Char;
-pub(crate) use self::number::{Float, Integer, Number};
-pub(crate) use self::string::String;
+pub(in crate::template::parser) use self::bool::Bool;
+pub(in crate::template::parser) use self::char::Char;
+pub(in crate::template::parser) use self::number::{Float, Integer, Number};
+pub(in crate::template::parser) use self::string::String;

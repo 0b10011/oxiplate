@@ -1,0 +1,5 @@
+error: Expected `}}`, `-}}`, or `_}}`
+ --> tests/broken/tests/numbers/unparseable-integer.rs:8:26
+  |
+8 | #[oxiplate_inline("{{ 14 19 }}")]
+  |                          ^^
