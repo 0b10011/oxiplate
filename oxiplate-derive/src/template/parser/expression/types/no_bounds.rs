@@ -192,7 +192,8 @@ mod tests {
                     None,
                 ),
             )],
-        ).into();
+        )
+        .into();
 
         let actual_source = type_no_bounds.source();
         let actual_tokens = type_no_bounds.to_tokens_with_state(&State::new_for_test());
