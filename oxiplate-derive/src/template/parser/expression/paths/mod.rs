@@ -1,6 +1,6 @@
 pub(in crate::template::parser) mod args;
 pub(in crate::template::parser) mod binding;
-pub(in crate::template::parser) mod bounds;
+pub(in crate::template::parser) mod generic_args_bounds;
 pub(in crate::template::parser) mod generic_args_const;
 pub(in crate::template::parser) mod path;
 pub(in crate::template::parser) mod path_segment;

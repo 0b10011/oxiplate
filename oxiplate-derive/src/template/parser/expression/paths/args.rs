@@ -1,6 +1,6 @@
 use super::GenericArgs;
 use super::binding::GenericArgsBinding;
-use super::bounds::GenericArgsBounds;
+use super::generic_args_bounds::GenericArgsBounds;
 use super::generic_args_const::GenericArgsConst;
 use crate::template::parser::expression::trait_bounds::lifetime::Lifetime;
 use crate::template::parser::expression::types::Type;
