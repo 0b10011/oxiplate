@@ -1,5 +1,5 @@
 warning: unnecessary parentheses around type
- --> tests/broken/tests/generics/type-list/type_parenthesized.rs:6:39
+ --> tests/broken/tests/generics/type-list/type-parenthesized.rs:6:39
   |
 6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> (_)::from([19, 89]).join("") }}"#)]
   |                                       ^ ^
@@ -12,7 +12,7 @@ help: remove these parentheses
   |
 
 error[E0214]: parenthesized type parameters may only be used with a `Fn` trait
- --> tests/broken/tests/generics/type-list/type_parenthesized.rs:6:25
+ --> tests/broken/tests/generics/type-list/type-parenthesized.rs:6:25
   |
 6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> (_)::from([19, 89]).join("") }}"#)]
   |                         ^^^^^^^^^^^^^^^^^ only `Fn` traits may use parentheses
@@ -24,7 +24,7 @@ help: use angle brackets instead
   |
 
 error[E0277]: the trait bound `Vec<Foo>: From<[{integer}; 2]>` is not satisfied
- --> tests/broken/tests/generics/type-list/type_parenthesized.rs:6:25
+ --> tests/broken/tests/generics/type-list/type-parenthesized.rs:6:25
   |
 6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> (_)::from([19, 89]).join("") }}"#)]
   |                         ^^^^^^^^^^^^^^^^^ the trait `From<[{integer}; 2]>` is not implemented for `Vec<Foo>`
@@ -41,7 +41,7 @@ error[E0277]: the trait bound `Vec<Foo>: From<[{integer}; 2]>` is not satisfied
           and $N others
 
 error[E0599]: the method `join` exists for struct `Vec<Foo>`, but its trait bounds were not satisfied
- --> tests/broken/tests/generics/type-list/type_parenthesized.rs:6:59
+ --> tests/broken/tests/generics/type-list/type-parenthesized.rs:6:59
   |
 6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> (_)::from([19, 89]).join("") }}"#)]
   |                                                           ^^^^ method cannot be called on `Vec<Foo>` due to unsatisfied trait bounds
