@@ -9,6 +9,8 @@ error[E0308]: mismatched types
 note: method defined here
   --> $RUST/alloc/src/str.rs
    |
+   | impl str {
+...
    |     pub fn repeat(&self, n: usize) -> String {
    |            ^^^^^^
 help: you can convert a `u64` to a `usize` and panic if the converted value doesn't fit
