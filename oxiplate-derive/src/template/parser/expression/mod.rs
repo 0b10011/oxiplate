@@ -145,14 +145,12 @@ impl<'a> Expression<'a> {
             return;
         };
 
-        // Fix the precedence of the expression
-        // about to become the leftmost expression of this one.
-        lefts_right.fix_precedence();
-
         // Move the middle expression from the left one to this one,
+        // fix the precedence of this one now that it has a new child,
         // then move this one onto the left expression,
         // and finally make it official.
         self.give_left(&mut lefts_right);
+        self.fix_precedence();
         left.give_right(self);
         mem::swap(&mut left, self);
     }
