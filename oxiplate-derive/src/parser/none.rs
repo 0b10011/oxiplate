@@ -6,7 +6,10 @@ use super::{Parser, Res, TokenSlice};
 /// Generates `None` without consuming any tokens.
 ///
 /// ```rust,ignore
-/// let (tokens, none()) = some(take(TokenKind::StaticText)).parse(tokens)?;
+/// let (tokens, (optional_static_text, static_whitespace)) = alt((
+///     (some(take(TokenKind::StaticText)), take(TokenKind::StaticWhitespace)),
+///     (none(), take(TokenKind::StaticWhitespace))
+/// )).parse(tokens)?;
 /// ```
 pub(crate) fn none<P>() -> None<P> {
     None {
