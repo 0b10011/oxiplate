@@ -73,3 +73,14 @@ fn several() {
         "1 2 3 4 5"
     );
 }
+
+#[test]
+fn indexing() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline("{{ (a,).0 }}")]
+    struct Single {
+        a: usize,
+    }
+
+    assert_eq!(format!("{}", Single { a: 9 }), "9");
+}
