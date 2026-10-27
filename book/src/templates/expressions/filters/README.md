@@ -75,13 +75,14 @@ use crate::filters_for_oxiplate;
 
 `CowStr` is generated via the [cow prefix](./index.html#cow-prefix-for-more-efficient-string-conversion).
 
-| Filter | Description |
-|-|-|
-| `lower` | Converts to lowercase |
-| `trim` | Trims leading and trailing whitespace |
-| `trim_end` | Trims trailing whitespace |
-| `trim_start` | Trims leading whitespace |
-| `upper` | Converts to uppercase |
+| Filter | Arguments | Description |
+|-|-|-|
+| `lower` | | Converts to lowercase |
+| [`shorten`][] | `max_length` | Shortens to `max_length` grapheme clusters or fewer, ending with `…`. Requires the `filter-shorten` feature. |
+| `trim` | | Trims leading and trailing whitespace |
+| `trim_end` | | Trims trailing whitespace |
+| `trim_start` | | Trims leading whitespace |
+| `upper` | | Converts to uppercase |
 
 ### `Option` filters
 
@@ -97,3 +98,4 @@ use crate::filters_for_oxiplate;
 | `loop` | | Groups an iterator with a `Loop` struct containing additional loop iteration info. |
 
 [`join`]: ./join.md
+[`shorten`]: ./shorten.md

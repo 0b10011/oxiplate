@@ -26,3 +26,4 @@
     - [Expression precedence](templates/expressions/expression-precedence.md)
     - [Filters](templates/expressions/filters/README.md)
         - [`join` filter](templates/expressions/filters/join.md)
+        - [`shorten` filter](templates/expressions/filters/shorten.md)

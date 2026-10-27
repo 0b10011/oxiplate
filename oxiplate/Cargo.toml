@@ -17,6 +17,7 @@ workspace = true
 [dependencies]
 oxiplate-derive = { version = "0.19.11", path = "../oxiplate-derive", default-features = false, features = ["_oxiplate"] }
 oxiplate-traits = { version = "0.2", path = "../oxiplate-traits", default-features = false, features = [] }
+unicode-segmentation = { version = "1.13.3", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.116, < 1.0.120"
@@ -49,6 +50,10 @@ external-template-spans = ["oxiplate-derive/external-template-spans"]
 # Includes the `itoa` dependency
 # and speeds up integer escaping.
 fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
+
+# Includes the `unicode-segmentation` dependency
+# and adds the `shorten` filter.
+filter-shorten = ["dep:unicode-segmentation"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types to

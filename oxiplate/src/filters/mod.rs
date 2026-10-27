@@ -53,6 +53,8 @@ mod default;
 mod join;
 mod r#loop;
 mod lower;
+#[cfg(feature = "filter-shorten")]
+mod shorten;
 mod trim;
 mod upper;
 
@@ -60,5 +62,7 @@ pub use default::default;
 pub use join::join;
 pub use r#loop::r#loop;
 pub use lower::lower;
+#[cfg(feature = "filter-shorten")]
+pub use shorten::shorten;
 pub use trim::{trim, trim_end, trim_start};
 pub use upper::upper;

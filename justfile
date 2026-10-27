@@ -50,7 +50,7 @@ rebuild-config-test-crates:
 
 # Run book tests.
 book-tests:
-    cargo build --package oxiplate --target-dir target/book/
+    cargo build --package oxiplate --features filter-shorten --target-dir target/book/
     RUSTUP_TOOLCHAIN="nightly-2026-10-26" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
@@ -83,6 +83,7 @@ clippy-strict: check-strict \
     (clippy-features "--workspace" "oxiplate/external-template-spans,oxiplate-derive/external-template-spans") \
     (clippy-features "--workspace" "oxiplate/config,oxiplate-derive/config") \
     (clippy-features "--workspace" "oxiplate/fast-escape-ints,oxiplate-traits/fast-escape-ints") \
+    (clippy-features "--workspace" "oxiplate/filter-shorten") \
     (clippy-features "--workspace" "oxiplate/built-in-escapers,oxiplate-derive/built-in-escapers") \
     (clippy-features "--workspace" "oxiplate/_unreachable,oxiplate-derive/_unreachable")\
     (clippy-features "--package oxiplate-derive" "oxiplate-derive/better-errors") \
@@ -215,6 +216,7 @@ run-against-all command test-arguments="": (run-against-stable command test-argu
 run-against-stable command test-arguments="": (run-against-libs command test-arguments)
     {{ command }} --package oxiplate-test-fast-escape-type-priority -- {{ test-arguments }}
     {{ command }} --package oxiplate-test-slow-escape-ints -- {{ test-arguments }}
+    {{ command }} --package oxiplate --features filter-shorten -- {{ test-arguments }}
 
 # Tests requiring unstable features that cannot be run against the MSRV.
 [private]
