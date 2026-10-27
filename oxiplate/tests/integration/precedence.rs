@@ -52,3 +52,22 @@ fn cow_concat_field() {
 
     assert_eq!(format!("{data}"), "hello Liv");
 }
+
+#[test]
+fn cow_concat_function() {
+    fn name(user: &User) -> &'static str {
+        user.name
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ raw: >"hello " ~ name(&user) }}"#)]
+    struct Data {
+        user: User,
+    }
+
+    let data = Data {
+        user: User { name: "Liv" },
+    };
+
+    assert_eq!(format!("{data}"), "hello Liv");
+}
