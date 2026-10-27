@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "better-internal-errors", feature(proc_macro_diagnostic))]
 #![cfg_attr(feature = "external-template-spans", feature(proc_macro_expand))]
-#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+#![cfg_attr(all(coverage_nightly, test), feature(coverage_attribute))]
 #![doc(issue_tracker_base_url = "https://github.com/0b10011/Oxiplate/issues/")]
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
