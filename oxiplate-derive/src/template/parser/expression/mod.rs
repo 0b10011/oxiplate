@@ -673,7 +673,7 @@ pub(super) fn expression<'a>(
 
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
-mod test {
+mod tests {
     use super::Char;
     use super::concat::Concat;
     use crate::source::test_source;

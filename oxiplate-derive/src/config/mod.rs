@@ -207,7 +207,8 @@ impl Deref for OptimizedRenderer {
 }
 
 #[cfg(all(test, feature = "config"))]
-mod test {
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
     use crate::parser::Error;
 
     #[test]
