@@ -4,11 +4,6 @@ use oxiplate::prelude::*;
 struct User {
     name: &'static str,
 }
-impl User {
-    fn name(&self) -> &'static str {
-        self.name
-    }
-}
 extern crate test;
 #[rustc_test_marker = "precedence::precedence"]
 #[doc(hidden)]
@@ -18,9 +13,9 @@ pub static precedence: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/integration/precedence.rs",
-        start_line: 16usize,
+        start_line: 10usize,
         start_col: 4usize,
-        end_line: 16usize,
+        end_line: 10usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -119,9 +114,9 @@ pub static cow_concat_field: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/integration/precedence.rs",
-        start_line: 42usize,
+        start_line: 36usize,
         start_col: 4usize,
-        end_line: 42usize,
+        end_line: 36usize,
         end_col: 20usize,
         compile_fail: false,
         no_run: false,
@@ -198,9 +193,9 @@ pub static cow_concat_function: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/integration/precedence.rs",
-        start_line: 57usize,
+        start_line: 51usize,
         start_col: 4usize,
-        end_line: 57usize,
+        end_line: 51usize,
         end_col: 23usize,
         compile_fail: false,
         no_run: false,

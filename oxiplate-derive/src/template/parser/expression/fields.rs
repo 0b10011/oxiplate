@@ -11,9 +11,11 @@ pub(crate) struct Fields<'a> {
 }
 
 impl<'a> Fields<'a> {
-    /// Parse a field or method.
+    /// Parse a field (`expr.ident`).
     /// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    pub(in crate::template::parser) fn parse(
+        tokens: TokenSlice<'a>,
+    ) -> Res<'a, Box<NestedExpression<'a>>> {
         let (tokens, (period, ident)) =
             (into(take(TokenKind::Period)), Identifier::parse).parse(tokens)?;
 
@@ -30,8 +32,8 @@ impl<'a> Fields<'a> {
         ))
     }
 
-    /// Source for the entire group, including the parentheses.
-    pub fn source(&self) -> Source<'a> {
+    /// Source for the entire field expression.
+    pub(in crate::template::parser) fn source(&self) -> Source<'a> {
         self.expression
             .source()
             .merge(&self.period, "`.` expected after expression")

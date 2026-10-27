@@ -113,13 +113,13 @@ impl ToTokens for PathIdentSegment<'_> {
 
 /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
 #[derive(Debug)]
-pub(crate) struct Identifier<'a> {
+pub(in crate::template::parser) struct Identifier<'a> {
     source: &'a Source<'a>,
 }
 
 impl<'a> Identifier<'a> {
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
         let source = token.source();
 
@@ -133,7 +133,9 @@ impl<'a> Identifier<'a> {
     /// - self
     /// - Self
     /// - super
-    pub fn parse_prevent_reserved_keywords(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse_prevent_reserved_keywords(
+        tokens: TokenSlice<'a>,
+    ) -> Res<'a, Self> {
         let backup_tokens = tokens.clone();
         let (tokens, token) = alt((
             take(TokenKind::Ident),
@@ -183,14 +185,14 @@ impl ToTokens for Identifier<'_> {
 }
 
 #[derive(Debug)]
-pub(crate) struct Path<'a> {
+pub(in crate::template::parser) struct Path<'a> {
     separator: Option<Separator<'a>>,
     segment: PathExprSegment<'a>,
     additional_segments: Vec<(Separator<'a>, PathExprSegment<'a>)>,
 }
 impl<'a> Path<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathInExpression>
-    pub(crate) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (separator, segment, additional_segments)) = (
             ignore_recoverable_errors(take(TokenKind::PathSeparator)),
             PathExprSegment::parse,
@@ -233,7 +235,7 @@ impl<'a> Path<'a> {
     }
 
     /// Get the `Source` for the entire path.
-    pub fn source(&self) -> Source<'a> {
+    pub(in crate::template::parser) fn source(&self) -> Source<'a> {
         let mut source = if let Some(separator) = &self.separator {
             separator
                 .0

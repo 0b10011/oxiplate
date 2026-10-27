@@ -6,12 +6,6 @@ struct User {
     name: &'static str,
 }
 
-impl User {
-    fn name(&self) -> &'static str {
-        self.name
-    }
-}
-
 #[test]
 fn precedence() {
     #[derive(Oxiplate)]
