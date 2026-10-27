@@ -399,7 +399,8 @@ pub(crate) fn tag_open(tokens: TokenSlice) -> Res<TagOpen> {
 }
 
 #[cfg(test)]
-mod test {
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
     use super::*;
     use crate::source::test_source;
     use crate::template::tokenizer::Token;

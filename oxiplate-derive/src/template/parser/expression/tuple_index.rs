@@ -114,7 +114,7 @@ impl<'a> ToTokensWithState<'a> for TupleIndex<'a> {
 
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
-mod test {
+mod tests {
     use super::*;
     use crate::source::test_source;
     use crate::template::tokenizer::Token;
