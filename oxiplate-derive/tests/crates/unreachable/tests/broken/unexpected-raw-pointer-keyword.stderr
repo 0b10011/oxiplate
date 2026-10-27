@@ -1,0 +1,28 @@
+error: Internal Oxiplate error: Internal Oxiplate error: Unexpected keyword parsed while parsing raw pointer
+ --> tests/broken/unexpected-raw-pointer-keyword.rs:6:40
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::(Foo) -> *qux usize::from([19, 89]).join("") }}"#)]
+  |                                        ^^^
+  |
+  = help: Please open an issue: https://github.com/0b10011/oxiplate/issues/new?title=Internal+Oxiplate+error%3A+Unexpected+keyword+parsed+while+parsing+raw+pointer&labels=internal+error&body=Error%3A%0A%0A%60%60%60text%0APASTE_FULL_ERROR_HERE%0A%60%60%60%0A%0ATemplate%3A%0A%0A%60%60%60%0APASTE_TEMPLATE_HERE%0A%60%60%60
+
+error: proc-macro derive panicked
+ --> tests/broken/unexpected-raw-pointer-keyword.rs:5:10
+  |
+5 | #[derive(Oxiplate)]
+  |          ^^^^^^^^
+  |
+  = help: message: internal error: entered unreachable code: Internal Oxiplate error. See previous error for more information.
+
+error[E0277]: `Data` doesn't implement `std::fmt::Display`
+  --> tests/broken/unexpected-raw-pointer-keyword.rs:10:25
+   |
+10 |     assert_eq!(format!("{Data}"), "1989");
+   |                         ^^^^^^ `Data` cannot be formatted with the default formatter
+   |
+help: the trait `std::fmt::Display` is not implemented for `Data`
+  --> tests/broken/unexpected-raw-pointer-keyword.rs:7:1
+   |
+ 7 | struct Data;
+   | ^^^^^^^^^^^
+   = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead

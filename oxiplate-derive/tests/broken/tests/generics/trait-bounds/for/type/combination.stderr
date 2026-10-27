@@ -1,0 +1,32 @@
+error[E0658]: only lifetime parameters can be used in this context
+ --> tests/broken/tests/generics/trait-bounds/for/type/combination.rs:6:39
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<T: for <foo> Bar>::from([19, 89]).join("") }}"#)]
+  |                                       ^^^
+  |
+  = note: see issue #108185 <https://github.com/rust-lang/rust/issues/108185> for more information
+  = help: add `#![feature(non_lifetime_binders)]` to the crate attributes to enable
+
+warning: type parameter `foo` should have an upper camel case name
+ --> tests/broken/tests/generics/trait-bounds/for/type/combination.rs:6:39
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<T: for <foo> Bar>::from([19, 89]).join("") }}"#)]
+  |                                       ^^^ help: convert the identifier to upper camel case (notice the capitalization): `Foo`
+  |
+  = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+error[E0229]: associated item constraints are not allowed here
+ --> tests/broken/tests/generics/trait-bounds/for/type/combination.rs:6:31
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<T: for <foo> Bar>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^^^^^^^^^^^^ associated item constraint not allowed here
+
+error[E0599]: the method `join` exists for struct `Vec<{integer}>`, but its trait bounds were not satisfied
+ --> tests/broken/tests/generics/trait-bounds/for/type/combination.rs:6:65
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<T: for <foo> Bar>::from([19, 89]).join("") }}"#)]
+  |                                                                 ^^^^ method cannot be called on `Vec<{integer}>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `[{integer}]: Join<_>`
+          which is required by `<[{integer}] as Join<_>>::Output = _`

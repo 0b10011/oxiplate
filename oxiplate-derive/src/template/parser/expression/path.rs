@@ -1,14 +1,14 @@
 use proc_macro2::Ident;
 
 use super::Expression;
-use super::generics::Generics;
+use super::paths::GenericArgs;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
 #[derive(Debug)]
 pub(in crate::template::parser) struct PathExprSegment<'a> {
     ident_segment: PathIdentSegment<'a>,
-    generics: Option<(Separator<'a>, Generics<'a>)>,
+    generics: Option<(Separator<'a>, GenericArgs<'a>)>,
 }
 
 impl<'a> PathExprSegment<'a> {
@@ -16,7 +16,7 @@ impl<'a> PathExprSegment<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident_segment, generics)) = (
             PathIdentSegment::parse,
-            ignore_recoverable_errors((take(TokenKind::PathSeparator), Generics::parse)),
+            ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parse)),
         )
             .parse(tokens)?;
 
@@ -40,7 +40,7 @@ impl<'a> PathExprSegment<'a> {
         if let Some((separator, generics)) = &self.generics {
             source = source
                 .merge(&separator.0, "`::` expected after ident segment")
-                .merge(generics.source(), "Generics expected after `::`");
+                .merge(&generics.source(), "Generics expected after `::`");
         }
 
         source
@@ -48,13 +48,13 @@ impl<'a> PathExprSegment<'a> {
 }
 
 impl<'a> ToTokensWithState<'a> for PathExprSegment<'a> {
-    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let mut tokens = TokenStream::new();
         self.ident_segment.to_tokens(&mut tokens);
         if let Some((separator, generics)) = &self.generics {
             let span = separator.source().span_token();
             tokens.append_all(quote_spanned! {span=> :: });
-            generics.to_tokens(&mut tokens);
+            tokens.append_all(generics.to_tokens_with_state(state).0);
         }
 
         (tokens, EstimatedLength::new(0))
@@ -118,6 +118,12 @@ pub(in crate::template::parser) struct Identifier<'a> {
 }
 
 impl<'a> Identifier<'a> {
+    /// Helper function to build a type path for a test.
+    #[cfg(test)]
+    pub(crate) fn new_for_test(source: &'a Source<'a>) -> Self {
+        Self { source }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
     pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
@@ -297,3 +303,42 @@ impl ToTokens for Separator<'_> {
         tokens.append_all(quote_spanned! {span=> :: });
     }
 }
+
+macro_rules! keyword {
+    ($name:ident, $keyword:expr) => {
+        #[derive(Debug)]
+        pub(in crate::template::parser) struct $name<'a> {
+            source: Source<'a>,
+        }
+
+        impl<'a> $name<'a> {
+            pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+                let (tokens, keyword) = take(TokenKind::$name).parse(tokens)?;
+
+                Ok((
+                    tokens,
+                    Self {
+                        source: keyword.source().to_owned(),
+                    },
+                ))
+            }
+
+            pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
+                &self.source
+            }
+        }
+
+        impl<'a> ToTokensWithState<'a> for $name<'a> {
+            fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+                let span = self.source.span_token();
+
+                (quote_spanned! {span=> $keyword }, EstimatedLength::new(0))
+            }
+        }
+    };
+}
+
+keyword!(Super, super);
+keyword!(SelfCurrentModule, self);
+keyword!(SelfCurrentType, Self);
+keyword!(Crate, crate);

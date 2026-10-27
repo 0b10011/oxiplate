@@ -118,6 +118,8 @@ pub(crate) enum TokenKind {
     Equal,
     /// `@`
     At,
+    /// `?`
+    QuestionMark,
 
     /// `..`
     RangeExclusive,

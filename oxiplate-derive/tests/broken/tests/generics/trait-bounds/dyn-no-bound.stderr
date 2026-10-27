@@ -1,0 +1,5 @@
+error[E0224]: at least one trait is required for an object type
+ --> tests/broken/tests/generics/trait-bounds/dyn-no-bound.rs:6:32
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<&dyn>::from([19, 89]).join("") }}"#)]
+  |                                ^^^

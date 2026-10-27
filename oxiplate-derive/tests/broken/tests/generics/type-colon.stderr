@@ -1,0 +1,21 @@
+error[E0229]: associated item constraints are not allowed here
+ --> tests/broken/tests/generics/type-colon.rs:6:31
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<Foo:>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^ associated item constraint not allowed here
+  |
+help: consider removing this associated item constraint
+  |
+6 - #[oxiplate_inline(r#"{{ Vec::<Foo:>::from([19, 89]).join("") }}"#)]
+6 + #[oxiplate_inline(r#"{{ Vec::::from([19, 89]).join("") }}"#)]
+  |
+
+error[E0599]: the method `join` exists for struct `Vec<{integer}>`, but its trait bounds were not satisfied
+ --> tests/broken/tests/generics/type-colon.rs:6:53
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<Foo:>::from([19, 89]).join("") }}"#)]
+  |                                                     ^^^^ method cannot be called on `Vec<{integer}>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `[{integer}]: Join<_>`
+          which is required by `<[{integer}] as Join<_>>::Output = _`

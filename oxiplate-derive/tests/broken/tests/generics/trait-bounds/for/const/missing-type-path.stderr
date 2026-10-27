@@ -1,0 +1,5 @@
+error: Type path expected in trait bound
+ --> tests/broken/tests/generics/trait-bounds/for/const/missing-type-path.rs:4:61
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::<T: for <const FOO: usize = 19>>::from([19, 89]).join("") }}"#)]
+  |                                                             ^

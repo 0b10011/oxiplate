@@ -1,0 +1,13 @@
+error[E0214]: parenthesized type parameters may only be used with a `Fn` trait
+ --> tests/broken/tests/generics/type-list/none-type-no-bounds.rs:4:25
+  |
+4 | #[oxiplate_inline(r#"{{ Vec::() -> _::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^ only `Fn` traits may use parentheses
+
+error[E0107]: struct takes at least 1 generic argument but 0 generic arguments were supplied
+ --> tests/broken/tests/generics/type-list/none-type-no-bounds.rs:4:25
+  |
+3 | #[derive(Oxiplate)]
+  |          -------- this derive macro might not support items with generic parameters
+4 | #[oxiplate_inline(r#"{{ Vec::() -> _::from([19, 89]).join("") }}"#)]
+  |                         ^^^

@@ -1,0 +1,61 @@
+error[E0214]: parenthesized type parameters may only be used with a `Fn` trait
+ --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:7:25
+  |
+7 | #[oxiplate_inline(r#"{{ Vec::(Foo, Bar,)::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^^^^^ only `Fn` traits may use parentheses
+  |
+help: use angle brackets instead
+  |
+7 - #[oxiplate_inline(r#"{{ Vec::(Foo, Bar,)::from([19, 89]).join("") }}"#)]
+7 + #[oxiplate_inline(r#"{{ Vec::<Foo, Bar>::from([19, 89]).join("") }}"#)]
+  |
+
+error[E0277]: the trait bound `Bar: Allocator` is not satisfied
+ --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:7:25
+  |
+7 | #[oxiplate_inline(r#"{{ Vec::(Foo, Bar,)::from([19, 89]).join("") }}"#)]
+  |                         ^^^^^^^^^^^^^^^^ unsatisfied trait bound
+  |
+help: the trait `Allocator` is not implemented for `Bar`
+ --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:4:1
+  |
+4 | struct Bar;
+  | ^^^^^^^^^^
+  = help: the following other types implement trait `Allocator`:
+            &A
+            &mut A
+            Arc<T, A>
+            Box<T, A>
+            Pin<P>
+            Rc<T, A>
+            System
+            std::alloc::Global
+note: required by a bound in `Vec`
+ --> $RUST/alloc/src/vec/mod.rs
+  |
+  | pub struct Vec<T, #[stable(feature = "allocator_api", since = "1.100.0")] A: Allocator = Global> {
+  |                                                                              ^^^^^^^^^ required by this bound in `Vec`
+
+error[E0308]: mismatched types
+ --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:7:48
+  |
+7 | #[oxiplate_inline(r#"{{ Vec::(Foo, Bar,)::from([19, 89]).join("") }}"#)]
+  |                         ---------------------- ^^^^^^^^ expected `Vec<Foo, Bar>`, found `[{integer}; 2]`
+  |                         |
+  |                         arguments to this function are incorrect
+  |
+  = note: expected struct `Vec<Foo, Bar>`
+              found array `[{integer}; 2]`
+note: associated function defined here
+ --> $RUST/core/src/convert/mod.rs
+  |
+  | pub const trait From<T>: Sized {
+...
+  |     fn from(value: T) -> Self;
+  |        ^^^^
+
+error[E0599]: no method named `join` found for struct `Vec<T, A>` in the current scope
+ --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:7:58
+  |
+7 | #[oxiplate_inline(r#"{{ Vec::(Foo, Bar,)::from([19, 89]).join("") }}"#)]
+  |                                                          ^^^^ method not found in `Vec<Foo, Bar>`

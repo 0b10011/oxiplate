@@ -1,0 +1,23 @@
+error: this relaxed bound is not permitted here
+ --> tests/broken/tests/generics/trait-bounds/question-mark.rs:8:34
+  |
+8 | #[oxiplate_inline(r#"{{ Vec::<T: ? Bar>::from([19, 89]).join("") }}"#)]
+  |                                  ^^^^^
+  |
+  = note: in this context, relaxed bounds are only allowed on type parameters defined on the closest item
+
+error[E0229]: associated item constraints are not allowed here
+ --> tests/broken/tests/generics/trait-bounds/question-mark.rs:8:31
+  |
+8 | #[oxiplate_inline(r#"{{ Vec::<T: ? Bar>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^^^^ associated item constraint not allowed here
+
+error[E0599]: the method `join` exists for struct `Vec<{integer}>`, but its trait bounds were not satisfied
+ --> tests/broken/tests/generics/trait-bounds/question-mark.rs:8:57
+  |
+8 | #[oxiplate_inline(r#"{{ Vec::<T: ? Bar>::from([19, 89]).join("") }}"#)]
+  |                                                         ^^^^ method cannot be called on `Vec<{integer}>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `[{integer}]: Join<_>`
+          which is required by `<[{integer}] as Join<_>>::Output = _`

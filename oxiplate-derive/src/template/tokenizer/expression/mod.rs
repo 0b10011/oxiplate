@@ -57,6 +57,7 @@ pub(crate) fn consume_expression_token<'a>(
         '[' => TokenKind::OpenBracket,
         ']' => TokenKind::CloseBracket,
         '{' => TokenKind::OpenBrace,
+        '?' => TokenKind::QuestionMark,
         '+' => TokenKind::Plus,
         '-' => {
             return Some(consume_possible_tag_end_whitespace_adjustment(
@@ -127,6 +128,7 @@ pub(crate) fn consume_expression_token<'a>(
     ))
 }
 
+/// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
 pub(crate) fn consume_ident<'a>(
     source: &mut BufferedSource<'a>,
     leading_whitespace: Option<Source<'a>>,

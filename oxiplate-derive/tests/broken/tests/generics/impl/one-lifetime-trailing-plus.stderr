@@ -1,0 +1,29 @@
+error: at least one trait must be specified
+ --> tests/broken/tests/generics/impl/one-lifetime-trailing-plus.rs:6:31
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<impl 'a +>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^^^^^
+
+warning: unused import: `core::fmt::Display`
+ --> tests/broken/tests/generics/impl/one-lifetime-trailing-plus.rs:1:5
+  |
+1 | use core::fmt::Display;
+  |     ^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0562]: `impl Trait` is not allowed in paths
+ --> tests/broken/tests/generics/impl/one-lifetime-trailing-plus.rs:6:31
+  |
+6 | #[oxiplate_inline(r#"{{ Vec::<impl 'a +>::from([19, 89]).join("") }}"#)]
+  |                               ^^^^^^^^^
+  |
+  = note: `impl Trait` is only allowed in arguments and return types of functions and methods
+
+error[E0392]: lifetime parameter `'a` is never used
+ --> tests/broken/tests/generics/impl/one-lifetime-trailing-plus.rs:7:13
+  |
+7 | struct Data<'a>;
+  |             ^^ unused lifetime parameter
+  |
+  = help: consider removing `'a`, referring to it in a field, or using a marker such as `PhantomData`

@@ -1,5 +1,6 @@
 use proc_macro2::Literal;
 
+use super::LiteralExpression;
 use crate::template::parser::expression::Expression;
 use crate::template::parser::prelude::*;
 
@@ -68,6 +69,12 @@ impl<'a> From<Integer<'a>> for Number<'a> {
     }
 }
 
+impl<'a> From<Integer<'a>> for LiteralExpression<'a> {
+    fn from(value: Integer<'a>) -> Self {
+        Self::Integer(value)
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::template::parser) struct Float<'a> {
     source: Source<'a>,
@@ -103,6 +110,12 @@ impl<'a> ToTokensWithState<'a> for Float<'a> {
 impl<'a> From<Float<'a>> for Number<'a> {
     fn from(value: Float<'a>) -> Self {
         Number::Float(value)
+    }
+}
+
+impl<'a> From<Float<'a>> for LiteralExpression<'a> {
+    fn from(value: Float<'a>) -> Self {
+        Self::Float(value)
     }
 }
 
