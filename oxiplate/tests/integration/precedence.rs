@@ -6,12 +6,6 @@ struct User {
     name: &'static str,
 }
 
-impl User {
-    fn name(&self) -> &'static str {
-        self.name
-    }
-}
-
 #[test]
 fn precedence() {
     #[derive(Oxiplate)]
@@ -42,6 +36,25 @@ LIV is awesome
 fn cow_concat_field() {
     #[derive(Oxiplate)]
     #[oxiplate_inline(r#"{{ raw: >"hello " ~ user.name }}"#)]
+    struct Data {
+        user: User,
+    }
+
+    let data = Data {
+        user: User { name: "Liv" },
+    };
+
+    assert_eq!(format!("{data}"), "hello Liv");
+}
+
+#[test]
+fn cow_concat_function() {
+    fn name(user: &User) -> &'static str {
+        user.name
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ raw: >"hello " ~ name(&user) }}"#)]
     struct Data {
         user: User,
     }

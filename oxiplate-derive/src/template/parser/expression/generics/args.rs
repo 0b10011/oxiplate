@@ -3,14 +3,14 @@ use super::lifetime::Lifetime;
 use crate::template::parser::prelude::*;
 
 #[derive(Debug)]
-pub(super) struct GenericArgs<'a> {
+pub(in crate::template::parser) struct GenericArgs<'a> {
     first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
     last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
     source: Source<'a>,
 }
 
 impl<'a> GenericArgs<'a> {
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
@@ -62,7 +62,7 @@ impl<'a> GenericArgs<'a> {
         ))
     }
 
-    pub fn source(&self) -> &Source<'a> {
+    pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
         &self.source
     }
 }

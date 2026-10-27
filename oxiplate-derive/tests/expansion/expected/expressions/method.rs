@@ -270,3 +270,75 @@ fn callback() {
         }
     }
 }
+extern crate test;
+#[rustc_test_marker = "expressions::method::generics_on_method_call"]
+#[doc(hidden)]
+pub static generics_on_method_call: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("expressions::method::generics_on_method_call"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/expressions/method.rs",
+        start_line: 95usize,
+        start_col: 4usize,
+        end_line: 95usize,
+        end_col: 27usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(generics_on_method_call()),
+    ),
+};
+fn generics_on_method_call() {
+    struct Foo {
+        greeting: &'static str,
+    }
+    impl Foo {
+        fn bar(&self) -> &'static str {
+            self.greeting
+        }
+    }
+    #[oxiplate_inline(r#"{{ foo.bar::<>() }}"#)]
+    struct Data {
+        foo: Foo,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.foo.bar())))?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &"hello world",
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        foo: Foo {
+                            greeting: "hello world"
+                        }
+                    }
+                ))
+            }),
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    }
+}

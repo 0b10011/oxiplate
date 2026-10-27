@@ -13,7 +13,7 @@ pub(crate) struct Call<'a> {
 impl<'a> Call<'a> {
     /// Parses a call expression (`expr(args)`).
     /// See: <https://doc.rust-lang.org/reference/expressions/call-expr.html#grammar-CallExpression>
-    pub(super) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
         let (tokens, arguments) = arguments(tokens)?;
 
         Ok((
