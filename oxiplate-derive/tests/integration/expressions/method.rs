@@ -90,3 +90,33 @@ fn callback() {
         )
     )
 }
+
+#[test]
+fn generics_on_method_call() {
+    struct Foo {
+        greeting: &'static str,
+    }
+    impl Foo {
+        fn bar(&self) -> &'static str {
+            self.greeting
+        }
+    }
+
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{{ foo.bar::<>() }}"#)]
+    struct Data {
+        foo: Foo,
+    }
+
+    assert_eq!(
+        "hello world",
+        format!(
+            "{}",
+            Data {
+                foo: Foo {
+                    greeting: "hello world"
+                }
+            }
+        )
+    )
+}

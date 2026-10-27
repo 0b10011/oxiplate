@@ -1,7 +1,7 @@
 mod args;
 mod lifetime;
 
-use self::args::GenericArgs;
+pub(in crate::template::parser) use self::args::GenericArgs;
 use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
