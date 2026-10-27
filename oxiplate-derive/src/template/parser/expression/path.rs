@@ -118,12 +118,6 @@ pub(crate) struct Identifier<'a> {
 }
 
 impl<'a> Identifier<'a> {
-    /// Helper function to build a type path for a test.
-    #[cfg(test)]
-    pub(crate) fn new_for_test(source: &'a Source<'a>) -> Self {
-        Self { source }
-    }
-
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
