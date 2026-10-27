@@ -15,11 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Other
 
-- updated toolchain to nightly-2026-10-24
+- updated toolchain to nightly-2026-10-26
 - stopped erroring out when expansion tests are overwritten
 - grouped regular integration tests into a single binary in each library to improve organization and expansions ([#373](https://github.com/0b10011/oxiplate/pull/373))
 - started running `rustfmt` against expansions
-- replaced `-` with `_` in test file names to prepere for moving to a single binary for integration tests
+- replaced `-` with `_` in test file names to prepare for moving to a single binary for integration tests
 - moved all files related to broken tests under the same folder for each library
 - moved `expansion.rs` to reduce noise in `/tests/`
 - prevented warning when testing
