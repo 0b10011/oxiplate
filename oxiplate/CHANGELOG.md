@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.12](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.11...oxiplate-v0.19.12) - 2026-10-27
+
+### Added
+
+- added support for generics on method calls ([#395](https://github.com/0b10011/oxiplate/pull/395))
+- added support for generics ([#355](https://github.com/0b10011/oxiplate/pull/355))
+
+### Fixed
+
+- fixed right-side precedence on some deeply nested expressions
+
+### Other
+
+- updated expansion for previous commit
+- turned off coverage for `tests` modules and used consistent name across project
+
 ## [0.19.11](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.10...oxiplate-v0.19.11) - 2026-10-27
 
 ### Added
