@@ -111,18 +111,18 @@ LIV is awesome
     };
 }
 extern crate test;
-#[rustc_test_marker = "precedence::cow_concat_method_call"]
+#[rustc_test_marker = "precedence::cow_concat_field"]
 #[doc(hidden)]
-pub static cow_concat_method_call: test::TestDescAndFn = test::TestDescAndFn {
+pub static cow_concat_field: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("precedence::cow_concat_method_call"),
+        name: test::StaticTestName("precedence::cow_concat_field"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate/tests/integration/precedence.rs",
         start_line: 42usize,
         start_col: 4usize,
         end_line: 42usize,
-        end_col: 26usize,
+        end_col: 20usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -130,11 +130,11 @@ pub static cow_concat_method_call: test::TestDescAndFn = test::TestDescAndFn {
     },
     testfn: test::StaticTestFn(
         #[coverage(off)]
-        || test::assert_test_result(cow_concat_method_call()),
+        || test::assert_test_result(cow_concat_field()),
     ),
 };
-fn cow_concat_method_call() {
-    #[oxiplate_inline(r#"{{ raw: >"hello " ~ user.name() }}"#)]
+fn cow_concat_field() {
+    #[oxiplate_inline(r#"{{ raw: >"hello " ~ user.name }}"#)]
     struct Data {
         user: User,
     }
@@ -157,7 +157,7 @@ fn cow_concat_method_call() {
                 &(::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("hello {0}", self.user.name()))
+                            ::alloc::fmt::format(format_args!("hello {0}", self.user.name))
                         })),
                     ))
                         .to_cow_str(),
