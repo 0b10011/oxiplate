@@ -51,6 +51,10 @@ and `format!("{}", Data { .. })` needs to be used instead of `Data { .. }.render
 
 - [How to contribute](https://github.com/0b10011/oxiplate/blob/main/CONTRIBUTING.md)
 
+## Safety
+
+`#![forbid(unsafe_code)]` ensures only safe Rust code is used.
+
 ## License
 
 Licensed under either of

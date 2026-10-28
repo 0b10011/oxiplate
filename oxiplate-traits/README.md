@@ -19,6 +19,10 @@
 Crate containing traits used by [Oxiplate](https://crates.io/crates/oxiplate)
 and libraries looking to expand Oxiplate's functionality.
 
+## Safety
+
+`#![forbid(unsafe_code)]` ensures only safe Rust code is used.
+
 ## License
 
 Licensed under either of

@@ -5,6 +5,7 @@
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
+#![forbid(unsafe_code)]
 
 mod config;
 mod parser;

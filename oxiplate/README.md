@@ -220,6 +220,10 @@ or even collapsing it down to a single space.
 
 Read the full [whitespace control chapter](https://0b10011.io/oxiplate/templates/whitespace-control.html) for more information.
 
+## Safety
+
+`#![forbid(unsafe_code)]` ensures only safe Rust code is used.
+
 ## License
 
 Licensed under either of

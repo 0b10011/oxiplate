@@ -3,6 +3,7 @@
 #![doc(test(no_crate_inject))]
 #![doc(test(attr(deny(warnings))))]
 #![doc = include_str!("../README.md")]
+#![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
 mod cow_str;
