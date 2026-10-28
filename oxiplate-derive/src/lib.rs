@@ -935,6 +935,8 @@ fn encode_query_value(input: &str) -> String {
 #[inline]
 #[cfg(feature = "better-internal-errors")]
 fn percent_encode_byte(byte: u8) -> &'static str {
+    use std::str::from_utf8;
+
     static ENC_TABLE: &[u8; 768] = b"\
         %00%01%02%03%04%05%06%07%08%09%0A%0B%0C%0D%0E%0F\
         %10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F\
@@ -955,13 +957,14 @@ fn percent_encode_byte(byte: u8) -> &'static str {
         ";
 
     let index = usize::from(byte) * 3;
-    // SAFETY: ENC_TABLE is ascii-only, so any subset of it should be
-    // ascii-only too, which is valid utf8.
-    // `str:from_utf8_unchecked()` is only available since Rust 1.87.0.
-    #[expect(clippy::incompatible_msrv)]
-    unsafe {
-        str::from_utf8_unchecked(&ENC_TABLE[index..index + 3])
-    }
+    // ENC_TABLE is ascii-only,
+    // so any subset of it should be ascii-only too,
+    // which is valid utf8.
+    // But since this is for ideally non-existent internal errors,
+    // calling `from_utf8()` instead of `from_utf8_unchecked()`
+    // is a very acceptable performance penalty
+    // to avoid using `unsafe`.
+    from_utf8(&ENC_TABLE[index..index + 3]).expect("String should always be valid UTF-8")
 }
 
 pub(crate) use internal_error;
