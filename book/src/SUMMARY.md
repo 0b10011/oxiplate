@@ -1,6 +1,7 @@
 # Summary
 
 [Introduction](README.md)
+[Made by humans](made-by-humans.md)
 
 # Setting up the Rust project
 

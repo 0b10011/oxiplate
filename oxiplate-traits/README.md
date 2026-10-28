@@ -1,6 +1,6 @@
 # Oxiplate traits
 
-[![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
+[![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Repository][]][repo] [![Docs Build Status]][docs] [![Made by Humans]][human-made]
 
 [Latest Version]: https://img.shields.io/crates/v/oxiplate-traits
 [crate]: https://crates.io/crates/oxiplate-traits
@@ -12,9 +12,9 @@
 [coverage]: https://coveralls.io/github/0b10011/oxiplate?branch=main
 [MIT OR Apache-2.0 License]: https://img.shields.io/crates/l/oxiplate-traits
 [license]: https://github.com/0b10011/oxiplate/#license
-[Open Issues]: https://img.shields.io/github/issues-raw/0b10011/oxiplate
-[issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate-traits
+[Made by Humans]: https://img.shields.io/badge/made_by-humans-orange
+[human-made]: https://0b10011.io/oxiplate/made-by-humans.html
 
 Crate containing traits used by [Oxiplate](https://crates.io/crates/oxiplate)
 and libraries looking to expand Oxiplate's functionality.

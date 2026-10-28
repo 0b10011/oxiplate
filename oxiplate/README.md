@@ -1,6 +1,6 @@
 # Oxiplate
 
-[![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Open Issues]][issues] [![Repository][]][repo] [![Docs Build Status]][docs]
+[![Latest Version]][crate] [![MIT OR Apache-2.0 License]][license] [![MSRV]][crate] [![Coverage Status]][coverage] [![Repository][]][repo] [![Docs Build Status]][docs] [![Made by Humans]][human-made]
 
 [Latest Version]: https://img.shields.io/crates/v/oxiplate
 [crate]: https://crates.io/crates/oxiplate
@@ -12,9 +12,9 @@
 [coverage]: https://coveralls.io/github/0b10011/oxiplate?branch=main
 [MIT OR Apache-2.0 License]: https://img.shields.io/crates/l/oxiplate
 [license]: https://github.com/0b10011/oxiplate/#license
-[Open Issues]: https://img.shields.io/github/issues-raw/0b10011/oxiplate
-[issues]: https://github.com/0b10011/oxiplate/issues
 [MSRV]: https://img.shields.io/crates/msrv/oxiplate
+[Made by Humans]: https://img.shields.io/badge/made_by-humans-orange
+[human-made]: https://0b10011.io/oxiplate/made-by-humans.html
 
 Oxiplate is a work-in-progress compile-time template engine for Rust
 with a focus on helpful error messages, escaping, and whitespace control,

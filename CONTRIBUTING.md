@@ -2,6 +2,12 @@
 
 Looking to use Oxiplate in your own project? Head on over to the [readme](./README.md) instead. Otherwise, read on!
 
+## Made by humans
+
+All contributions must be made by humans.
+No AI code. No AI images. No AI documentation.
+The ["Made by humans" chapter in the book](https://0b10011.io/oxiplate/made-by-humans.html) has more information.
+
 ## Quick setup
 
 1. [Install Rust](https://www.rust-lang.org/tools/install)
