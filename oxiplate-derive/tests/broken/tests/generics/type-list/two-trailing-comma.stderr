@@ -53,6 +53,11 @@ note: associated function defined here
 ...
   |     fn from(value: T) -> Self;
   |        ^^^^
+note: associated function provided through this blanket `impl`
+ --> $RUST/core/src/convert/mod.rs
+  |
+  | const impl<T> From<T> for T {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0599]: no method named `join` found for struct `Vec<T, A>` in the current scope
  --> tests/broken/tests/generics/type-list/two-trailing-comma.rs:7:58
