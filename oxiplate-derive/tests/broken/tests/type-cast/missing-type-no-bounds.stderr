@@ -1,0 +1,5 @@
+error: Expected type to cast expression into
+  --> tests/broken/tests/type-cast/missing-type-no-bounds.rs:32:36
+   |
+32 | #[oxiplate_inline("{{ &greeting as }}")]
+   |                                    ^^

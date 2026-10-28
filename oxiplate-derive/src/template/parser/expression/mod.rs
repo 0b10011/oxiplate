@@ -21,6 +21,7 @@ mod prefixed;
 mod trait_bounds;
 mod tuple;
 mod tuple_index;
+mod type_cast;
 mod types;
 
 use std::mem;
@@ -43,6 +44,7 @@ use self::path::Path;
 use self::prefixed::Prefixed;
 use self::tuple::Tuple;
 use self::tuple_index::TupleIndexingExpression;
+use self::type_cast::TypeCast;
 use super::Res;
 use super::expression::operator::parse_operator;
 use crate::template::parser::prelude::*;
@@ -99,6 +101,10 @@ pub(crate) enum Expression<'a> {
     /// `expr.method(args)`
     /// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
     MethodCall(MethodCall<'a>),
+
+    /// A type cast expression (`expr as Type`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#railroad-TypeCastExpression>
+    TypeCast(TypeCast<'a>),
 }
 
 impl<'a> Expression<'a> {
@@ -139,6 +145,7 @@ impl<'a> Expression<'a> {
             Self::Concat(concat) => concat.first_expression.fix_precedence(),
             Self::Call(call) => call.expression.fix_precedence(),
             Self::MethodCall(call) => call.expression.fix_precedence(),
+            Self::TypeCast(type_cast) => type_cast.expression.fix_precedence(),
         }
 
         // If the precedence is already correct, bail early.
@@ -203,6 +210,7 @@ impl<'a> Expression<'a> {
             Self::Concat(concat) => concat.first_expression.as_ref(),
             Self::Call(call) => call.expression.as_ref(),
             Self::MethodCall(call) => call.expression.as_ref(),
+            Self::TypeCast(type_cast) => type_cast.expression.as_ref(),
         };
 
         // Ensure the precedence of the left and this expression are correct.
@@ -246,6 +254,7 @@ impl<'a> Expression<'a> {
             Self::Concat(concat) => mem::take(&mut concat.first_expression),
             Self::Call(call) => mem::take(&mut call.expression),
             Self::MethodCall(call) => mem::take(&mut call.expression),
+            Self::TypeCast(type_cast) => mem::take(&mut type_cast.expression),
         }
     }
 
@@ -288,6 +297,7 @@ impl<'a> Expression<'a> {
             Self::Concat(concat) => concat.first_expression.as_mut(),
             Self::Call(call) => call.expression.as_mut(),
             Self::MethodCall(call) => call.expression.as_mut(),
+            Self::TypeCast(type_cast) => type_cast.expression.as_mut(),
         };
 
         // Ensure the expression is actually a placeholder.
@@ -326,7 +336,8 @@ impl<'a> Expression<'a> {
             | Self::Path(_)
             | Self::Fields(_)
             | Self::Call(_)
-            | Self::MethodCall(_) => None,
+            | Self::MethodCall(_)
+            | Self::TypeCast(_) => None,
 
             // Take the rightmost expression and return it.
             Self::Concat(concat) => match concat.additional_expressions.last_mut() {
@@ -369,7 +380,8 @@ impl<'a> Expression<'a> {
             | Self::Path(_)
             | Self::Fields(_)
             | Self::Call(_)
-            | Self::MethodCall(_) => {
+            | Self::MethodCall(_)
+            | Self::TypeCast(_) => {
                 unreachable!(
                     "Only expressions that hold an expression on the right side should ever be \
                      given a right expression"
@@ -416,7 +428,8 @@ impl<'a> Expression<'a> {
             | Self::Index(_)
             | Self::TupleIndex(_)
             | Self::Calc(_)
-            | Self::Prefixed(_) => u8::MAX,
+            | Self::Prefixed(_)
+            | Self::TypeCast(_) => u8::MAX,
 
             // Oxiplate expressions
             Self::Concat(_) => 3,
@@ -556,6 +569,7 @@ impl<'a> Expression<'a> {
             Self::Fields(fields) => fields.expression.merge_joinable(),
             Self::Call(call) => call.expression.merge_joinable(),
             Self::MethodCall(call) => call.expression.merge_joinable(),
+            Self::TypeCast(type_cast) => type_cast.expression.merge_joinable(),
         }
     }
 
@@ -588,6 +602,7 @@ impl<'a> Expression<'a> {
             Expression::Fields(fields) => fields.source().clone(),
             Expression::Call(call) => call.source().clone(),
             Expression::MethodCall(call) => call.source().clone(),
+            Expression::TypeCast(type_cast) => type_cast.source().clone(),
         }
     }
 }
@@ -619,6 +634,7 @@ impl<'a> ToTokensWithState<'a> for Expression<'a> {
             Expression::Fields(fields) => fields.to_tokens_with_state(state),
             Expression::Call(call) => call.to_tokens_with_state(state),
             Expression::MethodCall(call) => call.to_tokens_with_state(state),
+            Expression::TypeCast(type_cast) => type_cast.to_tokens_with_state(state),
         }
     }
 }
@@ -656,6 +672,7 @@ pub(super) fn expression<'a>(
                 MethodCall::parse,
                 Fields::parse,
                 Call::parse,
+                TypeCast::parse,
             )))
             .parse(tokens)?;
 
