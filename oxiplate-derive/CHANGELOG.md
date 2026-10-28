@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.13](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.12...oxiplate-derive-v0.19.13) - 2026-10-28
+
+### Other
+
+- added information about "made by humans" policy
+
 ## [0.19.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.11...oxiplate-derive-v0.19.12) - 2026-10-28
 
 ### Added
