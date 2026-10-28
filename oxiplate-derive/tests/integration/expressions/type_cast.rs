@@ -54,13 +54,13 @@ fn as_trait() {
     }
 
     #[derive(Oxiplate)]
-    #[oxiplate_inline("{{ &greeting }}")]
+    #[oxiplate_inline(r#"{{ "Greeting: " ~ &greeting }}"#)]
     struct AsGreeting {
         greeting: Greeting,
     }
 
     #[derive(Oxiplate)]
-    #[oxiplate_inline("{{ &greeting as &dyn Yell }}")]
+    #[oxiplate_inline(r#"{{ "Greeting: " ~ &greeting as &dyn Yell }}"#)]
     struct AsYell {
         greeting: Greeting,
     }
@@ -74,7 +74,7 @@ fn as_trait() {
                 },
             }
         ),
-        "Hello world!"
+        "Greeting: Hello world!"
     );
 
     assert_eq!(
@@ -86,6 +86,6 @@ fn as_trait() {
                 },
             }
         ),
-        "HELLO WORLD!"
+        "Greeting: HELLO WORLD!"
     );
 }
