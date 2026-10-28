@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.11...oxiplate-derive-v0.19.12) - 2026-10-28
+
+### Added
+
+- added support for type cast expressions ([#400](https://github.com/0b10011/oxiplate/pull/400))
+- started forbidding unsafe code across all published crates
+
+### Fixed
+
+- fixed `better-internal-errors` functionality on MSRV (fixes #393)
+
+### Other
+
+- updated toolchain to nightly-2026-10-27
+
 ## [0.19.11](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.10...oxiplate-derive-v0.19.11) - 2026-10-27
 
 ### Added

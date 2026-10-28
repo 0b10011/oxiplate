@@ -44,7 +44,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
 name = "oxiplate"
-version = "0.19.12"
+version = "0.19.13"
 dependencies = [
  "oxiplate-derive",
  "oxiplate-traits",
@@ -53,7 +53,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-derive"
-version = "0.19.11"
+version = "0.19.12"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -591,7 +591,7 @@ dependencies = [
 
 [[package]]
 name = "oxiplate-traits"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "itoa",
 ]
