@@ -1,32 +1,34 @@
-[private]
-default: (watch "dev")
+default:
+    @echo '`just` expects a command name after it.'
+    @echo '`just watch dev` will format code, run checks and tests, and generate coverage every time a file is changed.'
+    @echo '`just --list` will list all available commands.'
 
 # Watch files for changes and run the provided `just` command when there's a change. Typically used as `just watch dev`.
-[group("General Commands")]
+[group("~Common Commands~")]
 watch +commands:
     watchexec just {{ commands }}
 
 # Format code, run tests, generate coverage, and run clippy. Typically used via `just watch dev`.
-[group("General Commands")]
+[group("~Common Commands~")]
 dev: format check coverage clippy-strict expansion-tests doc
 
 # Build documentation for libraries.
-[group("General Commands")]
+[group("~Common Commands~")]
 doc:
     cargo doc --locked --lib --no-deps
 
 # Generate the book and open in your default browser.
-[group("General Commands")]
+[group("~Common Commands~")]
 book:
     mdbook serve --open
 
 # Generate the book.
-[group("General Commands")]
+[group("Build")]
 book-build:
     mdbook build
 
 # Update expected output for broken and expansion tests to the current output.
-[group("General Commands")]
+[group("~Common Commands~")]
 update-test-output: format clippy-strict rebuild-config-test-crates
     # Update broken test results
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
@@ -43,24 +45,25 @@ update-test-output: format clippy-strict rebuild-config-test-crates
     echo "Test output updated successfully!"
 
 # Rebuild test crates for config
-[group("General Commands")]
+[group("Build")]
 rebuild-config-test-crates:
     cargo run --bin oxiplate-derive-test-config
     cargo update --workspace
 
 # Run book tests.
+[group("Test")]
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
     RUSTUP_TOOLCHAIN="nightly-2026-10-27" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
-[group("Lint")]
+[group("Build")]
 format: && (format-broken "rustfmt")
     cargo fmt
 
 # Check if code is formatted properly. Use `just format` to format automatically.
-[group("Lint")]
+[group("Checks")]
 format-check: && (format-broken "rustfmt --check")
     cargo fmt --check
 
@@ -71,12 +74,12 @@ format-broken command:
     find -type d -name broken -print0 | xargs -0 -I{} find '{}' -name '*.rs' -print0 | xargs -0 -n 999 {{ command }}
 
 # Run `cargo clippy` against all packages with all features turned on.
-[group("Lint")]
+[group("Checks")]
 clippy: check
     cargo clippy --locked --workspace --features oxiplate/better-errors,oxiplate-derive/better-errors
 
 # Run `cargo clippy` against all packages and various combinations of features, denying warnings.
-[group("Lint")]
+[group("Checks")]
 clippy-strict: check-strict \
     (clippy-features "--workspace" "oxiplate/better-errors,oxiplate-derive/better-errors") && \
     (clippy-features "--workspace" "oxiplate/better-internal-errors,oxiplate-derive/better-internal-errors") \
@@ -93,6 +96,7 @@ clippy-strict: check-strict \
     cargo clippy --locked --workspace -- -Dwarnings
     cargo clippy --locked --workspace --no-default-features -- -Dwarnings
 
+[private]
 clippy-features options features:
     cargo clippy --locked {{ options }} --no-default-features --features {{ features }} -- -Dwarnings
 
@@ -127,7 +131,7 @@ test-toolchain toolchain: && (run-against-stable f"cargo +{{ toolchain }} test -
 test-msrv: (test-toolchain `just get-msrv`)
 
 # Build `oxiplate` against a target with no `std`
-[group("Test")]
+[group("Build")]
 [arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]
 build-no-std toolchain="":
     RUSTFLAGS='-D warnings' cargo{{ if toolchain != "" { ' +' + toolchain } else { '' } }} build --locked --target=x86_64-unknown-none --package oxiplate
@@ -181,7 +185,7 @@ coverage-no-report: clean-coverage \
     (run-against-libs "cargo llvm-cov --no-report --locked --no-rustc-wrapper --doc")
     cargo test --package oxiplate-derive --test clippy -- --ignored
 
-[private]
+[group("Test")]
 expansion-tests:
     cargo test --locked --test expansion --features better-errors -- --ignored
 
@@ -233,7 +237,7 @@ run-against-unstable command test-arguments="":
 run-against-broken command: (run-against-libs f"{{ command }} --test broken --features external-template-spans" "--ignored") (run-against-unstable f"{{ command }} --test broken" "--ignored")
 
 # Initial setup. Run once to install all necessary binaries. Run again to ensure they are all up-to-date.
-[group("Setup"), group("General Commands")]
+[group("Setup"), group("~Common Commands~")]
 setup: setup-dev setup-expansion setup-coverage setup-book
 
 # Initial setup for general development.
