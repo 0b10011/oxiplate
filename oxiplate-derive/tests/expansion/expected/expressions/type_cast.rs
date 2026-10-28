@@ -114,7 +114,7 @@ fn as_trait() {
             f.write_str(&self.yell())
         }
     }
-    #[oxiplate_inline("{{ &greeting }}")]
+    #[oxiplate_inline(r#"{{ "Greeting: " ~ &greeting }}"#)]
     struct AsGreeting {
         greeting: Greeting,
     }
@@ -122,11 +122,15 @@ fn as_trait() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(&self.greeting)))?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
+                &(::alloc::__export::must_use({
+                    ::alloc::fmt::format(format_args!("Greeting: {0}", &self.greeting))
+                })),
+            ))?;
             ::core::result::Result::Ok(())
         }
     }
-    #[oxiplate_inline("{{ &greeting as &dyn Yell }}")]
+    #[oxiplate_inline(r#"{{ "Greeting: " ~ &greeting as &dyn Yell }}"#)]
     struct AsYell {
         greeting: Greeting,
     }
@@ -135,7 +139,9 @@ fn as_trait() {
             extern crate alloc;
             use ::core::fmt::Write as _;
             oxiplate_formatter.write_str(&alloc::string::ToString::to_string(
-                &(&self.greeting as &dyn Yell),
+                &(::alloc::__export::must_use({
+                    ::alloc::fmt::format(format_args!("Greeting: {0}", &self.greeting as &dyn Yell))
+                })),
             ))?;
             ::core::result::Result::Ok(())
         }
@@ -152,7 +158,7 @@ fn as_trait() {
                     }
                 ))
             }),
-            &"Hello world!",
+            &"Greeting: Hello world!",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
@@ -179,7 +185,7 @@ fn as_trait() {
                     }
                 ))
             }),
-            &"HELLO WORLD!",
+            &"Greeting: HELLO WORLD!",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {
