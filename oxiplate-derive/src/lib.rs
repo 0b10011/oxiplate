@@ -35,6 +35,7 @@ pub(crate) use self::source::Source;
 use self::source::SourceOwned;
 pub(crate) use self::state::State;
 use self::state::{Fields, LocalVariables, build_config};
+use self::template::{EstimatedLength, TokenSlice, parse, tokens_and_eof};
 
 type BuiltTokens = (proc_macro2::TokenStream, EstimatedLength);
 

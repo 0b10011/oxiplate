@@ -10,6 +10,7 @@ mod value;
 
 use std::mem;
 
+use self::expression::Expression;
 use self::item::Item;
 use self::prelude::*;
 use self::table::Table;
@@ -31,7 +32,7 @@ mod prelude {
 }
 
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
-    let (tokens, items) = parse_all(Item::parse()).parse(tokens)?;
+    let (tokens, items) = parse_all(Item::parse).parse(tokens)?;
 
     let (mut data, config_source) = parse_data(items)?;
 
@@ -167,13 +168,13 @@ fn parse_escaper_groups<'a>(
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`); `{}` found",
-                            value.value
+                             escaper enum (e.g., `::your_package::Escaper`); `{:?}` found",
+                            value
                         ),
                         tokens.eof().source().clone(),
                     ));
                 }
-                TableOrValue::Value(Value::String(ref value)) => value.value,
+                TableOrValue::Value(Value::String(ref value)) => value.value(),
             };
 
             #[cfg(not(feature = "_unreachable"))]
@@ -219,9 +220,9 @@ macro_rules! handle_expression {
     ($lookup_table:ident, $expression:ident) => {{
         let mut lookup_table: &mut Table = &mut $lookup_table;
 
-        let mut ancestor_keys: Vec<&str> = Vec::with_capacity($expression.ancestor_keys.len());
-        for ancestor_key in $expression.ancestor_keys {
-            ancestor_keys.push(ancestor_key.value);
+        let mut ancestor_keys: Vec<&str> = Vec::with_capacity($expression.ancestor_keys().len());
+        for ancestor_key in $expression.ancestor_keys() {
+            ancestor_keys.push(ancestor_key.value());
         }
 
         // Make sure a table is created for each key
@@ -233,7 +234,7 @@ macro_rules! handle_expression {
             else {
                 let ancestor_key = *ancestor_key;
                 let mut keys = ancestor_keys;
-                keys.extend([$expression.key.source.as_str()]);
+                keys.extend([$expression.key().source().as_str()]);
 
                 return Err(Error::unrecoverable(
                     format!(
@@ -241,20 +242,20 @@ macro_rules! handle_expression {
                          into a table",
                         keys.join(".")
                     ),
-                    $expression.source,
+                    $expression.source().to_owned(),
                 ));
             };
 
             lookup_table = new_table;
         }
 
-        if lookup_table.contains_key($expression.key.value) {
+        if lookup_table.contains_key($expression.key().value()) {
             let mut keys = ancestor_keys;
-            keys.extend([$expression.key.source.as_str()]);
+            keys.extend([$expression.key().source().as_str()]);
 
             return Err(Error::unrecoverable(
                 format!("`{}` is already set", keys.join("."),),
-                $expression.key.source.clone(),
+                $expression.key().source().clone(),
             ));
         }
 
@@ -277,7 +278,7 @@ fn parse_data(items: Vec<Item>) -> Result<(Table, Option<Source>), Error> {
 
         match item {
             Item::Comment(_source) | Item::Newline(_source) => (),
-            Item::Expression(expression @ Expression { value: None, .. }) => {
+            Item::Expression(expression) if expression.value().is_none() => {
                 // New table
                 let table = mem::take(&mut current_table);
                 if let Some(table_parent) = current_table_parent {
@@ -290,17 +291,17 @@ fn parse_data(items: Vec<Item>) -> Result<(Table, Option<Source>), Error> {
 
                 // Table definition, set defined table to the current one
                 current_table_parent = Some(lookup_table);
-                current_table_key = expression.key.value;
+                current_table_key = expression.key().value();
             }
-            Item::Expression(expression @ Expression { value: Some(_), .. }) => {
+            Item::Expression(expression) => {
                 let lookup_table = handle_expression!(current_table, expression);
 
                 // Table definition, set defined table to the current one
                 lookup_table.insert(
-                    expression.key.value,
+                    expression.key().value(),
                     TableOrValue::Value(
                         expression
-                            .value
+                            .value()
                             .expect("Value was already checked to exist"),
                     ),
                 );

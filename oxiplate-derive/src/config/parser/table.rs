@@ -9,7 +9,7 @@ use super::table_or_value::TableOrValue;
 
 pub(in crate::config::parser) type Table<'a> = HashMap<&'a str, TableOrValue<'a>>;
 
-pub(in crate::config::parser) fn table<'a>(tokens: TokenSlice<'a>) -> Res<'a, Item<'a>> {
+basic_parser! {pub(in crate::config::parser) fn table(tokens: <TokenKind>) -> Item<'a> {
     let (tokens, (open_bracket, ancestors, key, close_bracket, newline)): (
         _,
         (_, Vec<(Key, _)>, Key, _, _),
@@ -49,12 +49,12 @@ pub(in crate::config::parser) fn table<'a>(tokens: TokenSlice<'a>) -> Res<'a, It
         .merge(close_bracket.source(), "`]` expected after key")
         .merge(newline, "Newline or end of file expected after comment");
 
-    let expression = Expression {
+    let expression = Expression::new(
         ancestor_keys,
         key,
-        value: None,
+        None,
         source,
-    };
+    );
 
     Ok((tokens, Item::Expression(expression)))
-}
+}}

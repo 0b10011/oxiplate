@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use super::expression::Key;
 use super::prelude::*;
 use crate::OptimizedRenderer;
@@ -20,21 +18,8 @@ impl<'a> Value<'a> {
     }
 }
 
-pub(in crate::config::parser) fn value<'a>() -> ValueParser<'a> {
-    ValueParser {
-        phantom_data: PhantomData,
-    }
-}
-
-pub(crate) struct ValueParser<'a> {
-    phantom_data: PhantomData<&'a ()>,
-}
-
-impl<'a> Parser<'a> for ValueParser<'a> {
-    type TokenKind = TokenKind;
-    type Output = Value<'a>;
-
-    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+basic_parser! {
+    pub(in crate::config::parser) fn value(tokens: <TokenKind>) -> Value<'a> {
         let (tokens, token) = tokens.take()?;
 
         let value = match token.kind() {
@@ -57,6 +42,7 @@ impl<'a> Parser<'a> for ValueParser<'a> {
         Ok((tokens, value))
     }
 }
+
 #[derive(Debug)]
 pub(in crate::config::parser) struct StringValue<'a> {
     value: &'a str,
@@ -64,6 +50,14 @@ pub(in crate::config::parser) struct StringValue<'a> {
 }
 
 impl<'a> StringValue<'a> {
+    pub(in crate::config::parser) fn new(value: &'a str, source: &'a Source<'a>) -> Self {
+        Self { value, source }
+    }
+
+    pub(in crate::config::parser) fn value(&self) -> &'a str {
+        self.value
+    }
+
     pub(crate) fn source(&self) -> &'a Source<'a> {
         self.source
     }
@@ -73,7 +67,7 @@ impl<'a> From<StringValue<'a>> for Key<'a> {
     fn from(value: StringValue<'a>) -> Self {
         let StringValue { value, source } = value;
 
-        Self { value, source }
+        Self::new(value, source)
     }
 }
 

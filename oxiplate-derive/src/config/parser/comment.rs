@@ -2,7 +2,7 @@ use super::item::Item;
 use super::newline_or_eof::newline_or_eof;
 use crate::config::parser::prelude::*;
 
-pub(in crate::config::parser) fn comment<'a>(tokens: TokenSlice<'a>) -> Res<'a, Item<'a>> {
+basic_parser! {pub(in crate::config::parser) fn comment(tokens: <TokenKind>) -> Item<'a> {
     let (tokens, (comment, newline)) = (
         take(TokenKind::Comment),
         cut(
@@ -21,4 +21,4 @@ pub(in crate::config::parser) fn comment<'a>(tokens: TokenSlice<'a>) -> Res<'a, 
                 .merge(newline, "Newline expected after comment"),
         ),
     ))
-}
+}}

@@ -11,11 +11,11 @@ pub(in crate::config::parser) enum Item<'a> {
 }
 
 impl<'a> Item<'a> {
-    fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::config::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((expression(), table(), comment(), newline())).parse(tokens)
     }
 
-    fn source(&self) -> &Source<'a> {
+    pub(in crate::config::parser) fn source(&self) -> &Source<'a> {
         match self {
             Self::Comment(source) | Self::Newline(source) => source,
             Self::Expression(expression) => &expression.source(),
