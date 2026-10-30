@@ -15,7 +15,7 @@ use super::{Parser, Res, TokenSlice};
 pub(crate) fn ignore_recoverable_errors<'a, K, P>(parser: P) -> IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     IgnoreRecoverableErrors {
         parser,
@@ -26,18 +26,19 @@ where
 pub(crate) struct IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     parser: P,
     phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, K, P> Parser<'a, K> for IgnoreRecoverableErrors<'a, K, P>
+impl<'a, K, P> Parser<'a> for IgnoreRecoverableErrors<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
-    type Output = Option<<P as Parser<'a, K>>::Output>;
+    type TokenKind = K;
+    type Output = Option<<P as Parser<'a>>::Output>;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens.clone()) {

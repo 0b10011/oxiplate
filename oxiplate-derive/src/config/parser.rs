@@ -1,11 +1,11 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
+use std::marker::PhantomData;
 use std::mem;
 
 use crate::config::tokenizer::TokenKind;
 use crate::config::{Config, EscaperGroup, InferEscaperGroupFromFileExtension, Token, TokenSlice};
-use crate::parser::{
-    Error, Parser as _, alt, cut, ignore_recoverable_errors, into, many0, parse_all, take,
-};
+use crate::parser::prelude::*;
 use crate::{OptimizedRenderer, Source};
 
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
@@ -337,12 +337,12 @@ impl<'a> Item<'a> {
             (_, Vec<(Key, _)>, Key, _, _),
         ) = (
             take(TokenKind::BracketOpen),
-            many0((into(string), take(TokenKind::DotSeparator))),
-            into(string),
+            many0((into(string()), take(TokenKind::DotSeparator))),
+            into(string()),
             take(TokenKind::BracketClose),
             cut(
                 "Newline or end of file expected after expression",
-                newline_or_eof,
+                newline_or_eof(),
             ),
         )
             .parse(tokens)?;
@@ -386,14 +386,14 @@ impl<'a> Item<'a> {
             _,
             (Vec<(Key, _)>, Key, _, _, _, _),
         ) = (
-            many0((into(string), take(TokenKind::DotSeparator))),
-            into(string),
+            many0((into(string()), take(TokenKind::DotSeparator))),
+            into(string()),
             cut("`=` expected after key", take(TokenKind::Equal)),
-            cut("Boolean or string value expected after `=`", value),
+            cut("Boolean or string value expected after `=`", value()),
             ignore_recoverable_errors(take(TokenKind::Comment)),
             cut(
                 "Newline or end of file expected after expression",
-                newline_or_eof,
+                newline_or_eof(),
             ),
         )
             .parse(tokens)?;
@@ -438,7 +438,7 @@ impl<'a> Item<'a> {
             take(TokenKind::Comment),
             cut(
                 "Newline or end of file expected after comment",
-                newline_or_eof,
+                newline_or_eof(),
             ),
         )
             .parse(tokens)?;
@@ -461,67 +461,111 @@ impl<'a> Item<'a> {
     }
 }
 
-fn string(tokens: TokenSlice) -> Res<StringValue> {
-    let (tokens, token) = tokens.take()?;
-
-    let value = match token.kind() {
-        TokenKind::String(value) => StringValue {
-            value,
-            source: token.source(),
-        },
-        _ => {
-            return Err(Error::recoverable(
-                format!(r"Expected a string, found: {token:#?}"),
-                token.source().clone(),
-            ));
-        }
-    };
-
-    Ok((tokens, value))
+fn string<'a, K>() -> StringParser<'a> {
+    StringParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(crate) struct StringParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-fn value(tokens: TokenSlice) -> Res<Value> {
-    let (tokens, token) = tokens.take()?;
+impl<'a> Parser<'a> for StringParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = StringValue<'a>;
 
-    let value = match token.kind() {
-        TokenKind::String(value) => Value::String(StringValue {
-            value,
-            source: token.source(),
-        }),
-        TokenKind::Bool(value) => Value::Bool(BoolValue {
-            value: *value,
-            source: token.source(),
-        }),
-        _ => {
-            return Err(Error::recoverable(
-                format!("Expected a string or boolean value, found: {token:#?}"),
-                token.source().clone(),
-            ));
-        }
-    };
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
 
-    Ok((tokens, value))
+        let value = match token.kind() {
+            TokenKind::String(value) => StringValue {
+                value,
+                source: token.source(),
+            },
+            _ => {
+                return Err(Error::recoverable(
+                    format!(r"Expected a string, found: {token:#?}"),
+                    token.source().clone(),
+                ));
+            }
+        };
+
+        Ok((tokens, value))
+    }
 }
 
-fn newline_or_eof(tokens: TokenSlice<'_>) -> Res<'_, &Source<'_>> {
-    if tokens.is_empty() {
-        let eof = tokens.eof().source();
-        return Ok((tokens, eof));
+fn value<'a, K>() -> ValueParser<'a> {
+    ValueParser {
+        phantom_data: PhantomData,
     }
+}
 
-    let (tokens, token) = tokens.take()?;
+pub(crate) struct ValueParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    match token.kind() {
-        TokenKind::Newline => (),
-        _ => {
-            return Err(Error::recoverable(
-                format!(r"Expected a newline (`\n` or `\r\n`), found: {token:#?}"),
-                token.source().clone(),
-            ));
+impl<'a> Parser<'a> for ValueParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Value<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
+
+        let value = match token.kind() {
+            TokenKind::String(value) => Value::String(StringValue {
+                value,
+                source: token.source(),
+            }),
+            TokenKind::Bool(value) => Value::Bool(BoolValue {
+                value: *value,
+                source: token.source(),
+            }),
+            _ => {
+                return Err(Error::recoverable(
+                    format!("Expected a string or boolean value, found: {token:#?}"),
+                    token.source().clone(),
+                ));
+            }
+        };
+
+        Ok((tokens, value))
+    }
+}
+
+fn newline_or_eof<'a, K>() -> NewlineOrEofParser<'a> {
+    NewlineOrEofParser {
+        phantom_data: PhantomData,
+    }
+}
+
+pub(crate) struct NewlineOrEofParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for NewlineOrEofParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = &'a Source<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        if tokens.is_empty() {
+            let eof = tokens.eof().source();
+            return Ok((tokens, eof));
         }
-    }
 
-    Ok((tokens, token.source()))
+        let (tokens, token) = tokens.take()?;
+
+        match token.kind() {
+            TokenKind::Newline => (),
+            _ => {
+                return Err(Error::recoverable(
+                    format!(r"Expected a newline (`\n` or `\r\n`), found: {token:#?}"),
+                    token.source().clone(),
+                ));
+            }
+        }
+
+        Ok((tokens, token.source()))
+    }
 }
 
 struct Expression<'a> {

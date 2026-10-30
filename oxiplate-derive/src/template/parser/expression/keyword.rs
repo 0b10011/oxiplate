@@ -38,7 +38,8 @@ impl KeywordParser {
     }
 }
 
-impl<'a> Parser<'a, TokenKind> for KeywordParser {
+impl<'a> Parser<'a> for KeywordParser {
+    type TokenKind = TokenKind;
     type Output = Keyword<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {

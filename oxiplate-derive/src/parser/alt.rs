@@ -52,11 +52,12 @@ macro_rules! alt {
 
     // Implement for the provided members
     (impl $($id:tt $generic:ident),+) => {
-        impl<'a, K, O, $($generic),+> Parser<'a, K> for Alt<($($generic,)+)>
+        impl<'a, K, O, $($generic),+> Parser<'a> for Alt<($($generic,)+)>
         where
             K: Debug + PartialEq + Eq,
-            $($generic: Parser<'a, K, Output = O>),+
+            $($generic: Parser<'a, TokenKind = K, Output = O>),+
         {
+            type TokenKind = K;
             type Output = O;
 
             #[inline]
@@ -82,12 +83,13 @@ macro_rules! alt {
         alt!(impl $($id1 $generic1),+);
 
         // Implement for all tokens
-        impl<'a, K, O, $($generic1,)+ $generic2> Parser<'a, K> for Alt<($($generic1,)+ $generic2)>
+        impl<'a, K, O, $($generic1,)+ $generic2> Parser<'a> for Alt<($($generic1,)+ $generic2)>
         where
             K: Debug + PartialEq + Eq,
-            $($generic1: Parser<'a, K, Output = O>,)+
-            $generic2: Parser<'a, K, Output = O>
+            $($generic1: Parser<'a, TokenKind = K, Output = O>,)+
+            $generic2: Parser<'a, TokenKind = K, Output = O>
         {
+            type TokenKind = K;
             type Output = O;
 
             #[inline]
