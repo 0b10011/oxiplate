@@ -461,7 +461,7 @@ impl<'a> Item<'a> {
     }
 }
 
-fn string<'a, K>() -> StringParser<'a> {
+fn string<'a>() -> StringParser<'a> {
     StringParser {
         phantom_data: PhantomData,
     }
@@ -532,7 +532,7 @@ impl<'a> Parser<'a> for ValueParser<'a> {
     }
 }
 
-fn newline_or_eof<'a, K>() -> NewlineOrEofParser<'a> {
+fn newline_or_eof<'a>() -> NewlineOrEofParser<'a> {
     NewlineOrEofParser {
         phantom_data: PhantomData,
     }

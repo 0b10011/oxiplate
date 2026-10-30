@@ -19,7 +19,7 @@ use super::{Error, Parser, Res, TokenSlice};
 /// ))
 /// .parse(tokens)?;
 /// ```
-pub(crate) fn alt<P>(parsers: P) -> Alt<P> {
+pub(crate) fn alt<'a, P>(parsers: P) -> Alt<P> where Alt<P>: Parser<'a> {
     Alt { parsers }
 }
 
