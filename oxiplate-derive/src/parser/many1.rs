@@ -39,7 +39,7 @@ where
     type TokenKind = K;
     type Output = Vec<<P as Parser<'a>>::Output>;
 
-    fn parse(&self, mut tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
+    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         let (tokens, values) = many0(&self.parser).parse(tokens)?;
 
         if values.is_empty() {
