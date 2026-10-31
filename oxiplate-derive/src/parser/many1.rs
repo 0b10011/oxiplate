@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
-use super::{Error, Parser, Res, TokenSlice};
+use super::{Error, Parser, Res, TokenSlice, many0};
 
 /// Builds a parser that matches the provided parser 1 or more times.
 ///
@@ -14,7 +14,7 @@ use super::{Error, Parser, Res, TokenSlice};
 pub(crate) fn many1<'a, K, P>(parser: P) -> Many1<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     Many1 {
         parser,
@@ -25,31 +25,22 @@ where
 pub(crate) struct Many1<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     parser: P,
     phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, K, P> Parser<'a, K> for Many1<'a, K, P>
+impl<'a, K, P> Parser<'a> for Many1<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
-    type Output = Vec<<P as Parser<'a, K>>::Output>;
+    type TokenKind = K;
+    type Output = Vec<<P as Parser<'a>>::Output>;
 
     fn parse(&self, mut tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
-        let mut values = vec![];
-        loop {
-            match self.parser.parse(tokens.clone()) {
-                Ok((remaining_tokens, output)) => {
-                    tokens = remaining_tokens;
-                    values.push(output);
-                }
-                Err(err) if err.is_recoverable() => break,
-                Err(err) => return Err(err),
-            }
-        }
+        let (tokens, values) = many0(&self.parser).parse(tokens)?;
 
         if values.is_empty() {
             let (_, token) = tokens.clone().take()?;

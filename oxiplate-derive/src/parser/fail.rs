@@ -13,17 +13,20 @@ use super::{Error, Parser, Res, TokenSlice};
 /// .parse(tokens)?;
 /// ```
 #[allow(dead_code)]
-pub(crate) fn fail<'a, P>() -> Fail<'a, P> {
+pub(crate) fn fail<'a, K, P>() -> Fail<'a, K, P> {
     Fail {
-        phantom_data: PhantomData,
+        phantom_kind: PhantomData,
+        phantom_output: PhantomData,
     }
 }
 
-pub(crate) struct Fail<'a, P> {
-    phantom_data: PhantomData<&'a P>,
+pub(crate) struct Fail<'a, K, P> {
+    phantom_kind: PhantomData<K>,
+    phantom_output: PhantomData<&'a P>,
 }
 
-impl<'a, K: Debug + PartialEq + Eq, P> Parser<'a, K> for Fail<'a, P> {
+impl<'a, K: Debug + PartialEq + Eq, P> Parser<'a> for Fail<'a, K, P> {
+    type TokenKind = K;
     type Output = P;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
@@ -54,7 +57,10 @@ mod tests {
     fn test_error_failure() {
         test_source!(source = "Hello world");
 
-        (take(TokenKind::StaticText), super::fail::<String>())
+        (
+            take(TokenKind::StaticText),
+            super::fail::<TokenKind, String>(),
+        )
             .parse(TokenSlice::new(
                 &[Ok(Token::new(TokenKind::StaticText, &source, None))],
                 &Eof::for_test(source),
@@ -68,7 +74,10 @@ mod tests {
         test_source!(source = "Hello world");
         test_source!(source2 = "Goodbye world");
 
-        (take(TokenKind::StaticText), super::fail::<String>())
+        (
+            take(TokenKind::StaticText),
+            super::fail::<TokenKind, String>(),
+        )
             .parse(TokenSlice::new(
                 &[
                     Ok(Token::new(TokenKind::StaticText, &source, None)),

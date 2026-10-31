@@ -14,7 +14,7 @@ use super::{Parser, Res, TokenSlice};
 pub(crate) fn many0<'a, K, P>(parser: P) -> Many0<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     Many0 {
         parser,
@@ -25,18 +25,19 @@ where
 pub(crate) struct Many0<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     parser: P,
     phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, K, P> Parser<'a, K> for Many0<'a, K, P>
+impl<'a, K, P> Parser<'a> for Many0<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
-    type Output = Vec<<P as Parser<'a, K>>::Output>;
+    type TokenKind = K;
+    type Output = Vec<<P as Parser<'a>>::Output>;
 
     fn parse(&self, mut tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         let mut values = vec![];
