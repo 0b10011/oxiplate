@@ -40,32 +40,6 @@ pub(crate) mod prelude {
         Error, Parser, alt, context, cut, fail, ignore_all_errors, ignore_recoverable_errors, into,
         many0, many1, none, parse_all, some, take,
     };
-
-    macro_rules! basic_parser {
-        (pub(in $visible_in:path) fn $fn_name:ident($tokens:ident: <$token_kind:path>) -> $output:ty {
-            $($parse_code:tt)+
-        }) => {
-            pub(in $visible_in) fn $fn_name<'a, P>() -> impl Parser<'a, TokenKind = $token_kind, Output = $output> {
-                pub(crate) struct BasicParser<'a> {
-                    phantom_data: ::std::marker::PhantomData<&'a ()>,
-                }
-
-                impl<'a> Parser<'a> for BasicParser<'a> {
-                    type TokenKind = $token_kind;
-                    type Output = $output;
-
-                    fn parse(&self, $tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-                        $($parse_code)+
-                    }
-                }
-
-                BasicParser {
-                    phantom_data: ::std::marker::PhantomData,
-                }
-            }
-        };
-    }
-    pub(crate) use basic_parser;
 }
 
 #[derive(Debug)]

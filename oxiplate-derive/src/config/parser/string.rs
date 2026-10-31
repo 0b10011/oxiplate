@@ -1,8 +1,22 @@
+use std::marker::PhantomData;
+
 use super::prelude::*;
 use super::value::StringValue;
 
-basic_parser! {
-    pub(in crate::config::parser) fn string(tokens: <TokenKind>) -> StringValue<'a> {
+pub(in crate::config::parser) fn string<'a>() -> StringParser<'a> {
+    StringParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::config::parser) struct StringParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for StringParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = StringValue<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, token) = tokens.take()?;
 
         let value = match token.kind() {

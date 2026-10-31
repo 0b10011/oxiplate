@@ -2,8 +2,20 @@ use std::marker::PhantomData;
 
 use super::prelude::*;
 
-basic_parser! {
-    pub(in crate::config::parser) fn newline_or_eof(tokens: <TokenKind>) -> &'a Source<'a> {
+pub(in crate::config::parser) fn newline_or_eof<'a>() -> NewlineOrEofParser<'a> {
+    NewlineOrEofParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::config::parser) struct NewlineOrEofParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for NewlineOrEofParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = &'a Source<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         if tokens.is_empty() {
             let eof = tokens.eof().source();
             return Ok((tokens, eof));

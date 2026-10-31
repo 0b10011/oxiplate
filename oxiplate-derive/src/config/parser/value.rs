@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use super::expression::Key;
 use super::prelude::*;
 use crate::OptimizedRenderer;
@@ -18,8 +20,20 @@ impl<'a> Value<'a> {
     }
 }
 
-basic_parser! {
-    pub(in crate::config::parser) fn value(tokens: <TokenKind>) -> Value<'a> {
+pub(in crate::config::parser) fn value<'a>() -> ValueParser<'a> {
+    ValueParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::config::parser) struct ValueParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ValueParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Value<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, token) = tokens.take()?;
 
         let value = match token.kind() {

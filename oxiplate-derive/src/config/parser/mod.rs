@@ -10,7 +10,6 @@ mod value;
 
 use std::mem;
 
-use self::expression::Expression;
 use self::item::Item;
 use self::prelude::*;
 use self::table::Table;
@@ -32,7 +31,7 @@ mod prelude {
 }
 
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
-    let (tokens, items) = parse_all(Item::parse).parse(tokens)?;
+    let (tokens, items) = parse_all(Item::parse()).parse(tokens)?;
 
     let (mut data, config_source) = parse_data(items)?;
 
@@ -278,7 +277,7 @@ fn parse_data(items: Vec<Item>) -> Result<(Table, Option<Source>), Error> {
 
         match item {
             Item::Comment(_source) | Item::Newline(_source) => (),
-            Item::Expression(expression) if expression.value().is_none() => {
+            Item::Expression(expression) if expression.has_value() => {
                 // New table
                 let table = mem::take(&mut current_table);
                 if let Some(table_parent) = current_table_parent {
@@ -301,7 +300,7 @@ fn parse_data(items: Vec<Item>) -> Result<(Table, Option<Source>), Error> {
                     expression.key().value(),
                     TableOrValue::Value(
                         expression
-                            .value()
+                            .take_value()
                             .expect("Value was already checked to exist"),
                     ),
                 );

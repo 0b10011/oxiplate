@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use super::item::Item;
 use super::newline_or_eof::newline_or_eof;
 use super::prelude::*;
@@ -34,8 +36,12 @@ impl<'a> Expression<'a> {
         &self.key
     }
 
-    pub fn value(&self) -> Option<&Value<'a>> {
-        self.value.as_ref()
+    pub fn has_value(&self) -> bool {
+        self.value.is_some()
+    }
+
+    pub fn take_value(self) -> Option<Value<'a>> {
+        self.value
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -43,8 +49,20 @@ impl<'a> Expression<'a> {
     }
 }
 
-basic_parser! {
-    pub(in crate::config::parser) fn expression(tokens: <TokenKind>) -> Item<'a> {
+pub(in crate::config::parser) fn expression<'a>() -> ExpressionParser<'a> {
+    ExpressionParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::config::parser) struct ExpressionParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ExpressionParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Item<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (ancestors, key, equal, value, comment, newline)): (
             _,
             (Vec<(Key, _)>, Key, _, _, _, _),
