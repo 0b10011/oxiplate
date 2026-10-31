@@ -19,17 +19,17 @@ impl<'a> ConstParam<'a> {
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (r#const, identifier, colon, r#type, assignment)) = (
             KeywordParser::new("const"),
-            cut("Expected an identifier after `const`", Identifier::parse),
+            cut("Expected an identifier after `const`", Identifier::parse()),
             cut(
                 "Expected `:` after the identifier",
                 into(take(TokenKind::Colon)),
             ),
-            cut("Expected a type after `:`", Type::parse),
+            cut("Expected a type after `:`", Type::parse()),
             ignore_recoverable_errors((
                 into(take(TokenKind::Equal)),
                 cut(
                     "Expected an identifier, literal expression, or block expression",
-                    ConstParamValue::parse,
+                    ConstParamValue::parse(),
                 ),
             )),
         )
@@ -120,14 +120,10 @@ pub(crate) enum ConstParamValue<'a> {
 
 impl<'a> ConstParamValue<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, value): (_, Self) = alt((
-            into(Identifier::parse),
-            into(PossiblyNegativeLiteralExpression::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, value))
+    pub(in crate::template::parser) fn parser() -> ConstParamValueParser<'a> {
+        ConstParamValueParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -166,6 +162,25 @@ impl<'a> From<Identifier<'a>> for ConstParamValue<'a> {
 impl<'a> From<PossiblyNegativeLiteralExpression<'a>> for ConstParamValue<'a> {
     fn from(value: PossiblyNegativeLiteralExpression<'a>) -> Self {
         Self::Literal(value)
+    }
+}
+
+pub(in crate::template::parser) struct ConstParamValueParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ConstParamValueParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ConstParamValue<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, value): (_, Self::Output) = alt((
+            into(Identifier::parse),
+            into(PossiblyNegativeLiteralExpression::parse),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, value))
     }
 }
 

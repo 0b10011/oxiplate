@@ -20,10 +20,10 @@ impl<'a> Tuple<'a> {
             take(TokenKind::OpenParenthese),
             (
                 many1((
-                    context("Expected a pattern", Pattern::parse),
+                    context("Expected a pattern", Pattern::parser()),
                     context("Expected `,`", take(TokenKind::Comma)),
                 )),
-                ignore_recoverable_errors(context("Expected a pattern", Pattern::parse)),
+                ignore_recoverable_errors(context("Expected a pattern", Pattern::parser())),
                 cut("Expected `)`", take(TokenKind::CloseParenthese)),
             ),
         )

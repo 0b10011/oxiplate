@@ -9,16 +9,55 @@ pub(crate) struct Tuple<'a> {
 }
 
 impl<'a> Tuple<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Expression<'a>> {
+    pub(in crate::template::parser) fn parser() -> TupleParser<'a> {
+        TupleParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Tuple<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut items = vec![];
+        let span = self.source.span_token();
+        let mut expression_length = EstimatedLength::new(usize::MAX);
+        for item in &self.items {
+            let (item, item_length) = item.to_tokens_with_state(state);
+            items.push(item);
+            expression_length = expression_length.min(item_length);
+        }
+        (quote_spanned! {span=> ( #(#items)* ) }, expression_length)
+    }
+}
+
+impl<'a> From<Tuple<'a>> for Expression<'a> {
+    fn from(value: Tuple<'a>) -> Self {
+        Expression::Tuple(value)
+    }
+}
+
+pub(in crate::template::parser) struct TupleParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Tuple<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open, leading_items, trailing_item, close)) = (
             take(TokenKind::OpenParenthese),
             context(
                 "Expected at least one tuple item",
-                many1(TupleItem::parse(true)),
+                many1(TupleItem::parser(true)),
             ),
             // Last tuple item doesn't need a comma after it,
             // but the first one does.
-            ignore_recoverable_errors(TupleItem::parse(false)),
+            ignore_recoverable_errors(TupleItem::parser(false)),
             context(
                 "Expected `)` after tuple item",
                 take(TokenKind::CloseParenthese),
@@ -41,25 +80,7 @@ impl<'a> Tuple<'a> {
 
         source = source.merge(close.source(), "`)` should follow item");
 
-        Ok((tokens, Expression::Tuple(Tuple { items, source })))
-    }
-
-    pub fn source(&self) -> &Source<'a> {
-        &self.source
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for Tuple<'a> {
-    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let mut items = vec![];
-        let span = self.source.span_token();
-        let mut expression_length = EstimatedLength::new(usize::MAX);
-        for item in &self.items {
-            let (item, item_length) = item.to_tokens_with_state(state);
-            items.push(item);
-            expression_length = expression_length.min(item_length);
-        }
-        (quote_spanned! {span=> ( #(#items)* ) }, expression_length)
+        Ok((tokens, Tuple { items, source }))
     }
 }
 
@@ -71,36 +92,10 @@ struct TupleItem<'a> {
 }
 
 impl<'a> TupleItem<'a> {
-    pub fn parse(require_comma: bool) -> impl Fn(TokenSlice<'a>) -> Res<'a, TupleItem<'a>> {
-        move |tokens| {
-            let (tokens, (expression, comma)) = if require_comma {
-                let (tokens, (expression, comma)) = (
-                    context("Expected an expression", expression(true)),
-                    context("Expected `,` after expression", take(TokenKind::Comma)),
-                )
-                    .parse(tokens)?;
-
-                (tokens, (expression, Some(comma)))
-            } else {
-                (
-                    context("Expected an expression", expression(true)),
-                    ignore_recoverable_errors(take(TokenKind::Comma)),
-                )
-                    .parse(tokens)?
-            };
-
-            let source = expression
-                .source()
-                .merge_some(comma.map(Token::source), "Comma expected after expression");
-
-            Ok((
-                tokens,
-                TupleItem {
-                    expression,
-                    comma: comma.map(|token| token.source().clone()),
-                    source,
-                },
-            ))
+    pub(in crate::template::parser) fn parser(require_comma: bool) -> TupleItemParser<'a> {
+        TupleItemParser {
+            require_comma,
+            phantom_data: PhantomData,
         }
     }
 }
@@ -113,5 +108,46 @@ impl<'a> ToTokensWithState<'a> for TupleItem<'a> {
             quote_spanned! {span=> , }
         });
         (quote! { #expression #comma }, expression_length)
+    }
+}
+
+pub(in crate::template::parser) struct TupleItemParser<'a> {
+    require_comma: bool,
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleItemParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TupleItem<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (expression, comma)) = if self.require_comma {
+            let (tokens, (expression, comma)) = (
+                context("Expected an expression", expression(true)),
+                context("Expected `,` after expression", take(TokenKind::Comma)),
+            )
+                .parse(tokens)?;
+
+            (tokens, (expression, Some(comma)))
+        } else {
+            (
+                context("Expected an expression", expression(true)),
+                ignore_recoverable_errors(take(TokenKind::Comma)),
+            )
+                .parse(tokens)?
+        };
+
+        let source = expression
+            .source()
+            .merge_some(comma.map(Token::source), "Comma expected after expression");
+
+        Ok((
+            tokens,
+            TupleItem {
+                expression,
+                comma: comma.map(|token| token.source().clone()),
+                source,
+            },
+        ))
     }
 }

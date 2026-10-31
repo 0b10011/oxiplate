@@ -17,10 +17,10 @@ impl<'a> Literal<'a> {
     /// Parse a `Literal` from the input.
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            into(Bool::parse),
-            into(Number::parse),
-            into(String::parse),
-            into(Char::parse),
+            into(Bool::parser()),
+            into(Number::parser()),
+            into(String::parser()),
+            into(Char::parser()),
         ))
         .parse(tokens)
     }

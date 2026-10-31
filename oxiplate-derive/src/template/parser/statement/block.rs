@@ -203,7 +203,7 @@ pub(super) fn parse_block(tokens: TokenSlice) -> Res<Statement> {
 
     let (tokens, name) = cut(
         "Expected a block name (e.g., `{% block content %}`)",
-        Identifier::parse,
+        Identifier::parser(),
     )
     .parse(tokens)?;
 

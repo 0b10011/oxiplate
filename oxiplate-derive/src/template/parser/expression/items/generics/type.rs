@@ -19,9 +19,9 @@ impl<'a> TypeParam<'a> {
             Identifier::parse,
             ignore_recoverable_errors((
                 into(take(TokenKind::Colon)),
-                ignore_recoverable_errors(into(Bounds::parse)),
+                ignore_recoverable_errors(into(Bounds::parse())),
             )),
-            ignore_recoverable_errors((into(take(TokenKind::Equal)), into(Type::parse))),
+            ignore_recoverable_errors((into(take(TokenKind::Equal)), into(Type::parse()))),
         )
             .parse(tokens)?;
 

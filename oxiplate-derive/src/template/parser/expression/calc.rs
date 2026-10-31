@@ -12,29 +12,10 @@ pub(crate) struct Calc<'a> {
 
 impl<'a> Calc<'a> {
     /// Parses a calculation (`a + b`).
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, operator) = parse_operator.parse(tokens)?;
-
-        let (tokens, right) = if operator.requires_expression_after() {
-            let (tokens, expression) = cut(
-                "Expected an expression after the operator",
-                expression(false),
-            )
-            .parse(tokens)?;
-            (tokens, Some(expression))
-        } else {
-            ignore_recoverable_errors(expression(false)).parse(tokens)?
-        };
-
-        let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
-            Expression::Calc(Calc {
-                left: Box::new(left),
-                operator,
-                right: right.map(Box::new),
-            })
-        });
-
-        Ok((tokens, callback))
+    pub(in crate::template::parser) fn parser() -> CalcParser<'a> {
+        CalcParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire expression.
@@ -63,5 +44,41 @@ impl<'a> ToTokensWithState<'a> for Calc<'a> {
             quote! { #left #operator #right },
             left_length.min(right_length),
         )
+    }
+}
+
+/// Parses a calculation (`a + b`).
+pub(in crate::template::parser) struct CalcParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CalcParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses a calculation (`a + b`).
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, operator) = parse_operator().parse(tokens)?;
+
+        let (tokens, right) = if operator.requires_expression_after() {
+            let (tokens, expression) = cut(
+                "Expected an expression after the operator",
+                expression(false),
+            )
+            .parse(tokens)?;
+            (tokens, Some(expression))
+        } else {
+            ignore_recoverable_errors(expression(false)).parse(tokens)?
+        };
+
+        let callback = Box::new(|left: Expression<'a>| -> Expression<'a> {
+            Expression::Calc(Calc {
+                left: Box::new(left),
+                operator,
+                right: right.map(Box::new),
+            })
+        });
+
+        Ok((tokens, callback))
     }
 }

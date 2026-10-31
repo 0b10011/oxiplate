@@ -148,7 +148,7 @@ pub(super) fn parse_for(tokens: TokenSlice) -> Res<Statement> {
     let (tokens, for_keyword) = KeywordParser::new("for").parse(tokens)?;
 
     let (tokens, (pattern, in_keyword, expression)) = (
-        cut("Expected a pattern", Pattern::parse),
+        cut("Expected a pattern", Pattern::parser()),
         cut("Expected 'in'", KeywordParser::new("in")),
         cut("Expected an expression after `in`", expression(true)),
     )

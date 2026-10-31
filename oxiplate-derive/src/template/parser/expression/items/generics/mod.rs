@@ -26,9 +26,9 @@ impl<'a> GenericParams<'a> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericParam::parse, take(TokenKind::Comma))),
+                many0((GenericParam::parse(), take(TokenKind::Comma))),
                 ignore_recoverable_errors((
-                    GenericParam::parse,
+                    GenericParam::parse(),
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
@@ -126,9 +126,9 @@ impl<'a> GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            into(LifetimeParam::parse),
-            into(ConstParam::parse),
-            into(TypeParam::parse),
+            into(LifetimeParam::parse()),
+            into(ConstParam::parse()),
+            into(TypeParam::parse()),
         ))
         .parse(tokens)
     }

@@ -26,8 +26,10 @@ pub(in crate::template::parser) enum GenericArgs<'a> {
 
 impl<'a> GenericArgs<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(GenericArgList::parse), into(TypeList::parse))).parse(tokens)
+    pub(in crate::template::parser) fn parser() -> GenericArgsParser<'a> {
+        GenericArgsParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -44,5 +46,18 @@ impl<'a> ToTokensWithState<'a> for GenericArgs<'a> {
             Self::List(generic_args) => generic_args.to_tokens_with_state(state),
             Self::Types(type_list) => type_list.to_tokens_with_state(state),
         }
+    }
+}
+
+pub(in crate::template::parser) struct GenericArgsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArgs<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((into(GenericArgList::parse), into(TypeList::parse))).parse(tokens)
     }
 }

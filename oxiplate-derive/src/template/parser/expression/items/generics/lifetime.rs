@@ -17,7 +17,7 @@ impl<'a> LifetimeParam<'a> {
             Lifetime::parse,
             ignore_recoverable_errors((
                 into(take(TokenKind::Colon)),
-                ignore_recoverable_errors(into(LifetimeBounds::parse)),
+                ignore_recoverable_errors(into(LifetimeBounds::parse())),
             )),
         )
             .parse(tokens)?;

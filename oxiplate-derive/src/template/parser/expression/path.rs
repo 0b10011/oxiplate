@@ -13,25 +13,10 @@ pub(in crate::template::parser) struct PathExprSegment<'a> {
 
 impl<'a> PathExprSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (ident_segment, generics)) = (
-            PathIdentSegment::parse,
-            ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parse)),
-        )
-            .parse(tokens)?;
-
-        let generics = generics.map(|(separator, generics)| {
-            let separator = Separator(separator.source().clone());
-            (separator, generics)
-        });
-
-        Ok((
-            tokens,
-            Self {
-                ident_segment,
-                generics,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> PathExprSegmentParser<'a> {
+        PathExprSegmentParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -61,6 +46,38 @@ impl<'a> ToTokensWithState<'a> for PathExprSegment<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
+pub(in crate::template::parser) struct PathExprSegmentParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PathExprSegmentParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = PathExprSegment<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (ident_segment, generics)) = (
+            PathIdentSegment::parser(),
+            ignore_recoverable_errors((take(TokenKind::PathSeparator), GenericArgs::parser())),
+        )
+            .parse(tokens)?;
+
+        let generics = generics.map(|(separator, generics)| {
+            let separator = Separator(separator.source().clone());
+            (separator, generics)
+        });
+
+        Ok((
+            tokens,
+            PathExprSegment {
+                ident_segment,
+                generics,
+            },
+        ))
+    }
+}
+
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
 #[derive(Debug)]
 pub(in crate::template::parser) enum PathIdentSegment<'a> {
@@ -71,24 +88,10 @@ pub(in crate::template::parser) enum PathIdentSegment<'a> {
 
 impl<'a> PathIdentSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, ident_segment) = alt((
-            take(TokenKind::Ident),
-            take(TokenKind::SelfCurrentModule),
-            take(TokenKind::SelfCurrentType),
-            take(TokenKind::Super),
-            take(TokenKind::Crate),
-        ))
-        .parse(tokens)?;
-
-        let ident_segment = match ident_segment.kind() {
-            TokenKind::Ident => PathIdentSegment::Identifier(Identifier {
-                source: ident_segment.source(),
-            }),
-            _ => PathIdentSegment::Keyword(ident_segment.source().clone()),
-        };
-
-        Ok((tokens, ident_segment))
+    pub(in crate::template::parser) fn parser() -> PathIdentSegmentParser<'a> {
+        PathIdentSegmentParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -111,6 +114,37 @@ impl ToTokens for PathIdentSegment<'_> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
+pub(in crate::template::parser) struct PathIdentSegmentParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PathIdentSegmentParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = PathIdentSegment<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathIdentSegment>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, ident_segment) = alt((
+            take(TokenKind::Ident),
+            take(TokenKind::SelfCurrentModule),
+            take(TokenKind::SelfCurrentType),
+            take(TokenKind::Super),
+            take(TokenKind::Crate),
+        ))
+        .parse(tokens)?;
+
+        let ident_segment = match ident_segment.kind() {
+            TokenKind::Ident => PathIdentSegment::Identifier(Identifier {
+                source: ident_segment.source(),
+            }),
+            _ => PathIdentSegment::Keyword(ident_segment.source().clone()),
+        };
+
+        Ok((tokens, ident_segment))
+    }
+}
+
 /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
 #[derive(Debug)]
 pub(in crate::template::parser) struct Identifier<'a> {
@@ -125,11 +159,10 @@ impl<'a> Identifier<'a> {
     }
 
     /// See: <https://doc.rust-lang.org/reference/identifiers.html#railroad-IDENTIFIER>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
-        let source = token.source();
-
-        Ok((tokens, Self { source }))
+    pub(in crate::template::parser) fn parser() -> IdentifierParser<'a> {
+        IdentifierParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Parses an identifier while returning an error for reserved keywords.
@@ -190,6 +223,22 @@ impl ToTokens for Identifier<'_> {
     }
 }
 
+pub(in crate::template::parser) struct IdentifierParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for IdentifierParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Identifier<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
+        let source = token.source();
+
+        Ok((tokens, Identifier { source }))
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::template::parser) struct Path<'a> {
     separator: Option<Separator<'a>>,
@@ -198,28 +247,10 @@ pub(in crate::template::parser) struct Path<'a> {
 }
 impl<'a> Path<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathInExpression>
-    pub(in crate::template::parser) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (separator, segment, additional_segments)) = (
-            ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-            PathExprSegment::parse,
-            many0((take(TokenKind::PathSeparator), PathExprSegment::parse)),
-        )
-            .parse(tokens)?;
-
-        let separator = separator.map(|separator| Separator(separator.source().clone()));
-        let additional_segments = additional_segments
-            .into_iter()
-            .map(|(separator, segment)| (Separator(separator.source().clone()), segment))
-            .collect();
-
-        Ok((
-            tokens,
-            Path {
-                separator,
-                segment,
-                additional_segments,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> PathParser<'a> {
+        PathParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn template_field(&self, state: &State) -> Option<&Identifier<'_>> {
@@ -285,6 +316,39 @@ impl<'a> ToTokensWithState<'a> for Path<'a> {
 impl<'a> From<Path<'a>> for Expression<'a> {
     fn from(value: Path<'a>) -> Self {
         Expression::Path(value)
+    }
+}
+
+pub(in crate::template::parser) struct PathParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PathParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Path<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (separator, segment, additional_segments)) = (
+            ignore_recoverable_errors(take(TokenKind::PathSeparator)),
+            PathExprSegment::parser(),
+            many0((take(TokenKind::PathSeparator), PathExprSegment::parser())),
+        )
+            .parse(tokens)?;
+
+        let separator = separator.map(|separator| Separator(separator.source().clone()));
+        let additional_segments = additional_segments
+            .into_iter()
+            .map(|(separator, segment)| (Separator(separator.source().clone()), segment))
+            .collect();
+
+        Ok((
+            tokens,
+            Path {
+                separator,
+                segment,
+                additional_segments,
+            },
+        ))
     }
 }
 

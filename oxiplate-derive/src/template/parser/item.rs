@@ -200,12 +200,28 @@ pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Sourc
     Ok((tokens, (whitespace.map(Item::Whitespace), open, source)))
 }
 
-pub(super) fn parse_trailing_whitespace<'a>(
+pub(in crate::template::parser) fn parse_trailing_whitespace<'a>(
     end_tag: &'a Source<'a>,
     whitespace_preference: WhitespacePreference,
     allow_skipping_replacement: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, Option<Item<'a>>> + 'a {
-    move |tokens| {
+) -> TrailingWhitespaceParser<'a> {
+    TrailingWhitespaceParser {
+        end_tag,
+        whitespace_preference,
+        allow_skipping_replacement,
+    }
+}
+pub(in crate::template::parser) struct TrailingWhitespaceParser<'a> {
+    end_tag: &'a Source<'a>,
+    whitespace_preference: WhitespacePreference,
+    allow_skipping_replacement: bool,
+}
+
+impl<'a> Parser<'a> for TrailingWhitespaceParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Option<Item<'a>>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         // Clone tokens to prevent taking anything until later
         let peek_tokens = tokens.clone();
 
@@ -235,11 +251,11 @@ pub(super) fn parse_trailing_whitespace<'a>(
                 _ => WhitespacePreference::Indifferent,
             };
 
-            match (&whitespace_preference, next_whitespace_preference) {
+            match (&self.whitespace_preference, next_whitespace_preference) {
                 (WhitespacePreference::Remove, WhitespacePreference::Replace)
                 | (WhitespacePreference::Replace, WhitespacePreference::Remove) => {
-                    let consumed_source = end_tag.with_collapsed_to_end();
-                    let error_source = next_token.source().with_start(end_tag);
+                    let consumed_source = self.end_tag.with_collapsed_to_end();
+                    let error_source = next_token.source().with_start(self.end_tag);
                     return Ok((
                         tokens,
                         Some(Item::CompileError {
@@ -254,7 +270,7 @@ pub(super) fn parse_trailing_whitespace<'a>(
                     // but empty whitespace needs to be returned
                     // so the caller knows not to return an error.
                     if trailing_whitespace.is_some() => {
-                        let source = end_tag.with_collapsed_to_end();
+                        let source = self.end_tag.with_collapsed_to_end();
 
                         return Ok((tokens, Some(Item::Whitespace(Static("", source)))));
                 }
@@ -262,18 +278,18 @@ pub(super) fn parse_trailing_whitespace<'a>(
             }
         }
 
-        match whitespace_preference {
+        match self.whitespace_preference {
             WhitespacePreference::Replace => {
                 let (tokens, trailing_whitespace) =
                     ignore_recoverable_errors(take(TokenKind::StaticWhitespace)).parse(tokens)?;
 
                 let item = if let Some(trailing_whitespace) = trailing_whitespace {
                     Item::Whitespace(Static(" ", trailing_whitespace.source().clone()))
-                } else if allow_skipping_replacement {
+                } else if self.allow_skipping_replacement {
                     return Ok((tokens, None));
                 } else {
-                    let consumed_source = end_tag.with_collapsed_to_end();
-                    let error_source = end_tag.clone();
+                    let consumed_source = self.end_tag.with_collapsed_to_end();
+                    let error_source = self.end_tag.clone();
                     Item::CompileError {
                         message: "Whitespace replace character `_` used before non-whitespace. \
                                   Either add whitespace or change how whitespace is handled after \
@@ -301,13 +317,25 @@ pub(super) fn parse_trailing_whitespace<'a>(
     }
 }
 
-pub(crate) fn tag_end<'a>(
+pub(in crate::template::parser) fn tag_end<'a>(expected_kind: TagKind) -> TagEndParser<'a> {
+    TagEndParser {
+        expected_kind,
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct TagEndParser<'a> {
     expected_kind: TagKind,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Option<Item<'a>>, Source<'a>)> {
-    move |tokens| {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TagEndParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (Option<Item<'a>>, Source<'a>);
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, token) = match tokens.clone().take() {
             Err(err) if err.is_eof() => {
-                let message = match expected_kind {
+                let message = match self.expected_kind {
                     TagKind::Writ => {
                         "End of file encountered while parsing a writ. Expected `}}`, `-}}`, or \
                          `_}}`"
@@ -331,7 +359,7 @@ pub(crate) fn tag_end<'a>(
             whitespace_preference,
         } = token.kind()
         else {
-            let expected_end_tags = match expected_kind {
+            let expected_end_tags = match self.expected_kind {
                 TagKind::Writ => "`}}`, `-}}`, or `_}}`",
                 TagKind::Statement => "`%}`, `-%}`, or `_%}`",
                 TagKind::Comment => unreachable!(
@@ -346,8 +374,8 @@ pub(crate) fn tag_end<'a>(
             });
         };
 
-        if *kind != expected_kind {
-            let expected_end_tags = match expected_kind {
+        if *kind != self.expected_kind {
+            let expected_end_tags = match self.expected_kind {
                 TagKind::Writ => "`}}`, `-}}`, or `_}}`",
                 TagKind::Statement => "`%}`, `-%}`, or `_%}`",
                 TagKind::Comment => {

@@ -15,9 +15,9 @@ pub(crate) struct Bind<'a> {
 impl<'a> Bind<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (ident, at, pattern)) = (
-            Identifier::parse,
+            Identifier::parser(),
             take(TokenKind::At),
-            cut("Expected patter after `@`", Pattern::parse),
+            cut("Expected patter after `@`", Pattern::parser()),
         )
             .parse(tokens)?;
 

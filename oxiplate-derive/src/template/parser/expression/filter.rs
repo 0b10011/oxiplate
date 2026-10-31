@@ -14,26 +14,10 @@ pub(crate) struct Filter<'a> {
 
 impl<'a> Filter<'a> {
     /// Parses filters (`expr | filter()`).
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
-            take(TokenKind::VerticalBar),
-            ignore_recoverable_errors(take(TokenKind::GreaterThan)),
-            cut("Expected a filter name", Identifier::parse),
-            ignore_recoverable_errors(arguments),
-        )
-            .parse(tokens)?;
-
-        let callback = Box::new(move |expression: Expression<'a>| {
-            Expression::Filter(Filter {
-                name,
-                expression: Box::new(expression),
-                vertical_bar: vertical_bar.source().clone(),
-                cow_prefix: cow_prefix.map(|token| token.source().clone()),
-                arguments,
-            })
-        });
-
-        Ok((tokens, callback))
+    pub(in crate::template::parser) fn parser() -> FilterParser<'a> {
+        FilterParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire expression.
@@ -123,5 +107,38 @@ impl<'a> ToTokensWithState<'a> for Filter<'a> {
                 estimated_length,
             )
         }
+    }
+}
+
+/// Parses filters (`expr | filter()`).
+pub(in crate::template::parser) struct FilterParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FilterParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses filters (`expr | filter()`).
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (vertical_bar, cow_prefix, name, arguments)) = (
+            take(TokenKind::VerticalBar),
+            ignore_recoverable_errors(take(TokenKind::GreaterThan)),
+            cut("Expected a filter name", Identifier::parser()),
+            ignore_recoverable_errors(arguments()),
+        )
+            .parse(tokens)?;
+
+        let callback = Box::new(move |expression: Expression<'a>| {
+            Expression::Filter(Filter {
+                name,
+                expression: Box::new(expression),
+                vertical_bar: vertical_bar.source().clone(),
+                cow_prefix: cow_prefix.map(|token| token.source().clone()),
+                arguments,
+            })
+        });
+
+        Ok((tokens, callback))
     }
 }

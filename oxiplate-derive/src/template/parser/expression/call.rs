@@ -13,18 +13,10 @@ pub(crate) struct Call<'a> {
 impl<'a> Call<'a> {
     /// Parses a call expression (`expr(args)`).
     /// See: <https://doc.rust-lang.org/reference/expressions/call-expr.html#grammar-CallExpression>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, arguments) = arguments(tokens)?;
-
-        Ok((
-            tokens,
-            Box::new(|expression: Expression<'a>| {
-                Expression::Call(Self {
-                    expression: Box::new(expression),
-                    arguments,
-                })
-            }),
-        ))
+    pub(in crate::template::parser) fn parser() -> CallParser<'a> {
+        CallParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire call expression.
@@ -47,5 +39,32 @@ impl<'a> ToTokensWithState<'a> for Call<'a> {
             }
             _ => (quote! { #expression #arguments }, EstimatedLength::new(1)),
         }
+    }
+}
+
+/// Parses a call expression (`expr(args)`).
+/// See: <https://doc.rust-lang.org/reference/expressions/call-expr.html#grammar-CallExpression>
+pub(in crate::template::parser) struct CallParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CallParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses a call expression (`expr(args)`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/call-expr.html#grammar-CallExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, arguments) = arguments().parse(tokens)?;
+
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
+                Expression::Call(Call {
+                    expression: Box::new(expression),
+                    arguments,
+                })
+            }),
+        ))
     }
 }

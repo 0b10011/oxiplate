@@ -1,44 +1,5 @@
 use crate::template::parser::prelude::*;
 
-pub(super) fn parse_prefix_operator(tokens: TokenSlice) -> Res<PrefixOperator> {
-    let (tokens, token) = alt((
-        take(TokenKind::Ampersand),
-        take(TokenKind::And),
-        take(TokenKind::Asterisk),
-        take(TokenKind::Exclamation),
-        take(TokenKind::Minus),
-        take(TokenKind::RangeInclusive),
-        take(TokenKind::RangeExclusive),
-        #[cfg(feature = "_unreachable")]
-        take(TokenKind::Equal),
-    ))
-    .parse(tokens)?;
-
-    let kind = match token.kind() {
-        TokenKind::Ampersand => PrefixOperatorKind::Borrow,
-        TokenKind::And => PrefixOperatorKind::DoubleBorrow,
-        TokenKind::Asterisk => PrefixOperatorKind::Dereference,
-        TokenKind::Exclamation => PrefixOperatorKind::Not,
-        TokenKind::Minus => PrefixOperatorKind::Negative,
-        TokenKind::RangeInclusive => PrefixOperatorKind::RangeInclusive,
-        TokenKind::RangeExclusive => PrefixOperatorKind::RangeExclusive,
-        _ => {
-            internal_error!(
-                token.source().span_token().unwrap(),
-                "Unhandled prefix operator"
-            );
-        }
-    };
-
-    Ok((
-        tokens,
-        PrefixOperator {
-            source: token.source(),
-            kind,
-        },
-    ))
-}
-
 #[derive(Debug)]
 pub(crate) struct PrefixOperator<'a> {
     source: &'a Source<'a>,
@@ -67,6 +28,12 @@ enum PrefixOperatorKind {
 }
 
 impl<'a> PrefixOperator<'a> {
+    pub(in crate::template::parser) fn parser() -> PrefixOperatorParser<'a> {
+        PrefixOperatorParser {
+            phantom_data: PhantomData,
+        }
+    }
+
     pub(super) fn cut_if_not_followed_by_expression(&self) -> bool {
         match self.kind {
             PrefixOperatorKind::Borrow
@@ -108,5 +75,53 @@ impl ToTokens for PrefixOperator<'_> {
             PrefixOperatorKind::RangeInclusive => op!(..=),
             PrefixOperatorKind::RangeExclusive => op!(..),
         });
+    }
+}
+
+pub(in crate::template::parser) struct PrefixOperatorParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PrefixOperatorParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = PrefixOperator<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = alt((
+            take(TokenKind::Ampersand),
+            take(TokenKind::And),
+            take(TokenKind::Asterisk),
+            take(TokenKind::Exclamation),
+            take(TokenKind::Minus),
+            take(TokenKind::RangeInclusive),
+            take(TokenKind::RangeExclusive),
+            #[cfg(feature = "_unreachable")]
+            take(TokenKind::Equal),
+        ))
+        .parse(tokens)?;
+
+        let kind = match token.kind() {
+            TokenKind::Ampersand => PrefixOperatorKind::Borrow,
+            TokenKind::And => PrefixOperatorKind::DoubleBorrow,
+            TokenKind::Asterisk => PrefixOperatorKind::Dereference,
+            TokenKind::Exclamation => PrefixOperatorKind::Not,
+            TokenKind::Minus => PrefixOperatorKind::Negative,
+            TokenKind::RangeInclusive => PrefixOperatorKind::RangeInclusive,
+            TokenKind::RangeExclusive => PrefixOperatorKind::RangeExclusive,
+            _ => {
+                internal_error!(
+                    token.source().span_token().unwrap(),
+                    "Unhandled prefix operator"
+                );
+            }
+        };
+
+        Ok((
+            tokens,
+            PrefixOperator {
+                source: token.source(),
+                kind,
+            },
+        ))
     }
 }

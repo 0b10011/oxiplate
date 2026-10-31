@@ -197,24 +197,24 @@ pub(super) fn statement<'a>(
              parent, endblock, include, if, elseif, else, endif, for, continue, break, endfor, \
              match, case, endmatch, let",
             alt((
-                escaper::parse_default_escaper_group,
-                extends::parse_extends,
-                include::parse_include,
-                block::parse_block,
-                block::parse_parent,
-                block::parse_endblock,
-                r#if::parse_if,
-                r#if::parse_elseif,
-                r#if::parse_else,
-                r#if::parse_endif,
-                r#for::parse_for,
-                into(r#for::Continue::parse),
-                into(r#for::Break::parse),
-                r#for::parse_endfor,
-                r#match::Match::parse,
-                r#match::Case::parse,
-                r#match::Match::parse_end,
-                into(Let::parse),
+                into(escaper::parse_default_escaper_group()),
+                into(extends::parse_extends()),
+                into(include::parse_include()),
+                into(block::parse_block()),
+                into(block::parse_parent()),
+                into(block::parse_endblock()),
+                into(r#if::parse_if()),
+                into(r#if::parse_elseif()),
+                into(r#if::parse_else()),
+                into(r#if::parse_endif()),
+                into(r#for::parse_for()),
+                into(r#for::Continue::parser()),
+                into(r#for::Break::parser()),
+                into(r#for::parse_endfor()),
+                into(r#match::Match::parser()),
+                into(r#match::Case::parser()),
+                into(r#match::Match::parse_end()),
+                into(Let::parser()),
             )),
         )
         .parse(tokens)?;
@@ -277,7 +277,7 @@ pub(super) fn statement<'a>(
 }
 
 fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Vec<Item>), Error> {
-    cut("Failed to parse contents of statement", parse_item).parse(tokens)
+    cut("Failed to parse contents of statement", parse_item()).parse(tokens)
 }
 
 fn eof<'a>(

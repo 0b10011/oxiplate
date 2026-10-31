@@ -35,17 +35,10 @@ impl<'a> Pattern<'a> {
         Self::Literal(Literal::Integer(Integer::new_for_test(source)))
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(Range::parse),
-            into(Literal::parse),
-            into(Array::parse),
-            into(Tuple::parse),
-            into(Struct::parse),
-            into(Bind::parse),
-            into(Identifier::parse_prevent_reserved_keywords),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> PatternParser<'a> {
+        PatternParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -92,6 +85,28 @@ impl<'a> From<Identifier<'a>> for Pattern<'a> {
     }
 }
 
+pub(in crate::template::parser) struct PatternParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PatternParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Pattern<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(Range::parser()),
+            into(Literal::parser()),
+            into(Array::parser()),
+            into(Tuple::parser()),
+            into(Struct::parser()),
+            into(Bind::parser()),
+            into(Identifier::parse_prevent_reserved_keywords()),
+        ))
+        .parse(tokens)
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct Path<'a> {
     segments: Vec<(Identifier<'a>, Source<'a>)>,
@@ -101,12 +116,12 @@ pub(crate) struct Path<'a> {
 
 impl<'a> Path<'a> {
     pub fn parse_include_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, path) = ignore_all_errors(Self::parse_exclude_ident).parse(tokens)?;
+        let (tokens, path) = ignore_all_errors(Self::parse_exclude_ident()).parse(tokens)?;
 
         if let Some(path) = path {
             Ok((tokens, path))
         } else {
-            let (tokens, name) = Identifier::parse.parse(tokens)?;
+            let (tokens, name) = Identifier::parser().parse(tokens)?;
             let source = name.source().clone();
             Ok((
                 tokens,
@@ -121,8 +136,8 @@ impl<'a> Path<'a> {
 
     pub fn parse_exclude_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (segments_with_whitespace, name)) = (
-            many1((Identifier::parse, take(TokenKind::PathSeparator))),
-            cut("Expected an identifier", Identifier::parse),
+            many1((Identifier::parser(), take(TokenKind::PathSeparator))),
+            cut("Expected an identifier", Identifier::parser()),
         )
             .parse(tokens)?;
 

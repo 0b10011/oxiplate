@@ -13,7 +13,7 @@ pub(in crate::config::parser) enum Item<'a> {
 }
 
 impl<'a> Item<'a> {
-    pub(in crate::config::parser) fn parse() -> ItemParser<'a> {
+    pub(in crate::config::parser) fn parser() -> ItemParser<'a> {
         ItemParser {
             phantom_data: PhantomData,
         }

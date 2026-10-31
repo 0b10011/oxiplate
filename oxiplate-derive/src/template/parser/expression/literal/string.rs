@@ -12,25 +12,10 @@ pub(crate) struct String<'a> {
 
 impl<'a> String<'a> {
     /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, token) = tokens.take()?;
-
-        let (TokenKind::String(value) | TokenKind::RawString(value)) = token.kind() else {
-            return Err(Error::Recoverable {
-                message: "Expected a string or raw string".to_string(),
-                source: token.source().clone(),
-                previous_error: None,
-                is_eof: false,
-            });
-        };
-
-        Ok((
-            tokens,
-            Self {
-                value: *value.clone(),
-                source: token.source(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> StringParser<'a> {
+        StringParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn as_str(&'a self) -> &'a str {
@@ -62,5 +47,35 @@ impl<'a> From<String<'a>> for Expression<'a> {
 impl<'a> From<String<'a>> for LiteralExpression<'a> {
     fn from(value: String<'a>) -> Self {
         Self::String(value)
+    }
+}
+
+pub(in crate::template::parser) struct StringParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for StringParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = String<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
+
+        let (TokenKind::String(value) | TokenKind::RawString(value)) = token.kind() else {
+            return Err(Error::Recoverable {
+                message: "Expected a string or raw string".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
+        };
+
+        Ok((
+            tokens,
+            String {
+                value: *value.clone(),
+                source: token.source(),
+            },
+        ))
     }
 }

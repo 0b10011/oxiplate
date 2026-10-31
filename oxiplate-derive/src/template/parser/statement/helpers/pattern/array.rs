@@ -22,7 +22,7 @@ impl<'a> Array<'a> {
                 "Expected a pattern or `]`",
                 (
                     many0((
-                        Pattern::parse,
+                        Pattern::parser(),
                         context("Expected `,`", take(TokenKind::Comma)),
                     )),
                     ignore_recoverable_errors(Pattern::parse),

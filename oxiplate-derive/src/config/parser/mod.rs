@@ -31,7 +31,7 @@ mod prelude {
 }
 
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
-    let (tokens, items) = parse_all(Item::parse()).parse(tokens)?;
+    let (tokens, items) = parse_all(Item::parser()).parse(tokens)?;
 
     let (mut data, config_source) = parse_data(items)?;
 

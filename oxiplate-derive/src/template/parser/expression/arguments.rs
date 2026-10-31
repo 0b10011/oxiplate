@@ -63,46 +63,60 @@ impl<'a> ToTokensWithState<'a> for ArgumentsGroup<'a> {
     }
 }
 
-pub(crate) fn arguments(tokens: TokenSlice) -> Res<ArgumentsGroup> {
-    let (tokens, (open_paren, (parsed_arguments, close_paren))) = (
-        take(TokenKind::OpenParenthese),
-        cut(
-            "Expected comma-separated list of arguments followed by `)`",
-            (
-                ignore_recoverable_errors((
-                    expression(true),
-                    many0((take(TokenKind::Comma), expression(true))),
-                    ignore_recoverable_errors(take(TokenKind::Comma)),
-                )),
-                take(TokenKind::CloseParenthese),
+pub(in crate::template::parser) fn arguments<'a>() -> ArgumentsParser<'a> {
+    ArgumentsParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ArgumentsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ArgumentsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ArgumentsGroup<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open_paren, (parsed_arguments, close_paren))) = (
+            take(TokenKind::OpenParenthese),
+            cut(
+                "Expected comma-separated list of arguments followed by `)`",
+                (
+                    ignore_recoverable_errors((
+                        expression(true),
+                        many0((take(TokenKind::Comma), expression(true))),
+                        ignore_recoverable_errors(take(TokenKind::Comma)),
+                    )),
+                    take(TokenKind::CloseParenthese),
+                ),
             ),
-        ),
-    )
-        .parse(tokens)?;
+        )
+            .parse(tokens)?;
 
-    let arguments = if let Some((first_argument, parsed_remaining_arguments, trailing_comma)) =
-        parsed_arguments
-    {
-        let mut remaining_arguments = Vec::new();
-        for (comma, expression) in parsed_remaining_arguments {
-            remaining_arguments.push((comma.source().clone(), expression));
-        }
+        let arguments = if let Some((first_argument, parsed_remaining_arguments, trailing_comma)) =
+            parsed_arguments
+        {
+            let mut remaining_arguments = Vec::new();
+            for (comma, expression) in parsed_remaining_arguments {
+                remaining_arguments.push((comma.source().clone(), expression));
+            }
 
-        Some((
-            Box::new(first_argument),
-            remaining_arguments,
-            trailing_comma.map(|comma| comma.source().clone()),
+            Some((
+                Box::new(first_argument),
+                remaining_arguments,
+                trailing_comma.map(|comma| comma.source().clone()),
+            ))
+        } else {
+            None
+        };
+
+        Ok((
+            tokens,
+            ArgumentsGroup {
+                open_paren: open_paren.source().clone(),
+                arguments,
+                close_paren: close_paren.source().clone(),
+            },
         ))
-    } else {
-        None
-    };
-
-    Ok((
-        tokens,
-        ArgumentsGroup {
-            open_paren: open_paren.source().clone(),
-            arguments,
-            close_paren: close_paren.source().clone(),
-        },
-    ))
+    }
 }

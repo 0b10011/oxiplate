@@ -11,24 +11,10 @@ pub(crate) struct Concat<'a> {
 
 impl<'a> Concat<'a> {
     /// Parser for concat expressions.
-    pub(super) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, concats) = many1((
-            take(TokenKind::Tilde),
-            cut("Expected an expression after `~`", expression(false)),
-        ))
-        .parse(tokens)?;
-
-        let callback = Box::new(|left: Expression<'a>| {
-            Expression::Concat(Concat {
-                first_expression: Box::new(left),
-                additional_expressions: concats
-                    .into_iter()
-                    .map(|(tilde, expression)| (tilde.source().clone(), expression))
-                    .collect(),
-            })
-        });
-
-        Ok((tokens, callback))
+    pub(in crate::template::parser) fn parser() -> ConcatParser<'a> {
+        ConcatParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -92,5 +78,36 @@ impl<'a> ToTokensWithState<'a> for Concat<'a> {
                 estimated_length,
             )
         }
+    }
+}
+
+/// Parser for concat expressions.
+pub(in crate::template::parser) struct ConcatParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ConcatParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parser for concat expressions.
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, concats) = many1((
+            take(TokenKind::Tilde),
+            cut("Expected an expression after `~`", expression(false)),
+        ))
+        .parse(tokens)?;
+
+        let callback = Box::new(|left: Expression<'a>| {
+            Expression::Concat(Concat {
+                first_expression: Box::new(left),
+                additional_expressions: concats
+                    .into_iter()
+                    .map(|(tilde, expression)| (tilde.source().clone(), expression))
+                    .collect(),
+            })
+        });
+
+        Ok((tokens, callback))
     }
 }

@@ -22,31 +22,10 @@ impl<'a> Integer<'a> {
     }
 
     /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, source): (_, &Source) = (alt((
-            into(take(TokenKind::DecLiteral)),
-            into(take(TokenKind::BinLiteral)),
-            into(take(TokenKind::OctLiteral)),
-            into(take(TokenKind::HexLiteral)),
-        )))
-        .parse(tokens)?;
-
-        let mut literal = match source.as_str().parse::<Literal>() {
-            Ok(literal) => literal,
-            Err(error) => {
-                #[cfg(not(feature = "better-internal-errors"))]
-                let _ = error;
-
-                internal_error!(
-                    source.span_token().unwrap(),
-                    "Failed to parse integer",
-                    .span_help(error.span().unwrap(), format!("Original error: {error}")
-                ));
-            }
-        };
-        literal.set_span(source.span_token());
-
-        Ok((tokens, Self { source, literal }))
+    pub(in crate::template::parser) fn parser() -> IntegerParser<'a> {
+        IntegerParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -75,21 +54,54 @@ impl<'a> From<Integer<'a>> for LiteralExpression<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
+pub(in crate::template::parser) struct IntegerParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for IntegerParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Integer<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, source): (_, &Source) = (alt((
+            into(take(TokenKind::DecLiteral)),
+            into(take(TokenKind::BinLiteral)),
+            into(take(TokenKind::OctLiteral)),
+            into(take(TokenKind::HexLiteral)),
+        )))
+        .parse(tokens)?;
+
+        let mut literal = match source.as_str().parse::<Literal>() {
+            Ok(literal) => literal,
+            Err(error) => {
+                #[cfg(not(feature = "better-internal-errors"))]
+                let _ = error;
+
+                internal_error!(
+                    source.span_token().unwrap(),
+                    "Failed to parse integer",
+                    .span_help(error.span().unwrap(), format!("Original error: {error}")
+                ));
+            }
+        };
+        literal.set_span(source.span_token());
+
+        Ok((tokens, Integer { source, literal }))
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::template::parser) struct Float<'a> {
     source: Source<'a>,
 }
 
 impl<'a> Float<'a> {
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, float) = take(TokenKind::Float).parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                source: float.source().clone(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> FloatParser<'a> {
+        FloatParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -119,6 +131,26 @@ impl<'a> From<Float<'a>> for LiteralExpression<'a> {
     }
 }
 
+pub(in crate::template::parser) struct FloatParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FloatParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Float<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, float) = take(TokenKind::Float).parse(tokens)?;
+
+        Ok((
+            tokens,
+            Float {
+                source: float.source().clone(),
+            },
+        ))
+    }
+}
+
 pub(crate) enum Number<'a> {
     Integer(Integer<'a>),
     Float(Float<'a>),
@@ -127,8 +159,10 @@ pub(crate) enum Number<'a> {
 impl<'a> Number<'a> {
     /// Parse a number.
     /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(Integer::parse), into(Float::parse))).parse(tokens)
+    pub(in crate::template::parser) fn parser() -> NumberParser<'a> {
+        NumberParser {
+            phantom_data: PhantomData,
+        }
     }
 }
 
@@ -138,6 +172,23 @@ impl<'a> From<Number<'a>> for Expression<'a> {
             Number::Integer(integer) => Expression::Integer(integer),
             Number::Float(float) => Expression::Float(float),
         }
+    }
+}
+
+/// Parse a number.
+/// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
+pub(in crate::template::parser) struct NumberParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for NumberParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Number<'a>;
+
+    /// Parse a number.
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((into(Integer::parse()), into(Float::parse()))).parse(tokens)
     }
 }
 
@@ -156,7 +207,7 @@ mod tests {
     fn malformed_number() {
         test_source!(source = "19 89");
 
-        Integer::parse
+        Integer::parse()
             .parse(TokenSlice::new(
                 &[Ok(Token::new(TokenKind::DecLiteral, &source, None))],
                 &Eof::for_test(source),

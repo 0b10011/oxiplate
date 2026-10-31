@@ -139,7 +139,7 @@ pub(super) fn parse_extends(tokens: TokenSlice) -> Res<Statement> {
         KeywordParser::new("extends"),
         cut(
             r#"Expected path to template to extend (e.g., `{% extends "path/to/template.html.oxip" %}`)"#,
-            String::parse,
+            String::parser(),
         ),
     )
         .parse(tokens)?;

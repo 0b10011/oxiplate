@@ -13,25 +13,10 @@ pub(crate) struct Bool<'a> {
 impl<'a> Bool<'a> {
     /// Parses a bool value: `true` or `false`.
     /// See: <https://doc.rust-lang.org/reference/types/boolean.html>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, token) = tokens.take()?;
-
-        let TokenKind::Bool(value) = token.kind() else {
-            return Err(Error::Recoverable {
-                message: "Not `Bool` token kind".to_string(),
-                source: token.source().clone(),
-                previous_error: None,
-                is_eof: false,
-            });
-        };
-
-        Ok((
-            tokens,
-            Self {
-                value: *value,
-                source: token.source(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> BoolParser<'a> {
+        BoolParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -56,5 +41,39 @@ impl<'a> From<Bool<'a>> for Expression<'a> {
 impl<'a> From<Bool<'a>> for LiteralExpression<'a> {
     fn from(value: Bool<'a>) -> Self {
         Self::Bool(value)
+    }
+}
+
+/// Parses a bool value: `true` or `false`.
+/// See: <https://doc.rust-lang.org/reference/types/boolean.html>
+pub(in crate::template::parser) struct BoolParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for BoolParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Bool<'a>;
+
+    /// Parses a bool value: `true` or `false`.
+    /// See: <https://doc.rust-lang.org/reference/types/boolean.html>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
+
+        let TokenKind::Bool(value) = token.kind() else {
+            return Err(Error::Recoverable {
+                message: "Not `Bool` token kind".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
+        };
+
+        Ok((
+            tokens,
+            Bool {
+                value: *value,
+                source: token.source(),
+            },
+        ))
     }
 }

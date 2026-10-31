@@ -155,9 +155,9 @@ impl<'a> Case<'a> {
             cut(
                 "Expected a match pattern after `case`",
                 (
-                    Pattern::parse,
-                    many0((take(TokenKind::VerticalBar), Pattern::parse)),
-                    ignore_recoverable_errors(Guard::parse),
+                    Pattern::parser(),
+                    many0((take(TokenKind::VerticalBar), Pattern::parser())),
+                    ignore_recoverable_errors(Guard::parser()),
                 ),
             ),
         )
@@ -253,26 +253,10 @@ struct Guard<'a> {
 }
 
 impl<'a> Guard<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (if_tag, expression)) = (
-            KeywordParser::new("if"),
-            cut("Expected expression after `if`", expression(true)),
-        )
-            .parse(tokens)?;
-
-        let source = if_tag
-            .source()
-            .clone()
-            .merge(&expression.source(), "Expression expected after whitespace");
-
-        Ok((
-            tokens,
-            Self {
-                if_tag: if_tag.source().clone(),
-                expression,
-                source,
-            },
-        ))
+	pub(in crate::template::parser) fn parser() -> GuardParser<'a> {
+	    GuardParser {
+	        phantom_data: PhantomData,
+	    }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -289,5 +273,36 @@ impl<'a> ToTokensWithState<'a> for Guard<'a> {
             quote_spanned! {if_span=> if #expression },
             EstimatedLength::new(0),
         )
+    }
+}
+
+pub(in crate::template::parser) struct GuardParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GuardParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Guard<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (if_tag, expression)) = (
+            KeywordParser::new("if"),
+            cut("Expected expression after `if`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = if_tag
+            .source()
+            .clone()
+            .merge(&expression.source(), "Expression expected after whitespace");
+
+        Ok((
+            tokens,
+            Guard {
+                if_tag: if_tag.source().clone(),
+                expression,
+                source,
+            },
+        ))
     }
 }

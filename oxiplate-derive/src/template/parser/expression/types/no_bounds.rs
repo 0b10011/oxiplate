@@ -76,22 +76,10 @@ pub(in crate::template::parser) enum TypeNoBounds<'a> {
 
 impl<'a> TypeNoBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(InferredType::parse),
-            into(TupleType::parse),
-            into(ParenthesizedType::parse),
-            into(ImplTraitTypeOneBound::parse),
-            into(TraitObjectTypeOneBound::parse),
-            into(TypePath::parse),
-            into(Never::parse),
-            into(RawPointerType::parse),
-            into(ReferenceType::parse),
-            into(ArrayType::parse),
-            into(SliceType::parse),
-            into(QualifiedPathInType::parse),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> TypeNoBoundsParser<'a> {
+        TypeNoBoundsParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -152,6 +140,33 @@ impl<'a> ToTokensWithState<'a> for TypeNoBounds<'a> {
 impl<'a> From<TypeNoBounds<'a>> for Type<'a> {
     fn from(value: TypeNoBounds<'a>) -> Self {
         Self::NoBounds(value)
+    }
+}
+
+pub(in crate::template::parser) struct TypeNoBoundsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypeNoBoundsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TypeNoBounds<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(InferredType::parse),
+            into(TupleType::parse),
+            into(ParenthesizedType::parse),
+            into(ImplTraitTypeOneBound::parse),
+            into(TraitObjectTypeOneBound::parse),
+            into(TypePath::parse),
+            into(Never::parse),
+            into(RawPointerType::parse),
+            into(ReferenceType::parse),
+            into(ArrayType::parse),
+            into(SliceType::parse),
+            into(QualifiedPathInType::parse),
+        ))
+        .parse(tokens)
     }
 }
 

@@ -130,7 +130,7 @@ pub(super) fn parse_default_escaper_group(tokens: TokenSlice) -> Res<Statement> 
     .parse(tokens)?;
 
     let (tokens, escaper) =
-        cut("Expected an escaper group name", Identifier::parse).parse(tokens)?;
+        cut("Expected an escaper group name", Identifier::parser()).parse(tokens)?;
 
     let can_replace_inferred_escaper = match tag.source().as_str() {
         "default_escaper_group" => false,

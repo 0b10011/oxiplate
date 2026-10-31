@@ -29,7 +29,7 @@ impl<'a> Let<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (keyword, pattern, operator, expr)) = (
             KeywordParser::new("let"),
-            cut("Expected a pattern", Pattern::parse),
+            cut("Expected a pattern", Pattern::parser()),
             cut("Expected `=`", take(TokenKind::Equal)),
             cut("Expected an expression after `=`", expression(true)),
         )

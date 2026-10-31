@@ -639,40 +639,52 @@ impl<'a> ToTokensWithState<'a> for Expression<'a> {
     }
 }
 
-pub(super) fn expression<'a>(
+pub(in crate::template::parser) fn expression<'a>(allow_nesting: bool) -> ExpressionParser<'a> {
+    ExpressionParser {
+        allow_nesting,
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ExpressionParser<'a> {
     allow_nesting: bool,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, Expression<'a>> {
-    move |tokens| {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ExpressionParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Expression<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, mut expression) = alt((
-            into(Cow::parse),
-            into(Char::parse),
-            into(String::parse),
-            into(Number::parse),
-            into(Bool::parse),
-            into(Path::parser),
-            into(Prefixed::parse),
-            into(Group::parse),
-            Tuple::parse,
-            Array::parse,
-            into(FullRange::parse),
+            into(Cow::parser()),
+            into(Char::parser()),
+            into(String::parser()),
+            into(Number::parser()),
+            into(Bool::parser()),
+            into(Path::parser()),
+            into(Prefixed::parser()),
+            into(Group::parser()),
+            into(Tuple::parser()),
+            into(Array::parser()),
+            into(FullRange::parser()),
         ))
         .parse(tokens)?;
 
-        if !allow_nesting {
+        if !self.allow_nesting {
             return Ok((tokens, expression));
         }
 
         let (tokens, expression_callbacks): (TokenSlice, Vec<Box<NestedExpression<'a>>>) =
             many0(alt((
-                Filter::parse,
-                Concat::parser,
-                Calc::parse,
-                Index::parse,
-                TupleIndexingExpression::parse,
-                MethodCall::parse,
-                Fields::parse,
-                Call::parse,
-                TypeCast::parse,
+                Filter::parser(),
+                Concat::parser(),
+                Calc::parser(),
+                Index::parser(),
+                TupleIndexingExpression::parser(),
+                MethodCall::parser(),
+                Fields::parser(),
+                Call::parser(),
+                TypeCast::parser(),
             )))
             .parse(tokens)?;
 

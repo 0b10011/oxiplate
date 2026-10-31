@@ -103,8 +103,22 @@ pub(crate) fn try_parse<'a, 'b: 'a>(
     Ok((tokens, template.to_tokens_with_mut_state(state)))
 }
 
-pub(crate) fn parse_item(tokens: TokenSlice) -> Res<Vec<Item>> {
-    alt((parse_tag, adjusted_whitespace, parse_static)).parse(tokens)
+pub(in crate::template::parser) fn parse_item<'a>() -> ItemParser<'a> {
+    ItemParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ItemParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ItemParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Vec<Item<'a>>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((parse_tag, adjusted_whitespace, parse_static)).parse(tokens)
+    }
 }
 
 pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {

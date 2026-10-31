@@ -347,8 +347,8 @@ pub(super) fn writ<'a>(
 ) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
     move |tokens| {
         let (tokens, escaper_info) = ignore_recoverable_errors((
-            ignore_recoverable_errors((Identifier::parse, take(TokenKind::Period))),
-            Identifier::parse,
+            ignore_recoverable_errors((Identifier::parser(), take(TokenKind::Period))),
+            Identifier::parser(),
             take(TokenKind::Colon),
         ))
         .parse(tokens)?;

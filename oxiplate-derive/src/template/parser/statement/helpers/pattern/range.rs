@@ -48,10 +48,10 @@ pub(crate) enum Range<'a> {
 impl<'a> Range<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
-            Self::parse_inclusive,
-            Self::parse_from_or_exclusive,
-            Self::parse_exclusive_to,
-            Self::parse_inclusive_to,
+            Self::parse_inclusive(),
+            Self::parse_from_or_exclusive(),
+            Self::parse_exclusive_to(),
+            Self::parse_inclusive_to(),
         ))
         .parse(tokens)
     }
