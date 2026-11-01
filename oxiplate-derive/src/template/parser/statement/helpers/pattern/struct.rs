@@ -67,12 +67,27 @@ impl<'a> Parser<'a> for StructPatternParser<'a> {
     type Output = StructPattern<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        alt((
+        let backup_tokens = tokens.clone();
+
+        let (tokens, pattern) = alt((
             into(NamedStruct::parser()),
             into(TupleStruct::parser()),
             into(PathInExpression::parser()),
         ))
-        .parse(tokens)
+        .parse(tokens)?;
+
+        if let StructPattern::Unit(path) = &pattern {
+            if path.is_ident_or_keyword() {
+                return context(
+                    "Lone identifier ignored in struct patterns to support binding values to \
+                     variables",
+                    fail(),
+                )
+                .parse(backup_tokens);
+            }
+        }
+
+        Ok((tokens, pattern))
     }
 }
 

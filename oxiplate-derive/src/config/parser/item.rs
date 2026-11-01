@@ -6,6 +6,7 @@ use super::newline::newline;
 use super::prelude::*;
 use super::table::table;
 
+#[derive(Debug)]
 pub(in crate::config::parser) enum Item<'a> {
     Comment(Source<'a>),
     Expression(Expression<'a>),

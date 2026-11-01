@@ -20,14 +20,11 @@ use crate::config::{Config, EscaperGroup, TokenSlice};
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
 
 mod prelude {
-    pub(super) use proc_macro2::TokenStream;
-    pub(super) use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
-
     pub(super) use super::Res;
+    pub(super) use crate::Source;
     pub(super) use crate::config::tokenizer::TokenKind;
     pub(super) use crate::config::{Token, TokenSlice};
     pub(super) use crate::parser::prelude::*;
-    pub(super) use crate::{BuiltTokens, Source, State, internal_error};
 }
 
 pub(crate) fn parse(tokens: TokenSlice) -> Res<Config> {
@@ -163,12 +160,12 @@ fn parse_escaper_groups<'a>(
                         tokens.eof().source().clone(),
                     ));
                 }
-                TableOrValue::Value(value @ Value::Bool(_)) => {
+                TableOrValue::Value(Value::Bool(value)) => {
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \
-                             escaper enum (e.g., `::your_package::Escaper`); `{:?}` found",
-                            value
+                             escaper enum (e.g., `::your_package::Escaper`); `{}` found",
+                            value.value()
                         ),
                         tokens.eof().source().clone(),
                     ));
@@ -277,7 +274,7 @@ fn parse_data(items: Vec<Item>) -> Result<(Table, Option<Source>), Error> {
 
         match item {
             Item::Comment(_source) | Item::Newline(_source) => (),
-            Item::Expression(expression) if expression.has_value() => {
+            Item::Expression(expression) if !expression.has_value() => {
                 // New table
                 let table = mem::take(&mut current_table);
                 if let Some(table_parent) = current_table_parent {

@@ -281,6 +281,11 @@ impl<'a> PathInExpression<'a> {
         }
     }
 
+    /// Whether this path is a lone identifier/keyword without `::`.
+    pub(in crate::template::parser) fn is_ident_or_keyword(&self) -> bool {
+        self.separator.is_none() && self.additional_segments.is_empty()
+    }
+
     pub(super) fn template_field(&self, state: &State) -> Option<&Identifier<'_>> {
         if self.separator.is_some() || !self.additional_segments.is_empty() {
             return None;

@@ -6,6 +6,7 @@ use super::prelude::*;
 use super::string::string;
 use super::value::{Value, value};
 
+#[derive(Debug)]
 pub(in crate::config::parser) struct Expression<'a> {
     ancestor_keys: Vec<Key<'a>>,
     key: Key<'a>,
@@ -115,6 +116,7 @@ impl<'a> Parser<'a> for ExpressionParser<'a> {
     }
 }
 
+#[derive(Debug)]
 pub(in crate::config::parser) struct Key<'a> {
     value: &'a str,
     source: &'a Source<'a>,

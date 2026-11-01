@@ -100,6 +100,10 @@ pub(in crate::config::parser) struct BoolValue<'a> {
 }
 
 impl<'a> BoolValue<'a> {
+    pub(in crate::config::parser) fn value(&self) -> bool {
+        self.value
+    }
+
     pub(crate) fn source(&self) -> &'a Source<'a> {
         self.source
     }
