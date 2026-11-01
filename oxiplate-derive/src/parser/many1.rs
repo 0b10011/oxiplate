@@ -43,10 +43,10 @@ where
         let (tokens, values) = many0(&self.parser).parse(tokens)?;
 
         if values.is_empty() {
-            let (_, token) = tokens.clone().take()?;
+            let (_, token) = tokens.take()?;
             return Err(Error::Recoverable {
                 message: "Expected to match at least 1".to_string(),
-                source: token.source().clone(),
+                source: token.source().to_owned(),
                 previous_error: None,
                 is_eof: false,
             });
