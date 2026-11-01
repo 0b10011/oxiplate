@@ -38,7 +38,7 @@ impl<'a> Let<'a> {
         let source = keyword
             .source()
             .clone()
-            .merge(pattern.source(), "Variable name expected after `let`")
+            .merge(&pattern.source(), "Variable name expected after `let`")
             .merge(operator.source(), "`=` expected after variable name")
             .merge(&expr.source(), "Expression expected after expression");
 

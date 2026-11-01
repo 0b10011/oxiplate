@@ -54,7 +54,7 @@ rebuild-config-test-crates:
 [group("Test")]
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-10-27" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-10-28" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.

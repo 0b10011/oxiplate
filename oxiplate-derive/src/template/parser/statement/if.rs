@@ -212,7 +212,7 @@ impl<'a> Parser<'a> for IfGenericParser<'a> {
             let source = keyword
                 .source()
                 .clone()
-                .merge(pattern.source(), "Pattern expected after `let`")
+                .merge(&pattern.source(), "Pattern expected after `let`")
                 .merge(equal.source(), "`=` expected after pattern")
                 .merge(&expression.source(), "Expression expected after `=`");
 

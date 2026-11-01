@@ -1,30 +1,31 @@
 use std::collections::HashSet;
 
-use super::{Path, Pattern};
-use crate::template::parser::expression::Identifier;
+use super::Pattern;
+use crate::template::parser::expression::{Identifier, PathInExpression};
 use crate::template::parser::prelude::*;
 
+/// See: <https://doc.rust-lang.org/reference/patterns.html#railroad-StructPattern>
 #[derive(Debug)]
-pub(crate) enum Struct<'a> {
+pub(crate) enum StructPattern<'a> {
     Named(NamedStruct<'a>),
     Tuple(TupleStruct<'a>),
-    Unit(Path<'a>),
+    Unit(PathInExpression<'a>),
 }
 
-impl<'a> Struct<'a> {
+impl<'a> StructPattern<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         alt((
             into(NamedStruct::parser()),
             into(TupleStruct::parser()),
-            into(Path::parse_exclude_ident()),
+            into(PathInExpression::parser()),
         ))
         .parse(tokens)
     }
 
-    pub fn source(&self) -> &Source<'a> {
+    pub fn source(&self) -> Source<'a> {
         match self {
-            Self::Named(named_struct) => named_struct.source(),
-            Self::Tuple(tuple_struct) => tuple_struct.source(),
+            Self::Named(named_struct) => named_struct.source().to_owned(),
+            Self::Tuple(tuple_struct) => tuple_struct.source().to_owned(),
             Self::Unit(path) => path.source(),
         }
     }
@@ -38,7 +39,7 @@ impl<'a> Struct<'a> {
     }
 }
 
-impl<'a> ToTokensWithState<'a> for Struct<'a> {
+impl<'a> ToTokensWithState<'a> for StructPattern<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         match self {
             Self::Named(named_struct) => named_struct.to_tokens_with_state(state),
@@ -48,21 +49,21 @@ impl<'a> ToTokensWithState<'a> for Struct<'a> {
     }
 }
 
-impl<'a> From<Struct<'a>> for Pattern<'a> {
-    fn from(value: Struct<'a>) -> Self {
-        Self::Struct(value)
+impl<'a> From<StructPattern<'a>> for Pattern<'a> {
+    fn from(value: StructPattern<'a>) -> Self {
+        Self::Struct(Box::new(value))
     }
 }
 
-impl<'a> From<Path<'a>> for Struct<'a> {
-    fn from(value: Path<'a>) -> Self {
+impl<'a> From<PathInExpression<'a>> for StructPattern<'a> {
+    fn from(value: PathInExpression<'a>) -> Self {
         Self::Unit(value)
     }
 }
 
 #[derive(Debug)]
 pub(crate) struct NamedStruct<'a> {
-    path: Path<'a>,
+    path: PathInExpression<'a>,
     first_field: Field<'a>,
     /// `Source` is the comma.
     additional_fields: Vec<(Source<'a>, Field<'a>)>,
@@ -114,9 +115,9 @@ impl<'a> ToTokensWithState<'a> for NamedStruct<'a> {
     }
 }
 
-impl<'a> From<NamedStruct<'a>> for Struct<'a> {
+impl<'a> From<NamedStruct<'a>> for StructPattern<'a> {
     fn from(value: NamedStruct<'a>) -> Self {
-        Struct::Named(value)
+        StructPattern::Named(value)
     }
 }
 
@@ -131,7 +132,7 @@ impl<'a> Parser<'a> for NamedStructParser<'a> {
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (path, open_brace, (first_field, additional_fields_and_commas, close_brace))) =
             (
-                Path::parse_include_ident(),
+                PathInExpression::parser(),
                 take(TokenKind::OpenBrace),
                 (
                     cut("Expected a field", Field::parser()),
@@ -204,7 +205,7 @@ impl<'a> Field<'a> {
                 .source()
                 .clone()
                 .merge(colon, "Colon expected after name")
-                .merge(pattern.source(), "Pattern expected after colon")
+                .merge(&pattern.source(), "Pattern expected after colon")
         } else {
             self.name.source().clone()
         }
@@ -262,7 +263,7 @@ impl<'a> Parser<'a> for FieldParser<'a> {
 
 #[derive(Debug)]
 pub(crate) struct TupleStruct<'a> {
-    path: Path<'a>,
+    path: PathInExpression<'a>,
     first_field: Box<Pattern<'a>>,
     /// `Source` is the comma.
     additional_fields: Vec<(Source<'a>, Pattern<'a>)>,
@@ -276,7 +277,7 @@ impl<'a> TupleStruct<'a> {
     pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (path, open_paren, (first_field, additional_fields_and_commas, close_brace))) =
             (
-                Path::parse_include_ident,
+                PathInExpression::parser(),
                 take(TokenKind::OpenParenthese),
                 (
                     cut("Expected pattern", Pattern::parser()),
@@ -290,11 +291,10 @@ impl<'a> TupleStruct<'a> {
                 .parse(tokens)?;
 
         let mut source = path
-            .source
-            .clone()
+            .source()
             .merge(open_paren.source(), "Open parenthese expected after path")
             .merge(
-                first_field.source(),
+                &first_field.source(),
                 "First field expected after open parenthese",
             );
 
@@ -302,7 +302,7 @@ impl<'a> TupleStruct<'a> {
         for (comma, field) in additional_fields_and_commas {
             source = source
                 .merge(comma.source(), "Comma expected after previous field")
-                .merge(field.source(), "Field expected after comma");
+                .merge(&field.source(), "Field expected after comma");
 
             additional_fields.push((comma.source().clone(), field));
         }
@@ -359,8 +359,8 @@ impl<'a> ToTokensWithState<'a> for TupleStruct<'a> {
     }
 }
 
-impl<'a> From<TupleStruct<'a>> for Struct<'a> {
+impl<'a> From<TupleStruct<'a>> for StructPattern<'a> {
     fn from(value: TupleStruct<'a>) -> Self {
-        Struct::Tuple(value)
+        StructPattern::Tuple(value)
     }
 }

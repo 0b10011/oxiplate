@@ -166,13 +166,13 @@ impl<'a> Case<'a> {
         let mut source = statement
             .source()
             .clone()
-            .merge(first_pattern.source(), "Type expected after whitespace");
+            .merge(&first_pattern.source(), "Type expected after whitespace");
 
         let mut additional_patterns = Vec::with_capacity(additional_patterns_and_separators.len());
         for (operator, pattern) in additional_patterns_and_separators {
             source = source
                 .merge(operator.source(), "`|` expected after previous pattern")
-                .merge(pattern.source(), "Pattern expected after `|`");
+                .merge(&pattern.source(), "Pattern expected after `|`");
 
             additional_patterns.push((operator.source().clone(), pattern));
         }

@@ -39,8 +39,7 @@ use self::index::Index;
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 use self::method_call::MethodCall;
-pub(super) use self::path::Identifier;
-use self::path::Path;
+pub(super) use self::path::{Identifier, PathInExpression};
 use self::prefixed::Prefixed;
 use self::tuple::Tuple;
 use self::tuple_index::TupleIndexingExpression;
@@ -58,7 +57,7 @@ pub(crate) enum Expression<'a> {
     #[default]
     Placeholder,
 
-    Path(Path<'a>),
+    Path(PathInExpression<'a>),
     Char(Char<'a>),
     String(String<'a>),
     Integer(Integer<'a>),
@@ -661,7 +660,7 @@ impl<'a> Parser<'a> for ExpressionParser<'a> {
             into(String::parser()),
             into(Number::parser()),
             into(Bool::parser()),
-            into(Path::parser()),
+            into(PathInExpression::parser()),
             into(Prefixed::parser()),
             into(Group::parser()),
             into(Tuple::parser()),

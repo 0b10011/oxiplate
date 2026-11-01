@@ -60,7 +60,7 @@ impl<'a> Range<'a> {
         let (tokens, (from, operator, to)) = (
             Value::parse,
             take(TokenKind::RangeExclusive),
-            ignore_all_errors(Value::parse),
+            ignore_all_errors(Value::parser()),
         )
             .parse(tokens)?;
 
