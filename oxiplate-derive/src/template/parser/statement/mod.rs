@@ -186,9 +186,7 @@ impl<'a> From<Statement<'a>> for Item<'a> {
     }
 }
 
-pub(in crate::template::parser) fn statement(
-    open_tag_source: Source,
-) -> StatementParser {
+pub(in crate::template::parser) fn statement(open_tag_source: Source) -> StatementParser {
     StatementParser { open_tag_source }
 }
 pub(in crate::template::parser) struct StatementParser<'a> {
