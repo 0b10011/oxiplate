@@ -37,13 +37,13 @@ impl<'a> Array<'a> {
         let mut values = Vec::with_capacity(fields_and_commas.len());
         for (field, comma) in fields_and_commas {
             source = source
-                .merge(field.source(), "Field expected")
+                .merge(&field.source(), "Field expected")
                 .merge(comma.source(), "Comma expected after previous field");
             values.push((field, comma.source().clone()));
         }
 
         let last_value = if let Some(last_field) = last_field {
-            source = source.merge(last_field.source(), "Field expected after comma");
+            source = source.merge(&last_field.source(), "Field expected after comma");
 
             Some(Box::new(last_field))
         } else {

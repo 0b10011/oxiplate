@@ -11,7 +11,7 @@ use self::array::Array;
 use self::bind::Bind;
 use self::literal::Literal;
 use self::range::Range;
-use self::r#struct::Struct;
+use self::r#struct::StructPattern;
 use self::tuple::Tuple;
 use crate::template::parser::expression::Identifier;
 use crate::template::parser::prelude::*;
@@ -21,7 +21,7 @@ pub(crate) enum Pattern<'a> {
     Literal(Literal<'a>),
     Ident(Identifier<'a>),
     Range(Range<'a>),
-    Struct(Struct<'a>),
+    Struct(Box<StructPattern<'a>>),
     Array(Array<'a>),
     Tuple(Tuple<'a>),
     Bind(Bind<'a>),
@@ -41,22 +41,22 @@ impl<'a> Pattern<'a> {
             into(Literal::parse),
             into(Array::parse),
             into(Tuple::parse),
-            into(Struct::parse),
+            into(StructPattern::parse),
             into(Bind::parse),
             into(Identifier::parse_prevent_reserved_keywords),
         ))
         .parse(tokens)
     }
 
-    pub fn source(&self) -> &Source<'a> {
+    pub fn source(&self) -> Source<'a> {
         match self {
-            Self::Literal(literal) => literal.source(),
-            Self::Ident(identifier) => identifier.source(),
-            Self::Bind(bind) => bind.source(),
-            Self::Range(range) => range.source(),
+            Self::Literal(literal) => literal.source().to_owned(),
+            Self::Ident(identifier) => identifier.source().to_owned(),
+            Self::Bind(bind) => bind.source().to_owned(),
+            Self::Range(range) => range.source().to_owned(),
             Self::Struct(r#struct) => r#struct.source(),
-            Self::Array(array) => array.source(),
-            Self::Tuple(tuple) => tuple.source(),
+            Self::Array(array) => array.source().to_owned(),
+            Self::Tuple(tuple) => tuple.source().to_owned(),
         }
     }
 
@@ -89,95 +89,5 @@ impl<'a> ToTokensWithState<'a> for Pattern<'a> {
 impl<'a> From<Identifier<'a>> for Pattern<'a> {
     fn from(value: Identifier<'a>) -> Self {
         Pattern::Ident(value)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct Path<'a> {
-    segments: Vec<(Identifier<'a>, Source<'a>)>,
-    name: Identifier<'a>,
-    source: Source<'a>,
-}
-
-impl<'a> Path<'a> {
-    pub fn parse_include_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, path) = ignore_all_errors(Self::parse_exclude_ident).parse(tokens)?;
-
-        if let Some(path) = path {
-            Ok((tokens, path))
-        } else {
-            let (tokens, name) = Identifier::parse.parse(tokens)?;
-            let source = name.source().clone();
-            Ok((
-                tokens,
-                Self {
-                    segments: vec![],
-                    name,
-                    source,
-                },
-            ))
-        }
-    }
-
-    pub fn parse_exclude_ident(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (segments_with_whitespace, name)) = (
-            many1((Identifier::parse, take(TokenKind::PathSeparator))),
-            cut("Expected an identifier", Identifier::parse),
-        )
-            .parse(tokens)?;
-
-        let mut segments = vec![];
-        let mut source: Option<Source<'a>> = None;
-        for (segment, colons) in segments_with_whitespace {
-            if let Some(existing_source) = source {
-                source = Some(
-                    existing_source
-                        .merge(segment.source(), "Segment expected")
-                        .merge(colons.source(), "Colons expected after whitespace"),
-                );
-            } else {
-                source = Some(
-                    segment
-                        .source()
-                        .clone()
-                        .merge(colons.source(), "Colons expected after whitespace"),
-                );
-            }
-
-            segments.push((segment, colons.source().clone()));
-        }
-
-        let source = source
-            .expect("Source should already exist because at least one segment is required")
-            .merge(name.source(), "Name expected after segments");
-
-        Ok((
-            tokens,
-            Self {
-                segments,
-                name,
-                source,
-            },
-        ))
-    }
-
-    pub fn source(&self) -> &Source<'a> {
-        &self.source
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for Path<'a> {
-    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
-        let mut tokens = TokenStream::new();
-
-        for (segment, colons) in &self.segments {
-            let colons_span = colons.span_token();
-            let colons = quote_spanned! {colons_span=> :: };
-            tokens.append_all(quote! { #segment #colons });
-        }
-
-        self.name.to_tokens(&mut tokens);
-
-        (tokens, EstimatedLength::new(1))
     }
 }

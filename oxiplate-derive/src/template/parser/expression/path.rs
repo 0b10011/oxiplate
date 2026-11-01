@@ -191,12 +191,12 @@ impl ToTokens for Identifier<'_> {
 }
 
 #[derive(Debug)]
-pub(in crate::template::parser) struct Path<'a> {
+pub(in crate::template::parser) struct PathInExpression<'a> {
     separator: Option<Separator<'a>>,
     segment: PathExprSegment<'a>,
     additional_segments: Vec<(Separator<'a>, PathExprSegment<'a>)>,
 }
-impl<'a> Path<'a> {
+impl<'a> PathInExpression<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathInExpression>
     pub(in crate::template::parser) fn parser(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (separator, segment, additional_segments)) = (
@@ -214,12 +214,17 @@ impl<'a> Path<'a> {
 
         Ok((
             tokens,
-            Path {
+            PathInExpression {
                 separator,
                 segment,
                 additional_segments,
             },
         ))
+    }
+
+    /// Whether this path is a lone identifier/keyword without `::`.
+    pub(in crate::template::parser) fn is_ident_or_keyword(&self) -> bool {
+        self.separator.is_none() && self.additional_segments.is_empty()
     }
 
     pub(super) fn template_field(&self, state: &State) -> Option<&Identifier<'_>> {
@@ -261,7 +266,7 @@ impl<'a> Path<'a> {
     }
 }
 
-impl<'a> ToTokensWithState<'a> for Path<'a> {
+impl<'a> ToTokensWithState<'a> for PathInExpression<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let span = self.segment.source().span_token();
         if let Some(identifier) = self.template_field(state) {
@@ -282,8 +287,8 @@ impl<'a> ToTokensWithState<'a> for Path<'a> {
     }
 }
 
-impl<'a> From<Path<'a>> for Expression<'a> {
-    fn from(value: Path<'a>) -> Self {
+impl<'a> From<PathInExpression<'a>> for Expression<'a> {
+    fn from(value: PathInExpression<'a>) -> Self {
         Expression::Path(value)
     }
 }

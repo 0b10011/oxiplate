@@ -25,7 +25,7 @@ impl<'a> Bind<'a> {
             .source()
             .clone()
             .merge(at.source(), "Expected `@` after identifier")
-            .merge(pattern.source(), "Expected pattern after `@`");
+            .merge(&pattern.source(), "Expected pattern after `@`");
 
         Ok((
             tokens,

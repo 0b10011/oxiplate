@@ -198,7 +198,7 @@ fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
         let source = keyword
             .source()
             .clone()
-            .merge(pattern.source(), "Pattern expected after `let`")
+            .merge(&pattern.source(), "Pattern expected after `let`")
             .merge(equal.source(), "`=` expected after pattern")
             .merge(&expression.source(), "Expression expected after `=`");
 

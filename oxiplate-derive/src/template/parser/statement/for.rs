@@ -157,7 +157,7 @@ pub(super) fn parse_for(tokens: TokenSlice) -> Res<Statement> {
     let source = for_keyword
         .source()
         .clone()
-        .merge(pattern.source(), "Ident expected after whitespace")
+        .merge(&pattern.source(), "Ident expected after whitespace")
         .merge(in_keyword.source(), "`in` expected after whitespace")
         .merge(&expression.source(), "Expression expected after whitespace");
 
