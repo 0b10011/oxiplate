@@ -11,20 +11,23 @@ use super::{Parser, Res, TokenSlice};
 ///     (none(), take(TokenKind::StaticWhitespace))
 /// )).parse(tokens)?;
 /// ```
-pub(crate) fn none<P>() -> None<P> {
+pub(crate) fn none<K, P>() -> None<K, P> {
     None {
-        phantom_data: PhantomData,
+        phantom_kind: PhantomData,
+        phantom_output: PhantomData,
     }
 }
 
-pub(crate) struct None<P> {
-    phantom_data: PhantomData<P>,
+pub(crate) struct None<K, P> {
+    phantom_kind: PhantomData<K>,
+    phantom_output: PhantomData<P>,
 }
 
-impl<'a, K, P> Parser<'a, K> for None<P>
+impl<'a, K, P> Parser<'a> for None<K, P>
 where
     K: Debug + PartialEq + Eq,
 {
+    type TokenKind = K;
     type Output = Option<P>;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {

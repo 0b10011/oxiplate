@@ -13,22 +13,10 @@ pub(in crate::template::parser) struct GenericArgsBinding<'a> {
 
 impl<'a> GenericArgsBinding<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (path_segment, equals, r#type)) = (
-            TypePathSegment::parse,
-            into(take(TokenKind::Equal)),
-            cut("Expected type after `=`", Type::parse),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                path_segment,
-                equals,
-                r#type,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> GenericArgsBindingParser<'a> {
+        GenericArgsBindingParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -57,5 +45,34 @@ impl<'a> ToTokensWithState<'a> for GenericArgsBinding<'a> {
 impl<'a> From<GenericArgsBinding<'a>> for GenericArg<'a> {
     fn from(value: GenericArgsBinding<'a>) -> Self {
         Self::Binding(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
+pub(in crate::template::parser) struct GenericArgsBindingParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgsBindingParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArgsBinding<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (path_segment, equals, r#type)) = (
+            TypePathSegment::parser(),
+            into(take(TokenKind::Equal)),
+            cut("Expected type after `=`", Type::parser()),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            GenericArgsBinding {
+                path_segment,
+                equals,
+                r#type,
+            },
+        ))
     }
 }

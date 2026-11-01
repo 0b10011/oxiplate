@@ -19,18 +19,10 @@ pub(crate) enum TraitObjectType<'a> {
 
 impl<'a> TraitObjectType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, r#dyn) =
-            ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;
-
-        if let Some(r#dyn) = r#dyn {
-            let (tokens, bounds) = ignore_recoverable_errors(Bounds::parse).parse(tokens)?;
-            return Ok((tokens, Self::Dynamic { r#dyn, bounds }));
+    pub(in crate::template::parser) fn parser() -> TraitObjectTypeParser<'a> {
+        TraitObjectTypeParser {
+            phantom_data: PhantomData,
         }
-
-        let (tokens, bounds) = Bounds::parse(tokens)?;
-
-        Ok((tokens, Self::Static { bounds }))
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -74,5 +66,30 @@ impl<'a> ToTokensWithState<'a> for TraitObjectType<'a> {
 impl<'a> From<TraitObjectType<'a>> for Type<'a> {
     fn from(value: TraitObjectType<'a>) -> Self {
         Type::TraitObject(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
+pub(in crate::template::parser) struct TraitObjectTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TraitObjectTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TraitObjectType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, r#dyn) =
+            ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;
+
+        if let Some(r#dyn) = r#dyn {
+            let (tokens, bounds) = ignore_recoverable_errors(Bounds::parser()).parse(tokens)?;
+            return Ok((tokens, TraitObjectType::Dynamic { r#dyn, bounds }));
+        }
+
+        let (tokens, bounds) = Bounds::parser().parse(tokens)?;
+
+        Ok((tokens, TraitObjectType::Static { bounds }))
     }
 }

@@ -186,35 +186,42 @@ impl<'a> From<Statement<'a>> for Item<'a> {
     }
 }
 
-#[allow(clippy::too_many_lines)]
-pub(super) fn statement<'a>(
+pub(in crate::template::parser) fn statement(open_tag_source: Source) -> StatementParser {
+    StatementParser { open_tag_source }
+}
+pub(in crate::template::parser) struct StatementParser<'a> {
     open_tag_source: Source<'a>,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
-    move |tokens| {
+}
+
+impl<'a> Parser<'a> for StatementParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (Item<'a>, Option<Item<'a>>);
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         // Parse statements
         let (tokens, mut statement): (TokenSlice<'a>, Statement<'a>) = cut(
             "Expected one of: default_escaper_group, replace_escaper_group, extends, block, \
              parent, endblock, include, if, elseif, else, endif, for, continue, break, endfor, \
              match, case, endmatch, let",
             alt((
-                escaper::parse_default_escaper_group,
-                extends::parse_extends,
-                include::parse_include,
-                block::parse_block,
-                block::parse_parent,
-                block::parse_endblock,
-                r#if::parse_if,
-                r#if::parse_elseif,
-                r#if::parse_else,
-                r#if::parse_endif,
-                r#for::parse_for,
-                into(r#for::Continue::parse),
-                into(r#for::Break::parse),
-                r#for::parse_endfor,
-                r#match::Match::parse,
-                r#match::Case::parse,
-                r#match::Match::parse_end,
-                into(Let::parse),
+                into(escaper::parse_default_escaper_group()),
+                into(extends::parse_extends()),
+                into(include::parse_include()),
+                into(block::parse_block()),
+                into(block::parse_parent()),
+                into(block::parse_endblock()),
+                into(r#if::parse_if()),
+                into(r#if::parse_elseif()),
+                into(r#if::parse_else()),
+                into(r#if::parse_endif()),
+                into(r#for::parse_for()),
+                into(r#for::Continue::parser()),
+                into(r#for::Break::parser()),
+                into(r#for::parse_endfor()),
+                into(r#match::Match::parser()),
+                into(r#match::Case::parser()),
+                into(r#match::Match::parse_end()),
+                into(Let::parser()),
             )),
         )
         .parse(tokens)?;
@@ -223,7 +230,7 @@ pub(super) fn statement<'a>(
         let (tokens, (mut trailing_whitespace, close_tag)) =
             tag_end(TagKind::Statement).parse(tokens)?;
 
-        statement.wrap_source(open_tag_source.clone(), &close_tag);
+        statement.wrap_source(self.open_tag_source.clone(), &close_tag);
 
         let mut tokens = tokens;
         if !statement.is_ended(tokens.is_empty()) {
@@ -277,7 +284,7 @@ pub(super) fn statement<'a>(
 }
 
 fn statement_item(tokens: TokenSlice) -> Result<(TokenSlice, Vec<Item>), Error> {
-    cut("Failed to parse contents of statement", parse_item).parse(tokens)
+    cut("Failed to parse contents of statement", parse_item()).parse(tokens)
 }
 
 fn eof<'a>(

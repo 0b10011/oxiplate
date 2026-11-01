@@ -18,7 +18,7 @@ use super::{Error, Parser, Res, TokenSlice};
 pub(crate) fn cut<'a, K, P>(message: &'static str, parser: P) -> Cut<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     Cut {
         message,
@@ -30,19 +30,20 @@ where
 pub(crate) struct Cut<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
     message: &'static str,
     parser: P,
     phantom_data: PhantomData<&'a K>,
 }
 
-impl<'a, K, P> Parser<'a, K> for Cut<'a, K, P>
+impl<'a, K, P> Parser<'a> for Cut<'a, K, P>
 where
     K: Debug + PartialEq + Eq,
-    P: Parser<'a, K>,
+    P: Parser<'a, TokenKind = K>,
 {
-    type Output = <P as Parser<'a, K>>::Output;
+    type TokenKind = K;
+    type Output = <P as Parser<'a>>::Output;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
         match self.parser.parse(tokens) {

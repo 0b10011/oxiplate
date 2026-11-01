@@ -13,20 +13,10 @@ pub(in crate::template::parser) struct Lifetime<'a> {
 
 impl<'a> Lifetime<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (apostrophe, identifier)) = (
-            take(TokenKind::Apostrophe),
-            cut("Expected identifier", Identifier::parse),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                apostrophe: apostrophe.source().clone(),
-                identifier,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> LifetimeParser<'a> {
+        LifetimeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -51,5 +41,32 @@ impl<'a> ToTokensWithState<'a> for Lifetime<'a> {
 impl<'a> From<Lifetime<'a>> for GenericArg<'a> {
     fn from(value: Lifetime<'a>) -> Self {
         Self::Lifetime(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
+pub(in crate::template::parser) struct LifetimeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LifetimeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Lifetime<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (apostrophe, identifier)) = (
+            take(TokenKind::Apostrophe),
+            cut("Expected identifier", Identifier::parser()),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            Lifetime {
+                apostrophe: apostrophe.source().clone(),
+                identifier,
+            },
+        ))
     }
 }

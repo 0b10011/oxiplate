@@ -14,24 +14,10 @@ pub(crate) struct ReferenceType<'a> {
 
 impl<'a> ReferenceType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (borrow, lifetime, r#mut, type_no_bounds)) = (
-            into(take(TokenKind::Ampersand)),
-            ignore_recoverable_errors(Lifetime::parse),
-            ignore_recoverable_errors(into(KeywordParser::new("mut"))),
-            TypeNoBounds::parse,
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                borrow,
-                lifetime,
-                r#mut,
-                type_no_bounds: Box::new(type_no_bounds),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ReferenceTypeParser<'a> {
+        ReferenceTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -75,5 +61,36 @@ impl<'a> ToTokensWithState<'a> for ReferenceType<'a> {
 impl<'a> From<ReferenceType<'a>> for TypeNoBounds<'a> {
     fn from(value: ReferenceType<'a>) -> Self {
         TypeNoBounds::Reference(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
+pub(in crate::template::parser) struct ReferenceTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ReferenceTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ReferenceType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (borrow, lifetime, r#mut, type_no_bounds)) = (
+            into(take(TokenKind::Ampersand)),
+            ignore_recoverable_errors(Lifetime::parser()),
+            ignore_recoverable_errors(into(KeywordParser::new("mut"))),
+            TypeNoBounds::parser(),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            ReferenceType {
+                borrow,
+                lifetime,
+                r#mut,
+                type_no_bounds: Box::new(type_no_bounds),
+            },
+        ))
     }
 }

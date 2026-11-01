@@ -19,13 +19,16 @@ use self::writ::Writ;
 type Res<'a, S> = crate::parser::Res<'a, TokenKind, S>;
 
 mod prelude {
+    pub(super) use std::marker::PhantomData;
+
     pub(super) use proc_macro2::TokenStream;
     pub(super) use quote::{ToTokens, TokenStreamExt, quote, quote_spanned};
 
     pub(super) use super::{EstimatedLength, Res, ToTokensWithMutState, ToTokensWithState};
     pub(super) use crate::parser::prelude::*;
+    pub(super) use crate::template::TokenSlice;
     pub(super) use crate::template::tokenizer::TokenKind;
-    pub(super) use crate::{BuiltTokens, Source, State, TokenSlice, internal_error};
+    pub(super) use crate::{BuiltTokens, Source, State, internal_error};
 }
 
 impl<'a> Error<'a> {

@@ -12,23 +12,10 @@ pub(in crate::template::parser) struct ImplTraitTypeOneBound<'a> {
 
 impl<'a> ImplTraitTypeOneBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (r#impl, trait_bound)) = (
-            KeywordParser::new("impl"),
-            cut(
-                "Trait bound expected after `impl`",
-                ignore_recoverable_errors(TraitBound::parse),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                r#impl: r#impl.source().clone(),
-                trait_bound,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ImplTraitTypeOneBoundParser<'a> {
+        ImplTraitTypeOneBoundParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -57,5 +44,35 @@ impl<'a> ToTokensWithState<'a> for ImplTraitTypeOneBound<'a> {
 impl<'a> From<ImplTraitTypeOneBound<'a>> for TypeNoBounds<'a> {
     fn from(value: ImplTraitTypeOneBound<'a>) -> Self {
         Self::ImplTraitOneBound(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
+pub(in crate::template::parser) struct ImplTraitTypeOneBoundParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ImplTraitTypeOneBoundParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ImplTraitTypeOneBound<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (r#impl, trait_bound)) = (
+            KeywordParser::new("impl"),
+            cut(
+                "Trait bound expected after `impl`",
+                ignore_recoverable_errors(TraitBound::parser()),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            ImplTraitTypeOneBound {
+                r#impl: r#impl.source().clone(),
+                trait_bound,
+            },
+        ))
     }
 }

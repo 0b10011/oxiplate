@@ -26,33 +26,10 @@ impl<'a> TypePath<'a> {
     }
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (leading_separator, first_segment, additional_segments)) = (
-            ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-            TypePathSegment::parse,
-            many0((take(TokenKind::PathSeparator), TypePathSegment::parse)),
-        )
-            .parse(tokens)?;
-
-        let first_segment = Box::new(first_segment);
-        let leading_separator = leading_separator.map(|separator| separator.source().clone());
-        let additional_segments = additional_segments
-            .into_iter()
-            .map(|(separator, segment)| {
-                let separator = separator.source().clone();
-
-                (separator, segment)
-            })
-            .collect();
-
-        Ok((
-            tokens,
-            Self {
-                leading_separator,
-                first_segment,
-                additional_segments,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> TypePathParser<'a> {
+        TypePathParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -96,5 +73,45 @@ impl<'a> ToTokensWithState<'a> for TypePath<'a> {
 impl<'a> From<TypePath<'a>> for TypeNoBounds<'a> {
     fn from(value: TypePath<'a>) -> Self {
         Self::Path(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
+pub(in crate::template::parser) struct TypePathParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypePathParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TypePath<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (leading_separator, first_segment, additional_segments)) = (
+            ignore_recoverable_errors(take(TokenKind::PathSeparator)),
+            TypePathSegment::parser(),
+            many0((take(TokenKind::PathSeparator), TypePathSegment::parser())),
+        )
+            .parse(tokens)?;
+
+        let first_segment = Box::new(first_segment);
+        let leading_separator = leading_separator.map(|separator| separator.source().clone());
+        let additional_segments = additional_segments
+            .into_iter()
+            .map(|(separator, segment)| {
+                let separator = separator.source().clone();
+
+                (separator, segment)
+            })
+            .collect();
+
+        Ok((
+            tokens,
+            TypePath {
+                leading_separator,
+                first_segment,
+                additional_segments,
+            },
+        ))
     }
 }

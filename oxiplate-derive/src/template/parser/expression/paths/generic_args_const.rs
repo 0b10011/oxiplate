@@ -35,14 +35,10 @@ impl<'a> From<SimplePathSegment<'a>> for GenericArgsConst<'a> {
 
 impl<'a> GenericArgsConst<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, generic_args_const) = alt((
-            into(PossiblyNegativeLiteralExpression::parse),
-            into(SimplePathSegment::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, generic_args_const))
+    pub(in crate::template::parser) fn parser() -> GenericArgsConstParser<'a> {
+        GenericArgsConstParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -76,6 +72,27 @@ impl<'a> From<GenericArgsConst<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
+pub(in crate::template::parser) struct GenericArgsConstParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgsConstParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArgsConst<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, generic_args_const) = alt((
+            into(PossiblyNegativeLiteralExpression::parser()),
+            into(SimplePathSegment::parser()),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, generic_args_const))
+    }
+}
+
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
@@ -106,7 +123,7 @@ mod test {
         let token_slice = [Ok(Token::new(TokenKind::Ident, &source, None))];
         let eof = Eof::for_test(source);
         let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Identifier(_))) =
-            GenericArgsConst::parse
+            GenericArgsConst::parser()
                 .parse(TokenSlice::new(&token_slice, &eof))
                 .unwrap()
         else {
@@ -133,7 +150,7 @@ mod test {
         let token_slice = [Ok(Token::new(TokenKind::Super, &source, None))];
         let eof = Eof::for_test(source);
         let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Super(_))) =
-            GenericArgsConst::parse
+            GenericArgsConst::parser()
                 .parse(TokenSlice::new(&token_slice, &eof))
                 .unwrap()
         else {
@@ -162,7 +179,7 @@ mod test {
         let (
             _,
             value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::SelfCurrentModule(_)),
-        ) = GenericArgsConst::parse
+        ) = GenericArgsConst::parser()
             .parse(TokenSlice::new(&token_slice, &eof))
             .unwrap()
         else {
@@ -189,7 +206,7 @@ mod test {
         let token_slice = [Ok(Token::new(TokenKind::Crate, &source, None))];
         let eof = Eof::for_test(source);
         let (_, value @ GenericArgsConst::SimplePathSegment(SimplePathSegment::Crate(_))) =
-            GenericArgsConst::parse
+            GenericArgsConst::parser()
                 .parse(TokenSlice::new(&token_slice, &eof))
                 .unwrap()
         else {

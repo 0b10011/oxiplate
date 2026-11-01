@@ -24,7 +24,51 @@ impl<'a> Index<'a> {
     /// See:
     /// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
     /// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
+    pub(in crate::template::parser) fn parser() -> IndexParser<'a> {
+        IndexParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    /// Builds source for entire expression.
+    pub fn source(&self) -> Source<'a> {
+        self.expression
+            .source()
+            .merge(&self.brackets, "`[index]` should follow expression")
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for Index<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let span = self.brackets.span_token();
+        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
+        let (range, _range_length) = self.index.to_tokens_with_state(state);
+        (
+            quote_spanned! {span=> #expression [ #range ] },
+            estimated_length,
+        )
+    }
+}
+
+/// Parses an index expression (`expr[expr]`).
+///
+/// See:
+/// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
+/// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
+pub(in crate::template::parser) struct IndexParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for IndexParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses an index expression (`expr[expr]`).
+    ///
+    /// See:
+    /// - <https://doc.rust-lang.org/reference/expressions/array-expr.html#array-and-slice-indexing-expressions>
+    /// - <https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open_bracket, index, close_bracket)) = (
             take(TokenKind::OpenBracket),
             cut("Expected an expression after `[`", expression(true)),
@@ -48,24 +92,5 @@ impl<'a> Index<'a> {
                 })
             }),
         ))
-    }
-
-    /// Builds source for entire expression.
-    pub fn source(&self) -> Source<'a> {
-        self.expression
-            .source()
-            .merge(&self.brackets, "`[index]` should follow expression")
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for Index<'a> {
-    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let span = self.brackets.span_token();
-        let (expression, estimated_length) = self.expression.to_tokens_with_state(state);
-        let (range, _range_length) = self.index.to_tokens_with_state(state);
-        (
-            quote_spanned! {span=> #expression [ #range ] },
-            estimated_length,
-        )
     }
 }

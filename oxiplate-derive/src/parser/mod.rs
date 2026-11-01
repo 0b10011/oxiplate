@@ -120,21 +120,30 @@ impl<'a> From<UnexpectedTokenError<'a>> for Error<'a> {
     }
 }
 
-pub(crate) trait Parser<'a, K: Debug + PartialEq + Eq> {
+pub(crate) trait Parser<'a>
+where
+    <Self as Parser<'a>>::TokenKind: Debug + PartialEq + Eq,
+{
+    type TokenKind;
     type Output;
 
     #[must_use]
-    fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output>;
+    fn parse(
+        &self,
+        tokens: TokenSlice<'a, Self::TokenKind>,
+    ) -> Res<'a, Self::TokenKind, Self::Output>;
 }
 
-impl<'a, K: Debug + PartialEq + Eq + 'a, O, F> Parser<'a, K> for F
+impl<'a, K, F> Parser<'a> for &F
 where
-    F: Fn(TokenSlice<'a, K>) -> Res<'a, K, O>,
+    K: Debug + PartialEq + Eq + 'a,
+    F: Parser<'a, TokenKind = K>,
 {
-    type Output = O;
+    type TokenKind = K;
+    type Output = <F as Parser<'a>>::Output;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
-        self(tokens)
+        (**self).parse(tokens)
     }
 }
 
@@ -163,12 +172,13 @@ macro_rules! tuple {
 
     // Implement for the provided members
     (impl $($id:tt $var:ident $generic:ident),+) => {
-        impl<'a, K, $($generic),+> Parser<'a, K> for ($($generic,)+)
+        impl<'a, K, $($generic),+> Parser<'a> for ($($generic,)+)
         where
             K: Debug + PartialEq + Eq,
-            $($generic: Parser<'a, K>),+
+            $($generic: Parser<'a, TokenKind = K>),+
         {
-            type Output = ($(<$generic as Parser<'a, K>>::Output,)+);
+            type TokenKind = K;
+            type Output = ($(<$generic as Parser<'a>>::Output,)+);
 
             #[inline]
             fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {
@@ -187,13 +197,14 @@ macro_rules! tuple {
         tuple!(impl $($id1 $var1 $generic1),+);
 
         // Implement for all tokens
-        impl<'a, K, $($generic1,)+ $generic2> Parser<'a, K> for ($($generic1,)+ $generic2)
+        impl<'a, K, $($generic1,)+ $generic2> Parser<'a> for ($($generic1,)+ $generic2)
         where
             K: Debug + PartialEq + Eq,
-            $($generic1: Parser<'a, K>,)+
-            $generic2: Parser<'a, K>
+            $($generic1: Parser<'a, TokenKind = K>,)+
+            $generic2: Parser<'a, TokenKind = K>
         {
-            type Output = ($(<$generic1 as Parser<'a, K>>::Output,)+ <$generic2 as Parser<'a, K>>::Output);
+            type TokenKind = K;
+            type Output = ($(<$generic1 as Parser<'a>>::Output,)+ <$generic2 as Parser<'a>>::Output);
 
             #[inline]
             fn parse(&self, _tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {

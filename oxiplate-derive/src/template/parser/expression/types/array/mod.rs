@@ -14,33 +14,10 @@ pub(crate) struct ArrayType<'a> {
 
 impl<'a> ArrayType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open_bracket, r#type, semicolon, expression, close_bracket)) = (
-            take(TokenKind::OpenBracket),
-            Type::parse,
-            into(take(TokenKind::Semicolon)),
-            expression(true),
-            take(TokenKind::CloseBracket),
-        )
-            .parse(tokens)?;
-
-        let source = open_bracket
-            .source()
-            .to_owned()
-            .merge(&r#type.source(), "Type should follow `[`")
-            .merge(&semicolon, "`;` should follow type")
-            .merge(&expression.source(), "Expression should follow `;`")
-            .merge(close_bracket.source(), "`]` should follow expression");
-
-        Ok((
-            tokens,
-            Self {
-                r#type: Box::new(r#type),
-                semicolon,
-                expression: Box::new(expression),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ArrayTypeParser<'a> {
+        ArrayTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -68,5 +45,45 @@ impl<'a> ToTokensWithState<'a> for ArrayType<'a> {
 impl<'a> From<ArrayType<'a>> for TypeNoBounds<'a> {
     fn from(value: ArrayType<'a>) -> Self {
         TypeNoBounds::Array(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
+pub(in crate::template::parser) struct ArrayTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ArrayTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ArrayType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open_bracket, r#type, semicolon, expression, close_bracket)) = (
+            take(TokenKind::OpenBracket),
+            Type::parser(),
+            into(take(TokenKind::Semicolon)),
+            expression(true),
+            take(TokenKind::CloseBracket),
+        )
+            .parse(tokens)?;
+
+        let source = open_bracket
+            .source()
+            .to_owned()
+            .merge(&r#type.source(), "Type should follow `[`")
+            .merge(&semicolon, "`;` should follow type")
+            .merge(&expression.source(), "Expression should follow `;`")
+            .merge(close_bracket.source(), "`]` should follow expression");
+
+        Ok((
+            tokens,
+            ArrayType {
+                r#type: Box::new(r#type),
+                semicolon,
+                expression: Box::new(expression),
+                source,
+            },
+        ))
     }
 }

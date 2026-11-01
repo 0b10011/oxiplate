@@ -14,26 +14,10 @@ pub(crate) struct TypeCast<'a> {
 impl<'a> TypeCast<'a> {
     /// Parse a type cast expression (`expr as Type`).
     /// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#railroad-TypeCastExpression>
-    pub(in crate::template::parser) fn parse(
-        tokens: TokenSlice<'a>,
-    ) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, (r#as, type_no_bounds)) = (
-            into(KeywordParser::new("as")),
-            cut("Expected type to cast expression into", TypeNoBounds::parse),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Box::new(|expression: Expression<'a>| {
-                Self {
-                    expression: Box::new(expression),
-                    r#as,
-                    type_no_bounds,
-                }
-                .into()
-            }),
-        ))
+    pub(in crate::template::parser) fn parser() -> TypeCastParser<'a> {
+        TypeCastParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Source for the entire type cast expression.
@@ -64,5 +48,41 @@ impl<'a> ToTokensWithState<'a> for TypeCast<'a> {
 impl<'a> From<TypeCast<'a>> for Expression<'a> {
     fn from(value: TypeCast<'a>) -> Self {
         Expression::TypeCast(value)
+    }
+}
+
+/// Parse a type cast expression (`expr as Type`).
+/// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#railroad-TypeCastExpression>
+pub(in crate::template::parser) struct TypeCastParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypeCastParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parse a type cast expression (`expr as Type`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/operator-expr.html#railroad-TypeCastExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (r#as, type_no_bounds)) = (
+            into(KeywordParser::new("as")),
+            cut(
+                "Expected type to cast expression into",
+                TypeNoBounds::parser(),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
+                TypeCast {
+                    expression: Box::new(expression),
+                    r#as,
+                    type_no_bounds,
+                }
+                .into()
+            }),
+        ))
     }
 }

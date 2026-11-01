@@ -70,42 +70,16 @@ impl<'a> Match<'a> {
         }
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
-        let (tokens, (statement, expression)) = (
-            KeywordParser::new("match"),
-            cut("Expected an expression after `match`", expression(true)),
-        )
-            .parse(tokens)?;
-
-        let source = statement
-            .source()
-            .clone()
-            .merge(&expression.source(), "Expression expected after `match`");
-
-        Ok((
-            tokens,
-            Statement {
-                kind: StatementKind::Match(Match {
-                    expression,
-                    errors: Template(vec![]),
-                    cases: vec![],
-                    is_ended: false,
-                }),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> MatchParser<'a> {
+        MatchParser {
+            phantom_data: PhantomData,
+        }
     }
 
-    pub(super) fn parse_end(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
-        let (tokens, output) = KeywordParser::new("endmatch").parse(tokens)?;
-
-        Ok((
-            tokens,
-            Statement {
-                kind: StatementKind::EndMatch,
-                source: output.source().clone(),
-            },
-        ))
+    pub(in crate::template::parser) fn parse_end() -> EndMatchParser<'a> {
+        EndMatchParser {
+            phantom_data: PhantomData,
+        }
     }
 }
 
@@ -130,6 +104,62 @@ impl<'a> ToTokensWithMutState<'a> for Match<'a> {
     }
 }
 
+pub(in crate::template::parser) struct MatchParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for MatchParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (statement, expression)) = (
+            KeywordParser::new("match"),
+            cut("Expected an expression after `match`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = statement
+            .source()
+            .clone()
+            .merge(&expression.source(), "Expression expected after `match`");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::Match(Match {
+                    expression,
+                    errors: Template(vec![]),
+                    cases: vec![],
+                    is_ended: false,
+                }),
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) struct EndMatchParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for EndMatchParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("endmatch").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::EndMatch,
+                source: output.source().clone(),
+            },
+        ))
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct Case<'a> {
     first_pattern: Pattern<'a>,
@@ -149,53 +179,10 @@ impl<'a> Case<'a> {
         }
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
-        let (tokens, (statement, (first_pattern, additional_patterns_and_separators, guard))) = (
-            KeywordParser::new("case"),
-            cut(
-                "Expected a match pattern after `case`",
-                (
-                    Pattern::parse,
-                    many0((take(TokenKind::VerticalBar), Pattern::parse)),
-                    ignore_recoverable_errors(Guard::parse),
-                ),
-            ),
-        )
-            .parse(tokens)?;
-
-        let mut source = statement
-            .source()
-            .clone()
-            .merge(&first_pattern.source(), "Type expected after whitespace");
-
-        let mut additional_patterns = Vec::with_capacity(additional_patterns_and_separators.len());
-        for (operator, pattern) in additional_patterns_and_separators {
-            source = source
-                .merge(operator.source(), "`|` expected after previous pattern")
-                .merge(&pattern.source(), "Pattern expected after `|`");
-
-            additional_patterns.push((operator.source().clone(), pattern));
+    pub(in crate::template::parser) fn parser() -> CaseParser<'a> {
+        CaseParser {
+            phantom_data: PhantomData,
         }
-
-        let guard = if let Some(guard) = guard {
-            source = source.merge(guard.source(), "Guard expected after whitespace");
-            Some(guard)
-        } else {
-            None
-        };
-
-        Ok((
-            tokens,
-            Statement {
-                kind: StatementKind::Case(Case {
-                    first_pattern,
-                    additional_patterns,
-                    guard,
-                    template: Template(vec![]),
-                }),
-                source,
-            },
-        ))
     }
 
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
@@ -244,35 +231,77 @@ impl<'a> Case<'a> {
     }
 }
 
+pub(in crate::template::parser) struct CaseParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CaseParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (statement, (first_pattern, additional_patterns_and_separators, guard))) = (
+            KeywordParser::new("case"),
+            cut(
+                "Expected a match pattern after `case`",
+                (
+                    Pattern::parser(),
+                    many0((take(TokenKind::VerticalBar), Pattern::parser())),
+                    ignore_recoverable_errors(Guard::parser()),
+                ),
+            ),
+        )
+            .parse(tokens)?;
+
+        let mut source = statement
+            .source()
+            .clone()
+            .merge(&first_pattern.source(), "Type expected after whitespace");
+
+        let mut additional_patterns = Vec::with_capacity(additional_patterns_and_separators.len());
+        for (operator, pattern) in additional_patterns_and_separators {
+            source = source
+                .merge(operator.source(), "`|` expected after previous pattern")
+                .merge(&pattern.source(), "Pattern expected after `|`");
+
+            additional_patterns.push((operator.source().clone(), pattern));
+        }
+
+        let guard = if let Some(guard) = guard {
+            source = source.merge(guard.source(), "Guard expected after whitespace");
+            Some(guard)
+        } else {
+            None
+        };
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::Case(Case {
+                    first_pattern,
+                    additional_patterns,
+                    guard,
+                    template: Template(vec![]),
+                }),
+                source,
+            },
+        ))
+    }
+}
+
 #[derive(Debug)]
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#adding-conditionals-with-match-guards>
-struct Guard<'a> {
+pub(in crate::template::parser) struct Guard<'a> {
     if_tag: Source<'a>,
     expression: Expression<'a>,
     source: Source<'a>,
 }
 
 impl<'a> Guard<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (if_tag, expression)) = (
-            KeywordParser::new("if"),
-            cut("Expected expression after `if`", expression(true)),
-        )
-            .parse(tokens)?;
-
-        let source = if_tag
-            .source()
-            .clone()
-            .merge(&expression.source(), "Expression expected after whitespace");
-
-        Ok((
-            tokens,
-            Self {
-                if_tag: if_tag.source().clone(),
-                expression,
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> GuardParser<'a> {
+        GuardParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -289,5 +318,36 @@ impl<'a> ToTokensWithState<'a> for Guard<'a> {
             quote_spanned! {if_span=> if #expression },
             EstimatedLength::new(0),
         )
+    }
+}
+
+pub(in crate::template::parser) struct GuardParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GuardParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Guard<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (if_tag, expression)) = (
+            KeywordParser::new("if"),
+            cut("Expected expression after `if`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = if_tag
+            .source()
+            .clone()
+            .merge(&expression.source(), "Expression expected after whitespace");
+
+        Ok((
+            tokens,
+            Guard {
+                if_tag: if_tag.source().clone(),
+                expression,
+                source,
+            },
+        ))
     }
 }

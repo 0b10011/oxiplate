@@ -15,24 +15,10 @@ pub(crate) struct Bounds<'a> {
 
 impl<'a> Bounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bounds>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (first_bounds, last_bound)) = (
-            many0((Bound::parse, into(take(TokenKind::Plus)))),
-            ignore_recoverable_errors(Bound::parse),
-        )
-            .parse(tokens)?;
-
-        if first_bounds.is_empty() && last_bound.is_none() {
-            return context("Expected one or more bounds", fail()).parse(tokens);
+    pub(in crate::template::parser) fn parser() -> BoundsParser<'a> {
+        BoundsParser {
+            phantom_data: PhantomData,
         }
-
-        Ok((
-            tokens,
-            Self {
-                first_bounds,
-                last_bound,
-            },
-        ))
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -73,5 +59,36 @@ impl<'a> ToTokensWithState<'a> for Bounds<'a> {
         }
 
         (tokens, EstimatedLength::new(0))
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bounds>
+pub(in crate::template::parser) struct BoundsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for BoundsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Bounds<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bounds>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (first_bounds, last_bound)) = (
+            many0((Bound::parser(), into(take(TokenKind::Plus)))),
+            ignore_recoverable_errors(Bound::parser()),
+        )
+            .parse(tokens)?;
+
+        if first_bounds.is_empty() && last_bound.is_none() {
+            return context("Expected one or more bounds", fail()).parse(tokens);
+        }
+
+        Ok((
+            tokens,
+            Bounds {
+                first_bounds,
+                last_bound,
+            },
+        ))
     }
 }

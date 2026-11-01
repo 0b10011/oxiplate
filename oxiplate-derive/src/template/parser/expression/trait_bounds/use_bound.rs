@@ -14,19 +14,10 @@ pub(crate) struct UseBound<'a> {
 
 impl<'a> UseBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBound>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (r#use, use_bound_generic_args)) =
-            (KeywordParser::new("use"), UseBoundGenericArgs::parse).parse(tokens)?;
-
-        let r#use = r#use.source().clone();
-
-        Ok((
-            tokens,
-            Self {
-                r#use,
-                use_bound_generic_args,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> UseBoundParser<'a> {
+        UseBoundParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -47,5 +38,31 @@ impl<'a> ToTokensWithState<'a> for UseBound<'a> {
             quote_spanned! {span=> use #use_bound_generic_args },
             estimated_length,
         )
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBound>
+pub(in crate::template::parser) struct UseBoundParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for UseBoundParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = UseBound<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBound>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (r#use, use_bound_generic_args)) =
+            (KeywordParser::new("use"), UseBoundGenericArgs::parser()).parse(tokens)?;
+
+        let r#use = r#use.source().clone();
+
+        Ok((
+            tokens,
+            UseBound {
+                r#use,
+                use_bound_generic_args,
+            },
+        ))
     }
 }

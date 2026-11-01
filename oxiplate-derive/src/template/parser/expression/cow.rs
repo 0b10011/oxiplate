@@ -10,23 +10,10 @@ pub(crate) struct Cow<'a> {
 
 impl<'a> Cow<'a> {
     /// Parses a cow prefixed expression (`>expr`).
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (prefix, expression)) = (
-            take(TokenKind::GreaterThan),
-            cut(
-                "Expected an expression after cow prefix (`>`)",
-                expression(false),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Cow {
-                prefix: prefix.source().clone(),
-                expression: Box::new(expression),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> CowParser<'a> {
+        CowParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire expression.
@@ -61,5 +48,35 @@ impl<'a> ToTokensWithState<'a> for Cow<'a> {
 impl<'a> From<Cow<'a>> for Expression<'a> {
     fn from(value: Cow<'a>) -> Self {
         Self::Cow(value)
+    }
+}
+
+/// Parses a cow prefixed expression (`>expr`).
+pub(in crate::template::parser) struct CowParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CowParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Cow<'a>;
+
+    /// Parses a cow prefixed expression (`>expr`).
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (prefix, expression)) = (
+            take(TokenKind::GreaterThan),
+            cut(
+                "Expected an expression after cow prefix (`>`)",
+                expression(false),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            Cow {
+                prefix: prefix.source().clone(),
+                expression: Box::new(expression),
+            },
+        ))
     }
 }

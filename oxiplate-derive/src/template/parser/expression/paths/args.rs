@@ -8,7 +8,7 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
 #[derive(Debug)]
-pub(super) struct GenericArgList<'a> {
+pub(in crate::template::parser) struct GenericArgList<'a> {
     first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
     last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
     source: Source<'a>,
@@ -17,55 +17,10 @@ pub(super) struct GenericArgList<'a> {
 impl<'a> GenericArgList<'a> {
     /// `GenericArgList` plus wrapping `<` and `>`.
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
-            take(TokenKind::LessThan),
-            (
-                many0((GenericArg::parse, into(take(TokenKind::Comma)))),
-                ignore_recoverable_errors((
-                    GenericArg::parse,
-                    ignore_recoverable_errors(into(take(TokenKind::Comma))),
-                )),
-            ),
-            cut(
-                "Expected `>` to end generic arg list",
-                take(TokenKind::GreaterThan),
-            ),
-        )
-            .parse(tokens)?;
-
-        let last_generic = if last_generic.is_some() {
-            last_generic
-        } else {
-            first_generics
-                .pop()
-                .map(|(generic, comma)| (generic, Some(comma)))
-        };
-
-        let mut source = less_than.source().clone();
-
-        for (generic, comma) in &first_generics {
-            source = source
-                .merge(&generic.source(), "Generic expected after `,` or `<`")
-                .merge(comma, "`,` expected after generic");
+    pub(in crate::template::parser) fn parser() -> GenericArgListParser<'a> {
+        GenericArgListParser {
+            phantom_data: PhantomData,
         }
-
-        if let Some((generic, comma)) = &last_generic {
-            source = source
-                .merge(&generic.source(), "Generic expected after `,` or `<`")
-                .merge_some(comma.as_ref(), "`,` expected after last generic");
-        }
-
-        source = source.merge(greater_than.source(), "`>` expected after generics");
-
-        Ok((
-            tokens,
-            Self {
-                first_generics,
-                last_generic,
-                source,
-            },
-        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -106,6 +61,70 @@ impl<'a> From<GenericArgList<'a>> for GenericArgs<'a> {
     }
 }
 
+/// `GenericArgList` plus wrapping `<` and `>`.
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+pub(in crate::template::parser) struct GenericArgListParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgListParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArgList<'a>;
+
+    /// `GenericArgList` plus wrapping `<` and `>`.
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
+            take(TokenKind::LessThan),
+            (
+                many0((GenericArg::parser(), into(take(TokenKind::Comma)))),
+                ignore_recoverable_errors((
+                    GenericArg::parser(),
+                    ignore_recoverable_errors(into(take(TokenKind::Comma))),
+                )),
+            ),
+            cut(
+                "Expected `>` to end generic arg list",
+                take(TokenKind::GreaterThan),
+            ),
+        )
+            .parse(tokens)?;
+
+        let last_generic = if last_generic.is_some() {
+            last_generic
+        } else {
+            first_generics
+                .pop()
+                .map(|(generic, comma)| (generic, Some(comma)))
+        };
+
+        let mut source = less_than.source().clone();
+
+        for (generic, comma) in &first_generics {
+            source = source
+                .merge(&generic.source(), "Generic expected after `,` or `<`")
+                .merge(comma, "`,` expected after generic");
+        }
+
+        if let Some((generic, comma)) = &last_generic {
+            source = source
+                .merge(&generic.source(), "Generic expected after `,` or `<`")
+                .merge_some(comma.as_ref(), "`,` expected after last generic");
+        }
+
+        source = source.merge(greater_than.source(), "`>` expected after generics");
+
+        Ok((
+            tokens,
+            GenericArgList {
+                first_generics,
+                last_generic,
+                source,
+            },
+        ))
+    }
+}
+
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
 #[derive(Debug)]
 pub(in crate::template::parser) enum GenericArg<'a> {
@@ -127,15 +146,10 @@ pub(in crate::template::parser) enum GenericArg<'a> {
 
 impl<'a> GenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(Lifetime::parse),
-            into(GenericArgsBinding::parse),
-            into(GenericArgsBounds::parse),
-            into(Type::parse),
-            into(GenericArgsConst::parse),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> GenericArgParser<'a> {
+        GenericArgParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -158,5 +172,27 @@ impl<'a> ToTokensWithState<'a> for GenericArg<'a> {
             Self::Binding(binding) => binding.to_tokens_with_state(state),
             Self::Bounds(bounds) => bounds.to_tokens_with_state(state),
         }
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+pub(in crate::template::parser) struct GenericArgParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArg<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(Lifetime::parser()),
+            into(GenericArgsBinding::parser()),
+            into(GenericArgsBounds::parser()),
+            into(Type::parser()),
+            into(GenericArgsConst::parser()),
+        ))
+        .parse(tokens)
     }
 }

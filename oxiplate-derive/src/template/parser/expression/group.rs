@@ -14,31 +14,10 @@ pub(crate) struct Group<'a> {
 
 impl<'a> Group<'a> {
     /// Parse a parenthesized group.
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open, expression, close)) = (
-            take(TokenKind::OpenParenthese),
-            context("Expected an expression after `(`", expression(true)),
-            context(
-                "Expected `)` after expression",
-                take(TokenKind::CloseParenthese),
-            ),
-        )
-            .parse(tokens)?;
-
-        let source = expression
-            .source()
-            .merge(close.source(), "`)` expected after expression");
-
-        Ok((
-            tokens,
-            Self {
-                expression: Box::new(expression),
-                source: open
-                    .source()
-                    .clone()
-                    .merge(&source, "Expression and `)` expected after `(`"),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> GroupParser<'a> {
+        GroupParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Source for the entire group, including the parentheses.
@@ -58,5 +37,43 @@ impl<'a> ToTokensWithState<'a> for Group<'a> {
 impl<'a> From<Group<'a>> for Expression<'a> {
     fn from(value: Group<'a>) -> Self {
         Expression::Group(value)
+    }
+}
+
+/// Parse a parenthesized group.
+pub(in crate::template::parser) struct GroupParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GroupParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Group<'a>;
+
+    /// Parse a parenthesized group.
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open, expression, close)) = (
+            take(TokenKind::OpenParenthese),
+            context("Expected an expression after `(`", expression(true)),
+            context(
+                "Expected `)` after expression",
+                take(TokenKind::CloseParenthese),
+            ),
+        )
+            .parse(tokens)?;
+
+        let source = expression
+            .source()
+            .merge(close.source(), "`)` expected after expression");
+
+        Ok((
+            tokens,
+            Group {
+                expression: Box::new(expression),
+                source: open
+                    .source()
+                    .clone()
+                    .merge(&source, "Expression and `)` expected after `(`"),
+            },
+        ))
     }
 }

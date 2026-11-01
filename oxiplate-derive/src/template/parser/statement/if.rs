@@ -158,104 +158,175 @@ impl<'a> From<If<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_if(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, (keyword, (if_type, if_type_source))) = (
-        KeywordParser::new("if"),
-        cut("Expected an if expression", parse_if_generic),
-    )
-        .parse(tokens)?;
-
-    let source = keyword
-        .source()
-        .clone()
-        .merge(&if_type_source, "Type source expected after if");
-
-    Ok((
-        tokens,
-        Statement {
-            kind: If {
-                ifs: vec![(if_type, Template(vec![]))],
-                otherwise: None,
-                is_ended: false,
-            }
-            .into(),
-            source,
-        },
-    ))
+pub(in crate::template::parser) fn parse_if<'a>() -> IfParser<'a> {
+    IfParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct IfParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-fn parse_if_generic(tokens: TokenSlice) -> Res<(IfType, Source)> {
-    let (tokens, keyword) = ignore_recoverable_errors(KeywordParser::new("let")).parse(tokens)?;
+impl<'a> Parser<'a> for IfParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
 
-    if let Some(keyword) = keyword {
-        let (tokens, (pattern, equal, expression)) = (
-            cut(r#"Expected a pattern after "let""#, Pattern::parse),
-            cut("Expected `=`", take(TokenKind::Equal)),
-            cut("Expected an expression after `=`", expression(true)),
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (keyword, (if_type, if_type_source))) = (
+            KeywordParser::new("if"),
+            cut("Expected an if expression", parse_if_generic()),
         )
             .parse(tokens)?;
 
         let source = keyword
             .source()
             .clone()
-            .merge(&pattern.source(), "Pattern expected after `let`")
-            .merge(equal.source(), "`=` expected after pattern")
-            .merge(&expression.source(), "Expression expected after `=`");
+            .merge(&if_type_source, "Type source expected after if");
 
-        Ok((tokens, (IfType::IfLet(pattern, expression), source)))
-    } else {
-        let (tokens, output) =
-            cut("Expected an expression after `if`", expression(true)).parse(tokens)?;
-
-        let source = output.source().clone();
-
-        Ok((tokens, (IfType::If(output), source)))
+        Ok((
+            tokens,
+            Statement {
+                kind: If {
+                    ifs: vec![(if_type, Template(vec![]))],
+                    otherwise: None,
+                    is_ended: false,
+                }
+                .into(),
+                source,
+            },
+        ))
     }
 }
 
-pub(super) fn parse_elseif(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, (keyword, (if_type, if_source))) = (
-        KeywordParser::new("elseif"),
-        cut("Expected an if expression", parse_if_generic),
-    )
-        .parse(tokens)?;
-
-    let source = keyword
-        .source()
-        .clone()
-        .merge(&if_source, "Expression expected after `elseif`");
-
-    Ok((
-        tokens,
-        Statement {
-            kind: ElseIf(if_type).into(),
-            source,
-        },
-    ))
+pub(in crate::template::parser) fn parse_if_generic<'a>() -> IfGenericParser<'a> {
+    IfGenericParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct IfGenericParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-pub(super) fn parse_else(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, output) = KeywordParser::new("else").parse(tokens)?;
+impl<'a> Parser<'a> for IfGenericParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (IfType<'a>, Source<'a>);
 
-    Ok((
-        tokens,
-        Statement {
-            kind: StatementKind::Else,
-            source: output.source().clone(),
-        },
-    ))
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, keyword) =
+            ignore_recoverable_errors(KeywordParser::new("let")).parse(tokens)?;
+
+        if let Some(keyword) = keyword {
+            let (tokens, (pattern, equal, expression)) = (
+                cut(r#"Expected a pattern after "let""#, Pattern::parser()),
+                cut("Expected `=`", take(TokenKind::Equal)),
+                cut("Expected an expression after `=`", expression(true)),
+            )
+                .parse(tokens)?;
+
+            let source = keyword
+                .source()
+                .clone()
+                .merge(&pattern.source(), "Pattern expected after `let`")
+                .merge(equal.source(), "`=` expected after pattern")
+                .merge(&expression.source(), "Expression expected after `=`");
+
+            Ok((tokens, (IfType::IfLet(pattern, expression), source)))
+        } else {
+            let (tokens, output) =
+                cut("Expected an expression after `if`", expression(true)).parse(tokens)?;
+
+            let source = output.source().clone();
+
+            Ok((tokens, (IfType::If(output), source)))
+        }
+    }
 }
 
-pub(super) fn parse_endif(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, output) = KeywordParser::new("endif").parse(tokens)?;
+pub(in crate::template::parser) fn parse_elseif<'a>() -> ElseIfParser<'a> {
+    ElseIfParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ElseIfParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    Ok((
-        tokens,
-        Statement {
-            kind: StatementKind::EndIf,
-            source: output.source().clone(),
-        },
-    ))
+impl<'a> Parser<'a> for ElseIfParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (keyword, (if_type, if_source))) = (
+            KeywordParser::new("elseif"),
+            cut("Expected an if expression", parse_if_generic()),
+        )
+            .parse(tokens)?;
+
+        let source = keyword
+            .source()
+            .clone()
+            .merge(&if_source, "Expression expected after `elseif`");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: ElseIf(if_type).into(),
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) fn parse_else<'a>() -> ElseParser<'a> {
+    ElseParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ElseParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ElseParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("else").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::Else,
+                source: output.source().clone(),
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) fn parse_endif<'a>() -> EndIfParser<'a> {
+    EndIfParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct EndIfParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for EndIfParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("endif").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::EndIf,
+                source: output.source().clone(),
+            },
+        ))
+    }
 }
 
 #[allow(clippy::module_name_repetitions)]

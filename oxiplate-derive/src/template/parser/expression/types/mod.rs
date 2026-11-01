@@ -17,7 +17,7 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
 #[derive(Debug)]
-pub(super) enum Type<'a> {
+pub(in crate::template::parser) enum Type<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
     NoBounds(TypeNoBounds<'a>),
 
@@ -30,13 +30,10 @@ pub(super) enum Type<'a> {
 
 impl<'a> Type<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(ImplTraitType::parse),
-            into(TraitObjectType::parse),
-            into(TypeNoBounds::parse),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> TypeParser<'a> {
+        TypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -61,5 +58,25 @@ impl<'a> ToTokensWithState<'a> for Type<'a> {
 impl<'a> From<Type<'a>> for GenericArg<'a> {
     fn from(value: Type<'a>) -> Self {
         Self::Type(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
+pub(in crate::template::parser) struct TypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Type<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(ImplTraitType::parser()),
+            into(TraitObjectType::parser()),
+            into(TypeNoBounds::parser()),
+        ))
+        .parse(tokens)
     }
 }

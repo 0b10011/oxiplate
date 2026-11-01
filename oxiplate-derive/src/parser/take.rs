@@ -22,7 +22,8 @@ pub(crate) struct Take<'a, K> {
     phantom_data: PhantomData<&'a ()>,
 }
 
-impl<'a, K: Debug + PartialEq + Eq + 'a> Parser<'a, K> for Take<'a, K> {
+impl<'a, K: Debug + PartialEq + Eq + 'a> Parser<'a> for Take<'a, K> {
+    type TokenKind = K;
     type Output = &'a Token<'a, K>;
 
     fn parse(&self, tokens: TokenSlice<'a, K>) -> Res<'a, K, Self::Output> {

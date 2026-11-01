@@ -13,29 +13,10 @@ pub(crate) struct Bind<'a> {
 }
 
 impl<'a> Bind<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (ident, at, pattern)) = (
-            Identifier::parse,
-            take(TokenKind::At),
-            cut("Expected patter after `@`", Pattern::parse),
-        )
-            .parse(tokens)?;
-
-        let source = ident
-            .source()
-            .clone()
-            .merge(at.source(), "Expected `@` after identifier")
-            .merge(&pattern.source(), "Expected pattern after `@`");
-
-        Ok((
-            tokens,
-            Self {
-                ident,
-                at: at.source().clone(),
-                pattern: Box::new(pattern),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> BindParser<'a> {
+        BindParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -60,5 +41,39 @@ impl<'a> ToTokensWithState<'a> for Bind<'a> {
 impl<'a> From<Bind<'a>> for Pattern<'a> {
     fn from(value: Bind<'a>) -> Self {
         Self::Bind(value)
+    }
+}
+
+pub(in crate::template::parser) struct BindParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for BindParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Bind<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (ident, at, pattern)) = (
+            Identifier::parser(),
+            take(TokenKind::At),
+            cut("Expected patter after `@`", Pattern::parser()),
+        )
+            .parse(tokens)?;
+
+        let source = ident
+            .source()
+            .clone()
+            .merge(at.source(), "Expected `@` after identifier")
+            .merge(&pattern.source(), "Expected pattern after `@`");
+
+        Ok((
+            tokens,
+            Bind {
+                ident,
+                at: at.source().clone(),
+                pattern: Box::new(pattern),
+                source,
+            },
+        ))
     }
 }

@@ -13,24 +13,10 @@ pub(in crate::template::parser) struct GenericArgsBounds<'a> {
 
 impl<'a> GenericArgsBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (path_segment, colon, bounds)) = (
-            TypePathSegment::parse,
-            take(TokenKind::Colon),
-            ignore_recoverable_errors(Bounds::parse),
-        )
-            .parse(tokens)?;
-
-        let colon = colon.source().clone();
-
-        Ok((
-            tokens,
-            Self {
-                path_segment,
-                colon,
-                bounds,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> GenericArgsBoundsParser<'a> {
+        GenericArgsBoundsParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -64,5 +50,36 @@ impl<'a> ToTokensWithState<'a> for GenericArgsBounds<'a> {
 impl<'a> From<GenericArgsBounds<'a>> for GenericArg<'a> {
     fn from(value: GenericArgsBounds<'a>) -> Self {
         Self::Bounds(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
+pub(in crate::template::parser) struct GenericArgsBoundsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericArgsBoundsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericArgsBounds<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (path_segment, colon, bounds)) = (
+            TypePathSegment::parser(),
+            take(TokenKind::Colon),
+            ignore_recoverable_errors(Bounds::parser()),
+        )
+            .parse(tokens)?;
+
+        let colon = colon.source().clone();
+
+        Ok((
+            tokens,
+            GenericArgsBounds {
+                path_segment,
+                colon,
+                bounds,
+            },
+        ))
     }
 }

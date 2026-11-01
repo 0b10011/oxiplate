@@ -120,42 +120,57 @@ impl<'a> ToTokensWithMutState<'a> for DefaultEscaper<'a> {
     }
 }
 
-pub(super) fn parse_default_escaper_group(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, tag) = alt((
-        KeywordParser::new("default_escaper_group"),
-        KeywordParser::new("replace_escaper_group"),
-        #[cfg(feature = "_unreachable")]
-        KeywordParser::new("unreachable_escaper_group"),
-    ))
-    .parse(tokens)?;
+pub(in crate::template::parser) fn parse_default_escaper_group<'a>() -> DefaultEscaperGroupParser<'a>
+{
+    DefaultEscaperGroupParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct DefaultEscaperGroupParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    let (tokens, escaper) =
-        cut("Expected an escaper group name", Identifier::parse).parse(tokens)?;
+impl<'a> Parser<'a> for DefaultEscaperGroupParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
 
-    let can_replace_inferred_escaper = match tag.source().as_str() {
-        "default_escaper_group" => false,
-        "replace_escaper_group" => true,
-        _ => internal_error!(
-            tag.source().span_token().unwrap(),
-            "Unhandled default escaper group tag"
-        ),
-    };
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, tag) = alt((
+            KeywordParser::new("default_escaper_group"),
+            KeywordParser::new("replace_escaper_group"),
+            #[cfg(feature = "_unreachable")]
+            KeywordParser::new("unreachable_escaper_group"),
+        ))
+        .parse(tokens)?;
 
-    let source = tag
-        .source()
-        .clone()
-        .merge(escaper.source(), "Escaper name expected after whitespace");
+        let (tokens, escaper) =
+            cut("Expected an escaper group name", Identifier::parser()).parse(tokens)?;
 
-    Ok((
-        tokens,
-        Statement {
-            kind: DefaultEscaper {
-                tag,
-                escaper,
-                can_replace_inferred_escaper,
-            }
-            .into(),
-            source,
-        },
-    ))
+        let can_replace_inferred_escaper = match tag.source().as_str() {
+            "default_escaper_group" => false,
+            "replace_escaper_group" => true,
+            _ => internal_error!(
+                tag.source().span_token().unwrap(),
+                "Unhandled default escaper group tag"
+            ),
+        };
+
+        let source = tag
+            .source()
+            .clone()
+            .merge(escaper.source(), "Escaper name expected after whitespace");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: DefaultEscaper {
+                    tag,
+                    escaper,
+                    can_replace_inferred_escaper,
+                }
+                .into(),
+                source,
+            },
+        ))
+    }
 }

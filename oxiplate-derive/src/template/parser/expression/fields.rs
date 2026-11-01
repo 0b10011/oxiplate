@@ -13,23 +13,10 @@ pub(crate) struct Fields<'a> {
 impl<'a> Fields<'a> {
     /// Parse a field (`expr.ident`).
     /// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
-    pub(in crate::template::parser) fn parse(
-        tokens: TokenSlice<'a>,
-    ) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, (period, ident)) =
-            (into(take(TokenKind::Period)), Identifier::parse).parse(tokens)?;
-
-        Ok((
-            tokens,
-            Box::new(|expression: Expression<'a>| {
-                Self {
-                    expression: Box::new(expression),
-                    period,
-                    ident,
-                }
-                .into()
-            }),
-        ))
+    pub(in crate::template::parser) fn parser() -> FieldsParser<'a> {
+        FieldsParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Source for the entire field expression.
@@ -60,5 +47,35 @@ impl<'a> ToTokensWithState<'a> for Fields<'a> {
 impl<'a> From<Fields<'a>> for Expression<'a> {
     fn from(value: Fields<'a>) -> Self {
         Expression::Fields(value)
+    }
+}
+
+/// Parse a field (`expr.ident`).
+/// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
+pub(in crate::template::parser) struct FieldsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FieldsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parse a field (`expr.ident`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/field-expr.html#railroad-FieldExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (period, ident)) =
+            (into(take(TokenKind::Period)), Identifier::parser()).parse(tokens)?;
+
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
+                Fields {
+                    expression: Box::new(expression),
+                    period,
+                    ident,
+                }
+                .into()
+            }),
+        ))
     }
 }

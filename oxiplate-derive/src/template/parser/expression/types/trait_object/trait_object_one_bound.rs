@@ -17,18 +17,10 @@ pub(in crate::template::parser) enum TraitObjectTypeOneBound<'a> {
 
 impl<'a> TraitObjectTypeOneBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, r#dyn) =
-            ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;
-
-        if let Some(r#dyn) = r#dyn {
-            let (tokens, bounds) = ignore_recoverable_errors(TraitBound::parse).parse(tokens)?;
-            return Ok((tokens, Self::Dynamic { r#dyn, bounds }));
+    pub(in crate::template::parser) fn parser() -> TraitObjectTypeOneBoundParser<'a> {
+        TraitObjectTypeOneBoundParser {
+            phantom_data: PhantomData,
         }
-
-        let (tokens, bounds) = TraitBound::parse(tokens)?;
-
-        Ok((tokens, Self::Static { bounds }))
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -74,5 +66,30 @@ impl<'a> ToTokensWithState<'a> for TraitObjectTypeOneBound<'a> {
 impl<'a> From<TraitObjectTypeOneBound<'a>> for TypeNoBounds<'a> {
     fn from(value: TraitObjectTypeOneBound<'a>) -> Self {
         Self::TraitObjectOneBound(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
+pub(in crate::template::parser) struct TraitObjectTypeOneBoundParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TraitObjectTypeOneBoundParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TraitObjectTypeOneBound<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, r#dyn) =
+            ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;
+
+        if let Some(r#dyn) = r#dyn {
+            let (tokens, bounds) = ignore_recoverable_errors(TraitBound::parser()).parse(tokens)?;
+            return Ok((tokens, TraitObjectTypeOneBound::Dynamic { r#dyn, bounds }));
+        }
+
+        let (tokens, bounds) = TraitBound::parser().parse(tokens)?;
+
+        Ok((tokens, TraitObjectTypeOneBound::Static { bounds }))
     }
 }

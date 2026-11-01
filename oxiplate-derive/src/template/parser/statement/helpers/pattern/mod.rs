@@ -35,17 +35,10 @@ impl<'a> Pattern<'a> {
         Self::Literal(Literal::Integer(Integer::new_for_test(source)))
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(Range::parse),
-            into(Literal::parse),
-            into(Array::parse),
-            into(Tuple::parse),
-            into(StructPattern::parse),
-            into(Bind::parse),
-            into(Identifier::parse_prevent_reserved_keywords),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> PatternParser<'a> {
+        PatternParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -89,5 +82,27 @@ impl<'a> ToTokensWithState<'a> for Pattern<'a> {
 impl<'a> From<Identifier<'a>> for Pattern<'a> {
     fn from(value: Identifier<'a>) -> Self {
         Pattern::Ident(value)
+    }
+}
+
+pub(in crate::template::parser) struct PatternParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PatternParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Pattern<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(Range::parser()),
+            into(Literal::parser()),
+            into(Array::parser()),
+            into(Tuple::parser()),
+            into(StructPattern::parser()),
+            into(Bind::parser()),
+            into(Identifier::parse_prevent_reserved_keywords()),
+        ))
+        .parse(tokens)
     }
 }

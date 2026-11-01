@@ -38,11 +38,12 @@ impl KeywordParser {
     }
 }
 
-impl<'a> Parser<'a, TokenKind> for KeywordParser {
+impl<'a> Parser<'a> for KeywordParser {
+    type TokenKind = TokenKind;
     type Output = Keyword<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        let (tokens, ident) = Identifier::parse.parse(tokens)?;
+        let (tokens, ident) = Identifier::parser().parse(tokens)?;
 
         if ident.as_str() != self.keyword {
             return Err(Error::Recoverable {

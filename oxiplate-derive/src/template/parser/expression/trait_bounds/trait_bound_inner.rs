@@ -14,17 +14,10 @@ pub(crate) struct TraitBoundInner<'a> {
 impl<'a> TraitBoundInner<'a> {
     /// Non-parenthesized part of trait bound.
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (prefix, type_path)) = alt((
-            (
-                some(TraitBoundPrefix::parse),
-                cut("Type path expected in trait bound", TypePath::parse),
-            ),
-            (none(), TypePath::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, Self { prefix, type_path }))
+    pub(in crate::template::parser) fn parser() -> TraitBoundInnerParser<'a> {
+        TraitBoundInnerParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -48,8 +41,34 @@ impl<'a> ToTokensWithState<'a> for TraitBoundInner<'a> {
     }
 }
 
+/// Non-parenthesized part of trait bound.
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
+pub(in crate::template::parser) struct TraitBoundInnerParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TraitBoundInnerParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TraitBoundInner<'a>;
+
+    /// Non-parenthesized part of trait bound.
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (prefix, type_path)) = alt((
+            (
+                some(TraitBoundPrefix::parser()),
+                cut("Type path expected in trait bound", TypePath::parser()),
+            ),
+            (none(), TypePath::parser()),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, TraitBoundInner { prefix, type_path }))
+    }
+}
+
 #[derive(Debug)]
-enum TraitBoundPrefix<'a> {
+pub(in crate::template::parser) enum TraitBoundPrefix<'a> {
     QuestionMark(Source<'a>),
     ForLifetimes {
         r#for: Source<'a>,
@@ -60,27 +79,10 @@ enum TraitBoundPrefix<'a> {
 impl<'a> TraitBoundPrefix<'a> {
     /// `?` or `ForLifetimes` from `TraitBound` definition.
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, question_mark) =
-            ignore_recoverable_errors(take(TokenKind::QuestionMark)).parse(tokens)?;
-
-        if let Some(question_mark) = question_mark {
-            return Ok((tokens, Self::QuestionMark(question_mark.source().clone())));
+    pub(in crate::template::parser) fn parser() -> TraitBoundPrefixParser<'a> {
+        TraitBoundPrefixParser {
+            phantom_data: PhantomData,
         }
-
-        let (tokens, (r#for, generic_params)) = (
-            KeywordParser::new("for"),
-            cut("Generic params expected after `for`", GenericParams::parse),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self::ForLifetimes {
-                r#for: r#for.source().clone(),
-                generic_params: Box::new(generic_params),
-            },
-        ))
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -116,5 +118,47 @@ impl<'a> ToTokensWithState<'a> for TraitBoundPrefix<'a> {
                 )
             }
         }
+    }
+}
+
+/// `?` or `ForLifetimes` from `TraitBound` definition.
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
+pub(in crate::template::parser) struct TraitBoundPrefixParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TraitBoundPrefixParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TraitBoundPrefix<'a>;
+
+    /// `?` or `ForLifetimes` from `TraitBound` definition.
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, question_mark) =
+            ignore_recoverable_errors(take(TokenKind::QuestionMark)).parse(tokens)?;
+
+        if let Some(question_mark) = question_mark {
+            return Ok((
+                tokens,
+                TraitBoundPrefix::QuestionMark(question_mark.source().clone()),
+            ));
+        }
+
+        let (tokens, (r#for, generic_params)) = (
+            KeywordParser::new("for"),
+            cut(
+                "Generic params expected after `for`",
+                GenericParams::parser(),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            TraitBoundPrefix::ForLifetimes {
+                r#for: r#for.source().clone(),
+                generic_params: Box::new(generic_params),
+            },
+        ))
     }
 }

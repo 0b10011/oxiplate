@@ -12,23 +12,10 @@ pub(crate) struct QualifiedPathInType<'a> {
 
 impl<'a> QualifiedPathInType<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (qualified_path, type_path_segments)) = (
-            QualifiedPathType::parse,
-            cut(
-                "`::` and type path segment expected after qualified path type",
-                many1((into(take(TokenKind::PathSeparator)), TypePathSegment::parse)),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                qualified_path,
-                type_path_segments,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> QualifiedPathInTypeParser<'a> {
+        QualifiedPathInTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -70,5 +57,38 @@ impl<'a> ToTokensWithState<'a> for QualifiedPathInType<'a> {
 impl<'a> From<QualifiedPathInType<'a>> for TypeNoBounds<'a> {
     fn from(value: QualifiedPathInType<'a>) -> Self {
         TypeNoBounds::QualifiedPathIn(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
+pub(in crate::template::parser) struct QualifiedPathInTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for QualifiedPathInTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = QualifiedPathInType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (qualified_path, type_path_segments)) = (
+            QualifiedPathType::parser(),
+            cut(
+                "`::` and type path segment expected after qualified path type",
+                many1((
+                    into(take(TokenKind::PathSeparator)),
+                    TypePathSegment::parser(),
+                )),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            QualifiedPathInType {
+                qualified_path,
+                type_path_segments,
+            },
+        ))
     }
 }

@@ -21,20 +21,10 @@ impl<'a> TupleIndexingExpression<'a> {
     ///
     /// See:
     /// - <https://doc.rust-lang.org/reference/expressions/tuple-expr.html#railroad-TupleIndexingExpression>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, (period, index)) =
-            (into(take(TokenKind::Period)), TupleIndex::parse).parse(tokens)?;
-
-        Ok((
-            tokens,
-            Box::new(|expression: Expression<'a>| {
-                Expression::TupleIndex(TupleIndexingExpression {
-                    expression: Box::new(expression),
-                    period,
-                    index,
-                })
-            }),
-        ))
+    pub(in crate::template::parser) fn parser() -> TupleIndexingExpressionParser<'a> {
+        TupleIndexingExpressionParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire expression.
@@ -58,6 +48,39 @@ impl<'a> ToTokensWithState<'a> for TupleIndexingExpression<'a> {
     }
 }
 
+/// Parses a tuple index expression (`expr.tuple_index`).
+///
+/// See:
+/// - <https://doc.rust-lang.org/reference/expressions/tuple-expr.html#railroad-TupleIndexingExpression>
+pub(in crate::template::parser) struct TupleIndexingExpressionParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleIndexingExpressionParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses a tuple index expression (`expr.tuple_index`).
+    ///
+    /// See:
+    /// - <https://doc.rust-lang.org/reference/expressions/tuple-expr.html#railroad-TupleIndexingExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (period, index)) =
+            (into(take(TokenKind::Period)), TupleIndex::parser()).parse(tokens)?;
+
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
+                Expression::TupleIndex(TupleIndexingExpression {
+                    expression: Box::new(expression),
+                    period,
+                    index,
+                })
+            }),
+        ))
+    }
+}
+
 /// Tuple index.
 ///
 /// See:
@@ -73,7 +96,33 @@ impl<'a> TupleIndex<'a> {
     ///
     /// See:
     /// - <https://doc.rust-lang.org/reference/tokens.html#grammar-TUPLE_INDEX>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parser() -> TupleIndexParser<'a> {
+        TupleIndexParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    /// Builds source for entire expression.
+    pub fn source(&self) -> &Source<'a> {
+        &self.index
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for TupleIndex<'a> {
+    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
+        (self.literal.to_token_stream(), EstimatedLength::new(0))
+    }
+}
+
+pub(in crate::template::parser) struct TupleIndexParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleIndexParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TupleIndex<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, index): (_, Source) = (alt((
             into(take(TokenKind::DecLiteral)),
             into(take(TokenKind::BinLiteral)),
@@ -97,18 +146,7 @@ impl<'a> TupleIndex<'a> {
         };
         literal.set_span(index.span_token());
 
-        Ok((tokens, Self { index, literal }))
-    }
-
-    /// Builds source for entire expression.
-    pub fn source(&self) -> &Source<'a> {
-        &self.index
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for TupleIndex<'a> {
-    fn to_tokens_with_state(&self, _state: &State<'a>) -> BuiltTokens {
-        (self.literal.to_token_stream(), EstimatedLength::new(0))
+        Ok((tokens, TupleIndex { index, literal }))
     }
 }
 
@@ -127,7 +165,7 @@ mod tests {
     fn malformed_index() {
         test_source!(source = "19 89");
 
-        TupleIndex::parse
+        TupleIndex::parser()
             .parse(TokenSlice::new(
                 &[Ok(Token::new(TokenKind::DecLiteral, &source, None))],
                 &Eof::for_test(source),

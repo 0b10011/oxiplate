@@ -14,23 +14,10 @@ pub(crate) struct ImplTraitType<'a> {
 
 impl<'a> ImplTraitType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (r#impl, bounds)) = (
-            KeywordParser::new("impl"),
-            cut(
-                "Trait bound expected after `impl`",
-                ignore_recoverable_errors(Bounds::parse),
-            ),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                r#impl: r#impl.source().clone(),
-                bounds,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ImplTraitTypeParser<'a> {
+        ImplTraitTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -59,5 +46,35 @@ impl<'a> ToTokensWithState<'a> for ImplTraitType<'a> {
 impl<'a> From<ImplTraitType<'a>> for Type<'a> {
     fn from(value: ImplTraitType<'a>) -> Self {
         Self::ImplTrait(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
+pub(in crate::template::parser) struct ImplTraitTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ImplTraitTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ImplTraitType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (r#impl, bounds)) = (
+            KeywordParser::new("impl"),
+            cut(
+                "Trait bound expected after `impl`",
+                ignore_recoverable_errors(Bounds::parser()),
+            ),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            ImplTraitType {
+                r#impl: r#impl.source().clone(),
+                bounds,
+            },
+        ))
     }
 }

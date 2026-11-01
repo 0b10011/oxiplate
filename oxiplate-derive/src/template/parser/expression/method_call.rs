@@ -16,27 +16,10 @@ pub(in crate::template::parser) struct MethodCall<'a> {
 impl<'a> MethodCall<'a> {
     /// Parses a method call expression (`expr.method(args)`).
     /// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
-    pub(in crate::template::parser) fn parse(
-        tokens: TokenSlice<'a>,
-    ) -> Res<'a, Box<NestedExpression<'a>>> {
-        let (tokens, (period, segment, arguments)) = (
-            into(take(TokenKind::Period)),
-            PathExprSegment::parse,
-            arguments,
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Box::new(|expression: Expression<'a>| {
-                Expression::MethodCall(Self {
-                    expression: Box::new(expression),
-                    period,
-                    segment,
-                    arguments,
-                })
-            }),
-        ))
+    pub(in crate::template::parser) fn parser() -> MethodCallParser<'a> {
+        MethodCallParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire call expression.
@@ -66,5 +49,39 @@ impl<'a> ToTokensWithState<'a> for MethodCall<'a> {
             quote_spanned! {span=> #expression . #segment #arguments },
             EstimatedLength::new(1),
         )
+    }
+}
+
+/// Parses a method call expression (`expr.method(args)`).
+/// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
+pub(in crate::template::parser) struct MethodCallParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for MethodCallParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Box<NestedExpression<'a>>;
+
+    /// Parses a method call expression (`expr.method(args)`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (period, segment, arguments)) = (
+            into(take(TokenKind::Period)),
+            PathExprSegment::parser(),
+            arguments(),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            Box::new(|expression: Expression<'a>| {
+                Expression::MethodCall(MethodCall {
+                    expression: Box::new(expression),
+                    period,
+                    segment,
+                    arguments,
+                })
+            }),
+        ))
     }
 }

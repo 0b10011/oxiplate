@@ -27,22 +27,36 @@ pub(crate) enum StaticType {
     Text,
 }
 
-pub(crate) fn parse_static(tokens: TokenSlice) -> Res<Vec<Item>> {
-    let (tokens, item) = alt((
-        take(TokenKind::StaticText),
-        take(TokenKind::StaticWhitespace),
-    ))
-    .parse(tokens)?;
+pub(in crate::template::parser) fn parse_static<'a>() -> StaticParser<'a> {
+    StaticParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct StaticParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    Ok((
-        tokens,
-        vec![Item::Static(
-            Static(item.source().as_str(), item.source().clone()),
-            if let TokenKind::StaticWhitespace = *item.kind() {
-                StaticType::Whitespace
-            } else {
-                StaticType::Text
-            },
-        )],
-    ))
+impl<'a> Parser<'a> for StaticParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Vec<Item<'a>>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, item) = alt((
+            take(TokenKind::StaticText),
+            take(TokenKind::StaticWhitespace),
+        ))
+        .parse(tokens)?;
+
+        Ok((
+            tokens,
+            vec![Item::Static(
+                Static(item.source().as_str(), item.source().clone()),
+                if let TokenKind::StaticWhitespace = *item.kind() {
+                    StaticType::Whitespace
+                } else {
+                    StaticType::Text
+                },
+            )],
+        ))
+    }
 }

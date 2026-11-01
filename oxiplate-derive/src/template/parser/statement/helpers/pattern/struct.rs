@@ -13,28 +13,10 @@ pub(crate) enum StructPattern<'a> {
 }
 
 impl<'a> StructPattern<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let backup_tokens = tokens.clone();
-
-        let (tokens, pattern) = alt((
-            into(NamedStruct::parse),
-            into(TupleStruct::parse),
-            into(PathInExpression::parser),
-        ))
-        .parse(tokens)?;
-
-        if let Self::Unit(path) = &pattern {
-            if path.is_ident_or_keyword() {
-                return context(
-                    "Lone identifier ignored in struct patterns to support binding values to \
-                     variables",
-                    fail(),
-                )
-                .parse(backup_tokens);
-            }
+    pub(in crate::template::parser) fn parser() -> StructPatternParser<'a> {
+        StructPatternParser {
+            phantom_data: PhantomData,
         }
-
-        Ok((tokens, pattern))
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -76,6 +58,39 @@ impl<'a> From<PathInExpression<'a>> for StructPattern<'a> {
     }
 }
 
+pub(in crate::template::parser) struct StructPatternParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for StructPatternParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = StructPattern<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let backup_tokens = tokens.clone();
+
+        let (tokens, pattern) = alt((
+            into(NamedStruct::parser()),
+            into(TupleStruct::parser()),
+            into(PathInExpression::parser()),
+        ))
+        .parse(tokens)?;
+
+        if let StructPattern::Unit(path) = &pattern {
+            if path.is_ident_or_keyword() {
+                return context(
+                    "Lone identifier ignored in struct patterns to support binding values to \
+                     variables",
+                    fail(),
+                )
+                .parse(backup_tokens);
+            }
+        }
+
+        Ok((tokens, pattern))
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct NamedStruct<'a> {
     path: PathInExpression<'a>,
@@ -89,57 +104,10 @@ pub(crate) struct NamedStruct<'a> {
 }
 
 impl<'a> NamedStruct<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (path, open_brace, (first_field, additional_fields_and_commas, close_brace))) =
-            (
-                PathInExpression::parser,
-                take(TokenKind::OpenBrace),
-                (
-                    cut("Expected a field", Field::parse),
-                    many0((
-                        context("Expected `,`", take(TokenKind::Comma)),
-                        context("Expected a field", Field::parse),
-                    )),
-                    cut("Expected `}`", take(TokenKind::CloseBrace)),
-                ),
-            )
-                .parse(tokens)?;
-
-        let mut source = path
-            .source()
-            .merge(open_brace.source(), "Open brace expected after path")
-            .merge(
-                first_field.source(),
-                "First field expected after whitespace",
-            );
-
-        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
-        for (comma, field) in additional_fields_and_commas {
-            source = source
-                .merge(
-                    comma.source(),
-                    "Comma and whitespace expected after whitespace",
-                )
-                .merge(field.source(), "Field expected after whitespace");
-
-            additional_fields.push((comma.source().clone(), field));
+    pub(in crate::template::parser) fn parser() -> NamedStructParser<'a> {
+        NamedStructParser {
+            phantom_data: PhantomData,
         }
-
-        source = source.merge(
-            close_brace.source(),
-            "Closing brace expected after whitespace",
-        );
-
-        Ok((
-            tokens,
-            Self {
-                path,
-                first_field,
-                additional_fields,
-                remaining: None,
-                source,
-            },
-        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -183,61 +151,97 @@ impl<'a> From<NamedStruct<'a>> for StructPattern<'a> {
     }
 }
 
-#[derive(Debug)]
-struct Field<'a> {
-    name: Identifier<'a>,
-    value: Option<Box<Pattern<'a>>>,
-    source: Source<'a>,
+pub(in crate::template::parser) struct NamedStructParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-impl<'a> Field<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((Self::parse_with_value, Self::parse_without_value)).parse(tokens)
-    }
+impl<'a> Parser<'a> for NamedStructParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = NamedStruct<'a>;
 
-    pub fn parse_with_value(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (name, colon, pattern)) = (
-            context("Expected field name", Identifier::parse),
-            context("Expected `:`", take(TokenKind::Colon)),
-            cut("Expected pattern", Pattern::parse),
-        )
-            .parse(tokens)?;
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (path, open_brace, (first_field, additional_fields_and_commas, close_brace))) =
+            (
+                PathInExpression::parser(),
+                take(TokenKind::OpenBrace),
+                (
+                    cut("Expected a field", Field::parser()),
+                    many0((
+                        context("Expected `,`", take(TokenKind::Comma)),
+                        context("Expected a field", Field::parser()),
+                    )),
+                    cut("Expected `}`", take(TokenKind::CloseBrace)),
+                ),
+            )
+                .parse(tokens)?;
 
-        let source = name
+        let mut source = path
             .source()
-            .clone()
-            .merge(colon.source(), "Colon expected after name")
-            .merge(&pattern.source(), "Pattern expected after colon");
+            .merge(open_brace.source(), "Open brace expected after path")
+            .merge(
+                &first_field.source(),
+                "First field expected after whitespace",
+            );
+
+        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
+        for (comma, field) in additional_fields_and_commas {
+            source = source
+                .merge(
+                    comma.source(),
+                    "Comma and whitespace expected after whitespace",
+                )
+                .merge(&field.source(), "Field expected after whitespace");
+
+            additional_fields.push((comma.source().clone(), field));
+        }
+
+        source = source.merge(
+            close_brace.source(),
+            "Closing brace expected after whitespace",
+        );
 
         Ok((
             tokens,
-            Self {
-                name,
-                value: Some(Box::new(pattern)),
+            NamedStruct {
+                path,
+                first_field,
+                additional_fields,
+                remaining: None,
                 source,
             },
         ))
     }
+}
 
-    pub fn parse_without_value(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, name) = context("Expected field name", Identifier::parse).parse(tokens)?;
+#[derive(Debug)]
+pub(in crate::template::parser) struct Field<'a> {
+    name: Identifier<'a>,
 
-        Ok((
-            tokens,
-            Self {
-                source: name.source().clone(),
-                name,
-                value: None,
-            },
-        ))
+    /// `Source` is `:`.
+    value: Option<(Source<'a>, Box<Pattern<'a>>)>,
+}
+
+impl<'a> Field<'a> {
+    pub(in crate::template::parser) fn parser() -> FieldParser<'a> {
+        FieldParser {
+            phantom_data: PhantomData,
+        }
     }
 
-    pub fn source(&self) -> &Source<'a> {
-        &self.source
+    pub fn source(&self) -> Source<'a> {
+        if let Some((colon, pattern)) = &self.value {
+            self.name
+                .source()
+                .clone()
+                .merge(colon, "Colon expected after name")
+                .merge(&pattern.source(), "Pattern expected after colon")
+        } else {
+            self.name.source().clone()
+        }
     }
 
     pub fn get_variables(&'a self) -> HashSet<&'a str> {
-        let Some(value) = &self.value else {
+        let Some((_colon, value)) = &self.value else {
             return HashSet::from([self.name.as_str()]);
         };
 
@@ -249,16 +253,40 @@ impl<'a> ToTokensWithState<'a> for Field<'a> {
     fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
         let name = &self.name;
 
-        if let Some(value) = &self.value {
-            let span = self.source.span_token();
-            let (value, _estimated_length) = value.to_tokens_with_state(state);
+        if let Some((colon, pattern)) = &self.value {
+            let span = colon.span_token();
+            let (pattern, _estimated_length) = pattern.to_tokens_with_state(state);
             (
-                quote_spanned! {span=> #name: #value },
+                quote_spanned! {span=> #name: #pattern },
                 EstimatedLength::new(0),
             )
         } else {
             (quote! { #name }, EstimatedLength::new(0))
         }
+    }
+}
+
+pub(in crate::template::parser) struct FieldParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FieldParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Field<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (name, value)) = (
+            context("Expected field name", Identifier::parser()),
+            ignore_recoverable_errors((
+                context("Expected `:`", into(take(TokenKind::Colon))),
+                cut("Expected pattern", Pattern::parser()),
+            )),
+        )
+            .parse(tokens)?;
+
+        let value = value.map(|(colon, pattern)| (colon, Box::new(pattern)));
+
+        Ok((tokens, Field { name, value }))
     }
 }
 
@@ -275,54 +303,10 @@ pub(crate) struct TupleStruct<'a> {
 }
 
 impl<'a> TupleStruct<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (path, open_paren, (first_field, additional_fields_and_commas, close_brace))) =
-            (
-                PathInExpression::parser,
-                take(TokenKind::OpenParenthese),
-                (
-                    cut("Expected pattern", Pattern::parse),
-                    many0((
-                        context("Expected `,`", take(TokenKind::Comma)),
-                        context("Expected a pattern", Pattern::parse),
-                    )),
-                    cut("Expected `)`", take(TokenKind::CloseParenthese)),
-                ),
-            )
-                .parse(tokens)?;
-
-        let mut source = path
-            .source()
-            .merge(open_paren.source(), "Open parenthese expected after path")
-            .merge(
-                &first_field.source(),
-                "First field expected after open parenthese",
-            );
-
-        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
-        for (comma, field) in additional_fields_and_commas {
-            source = source
-                .merge(comma.source(), "Comma expected after previous field")
-                .merge(&field.source(), "Field expected after comma");
-
-            additional_fields.push((comma.source().clone(), field));
+    pub(in crate::template::parser) fn parser() -> TupleStructParser<'a> {
+        TupleStructParser {
+            phantom_data: PhantomData,
         }
-
-        source = source.merge(
-            close_brace.source(),
-            "Closing brace expected after previous field",
-        );
-
-        Ok((
-            tokens,
-            Self {
-                path,
-                first_field: Box::new(first_field),
-                additional_fields,
-                remaining: None,
-                source,
-            },
-        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -363,5 +347,64 @@ impl<'a> ToTokensWithState<'a> for TupleStruct<'a> {
 impl<'a> From<TupleStruct<'a>> for StructPattern<'a> {
     fn from(value: TupleStruct<'a>) -> Self {
         StructPattern::Tuple(value)
+    }
+}
+
+pub(in crate::template::parser) struct TupleStructParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleStructParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TupleStruct<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (path, open_paren, (first_field, additional_fields_and_commas, close_brace))) =
+            (
+                PathInExpression::parser(),
+                take(TokenKind::OpenParenthese),
+                (
+                    cut("Expected pattern", Pattern::parser()),
+                    many0((
+                        context("Expected `,`", take(TokenKind::Comma)),
+                        context("Expected a pattern", Pattern::parser()),
+                    )),
+                    cut("Expected `)`", take(TokenKind::CloseParenthese)),
+                ),
+            )
+                .parse(tokens)?;
+
+        let mut source = path
+            .source()
+            .merge(open_paren.source(), "Open parenthese expected after path")
+            .merge(
+                &first_field.source(),
+                "First field expected after open parenthese",
+            );
+
+        let mut additional_fields = Vec::with_capacity(additional_fields_and_commas.len());
+        for (comma, field) in additional_fields_and_commas {
+            source = source
+                .merge(comma.source(), "Comma expected after previous field")
+                .merge(&field.source(), "Field expected after comma");
+
+            additional_fields.push((comma.source().clone(), field));
+        }
+
+        source = source.merge(
+            close_brace.source(),
+            "Closing brace expected after previous field",
+        );
+
+        Ok((
+            tokens,
+            TupleStruct {
+                path,
+                first_field: Box::new(first_field),
+                additional_fields,
+                remaining: None,
+                source,
+            },
+        ))
     }
 }

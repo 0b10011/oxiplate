@@ -18,15 +18,10 @@ impl<'a> FullRange<'a> {
 
     /// Parses a full range expression (`..`).
     /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, token) = take(TokenKind::RangeExclusive).parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                source: token.source().clone(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> FullRangeParser<'a> {
+        FullRangeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Builds source for entire expression.
@@ -45,5 +40,29 @@ impl<'a> ToTokensWithState<'a> for FullRange<'a> {
 impl<'a> From<FullRange<'a>> for Expression<'a> {
     fn from(value: FullRange<'a>) -> Self {
         Self::FullRange(value)
+    }
+}
+
+/// Parses a full range expression (`..`).
+/// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
+pub(in crate::template::parser) struct FullRangeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FullRangeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = FullRange<'a>;
+
+    /// Parses a full range expression (`..`).
+    /// See: <https://doc.rust-lang.org/core/ops/struct.RangeFull.html>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = take(TokenKind::RangeExclusive).parse(tokens)?;
+
+        Ok((
+            tokens,
+            FullRange {
+                source: token.source().clone(),
+            },
+        ))
     }
 }

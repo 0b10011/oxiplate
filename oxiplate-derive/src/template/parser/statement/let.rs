@@ -26,32 +26,10 @@ pub(crate) struct Let<'a> {
 
 impl<'a> Let<'a> {
     /// Attempt to parse a `let` statement from the current input.
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (keyword, pattern, operator, expr)) = (
-            KeywordParser::new("let"),
-            cut("Expected a pattern", Pattern::parse),
-            cut("Expected `=`", take(TokenKind::Equal)),
-            cut("Expected an expression after `=`", expression(true)),
-        )
-            .parse(tokens)?;
-
-        let source = keyword
-            .source()
-            .clone()
-            .merge(&pattern.source(), "Variable name expected after `let`")
-            .merge(operator.source(), "`=` expected after variable name")
-            .merge(&expr.source(), "Expression expected after expression");
-
-        Ok((
-            tokens,
-            Self {
-                keyword,
-                pattern,
-                operator: operator.source().clone(),
-                expr,
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> LetParser<'a> {
+        LetParser {
+            phantom_data: PhantomData,
+        }
     }
 
     /// Get the `Source` for the statement.
@@ -87,5 +65,44 @@ impl<'a> From<Let<'a>> for Statement<'a> {
             source: value.source().clone(),
             kind: StatementKind::Let(value),
         }
+    }
+}
+
+/// Attempt to parse a `let` statement from the current input.
+pub(in crate::template::parser) struct LetParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LetParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Let<'a>;
+
+    /// Attempt to parse a `let` statement from the current input.
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (keyword, pattern, operator, expr)) = (
+            KeywordParser::new("let"),
+            cut("Expected a pattern", Pattern::parser()),
+            cut("Expected `=`", take(TokenKind::Equal)),
+            cut("Expected an expression after `=`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = keyword
+            .source()
+            .clone()
+            .merge(&pattern.source(), "Variable name expected after `let`")
+            .merge(operator.source(), "`=` expected after variable name")
+            .merge(&expr.source(), "Expression expected after expression");
+
+        Ok((
+            tokens,
+            Let {
+                keyword,
+                pattern,
+                operator: operator.source().clone(),
+                expr,
+                source,
+            },
+        ))
     }
 }

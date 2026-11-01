@@ -75,17 +75,10 @@ pub(in crate::template::parser) enum LiteralExpression<'a> {
 
 impl<'a> LiteralExpression<'a> {
     /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, literal): (_, Self) = alt((
-            into(Char::parse),
-            into(String::parse),
-            into(Integer::parse),
-            into(Float::parse),
-            into(Bool::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, literal))
+    pub(in crate::template::parser) fn parser() -> LiteralExpressionParser<'a> {
+        LiteralExpressionParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -127,8 +120,33 @@ impl<'a> ToTokensWithState<'a> for LiteralExpression<'a> {
     }
 }
 
-/// `LiteralExpression` with an optional leading `-`.
 /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+pub(in crate::template::parser) struct LiteralExpressionParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LiteralExpressionParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = LiteralExpression<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, literal): (_, LiteralExpression) = alt((
+            into(Char::parser()),
+            into(String::parser()),
+            into(Integer::parser()),
+            into(Float::parser()),
+            into(Bool::parser()),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, literal))
+    }
+}
+
+/// `LiteralExpression` with an optional leading `-`.
+/// Used in expressions and patterns.
+/// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
 #[derive(Debug)]
 pub(in crate::template::parser) struct PossiblyNegativeLiteralExpression<'a> {
     /// Optional `-`.
@@ -137,15 +155,13 @@ pub(in crate::template::parser) struct PossiblyNegativeLiteralExpression<'a> {
 }
 
 impl<'a> PossiblyNegativeLiteralExpression<'a> {
-    /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (sign, literal)) = (
-            ignore_recoverable_errors(into(take(TokenKind::Minus))),
-            LiteralExpression::parse,
-        )
-            .parse(tokens)?;
-
-        Ok((tokens, Self { sign, literal }))
+    /// `LiteralExpression` with an optional leading `-`.
+    /// Used in expressions and patterns.
+    /// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
+    pub(in crate::template::parser) fn parser() -> PossiblyNegativeLiteralExpressionParser<'a> {
+        PossiblyNegativeLiteralExpressionParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -167,6 +183,31 @@ impl<'a> ToTokensWithState<'a> for PossiblyNegativeLiteralExpression<'a> {
         } else {
             self.literal.to_tokens_with_state(state)
         }
+    }
+}
+
+/// `LiteralExpression` with an optional leading `-`.
+/// Used in expressions and patterns.
+/// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
+pub(in crate::template::parser) struct PossiblyNegativeLiteralExpressionParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for PossiblyNegativeLiteralExpressionParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = PossiblyNegativeLiteralExpression<'a>;
+
+    /// `LiteralExpression` with an optional leading `-`.
+    /// Used in expressions and patterns.
+    /// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (sign, literal)) = (
+            ignore_recoverable_errors(into(take(TokenKind::Minus))),
+            LiteralExpression::parser(),
+        )
+            .parse(tokens)?;
+
+        Ok((tokens, PossiblyNegativeLiteralExpression { sign, literal }))
     }
 }
 

@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use proc_macro2::Literal;
 
 use super::LiteralExpression;
@@ -19,25 +21,10 @@ impl<'a> Char<'a> {
 
     /// Parse char literal (e.g., `'a'`).
     /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, token) = tokens.take()?;
-
-        let TokenKind::Char(char) = token.kind() else {
-            return Err(Error::Recoverable {
-                message: "Not `Char` token kind".to_string(),
-                source: token.source().clone(),
-                previous_error: None,
-                is_eof: false,
-            });
-        };
-
-        Ok((
-            tokens,
-            Self {
-                value: *char,
-                source: token.source(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> CharParser<'a> {
+        CharParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -62,5 +49,39 @@ impl<'a> From<Char<'a>> for Expression<'a> {
 impl<'a> From<Char<'a>> for LiteralExpression<'a> {
     fn from(value: Char<'a>) -> Self {
         Self::Char(value)
+    }
+}
+
+/// Parse char literal (e.g., `'a'`).
+/// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
+pub(in crate::template::parser) struct CharParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CharParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Char<'a>;
+
+    /// Parse char literal (e.g., `'a'`).
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#character-literals>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
+
+        let TokenKind::Char(char) = token.kind() else {
+            return Err(Error::Recoverable {
+                message: "Not `Char` token kind".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
+        };
+
+        Ok((
+            tokens,
+            Char {
+                value: *char,
+                source: token.source(),
+            },
+        ))
     }
 }

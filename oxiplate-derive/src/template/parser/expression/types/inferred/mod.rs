@@ -10,15 +10,10 @@ pub(crate) struct InferredType<'a> {
 
 impl<'a> InferredType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, underscore) = KeywordParser::new("_").parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                source: underscore.source().to_owned(),
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> InferredTypeParser<'a> {
+        InferredTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -37,5 +32,27 @@ impl<'a> ToTokensWithState<'a> for InferredType<'a> {
 impl<'a> From<InferredType<'a>> for TypeNoBounds<'a> {
     fn from(value: InferredType<'a>) -> Self {
         TypeNoBounds::Inferred(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
+pub(in crate::template::parser) struct InferredTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for InferredTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = InferredType<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, underscore) = KeywordParser::new("_").parse(tokens)?;
+
+        Ok((
+            tokens,
+            InferredType {
+                source: underscore.source().to_owned(),
+            },
+        ))
     }
 }
