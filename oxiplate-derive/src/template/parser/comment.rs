@@ -3,7 +3,7 @@ use super::item::tag_end;
 use crate::template::parser::prelude::*;
 use crate::template::tokenizer::TagKind;
 
-pub(in crate::template::parser) fn comment<'a>(open_tag_source: Source<'a>) -> CommentParser<'a> {
+pub(in crate::template::parser) fn comment(open_tag_source: Source) -> CommentParser {
     CommentParser { open_tag_source }
 }
 pub(in crate::template::parser) struct CommentParser<'a> {

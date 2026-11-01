@@ -342,7 +342,7 @@ struct Escaper<'a> {
     escaper: Identifier<'a>,
 }
 
-pub(in crate::template::parser) fn writ<'a>(open_tag_source: Source<'a>) -> WritParser<'a> {
+pub(in crate::template::parser) fn writ(open_tag_source: Source) -> WritParser {
     WritParser { open_tag_source }
 }
 pub(in crate::template::parser) struct WritParser<'a> {

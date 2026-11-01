@@ -23,7 +23,7 @@ impl<'a> Item<'a> {
     pub(in crate::config::parser) fn source(&self) -> &Source<'a> {
         match self {
             Self::Comment(source) | Self::Newline(source) => source,
-            Self::Expression(expression) => &expression.source(),
+            Self::Expression(expression) => expression.source(),
         }
     }
 }

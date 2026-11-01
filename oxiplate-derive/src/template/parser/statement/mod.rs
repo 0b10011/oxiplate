@@ -186,9 +186,9 @@ impl<'a> From<Statement<'a>> for Item<'a> {
     }
 }
 
-pub(in crate::template::parser) fn statement<'a>(
-    open_tag_source: Source<'a>,
-) -> StatementParser<'a> {
+pub(in crate::template::parser) fn statement(
+    open_tag_source: Source,
+) -> StatementParser {
     StatementParser { open_tag_source }
 }
 pub(in crate::template::parser) struct StatementParser<'a> {
@@ -199,7 +199,6 @@ impl<'a> Parser<'a> for StatementParser<'a> {
     type TokenKind = TokenKind;
     type Output = (Item<'a>, Option<Item<'a>>);
 
-    #[expect(clippy::too_many_lines)]
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         // Parse statements
         let (tokens, mut statement): (TokenSlice<'a>, Statement<'a>) = cut(
