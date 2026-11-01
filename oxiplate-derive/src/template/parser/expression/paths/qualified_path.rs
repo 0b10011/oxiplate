@@ -15,34 +15,10 @@ pub(crate) struct QualifiedPathType<'a> {
 
 impl<'a> QualifiedPathType<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (less_than, r#type, r#as, greater_than)): (_, (_, _, _, Source)) = (
-            into(take(TokenKind::LessThan)),
-            Type::parse,
-            ignore_recoverable_errors((into(KeywordParser::new("as")), TypePath::parse)),
-            into(take(TokenKind::GreaterThan)),
-        )
-            .parse(tokens)?;
-
-        let mut source: Source = less_than;
-        if let Some((r#as, type_path)) = &r#as {
-            source = source
-                .merge(&r#type.source(), "Type expected after `<`")
-                .merge(r#as, "`as` expected after type")
-                .merge(&type_path.source(), "Type path expected after `as`");
-        } else {
-            source = source.merge(&r#type.source(), "Type expected after `<`");
+    pub(in crate::template::parser) fn parser() -> QualifiedPathTypeParser<'a> {
+        QualifiedPathTypeParser {
+            phantom_data: PhantomData,
         }
-        source = source.merge(&greater_than, "`>` expected after type");
-
-        Ok((
-            tokens,
-            Self {
-                r#type: Box::new(r#type),
-                r#as,
-                source,
-            },
-        ))
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -71,5 +47,44 @@ impl<'a> ToTokensWithState<'a> for QualifiedPathType<'a> {
                 EstimatedLength::new(0),
             )
         }
+    }
+}
+
+pub(in crate::template::parser) struct QualifiedPathTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for QualifiedPathTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = QualifiedPathType<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (less_than, r#type, r#as, greater_than)): (_, (_, _, _, Source)) = (
+            into(take(TokenKind::LessThan)),
+            Type::parser(),
+            ignore_recoverable_errors((into(KeywordParser::new("as")), TypePath::parser())),
+            into(take(TokenKind::GreaterThan)),
+        )
+            .parse(tokens)?;
+
+        let mut source: Source = less_than;
+        if let Some((r#as, type_path)) = &r#as {
+            source = source
+                .merge(&r#type.source(), "Type expected after `<`")
+                .merge(r#as, "`as` expected after type")
+                .merge(&type_path.source(), "Type path expected after `as`");
+        } else {
+            source = source.merge(&r#type.source(), "Type expected after `<`");
+        }
+        source = source.merge(&greater_than, "`>` expected after type");
+
+        Ok((
+            tokens,
+            QualifiedPathType {
+                r#type: Box::new(r#type),
+                r#as,
+                source,
+            },
+        ))
     }
 }

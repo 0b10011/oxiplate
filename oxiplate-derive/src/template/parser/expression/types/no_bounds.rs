@@ -153,18 +153,18 @@ impl<'a> Parser<'a> for TypeNoBoundsParser<'a> {
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
-            into(InferredType::parse),
-            into(TupleType::parse),
-            into(ParenthesizedType::parse),
-            into(ImplTraitTypeOneBound::parse),
-            into(TraitObjectTypeOneBound::parse),
-            into(TypePath::parse),
-            into(Never::parse),
-            into(RawPointerType::parse),
-            into(ReferenceType::parse),
-            into(ArrayType::parse),
-            into(SliceType::parse),
-            into(QualifiedPathInType::parse),
+            into(InferredType::parser()),
+            into(TupleType::parser()),
+            into(ParenthesizedType::parser()),
+            into(ImplTraitTypeOneBound::parser()),
+            into(TraitObjectTypeOneBound::parser()),
+            into(TypePath::parser()),
+            into(Never::parser()),
+            into(RawPointerType::parser()),
+            into(ReferenceType::parser()),
+            into(ArrayType::parser()),
+            into(SliceType::parser()),
+            into(QualifiedPathInType::parser()),
         ))
         .parse(tokens)
     }

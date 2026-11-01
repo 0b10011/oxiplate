@@ -5,7 +5,7 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
 #[derive(Debug)]
-pub(super) struct UseBoundGenericArgs<'a> {
+pub(in crate::template::parser) struct UseBoundGenericArgs<'a> {
     first_generics: Vec<(UseBoundGenericArg<'a>, Source<'a>)>,
     last_generic: Option<(UseBoundGenericArg<'a>, Option<Source<'a>>)>,
 
@@ -15,13 +15,58 @@ pub(super) struct UseBoundGenericArgs<'a> {
 
 impl<'a> UseBoundGenericArgs<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parser() -> UseBoundGenericArgsParser<'a> {
+        UseBoundGenericArgsParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    pub fn source(&self) -> &Source<'a> {
+        &self.source
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for UseBoundGenericArgs<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut inner_tokens = TokenStream::new();
+
+        for (arg, comma) in &self.first_generics {
+            let span = comma.span_token();
+            let arg = arg.to_tokens_with_state(state).0;
+            inner_tokens.append_all(quote_spanned! {span=> #arg, });
+        }
+
+        if let Some((generic, comma)) = &self.last_generic {
+            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
+            if let Some(comma) = comma {
+                let span = comma.span_token();
+                inner_tokens.append_all(quote_spanned! {span=> , });
+            }
+        }
+
+        let span = self.source.span_token();
+        (
+            quote_spanned! {span=> <#inner_tokens> },
+            EstimatedLength::new(0),
+        )
+    }
+}
+
+pub(in crate::template::parser) struct UseBoundGenericArgsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for UseBoundGenericArgsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = UseBoundGenericArgs<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((UseBoundGenericArg::parse, take(TokenKind::Comma))),
+                many0((UseBoundGenericArg::parser(), take(TokenKind::Comma))),
                 ignore_recoverable_errors((
-                    UseBoundGenericArg::parse,
+                    UseBoundGenericArg::parser(),
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
@@ -59,7 +104,7 @@ impl<'a> UseBoundGenericArgs<'a> {
 
         Ok((
             tokens,
-            Self {
+            UseBoundGenericArgs {
                 first_generics: first_generics
                     .into_iter()
                     .map(|(generic, comma)| (generic, comma.source().clone()))
@@ -69,41 +114,11 @@ impl<'a> UseBoundGenericArgs<'a> {
             },
         ))
     }
-
-    pub fn source(&self) -> &Source<'a> {
-        &self.source
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for UseBoundGenericArgs<'a> {
-    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let mut inner_tokens = TokenStream::new();
-
-        for (arg, comma) in &self.first_generics {
-            let span = comma.span_token();
-            let arg = arg.to_tokens_with_state(state).0;
-            inner_tokens.append_all(quote_spanned! {span=> #arg, });
-        }
-
-        if let Some((generic, comma)) = &self.last_generic {
-            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
-            if let Some(comma) = comma {
-                let span = comma.span_token();
-                inner_tokens.append_all(quote_spanned! {span=> , });
-            }
-        }
-
-        let span = self.source.span_token();
-        (
-            quote_spanned! {span=> <#inner_tokens> },
-            EstimatedLength::new(0),
-        )
-    }
 }
 
 /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArg>
 #[derive(Debug)]
-pub(super) enum UseBoundGenericArg<'a> {
+pub(in crate::template::parser) enum UseBoundGenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
     Lifetime(Lifetime<'a>),
 
@@ -116,14 +131,10 @@ pub(super) enum UseBoundGenericArg<'a> {
 
 impl<'a> UseBoundGenericArg<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, keyword) = ignore_recoverable_errors(SelfCurrentType::parse).parse(tokens)?;
-
-        if let Some(keyword) = keyword {
-            return Ok((tokens, Self::SelfKeyword(keyword)));
+    pub(in crate::template::parser) fn parser() -> UseBoundGenericArgParser<'a> {
+        UseBoundGenericArgParser {
+            phantom_data: PhantomData,
         }
-
-        alt((into(Lifetime::parse), into(Identifier::parse))).parse(tokens)
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -154,5 +165,27 @@ impl<'a> From<Identifier<'a>> for UseBoundGenericArg<'a> {
 impl<'a> From<Lifetime<'a>> for UseBoundGenericArg<'a> {
     fn from(value: Lifetime<'a>) -> Self {
         Self::Lifetime(value)
+    }
+}
+
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+pub(in crate::template::parser) struct UseBoundGenericArgParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for UseBoundGenericArgParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = UseBoundGenericArg<'a>;
+
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, keyword) =
+            ignore_recoverable_errors(SelfCurrentType::parser()).parse(tokens)?;
+
+        if let Some(keyword) = keyword {
+            return Ok((tokens, UseBoundGenericArg::SelfKeyword(keyword)));
+        }
+
+        alt((into(Lifetime::parser()), into(Identifier::parser()))).parse(tokens)
     }
 }

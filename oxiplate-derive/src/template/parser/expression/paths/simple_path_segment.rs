@@ -22,16 +22,10 @@ pub(in crate::template::parser) enum SimplePathSegment<'a> {
 
 impl<'a> SimplePathSegment<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-SimplePathSegment>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, simple_path_segment) = alt((
-            into(Identifier::parse),
-            into(Super::parse),
-            into(SelfCurrentModule::parse),
-            into(Crate::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, simple_path_segment))
+    pub(in crate::template::parser) fn parser() -> SimplePathSegmentParser<'a> {
+        SimplePathSegmentParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -76,5 +70,26 @@ impl<'a> From<SelfCurrentModule<'a>> for SimplePathSegment<'a> {
 impl<'a> From<Crate<'a>> for SimplePathSegment<'a> {
     fn from(value: Crate<'a>) -> Self {
         Self::Crate(value)
+    }
+}
+
+pub(in crate::template::parser) struct SimplePathSegmentParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for SimplePathSegmentParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = SimplePathSegment<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, simple_path_segment) = alt((
+            into(Identifier::parser()),
+            into(Super::parser()),
+            into(SelfCurrentModule::parser()),
+            into(Crate::parser()),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, simple_path_segment))
     }
 }

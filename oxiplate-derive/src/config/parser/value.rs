@@ -94,7 +94,7 @@ impl<'a> From<StringValue<'a>> for Option<String> {
 }
 
 #[derive(Debug)]
-struct BoolValue<'a> {
+pub(in crate::config::parser) struct BoolValue<'a> {
     value: bool,
     source: &'a Source<'a>,
 }

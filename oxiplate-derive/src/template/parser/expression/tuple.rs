@@ -85,7 +85,7 @@ impl<'a> Parser<'a> for TupleParser<'a> {
 }
 
 #[derive(Debug)]
-struct TupleItem<'a> {
+pub(in crate::template::parser) struct TupleItem<'a> {
     expression: Expression<'a>,
     comma: Option<Source<'a>>,
     source: Source<'a>,

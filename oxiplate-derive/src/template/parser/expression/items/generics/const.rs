@@ -16,35 +16,10 @@ pub(crate) struct ConstParam<'a> {
 
 impl<'a> ConstParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (r#const, identifier, colon, r#type, assignment)) = (
-            KeywordParser::new("const"),
-            cut("Expected an identifier after `const`", Identifier::parse()),
-            cut(
-                "Expected `:` after the identifier",
-                into(take(TokenKind::Colon)),
-            ),
-            cut("Expected a type after `:`", Type::parse()),
-            ignore_recoverable_errors((
-                into(take(TokenKind::Equal)),
-                cut(
-                    "Expected an identifier, literal expression, or block expression",
-                    ConstParamValue::parse(),
-                ),
-            )),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                r#const,
-                identifier,
-                colon,
-                r#type: Box::new(r#type),
-                assignment,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ConstParamParser<'a> {
+        ConstParamParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -96,6 +71,46 @@ impl<'a> ToTokensWithState<'a> for ConstParam<'a> {
 impl<'a> From<ConstParam<'a>> for GenericParam<'a> {
     fn from(value: ConstParam<'a>) -> Self {
         Self::Const(value)
+    }
+}
+
+pub(in crate::template::parser) struct ConstParamParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ConstParamParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ConstParam<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (r#const, identifier, colon, r#type, assignment)) = (
+            KeywordParser::new("const"),
+            cut("Expected an identifier after `const`", Identifier::parser()),
+            cut(
+                "Expected `:` after the identifier",
+                into(take(TokenKind::Colon)),
+            ),
+            cut("Expected a type after `:`", Type::parser()),
+            ignore_recoverable_errors((
+                into(take(TokenKind::Equal)),
+                cut(
+                    "Expected an identifier, literal expression, or block expression",
+                    ConstParamValue::parser(),
+                ),
+            )),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            ConstParam {
+                r#const,
+                identifier,
+                colon,
+                r#type: Box::new(r#type),
+                assignment,
+            },
+        ))
     }
 }
 
@@ -175,8 +190,8 @@ impl<'a> Parser<'a> for ConstParamValueParser<'a> {
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, value): (_, Self::Output) = alt((
-            into(Identifier::parse),
-            into(PossiblyNegativeLiteralExpression::parse),
+            into(Identifier::parser()),
+            into(PossiblyNegativeLiteralExpression::parser()),
         ))
         .parse(tokens)?;
 

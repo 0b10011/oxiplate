@@ -13,38 +13,10 @@ pub(crate) enum TraitBound<'a> {
 
 impl<'a> TraitBound<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, result) = ignore_recoverable_errors((
-            take(TokenKind::OpenParenthese),
-            TraitBoundInner::parse,
-            take(TokenKind::CloseParenthese),
-        ))
-        .parse(tokens)?;
-
-        let (tokens, trait_bound) = if let Some((open, trait_bound, close)) = result {
-            let source = open
-                .source()
-                .clone()
-                .merge(
-                    &trait_bound.source(),
-                    "Inner trait bound expected after `(`",
-                )
-                .merge(close.source(), "`)` expected after inner trait bound");
-
-            (
-                tokens,
-                TraitBound::Parenthesized {
-                    trait_bound,
-                    source,
-                },
-            )
-        } else {
-            let (tokens, trait_bound) = TraitBoundInner::parse(tokens)?;
-
-            (tokens, TraitBound::Standalone(trait_bound))
-        };
-
-        Ok((tokens, trait_bound))
+    pub(in crate::template::parser) fn parser() -> TraitBoundParser<'a> {
+        TraitBoundParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -74,5 +46,48 @@ impl<'a> ToTokensWithState<'a> for TraitBound<'a> {
                 )
             }
         }
+    }
+}
+
+pub(in crate::template::parser) struct TraitBoundParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TraitBoundParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TraitBound<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, result) = ignore_recoverable_errors((
+            take(TokenKind::OpenParenthese),
+            TraitBoundInner::parser(),
+            take(TokenKind::CloseParenthese),
+        ))
+        .parse(tokens)?;
+
+        let (tokens, trait_bound) = if let Some((open, trait_bound, close)) = result {
+            let source = open
+                .source()
+                .clone()
+                .merge(
+                    &trait_bound.source(),
+                    "Inner trait bound expected after `(`",
+                )
+                .merge(close.source(), "`)` expected after inner trait bound");
+
+            (
+                tokens,
+                TraitBound::Parenthesized {
+                    trait_bound,
+                    source,
+                },
+            )
+        } else {
+            let (tokens, trait_bound) = TraitBoundInner::parser().parse(tokens)?;
+
+            (tokens, TraitBound::Standalone(trait_bound))
+        };
+
+        Ok((tokens, trait_bound))
     }
 }

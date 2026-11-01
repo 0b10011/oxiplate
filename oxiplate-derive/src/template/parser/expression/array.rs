@@ -121,7 +121,7 @@ impl<'a> Parser<'a> for ArrayParser<'a> {
 }
 
 #[derive(Debug)]
-struct ArrayItem<'a> {
+pub(in crate::template::parser) struct ArrayItem<'a> {
     expression: Expression<'a>,
     comma: Option<Source<'a>>,
     source: Source<'a>,

@@ -25,30 +25,10 @@ impl<'a> TypePathSegment<'a> {
     }
 
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (ident_segment, generics)) = (
-            PathIdentSegment::parse,
-            ignore_recoverable_errors((
-                ignore_recoverable_errors(take(TokenKind::PathSeparator)),
-                GenericArgs::parse,
-            )),
-        )
-            .parse(tokens)?;
-
-        let generics = generics.map(|(separator, generics)| {
-            let separator = separator.map(|separator| separator.source().clone());
-            let generics = Box::new(generics);
-
-            (separator, generics)
-        });
-
-        Ok((
-            tokens,
-            Self {
-                ident_segment,
-                generics,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> TypePathSegmentParser<'a> {
+        TypePathSegmentParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -83,5 +63,40 @@ impl<'a> ToTokensWithState<'a> for TypePathSegment<'a> {
         }
 
         (tokens, EstimatedLength::new(0))
+    }
+}
+
+pub(in crate::template::parser) struct TypePathSegmentParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypePathSegmentParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TypePathSegment<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (ident_segment, generics)) = (
+            PathIdentSegment::parser(),
+            ignore_recoverable_errors((
+                ignore_recoverable_errors(take(TokenKind::PathSeparator)),
+                GenericArgs::parser(),
+            )),
+        )
+            .parse(tokens)?;
+
+        let generics = generics.map(|(separator, generics)| {
+            let separator = separator.map(|separator| separator.source().clone());
+            let generics = Box::new(generics);
+
+            (separator, generics)
+        });
+
+        Ok((
+            tokens,
+            TypePathSegment {
+                ident_segment,
+                generics,
+            },
+        ))
     }
 }

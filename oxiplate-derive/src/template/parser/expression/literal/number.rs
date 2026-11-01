@@ -188,7 +188,7 @@ impl<'a> Parser<'a> for NumberParser<'a> {
     /// Parse a number.
     /// See: <https://doc.rust-lang.org/reference/tokens.html#number-literals>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        alt((into(Integer::parse()), into(Float::parse()))).parse(tokens)
+        alt((into(Integer::parser()), into(Float::parser()))).parse(tokens)
     }
 }
 
@@ -207,7 +207,7 @@ mod tests {
     fn malformed_number() {
         test_source!(source = "19 89");
 
-        Integer::parse()
+        Integer::parser()
             .parse(TokenSlice::new(
                 &[Ok(Token::new(TokenKind::DecLiteral, &source, None))],
                 &Eof::for_test(source),

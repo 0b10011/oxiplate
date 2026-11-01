@@ -22,13 +22,59 @@ pub(in crate::template::parser) struct GenericParams<'a> {
 
 impl<'a> GenericParams<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
+    pub(in crate::template::parser) fn parser() -> GenericParamsParser<'a> {
+        GenericParamsParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
+        &self.source
+    }
+}
+
+impl<'a> ToTokensWithState<'a> for GenericParams<'a> {
+    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
+        let mut inner_tokens = TokenStream::new();
+
+        for (arg, comma) in &self.first_generics {
+            let span = comma.span_token();
+            let arg = arg.to_tokens_with_state(state).0;
+            inner_tokens.append_all(quote_spanned! {span=> #arg, });
+        }
+
+        if let Some((generic, comma)) = &self.last_generic {
+            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
+            if let Some(comma) = comma {
+                let span = comma.span_token();
+                inner_tokens.append_all(quote_spanned! {span=> , });
+            }
+        }
+
+        let span = self.source.span_token();
+
+        (
+            quote_spanned! {span=> <#inner_tokens> },
+            EstimatedLength::new(0),
+        )
+    }
+}
+
+pub(in crate::template::parser) struct GenericParamsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericParamsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericParams<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericParam::parse(), take(TokenKind::Comma))),
+                many0((GenericParam::parser(), take(TokenKind::Comma))),
                 ignore_recoverable_errors((
-                    GenericParam::parse(),
+                    GenericParam::parser(),
                     ignore_recoverable_errors(take(TokenKind::Comma)),
                 )),
             ),
@@ -66,7 +112,7 @@ impl<'a> GenericParams<'a> {
 
         Ok((
             tokens,
-            Self {
+            GenericParams {
                 first_generics: first_generics
                     .into_iter()
                     .map(|(generic, comma)| (generic, comma.source().clone()))
@@ -76,42 +122,11 @@ impl<'a> GenericParams<'a> {
             },
         ))
     }
-
-    pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
-        &self.source
-    }
-}
-
-impl<'a> ToTokensWithState<'a> for GenericParams<'a> {
-    fn to_tokens_with_state(&self, state: &State<'a>) -> BuiltTokens {
-        let mut inner_tokens = TokenStream::new();
-
-        for (arg, comma) in &self.first_generics {
-            let span = comma.span_token();
-            let arg = arg.to_tokens_with_state(state).0;
-            inner_tokens.append_all(quote_spanned! {span=> #arg, });
-        }
-
-        if let Some((generic, comma)) = &self.last_generic {
-            inner_tokens.append_all(generic.to_tokens_with_state(state).0);
-            if let Some(comma) = comma {
-                let span = comma.span_token();
-                inner_tokens.append_all(quote_spanned! {span=> , });
-            }
-        }
-
-        let span = self.source.span_token();
-
-        (
-            quote_spanned! {span=> <#inner_tokens> },
-            EstimatedLength::new(0),
-        )
-    }
 }
 
 /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParam>
 #[derive(Debug)]
-pub(super) enum GenericParam<'a> {
+pub(in crate::template::parser) enum GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
     Lifetime(LifetimeParam<'a>),
 
@@ -124,13 +139,10 @@ pub(super) enum GenericParam<'a> {
 
 impl<'a> GenericParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(LifetimeParam::parse()),
-            into(ConstParam::parse()),
-            into(TypeParam::parse()),
-        ))
-        .parse(tokens)
+    pub(in crate::template::parser) fn parser() -> GenericParamParser<'a> {
+        GenericParamParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> Source<'a> {
@@ -149,5 +161,23 @@ impl<'a> ToTokensWithState<'a> for GenericParam<'a> {
             Self::Type(type_param) => type_param.to_tokens_with_state(state),
             Self::Const(constant) => constant.to_tokens_with_state(state),
         }
+    }
+}
+
+pub(in crate::template::parser) struct GenericParamParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for GenericParamParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = GenericParam<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(LifetimeParam::parser()),
+            into(ConstParam::parser()),
+            into(TypeParam::parser()),
+        ))
+        .parse(tokens)
     }
 }

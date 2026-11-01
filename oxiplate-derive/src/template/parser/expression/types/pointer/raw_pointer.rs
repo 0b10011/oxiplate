@@ -19,37 +19,10 @@ pub(crate) enum RawPointerType<'a> {
 
 impl<'a> RawPointerType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-RawPointerType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (deref, keyword, type_no_bounds)): (_, (_, Source<'a>, _)) = (
-            into(take(TokenKind::Asterisk)),
-            alt((
-                into(KeywordParser::new("mut")),
-                into(KeywordParser::new("const")),
-                #[cfg(feature = "_unreachable")]
-                into(KeywordParser::new("qux")),
-            )),
-            TypeNoBounds::parse,
-        )
-            .parse(tokens)?;
-
-        let raw_pointer = match keyword.as_str() {
-            "mut" => Self::Mut {
-                deref,
-                r#mut: keyword,
-                type_no_bounds: Box::new(type_no_bounds),
-            },
-            "const" => Self::Const {
-                deref,
-                r#const: keyword,
-                type_no_bounds: Box::new(type_no_bounds),
-            },
-            _ => internal_error!(
-                keyword.span_token().unwrap(),
-                "Internal Oxiplate error: Unexpected keyword parsed while parsing raw pointer"
-            ),
-        };
-
-        Ok((tokens, raw_pointer))
+    pub(in crate::template::parser) fn parser() -> RawPointerTypeParser<'a> {
+        RawPointerTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -116,5 +89,47 @@ impl<'a> ToTokensWithState<'a> for RawPointerType<'a> {
 impl<'a> From<RawPointerType<'a>> for TypeNoBounds<'a> {
     fn from(value: RawPointerType<'a>) -> Self {
         TypeNoBounds::RawPointer(value)
+    }
+}
+
+pub(in crate::template::parser) struct RawPointerTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for RawPointerTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = RawPointerType<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (deref, keyword, type_no_bounds)): (_, (_, Source<'a>, _)) = (
+            into(take(TokenKind::Asterisk)),
+            alt((
+                into(KeywordParser::new("mut")),
+                into(KeywordParser::new("const")),
+                #[cfg(feature = "_unreachable")]
+                into(KeywordParser::new("qux")),
+            )),
+            TypeNoBounds::parser(),
+        )
+            .parse(tokens)?;
+
+        let raw_pointer = match keyword.as_str() {
+            "mut" => RawPointerType::Mut {
+                deref,
+                r#mut: keyword,
+                type_no_bounds: Box::new(type_no_bounds),
+            },
+            "const" => RawPointerType::Const {
+                deref,
+                r#const: keyword,
+                type_no_bounds: Box::new(type_no_bounds),
+            },
+            _ => internal_error!(
+                keyword.span_token().unwrap(),
+                "Internal Oxiplate error: Unexpected keyword parsed while parsing raw pointer"
+            ),
+        };
+
+        Ok((tokens, raw_pointer))
     }
 }

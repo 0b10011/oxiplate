@@ -199,7 +199,7 @@ impl<'a> Parser<'a> for NamedStructParser<'a> {
 }
 
 #[derive(Debug)]
-struct Field<'a> {
+pub(in crate::template::parser) struct Field<'a> {
     name: Identifier<'a>,
 
     /// `Source` is `:`.

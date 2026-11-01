@@ -12,17 +12,10 @@ pub(crate) struct LifetimeParam<'a> {
 
 impl<'a> LifetimeParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (lifetime, bounds)) = (
-            Lifetime::parse,
-            ignore_recoverable_errors((
-                into(take(TokenKind::Colon)),
-                ignore_recoverable_errors(into(LifetimeBounds::parse())),
-            )),
-        )
-            .parse(tokens)?;
-
-        Ok((tokens, Self { lifetime, bounds }))
+    pub(in crate::template::parser) fn parser() -> LifetimeParamParser<'a> {
+        LifetimeParamParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -62,5 +55,27 @@ impl<'a> ToTokensWithState<'a> for LifetimeParam<'a> {
 impl<'a> From<LifetimeParam<'a>> for GenericParam<'a> {
     fn from(value: LifetimeParam<'a>) -> Self {
         Self::Lifetime(value)
+    }
+}
+
+pub(in crate::template::parser) struct LifetimeParamParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LifetimeParamParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = LifetimeParam<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (lifetime, bounds)) = (
+            Lifetime::parser(),
+            ignore_recoverable_errors((
+                into(take(TokenKind::Colon)),
+                ignore_recoverable_errors(into(LifetimeBounds::parser())),
+            )),
+        )
+            .parse(tokens)?;
+
+        Ok((tokens, LifetimeParam { lifetime, bounds }))
     }
 }

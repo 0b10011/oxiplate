@@ -163,7 +163,7 @@ fn parse_escaper_groups<'a>(
                         tokens.eof().source().clone(),
                     ));
                 }
-                TableOrValue::Value(Value::Bool(value)) => {
+                TableOrValue::Value(value @ Value::Bool(_)) => {
                     return Err(Error::unrecoverable(
                         format!(
                             "`escaper_groups.{escaper_group}.escaper` should be a path to an \

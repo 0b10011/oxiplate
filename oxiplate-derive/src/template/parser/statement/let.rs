@@ -26,11 +26,11 @@ pub(crate) struct Let<'a> {
 
 impl<'a> Let<'a> {
     /// Attempt to parse a `let` statement from the current input.
-	pub(in crate::template::parser) fn parser() -> LetParser<'a> {
-	    LetParser {
-	        phantom_data: PhantomData,
-	    }
-	}
+    pub(in crate::template::parser) fn parser() -> LetParser<'a> {
+        LetParser {
+            phantom_data: PhantomData,
+        }
+    }
 
     /// Get the `Source` for the statement.
     pub fn source(&self) -> &Source<'a> {

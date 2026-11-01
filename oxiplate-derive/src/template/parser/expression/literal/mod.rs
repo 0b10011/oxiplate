@@ -132,11 +132,11 @@ impl<'a> Parser<'a> for LiteralExpressionParser<'a> {
     /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, literal): (_, LiteralExpression) = alt((
-            into(Char::parse()),
-            into(String::parse()),
-            into(Integer::parse()),
-            into(Float::parse()),
-            into(Bool::parse()),
+            into(Char::parser()),
+            into(String::parser()),
+            into(Integer::parser()),
+            into(Float::parser()),
+            into(Bool::parser()),
         ))
         .parse(tokens)?;
 
@@ -194,7 +194,7 @@ impl<'a> Parser<'a> for PossiblyNegativeLiteralExpressionParser<'a> {
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (sign, literal)) = (
             ignore_recoverable_errors(into(take(TokenKind::Minus))),
-            LiteralExpression::parse(),
+            LiteralExpression::parser(),
         )
             .parse(tokens)?;
 

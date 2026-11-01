@@ -281,11 +281,6 @@ impl<'a> PathInExpression<'a> {
         }
     }
 
-    /// Whether this path is a lone identifier/keyword without `::`.
-    pub(in crate::template::parser) fn is_ident_or_keyword(&self) -> bool {
-        self.separator.is_none() && self.additional_segments.is_empty()
-    }
-
     pub(super) fn template_field(&self, state: &State) -> Option<&Identifier<'_>> {
         if self.separator.is_some() || !self.additional_segments.is_empty() {
             return None;
@@ -402,22 +397,17 @@ impl ToTokens for Separator<'_> {
 }
 
 macro_rules! keyword {
-    ($name:ident, $keyword:expr) => {
+    ($name:ident, $parser:ident, $keyword:expr) => {
         #[derive(Debug)]
         pub(in crate::template::parser) struct $name<'a> {
             source: Source<'a>,
         }
 
         impl<'a> $name<'a> {
-            pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-                let (tokens, keyword) = take(TokenKind::$name).parse(tokens)?;
-
-                Ok((
-                    tokens,
-                    Self {
-                        source: keyword.source().to_owned(),
-                    },
-                ))
+            pub(in crate::template::parser) fn parser() -> $parser<'a> {
+                $parser {
+                    phantom_data: PhantomData,
+                }
             }
 
             pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
@@ -432,10 +422,30 @@ macro_rules! keyword {
                 (quote_spanned! {span=> $keyword }, EstimatedLength::new(0))
             }
         }
+
+        pub(in crate::template::parser) struct $parser<'a> {
+            phantom_data: PhantomData<&'a ()>,
+        }
+
+        impl<'a> Parser<'a> for $parser<'a> {
+            type TokenKind = TokenKind;
+            type Output = $name<'a>;
+
+            fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+                let (tokens, keyword) = take(TokenKind::$name).parse(tokens)?;
+
+                Ok((
+                    tokens,
+                    $name {
+                        source: keyword.source().to_owned(),
+                    },
+                ))
+            }
+        }
     };
 }
 
-keyword!(Super, super);
-keyword!(SelfCurrentModule, self);
-keyword!(SelfCurrentType, Self);
-keyword!(Crate, crate);
+keyword!(Super, SuperParser, super);
+keyword!(SelfCurrentModule, SelfCurrentModuleParser, self);
+keyword!(SelfCurrentType, SelfCurrentTypeParser, Self);
+keyword!(Crate, CrateParser, crate);

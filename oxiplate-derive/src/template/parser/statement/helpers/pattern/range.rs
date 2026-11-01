@@ -155,8 +155,8 @@ impl<'a> RangeParser<'a> {
         }
     }
 
-    fn inclusive_to_parser() -> InclusiveParser<'a> {
-        InclusiveParser {
+    fn inclusive_to_parser() -> InclusiveToParser<'a> {
+        InclusiveToParser {
             phantom_data: PhantomData,
         }
     }

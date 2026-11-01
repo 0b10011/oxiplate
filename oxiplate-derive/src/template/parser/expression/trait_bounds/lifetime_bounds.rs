@@ -14,24 +14,10 @@ pub(crate) struct LifetimeBounds<'a> {
 
 impl<'a> LifetimeBounds<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-LifetimeBounds>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (first_bounds, last_bound)) = (
-            many0((Lifetime::parse, into(take(TokenKind::Plus)))),
-            ignore_recoverable_errors(Lifetime::parse),
-        )
-            .parse(tokens)?;
-
-        if first_bounds.is_empty() && last_bound.is_none() {
-            return context("Expected one or more bounds", fail()).parse(tokens);
+    pub(in crate::template::parser) fn parser() -> LifetimeBoundsParser<'a> {
+        LifetimeBoundsParser {
+            phantom_data: PhantomData,
         }
-
-        Ok((
-            tokens,
-            Self {
-                first_bounds,
-                last_bound,
-            },
-        ))
     }
 
     pub(crate) fn source(&self) -> Source<'a> {
@@ -72,5 +58,34 @@ impl<'a> ToTokensWithState<'a> for LifetimeBounds<'a> {
         }
 
         (tokens, EstimatedLength::new(0))
+    }
+}
+
+pub(in crate::template::parser) struct LifetimeBoundsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LifetimeBoundsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = LifetimeBounds<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (first_bounds, last_bound)) = (
+            many0((Lifetime::parser(), into(take(TokenKind::Plus)))),
+            ignore_recoverable_errors(Lifetime::parser()),
+        )
+            .parse(tokens)?;
+
+        if first_bounds.is_empty() && last_bound.is_none() {
+            return context("Expected one or more bounds", fail()).parse(tokens);
+        }
+
+        Ok((
+            tokens,
+            LifetimeBounds {
+                first_bounds,
+                last_bound,
+            },
+        ))
     }
 }

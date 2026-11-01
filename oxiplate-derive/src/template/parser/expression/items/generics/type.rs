@@ -14,25 +14,10 @@ pub(crate) struct TypeParam<'a> {
 
 impl<'a> TypeParam<'a> {
     /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (identifier, bounds, r#type)) = (
-            Identifier::parse,
-            ignore_recoverable_errors((
-                into(take(TokenKind::Colon)),
-                ignore_recoverable_errors(into(Bounds::parse())),
-            )),
-            ignore_recoverable_errors((into(take(TokenKind::Equal)), into(Type::parse()))),
-        )
-            .parse(tokens)?;
-
-        Ok((
-            tokens,
-            Self {
-                identifier,
-                bounds,
-                r#type,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> TypeParamParser<'a> {
+        TypeParamParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> Source<'a> {
@@ -85,5 +70,35 @@ impl<'a> ToTokensWithState<'a> for TypeParam<'a> {
 impl<'a> From<TypeParam<'a>> for GenericParam<'a> {
     fn from(value: TypeParam<'a>) -> Self {
         Self::Type(value)
+    }
+}
+
+pub(in crate::template::parser) struct TypeParamParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TypeParamParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TypeParam<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (identifier, bounds, r#type)) = (
+            Identifier::parser(),
+            ignore_recoverable_errors((
+                into(take(TokenKind::Colon)),
+                ignore_recoverable_errors(into(Bounds::parser())),
+            )),
+            ignore_recoverable_errors((into(take(TokenKind::Equal)), into(Type::parser()))),
+        )
+            .parse(tokens)?;
+
+        Ok((
+            tokens,
+            TypeParam {
+                identifier,
+                bounds,
+                r#type,
+            },
+        ))
     }
 }

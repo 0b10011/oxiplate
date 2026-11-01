@@ -58,6 +58,6 @@ impl<'a> Parser<'a> for GenericArgsParser<'a> {
     type Output = GenericArgs<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        alt((into(GenericArgList::parse), into(TypeList::parse))).parse(tokens)
+        alt((into(GenericArgList::parser()), into(TypeList::parser()))).parse(tokens)
     }
 }

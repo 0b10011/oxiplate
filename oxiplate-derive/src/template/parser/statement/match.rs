@@ -291,7 +291,7 @@ impl<'a> Parser<'a> for CaseParser<'a> {
 
 #[derive(Debug)]
 /// See: <https://doc.rust-lang.org/book/ch19-03-pattern-syntax.html#adding-conditionals-with-match-guards>
-struct Guard<'a> {
+pub(in crate::template::parser) struct Guard<'a> {
     if_tag: Source<'a>,
     expression: Expression<'a>,
     source: Source<'a>,

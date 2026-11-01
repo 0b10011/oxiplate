@@ -16,15 +16,10 @@ pub(in crate::template::parser) enum Bound<'a> {
 
 impl<'a> Bound<'a> {
     /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bound>
-    pub(in crate::template::parser) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, bound) = alt((
-            into(Lifetime::parse),
-            into(UseBound::parse),
-            into(TraitBound::parse),
-        ))
-        .parse(tokens)?;
-
-        Ok((tokens, bound))
+    pub(in crate::template::parser) fn parser() -> BoundParser<'a> {
+        BoundParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(in crate::template::parser) fn source(&self) -> Source<'a> {
@@ -61,5 +56,25 @@ impl<'a> From<TraitBound<'a>> for Bound<'a> {
 impl<'a> From<UseBound<'a>> for Bound<'a> {
     fn from(value: UseBound<'a>) -> Self {
         Self::UseBound(value)
+    }
+}
+
+pub(in crate::template::parser) struct BoundParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for BoundParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Bound<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, bound) = alt((
+            into(Lifetime::parser()),
+            into(UseBound::parser()),
+            into(TraitBound::parser()),
+        ))
+        .parse(tokens)?;
+
+        Ok((tokens, bound))
     }
 }

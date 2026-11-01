@@ -11,27 +11,10 @@ pub(crate) struct SliceType<'a> {
 
 impl<'a> SliceType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/slice.html#railroad-SliceType>
-    pub(crate) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open_bracket, r#type, close_bracket)) = (
-            take(TokenKind::OpenBracket),
-            Type::parse,
-            take(TokenKind::CloseBracket),
-        )
-            .parse(tokens)?;
-
-        let source = open_bracket
-            .source()
-            .to_owned()
-            .merge(&r#type.source(), "Type should follow `[`")
-            .merge(close_bracket.source(), "`]` should follow expression");
-
-        Ok((
-            tokens,
-            Self {
-                r#type: Box::new(r#type),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> SliceTypeParser<'a> {
+        SliceTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(crate) fn source(&self) -> &Source<'a> {
@@ -54,5 +37,37 @@ impl<'a> ToTokensWithState<'a> for SliceType<'a> {
 impl<'a> From<SliceType<'a>> for TypeNoBounds<'a> {
     fn from(value: SliceType<'a>) -> Self {
         TypeNoBounds::Slice(value)
+    }
+}
+
+pub(in crate::template::parser) struct SliceTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for SliceTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = SliceType<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open_bracket, r#type, close_bracket)) = (
+            take(TokenKind::OpenBracket),
+            Type::parser(),
+            take(TokenKind::CloseBracket),
+        )
+            .parse(tokens)?;
+
+        let source = open_bracket
+            .source()
+            .to_owned()
+            .merge(&r#type.source(), "Type should follow `[`")
+            .merge(close_bracket.source(), "`]` should follow expression");
+
+        Ok((
+            tokens,
+            SliceType {
+                r#type: Box::new(r#type),
+                source,
+            },
+        ))
     }
 }

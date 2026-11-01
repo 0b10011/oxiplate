@@ -8,7 +8,7 @@ use crate::template::parser::prelude::*;
 
 /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgList>
 #[derive(Debug)]
-pub(super) struct GenericArgList<'a> {
+pub(in crate::template::parser) struct GenericArgList<'a> {
     first_generics: Vec<(GenericArg<'a>, Source<'a>)>,
     last_generic: Option<(GenericArg<'a>, Option<Source<'a>>)>,
     source: Source<'a>,
@@ -77,9 +77,9 @@ impl<'a> Parser<'a> for GenericArgListParser<'a> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
             (
-                many0((GenericArg::parse, into(take(TokenKind::Comma)))),
+                many0((GenericArg::parser(), into(take(TokenKind::Comma)))),
                 ignore_recoverable_errors((
-                    GenericArg::parse,
+                    GenericArg::parser(),
                     ignore_recoverable_errors(into(take(TokenKind::Comma))),
                 )),
             ),
@@ -187,11 +187,11 @@ impl<'a> Parser<'a> for GenericArgParser<'a> {
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArg>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
-            into(Lifetime::parse),
-            into(GenericArgsBinding::parse),
-            into(GenericArgsBounds::parse),
-            into(Type::parse),
-            into(GenericArgsConst::parse),
+            into(Lifetime::parser()),
+            into(GenericArgsBinding::parser()),
+            into(GenericArgsBounds::parser()),
+            into(Type::parser()),
+            into(GenericArgsConst::parser()),
         ))
         .parse(tokens)
     }

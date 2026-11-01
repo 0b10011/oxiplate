@@ -11,27 +11,10 @@ pub(crate) struct ParenthesizedType<'a> {
 
 impl<'a> ParenthesizedType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open, r#type, close)) = (
-            take(TokenKind::OpenParenthese),
-            cut("Type expected after `(`", Type::parse),
-            cut("`)` expected after type", take(TokenKind::CloseParenthese)),
-        )
-            .parse(tokens)?;
-
-        let source = open
-            .source()
-            .clone()
-            .merge(&r#type.source(), "Type expected after `(`")
-            .merge(close.source(), "`)` expected after type");
-
-        Ok((
-            tokens,
-            Self {
-                r#type: Box::new(r#type),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> ParenthesizedTypeParser<'a> {
+        ParenthesizedTypeParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub(super) fn source(&self) -> &Source<'a> {
@@ -51,5 +34,37 @@ impl<'a> ToTokensWithState<'a> for ParenthesizedType<'a> {
 impl<'a> From<ParenthesizedType<'a>> for TypeNoBounds<'a> {
     fn from(value: ParenthesizedType<'a>) -> Self {
         Self::Parenthesized(value)
+    }
+}
+
+pub(in crate::template::parser) struct ParenthesizedTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ParenthesizedTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = ParenthesizedType<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open, r#type, close)) = (
+            take(TokenKind::OpenParenthese),
+            cut("Type expected after `(`", Type::parser()),
+            cut("`)` expected after type", take(TokenKind::CloseParenthese)),
+        )
+            .parse(tokens)?;
+
+        let source = open
+            .source()
+            .clone()
+            .merge(&r#type.source(), "Type expected after `(`")
+            .merge(close.source(), "`)` expected after type");
+
+        Ok((
+            tokens,
+            ParenthesizedType {
+                r#type: Box::new(r#type),
+                source,
+            },
+        ))
     }
 }

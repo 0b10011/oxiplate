@@ -15,38 +15,10 @@ pub(crate) struct TupleType<'a> {
 
 impl<'a> TupleType<'a> {
     /// See: <https://doc.rust-lang.org/reference/types/tuple.html#railroad-TupleType>
-    pub(super) fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open_paren, first_types, last_type, close_paren)) = (
-            into(take(TokenKind::OpenParenthese)),
-            many1((Type::parse, into(take(TokenKind::Comma)))),
-            ignore_recoverable_errors(Type::parse),
-            into(take(TokenKind::CloseParenthese)),
-        )
-            .parse(tokens)?;
-
-        let mut source: Source<'a> = open_paren;
-
-        for (r#type, comma) in &first_types {
-            source = source
-                .merge(&r#type.source(), "Type expected after `(` or `,`")
-                .merge(comma, "`,` expected after type");
+    pub(in crate::template::parser) fn parser() -> TupleTypeParser<'a> {
+        TupleTypeParser {
+            phantom_data: PhantomData,
         }
-
-        source = source
-            .merge_some(
-                last_type.as_ref().map(Type::source).as_ref(),
-                "Type expected after `(` or `,`",
-            )
-            .merge(&close_paren, "`)` expected after last type");
-
-        Ok((
-            tokens,
-            Self {
-                first_types,
-                last_type: last_type.map(Box::new),
-                source,
-            },
-        ))
     }
 
     pub(super) fn source(&self) -> &Source<'a> {
@@ -80,5 +52,48 @@ impl<'a> ToTokensWithState<'a> for TupleType<'a> {
 impl<'a> From<TupleType<'a>> for TypeNoBounds<'a> {
     fn from(value: TupleType<'a>) -> Self {
         Self::Tuple(value)
+    }
+}
+
+pub(in crate::template::parser) struct TupleTypeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TupleTypeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TupleType<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open_paren, first_types, last_type, close_paren)) = (
+            into(take(TokenKind::OpenParenthese)),
+            many1((Type::parser(), into(take(TokenKind::Comma)))),
+            ignore_recoverable_errors(Type::parser()),
+            into(take(TokenKind::CloseParenthese)),
+        )
+            .parse(tokens)?;
+
+        let mut source: Source<'a> = open_paren;
+
+        for (r#type, comma) in &first_types {
+            source = source
+                .merge(&r#type.source(), "Type expected after `(` or `,`")
+                .merge(comma, "`,` expected after type");
+        }
+
+        source = source
+            .merge_some(
+                last_type.as_ref().map(Type::source).as_ref(),
+                "Type expected after `(` or `,`",
+            )
+            .merge(&close_paren, "`)` expected after last type");
+
+        Ok((
+            tokens,
+            TupleType {
+                first_types,
+                last_type: last_type.map(Box::new),
+                source,
+            },
+        ))
     }
 }
