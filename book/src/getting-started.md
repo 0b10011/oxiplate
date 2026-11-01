@@ -15,7 +15,7 @@ so make sure to turn it on during development at the very least.
 
 </div>
 
-Create a couple templates in the `/template` directory:
+Create a couple templates in the `/templates` directory:
 
 ```html:/templates/layout.html.oxip
 <!DOCTYPE html>
