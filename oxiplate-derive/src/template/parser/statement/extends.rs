@@ -134,8 +134,21 @@ impl<'a> From<Extends<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_extends(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, (extends_keyword, path)) = (
+pub(in crate::template::parser) fn parse_extends<'a>() -> ExtendsParser<'a> {
+    ExtendsParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ExtendsParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ExtendsParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (extends_keyword, path)) = (
         KeywordParser::new("extends"),
         cut(
             r#"Expected path to template to extend (e.g., `{% extends "path/to/template.html.oxip" %}`)"#,
@@ -144,21 +157,22 @@ pub(super) fn parse_extends(tokens: TokenSlice) -> Res<Statement> {
     )
         .parse(tokens)?;
 
-    let source = extends_keyword
-        .source()
-        .clone()
-        .merge(path.source(), "Path expected after `\"`");
+        let source = extends_keyword
+            .source()
+            .clone()
+            .merge(path.source(), "Path expected after `\"`");
 
-    Ok((
-        tokens,
-        Statement {
-            kind: Extends {
-                blocks: HashMap::new(),
-                path,
-                template: Template(vec![]),
-            }
-            .into(),
-            source,
-        },
-    ))
+        Ok((
+            tokens,
+            Statement {
+                kind: Extends {
+                    blocks: HashMap::new(),
+                    path,
+                    template: Template(vec![]),
+                }
+                .into(),
+                source,
+            },
+        ))
+    }
 }

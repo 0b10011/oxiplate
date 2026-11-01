@@ -46,120 +46,10 @@ pub(crate) enum Range<'a> {
 }
 
 impl<'a> Range<'a> {
-	pub(in crate::template::parser) fn parser() -> RangeParser<'a> {
-	    RangeParser {
-	        phantom_data: PhantomData,
-	    }
-	}
-
-    pub fn parse_from_or_exclusive(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (from, operator, to)) = (
-            Value::parse,
-            take(TokenKind::RangeExclusive),
-            ignore_all_errors(Value::parser()),
-        )
-            .parse(tokens)?;
-
-        let source = from
-            .source()
-            .clone()
-            .merge(operator.source(), "`..` operator expected after whitespace")
-            .merge_some(
-                to.as_ref().map(Value::source),
-                "Value expected after whitespace",
-            );
-
-        if let Some(to) = to {
-            Ok((
-                tokens,
-                Self::Exclusive {
-                    from,
-                    operator: operator.source().clone(),
-                    to,
-                    source,
-                },
-            ))
-        } else {
-            Ok((
-                tokens,
-                Self::From {
-                    from,
-                    operator: operator.source().clone(),
-                    source,
-                },
-            ))
+    pub(in crate::template::parser) fn parser() -> RangeParser<'a> {
+        RangeParser {
+            phantom_data: PhantomData,
         }
-    }
-
-    pub fn parse_inclusive(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (from, operator, to)) =
-            (Value::parse, take(TokenKind::RangeInclusive), Value::parse).parse(tokens)?;
-
-        let source = from
-            .source()
-            .clone()
-            .merge(operator.source(), "`..` operator expected after whitespace")
-            .merge(to.source(), "Value expected after whitespace");
-
-        Ok((
-            tokens,
-            Self::Inclusive {
-                from,
-                operator: operator.source().clone(),
-                to,
-                source,
-            },
-        ))
-    }
-
-    pub fn parse_exclusive_to(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (operator, to)) = (
-            take(TokenKind::RangeExclusive),
-            ignore_recoverable_errors(Value::parse),
-        )
-            .parse(tokens)?;
-
-        let Some(to) = to else {
-            return Ok((
-                tokens,
-                Self::Full {
-                    operator: operator.source().clone(),
-                },
-            ));
-        };
-
-        let source = operator
-            .source()
-            .clone()
-            .merge(to.source(), "Value expected after whitespace");
-
-        Ok((
-            tokens,
-            Self::ExclusiveTo {
-                operator: operator.source().clone(),
-                to,
-                source,
-            },
-        ))
-    }
-
-    pub fn parse_inclusive_to(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (operator, to)) =
-            (take(TokenKind::RangeInclusive), Value::parse).parse(tokens)?;
-
-        let source = operator
-            .source()
-            .clone()
-            .merge(to.source(), "Value expected after whitespace");
-
-        Ok((
-            tokens,
-            Self::InclusiveTo {
-                operator: operator.source().clone(),
-                to,
-                source,
-            },
-        ))
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -246,16 +136,42 @@ pub(in crate::template::parser) struct RangeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
 
+impl<'a> RangeParser<'a> {
+    fn inclusive_parser() -> InclusiveParser<'a> {
+        InclusiveParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    fn from_or_exclusive_parser() -> FromOrExclusiveParser<'a> {
+        FromOrExclusiveParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    fn exclusive_to_parser() -> ExclusiveToParser<'a> {
+        ExclusiveToParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    fn inclusive_to_parser() -> InclusiveParser<'a> {
+        InclusiveParser {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
 impl<'a> Parser<'a> for RangeParser<'a> {
     type TokenKind = TokenKind;
     type Output = Range<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
-            Self::parse_inclusive(),
-            Self::parse_from_or_exclusive(),
-            Self::parse_exclusive_to(),
-            Self::parse_inclusive_to(),
+            Self::inclusive_parser(),
+            Self::from_or_exclusive_parser(),
+            Self::exclusive_to_parser(),
+            Self::inclusive_to_parser(),
         ))
         .parse(tokens)
     }
@@ -269,8 +185,10 @@ pub(crate) enum Value<'a> {
 }
 
 impl<'a> Value<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((into(Number::parse), into(Char::parse))).parse(tokens)
+    pub(in crate::template::parser) fn parser() -> ValueParser<'a> {
+        ValueParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -304,5 +222,168 @@ impl<'a> From<Number<'a>> for Value<'a> {
 impl<'a> From<Char<'a>> for Value<'a> {
     fn from(value: Char<'a>) -> Self {
         Value::Char(value)
+    }
+}
+
+pub(in crate::template::parser) struct ValueParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ValueParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Value<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((into(Number::parser()), into(Char::parser()))).parse(tokens)
+    }
+}
+
+pub(in crate::template::parser) struct InclusiveParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for InclusiveParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Range<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (from, operator, to)) = (
+            Value::parser(),
+            take(TokenKind::RangeInclusive),
+            Value::parser(),
+        )
+            .parse(tokens)?;
+
+        let source = from
+            .source()
+            .clone()
+            .merge(operator.source(), "`..` operator expected after whitespace")
+            .merge(to.source(), "Value expected after whitespace");
+
+        Ok((
+            tokens,
+            Range::Inclusive {
+                from,
+                operator: operator.source().clone(),
+                to,
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) struct FromOrExclusiveParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for FromOrExclusiveParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Range<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (from, operator, to)) = (
+            Value::parser(),
+            take(TokenKind::RangeExclusive),
+            ignore_all_errors(Value::parser()),
+        )
+            .parse(tokens)?;
+
+        let source = from
+            .source()
+            .clone()
+            .merge(operator.source(), "`..` operator expected after whitespace")
+            .merge_some(
+                to.as_ref().map(Value::source),
+                "Value expected after whitespace",
+            );
+
+        if let Some(to) = to {
+            Ok((
+                tokens,
+                Range::Exclusive {
+                    from,
+                    operator: operator.source().clone(),
+                    to,
+                    source,
+                },
+            ))
+        } else {
+            Ok((
+                tokens,
+                Range::From {
+                    from,
+                    operator: operator.source().clone(),
+                    source,
+                },
+            ))
+        }
+    }
+}
+
+pub(in crate::template::parser) struct ExclusiveToParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ExclusiveToParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Range<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (operator, to)) = (
+            take(TokenKind::RangeExclusive),
+            ignore_recoverable_errors(Value::parser()),
+        )
+            .parse(tokens)?;
+
+        let Some(to) = to else {
+            return Ok((
+                tokens,
+                Range::Full {
+                    operator: operator.source().clone(),
+                },
+            ));
+        };
+
+        let source = operator
+            .source()
+            .clone()
+            .merge(to.source(), "Value expected after whitespace");
+
+        Ok((
+            tokens,
+            Range::ExclusiveTo {
+                operator: operator.source().clone(),
+                to,
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) struct InclusiveToParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for InclusiveToParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Range<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (operator, to)) =
+            (take(TokenKind::RangeInclusive), Value::parser()).parse(tokens)?;
+
+        let source = operator
+            .source()
+            .clone()
+            .merge(to.source(), "Value expected after whitespace");
+
+        Ok((
+            tokens,
+            Range::InclusiveTo {
+                operator: operator.source().clone(),
+                to,
+                source,
+            },
+        ))
     }
 }

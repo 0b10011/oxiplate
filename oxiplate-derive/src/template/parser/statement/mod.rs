@@ -186,11 +186,21 @@ impl<'a> From<Statement<'a>> for Item<'a> {
     }
 }
 
-#[allow(clippy::too_many_lines)]
-pub(super) fn statement<'a>(
+pub(in crate::template::parser) fn statement<'a>(
     open_tag_source: Source<'a>,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
-    move |tokens| {
+) -> StatementParser<'a> {
+    StatementParser { open_tag_source }
+}
+pub(in crate::template::parser) struct StatementParser<'a> {
+    open_tag_source: Source<'a>,
+}
+
+impl<'a> Parser<'a> for StatementParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (Item<'a>, Option<Item<'a>>);
+
+    #[expect(clippy::too_many_lines)]
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         // Parse statements
         let (tokens, mut statement): (TokenSlice<'a>, Statement<'a>) = cut(
             "Expected one of: default_escaper_group, replace_escaper_group, extends, block, \
@@ -223,7 +233,7 @@ pub(super) fn statement<'a>(
         let (tokens, (mut trailing_whitespace, close_tag)) =
             tag_end(TagKind::Statement).parse(tokens)?;
 
-        statement.wrap_source(open_tag_source.clone(), &close_tag);
+        statement.wrap_source(self.open_tag_source.clone(), &close_tag);
 
         let mut tokens = tokens;
         if !statement.is_ended(tokens.is_empty()) {

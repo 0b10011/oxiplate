@@ -198,56 +198,98 @@ impl<'a> From<Block<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_block(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, block_keyword) = KeywordParser::new("block").parse(tokens)?;
-
-    let (tokens, name) = cut(
-        "Expected a block name (e.g., `{% block content %}`)",
-        Identifier::parser(),
-    )
-    .parse(tokens)?;
-
-    let source = block_keyword
-        .source()
-        .clone()
-        .merge(name.source(), "Block name expected after whitespace");
-
-    Ok((
-        tokens,
-        Statement {
-            kind: Block {
-                name,
-                prefix: Template(vec![]),
-                parent_source: None,
-                suffix: None,
-                is_ended: false,
-            }
-            .into(),
-            source,
-        },
-    ))
+pub(in crate::template::parser) fn parse_block<'a>() -> BlockParser<'a> {
+    BlockParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct BlockParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-pub(super) fn parse_parent(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, output) = KeywordParser::new("parent").parse(tokens)?;
+impl<'a> Parser<'a> for BlockParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
 
-    Ok((
-        tokens,
-        Statement {
-            kind: StatementKind::Parent,
-            source: output.source().clone(),
-        },
-    ))
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, block_keyword) = KeywordParser::new("block").parse(tokens)?;
+
+        let (tokens, name) = cut(
+            "Expected a block name (e.g., `{% block content %}`)",
+            Identifier::parser(),
+        )
+        .parse(tokens)?;
+
+        let source = block_keyword
+            .source()
+            .clone()
+            .merge(name.source(), "Block name expected after whitespace");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: Block {
+                    name,
+                    prefix: Template(vec![]),
+                    parent_source: None,
+                    suffix: None,
+                    is_ended: false,
+                }
+                .into(),
+                source,
+            },
+        ))
+    }
 }
 
-pub(super) fn parse_endblock(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, output) = KeywordParser::new("endblock").parse(tokens)?;
+pub(in crate::template::parser) fn parse_parent<'a>() -> ParentParser<'a> {
+    ParentParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ParentParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    Ok((
-        tokens,
-        Statement {
-            kind: StatementKind::EndBlock,
-            source: output.source().clone(),
-        },
-    ))
+impl<'a> Parser<'a> for ParentParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("parent").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::Parent,
+                source: output.source().clone(),
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) fn parse_endblock<'a>() -> EndBlockParser<'a> {
+    EndBlockParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct EndBlockParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for EndBlockParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("endblock").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::EndBlock,
+                source: output.source().clone(),
+            },
+        ))
+    }
 }

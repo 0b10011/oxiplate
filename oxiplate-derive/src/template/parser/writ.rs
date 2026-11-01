@@ -342,10 +342,18 @@ struct Escaper<'a> {
     escaper: Identifier<'a>,
 }
 
-pub(super) fn writ<'a>(
+pub(in crate::template::parser) fn writ<'a>(open_tag_source: Source<'a>) -> WritParser<'a> {
+    WritParser { open_tag_source }
+}
+pub(in crate::template::parser) struct WritParser<'a> {
     open_tag_source: Source<'a>,
-) -> impl Fn(TokenSlice<'a>) -> Res<'a, (Item<'a>, Option<Item<'a>>)> {
-    move |tokens| {
+}
+
+impl<'a> Parser<'a> for WritParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (Item<'a>, Option<Item<'a>>);
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, escaper_info) = ignore_recoverable_errors((
             ignore_recoverable_errors((Identifier::parser(), take(TokenKind::Period))),
             Identifier::parser(),
@@ -376,7 +384,8 @@ pub(super) fn writ<'a>(
             cut("Expected an expression in the writ", expression(true)).parse(tokens)?;
         let (tokens, (trailing_whitespace, end_tag)) = tag_end(TagKind::Writ).parse(tokens)?;
 
-        let source = open_tag_source
+        let source = self
+            .open_tag_source
             .clone()
             .merge_some(escaper_source.as_ref(), "Escaper expected after whitespace")
             .merge(&output.source(), "Expression expected after escaper")

@@ -15,11 +15,11 @@ pub(crate) struct Array<'a> {
 }
 
 impl<'a> Array<'a> {
-	pub(in crate::template::parser) fn parser() -> ArrayParser<'a> {
-	    ArrayParser {
-	        phantom_data: PhantomData,
-	    }
-	}
+    pub(in crate::template::parser) fn parser() -> ArrayParser<'a> {
+        ArrayParser {
+            phantom_data: PhantomData,
+        }
+    }
 
     pub fn source(&self) -> &Source<'a> {
         &self.source

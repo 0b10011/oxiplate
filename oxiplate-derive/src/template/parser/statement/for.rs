@@ -144,59 +144,89 @@ impl<'a> From<For<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_for(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, for_keyword) = KeywordParser::new("for").parse(tokens)?;
-
-    let (tokens, (pattern, in_keyword, expression)) = (
-        cut("Expected a pattern", Pattern::parser()),
-        cut("Expected 'in'", KeywordParser::new("in")),
-        cut("Expected an expression after `in`", expression(true)),
-    )
-        .parse(tokens)?;
-
-    let source = for_keyword
-        .source()
-        .clone()
-        .merge(&pattern.source(), "Ident expected after whitespace")
-        .merge(in_keyword.source(), "`in` expected after whitespace")
-        .merge(&expression.source(), "Expression expected after whitespace");
-
-    Ok((
-        tokens,
-        Statement {
-            kind: For {
-                for_keyword,
-                pattern,
-                in_keyword,
-                expression,
-                template: Template(vec![]),
-                otherwise: None,
-                is_ended: false,
-            }
-            .into(),
-            source,
-        },
-    ))
+pub(in crate::template::parser) fn parse_for<'a>() -> ForParser<'a> {
+    ForParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct ForParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-pub(super) fn parse_endfor(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, output) = KeywordParser::new("endfor").parse(tokens)?;
+impl<'a> Parser<'a> for ForParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
 
-    Ok((
-        tokens,
-        Statement {
-            kind: StatementKind::EndFor,
-            source: output.source().clone(),
-        },
-    ))
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, for_keyword) = KeywordParser::new("for").parse(tokens)?;
+
+        let (tokens, (pattern, in_keyword, expression)) = (
+            cut("Expected a pattern", Pattern::parser()),
+            cut("Expected 'in'", KeywordParser::new("in")),
+            cut("Expected an expression after `in`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = for_keyword
+            .source()
+            .clone()
+            .merge(&pattern.source(), "Ident expected after whitespace")
+            .merge(in_keyword.source(), "`in` expected after whitespace")
+            .merge(&expression.source(), "Expression expected after whitespace");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: For {
+                    for_keyword,
+                    pattern,
+                    in_keyword,
+                    expression,
+                    template: Template(vec![]),
+                    otherwise: None,
+                    is_ended: false,
+                }
+                .into(),
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) fn parse_endfor<'a>() -> EndForParser<'a> {
+    EndForParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct EndForParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for EndForParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("endfor").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::EndFor,
+                source: output.source().clone(),
+            },
+        ))
+    }
 }
 
 #[derive(Debug)]
 pub(crate) struct Break<'a>(Keyword<'a>);
 
 impl<'a> Break<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Break<'a>> {
-        into(KeywordParser::new("break")).parse(tokens)
+    pub(in crate::template::parser) fn parser() -> BreakParser<'a> {
+        BreakParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -228,12 +258,27 @@ impl<'a> From<Break<'a>> for Statement<'a> {
     }
 }
 
+pub(in crate::template::parser) struct BreakParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for BreakParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Break<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        into(KeywordParser::new("break")).parse(tokens)
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct Continue<'a>(Keyword<'a>);
 
 impl<'a> Continue<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Continue<'a>> {
-        into(KeywordParser::new("continue")).parse(tokens)
+    pub(in crate::template::parser) fn parser() -> ContinueParser<'a> {
+        ContinueParser {
+            phantom_data: PhantomData,
+        }
     }
 
     pub fn source(&self) -> &Source<'a> {
@@ -262,5 +307,18 @@ impl<'a> From<Continue<'a>> for Statement<'a> {
             source: value.source().clone(),
             kind: StatementKind::Continue(value),
         }
+    }
+}
+
+pub(in crate::template::parser) struct ContinueParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ContinueParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Continue<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        into(KeywordParser::new("continue")).parse(tokens)
     }
 }

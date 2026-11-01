@@ -15,11 +15,11 @@ pub(crate) enum Literal<'a> {
 
 impl<'a> Literal<'a> {
     /// Parse a `Literal` from the input.
-	pub(in crate::template::parser) fn parser() -> LiteralParser<'a> {
-	    LiteralParser {
-	        phantom_data: PhantomData,
-	    }
-	}
+    pub(in crate::template::parser) fn parser() -> LiteralParser<'a> {
+        LiteralParser {
+            phantom_data: PhantomData,
+        }
+    }
 
     /// Get the underlying `Source` from the template for the literal and leading whitespace.
     pub fn source(&self) -> &Source<'a> {

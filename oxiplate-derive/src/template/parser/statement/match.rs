@@ -70,42 +70,16 @@ impl<'a> Match<'a> {
         }
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
-        let (tokens, (statement, expression)) = (
-            KeywordParser::new("match"),
-            cut("Expected an expression after `match`", expression(true)),
-        )
-            .parse(tokens)?;
-
-        let source = statement
-            .source()
-            .clone()
-            .merge(&expression.source(), "Expression expected after `match`");
-
-        Ok((
-            tokens,
-            Statement {
-                kind: StatementKind::Match(Match {
-                    expression,
-                    errors: Template(vec![]),
-                    cases: vec![],
-                    is_ended: false,
-                }),
-                source,
-            },
-        ))
+    pub(in crate::template::parser) fn parser() -> MatchParser<'a> {
+        MatchParser {
+            phantom_data: PhantomData,
+        }
     }
 
-    pub(super) fn parse_end(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
-        let (tokens, output) = KeywordParser::new("endmatch").parse(tokens)?;
-
-        Ok((
-            tokens,
-            Statement {
-                kind: StatementKind::EndMatch,
-                source: output.source().clone(),
-            },
-        ))
+    pub(in crate::template::parser) fn parse_end() -> EndMatchParser<'a> {
+        EndMatchParser {
+            phantom_data: PhantomData,
+        }
     }
 }
 
@@ -130,6 +104,62 @@ impl<'a> ToTokensWithMutState<'a> for Match<'a> {
     }
 }
 
+pub(in crate::template::parser) struct MatchParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for MatchParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (statement, expression)) = (
+            KeywordParser::new("match"),
+            cut("Expected an expression after `match`", expression(true)),
+        )
+            .parse(tokens)?;
+
+        let source = statement
+            .source()
+            .clone()
+            .merge(&expression.source(), "Expression expected after `match`");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::Match(Match {
+                    expression,
+                    errors: Template(vec![]),
+                    cases: vec![],
+                    is_ended: false,
+                }),
+                source,
+            },
+        ))
+    }
+}
+
+pub(in crate::template::parser) struct EndMatchParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for EndMatchParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, output) = KeywordParser::new("endmatch").parse(tokens)?;
+
+        Ok((
+            tokens,
+            Statement {
+                kind: StatementKind::EndMatch,
+                source: output.source().clone(),
+            },
+        ))
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct Case<'a> {
     first_pattern: Pattern<'a>,
@@ -149,7 +179,67 @@ impl<'a> Case<'a> {
         }
     }
 
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Statement<'a>> {
+    pub(in crate::template::parser) fn parser() -> CaseParser<'a> {
+        CaseParser {
+            phantom_data: PhantomData,
+        }
+    }
+
+    pub fn get_variables(&'a self) -> HashSet<&'a str> {
+        let mut vars: HashSet<&'a str> = self.first_pattern.get_variables();
+
+        for (_operator, pattern) in &self.additional_patterns {
+            vars.extend(pattern.get_variables());
+        }
+
+        vars
+    }
+
+    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
+        let (mut tokens, _estimated_length) = self.first_pattern.to_tokens_with_state(state);
+
+        state.local_variables.push_stack();
+
+        for (operator, pattern) in &self.additional_patterns {
+            let span = operator.span_token();
+            let (pattern, _estimated_length) = pattern.to_tokens_with_state(state);
+            tokens.append_all(quote_spanned! {span=> | #pattern });
+        }
+
+        state.local_variables.add(
+            self.get_variables()
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+        );
+
+        if let Some(guard) = &self.guard {
+            let (guard, _estimated_length) = guard.to_tokens_with_state(state);
+            tokens.append_all(guard);
+        }
+
+        let (template, estimated_length) = self.template.to_tokens_with_mut_state(state);
+        tokens.append_all(quote! { => { #template } });
+
+        state.local_variables.pop_stack();
+
+        (tokens, estimated_length)
+    }
+
+    pub fn add_item(&mut self, item: Item<'a>) {
+        self.template.0.push(item);
+    }
+}
+
+pub(in crate::template::parser) struct CaseParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for CaseParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (statement, (first_pattern, additional_patterns_and_separators, guard))) = (
             KeywordParser::new("case"),
             cut(
@@ -196,51 +286,6 @@ impl<'a> Case<'a> {
                 source,
             },
         ))
-    }
-
-    pub fn get_variables(&'a self) -> HashSet<&'a str> {
-        let mut vars: HashSet<&'a str> = self.first_pattern.get_variables();
-
-        for (_operator, pattern) in &self.additional_patterns {
-            vars.extend(pattern.get_variables());
-        }
-
-        vars
-    }
-
-    pub fn to_tokens<'b: 'a>(&self, state: &mut State<'b>) -> BuiltTokens {
-        let (mut tokens, _estimated_length) = self.first_pattern.to_tokens_with_state(state);
-
-        state.local_variables.push_stack();
-
-        for (operator, pattern) in &self.additional_patterns {
-            let span = operator.span_token();
-            let (pattern, _estimated_length) = pattern.to_tokens_with_state(state);
-            tokens.append_all(quote_spanned! {span=> | #pattern });
-        }
-
-        state.local_variables.add(
-            self.get_variables()
-                .iter()
-                .map(ToString::to_string)
-                .collect(),
-        );
-
-        if let Some(guard) = &self.guard {
-            let (guard, _estimated_length) = guard.to_tokens_with_state(state);
-            tokens.append_all(guard);
-        }
-
-        let (template, estimated_length) = self.template.to_tokens_with_mut_state(state);
-        tokens.append_all(quote! { => { #template } });
-
-        state.local_variables.pop_stack();
-
-        (tokens, estimated_length)
-    }
-
-    pub fn add_item(&mut self, item: Item<'a>) {
-        self.template.0.push(item);
     }
 }
 

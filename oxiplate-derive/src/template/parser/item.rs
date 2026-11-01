@@ -121,83 +121,113 @@ impl<'a> TagOpen<'a> {
     }
 }
 
-pub(crate) fn parse_tag(tokens: TokenSlice) -> Res<Vec<Item>> {
-    let (tokens, (leading_whitespace, open, source)) = tag_start.parse(tokens)?;
-
-    let (tokens, (tag, trailing_whitespace)) = match open.kind {
-        TagKind::Writ => cut("Expected an expression or escaper", writ(source)).parse(tokens)?,
-        TagKind::Statement => cut("Expected a statement", statement(source)).parse(tokens)?,
-        TagKind::Comment => cut("Expected a comment", comment(source)).parse(tokens)?,
-    };
-
-    let mut items = vec![];
-
-    if let Some(leading_whitespace) = leading_whitespace {
-        items.push(leading_whitespace);
+pub(in crate::template::parser) fn parse_tag<'a>() -> TagParser<'a> {
+    TagParser {
+        phantom_data: PhantomData,
     }
-
-    items.push(tag);
-
-    if let Some(trailing_whitespace) = trailing_whitespace {
-        items.push(trailing_whitespace);
-    }
-
-    Ok((tokens, items))
+}
+pub(in crate::template::parser) struct TagParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
 }
 
-pub(crate) fn tag_start(tokens: TokenSlice) -> Res<(Option<Item>, TagOpen, Source)> {
-    let (tokens, (leading_whitespace, open)) = (
-        ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
-        tag_open,
-    )
-        .parse(tokens)?;
+impl<'a> Parser<'a> for TagParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Vec<Item<'a>>;
 
-    let (whitespace, removed_whitespace) = match open.whitespace_preference {
-        WhitespacePreference::Replace => {
-            if leading_whitespace
-                .as_ref()
-                .is_none_or(|whitespace| whitespace.source().as_str().is_empty())
-            {
-                let source = open.source().clone();
-                let consumed_source = source.with_collapsed_to_start_full();
-                let error_source = source.clone();
-                return Ok((
-                    tokens,
-                    (
-                        Some(Item::CompileError {
-                            message: "Whitespace replace character `_` used after non-whitespace. \
-                                      Either add whitespace or change how whitespace is handled \
-                                      before this tag."
-                                .to_owned(),
-                            error_source,
-                            consumed_source,
-                        }),
-                        open,
-                        source,
-                    ),
-                ));
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (leading_whitespace, open, source)) = tag_start().parse(tokens)?;
+
+        let (tokens, (tag, trailing_whitespace)) = match open.kind {
+            TagKind::Writ => {
+                cut("Expected an expression or escaper", writ(source)).parse(tokens)?
             }
+            TagKind::Statement => cut("Expected a statement", statement(source)).parse(tokens)?,
+            TagKind::Comment => cut("Expected a comment", comment(source)).parse(tokens)?,
+        };
 
-            (
-                leading_whitespace.map(|whitespace| Static(" ", whitespace.source().clone())),
-                None,
-            )
+        let mut items = vec![];
+
+        if let Some(leading_whitespace) = leading_whitespace {
+            items.push(leading_whitespace);
         }
-        WhitespacePreference::Remove => (None, leading_whitespace),
-        WhitespacePreference::Indifferent => (
-            leading_whitespace.map(|whitespace| {
-                Static(whitespace.source().as_str(), whitespace.source().clone())
-            }),
-            None,
-        ),
-    };
 
-    let source = open.source().clone().append_to_some(
-        removed_whitespace.map(|whitespace| whitespace.source().clone()),
-        "Open tag expected after whitespace",
-    );
+        items.push(tag);
 
-    Ok((tokens, (whitespace.map(Item::Whitespace), open, source)))
+        if let Some(trailing_whitespace) = trailing_whitespace {
+            items.push(trailing_whitespace);
+        }
+
+        Ok((tokens, items))
+    }
+}
+
+pub(in crate::template::parser) fn tag_start<'a>() -> TagStartParser<'a> {
+    TagStartParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct TagStartParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for TagStartParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = (Option<Item<'a>>, TagOpen<'a>, Source<'a>);
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (leading_whitespace, open)) = (
+            ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
+            tag_open(),
+        )
+            .parse(tokens)?;
+
+        let (whitespace, removed_whitespace) = match open.whitespace_preference {
+            WhitespacePreference::Replace => {
+                if leading_whitespace
+                    .as_ref()
+                    .is_none_or(|whitespace| whitespace.source().as_str().is_empty())
+                {
+                    let source = open.source().clone();
+                    let consumed_source = source.with_collapsed_to_start_full();
+                    let error_source = source.clone();
+                    return Ok((
+                        tokens,
+                        (
+                            Some(Item::CompileError {
+                                message: "Whitespace replace character `_` used after \
+                                          non-whitespace. Either add whitespace or change how \
+                                          whitespace is handled before this tag."
+                                    .to_owned(),
+                                error_source,
+                                consumed_source,
+                            }),
+                            open,
+                            source,
+                        ),
+                    ));
+                }
+
+                (
+                    leading_whitespace.map(|whitespace| Static(" ", whitespace.source().clone())),
+                    None,
+                )
+            }
+            WhitespacePreference::Remove => (None, leading_whitespace),
+            WhitespacePreference::Indifferent => (
+                leading_whitespace.map(|whitespace| {
+                    Static(whitespace.source().as_str(), whitespace.source().clone())
+                }),
+                None,
+            ),
+        };
+
+        let source = open.source().clone().append_to_some(
+            removed_whitespace.map(|whitespace| whitespace.source().clone()),
+            "Open tag expected after whitespace",
+        );
+
+        Ok((tokens, (whitespace.map(Item::Whitespace), open, source)))
+    }
 }
 
 pub(in crate::template::parser) fn parse_trailing_whitespace<'a>(
@@ -400,30 +430,44 @@ impl<'a> Parser<'a> for TagEndParser<'a> {
     }
 }
 
-pub(crate) fn tag_open(tokens: TokenSlice) -> Res<TagOpen> {
-    let (tokens, token) = tokens.take()?;
+pub(in crate::template::parser) fn tag_open<'a>() -> TagOpenParser<'a> {
+    TagOpenParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct TagOpenParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    let TokenKind::TagStart {
-        kind,
-        whitespace_preference,
-    } = token.kind()
-    else {
-        return Err(Error::Recoverable {
-            message: "Not `TagStart` token".to_string(),
-            source: token.source().clone(),
-            previous_error: None,
-            is_eof: false,
-        });
-    };
+impl<'a> Parser<'a> for TagOpenParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = TagOpen<'a>;
 
-    Ok((
-        tokens,
-        TagOpen {
-            source: token.source().clone(),
-            kind: kind.clone(),
-            whitespace_preference: whitespace_preference.clone(),
-        },
-    ))
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, token) = tokens.take()?;
+
+        let TokenKind::TagStart {
+            kind,
+            whitespace_preference,
+        } = token.kind()
+        else {
+            return Err(Error::Recoverable {
+                message: "Not `TagStart` token".to_string(),
+                source: token.source().clone(),
+                previous_error: None,
+                is_eof: false,
+            });
+        };
+
+        Ok((
+            tokens,
+            TagOpen {
+                source: token.source().clone(),
+                kind: kind.clone(),
+                whitespace_preference: whitespace_preference.clone(),
+            },
+        ))
+    }
 }
 
 #[cfg(test)]

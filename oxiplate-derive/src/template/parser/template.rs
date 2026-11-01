@@ -87,7 +87,7 @@ pub(crate) fn try_parse<'a, 'b: 'a>(
     state: &mut State<'b>,
     tokens: TokenSlice<'a>,
 ) -> Res<'a, BuiltTokens> {
-    let (tokens, items_vec) = parse_all(parse_item).parse(tokens)?;
+    let (tokens, items_vec) = parse_all(parse_item()).parse(tokens)?;
 
     let mut items = Vec::new();
     for mut item_vec in items_vec {
@@ -117,82 +117,96 @@ impl<'a> Parser<'a> for ItemParser<'a> {
     type Output = Vec<Item<'a>>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        alt((parse_tag, adjusted_whitespace, parse_static)).parse(tokens)
+        alt((parse_tag(), adjusted_whitespace(), parse_static())).parse(tokens)
     }
 }
 
-pub(crate) fn adjusted_whitespace(tokens: TokenSlice) -> Res<Vec<Item>> {
-    let (tokens, (leading_whitespace, tag)) = (
-        ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
-        alt((
-            take(TokenKind::WhitespaceAdjustmentTag {
-                whitespace_preference: WhitespaceAdjustmentTagPreference::Remove,
-            }),
-            take(TokenKind::WhitespaceAdjustmentTag {
-                whitespace_preference: WhitespaceAdjustmentTagPreference::Replace,
-            }),
-            #[cfg(feature = "_unreachable")]
-            take(TokenKind::At),
-        )),
-    )
+pub(in crate::template::parser) fn adjusted_whitespace<'a>() -> AdjustedWhitespaceParser<'a> {
+    AdjustedWhitespaceParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct AdjustedWhitespaceParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for AdjustedWhitespaceParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Vec<Item<'a>>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (leading_whitespace, tag)) = (
+            ignore_recoverable_errors(take(TokenKind::StaticWhitespace)),
+            alt((
+                take(TokenKind::WhitespaceAdjustmentTag {
+                    whitespace_preference: WhitespaceAdjustmentTagPreference::Remove,
+                }),
+                take(TokenKind::WhitespaceAdjustmentTag {
+                    whitespace_preference: WhitespaceAdjustmentTagPreference::Replace,
+                }),
+                #[cfg(feature = "_unreachable")]
+                take(TokenKind::At),
+            )),
+        )
+            .parse(tokens)?;
+
+        let TokenKind::WhitespaceAdjustmentTag {
+            whitespace_preference,
+        } = tag.kind()
+        else {
+            internal_error!(
+                tag.source().span_token().unwrap(),
+                "Unhandled whitespace adjustment tag"
+            );
+        };
+
+        let (tokens, trailing_whitespace) = parse_trailing_whitespace(
+            tag.source(),
+            whitespace_preference.to_owned().into(),
+            leading_whitespace.is_some(),
+        )
         .parse(tokens)?;
 
-    let TokenKind::WhitespaceAdjustmentTag {
-        whitespace_preference,
-    } = tag.kind()
-    else {
-        internal_error!(
-            tag.source().span_token().unwrap(),
-            "Unhandled whitespace adjustment tag"
-        );
-    };
+        let has_whitespace = leading_whitespace.is_some()
+            || matches!(&trailing_whitespace, Some(Item::Whitespace(_)));
 
-    let (tokens, trailing_whitespace) = parse_trailing_whitespace(
-        tag.source(),
-        whitespace_preference.to_owned().into(),
-        leading_whitespace.is_some(),
-    )
-    .parse(tokens)?;
+        let source = tag
+            .source()
+            .clone()
+            .append_to_some(
+                leading_whitespace.map(|token| token.source().clone()),
+                "Whitespace adjustment tag expected after whitespace",
+            )
+            .merge_some(
+                trailing_whitespace.as_ref().map(Item::source),
+                "Whitespace expected after tag",
+            );
 
-    let has_whitespace =
-        leading_whitespace.is_some() || matches!(&trailing_whitespace, Some(Item::Whitespace(_)));
+        let whitespace = match (has_whitespace, whitespace_preference) {
+            (true, WhitespaceAdjustmentTagPreference::Replace) => {
+                let space = if leading_whitespace.is_some()
+                    || matches!(&trailing_whitespace, Some(Item::Whitespace(Static(" ", _))))
+                {
+                    " "
+                } else {
+                    ""
+                };
+                vec![Item::Whitespace(Static(space, source))]
+            }
+            (false, WhitespaceAdjustmentTagPreference::Replace) => vec![Item::CompileError {
+                message: "Whitespace replace tag `{_}` used between non-whitespace. Either add \
+                          whitespace or remove this tag."
+                    .to_string(),
+                error_source: source.clone(),
+                consumed_source: source,
+            }],
+            // Return the tag as a comment to keep contiguous source
+            // without actually outputting anything.
+            (_, WhitespaceAdjustmentTagPreference::Remove) => {
+                vec![Item::Whitespace(Static("", source))]
+            }
+        };
 
-    let source = tag
-        .source()
-        .clone()
-        .append_to_some(
-            leading_whitespace.map(|token| token.source().clone()),
-            "Whitespace adjustment tag expected after whitespace",
-        )
-        .merge_some(
-            trailing_whitespace.as_ref().map(Item::source),
-            "Whitespace expected after tag",
-        );
-
-    let whitespace = match (has_whitespace, whitespace_preference) {
-        (true, WhitespaceAdjustmentTagPreference::Replace) => {
-            let space = if leading_whitespace.is_some()
-                || matches!(&trailing_whitespace, Some(Item::Whitespace(Static(" ", _))))
-            {
-                " "
-            } else {
-                ""
-            };
-            vec![Item::Whitespace(Static(space, source))]
-        }
-        (false, WhitespaceAdjustmentTagPreference::Replace) => vec![Item::CompileError {
-            message: "Whitespace replace tag `{_}` used between non-whitespace. Either add \
-                      whitespace or remove this tag."
-                .to_string(),
-            error_source: source.clone(),
-            consumed_source: source,
-        }],
-        // Return the tag as a comment to keep contiguous source
-        // without actually outputting anything.
-        (_, WhitespaceAdjustmentTagPreference::Remove) => {
-            vec![Item::Whitespace(Static("", source))]
-        }
-    };
-
-    Ok((tokens, whitespace))
+        Ok((tokens, whitespace))
+    }
 }

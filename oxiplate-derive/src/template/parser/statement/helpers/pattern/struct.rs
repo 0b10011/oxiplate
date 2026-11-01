@@ -13,11 +13,11 @@ pub(crate) enum StructPattern<'a> {
 }
 
 impl<'a> StructPattern<'a> {
-	pub(in crate::template::parser) fn parser() -> StructPatternParser<'a> {
-	    StructPatternParser {
-	        phantom_data: PhantomData,
-	    }
-	}
+    pub(in crate::template::parser) fn parser() -> StructPatternParser<'a> {
+        StructPatternParser {
+            phantom_data: PhantomData,
+        }
+    }
 
     pub fn source(&self) -> Source<'a> {
         match self {
@@ -161,11 +161,10 @@ impl<'a> Parser<'a> for NamedStructParser<'a> {
                 .parse(tokens)?;
 
         let mut source = path
-            .source
-            .clone()
+            .source()
             .merge(open_brace.source(), "Open brace expected after path")
             .merge(
-                first_field.source(),
+                &first_field.source(),
                 "First field expected after whitespace",
             );
 
@@ -176,7 +175,7 @@ impl<'a> Parser<'a> for NamedStructParser<'a> {
                     comma.source(),
                     "Comma and whitespace expected after whitespace",
                 )
-                .merge(field.source(), "Field expected after whitespace");
+                .merge(&field.source(), "Field expected after whitespace");
 
             additional_fields.push((comma.source().clone(), field));
         }

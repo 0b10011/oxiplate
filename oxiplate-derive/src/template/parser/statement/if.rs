@@ -158,30 +158,44 @@ impl<'a> From<If<'a>> for StatementKind<'a> {
     }
 }
 
-pub(super) fn parse_if(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, (keyword, (if_type, if_type_source))) = (
-        KeywordParser::new("if"),
-        cut("Expected an if expression", parse_if_generic()),
-    )
-        .parse(tokens)?;
+pub(in crate::template::parser) fn parse_if<'a>() -> IfParser<'a> {
+    IfParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct IfParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
 
-    let source = keyword
-        .source()
-        .clone()
-        .merge(&if_type_source, "Type source expected after if");
+impl<'a> Parser<'a> for IfParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
 
-    Ok((
-        tokens,
-        Statement {
-            kind: If {
-                ifs: vec![(if_type, Template(vec![]))],
-                otherwise: None,
-                is_ended: false,
-            }
-            .into(),
-            source,
-        },
-    ))
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (keyword, (if_type, if_type_source))) = (
+            KeywordParser::new("if"),
+            cut("Expected an if expression", parse_if_generic()),
+        )
+            .parse(tokens)?;
+
+        let source = keyword
+            .source()
+            .clone()
+            .merge(&if_type_source, "Type source expected after if");
+
+        Ok((
+            tokens,
+            Statement {
+                kind: If {
+                    ifs: vec![(if_type, Template(vec![]))],
+                    otherwise: None,
+                    is_ended: false,
+                }
+                .into(),
+                source,
+            },
+        ))
+    }
 }
 
 pub(in crate::template::parser) fn parse_if_generic<'a>() -> IfGenericParser<'a> {

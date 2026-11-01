@@ -60,8 +60,21 @@ impl<'a> ToTokensWithMutState<'a> for Include<'a> {
     }
 }
 
-pub(super) fn parse_include(tokens: TokenSlice) -> Res<Statement> {
-    let (tokens, (include_keyword, path)) = (
+pub(in crate::template::parser) fn parse_include<'a>() -> IncludeParser<'a> {
+    IncludeParser {
+        phantom_data: PhantomData,
+    }
+}
+pub(in crate::template::parser) struct IncludeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for IncludeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Statement<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (include_keyword, path)) = (
         KeywordParser::new("include"),
         cut(
             r#"Expected path to template to include (e.g., `{% include "path/to/template.html.oxip" %}`)"#,
@@ -70,16 +83,17 @@ pub(super) fn parse_include(tokens: TokenSlice) -> Res<Statement> {
     )
         .parse(tokens)?;
 
-    let source = include_keyword
-        .source()
-        .clone()
-        .merge(path.source(), "Path expected after `include`");
+        let source = include_keyword
+            .source()
+            .clone()
+            .merge(path.source(), "Path expected after `include`");
 
-    Ok((
-        tokens,
-        Statement {
-            kind: Include { path }.into(),
-            source,
-        },
-    ))
+        Ok((
+            tokens,
+            Statement {
+                kind: Include { path }.into(),
+                source,
+            },
+        ))
+    }
 }

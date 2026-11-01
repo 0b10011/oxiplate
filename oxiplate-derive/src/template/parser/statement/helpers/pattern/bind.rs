@@ -13,11 +13,11 @@ pub(crate) struct Bind<'a> {
 }
 
 impl<'a> Bind<'a> {
-	pub(in crate::template::parser) fn parser() -> BindParser<'a> {
-	    BindParser {
-	        phantom_data: PhantomData,
-	    }
-	}
+    pub(in crate::template::parser) fn parser() -> BindParser<'a> {
+        BindParser {
+            phantom_data: PhantomData,
+        }
+    }
 
     pub fn source(&self) -> &Source<'a> {
         &self.source

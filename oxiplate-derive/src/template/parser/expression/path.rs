@@ -172,26 +172,11 @@ impl<'a> Identifier<'a> {
     /// - self
     /// - Self
     /// - super
-    pub(in crate::template::parser) fn parse_prevent_reserved_keywords(
-        tokens: TokenSlice<'a>,
-    ) -> Res<'a, Self> {
-        let backup_tokens = tokens.clone();
-        let (tokens, token) = alt((
-            take(TokenKind::Ident),
-            take(TokenKind::Crate),
-            take(TokenKind::SelfCurrentType),
-            take(TokenKind::SelfCurrentModule),
-            take(TokenKind::Super),
-        ))
-        .parse(tokens)?;
-
-        if !matches!(token.kind(), TokenKind::Ident) {
-            return cut("This is a reserved keyword", fail()).parse(backup_tokens);
+    pub(in crate::template::parser) fn parse_prevent_reserved_keywords()
+    -> IdentifierNoReservedParser<'a> {
+        IdentifierNoReservedParser {
+            phantom_data: PhantomData,
         }
-
-        let source = token.source();
-
-        Ok((tokens, Self { source }))
     }
 
     pub fn as_str(&self) -> &'a str {
@@ -233,6 +218,49 @@ impl<'a> Parser<'a> for IdentifierParser<'a> {
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, token) = take(TokenKind::Ident).parse(tokens)?;
+        let source = token.source();
+
+        Ok((tokens, Identifier { source }))
+    }
+}
+
+/// Parses an identifier while returning an error for reserved keywords.
+/// Reserved keywords apply specifically to keywords
+/// that are parsed a different tokens by Oxiplate:
+/// - crate
+/// - self
+/// - Self
+/// - super
+pub(in crate::template::parser) struct IdentifierNoReservedParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for IdentifierNoReservedParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Identifier<'a>;
+
+    /// Parses an identifier while returning an error for reserved keywords.
+    /// Reserved keywords apply specifically to keywords
+    /// that are parsed a different tokens by Oxiplate:
+    /// - crate
+    /// - self
+    /// - Self
+    /// - super
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let backup_tokens = tokens.clone();
+        let (tokens, token) = alt((
+            take(TokenKind::Ident),
+            take(TokenKind::Crate),
+            take(TokenKind::SelfCurrentType),
+            take(TokenKind::SelfCurrentModule),
+            take(TokenKind::Super),
+        ))
+        .parse(tokens)?;
+
+        if !matches!(token.kind(), TokenKind::Ident) {
+            return cut("This is a reserved keyword", fail()).parse(backup_tokens);
+        }
+
         let source = token.source();
 
         Ok((tokens, Identifier { source }))
@@ -330,7 +358,7 @@ pub(in crate::template::parser) struct PathParser<'a> {
 
 impl<'a> Parser<'a> for PathParser<'a> {
     type TokenKind = TokenKind;
-    type Output = Path<'a>;
+    type Output = PathInExpression<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (separator, segment, additional_segments)) = (
@@ -348,7 +376,7 @@ impl<'a> Parser<'a> for PathParser<'a> {
 
         Ok((
             tokens,
-            Path {
+            PathInExpression {
                 separator,
                 segment,
                 additional_segments,
