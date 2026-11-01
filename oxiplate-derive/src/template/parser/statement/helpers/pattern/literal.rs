@@ -15,15 +15,11 @@ pub(crate) enum Literal<'a> {
 
 impl<'a> Literal<'a> {
     /// Parse a `Literal` from the input.
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            into(Bool::parser()),
-            into(Number::parser()),
-            into(String::parser()),
-            into(Char::parser()),
-        ))
-        .parse(tokens)
-    }
+	pub(in crate::template::parser) fn parser() -> LiteralParser<'a> {
+	    LiteralParser {
+	        phantom_data: PhantomData,
+	    }
+	}
 
     /// Get the underlying `Source` from the template for the literal and leading whitespace.
     pub fn source(&self) -> &Source<'a> {
@@ -79,5 +75,24 @@ impl<'a> From<Number<'a>> for Literal<'a> {
 impl<'a> From<Literal<'a>> for Pattern<'a> {
     fn from(value: Literal<'a>) -> Self {
         Pattern::Literal(value)
+    }
+}
+
+pub(in crate::template::parser) struct LiteralParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for LiteralParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Literal<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            into(Bool::parser()),
+            into(Number::parser()),
+            into(String::parser()),
+            into(Char::parser()),
+        ))
+        .parse(tokens)
     }
 }

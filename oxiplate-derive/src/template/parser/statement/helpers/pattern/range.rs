@@ -46,15 +46,11 @@ pub(crate) enum Range<'a> {
 }
 
 impl<'a> Range<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        alt((
-            Self::parse_inclusive(),
-            Self::parse_from_or_exclusive(),
-            Self::parse_exclusive_to(),
-            Self::parse_inclusive_to(),
-        ))
-        .parse(tokens)
-    }
+	pub(in crate::template::parser) fn parser() -> RangeParser<'a> {
+	    RangeParser {
+	        phantom_data: PhantomData,
+	    }
+	}
 
     pub fn parse_from_or_exclusive(tokens: TokenSlice<'a>) -> Res<'a, Self> {
         let (tokens, (from, operator, to)) = (
@@ -243,6 +239,25 @@ impl<'a> ToTokensWithState<'a> for Range<'a> {
 impl<'a> From<Range<'a>> for Pattern<'a> {
     fn from(value: Range<'a>) -> Self {
         Pattern::Range(value)
+    }
+}
+
+pub(in crate::template::parser) struct RangeParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for RangeParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Range<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        alt((
+            Self::parse_inclusive(),
+            Self::parse_from_or_exclusive(),
+            Self::parse_exclusive_to(),
+            Self::parse_inclusive_to(),
+        ))
+        .parse(tokens)
     }
 }
 

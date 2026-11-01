@@ -15,56 +15,11 @@ pub(crate) struct Array<'a> {
 }
 
 impl<'a> Array<'a> {
-    pub fn parse(tokens: TokenSlice<'a>) -> Res<'a, Self> {
-        let (tokens, (open_bracket, (fields_and_commas, last_field, close_bracket))) = (
-            take(TokenKind::OpenBracket),
-            cut(
-                "Expected a pattern or `]`",
-                (
-                    many0((
-                        Pattern::parser(),
-                        context("Expected `,`", take(TokenKind::Comma)),
-                    )),
-                    ignore_recoverable_errors(Pattern::parser()),
-                    take(TokenKind::CloseBracket),
-                ),
-            ),
-        )
-            .parse(tokens)?;
-
-        let mut source = open_bracket.source().clone();
-
-        let mut values = Vec::with_capacity(fields_and_commas.len());
-        for (field, comma) in fields_and_commas {
-            source = source
-                .merge(&field.source(), "Field expected")
-                .merge(comma.source(), "Comma expected after previous field");
-            values.push((field, comma.source().clone()));
-        }
-
-        let last_value = if let Some(last_field) = last_field {
-            source = source.merge(&last_field.source(), "Field expected after comma");
-
-            Some(Box::new(last_field))
-        } else {
-            None
-        };
-
-        source = source.merge(
-            close_bracket.source(),
-            "Closing brace expected after whitespace",
-        );
-
-        Ok((
-            tokens,
-            Self {
-                values,
-                last_value,
-                remaining: None,
-                source,
-            },
-        ))
-    }
+	pub(in crate::template::parser) fn parser() -> ArrayParser<'a> {
+	    ArrayParser {
+	        phantom_data: PhantomData,
+	    }
+	}
 
     pub fn source(&self) -> &Source<'a> {
         &self.source
@@ -113,5 +68,65 @@ impl<'a> ToTokensWithState<'a> for Array<'a> {
 impl<'a> From<Array<'a>> for Pattern<'a> {
     fn from(value: Array<'a>) -> Self {
         Pattern::Array(value)
+    }
+}
+
+pub(in crate::template::parser) struct ArrayParser<'a> {
+    phantom_data: PhantomData<&'a ()>,
+}
+
+impl<'a> Parser<'a> for ArrayParser<'a> {
+    type TokenKind = TokenKind;
+    type Output = Array<'a>;
+
+    fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
+        let (tokens, (open_bracket, (fields_and_commas, last_field, close_bracket))) = (
+            take(TokenKind::OpenBracket),
+            cut(
+                "Expected a pattern or `]`",
+                (
+                    many0((
+                        Pattern::parser(),
+                        context("Expected `,`", take(TokenKind::Comma)),
+                    )),
+                    ignore_recoverable_errors(Pattern::parser()),
+                    take(TokenKind::CloseBracket),
+                ),
+            ),
+        )
+            .parse(tokens)?;
+
+        let mut source = open_bracket.source().clone();
+
+        let mut values = Vec::with_capacity(fields_and_commas.len());
+        for (field, comma) in fields_and_commas {
+            source = source
+                .merge(&field.source(), "Field expected")
+                .merge(comma.source(), "Comma expected after previous field");
+            values.push((field, comma.source().clone()));
+        }
+
+        let last_value = if let Some(last_field) = last_field {
+            source = source.merge(&last_field.source(), "Field expected after comma");
+
+            Some(Box::new(last_field))
+        } else {
+            None
+        };
+
+        source = source.merge(
+            close_bracket.source(),
+            "Closing brace expected after whitespace",
+        );
+
+        Ok((
+            tokens,
+            Array {
+                values,
+                last_value,
+                remaining: None,
+                source,
+            },
+        ))
     }
 }
