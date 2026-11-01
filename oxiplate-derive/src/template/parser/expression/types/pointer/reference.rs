@@ -64,6 +64,7 @@ impl<'a> From<ReferenceType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
 pub(in crate::template::parser) struct ReferenceTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -72,6 +73,7 @@ impl<'a> Parser<'a> for ReferenceTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = ReferenceType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-ReferenceType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (borrow, lifetime, r#mut, type_no_bounds)) = (
             into(take(TokenKind::Ampersand)),

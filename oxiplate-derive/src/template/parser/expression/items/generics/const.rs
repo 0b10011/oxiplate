@@ -74,6 +74,7 @@ impl<'a> From<ConstParam<'a>> for GenericParam<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
 pub(in crate::template::parser) struct ConstParamParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -82,6 +83,7 @@ impl<'a> Parser<'a> for ConstParamParser<'a> {
     type TokenKind = TokenKind;
     type Output = ConstParam<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (r#const, identifier, colon, r#type, assignment)) = (
             KeywordParser::new("const"),
@@ -180,6 +182,7 @@ impl<'a> From<PossiblyNegativeLiteralExpression<'a>> for ConstParamValue<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
 pub(in crate::template::parser) struct ConstParamValueParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -188,6 +191,7 @@ impl<'a> Parser<'a> for ConstParamValueParser<'a> {
     type TokenKind = TokenKind;
     type Output = ConstParamValue<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-ConstParam>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, value): (_, Self::Output) = alt((
             into(Identifier::parser()),

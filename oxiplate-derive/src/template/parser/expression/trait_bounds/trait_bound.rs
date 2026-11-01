@@ -49,6 +49,7 @@ impl<'a> ToTokensWithState<'a> for TraitBound<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
 pub(in crate::template::parser) struct TraitBoundParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -57,6 +58,7 @@ impl<'a> Parser<'a> for TraitBoundParser<'a> {
     type TokenKind = TokenKind;
     type Output = TraitBound<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, result) = ignore_recoverable_errors((
             take(TokenKind::OpenParenthese),

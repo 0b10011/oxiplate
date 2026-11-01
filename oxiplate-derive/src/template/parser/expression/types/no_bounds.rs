@@ -143,6 +143,7 @@ impl<'a> From<TypeNoBounds<'a>> for Type<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
 pub(in crate::template::parser) struct TypeNoBoundsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -151,6 +152,7 @@ impl<'a> Parser<'a> for TypeNoBoundsParser<'a> {
     type TokenKind = TokenKind;
     type Output = TypeNoBounds<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-TypeNoBounds>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
             into(InferredType::parser()),

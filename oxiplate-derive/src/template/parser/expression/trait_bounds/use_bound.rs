@@ -41,6 +41,7 @@ impl<'a> ToTokensWithState<'a> for UseBound<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBound>
 pub(in crate::template::parser) struct UseBoundParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -49,6 +50,7 @@ impl<'a> Parser<'a> for UseBoundParser<'a> {
     type TokenKind = TokenKind;
     type Output = UseBound<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (r#use, use_bound_generic_args)) =
             (KeywordParser::new("use"), UseBoundGenericArgs::parser()).parse(tokens)?;

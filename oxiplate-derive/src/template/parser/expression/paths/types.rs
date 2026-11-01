@@ -79,6 +79,7 @@ impl<'a> From<TypeList<'a>> for GenericArgs<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypeList>
 pub(in crate::template::parser) struct TypeListParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -87,6 +88,7 @@ impl<'a> Parser<'a> for TypeListParser<'a> {
     type TokenKind = TokenKind;
     type Output = TypeList<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypeList>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         type FirstTypes<'a> = Vec<(Type<'a>, Source<'a>)>;
         type LastType<'a> = Option<(Type<'a>, Option<Source<'a>>)>;

@@ -52,6 +52,8 @@ impl<'a> ToTokensWithState<'a> for MethodCall<'a> {
     }
 }
 
+/// Parses a method call expression (`expr.method(args)`).
+/// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
 pub(in crate::template::parser) struct MethodCallParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -60,6 +62,8 @@ impl<'a> Parser<'a> for MethodCallParser<'a> {
     type TokenKind = TokenKind;
     type Output = Box<NestedExpression<'a>>;
 
+    /// Parses a method call expression (`expr.method(args)`).
+    /// See: <https://doc.rust-lang.org/reference/expressions/method-call-expr.html#railroad-MethodCallExpression>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (period, segment, arguments)) = (
             into(take(TokenKind::Period)),

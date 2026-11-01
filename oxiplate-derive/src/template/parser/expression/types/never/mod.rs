@@ -35,6 +35,7 @@ impl<'a> From<Never<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/never.html#railroad-NeverType>
 pub(in crate::template::parser) struct NeverParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -43,6 +44,7 @@ impl<'a> Parser<'a> for NeverParser<'a> {
     type TokenKind = TokenKind;
     type Output = Never<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/never.html#railroad-NeverType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, source) = into(take(TokenKind::Exclamation)).parse(tokens)?;
 

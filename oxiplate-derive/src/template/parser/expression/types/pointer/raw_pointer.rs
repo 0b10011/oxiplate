@@ -92,6 +92,7 @@ impl<'a> From<RawPointerType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-RawPointerType>
 pub(in crate::template::parser) struct RawPointerTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -100,6 +101,7 @@ impl<'a> Parser<'a> for RawPointerTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = RawPointerType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/pointer.html#railroad-RawPointerType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (deref, keyword, type_no_bounds)): (_, (_, Source<'a>, _)) = (
             into(take(TokenKind::Asterisk)),

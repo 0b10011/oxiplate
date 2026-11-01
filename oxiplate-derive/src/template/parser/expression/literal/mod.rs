@@ -145,7 +145,8 @@ impl<'a> Parser<'a> for LiteralExpressionParser<'a> {
 }
 
 /// `LiteralExpression` with an optional leading `-`.
-/// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+/// Used in expressions and patterns.
+/// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
 #[derive(Debug)]
 pub(in crate::template::parser) struct PossiblyNegativeLiteralExpression<'a> {
     /// Optional `-`.
@@ -154,7 +155,9 @@ pub(in crate::template::parser) struct PossiblyNegativeLiteralExpression<'a> {
 }
 
 impl<'a> PossiblyNegativeLiteralExpression<'a> {
-    /// See: <https://doc.rust-lang.org/reference/expressions/literal-expr.html#railroad-LiteralExpression>
+    /// `LiteralExpression` with an optional leading `-`.
+    /// Used in expressions and patterns.
+    /// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
     pub(in crate::template::parser) fn parser() -> PossiblyNegativeLiteralExpressionParser<'a> {
         PossiblyNegativeLiteralExpressionParser {
             phantom_data: PhantomData,
@@ -183,6 +186,9 @@ impl<'a> ToTokensWithState<'a> for PossiblyNegativeLiteralExpression<'a> {
     }
 }
 
+/// `LiteralExpression` with an optional leading `-`.
+/// Used in expressions and patterns.
+/// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
 pub(in crate::template::parser) struct PossiblyNegativeLiteralExpressionParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -191,6 +197,9 @@ impl<'a> Parser<'a> for PossiblyNegativeLiteralExpressionParser<'a> {
     type TokenKind = TokenKind;
     type Output = PossiblyNegativeLiteralExpression<'a>;
 
+    /// `LiteralExpression` with an optional leading `-`.
+    /// Used in expressions and patterns.
+    /// See: <https://doc.rust-lang.org/reference/patterns.html#literal-patterns>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (sign, literal)) = (
             ignore_recoverable_errors(into(take(TokenKind::Minus))),

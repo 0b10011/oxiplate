@@ -48,6 +48,7 @@ impl<'a> From<GenericArgsBinding<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
 pub(in crate::template::parser) struct GenericArgsBindingParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -56,6 +57,7 @@ impl<'a> Parser<'a> for GenericArgsBindingParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericArgsBinding<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBinding>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (path_segment, equals, r#type)) = (
             TypePathSegment::parser(),

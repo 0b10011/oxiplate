@@ -49,6 +49,7 @@ impl<'a> From<ImplTraitType<'a>> for Type<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
 pub(in crate::template::parser) struct ImplTraitTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -57,6 +58,7 @@ impl<'a> Parser<'a> for ImplTraitTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = ImplTraitType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (r#impl, bounds)) = (
             KeywordParser::new("impl"),

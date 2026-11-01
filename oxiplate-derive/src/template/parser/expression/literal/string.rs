@@ -50,6 +50,7 @@ impl<'a> From<String<'a>> for LiteralExpression<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
 pub(in crate::template::parser) struct StringParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -58,6 +59,7 @@ impl<'a> Parser<'a> for StringParser<'a> {
     type TokenKind = TokenKind;
     type Output = String<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/tokens.html#railroad-STRING_LITERAL>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, token) = tokens.take()?;
 

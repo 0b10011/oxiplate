@@ -60,6 +60,7 @@ impl<'a> From<QualifiedPathInType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
 pub(in crate::template::parser) struct QualifiedPathInTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -68,6 +69,7 @@ impl<'a> Parser<'a> for QualifiedPathInTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = QualifiedPathInType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-QualifiedPathInType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (qualified_path, type_path_segments)) = (
             QualifiedPathType::parser(),

@@ -59,6 +59,7 @@ impl<'a> From<UseBound<'a>> for Bound<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bound>
 pub(in crate::template::parser) struct BoundParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -67,6 +68,7 @@ impl<'a> Parser<'a> for BoundParser<'a> {
     type TokenKind = TokenKind;
     type Output = Bound<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Bound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, bound) = alt((
             into(Lifetime::parser()),

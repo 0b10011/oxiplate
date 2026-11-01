@@ -68,6 +68,7 @@ impl<'a> From<Let<'a>> for Statement<'a> {
     }
 }
 
+/// Attempt to parse a `let` statement from the current input.
 pub(in crate::template::parser) struct LetParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -76,6 +77,7 @@ impl<'a> Parser<'a> for LetParser<'a> {
     type TokenKind = TokenKind;
     type Output = Let<'a>;
 
+    /// Attempt to parse a `let` statement from the current input.
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (keyword, pattern, operator, expr)) = (
             KeywordParser::new("let"),

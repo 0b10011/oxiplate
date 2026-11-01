@@ -60,6 +60,7 @@ impl<'a> ToTokensWithState<'a> for GenericParams<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
 pub(in crate::template::parser) struct GenericParamsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -68,6 +69,7 @@ impl<'a> Parser<'a> for GenericParamsParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericParams<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),
@@ -164,6 +166,7 @@ impl<'a> ToTokensWithState<'a> for GenericParam<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
 pub(in crate::template::parser) struct GenericParamParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -172,6 +175,7 @@ impl<'a> Parser<'a> for GenericParamParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericParam<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-GenericParams>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
             into(LifetimeParam::parser()),

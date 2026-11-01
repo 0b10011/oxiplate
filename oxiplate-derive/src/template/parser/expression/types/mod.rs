@@ -61,6 +61,7 @@ impl<'a> From<Type<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
 pub(in crate::template::parser) struct TypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -69,6 +70,7 @@ impl<'a> Parser<'a> for TypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = Type<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-Type>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
             into(ImplTraitType::parser()),

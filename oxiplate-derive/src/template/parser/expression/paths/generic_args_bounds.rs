@@ -53,6 +53,7 @@ impl<'a> From<GenericArgsBounds<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
 pub(in crate::template::parser) struct GenericArgsBoundsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -61,6 +62,7 @@ impl<'a> Parser<'a> for GenericArgsBoundsParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericArgsBounds<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsBounds>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (path_segment, colon, bounds)) = (
             TypePathSegment::parser(),

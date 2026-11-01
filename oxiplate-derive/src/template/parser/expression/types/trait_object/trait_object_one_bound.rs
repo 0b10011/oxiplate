@@ -69,6 +69,7 @@ impl<'a> From<TraitObjectTypeOneBound<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
 pub(in crate::template::parser) struct TraitObjectTypeOneBoundParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -77,6 +78,7 @@ impl<'a> Parser<'a> for TraitObjectTypeOneBoundParser<'a> {
     type TokenKind = TokenKind;
     type Output = TraitObjectTypeOneBound<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/trait-object.html#railroad-TraitObjectTypeOneBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, r#dyn) =
             ignore_recoverable_errors(into(KeywordParser::new("dyn"))).parse(tokens)?;

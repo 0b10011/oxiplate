@@ -51,6 +51,7 @@ impl<'a> From<Cow<'a>> for Expression<'a> {
     }
 }
 
+/// Parses a cow prefixed expression (`>expr`).
 pub(in crate::template::parser) struct CowParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -59,6 +60,7 @@ impl<'a> Parser<'a> for CowParser<'a> {
     type TokenKind = TokenKind;
     type Output = Cow<'a>;
 
+    /// Parses a cow prefixed expression (`>expr`).
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (prefix, expression)) = (
             take(TokenKind::GreaterThan),

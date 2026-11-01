@@ -44,6 +44,7 @@ impl<'a> From<Lifetime<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
 pub(in crate::template::parser) struct LifetimeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -52,6 +53,7 @@ impl<'a> Parser<'a> for LifetimeParser<'a> {
     type TokenKind = TokenKind;
     type Output = Lifetime<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-Lifetime>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (apostrophe, identifier)) = (
             take(TokenKind::Apostrophe),

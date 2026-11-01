@@ -72,6 +72,7 @@ impl<'a> From<GenericArgsConst<'a>> for GenericArg<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
 pub(in crate::template::parser) struct GenericArgsConstParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -80,6 +81,7 @@ impl<'a> Parser<'a> for GenericArgsConstParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericArgsConst<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgsConst>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, generic_args_const) = alt((
             into(PossiblyNegativeLiteralExpression::parser()),

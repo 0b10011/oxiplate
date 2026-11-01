@@ -61,6 +61,7 @@ impl<'a> ToTokensWithState<'a> for LifetimeBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-LifetimeBounds>
 pub(in crate::template::parser) struct LifetimeBoundsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -69,6 +70,7 @@ impl<'a> Parser<'a> for LifetimeBoundsParser<'a> {
     type TokenKind = TokenKind;
     type Output = LifetimeBounds<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-LifetimeBounds>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (first_bounds, last_bound)) = (
             many0((Lifetime::parser(), into(take(TokenKind::Plus)))),

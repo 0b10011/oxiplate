@@ -40,6 +40,7 @@ impl<'a> From<SliceType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/slice.html#railroad-SliceType>
 pub(in crate::template::parser) struct SliceTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -48,6 +49,7 @@ impl<'a> Parser<'a> for SliceTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = SliceType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/slice.html#railroad-SliceType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open_bracket, r#type, close_bracket)) = (
             take(TokenKind::OpenBracket),

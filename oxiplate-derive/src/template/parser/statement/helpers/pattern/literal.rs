@@ -78,6 +78,7 @@ impl<'a> From<Literal<'a>> for Pattern<'a> {
     }
 }
 
+/// Parse a `Literal` from the input.
 pub(in crate::template::parser) struct LiteralParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -86,6 +87,7 @@ impl<'a> Parser<'a> for LiteralParser<'a> {
     type TokenKind = TokenKind;
     type Output = Literal<'a>;
 
+    /// Parse a `Literal` from the input.
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((
             into(Bool::parser()),

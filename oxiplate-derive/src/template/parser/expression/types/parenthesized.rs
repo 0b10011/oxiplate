@@ -37,6 +37,7 @@ impl<'a> From<ParenthesizedType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
 pub(in crate::template::parser) struct ParenthesizedTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -45,6 +46,7 @@ impl<'a> Parser<'a> for ParenthesizedTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = ParenthesizedType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types.html#railroad-ParenthesizedType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open, r#type, close)) = (
             take(TokenKind::OpenParenthese),

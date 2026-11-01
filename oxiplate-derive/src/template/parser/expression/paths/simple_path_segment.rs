@@ -73,6 +73,7 @@ impl<'a> From<Crate<'a>> for SimplePathSegment<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-SimplePathSegment>
 pub(in crate::template::parser) struct SimplePathSegmentParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -81,6 +82,7 @@ impl<'a> Parser<'a> for SimplePathSegmentParser<'a> {
     type TokenKind = TokenKind;
     type Output = SimplePathSegment<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-SimplePathSegment>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, simple_path_segment) = alt((
             into(Identifier::parser()),

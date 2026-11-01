@@ -41,6 +41,8 @@ impl<'a> ToTokensWithState<'a> for TraitBoundInner<'a> {
     }
 }
 
+/// Non-parenthesized part of trait bound.
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
 pub(in crate::template::parser) struct TraitBoundInnerParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -49,6 +51,8 @@ impl<'a> Parser<'a> for TraitBoundInnerParser<'a> {
     type TokenKind = TokenKind;
     type Output = TraitBoundInner<'a>;
 
+    /// Non-parenthesized part of trait bound.
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (prefix, type_path)) = alt((
             (
@@ -117,6 +121,8 @@ impl<'a> ToTokensWithState<'a> for TraitBoundPrefix<'a> {
     }
 }
 
+/// `?` or `ForLifetimes` from `TraitBound` definition.
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
 pub(in crate::template::parser) struct TraitBoundPrefixParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -125,6 +131,8 @@ impl<'a> Parser<'a> for TraitBoundPrefixParser<'a> {
     type TokenKind = TokenKind;
     type Output = TraitBoundPrefix<'a>;
 
+    /// `?` or `ForLifetimes` from `TraitBound` definition.
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-TraitBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, question_mark) =
             ignore_recoverable_errors(take(TokenKind::QuestionMark)).parse(tokens)?;

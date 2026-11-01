@@ -35,6 +35,7 @@ impl<'a> From<InferredType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
 pub(in crate::template::parser) struct InferredTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -43,6 +44,7 @@ impl<'a> Parser<'a> for InferredTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = InferredType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/inferred.html#railroad-InferredType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, underscore) = KeywordParser::new("_").parse(tokens)?;
 

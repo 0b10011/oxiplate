@@ -52,6 +52,7 @@ impl<'a> ToTokensWithState<'a> for UseBoundGenericArgs<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
 pub(in crate::template::parser) struct UseBoundGenericArgsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -60,6 +61,7 @@ impl<'a> Parser<'a> for UseBoundGenericArgsParser<'a> {
     type TokenKind = TokenKind;
     type Output = UseBoundGenericArgs<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/trait-bounds.html#railroad-UseBoundGenericArgs>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (less_than, (mut first_generics, last_generic), greater_than)) = (
             take(TokenKind::LessThan),

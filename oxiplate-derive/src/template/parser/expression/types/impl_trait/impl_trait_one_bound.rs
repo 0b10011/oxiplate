@@ -47,6 +47,7 @@ impl<'a> From<ImplTraitTypeOneBound<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
 pub(in crate::template::parser) struct ImplTraitTypeOneBoundParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -55,6 +56,7 @@ impl<'a> Parser<'a> for ImplTraitTypeOneBoundParser<'a> {
     type TokenKind = TokenKind;
     type Output = ImplTraitTypeOneBound<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/impl-trait.html#railroad-ImplTraitTypeOneBound>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (r#impl, trait_bound)) = (
             KeywordParser::new("impl"),

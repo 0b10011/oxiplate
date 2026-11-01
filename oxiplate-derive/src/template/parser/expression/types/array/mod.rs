@@ -48,6 +48,7 @@ impl<'a> From<ArrayType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
 pub(in crate::template::parser) struct ArrayTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -56,6 +57,7 @@ impl<'a> Parser<'a> for ArrayTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = ArrayType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/array.html#railroad-ArrayType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open_bracket, r#type, semicolon, expression, close_bracket)) = (
             take(TokenKind::OpenBracket),

@@ -76,6 +76,7 @@ impl<'a> From<TypePath<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
 pub(in crate::template::parser) struct TypePathParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -84,6 +85,7 @@ impl<'a> Parser<'a> for TypePathParser<'a> {
     type TokenKind = TokenKind;
     type Output = TypePath<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePath>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (leading_separator, first_segment, additional_segments)) = (
             ignore_recoverable_errors(take(TokenKind::PathSeparator)),

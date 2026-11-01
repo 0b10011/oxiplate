@@ -55,6 +55,7 @@ impl<'a> From<TupleType<'a>> for TypeNoBounds<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/types/tuple.html#railroad-TupleType>
 pub(in crate::template::parser) struct TupleTypeParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -63,6 +64,7 @@ impl<'a> Parser<'a> for TupleTypeParser<'a> {
     type TokenKind = TokenKind;
     type Output = TupleType<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/types/tuple.html#railroad-TupleType>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (open_paren, first_types, last_type, close_paren)) = (
             into(take(TokenKind::OpenParenthese)),

@@ -58,6 +58,7 @@ impl<'a> From<LifetimeParam<'a>> for GenericParam<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
 pub(in crate::template::parser) struct LifetimeParamParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -66,6 +67,7 @@ impl<'a> Parser<'a> for LifetimeParamParser<'a> {
     type TokenKind = TokenKind;
     type Output = LifetimeParam<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-LifetimeParam>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (lifetime, bounds)) = (
             Lifetime::parser(),

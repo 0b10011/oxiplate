@@ -66,6 +66,7 @@ impl<'a> ToTokensWithState<'a> for TypePathSegment<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
 pub(in crate::template::parser) struct TypePathSegmentParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -74,6 +75,7 @@ impl<'a> Parser<'a> for TypePathSegmentParser<'a> {
     type TokenKind = TokenKind;
     type Output = TypePathSegment<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-TypePathSegment>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (ident_segment, generics)) = (
             PathIdentSegment::parser(),

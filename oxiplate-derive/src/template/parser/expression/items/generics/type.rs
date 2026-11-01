@@ -73,6 +73,7 @@ impl<'a> From<TypeParam<'a>> for GenericParam<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
 pub(in crate::template::parser) struct TypeParamParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -81,6 +82,7 @@ impl<'a> Parser<'a> for TypeParamParser<'a> {
     type TokenKind = TokenKind;
     type Output = TypeParam<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/items/generics.html#railroad-TypeParam>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (identifier, bounds, r#type)) = (
             Identifier::parser(),

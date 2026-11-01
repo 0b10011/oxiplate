@@ -49,6 +49,7 @@ impl<'a> ToTokensWithState<'a> for GenericArgs<'a> {
     }
 }
 
+/// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
 pub(in crate::template::parser) struct GenericArgsParser<'a> {
     phantom_data: PhantomData<&'a ()>,
 }
@@ -57,6 +58,7 @@ impl<'a> Parser<'a> for GenericArgsParser<'a> {
     type TokenKind = TokenKind;
     type Output = GenericArgs<'a>;
 
+    /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-GenericArgs>
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         alt((into(GenericArgList::parser()), into(TypeList::parser()))).parse(tokens)
     }
