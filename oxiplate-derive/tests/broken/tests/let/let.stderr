@@ -1,0 +1,5 @@
+error: Expected a pattern
+ --> tests/broken/tests/let/let.rs:4:27
+  |
+4 | #[oxiplate_inline("{% let %}")]
+  |                           ^^

@@ -1,0 +1,5 @@
+error: Expected `=`
+ --> tests/broken/tests/let/set-foo.rs:4:31
+  |
+4 | #[oxiplate_inline("{% set foo %}")]
+  |                               ^^

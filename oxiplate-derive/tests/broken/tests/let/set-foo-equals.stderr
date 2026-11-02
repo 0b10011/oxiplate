@@ -1,0 +1,5 @@
+error: Expected an expression after `=`
+ --> tests/broken/tests/let/set-foo-equals.rs:4:33
+  |
+4 | #[oxiplate_inline("{% set foo = %}")]
+  |                                 ^^

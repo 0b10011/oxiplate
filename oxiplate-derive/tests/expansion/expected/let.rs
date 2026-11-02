@@ -2,8 +2,32 @@ use alloc::vec::Vec;
 use alloc::{format, vec};
 
 use oxiplate_derive::Oxiplate;
-#[oxiplate_inline(
-    r#"
+extern crate test;
+#[rustc_test_marker = "r#let::r#let"]
+#[doc(hidden)]
+pub static r#let: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("r#let::r#let"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/let.rs",
+        start_line: 7usize,
+        start_col: 4usize,
+        end_line: 7usize,
+        end_col: 9usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(r#let()),
+    ),
+};
+fn r#let() {
+    #[oxiplate_inline(
+        r#"
 {%- let _underscored_value = 19 %}
 {{- _underscored_value }}
 {%- let ignored_value = 19 %}
@@ -14,29 +38,52 @@ use oxiplate_derive::Oxiplate;
 {%- let value = "89" %}
 {{ value }}
 "#
-)]
-struct Set {
-    value: &'static str,
-}
-impl ::core::fmt::Display for Set {
-    fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-        extern crate alloc;
-        use ::core::fmt::Write as _;
-        let _underscored_value = 19;
-        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
-        let ignored_value = 19;
-        let _ = ignored_value;
-        oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
-        let value = 19;
-        oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-        let value = "89";
-        oxiplate_formatter.write_str("\n")?;
-        oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
-        oxiplate_formatter.write_str("\n")?;
-        ::core::result::Result::Ok(())
+    )]
+    struct Data {
+        value: &'static str,
     }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            let _underscored_value = 19;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
+            let ignored_value = 19;
+            let _ = ignored_value;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            let value = 19;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            let value = "89";
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str("\n")?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    let data = Data {
+        value: "Hello world!",
+    };
+    {
+        match (
+            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", data)) }),
+            &"19\nHello world!\n19\n89\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
 }
 extern crate test;
 #[rustc_test_marker = "r#let::set"]
@@ -47,9 +94,9 @@ pub static set: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 25usize,
+        start_line: 33usize,
         start_col: 4usize,
-        end_line: 25usize,
+        end_line: 33usize,
         end_col: 7usize,
         compile_fail: false,
         no_run: false,
@@ -62,7 +109,44 @@ pub static set: test::TestDescAndFn = test::TestDescAndFn {
     ),
 };
 fn set() {
-    let data = Set {
+    #[oxiplate_inline(
+        r#"
+{%- set _underscored_value = 19 %}
+{{- _underscored_value }}
+{%- set ignored_value = 19 %}
+{%- set _ = ignored_value %}
+{{ value }}
+{%- set value = 19 %}
+{{ value }}
+{%- set value = "89" %}
+{{ value }}
+"#
+    )]
+    struct Data {
+        value: &'static str,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            let _underscored_value = 19;
+            oxiplate_formatter
+                .write_str(&alloc::string::ToString::to_string(&(_underscored_value)))?;
+            let ignored_value = 19;
+            let _ = ignored_value;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.value)))?;
+            let value = 19;
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            let value = "89";
+            oxiplate_formatter.write_str("\n")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(value)))?;
+            oxiplate_formatter.write_str("\n")?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    let data = Data {
         value: "Hello world!",
     };
     {
@@ -149,9 +233,9 @@ pub static shadow_if: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 61usize,
+        start_line: 86usize,
         start_col: 4usize,
-        end_line: 61usize,
+        end_line: 86usize,
         end_col: 13usize,
         compile_fail: false,
         no_run: false,
@@ -285,9 +369,9 @@ pub static shadow_for: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 107usize,
+        start_line: 132usize,
         start_col: 4usize,
-        end_line: 107usize,
+        end_line: 132usize,
         end_col: 14usize,
         compile_fail: false,
         no_run: false,
@@ -389,9 +473,9 @@ pub static shadow_match: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 144usize,
+        start_line: 169usize,
         start_col: 4usize,
-        end_line: 144usize,
+        end_line: 169usize,
         end_col: 16usize,
         compile_fail: false,
         no_run: false,
@@ -549,9 +633,9 @@ pub static extends: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 195usize,
+        start_line: 220usize,
         start_col: 4usize,
-        end_line: 195usize,
+        end_line: 220usize,
         end_col: 11usize,
         compile_fail: false,
         no_run: false,
@@ -642,9 +726,9 @@ pub static extends_default: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 213usize,
+        start_line: 238usize,
         start_col: 4usize,
-        end_line: 213usize,
+        end_line: 238usize,
         end_col: 19usize,
         compile_fail: false,
         no_run: false,
@@ -705,9 +789,9 @@ pub static destructure: test::TestDescAndFn = test::TestDescAndFn {
         ignore: false,
         ignore_message: ::core::option::Option::None,
         source_file: "oxiplate-derive/tests/integration/let.rs",
-        start_line: 233usize,
+        start_line: 258usize,
         start_col: 4usize,
-        end_line: 233usize,
+        end_line: 258usize,
         end_col: 15usize,
         compile_fail: false,
         no_run: false,
