@@ -413,6 +413,20 @@ mod test {
                 if same {
                     writeln!(std::io::stdout(), "expansion of {mod_name} ... ok")?;
                 } else {
+                    if create_actual_destination_dir {
+                        // The parent directory will not have been created
+                        // if it doesn't contain any mismatches
+                        // or they haven't been found yet.
+                        std::fs::create_dir_all(
+                            actual_expansion_path
+                                .parent()
+                                .expect("Parent of actual expansion path should exist"),
+                        )?;
+                        create_actual_destination_dir = false;
+                    }
+
+                    std::fs::write(actual_expansion_path.clone(), actual_expansion.as_bytes())?;
+                    *mismatched += 1;
                     writeln!(
                         std::io::stdout(),
                         "expansion of {mod_name} ... {}",
@@ -422,8 +436,6 @@ mod test {
                             "mismatched"
                         }
                     )?;
-                    std::fs::write(actual_expansion_path.clone(), actual_expansion.as_bytes())?;
-                    *mismatched += 1;
 
                     let Output {
                         status: _,
