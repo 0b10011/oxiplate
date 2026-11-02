@@ -1,0 +1,16 @@
+error: Expected to end block `content`, but end tag for block `aside` found instead
+ --> tests/broken/tests/extends/endblock-mismatch-no-parent.rs:7:25
+  |
+7 |       <p>{{ message }}</p>
+  |  _________________________^
+8 | | {%- endblock aside %}
+  | |_____________________^
+
+error: "block" statement is never closed (unexpected end of template)
+ --> tests/broken/tests/extends/endblock-mismatch-no-parent.rs:6:1
+  |
+6 | / {% block content -%}
+7 | |     <p>{{ message }}</p>
+8 | | {%- endblock aside %}
+9 | | "#
+  | |_^

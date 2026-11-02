@@ -10,6 +10,7 @@ mod r#match;
 
 pub(crate) use self::escaper::DefaultEscaper;
 use self::r#let::Let;
+use super::expression::Identifier;
 use super::item::tag_end;
 use super::r#static::StaticType;
 use super::template::parse_item;
@@ -30,7 +31,7 @@ pub(crate) enum StatementKind<'a> {
     Extends(extends::Extends<'a>),
     Block(block::Block<'a>),
     Parent,
-    EndBlock,
+    EndBlock(Option<Identifier<'a>>),
 
     Include(include::Include<'a>),
 
@@ -60,7 +61,7 @@ impl StatementKind<'_> {
         match self {
             Self::Extends(_)
             | Self::Parent
-            | Self::EndBlock
+            | Self::EndBlock(_)
             | Self::DefaultEscaper(_)
             | Self::ElseIf(_)
             | Self::Else
@@ -101,7 +102,7 @@ impl<'a> Statement<'a> {
             If(statement) => statement.is_ended,
             For(statement) => statement.is_ended,
             Match(statement) => statement.is_ended(),
-            DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
+            DefaultEscaper(_) | Parent | EndBlock(_) | Include(_) | ElseIf(_) | Else | EndIf
             | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) => true,
         }
     }
@@ -121,7 +122,7 @@ impl<'a> Statement<'a> {
             If(statement) => statement.add_item(item),
             For(statement) => statement.add_item(item),
             Match(statement) => statement.add_item(item),
-            DefaultEscaper(_) | Parent | EndBlock | Include(_) | ElseIf(_) | Else | EndIf
+            DefaultEscaper(_) | Parent | EndBlock(_) | Include(_) | ElseIf(_) | Else | EndIf
             | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
@@ -158,7 +159,7 @@ impl<'a> Statement<'a> {
             }
             StatementKind::Block(block) => block.to_tokens_with_mut_state(state),
             StatementKind::Parent => unexpected!("parent"),
-            StatementKind::EndBlock => unexpected!("endblock"),
+            StatementKind::EndBlock(_) => unexpected!("endblock"),
             StatementKind::Include(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::If(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::ElseIf(_) => unexpected!("elseif"),
@@ -309,7 +310,7 @@ fn eof<'a>(
         StatementKind::DefaultEscaper(_)
         | StatementKind::Extends(_)
         | StatementKind::Parent
-        | StatementKind::EndBlock
+        | StatementKind::EndBlock(_)
         | StatementKind::Include(_)
         | StatementKind::ElseIf(_)
         | StatementKind::Else
@@ -372,7 +373,6 @@ mod tests {
     }
 
     unexpected_statement_for_to_tokens!(parent_to_tokens, "{% parent %}", "parent", Parent);
-    unexpected_statement_for_to_tokens!(endblock_to_tokens, "{% endblock %}", "endblock", EndBlock);
     unexpected_statement_for_to_tokens!(endfor_to_tokens, "{% endfor %}", "endfor", EndFor);
     unexpected_statement_for_to_tokens!(endmatch_to_tokens, "{% endmatch %}", "endmatch", EndMatch);
 
@@ -396,6 +396,28 @@ mod tests {
             r#"compile_error ! (concat ! ("Unexpected '" , "case" , "' statement")) ;"#,
             "`{}` should result in a compile error",
             "{% case %}",
+        );
+    }
+
+    #[test]
+    fn endblock_to_tokens() {
+        test_source!(source = "{% endblock %}");
+        let (tokens, length) = Statement {
+            source,
+            kind: StatementKind::EndBlock(None),
+        }
+        .to_tokens(&mut State::new_for_test());
+
+        assert_eq!(
+            length,
+            EstimatedLength::new(0),
+            "Length should be 0 due to compile error"
+        );
+        assert_eq!(
+            format!("{tokens}"),
+            r#"compile_error ! (concat ! ("Unexpected '" , "endblock" , "' statement")) ;"#,
+            "`{}` should result in a compile error",
+            "{% endblock %}",
         );
     }
 

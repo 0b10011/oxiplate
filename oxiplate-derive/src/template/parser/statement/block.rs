@@ -29,7 +29,31 @@ impl<'a> Block<'a> {
 
         match item {
             Item::Statement(Statement {
-                kind: StatementKind::EndBlock,
+                kind: StatementKind::EndBlock(Some(ended_block_name)),
+                source,
+            }) => {
+                if self.name.as_str() == ended_block_name.as_str() {
+                    self.is_ended = true;
+                } else {
+                    if let Some(ref mut suffix) = self.suffix {
+                        suffix
+                    } else {
+                        &mut self.prefix
+                    }
+                    .0
+                    .push(Item::CompileError {
+                        message: format!(
+                            "Expected to end block `{}`, but end tag for block `{}` found instead",
+                            self.name.as_str(),
+                            ended_block_name.as_str(),
+                        ),
+                        error_source: source.clone(),
+                        consumed_source: source.clone(),
+                    });
+                }
+            }
+            Item::Statement(Statement {
+                kind: StatementKind::EndBlock(None),
                 ..
             }) => {
                 self.is_ended = true;
@@ -282,13 +306,22 @@ impl<'a> Parser<'a> for EndBlockParser<'a> {
     type Output = Statement<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        let (tokens, output) = KeywordParser::new("endblock").parse(tokens)?;
+        let (tokens, (keyword, block_name)) = (
+            KeywordParser::new("endblock"),
+            ignore_recoverable_errors(Identifier::parser()),
+        )
+            .parse(tokens)?;
+
+        let source = keyword.source().to_owned().merge_some(
+            block_name.as_ref().map(Identifier::source),
+            "Block name expected after `endblock`",
+        );
 
         Ok((
             tokens,
             Statement {
-                kind: StatementKind::EndBlock,
-                source: output.source().clone(),
+                kind: StatementKind::EndBlock(block_name),
+                source,
             },
         ))
     }

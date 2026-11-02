@@ -446,3 +446,97 @@ fn suffix() {
         }
     };
 }
+extern crate test;
+#[rustc_test_marker = "external::extends::named_endblock"]
+#[doc(hidden)]
+pub static named_endblock: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("external::extends::named_endblock"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        source_file: "oxiplate-derive/tests/integration/external/extends.rs",
+        start_line: 154usize,
+        start_col: 4usize,
+        end_line: 154usize,
+        end_col: 18usize,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::Unknown,
+    },
+    testfn: test::StaticTestFn(
+        #[coverage(off)]
+        || test::assert_test_result(named_endblock()),
+    ),
+};
+fn named_endblock() {
+    #[oxiplate_inline(
+        r#"{% extends "extends-wrapper.html.oxip" %}
+{% block content -%}
+    <p>{{ message }}</p>
+    {%- parent -%}
+    <p>{{ message }}</p>
+{%- endblock content %}
+"#
+    )]
+    struct Data {
+        title: &'static str,
+        message: &'static str,
+    }
+    impl ::core::fmt::Display for Data {
+        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            extern crate alloc;
+            use ::core::fmt::Write as _;
+            oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
+            oxiplate_formatter.write_str(&alloc::string::ToString::to_string(&(self.title)))?;
+            oxiplate_formatter.write_str("</title>\n")?;
+            {
+                {
+                    oxiplate_formatter.write_str("<p>")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                    oxiplate_formatter.write_str("</p>")?;
+                }
+                {
+                    oxiplate_formatter.write_str("test")?;
+                }
+                {}
+                {
+                    oxiplate_formatter.write_str("<p>")?;
+                    oxiplate_formatter
+                        .write_str(&alloc::string::ToString::to_string(&(self.message)))?;
+                    oxiplate_formatter.write_str("</p>")?;
+                }
+            }
+            oxiplate_formatter.write_str("\n")?;
+            ::core::result::Result::Ok(())
+        }
+    }
+    {
+        match (
+            &::alloc::__export::must_use({
+                ::alloc::fmt::format(format_args!(
+                    "{0}",
+                    Data {
+                        title: "Suffixed block",
+                        message: "Hello world!"
+                    }
+                ))
+            }),
+            &"<!DOCTYPE html>\n<title>Suffixed block</title>\n<p>Hello world!</p>test<p>Hello \
+              world!</p>\n",
+        ) {
+            (left_val, right_val) => {
+                if !(*left_val == *right_val) {
+                    let kind = ::core::panicking::AssertKind::Eq;
+                    ::core::panicking::assert_failed(
+                        kind,
+                        &*left_val,
+                        &*right_val,
+                        ::core::option::Option::None,
+                    );
+                }
+            }
+        }
+    };
+}
