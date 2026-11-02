@@ -8,7 +8,7 @@ use crate::template::parser::prelude::*;
 /// `let` statement for saving values to variables.
 #[derive(Debug)]
 pub(crate) struct Let<'a> {
-    /// `let` keyword
+    /// `let` or `set` keyword
     keyword: Keyword<'a>,
 
     /// Pattern for destructuring
@@ -46,7 +46,14 @@ impl<'a> Let<'a> {
 impl<'a> ToTokensWithMutState<'a> for Let<'a> {
     fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         let span = self.source.span_token();
-        let keyword = &self.keyword;
+
+        // Output keyword should always be `let`,
+        // but the parsed keyword could be `let` or `set`.
+        let keyword = {
+            let span = self.keyword.source().span_token();
+            quote_spanned! {span=> let }
+        };
+
         let (pattern, _estimated_length) = self.pattern.to_tokens_with_state(state);
         let operator_span = self.operator.span_token();
         let operator = quote_spanned! {operator_span=> = };
@@ -80,7 +87,7 @@ impl<'a> Parser<'a> for LetParser<'a> {
     /// Attempt to parse a `let` statement from the current input.
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
         let (tokens, (keyword, pattern, operator, expr)) = (
-            KeywordParser::new("let"),
+            alt((KeywordParser::new("let"), KeywordParser::new("set"))),
             cut("Expected a pattern", Pattern::parser()),
             cut("Expected `=`", take(TokenKind::Equal)),
             cut("Expected an expression after `=`", expression(true)),
@@ -90,7 +97,10 @@ impl<'a> Parser<'a> for LetParser<'a> {
         let source = keyword
             .source()
             .clone()
-            .merge(&pattern.source(), "Variable name expected after `let`")
+            .merge(
+                &pattern.source(),
+                "Variable name expected after `let` or `set`",
+            )
             .merge(operator.source(), "`=` expected after variable name")
             .merge(&expr.source(), "Expression expected after expression");
 

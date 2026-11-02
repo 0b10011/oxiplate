@@ -3,9 +3,11 @@ use alloc::{format, vec};
 
 use oxiplate_derive::Oxiplate;
 
-#[derive(Oxiplate)]
-#[oxiplate_inline(
-    r#"
+#[test]
+fn r#let() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
 {%- let _underscored_value = 19 %}
 {{- _underscored_value }}
 {%- let ignored_value = 19 %}
@@ -16,14 +18,37 @@ use oxiplate_derive::Oxiplate;
 {%- let value = "89" %}
 {{ value }}
 "#
-)]
-struct Set {
-    value: &'static str,
+    )]
+    struct Data {
+        value: &'static str,
+    }
+    let data = Data {
+        value: "Hello world!",
+    };
+
+    assert_eq!(format!("{data}"), "19\nHello world!\n19\n89\n");
 }
 
 #[test]
 fn set() {
-    let data = Set {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"
+{%- set _underscored_value = 19 %}
+{{- _underscored_value }}
+{%- set ignored_value = 19 %}
+{%- set _ = ignored_value %}
+{{ value }}
+{%- set value = 19 %}
+{{ value }}
+{%- set value = "89" %}
+{{ value }}
+"#
+    )]
+    struct Data {
+        value: &'static str,
+    }
+    let data = Data {
         value: "Hello world!",
     };
 
