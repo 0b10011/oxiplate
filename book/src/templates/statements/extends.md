@@ -26,6 +26,31 @@ This is essentially the same as using `layout.html.oxip` directly:
 </main>
 ```
 
+## Named `endblock`
+
+`endblock` tags can also include the name of the block
+that it is supposed to be ending.
+
+```html.oxip:layout.html.oxip
+<!DOCTYPE html>
+<main>
+{%- block content %}
+  <p>Parent content.</p>
+{% endblock content -%}
+</main>
+```
+
+This can help in situations where an `endblock` tag
+gets added or removed accidentally:
+
+```rust:/oxiplate-derive/tests/broken/tests/extends/endblock-mismatch.rs
+{{#include ../../../../oxiplate-derive/tests/broken/tests/extends/endblock-mismatch.rs:3:16}}
+```
+
+```stderr:/oxiplate-derive/tests/broken/tests/extends/endblock-mismatch.stderr
+{{#include ../../../../oxiplate-derive/tests/broken/tests/extends/endblock-mismatch.stderr}}
+```
+
 ## Adding to or replacing block content
 
 Anything you add to a block of the same name in a child template

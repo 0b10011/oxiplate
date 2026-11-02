@@ -53,7 +53,7 @@ while still including the primary functionality expected from such a library.
 
 ### Supported statements
 
-- [Template inheritance][template inheritance] with `{% extends "TEMPLATE_PATH" %}`, `{% block BLOCK_NAME %}`, `{% parent %}`, and `{% endblock %}`
+- [Template inheritance][template inheritance] with `{% extends "TEMPLATE_PATH" %}`, `{% block BLOCK_NAME %}`, `{% parent %}`, and `{% endblock [BLOCK_NAME] %}`
 - [Include content from other templates][include] with `{% include "TEMPLATE_PATH" %}`
 - [`for` loops][for] with `{% for PATTERN in EXPRESSION %}`, `{% else %}`, and `{% endfor %}`
 - [`if` statements][if] with `{% if EXPRESSION %}`, `{% elseif EXPRESSION %}`, `{% else %}`, and `{% endif %}`

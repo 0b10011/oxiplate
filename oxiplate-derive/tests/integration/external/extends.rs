@@ -149,3 +149,33 @@ fn suffix() {
         "<!DOCTYPE html>\n<title>Suffixed block</title>\ntest<p>Hello world!</p>\n"
     );
 }
+
+#[test]
+fn named_endblock() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"{% extends "extends-wrapper.html.oxip" %}
+{% block content -%}
+    <p>{{ message }}</p>
+    {%- parent -%}
+    <p>{{ message }}</p>
+{%- endblock content %}
+"#
+    )]
+    struct Data {
+        title: &'static str,
+        message: &'static str,
+    }
+
+    assert_eq!(
+        format!(
+            "{}",
+            Data {
+                title: "Suffixed block",
+                message: "Hello world!",
+            }
+        ),
+        "<!DOCTYPE html>\n<title>Suffixed block</title>\n<p>Hello world!</p>test<p>Hello \
+         world!</p>\n"
+    );
+}
