@@ -221,6 +221,13 @@ impl<'a> Parser<'a> for StatementParser<'a> {
                 into(r#match::Match::parser()),
                 into(r#match::Case::parser()),
                 into(r#match::Match::parse_end()),
+
+                // `let` and `set` are both checked for in the same parser.
+                // If `let` is found to be popular enough
+                // to justify checking for it sooner,
+                // it may be worth separating `set` into its own parser
+                // to reduce the number of failed checks
+                // since `set` is geared toward aiding migration.
                 into(Let::parser()),
             )),
         )
