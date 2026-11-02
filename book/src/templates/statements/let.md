@@ -1,5 +1,20 @@
 # Setting local variables with `let`
 
+Values can be bound to a variable with `let` statements.
+
+```oxip
+{% let PATTERN = EXPRESSION %}
+```
+
+To simplify migrating to Oxiplate,
+`set` is an alias for `let`:
+
+```oxip
+{% set PATTERN = EXPRESSION %}
+```
+
+## Example
+
 ```rust
 # extern crate oxiplate;
 #
