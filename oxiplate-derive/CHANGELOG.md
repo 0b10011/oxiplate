@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.13](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.12...oxiplate-derive-v0.19.13) - 2026-11-02
+
+### Added
+
+- added support for using `set` instead in `let` statements ([#408](https://github.com/0b10011/oxiplate/pull/408))
+- added support for optionally specifying the block name in `endblock` tags ([#407](https://github.com/0b10011/oxiplate/pull/407))
+- added support for proper paths within struct patterns
+
+### Other
+
+- fixed directory creation for expansion tests when there's a mismatch
+- stopped cloning tokens unnecessarily in `many1()`
+- added support for borrowed parsers to simplify building generic parsers ([#404](https://github.com/0b10011/oxiplate/pull/404))
+- added information about "made by humans" policy
+
 ## [0.19.12](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.11...oxiplate-derive-v0.19.12) - 2026-10-28
 
 ### Added
