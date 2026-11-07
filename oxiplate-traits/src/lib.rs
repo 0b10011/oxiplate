@@ -12,9 +12,11 @@ mod render;
 mod unescaped_text;
 
 pub use self::cow_str::{CowStr, CowStrWrapper, FastCowStr, ToCowStr, ToCowStrWrapper};
-pub use self::escaper::Escaper;
+pub use self::escaper::{Escaper, IsSafeFor};
 pub use self::render::Render;
-pub use self::unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
+pub use self::unescaped_text::{
+    FastWriteEscaped, FastWriteRaw, UnescapedTextWrapper, WriteEscaped, WriteRaw,
+};
 
 /// Macro to efficiently convert a value to a `CowStrWrapper`
 /// for unit testing filters that deal with string-like values.

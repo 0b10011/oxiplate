@@ -24,8 +24,8 @@ fast-escape-ints = ["dep:itoa"]
 
 # Feature only meant to be turned on for tests.
 # Changes the output for various types
-# to make it clear which use `FastEscape`.
-_debug-fast-escape-type-priority = []
+# to make it clear which use `FastWriteEscaped`.
+_debug-fast-write-type-priority = []
 
 [lints]
 workspace = true

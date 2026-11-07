@@ -82,16 +82,16 @@ test!(
     string,
     String,
     "text".to_string(),
-    "FastEscape(String(text))"
+    "FastWriteEscaped(String(text))"
 );
 test!(
     string_mut,
     &'a mut String,
     &mut "text".to_string(),
-    "FastEscape(String(text))"
+    "FastWriteEscaped(String(text))"
 );
-test!(str, &'a str, "text", "FastEscape(str(text))");
-test!(str_2, &'a &'a str, &"text", "FastEscape(str(text))");
+test!(str, &'a str, "text", "FastWriteEscaped(str(text))");
+test!(str_2, &'a &'a str, &"text", "FastWriteEscaped(str(text))");
 
 test!(i8, i8, 19_i8, "Display(19)");
 test!(i8_mut, &'a mut i8, &mut 19_i8, "Display(19)");

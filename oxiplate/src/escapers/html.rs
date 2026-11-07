@@ -12,7 +12,7 @@
 
 use core::fmt::{Result, Write};
 
-use oxiplate_traits::Escaper;
+use oxiplate_traits::{Escaper, IsSafeFor};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 #[allow(non_camel_case_types)]
@@ -42,6 +42,40 @@ impl Escaper for HtmlEscaper {
         }
     }
 }
+
+impl<T: SafeScalar> IsSafeFor for T {
+    type Escaper = HtmlEscaper;
+
+    fn is_safe_for(&self, escaper: &Self::Escaper) -> bool {
+        match escaper {
+            HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
+        }
+    }
+}
+
+/// Scalars that are safe to output as-is in all contexts.
+trait SafeScalar {}
+
+// Integers
+impl SafeScalar for i8 {}
+impl SafeScalar for i16 {}
+impl SafeScalar for i32 {}
+impl SafeScalar for i64 {}
+impl SafeScalar for i128 {}
+impl SafeScalar for isize {}
+impl SafeScalar for u8 {}
+impl SafeScalar for u16 {}
+impl SafeScalar for u32 {}
+impl SafeScalar for u64 {}
+impl SafeScalar for u128 {}
+impl SafeScalar for usize {}
+
+// Floating-point numbers
+impl SafeScalar for f32 {}
+impl SafeScalar for f64 {}
+
+// Booleans
+impl SafeScalar for bool {}
 
 /// Escape the value as [text](https://html.spec.whatwg.org/#text-content) in an HTML document.
 ///
@@ -196,6 +230,10 @@ mod tests {
 
     use alloc::string::String;
 
+    use oxiplate_traits::IsSafeFor;
+
+    use super::HtmlEscaper;
+
     #[test]
     fn test_escape_attribute_quoted_value() {
         let mut string = String::new();
@@ -208,5 +246,10 @@ mod tests {
         let mut string = String::new();
         super::escape_attribute_quoted_value(&mut string, r#"Hello world!"#).unwrap();
         assert_eq!("Hello world!", string);
+    }
+
+    #[test]
+    fn i8_safe() {
+        assert!(IsSafeFor::is_safe_for(&19_i8, &HtmlEscaper::text));
     }
 }

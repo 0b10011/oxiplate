@@ -3,8 +3,10 @@ extern crate alloc;
 use alloc::borrow::Cow;
 use alloc::fmt;
 use alloc::string::ToString;
+use core::fmt::{Display, Write};
 
-use crate::{Escaper, FastEscape};
+use crate::unescaped_text::FastWriteRaw;
+use crate::{Escaper, FastWriteEscaped};
 
 /// A trait intended to be used by filters for any string-like arguments
 /// to deal with them more efficiently than `str` or `impl Display`.
@@ -61,28 +63,43 @@ impl<'a> CowStr<'a> for CowStrWrapper<'a> {
     }
 }
 
-impl<'a, W: fmt::Write + ?Sized> FastEscape<'a, W> for CowStrWrapper<'a> {
+impl<'a> Display for CowStrWrapper<'a> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl<'a, E, W> FastWriteEscaped<'a, E, W> for CowStrWrapper<'a>
+where
+    E: Escaper,
+    W: Write + ?Sized,
+{
     #[inline]
-    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> fmt::Result {
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+    fn oxiplate_fast_write_escaped(&'a self, f: &mut W, escaper: &E) -> fmt::Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         escaper.escape(f, self.0.as_ref())?;
 
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
 
         Ok(())
     }
+}
 
+impl<'a, W> FastWriteRaw<'a, W> for CowStrWrapper<'a>
+where
+    W: Write + ?Sized,
+{
     #[inline]
-    fn oxiplate_fast_raw(&'a self, f: &mut W) -> fmt::Result {
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+    fn oxiplate_fast_write_raw(&'a self, f: &mut W) -> fmt::Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         f.write_str(self.0.as_ref())?;
 
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
 
         Ok(())
