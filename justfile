@@ -30,14 +30,14 @@ book-build:
 # Update expected output for broken and expansion tests to the current output.
 [group("~Common Commands~")]
 update-test-output: format clippy-strict rebuild-config-test-crates
-    # Update expansion test results
-    OXIP_EXPANSION=overwrite cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
-
     # Update broken test results
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 
     # Update config test output
     [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
+
+    # Update expansion test results
+    OXIP_EXPANSION=overwrite cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
 
     # Update clippy test results
     [ ! -f ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
