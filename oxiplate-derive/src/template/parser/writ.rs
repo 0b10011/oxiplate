@@ -239,7 +239,7 @@ impl<'a> Writ<'a> {
                     )).oxiplate_write_escaped(
                         oxiplate_formatter,
                         &<#group as ::oxiplate::Escaper>::DEFAULT,
-                    )?;
+                    )?
                 },
                 estimated_length,
             )
@@ -274,7 +274,7 @@ impl<'a> Writ<'a> {
                     )).oxiplate_write_escaped(
                         oxiplate_formatter,
                         &#path,
-                    )?;
+                    )?
                 },
                 estimated_length,
             );
