@@ -27,7 +27,7 @@ use crate::escaper::Escaper;
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&UnescapedTextWrapper::new_raw(&text)).oxiplate_write_raw(formatter)?;
+/// (&&UnescapedTextWrapper::new((&text, true))).oxiplate_write_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
@@ -35,13 +35,8 @@ pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
 
 impl<'a, T> UnescapedTextWrapper<'a, T> {
     /// Wrap unescaped text.
-    pub fn new_escaped((value, is_escaped): (&'a T, bool)) -> Self {
+    pub fn new((value, is_escaped): (&'a T, bool)) -> Self {
         Self(value, is_escaped)
-    }
-
-    /// Wrap text that won't be escaped.
-    pub fn new_raw(value: &'a T) -> Self {
-        Self(value, true)
     }
 }
 
