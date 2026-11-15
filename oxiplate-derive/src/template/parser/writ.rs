@@ -264,16 +264,16 @@ impl<'a> Writ<'a> {
 
         let escaper = Ident::new(escaper.as_str(), escaper.source().span_token());
         if let Ok(group) = syn::LitStr::new(&group.1.escaper, group_span).parse::<Path>() {
-            let path = quote_spanned! {group_span=> #group :: #escaper };
+            let escaper_path = quote_spanned! {group_span=> #group :: #escaper };
 
             // FIXME: What if `oxiplate_derive` is being used?
             return (
                 quote_spanned! {span=>
                     (&&::oxiplate::UnescapedTextWrapper::new(
-                        (&&#group::build_is_escaped(&(#text))).is_escaped(&#path),
+                        (&&#group::build_is_escaped(&(#text))).is_escaped(&#escaper_path),
                     )).oxiplate_write_escaped(
                         oxiplate_formatter,
-                        &#path,
+                        &#escaper_path,
                     )?
                 },
                 estimated_length,
