@@ -10,7 +10,6 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 use core::fmt::{Result, Write};
-use core::marker::PhantomData;
 
 use oxiplate_traits::{Escaper, IsEscaped};
 
@@ -27,7 +26,7 @@ pub enum JsonEscaper {
 impl Escaper for JsonEscaper {
     const DEFAULT: Self = Self::substring;
 
-    type IsEscaped<T> = IsEscapedForJson<T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForJson<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -36,38 +35,27 @@ impl Escaper for JsonEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
-        IsEscapedForJson {
-            phantom_data: PhantomData,
-        }
+    fn build_is_escaped<T>(value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForJson { value }
     }
 }
 
 /// Item that implements `IsEscaped` for `JsonEscaper`.
-pub struct IsEscapedForJson<T: ?Sized> {
-    phantom_data: PhantomData<T>,
+pub struct IsEscapedForJson<'a, T> {
+    value: &'a T,
 }
 
-impl<T> IsEscapedForJson<T> {
-    /// Build `IsSafeForJson` for the provided value.
-    pub fn new(_value: &T) -> Self {
-        Self {
-            phantom_data: PhantomData,
-        }
-    }
-}
-
-impl IsEscaped<JsonEscaper> for &IsEscapedForJson<usize> {
-    fn is_escaped(&self, escaper: &JsonEscaper) -> bool {
+impl<'a> IsEscaped<'a, JsonEscaper, usize> for &IsEscapedForJson<'a, usize> {
+    fn is_escaped(&self, escaper: &JsonEscaper) -> (&'a usize, bool) {
         match escaper {
-            JsonEscaper::substring => true,
+            JsonEscaper::substring => (self.value, true),
         }
     }
 }
 
-impl<T> IsEscaped<JsonEscaper> for IsEscapedForJson<T> {
-    fn is_escaped(&self, _escaper: &JsonEscaper) -> bool {
-        false
+impl<'a, T> IsEscaped<'a, JsonEscaper, T> for IsEscapedForJson<'a, T> {
+    fn is_escaped(&self, _escaper: &JsonEscaper) -> (&'a T, bool) {
+        (self.value, false)
     }
 }
 

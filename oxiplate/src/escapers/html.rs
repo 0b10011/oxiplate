@@ -13,7 +13,6 @@
 extern crate alloc;
 
 use core::fmt::{Result, Write};
-use core::marker::PhantomData;
 
 use oxiplate_traits::{Escaper, IsEscaped};
 
@@ -36,7 +35,7 @@ pub enum HtmlEscaper {
 impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
-    type IsEscaped<T> = IsEscapedForHtml<T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForHtml<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -47,30 +46,28 @@ impl Escaper for HtmlEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
-        IsEscapedForHtml {
-            phantom_data: PhantomData,
-        }
+    fn build_is_escaped<T>(value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForHtml { value }
     }
 }
 
 /// Item that implements `IsEscaped` for `HtmlEscaper`.
-pub struct IsEscapedForHtml<T> {
-    phantom_data: PhantomData<T>,
+pub struct IsEscapedForHtml<'a, T> {
+    value: &'a T,
 }
 
-impl<T> IsEscaped<HtmlEscaper> for &IsEscapedForHtml<T>
+impl<'a, T> IsEscaped<'a, HtmlEscaper, T> for &IsEscapedForHtml<'a, T>
 where
     T: SafeForHtml,
 {
-    fn is_escaped(&self, escaper: &HtmlEscaper) -> bool {
-        <T>::is_safe(escaper)
+    fn is_escaped(&self, escaper: &HtmlEscaper) -> (&'a T, bool) {
+        (self.value, <T>::is_safe(escaper))
     }
 }
 
-impl<T> IsEscaped<HtmlEscaper> for IsEscapedForHtml<T> {
-    fn is_escaped(&self, _escaper: &HtmlEscaper) -> bool {
-        false
+impl<'a, T> IsEscaped<'a, HtmlEscaper, T> for IsEscapedForHtml<'a, T> {
+    fn is_escaped(&self, _escaper: &HtmlEscaper) -> (&'a T, bool) {
+        (self.value, false)
     }
 }
 

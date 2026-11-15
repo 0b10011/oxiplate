@@ -22,9 +22,8 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         };
         oxiplate_formatter.write_str("<!--")?;
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(self.comment),
-            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.comment)))
+                .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

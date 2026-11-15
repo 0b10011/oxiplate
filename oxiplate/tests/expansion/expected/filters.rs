@@ -57,21 +57,22 @@ impl ::oxiplate::Render for Respond {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(::oxiplate::CowStrWrapper::new(
-                (&&::oxiplate::ToCowStrWrapper::new(
-                    &(filters_for_oxiplate::respond(
-                        ::oxiplate::CowStrWrapper::new(
-                            (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
-                        ),
-                        ::oxiplate::CowStrWrapper::new(
-                            (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
-                        ),
-                    )),
-                ))
-                    .to_cow_str(),
-            )),
-            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(
+                &(::oxiplate::CowStrWrapper::new(
+                    (&&::oxiplate::ToCowStrWrapper::new(
+                        &(filters_for_oxiplate::respond(
+                            ::oxiplate::CowStrWrapper::new(
+                                (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
+                            ),
+                            ::oxiplate::CowStrWrapper::new(
+                                (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
+                            ),
+                        )),
+                    ))
+                        .to_cow_str(),
+                )),
+            ))
+                .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

@@ -25,9 +25,10 @@ impl ::oxiplate::Render for AbsoluteData {
         };
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(self.title),
-            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.title)))
+                .is_escaped(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                ),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
@@ -37,9 +38,10 @@ impl ::oxiplate::Render for AbsoluteData {
         {
             oxiplate_formatter.write_str("<h1>")?;
             (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                &(self.title),
-                ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.title)))
+                    .is_escaped(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
             ))
                 .oxiplate_write_escaped(
                     oxiplate_formatter,
@@ -47,9 +49,10 @@ impl ::oxiplate::Render for AbsoluteData {
                 )?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
             (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                &(self.message),
-                ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.message)))
+                    .is_escaped(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
             ))
                 .oxiplate_write_escaped(
                     oxiplate_formatter,

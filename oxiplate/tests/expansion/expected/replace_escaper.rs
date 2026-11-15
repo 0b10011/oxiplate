@@ -22,9 +22,10 @@ impl ::oxiplate::Render for Html {
         };
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(self.name),
-            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
-            &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
+                .is_escaped(
+                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+            ),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
@@ -32,9 +33,8 @@ impl ::oxiplate::Render for Html {
             )?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(self.name),
-            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
-            &::oxiplate::escapers::your_group::YourEscaper::foo,
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
+                .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::foo),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
@@ -42,9 +42,8 @@ impl ::oxiplate::Render for Html {
             )?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            &(self.name),
-            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
-            &::oxiplate::escapers::your_group::YourEscaper::bar,
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
+                .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::bar),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

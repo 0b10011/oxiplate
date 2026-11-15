@@ -28,9 +28,8 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         for message in &self.messages {
             oxiplate_formatter.write_str("\n")?;
             (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                &(message),
-                ::oxiplate::escapers::markdown::MarkdownEscaper::build_is_escaped,
-                &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+                (&&::oxiplate::escapers::markdown::MarkdownEscaper::build_is_escaped(&(message)))
+                    .is_escaped(&::oxiplate::escapers::markdown::MarkdownEscaper::text),
             ))
                 .oxiplate_write_escaped(
                     oxiplate_formatter,

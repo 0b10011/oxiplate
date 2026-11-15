@@ -9,7 +9,6 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use core::fmt::{Display, Result, Write};
 
-use crate::IsEscaped;
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
@@ -24,11 +23,11 @@ use crate::escaper::Escaper;
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
-/// use oxiplate::{FastWriteEscaped as _, FastWriteRaw as _, UnescapedTextWrapper};
+/// use oxiplate::{UnescapedTextWrapper, WriteRaw as _};
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&oxiplate::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
+/// (&&UnescapedTextWrapper::new_raw(&text)).oxiplate_write_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
@@ -36,13 +35,7 @@ pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
 
 impl<'a, T> UnescapedTextWrapper<'a, T> {
     /// Wrap unescaped text.
-    pub fn new_escaped<E: Escaper>(
-        value: &'a T,
-        build_is_escaped: fn(&T) -> <E as Escaper>::IsEscaped<T>,
-        escaper: &E,
-    ) -> Self {
-        #[allow(clippy::needless_borrow)]
-        let is_escaped = (&&((build_is_escaped)(value))).is_escaped(escaper);
+    pub fn new_escaped((value, is_escaped): (&'a T, bool)) -> Self {
         Self(value, is_escaped)
     }
 
@@ -105,7 +98,7 @@ where
         f.write_str("FastWriteEscaped(")?;
 
         if self.1 {
-            self.0.oxiplate_fast_write_raw(f)?;
+            self.oxiplate_write_raw(f)?;
         } else {
             self.0.oxiplate_fast_write_escaped(f, escaper)?;
         }

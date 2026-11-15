@@ -10,7 +10,6 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 use core::fmt::{Result, Write};
-use core::marker::PhantomData;
 
 use oxiplate_traits::{Escaper, IsEscaped};
 
@@ -25,7 +24,7 @@ pub enum MarkdownEscaper {
 impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
-    type IsEscaped<T> = IsEscapedForMarkdown<T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForMarkdown<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -34,38 +33,27 @@ impl Escaper for MarkdownEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
-        IsEscapedForMarkdown {
-            phantom_data: PhantomData,
-        }
+    fn build_is_escaped<T>(value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForMarkdown { value }
     }
 }
 
 /// Item that implements `IsEscaped` for `MarkdownEscaper`.
-pub struct IsEscapedForMarkdown<T> {
-    phantom_data: PhantomData<T>,
+pub struct IsEscapedForMarkdown<'a, T> {
+    value: &'a T,
 }
 
-impl<'a, T> IsEscapedForMarkdown<T> {
-    /// Build `IsSafeForMarkdown` for the provided value.
-    pub fn new(_value: &'a T) -> Self {
-        Self {
-            phantom_data: PhantomData,
-        }
-    }
-}
-
-impl IsEscaped<MarkdownEscaper> for &IsEscapedForMarkdown<usize> {
-    fn is_escaped(&self, escaper: &MarkdownEscaper) -> bool {
+impl<'a> IsEscaped<'a, MarkdownEscaper, usize> for &IsEscapedForMarkdown<'a, usize> {
+    fn is_escaped(&self, escaper: &MarkdownEscaper) -> (&'a usize, bool) {
         match escaper {
-            MarkdownEscaper::text => true,
+            MarkdownEscaper::text => (self.value, true),
         }
     }
 }
 
-impl<T> IsEscaped<MarkdownEscaper> for IsEscapedForMarkdown<T> {
-    fn is_escaped(&self, _escaper: &MarkdownEscaper) -> bool {
-        false
+impl<'a, T> IsEscaped<'a, MarkdownEscaper, T> for IsEscapedForMarkdown<'a, T> {
+    fn is_escaped(&self, _escaper: &MarkdownEscaper) -> (&'a T, bool) {
+        (self.value, false)
     }
 }
 

@@ -1,7 +1,6 @@
 //! Example escaper used in `crate::escapers` documentation.
 
 use core::fmt::{Result, Write};
-use core::marker::PhantomData;
 
 use oxiplate_traits::{Escaper, IsEscaped};
 
@@ -18,7 +17,7 @@ pub enum YourEscaper {
 impl Escaper for YourEscaper {
     const DEFAULT: Self = Self::foo;
 
-    type IsEscaped<T> = IsEscapedForYourEscaper<T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForYourEscaper<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -28,29 +27,27 @@ impl Escaper for YourEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
-        IsEscapedForYourEscaper {
-            phantom_data: PhantomData,
-        }
+    fn build_is_escaped<T>(value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForYourEscaper { value }
     }
 }
 
 /// Item that implements `IsEscaped` for `YourEscaper`.
-pub struct IsEscapedForYourEscaper<T> {
-    phantom_data: PhantomData<T>,
+pub struct IsEscapedForYourEscaper<'a, T> {
+    value: &'a T,
 }
 
-impl IsEscaped<YourEscaper> for &IsEscapedForYourEscaper<usize> {
-    fn is_escaped(&self, escaper: &YourEscaper) -> bool {
+impl<'a> IsEscaped<'a, YourEscaper, usize> for &IsEscapedForYourEscaper<'a, usize> {
+    fn is_escaped(&self, escaper: &YourEscaper) -> (&'a usize, bool) {
         match escaper {
-            YourEscaper::foo | YourEscaper::bar => true,
+            YourEscaper::foo | YourEscaper::bar => (self.value, true),
         }
     }
 }
 
-impl<T> IsEscaped<YourEscaper> for IsEscapedForYourEscaper<T> {
-    fn is_escaped(&self, _escaper: &YourEscaper) -> bool {
-        false
+impl<'a, T> IsEscaped<'a, YourEscaper, T> for IsEscapedForYourEscaper<'a, T> {
+    fn is_escaped(&self, _escaper: &YourEscaper) -> (&'a T, bool) {
+        (self.value, false)
     }
 }
 
