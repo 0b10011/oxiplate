@@ -53,10 +53,7 @@ fast-escape-ints = ["oxiplate-traits/fast-escape-ints"]
 # Feature only meant to be turned on for tests.
 # Changes the output for various types
 # to make it clear which use `FastWriteEscaped`.
-_debug-fast-write-type-priority = [
-    "oxiplate-derive/_debug-fast-write-type-priority",
-    "oxiplate-traits/_debug-fast-write-type-priority"
-]
+_debug-fast-write-type-priority = ["oxiplate-traits/_debug-fast-write-type-priority"]
 
 # Feature for conditional compilation to cover otherwise unreachable code.
 _unreachable = ["oxiplate-derive/_unreachable"]
