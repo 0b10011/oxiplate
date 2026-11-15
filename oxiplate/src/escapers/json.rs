@@ -12,7 +12,7 @@
 use core::fmt::{Result, Write};
 use core::marker::PhantomData;
 
-use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
+use oxiplate_traits::{Escaper, IsEscaped};
 
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
@@ -27,7 +27,7 @@ pub enum JsonEscaper {
 impl Escaper for JsonEscaper {
     const DEFAULT: Self = Self::substring;
 
-    type Builder<'a, T: 'a> = IsSafeForJsonBuilder<'a, T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForJson<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -36,32 +36,19 @@ impl Escaper for JsonEscaper {
         }
     }
 
-    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
-        IsSafeForJsonBuilder {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForJson {
             phantom_data: PhantomData,
         }
     }
 }
 
-/// Builder for `IsSafeForJson`.
-pub struct IsSafeForJsonBuilder<'a, T> {
-    phantom_data: PhantomData<&'a T>,
-}
-
-impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForJsonBuilder<'a, T> {
-    type IsEscaped = IsSafeForJson<'a, T>;
-
-    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
-        IsSafeForJson::new(value)
-    }
-}
-
 /// Item that implements `IsEscaped` for `JsonEscaper`.
-pub struct IsSafeForJson<'a, T: ?Sized> {
+pub struct IsEscapedForJson<'a, T: ?Sized> {
     phantom_data: PhantomData<&'a T>,
 }
 
-impl<'a, T> IsSafeForJson<'a, T> {
+impl<'a, T> IsEscapedForJson<'a, T> {
     /// Build `IsSafeForJson` for the provided value.
     pub fn new(_value: &'a T) -> Self {
         Self {
@@ -70,7 +57,7 @@ impl<'a, T> IsSafeForJson<'a, T> {
     }
 }
 
-impl IsEscaped for &IsSafeForJson<'_, usize> {
+impl IsEscaped for &IsEscapedForJson<'_, usize> {
     type Escaper = JsonEscaper;
 
     fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
@@ -80,7 +67,7 @@ impl IsEscaped for &IsSafeForJson<'_, usize> {
     }
 }
 
-impl<T> IsEscaped for IsSafeForJson<'_, T> {
+impl<T> IsEscaped for IsEscapedForJson<'_, T> {
     type Escaper = JsonEscaper;
 
     fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {

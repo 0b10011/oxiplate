@@ -76,11 +76,10 @@ impl<'a> ::oxiplate::Render for Types<'a> {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n# default:\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.slice)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
@@ -92,7 +91,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.string)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
@@ -104,7 +103,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.integer)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
@@ -116,7 +115,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.float)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
@@ -128,7 +127,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
@@ -140,8 +139,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.display_borrowed)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display_borrowed)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
@@ -154,8 +152,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.fn_string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.fn_string)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
@@ -167,7 +164,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n\n# text:\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.slice)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
@@ -179,7 +176,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.string)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
@@ -191,7 +188,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.integer)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
@@ -203,7 +200,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.float)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
@@ -215,7 +212,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
@@ -227,8 +224,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.display_borrowed)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display_borrowed)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
@@ -241,8 +237,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.fn_string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.fn_string)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
@@ -254,7 +249,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n\n# comment:\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.slice)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
@@ -266,7 +261,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.string)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
@@ -278,7 +273,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.integer)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
@@ -290,7 +285,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.float)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
@@ -302,7 +297,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
@@ -314,8 +309,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.display_borrowed)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.display_borrowed)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
@@ -328,8 +322,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(self.fn_string)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.fn_string)))
             .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
@@ -495,11 +488,9 @@ fn explicit_and_inferred_escaper_group_in_writ() {
             extern crate alloc;
             use ::core::fmt::Write as _;
             use ::oxiplate::{
-                Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _,
-                WriteEscaped as _, WriteRaw as _,
+                Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-                .build(&("<hello>")))
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&("<hello>")))
                 .is_escaped(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )

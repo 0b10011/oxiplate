@@ -54,8 +54,7 @@ impl ::oxiplate::Render for Respond {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(::oxiplate::CowStrWrapper::new(
@@ -161,8 +160,7 @@ impl ::oxiplate::Render for Shorten {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(filters_for_oxiplate::shorten(
@@ -273,8 +271,7 @@ impl ::oxiplate::Render for Pad {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(filters_for_oxiplate::pad(self.number, self.length)),
@@ -380,8 +377,7 @@ impl ::oxiplate::Render for Multiple {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         (&&::oxiplate::UnescapedTextWrapper::new(
             &(filters_for_oxiplate::shorten(

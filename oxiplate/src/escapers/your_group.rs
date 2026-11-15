@@ -3,7 +3,7 @@
 use core::fmt::{Result, Write};
 use core::marker::PhantomData;
 
-use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
+use oxiplate_traits::{Escaper, IsEscaped};
 
 /// Enum for example escaper.
 #[allow(dead_code)]
@@ -18,7 +18,7 @@ pub enum YourEscaper {
 impl Escaper for YourEscaper {
     const DEFAULT: Self = Self::foo;
 
-    type Builder<'a, T: 'a> = IsSafeForYourEscaperBuilder<'a, T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForYourEscaper<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -28,41 +28,19 @@ impl Escaper for YourEscaper {
         }
     }
 
-    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
-        IsSafeForYourEscaperBuilder {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForYourEscaper {
             phantom_data: PhantomData,
         }
-    }
-}
-
-/// Builder for `IsSafeForYourEscaper`.
-pub struct IsSafeForYourEscaperBuilder<'a, T> {
-    phantom_data: PhantomData<&'a T>,
-}
-
-impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForYourEscaperBuilder<'a, T> {
-    type IsEscaped = IsSafeForYourEscaper<'a, T>;
-
-    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
-        IsSafeForYourEscaper::new(value)
     }
 }
 
 /// Item that implements `IsEscaped` for `YourEscaper`.
-pub struct IsSafeForYourEscaper<'a, T: ?Sized> {
+pub struct IsEscapedForYourEscaper<'a, T: ?Sized> {
     phantom_data: PhantomData<&'a T>,
 }
 
-impl<'a, T> IsSafeForYourEscaper<'a, T> {
-    /// Build `IsSafeForYourEscaper` for the provided value.
-    pub fn new(_value: &'a T) -> Self {
-        Self {
-            phantom_data: PhantomData,
-        }
-    }
-}
-
-impl IsEscaped for &IsSafeForYourEscaper<'_, usize> {
+impl IsEscaped for &IsEscapedForYourEscaper<'_, usize> {
     type Escaper = YourEscaper;
 
     fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
@@ -72,7 +50,7 @@ impl IsEscaped for &IsSafeForYourEscaper<'_, usize> {
     }
 }
 
-impl<T> IsEscaped for IsSafeForYourEscaper<'_, T> {
+impl<T> IsEscaped for IsEscapedForYourEscaper<'_, T> {
     type Escaper = YourEscaper;
 
     fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {

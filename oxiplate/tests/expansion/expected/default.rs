@@ -26,12 +26,12 @@ impl ::oxiplate::Render for Data {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n<!DOCTYPE html>\n<title>")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-            .build(&(filters_for_oxiplate::default(self.title, "Default title"))))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(
+            &(filters_for_oxiplate::default(self.title, "Default title")),
+        ))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(
@@ -50,11 +50,9 @@ impl ::oxiplate::Render for Data {
         oxiplate_formatter.write_str("</title>\n")?;
         if let Some(title) = self.title {
             oxiplate_formatter.write_str("<h1>")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(title)))
-                .is_escaped(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )
-            {
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(title))).is_escaped(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            ) {
                 (&&::oxiplate::UnescapedTextWrapper::new(&(title)))
                     .oxiplate_write_raw(oxiplate_formatter)?;
             } else {

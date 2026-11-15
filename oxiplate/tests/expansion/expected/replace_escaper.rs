@@ -18,12 +18,10 @@ impl ::oxiplate::Render for Html {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
-            .build(&(self.name)))
+        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
             .is_escaped(
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )
@@ -37,8 +35,7 @@ impl ::oxiplate::Render for Html {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
-            .build(&(self.name)))
+        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
             .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::foo)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
@@ -50,8 +47,7 @@ impl ::oxiplate::Render for Html {
             )?;
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
-            .build(&(self.name)))
+        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
             .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::bar)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))

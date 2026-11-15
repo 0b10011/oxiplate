@@ -52,8 +52,7 @@ fn precedence() {
             extern crate alloc;
             use ::core::fmt::Write as _;
             use ::oxiplate::{
-                Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _,
-                WriteEscaped as _, WriteRaw as _,
+                Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
             oxiplate_formatter.write_str("\n")?;
             (&&::oxiplate::UnescapedTextWrapper::new(
@@ -151,8 +150,7 @@ fn cow_concat_field() {
             extern crate alloc;
             use ::core::fmt::Write as _;
             use ::oxiplate::{
-                Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _,
-                WriteEscaped as _, WriteRaw as _,
+                Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
             (&&::oxiplate::UnescapedTextWrapper::new(
                 &(::oxiplate::CowStrWrapper::new(
@@ -236,8 +234,7 @@ fn cow_concat_function() {
             extern crate alloc;
             use ::core::fmt::Write as _;
             use ::oxiplate::{
-                Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _,
-                WriteEscaped as _, WriteRaw as _,
+                Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
             (&&::oxiplate::UnescapedTextWrapper::new(
                 &(::oxiplate::CowStrWrapper::new(

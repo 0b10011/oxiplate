@@ -12,7 +12,7 @@
 use core::fmt::{Result, Write};
 use core::marker::PhantomData;
 
-use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
+use oxiplate_traits::{Escaper, IsEscaped};
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
 #[allow(non_camel_case_types)]
@@ -25,7 +25,7 @@ pub enum MarkdownEscaper {
 impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
-    type Builder<'a, T: 'a> = IsSafeForMarkdownBuilder<'a, T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForMarkdown<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -34,32 +34,19 @@ impl Escaper for MarkdownEscaper {
         }
     }
 
-    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
-        IsSafeForMarkdownBuilder {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForMarkdown {
             phantom_data: PhantomData,
         }
     }
 }
 
-/// Builder for `IsSafeForMarkdown`.
-pub struct IsSafeForMarkdownBuilder<'a, T> {
-    phantom_data: PhantomData<&'a T>,
-}
-
-impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForMarkdownBuilder<'a, T> {
-    type IsEscaped = IsSafeForMarkdown<'a, T>;
-
-    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
-        IsSafeForMarkdown::new(value)
-    }
-}
-
 /// Item that implements `IsEscaped` for `MarkdownEscaper`.
-pub struct IsSafeForMarkdown<'a, T: ?Sized> {
+pub struct IsEscapedForMarkdown<'a, T: ?Sized> {
     phantom_data: PhantomData<&'a T>,
 }
 
-impl<'a, T> IsSafeForMarkdown<'a, T> {
+impl<'a, T> IsEscapedForMarkdown<'a, T> {
     /// Build `IsSafeForMarkdown` for the provided value.
     pub fn new(_value: &'a T) -> Self {
         Self {
@@ -68,7 +55,7 @@ impl<'a, T> IsSafeForMarkdown<'a, T> {
     }
 }
 
-impl IsEscaped for &IsSafeForMarkdown<'_, usize> {
+impl IsEscaped for &IsEscapedForMarkdown<'_, usize> {
     type Escaper = MarkdownEscaper;
 
     fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
@@ -78,7 +65,7 @@ impl IsEscaped for &IsSafeForMarkdown<'_, usize> {
     }
 }
 
-impl<T> IsEscaped for IsSafeForMarkdown<'_, T> {
+impl<T> IsEscaped for IsEscapedForMarkdown<'_, T> {
     type Escaper = MarkdownEscaper;
 
     fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {

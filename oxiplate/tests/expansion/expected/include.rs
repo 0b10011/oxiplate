@@ -21,11 +21,10 @@ impl ::oxiplate::Render for Include {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.title)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.title)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
@@ -39,8 +38,7 @@ impl ::oxiplate::Render for Include {
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-                .build(&(self.title)))
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.title)))
                 .is_escaped(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )
@@ -54,8 +52,7 @@ impl ::oxiplate::Render for Include {
                 )?;
             };
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-                .build(&(self.message)))
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.message)))
                 .is_escaped(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )
@@ -142,11 +139,10 @@ impl ::oxiplate::Render for IncludeDeep {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<h1>")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.title)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.title)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
@@ -160,7 +156,7 @@ impl ::oxiplate::Render for IncludeDeep {
         oxiplate_formatter.write_str("</h1>\n")?;
         oxiplate_formatter.write_str("<p>foo</p>\n")?;
         oxiplate_formatter.write_str("\n<p>")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.message)))
+        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.message)))
             .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
         {
             (&&::oxiplate::UnescapedTextWrapper::new(&(self.message)))

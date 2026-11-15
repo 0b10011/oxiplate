@@ -23,13 +23,11 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         for message in &self.messages {
             oxiplate_formatter.write_str("\n")?;
-            if (&&::oxiplate::escapers::markdown::MarkdownEscaper::is_safe_for_builder()
-                .build(&(message)))
+            if (&&::oxiplate::escapers::markdown::MarkdownEscaper::build_is_escaped(&(message)))
                 .is_escaped(&::oxiplate::escapers::markdown::MarkdownEscaper::text)
             {
                 (&&::oxiplate::UnescapedTextWrapper::new(&(message)))

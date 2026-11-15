@@ -234,7 +234,7 @@ impl<'a> Writ<'a> {
         } else {
             (
                 quote_spanned! {span=>
-                    if (&&#group::is_safe_for_builder().build(&(#text))).is_escaped(&<#group as ::oxiplate::Escaper>::DEFAULT) {
+                    if (&&#group::build_is_escaped(&(#text))).is_escaped(&<#group as ::oxiplate::Escaper>::DEFAULT) {
                         (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_write_raw(
                             oxiplate_formatter,
                         )?;
@@ -273,7 +273,7 @@ impl<'a> Writ<'a> {
             // FIXME: What if `oxiplate_derive` is being used?
             return (
                 quote_spanned! {span=>
-                    if (&&#group::is_safe_for_builder().build(&(#text))).is_escaped(&#path) {
+                    if (&&#group::build_is_escaped(&(#text))).is_escaped(&#path) {
                         (&&::oxiplate::UnescapedTextWrapper::new(&(#text))).oxiplate_write_raw(
                             oxiplate_formatter,
                         )?;

@@ -8,9 +8,7 @@ pub trait Escaper {
     /// Builder to build an item
     /// that implements `IsEscaped`
     /// for a particular value.
-    type Builder<'a, T: 'a>: IsSafeForBuilder<'a, T>
-    where
-        Self: 'a;
+    type IsEscaped<'a, T: 'a>: IsEscaped;
 
     /// Function that escapes text based on the selected variant.
     ///
@@ -22,18 +20,7 @@ pub trait Escaper {
     /// Get the builder to build an item
     /// that implements `IsEscaped`
     /// for a particular value.
-    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T>;
-}
-
-/// Trait to build an item
-/// that implements `IsEscaped`
-/// for a particular value.
-pub trait IsSafeForBuilder<'a, T> {
-    /// Item that implements `IsEscaped` for a particular value.
-    type IsEscaped: IsEscaped;
-
-    /// Build an item that implements `IsEscaped` for the provided value.
-    fn build(&'a self, value: &'a T) -> Self::IsEscaped;
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T>;
 }
 
 /// Trait to check if a value is already escaped for a provided escaper.

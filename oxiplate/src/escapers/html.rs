@@ -15,7 +15,7 @@ extern crate alloc;
 use core::fmt::{Result, Write};
 use core::marker::PhantomData;
 
-use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
+use oxiplate_traits::{Escaper, IsEscaped};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 #[allow(non_camel_case_types)]
@@ -36,7 +36,7 @@ pub enum HtmlEscaper {
 impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
-    type Builder<'a, T: 'a> = IsSafeForHtmlBuilder<'a, T>;
+    type IsEscaped<'a, T: 'a> = IsEscapedForHtml<'a, T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -47,41 +47,19 @@ impl Escaper for HtmlEscaper {
         }
     }
 
-    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
-        IsSafeForHtmlBuilder {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+        IsEscapedForHtml {
             phantom_data: PhantomData,
         }
-    }
-}
-
-/// Builder for `IsSafeForHtml`.
-pub struct IsSafeForHtmlBuilder<'a, T> {
-    phantom_data: PhantomData<&'a T>,
-}
-
-impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForHtmlBuilder<'a, T> {
-    type IsEscaped = IsSafeForHtml<'a, T>;
-
-    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
-        IsSafeForHtml::new(value)
     }
 }
 
 /// Item that implements `IsEscaped` for `HtmlEscaper`.
-pub struct IsSafeForHtml<'a, T: ?Sized> {
+pub struct IsEscapedForHtml<'a, T: 'a> {
     phantom_data: PhantomData<&'a T>,
 }
 
-impl<'a, T> IsSafeForHtml<'a, T> {
-    /// Build `IsSafeForHtml` for the provided value.
-    pub fn new(_value: &'a T) -> Self {
-        Self {
-            phantom_data: PhantomData,
-        }
-    }
-}
-
-impl<T> IsEscaped for &IsSafeForHtml<'_, T>
+impl<T> IsEscaped for &IsEscapedForHtml<'_, T>
 where
     T: SafeForHtml,
 {
@@ -92,7 +70,7 @@ where
     }
 }
 
-impl<T> IsEscaped for IsSafeForHtml<'_, T> {
+impl<T> IsEscaped for IsEscapedForHtml<'_, T> {
     type Escaper = HtmlEscaper;
 
     fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {

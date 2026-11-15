@@ -34,8 +34,7 @@ impl ::oxiplate::Render for Loop {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
-            WriteRaw as _,
+            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n")?;
         for (r#loop, value) in filters_for_oxiplate::r#loop(&self.values) {
@@ -43,8 +42,7 @@ impl ::oxiplate::Render for Loop {
                 oxiplate_formatter.write_str("first: ")?;
             }
             oxiplate_formatter.write_str("#")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-                .build(&(r#loop.index1)))
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(r#loop.index1)))
                 .is_escaped(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )
@@ -59,8 +57,7 @@ impl ::oxiplate::Render for Loop {
                     )?;
             };
             oxiplate_formatter.write_str(" (#")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
-                .build(&(r#loop.index0)))
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(r#loop.index0)))
                 .is_escaped(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )
@@ -75,11 +72,9 @@ impl ::oxiplate::Render for Loop {
                     )?;
             };
             oxiplate_formatter.write_str(") ")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(value)))
-                .is_escaped(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )
-            {
+            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(value))).is_escaped(
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            ) {
                 (&&::oxiplate::UnescapedTextWrapper::new(&(value)))
                     .oxiplate_write_raw(oxiplate_formatter)?;
             } else {
