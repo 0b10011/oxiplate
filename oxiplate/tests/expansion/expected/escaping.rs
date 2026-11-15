@@ -75,133 +75,292 @@ impl<'a> ::oxiplate::Render for Types<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::{
+            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
+            WriteRaw as _,
+        };
         oxiplate_formatter.write_str("\n# default:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.display_borrowed)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.fn_string)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n\n# text:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.display_borrowed)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &::oxiplate::escapers::html::HtmlEscaper::text,
+                )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::text,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.fn_string)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
+        };
         oxiplate_formatter.write_str("\n\n# comment:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.slice)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.string)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.integer)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.float)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.float))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.display)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.display_borrowed)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &::oxiplate::escapers::html::HtmlEscaper::comment,
+                )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+            .build(&(self.fn_string)))
+            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
+        };
         oxiplate_formatter.write_str("\n\n# raw:\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.slice)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.string)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.integer)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.float)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.display)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.display_borrowed)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         (&&::oxiplate::UnescapedTextWrapper::new(&(self.fn_string)))
-            .oxiplate_raw(oxiplate_formatter)?;
+            .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }
@@ -335,11 +494,24 @@ fn explicit_and_inferred_escaper_group_in_writ() {
         ) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            use ::oxiplate::{ToCowStr as _, UnescapedText as _};
-            (&&::oxiplate::UnescapedTextWrapper::new(&("<hello>"))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            use ::oxiplate::{
+                Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _,
+                WriteEscaped as _, WriteRaw as _,
+            };
+            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+                .build(&("<hello>")))
+                .is_escaped(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )
+            {
+                (&&::oxiplate::UnescapedTextWrapper::new(&("<hello>")))
+                    .oxiplate_write_raw(oxiplate_formatter)?;
+            } else {
+                (&&::oxiplate::UnescapedTextWrapper::new(&("<hello>"))).oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
+            };
             ::core::result::Result::Ok(())
         }
     }

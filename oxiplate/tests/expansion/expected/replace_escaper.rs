@@ -17,22 +17,51 @@ impl ::oxiplate::Render for Html {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::{
+            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
+            WriteRaw as _,
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
+            .build(&(self.name)))
+            .is_escaped(
+                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::your_group::YourEscaper::foo,
-        )?;
+        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
+            .build(&(self.name)))
+            .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::foo)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::your_group::YourEscaper::foo,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::your_group::YourEscaper::bar,
-        )?;
+        if (&&::oxiplate::escapers::your_group::YourEscaper::is_safe_for_builder()
+            .build(&(self.name)))
+            .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::bar)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::your_group::YourEscaper::bar,
+            )?;
+        };
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }

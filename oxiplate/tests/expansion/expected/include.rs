@@ -20,24 +20,54 @@ impl ::oxiplate::Render for Include {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::{
+            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
+            WriteRaw as _,
+        };
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.title)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+                .build(&(self.title)))
+                .is_escaped(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )
+            {
+                (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
+                    .oxiplate_write_raw(oxiplate_formatter)?;
+            } else {
+                (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
+            };
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder()
+                .build(&(self.message)))
+                .is_escaped(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )
+            {
+                (&&::oxiplate::UnescapedTextWrapper::new(&(self.message)))
+                    .oxiplate_write_raw(oxiplate_formatter)?;
+            } else {
+                (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
+            };
             oxiplate_formatter.write_str("</p>")?;
         }
         oxiplate_formatter.write_str("\n")?;
@@ -111,19 +141,36 @@ impl ::oxiplate::Render for IncludeDeep {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::{
+            Escaper as _, IsEscaped as _, IsSafeForBuilder as _, ToCowStr as _, WriteEscaped as _,
+            WriteRaw as _,
+        };
         oxiplate_formatter.write_str("<h1>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.title)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("</h1>\n")?;
         oxiplate_formatter.write_str("<p>foo</p>\n")?;
         oxiplate_formatter.write_str("\n<p>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_escape(
-            oxiplate_formatter,
-            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-        )?;
+        if (&&::oxiplate::escapers::html::HtmlEscaper::is_safe_for_builder().build(&(self.message)))
+            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
+        {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message)))
+                .oxiplate_write_raw(oxiplate_formatter)?;
+        } else {
+            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        };
         oxiplate_formatter.write_str("</p>\n")?;
         ::core::result::Result::Ok(())
     }

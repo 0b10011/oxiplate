@@ -9,7 +9,6 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use core::fmt::{Display, Result, Write};
 
-use crate::IsSafeFor;
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
@@ -18,7 +17,7 @@ use crate::escaper::Escaper;
 /// otherwise `Display` will be used.
 /// `IsSafeFor` can cause escaping to be skipped entirely.
 ///
-/// Must borrow four times
+/// Must borrow two times
 /// before calling `oxiplate_escape()` or `oxiplate_raw()`.
 /// This is how the specialized implementations get called.
 ///
@@ -28,7 +27,7 @@ use crate::escaper::Escaper;
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&&&oxiplate::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
+/// (&&oxiplate::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
@@ -82,62 +81,7 @@ where
     fn oxiplate_write_raw(&'a self, f: &mut W) -> Result;
 }
 
-impl<'a, E, T, W> WriteEscaped<'a, E, W> for &&&UnescapedTextWrapper<'a, T>
-where
-    E: Escaper,
-    T: FastWriteEscaped<'a, E, W> + FastWriteRaw<'a, W> + IsSafeFor<Escaper = E>,
-    W: Write + ?Sized,
-{
-    #[inline]
-    fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("FastWriteEscaped(")?;
-
-        if self.0.is_safe_for(escaper) {
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str("IsSafe(")?;
-
-            self.0.oxiplate_fast_write_raw(f)?;
-
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str(")")?;
-        } else {
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str("NotSafe(")?;
-
-            self.0.oxiplate_fast_write_escaped(f, escaper)?;
-
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str(")")?;
-        }
-
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str(")")?;
-
-        Ok(())
-    }
-}
-
-impl<'a, T, W> WriteRaw<'a, W> for &&&UnescapedTextWrapper<'a, T>
-where
-    T: FastWriteRaw<'a, W>,
-    W: Write + ?Sized,
-{
-    #[inline]
-    fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("FastWriteEscaped(")?;
-
-        self.0.oxiplate_fast_write_raw(f)?;
-
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str(")")?;
-
-        Ok(())
-    }
-}
-
-impl<'a, E, T, W> WriteEscaped<'a, E, W> for &&UnescapedTextWrapper<'a, T>
+impl<'a, E, T, W> WriteEscaped<'a, E, W> for &UnescapedTextWrapper<'a, T>
 where
     E: Escaper,
     T: FastWriteEscaped<'a, E, W> + FastWriteRaw<'a, W>,
@@ -157,7 +101,7 @@ where
     }
 }
 
-impl<'a, T, W> WriteRaw<'a, W> for &&UnescapedTextWrapper<'a, T>
+impl<'a, T, W> WriteRaw<'a, W> for &UnescapedTextWrapper<'a, T>
 where
     T: FastWriteRaw<'a, W>,
     W: Write + ?Sized,
@@ -165,64 +109,9 @@ where
     #[inline]
     fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("FastWriteEscaped(")?;
+        f.write_str("FastWriteRaw(")?;
 
         self.0.oxiplate_fast_write_raw(f)?;
-
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str(")")?;
-
-        Ok(())
-    }
-}
-
-impl<'a, E, T, W> WriteEscaped<'a, E, W> for &UnescapedTextWrapper<'a, T>
-where
-    E: Escaper,
-    T: ToString + Display + IsSafeFor<Escaper = E>,
-    W: Write + ?Sized,
-{
-    #[inline]
-    fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("Display(")?;
-
-        if self.0.is_safe_for(escaper) {
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str("IsSafe(")?;
-
-            f.write_str(&ToString::to_string(self.0))?;
-
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str(")")?;
-        } else {
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str("NotSafe(")?;
-
-            escaper.escape(f, &ToString::to_string(self.0))?;
-
-            #[cfg(feature = "_debug-fast-write-type-priority")]
-            f.write_str(")")?;
-        }
-
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str(")")?;
-
-        Ok(())
-    }
-}
-
-impl<'a, T, W> WriteRaw<'a, W> for &UnescapedTextWrapper<'a, T>
-where
-    T: ToString + Display,
-    W: Write + ?Sized,
-{
-    #[inline]
-    fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
-        #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("Display(")?;
-
-        f.write_str(&ToString::to_string(self.0))?;
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
@@ -240,7 +129,7 @@ where
     #[inline]
     fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("Display(")?;
+        f.write_str("DisplayEscaped(")?;
 
         escaper.escape(f, &ToString::to_string(self.0))?;
 
@@ -259,7 +148,7 @@ where
     #[inline]
     fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
-        f.write_str("Display(")?;
+        f.write_str("DisplayRaw(")?;
 
         f.write_str(&ToString::to_string(self.0))?;
 

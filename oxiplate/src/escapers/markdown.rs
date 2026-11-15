@@ -10,8 +10,9 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 use core::fmt::{Result, Write};
+use core::marker::PhantomData;
 
-use oxiplate_traits::Escaper;
+use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
 #[allow(non_camel_case_types)]
@@ -24,11 +25,64 @@ pub enum MarkdownEscaper {
 impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
+    type Builder<'a, T: 'a> = IsSafeForMarkdownBuilder<'a, T>;
+
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
             Self::text => escape_unformatted_text(f, value),
         }
+    }
+
+    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
+        IsSafeForMarkdownBuilder {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
+/// Builder for `IsSafeForMarkdown`.
+pub struct IsSafeForMarkdownBuilder<'a, T> {
+    phantom_data: PhantomData<&'a T>,
+}
+
+impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForMarkdownBuilder<'a, T> {
+    type IsEscaped = IsSafeForMarkdown<'a, T>;
+
+    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
+        IsSafeForMarkdown::new(value)
+    }
+}
+
+/// Item that implements `IsEscaped` for `MarkdownEscaper`.
+pub struct IsSafeForMarkdown<'a, T: ?Sized> {
+    phantom_data: PhantomData<&'a T>,
+}
+
+impl<'a, T> IsSafeForMarkdown<'a, T> {
+    /// Build `IsSafeForMarkdown` for the provided value.
+    pub fn new(_value: &'a T) -> Self {
+        Self {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
+impl IsEscaped for &IsSafeForMarkdown<'_, usize> {
+    type Escaper = MarkdownEscaper;
+
+    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+        match escaper {
+            MarkdownEscaper::text => true,
+        }
+    }
+}
+
+impl<T> IsEscaped for IsSafeForMarkdown<'_, T> {
+    type Escaper = MarkdownEscaper;
+
+    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+        false
     }
 }
 

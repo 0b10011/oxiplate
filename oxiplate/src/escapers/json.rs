@@ -10,8 +10,9 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 use core::fmt::{Result, Write};
+use core::marker::PhantomData;
 
-use oxiplate_traits::Escaper;
+use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
 
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,
@@ -26,11 +27,64 @@ pub enum JsonEscaper {
 impl Escaper for JsonEscaper {
     const DEFAULT: Self = Self::substring;
 
+    type Builder<'a, T: 'a> = IsSafeForJsonBuilder<'a, T>;
+
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
             Self::substring => escape_substring(f, value),
         }
+    }
+
+    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
+        IsSafeForJsonBuilder {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
+/// Builder for `IsSafeForJson`.
+pub struct IsSafeForJsonBuilder<'a, T> {
+    phantom_data: PhantomData<&'a T>,
+}
+
+impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForJsonBuilder<'a, T> {
+    type IsEscaped = IsSafeForJson<'a, T>;
+
+    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
+        IsSafeForJson::new(value)
+    }
+}
+
+/// Item that implements `IsEscaped` for `JsonEscaper`.
+pub struct IsSafeForJson<'a, T: ?Sized> {
+    phantom_data: PhantomData<&'a T>,
+}
+
+impl<'a, T> IsSafeForJson<'a, T> {
+    /// Build `IsSafeForJson` for the provided value.
+    pub fn new(_value: &'a T) -> Self {
+        Self {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
+impl IsEscaped for &IsSafeForJson<'_, usize> {
+    type Escaper = JsonEscaper;
+
+    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+        match escaper {
+            JsonEscaper::substring => true,
+        }
+    }
+}
+
+impl<T> IsEscaped for IsSafeForJson<'_, T> {
+    type Escaper = JsonEscaper;
+
+    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+        false
     }
 }
 

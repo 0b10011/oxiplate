@@ -57,3 +57,8 @@ _oxiplate = []
 
 # Feature for conditional compilation to cover otherwise unreachable code.
 _unreachable = []
+
+# Feature only meant to be turned on for tests.
+# Changes the output for various types
+# to make it clear which use `FastWriteEscaped`.
+_debug-fast-write-type-priority = []

@@ -63,7 +63,7 @@ impl<'a> CowStr<'a> for CowStrWrapper<'a> {
     }
 }
 
-impl<'a> Display for CowStrWrapper<'a> {
+impl Display for CowStrWrapper<'_> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&self.0)
     }

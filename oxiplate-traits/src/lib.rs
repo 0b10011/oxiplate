@@ -12,7 +12,7 @@ mod render;
 mod unescaped_text;
 
 pub use self::cow_str::{CowStr, CowStrWrapper, FastCowStr, ToCowStr, ToCowStrWrapper};
-pub use self::escaper::{Escaper, IsSafeFor};
+pub use self::escaper::{Escaper, IsEscaped, IsSafeForBuilder};
 pub use self::render::Render;
 pub use self::unescaped_text::{
     FastWriteEscaped, FastWriteRaw, UnescapedTextWrapper, WriteEscaped, WriteRaw,

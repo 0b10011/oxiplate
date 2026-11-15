@@ -10,9 +10,12 @@
 //!
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
-use core::fmt::{Result, Write};
+extern crate alloc;
 
-use oxiplate_traits::{Escaper, IsSafeFor};
+use core::fmt::{Result, Write};
+use core::marker::PhantomData;
+
+use oxiplate_traits::{Escaper, IsEscaped, IsSafeForBuilder};
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 #[allow(non_camel_case_types)]
@@ -33,6 +36,8 @@ pub enum HtmlEscaper {
 impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
+    type Builder<'a, T: 'a> = IsSafeForHtmlBuilder<'a, T>;
+
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
@@ -41,41 +46,120 @@ impl Escaper for HtmlEscaper {
             Self::comment => escape_comment_text(f, value),
         }
     }
-}
 
-impl<T: SafeScalar> IsSafeFor for T {
-    type Escaper = HtmlEscaper;
-
-    fn is_safe_for(&self, escaper: &Self::Escaper) -> bool {
-        match escaper {
-            HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
+    fn is_safe_for_builder<'a, T>() -> Self::Builder<'a, T> {
+        IsSafeForHtmlBuilder {
+            phantom_data: PhantomData,
         }
     }
 }
 
-/// Scalars that are safe to output as-is in all contexts.
-trait SafeScalar {}
+/// Builder for `IsSafeForHtml`.
+pub struct IsSafeForHtmlBuilder<'a, T> {
+    phantom_data: PhantomData<&'a T>,
+}
 
-// Integers
-impl SafeScalar for i8 {}
-impl SafeScalar for i16 {}
-impl SafeScalar for i32 {}
-impl SafeScalar for i64 {}
-impl SafeScalar for i128 {}
-impl SafeScalar for isize {}
-impl SafeScalar for u8 {}
-impl SafeScalar for u16 {}
-impl SafeScalar for u32 {}
-impl SafeScalar for u64 {}
-impl SafeScalar for u128 {}
-impl SafeScalar for usize {}
+impl<'a, T> IsSafeForBuilder<'a, T> for IsSafeForHtmlBuilder<'a, T> {
+    type IsEscaped = IsSafeForHtml<'a, T>;
 
-// Floating-point numbers
-impl SafeScalar for f32 {}
-impl SafeScalar for f64 {}
+    fn build(&'a self, value: &'a T) -> Self::IsEscaped {
+        IsSafeForHtml::new(value)
+    }
+}
 
-// Booleans
-impl SafeScalar for bool {}
+/// Item that implements `IsEscaped` for `HtmlEscaper`.
+pub struct IsSafeForHtml<'a, T: ?Sized> {
+    phantom_data: PhantomData<&'a T>,
+}
+
+impl<'a, T> IsSafeForHtml<'a, T> {
+    /// Build `IsSafeForHtml` for the provided value.
+    pub fn new(_value: &'a T) -> Self {
+        Self {
+            phantom_data: PhantomData,
+        }
+    }
+}
+
+impl<T> IsEscaped for &IsSafeForHtml<'_, T>
+where
+    T: SafeForHtml,
+{
+    type Escaper = HtmlEscaper;
+
+    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+
+impl<T> IsEscaped for IsSafeForHtml<'_, T> {
+    type Escaper = HtmlEscaper;
+
+    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+        false
+    }
+}
+
+trait SafeForHtml {
+    fn is_safe(escaper: &HtmlEscaper) -> bool;
+}
+impl<T> SafeForHtml for &T
+where
+    T: SafeForHtml,
+{
+    fn is_safe(escaper: &HtmlEscaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+impl<T> SafeForHtml for &mut T
+where
+    T: SafeForHtml,
+{
+    fn is_safe(escaper: &HtmlEscaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+impl<T> SafeForHtml for alloc::boxed::Box<T>
+where
+    T: SafeForHtml,
+{
+    fn is_safe(escaper: &HtmlEscaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+impl<T> SafeForHtml for alloc::rc::Rc<T>
+where
+    T: SafeForHtml,
+{
+    fn is_safe(escaper: &HtmlEscaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+impl<T> SafeForHtml for alloc::sync::Arc<T>
+where
+    T: SafeForHtml,
+{
+    fn is_safe(escaper: &HtmlEscaper) -> bool {
+        <T>::is_safe(escaper)
+    }
+}
+
+macro_rules! numbers_safe_for_html {
+    ($($ty:ty)*) => { $(
+        impl SafeForHtml for $ty {
+            fn is_safe(escaper: &HtmlEscaper) -> bool {
+                match escaper {
+                    HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
+                }
+            }
+        }
+    )* };
+}
+numbers_safe_for_html!(
+    i8 i16 i32 i64 i128 isize
+    u8 u16 u32 u64 u128 usize
+    f32 f64
+);
 
 /// Escape the value as [text](https://html.spec.whatwg.org/#text-content) in an HTML document.
 ///
@@ -230,10 +314,6 @@ mod tests {
 
     use alloc::string::String;
 
-    use oxiplate_traits::IsSafeFor;
-
-    use super::HtmlEscaper;
-
     #[test]
     fn test_escape_attribute_quoted_value() {
         let mut string = String::new();
@@ -246,10 +326,5 @@ mod tests {
         let mut string = String::new();
         super::escape_attribute_quoted_value(&mut string, r#"Hello world!"#).unwrap();
         assert_eq!("Hello world!", string);
-    }
-
-    #[test]
-    fn i8_safe() {
-        assert!(IsSafeFor::is_safe_for(&19_i8, &HtmlEscaper::text));
     }
 }
