@@ -11,7 +11,7 @@ where
     /// Builder to build an item
     /// that implements `IsEscaped`
     /// for a particular value.
-    type IsEscaped<'a, T: 'a>: IsEscaped<'a, Self, T>;
+    type TextHandler<'a, T: 'a>: TextHandler<'a, Self, T>;
 
     /// Function that escapes text based on the selected variant.
     ///
@@ -23,17 +23,17 @@ where
     /// Get the builder to build an item
     /// that implements `IsEscaped`
     /// for a particular value.
-    fn build_is_escaped<T>(value: &T) -> Self::IsEscaped<'_, T>
+    fn build_text_handler<T>(value: &T) -> Self::TextHandler<'_, T>
     where
         Self: Sized;
 }
 
 /// Trait to check if a value is already escaped for a provided escaper.
-pub trait IsEscaped<'a, E, T>
+pub trait TextHandler<'a, E, T>
 where
     E: Escaper,
 {
     /// Whether the input is already considered escaped
     /// for the provided escaper.
-    fn is_escaped(&'a self, escaper: &E) -> (&'a T, bool);
+    fn prepare_text_for_output(&'a self, escaper: &E) -> (&'a T, bool);
 }

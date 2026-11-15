@@ -235,7 +235,8 @@ impl<'a> Writ<'a> {
             (
                 quote_spanned! {span=>
                     (&&::oxiplate::UnescapedTextWrapper::new(
-                        (&&#group::build_is_escaped(&(#text))).is_escaped(&<#group as ::oxiplate::Escaper>::DEFAULT),
+                        (&&#group::build_text_handler(&(#text)))
+                            .prepare_text_for_output(&<#group as ::oxiplate::Escaper>::DEFAULT),
                     )).oxiplate_write_escaped(
                         oxiplate_formatter,
                         &<#group as ::oxiplate::Escaper>::DEFAULT,
@@ -270,7 +271,8 @@ impl<'a> Writ<'a> {
             return (
                 quote_spanned! {span=>
                     (&&::oxiplate::UnescapedTextWrapper::new(
-                        (&&#group::build_is_escaped(&(#text))).is_escaped(&#escaper_path),
+                        (&&#group::build_text_handler(&(#text)))
+                            .prepare_text_for_output(&#escaper_path),
                     )).oxiplate_write_escaped(
                         oxiplate_formatter,
                         &#escaper_path,

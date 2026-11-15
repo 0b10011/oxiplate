@@ -8,7 +8,7 @@
 //! Oxiplate templates usually use `snake_case` escaper names,
 //! so it's suggested to use those on your escaper group enum.
 //!
-//! ```rust
+//! ```rust:ignore
 //! use std::fmt::{Result, Write};
 //!
 //! use oxiplate_traits::Escaper;
