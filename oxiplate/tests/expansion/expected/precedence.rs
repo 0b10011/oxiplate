@@ -55,7 +55,7 @@ fn precedence() {
                 Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::UnescapedTextWrapper::new_raw(
                 &(filters_for_oxiplate::trim(::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
@@ -67,7 +67,7 @@ fn precedence() {
             ))
                 .oxiplate_write_raw(oxiplate_formatter)?;
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::UnescapedTextWrapper::new_raw(
                 &(::alloc::__export::must_use({
                     ::alloc::fmt::format(format_args!(
                         "{0} is awesome",
@@ -152,7 +152,7 @@ fn cow_concat_field() {
             use ::oxiplate::{
                 Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::UnescapedTextWrapper::new_raw(
                 &(::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
@@ -236,7 +236,7 @@ fn cow_concat_function() {
             use ::oxiplate::{
                 Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
             };
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::UnescapedTextWrapper::new_raw(
                 &(::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({

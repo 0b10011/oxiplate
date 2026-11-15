@@ -9,6 +9,7 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use core::fmt::{Display, Result, Write};
 
+use crate::IsEscaped;
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
@@ -31,12 +32,23 @@ use crate::escaper::Escaper;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
-pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
+pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
 
 impl<'a, T> UnescapedTextWrapper<'a, T> {
     /// Wrap unescaped text.
-    pub fn new(value: &'a T) -> Self {
-        Self(value)
+    pub fn new_escaped<E: Escaper>(
+        value: &'a T,
+        build_is_escaped: fn(&T) -> <E as Escaper>::IsEscaped<T>,
+        escaper: &E,
+    ) -> Self {
+        #[allow(clippy::needless_borrow)]
+        let is_escaped = (&&((build_is_escaped)(value))).is_escaped(escaper);
+        Self(value, is_escaped)
+    }
+
+    /// Wrap text that won't be escaped.
+    pub fn new_raw(value: &'a T) -> Self {
+        Self(value, true)
     }
 }
 
@@ -50,7 +62,7 @@ impl<'a, T> UnescapedTextWrapper<'a, T> {
 /// - `IsSafeFor` marks values as not needing escaping.
 ///
 /// See `UnescapedTextWrapper` documentation for more information.
-pub trait WriteEscaped<'a, E, W>: WriteRaw<'a, W>
+pub trait WriteEscaped<'a: 'b, 'b, E, W>: WriteRaw<'a, 'b, W>
 where
     E: Escaper,
     W: Write + ?Sized,
@@ -61,14 +73,14 @@ where
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result;
+    fn oxiplate_write_escaped(&'a self, f: &'b mut W, escaper: &E) -> Result;
 }
 
 /// Trait with specialized implementations
 /// for items that implement `FastWriteRaw`
 /// that improve the performance of writing
 /// or make it possible to safely skip escaping entirely.
-pub trait WriteRaw<'a, W>
+pub trait WriteRaw<'a: 'b, 'b, W>
 where
     W: Write + ?Sized,
 {
@@ -78,21 +90,25 @@ where
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
-    fn oxiplate_write_raw(&'a self, f: &mut W) -> Result;
+    fn oxiplate_write_raw(&'a self, f: &'b mut W) -> Result;
 }
 
-impl<'a, E, T, W> WriteEscaped<'a, E, W> for &UnescapedTextWrapper<'a, T>
+impl<'a: 'b, 'b, E, T, W> WriteEscaped<'a, 'b, E, W> for &UnescapedTextWrapper<'a, T>
 where
     E: Escaper,
     T: FastWriteEscaped<'a, E, W> + FastWriteRaw<'a, W>,
     W: Write + ?Sized,
 {
     #[inline]
-    fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
+    fn oxiplate_write_escaped(&'a self, f: &'b mut W, escaper: &E) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("FastWriteEscaped(")?;
 
-        self.0.oxiplate_fast_write_escaped(f, escaper)?;
+        if self.1 {
+            self.0.oxiplate_fast_write_raw(f)?;
+        } else {
+            self.0.oxiplate_fast_write_escaped(f, escaper)?;
+        }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
@@ -101,13 +117,13 @@ where
     }
 }
 
-impl<'a, T, W> WriteRaw<'a, W> for &UnescapedTextWrapper<'a, T>
+impl<'a: 'b, 'b, T, W> WriteRaw<'a, 'b, W> for &UnescapedTextWrapper<'a, T>
 where
     T: FastWriteRaw<'a, W>,
     W: Write + ?Sized,
 {
     #[inline]
-    fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_write_raw(&'a self, f: &'b mut W) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("FastWriteRaw(")?;
 
@@ -120,18 +136,22 @@ where
     }
 }
 
-impl<'a, E, T, W> WriteEscaped<'a, E, W> for UnescapedTextWrapper<'a, T>
+impl<'a: 'b, 'b, E, T, W> WriteEscaped<'a, 'b, E, W> for UnescapedTextWrapper<'a, T>
 where
     E: Escaper,
     T: ToString + Display,
     W: Write + ?Sized,
 {
     #[inline]
-    fn oxiplate_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
+    fn oxiplate_write_escaped(&'a self, f: &'b mut W, escaper: &E) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("DisplayEscaped(")?;
 
-        escaper.escape(f, &ToString::to_string(self.0))?;
+        if self.1 {
+            self.oxiplate_write_raw(f)?;
+        } else {
+            escaper.escape(f, &ToString::to_string(self.0))?;
+        }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
@@ -140,13 +160,13 @@ where
     }
 }
 
-impl<'a, T, W> WriteRaw<'a, W> for UnescapedTextWrapper<'a, T>
+impl<'a: 'b, 'b, T, W> WriteRaw<'a, 'b, W> for UnescapedTextWrapper<'a, T>
 where
     T: ToString + Display,
     W: Write + ?Sized,
 {
     #[inline]
-    fn oxiplate_write_raw(&'a self, f: &mut W) -> Result {
+    fn oxiplate_write_raw(&'a self, f: &'b mut W) -> Result {
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("DisplayRaw(")?;
 

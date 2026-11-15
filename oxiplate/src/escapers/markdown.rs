@@ -25,7 +25,7 @@ pub enum MarkdownEscaper {
 impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
-    type IsEscaped<'a, T: 'a> = IsEscapedForMarkdown<'a, T>;
+    type IsEscaped<T> = IsEscapedForMarkdown<T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -34,7 +34,7 @@ impl Escaper for MarkdownEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
         IsEscapedForMarkdown {
             phantom_data: PhantomData,
         }
@@ -42,11 +42,11 @@ impl Escaper for MarkdownEscaper {
 }
 
 /// Item that implements `IsEscaped` for `MarkdownEscaper`.
-pub struct IsEscapedForMarkdown<'a, T: ?Sized> {
-    phantom_data: PhantomData<&'a T>,
+pub struct IsEscapedForMarkdown<T> {
+    phantom_data: PhantomData<T>,
 }
 
-impl<'a, T> IsEscapedForMarkdown<'a, T> {
+impl<'a, T> IsEscapedForMarkdown<T> {
     /// Build `IsSafeForMarkdown` for the provided value.
     pub fn new(_value: &'a T) -> Self {
         Self {
@@ -55,20 +55,16 @@ impl<'a, T> IsEscapedForMarkdown<'a, T> {
     }
 }
 
-impl IsEscaped for &IsEscapedForMarkdown<'_, usize> {
-    type Escaper = MarkdownEscaper;
-
-    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+impl IsEscaped<MarkdownEscaper> for &IsEscapedForMarkdown<usize> {
+    fn is_escaped(&self, escaper: &MarkdownEscaper) -> bool {
         match escaper {
             MarkdownEscaper::text => true,
         }
     }
 }
 
-impl<T> IsEscaped for IsEscapedForMarkdown<'_, T> {
-    type Escaper = MarkdownEscaper;
-
-    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+impl<T> IsEscaped<MarkdownEscaper> for IsEscapedForMarkdown<T> {
+    fn is_escaped(&self, _escaper: &MarkdownEscaper) -> bool {
         false
     }
 }

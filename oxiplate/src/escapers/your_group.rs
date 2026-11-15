@@ -18,7 +18,7 @@ pub enum YourEscaper {
 impl Escaper for YourEscaper {
     const DEFAULT: Self = Self::foo;
 
-    type IsEscaped<'a, T: 'a> = IsEscapedForYourEscaper<'a, T>;
+    type IsEscaped<T> = IsEscapedForYourEscaper<T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -28,7 +28,7 @@ impl Escaper for YourEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
         IsEscapedForYourEscaper {
             phantom_data: PhantomData,
         }
@@ -36,24 +36,20 @@ impl Escaper for YourEscaper {
 }
 
 /// Item that implements `IsEscaped` for `YourEscaper`.
-pub struct IsEscapedForYourEscaper<'a, T: ?Sized> {
-    phantom_data: PhantomData<&'a T>,
+pub struct IsEscapedForYourEscaper<T> {
+    phantom_data: PhantomData<T>,
 }
 
-impl IsEscaped for &IsEscapedForYourEscaper<'_, usize> {
-    type Escaper = YourEscaper;
-
-    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+impl IsEscaped<YourEscaper> for &IsEscapedForYourEscaper<usize> {
+    fn is_escaped(&self, escaper: &YourEscaper) -> bool {
         match escaper {
             YourEscaper::foo | YourEscaper::bar => true,
         }
     }
 }
 
-impl<T> IsEscaped for IsEscapedForYourEscaper<'_, T> {
-    type Escaper = YourEscaper;
-
-    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+impl<T> IsEscaped<YourEscaper> for IsEscapedForYourEscaper<T> {
+    fn is_escaped(&self, _escaper: &YourEscaper) -> bool {
         false
     }
 }

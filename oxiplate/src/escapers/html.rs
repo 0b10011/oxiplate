@@ -36,7 +36,7 @@ pub enum HtmlEscaper {
 impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
-    type IsEscaped<'a, T: 'a> = IsEscapedForHtml<'a, T>;
+    type IsEscaped<T> = IsEscapedForHtml<T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -47,7 +47,7 @@ impl Escaper for HtmlEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
         IsEscapedForHtml {
             phantom_data: PhantomData,
         }
@@ -55,25 +55,21 @@ impl Escaper for HtmlEscaper {
 }
 
 /// Item that implements `IsEscaped` for `HtmlEscaper`.
-pub struct IsEscapedForHtml<'a, T: 'a> {
-    phantom_data: PhantomData<&'a T>,
+pub struct IsEscapedForHtml<T> {
+    phantom_data: PhantomData<T>,
 }
 
-impl<T> IsEscaped for &IsEscapedForHtml<'_, T>
+impl<T> IsEscaped<HtmlEscaper> for &IsEscapedForHtml<T>
 where
     T: SafeForHtml,
 {
-    type Escaper = HtmlEscaper;
-
-    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+    fn is_escaped(&self, escaper: &HtmlEscaper) -> bool {
         <T>::is_safe(escaper)
     }
 }
 
-impl<T> IsEscaped for IsEscapedForHtml<'_, T> {
-    type Escaper = HtmlEscaper;
-
-    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+impl<T> IsEscaped<HtmlEscaper> for IsEscapedForHtml<T> {
+    fn is_escaped(&self, _escaper: &HtmlEscaper) -> bool {
         false
     }
 }

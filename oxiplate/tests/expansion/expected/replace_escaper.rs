@@ -21,43 +21,35 @@ impl ::oxiplate::Render for Html {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(
-                &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
+            &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::foo)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
+            &::oxiplate::escapers::your_group::YourEscaper::foo,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::your_group::YourEscaper::foo,
             )?;
-        };
         oxiplate_formatter.write_str("\n")?;
-        if (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::bar)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::your_group::YourEscaper::build_is_escaped,
+            &::oxiplate::escapers::your_group::YourEscaper::bar,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::your_group::YourEscaper::bar,
             )?;
-        };
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
     }

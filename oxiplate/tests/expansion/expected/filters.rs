@@ -35,7 +35,7 @@ mod filters_for_oxiplate {
         .into()
     }
 }
-#[oxiplate_inline(r#"{{ raw: >message | >respond(>"world") }}"#)]
+#[oxiplate_inline(r#"{{ html.text: >message | >respond(>"world") }}"#)]
 struct Respond {
     message: &'static str,
 }
@@ -56,7 +56,7 @@ impl ::oxiplate::Render for Respond {
         use ::oxiplate::{
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
             &(::oxiplate::CowStrWrapper::new(
                 (&&::oxiplate::ToCowStrWrapper::new(
                     &(filters_for_oxiplate::respond(
@@ -70,8 +70,13 @@ impl ::oxiplate::Render for Respond {
                 ))
                     .to_cow_str(),
             )),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &::oxiplate::escapers::html::HtmlEscaper::text,
         ))
-            .oxiplate_write_raw(oxiplate_formatter)?;
+            .oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::text,
+            )?;
         ::core::result::Result::Ok(())
     }
 }
@@ -162,7 +167,7 @@ impl ::oxiplate::Render for Shorten {
         use ::oxiplate::{
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::UnescapedTextWrapper::new_raw(
             &(filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
@@ -273,7 +278,7 @@ impl ::oxiplate::Render for Pad {
         use ::oxiplate::{
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::UnescapedTextWrapper::new_raw(
             &(filters_for_oxiplate::pad(self.number, self.length)),
         ))
             .oxiplate_write_raw(oxiplate_formatter)?;
@@ -379,7 +384,7 @@ impl ::oxiplate::Render for Multiple {
         use ::oxiplate::{
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::UnescapedTextWrapper::new_raw(
             &(filters_for_oxiplate::shorten(
                 ::oxiplate::CowStrWrapper::new(
                     (&&::oxiplate::ToCowStrWrapper::new(

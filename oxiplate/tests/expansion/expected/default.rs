@@ -29,38 +29,27 @@ impl ::oxiplate::Render for Data {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n<!DOCTYPE html>\n<title>")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
             &(filters_for_oxiplate::default(self.title, "Default title")),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
         ))
-            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(
-                &(filters_for_oxiplate::default(self.title, "Default title")),
-            ))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(
-                &(filters_for_oxiplate::default(self.title, "Default title")),
+            .oxiplate_write_escaped(
+                oxiplate_formatter,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+            )?;
+        oxiplate_formatter.write_str("</title>\n")?;
+        if let Some(title) = self.title {
+            oxiplate_formatter.write_str("<h1>")?;
+            (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+                &(title),
+                ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             ))
                 .oxiplate_write_escaped(
                     oxiplate_formatter,
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
-        };
-        oxiplate_formatter.write_str("</title>\n")?;
-        if let Some(title) = self.title {
-            oxiplate_formatter.write_str("<h1>")?;
-            if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(title))).is_escaped(
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            ) {
-                (&&::oxiplate::UnescapedTextWrapper::new(&(title)))
-                    .oxiplate_write_raw(oxiplate_formatter)?;
-            } else {
-                (&&::oxiplate::UnescapedTextWrapper::new(&(title))).oxiplate_write_escaped(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
-            };
             oxiplate_formatter.write_str("</h1>\n")?;
         }
         ::core::result::Result::Ok(())

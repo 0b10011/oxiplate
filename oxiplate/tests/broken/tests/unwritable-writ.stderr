@@ -1,25 +1,3 @@
-error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
- --> tests/broken/tests/unwritable-writ.rs:4:26
-  |
-4 | #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
-  |                          ^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
-  |
- ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
-  |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
-  | ---------------------------------------------- doesn't satisfy `_: WriteRaw<'_, _>`
-  |
- ::: $RUST/alloc/src/vec/mod.rs
-  |
-  | pub struct Vec<T, #[stable(feature = "allocator_api", since = "1.100.0")] A: Allocator = Global> {
-  | ------------------------------------------------------------------------------------------------ doesn't satisfy `Vec<&str>: FastWriteRaw<'_, _>` or `Vec<&str>: std::fmt::Display`
-  |
-  = note: the following trait bounds were not satisfied:
-          `Vec<&str>: FastWriteRaw<'_, _>`
-          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
-          `Vec<&str>: std::fmt::Display`
-          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
-
 error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/tests/unwritable-writ.rs:4:26
   |
@@ -28,8 +6,8 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
-  | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, _, _>`
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, '_, _, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
@@ -38,31 +16,9 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastWriteEscaped<'_, _, _>`
-          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, _, _>`
+          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, '_, _, _>`
           `Vec<&str>: std::fmt::Display`
-          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, _, _>`
-
-error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
- --> tests/broken/tests/unwritable-writ.rs:4:41
-  |
-4 | #[oxiplate_inline(html: "{{ messages }} {{ text: messages }} {{ raw: messages }}\n")]
-  |                                         ^^^^^^^^^^^^^^^^^^^^ method cannot be called on `&&UnescapedTextWrapper<'_, Vec<&str>>` due to unsatisfied trait bounds
-  |
- ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
-  |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
-  | ---------------------------------------------- doesn't satisfy `_: WriteRaw<'_, _>`
-  |
- ::: $RUST/alloc/src/vec/mod.rs
-  |
-  | pub struct Vec<T, #[stable(feature = "allocator_api", since = "1.100.0")] A: Allocator = Global> {
-  | ------------------------------------------------------------------------------------------------ doesn't satisfy `Vec<&str>: FastWriteRaw<'_, _>` or `Vec<&str>: std::fmt::Display`
-  |
-  = note: the following trait bounds were not satisfied:
-          `Vec<&str>: FastWriteRaw<'_, _>`
-          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
-          `Vec<&str>: std::fmt::Display`
-          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
+          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, '_, _, _>`
 
 error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/tests/unwritable-writ.rs:4:41
@@ -72,8 +28,8 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
-  | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, _, _>`
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, '_, _, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
@@ -82,9 +38,9 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastWriteEscaped<'_, _, _>`
-          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, _, _>`
+          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, '_, _, _>`
           `Vec<&str>: std::fmt::Display`
-          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, _, _>`
+          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteEscaped<'_, '_, _, _>`
 
 error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedTextWrapper<'_, Vec<&str>>`, but its trait bounds were not satisfied
  --> tests/broken/tests/unwritable-writ.rs:4:70
@@ -94,8 +50,8 @@ error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedT
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T);
-  | ---------------------------------------------- doesn't satisfy `_: WriteRaw<'_, _>`
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | ---------------------------------------------- doesn't satisfy `_: WriteRaw<'_, '_, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs
   |
@@ -104,6 +60,6 @@ error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedT
   |
   = note: the following trait bounds were not satisfied:
           `Vec<&str>: FastWriteRaw<'_, _>`
-          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
+          which is required by `&UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, '_, _>`
           `Vec<&str>: std::fmt::Display`
-          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, _>`
+          which is required by `UnescapedTextWrapper<'_, Vec<&str>>: WriteRaw<'_, '_, _>`

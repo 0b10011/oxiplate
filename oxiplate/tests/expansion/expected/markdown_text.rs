@@ -27,17 +27,15 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         };
         for message in &self.messages {
             oxiplate_formatter.write_str("\n")?;
-            if (&&::oxiplate::escapers::markdown::MarkdownEscaper::build_is_escaped(&(message)))
-                .is_escaped(&::oxiplate::escapers::markdown::MarkdownEscaper::text)
-            {
-                (&&::oxiplate::UnescapedTextWrapper::new(&(message)))
-                    .oxiplate_write_raw(oxiplate_formatter)?;
-            } else {
-                (&&::oxiplate::UnescapedTextWrapper::new(&(message))).oxiplate_write_escaped(
+            (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+                &(message),
+                ::oxiplate::escapers::markdown::MarkdownEscaper::build_is_escaped,
+                &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+            ))
+                .oxiplate_write_escaped(
                     oxiplate_formatter,
                     &::oxiplate::escapers::markdown::MarkdownEscaper::text,
                 )?;
-            };
             oxiplate_formatter.write_str("\n")?;
         }
         ::core::result::Result::Ok(())

@@ -21,17 +21,15 @@ impl<'a> ::oxiplate::Render for Data<'a> {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<!--")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.comment)))
-            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.comment),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &::oxiplate::escapers::html::HtmlEscaper::comment,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
-        };
         oxiplate_formatter.write_str("-->")?;
         ::core::result::Result::Ok(())
     }

@@ -27,7 +27,7 @@ pub enum JsonEscaper {
 impl Escaper for JsonEscaper {
     const DEFAULT: Self = Self::substring;
 
-    type IsEscaped<'a, T: 'a> = IsEscapedForJson<'a, T>;
+    type IsEscaped<T> = IsEscapedForJson<T>;
 
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
@@ -36,7 +36,7 @@ impl Escaper for JsonEscaper {
         }
     }
 
-    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<'_, T> {
+    fn build_is_escaped<T>(_value: &T) -> Self::IsEscaped<T> {
         IsEscapedForJson {
             phantom_data: PhantomData,
         }
@@ -44,33 +44,29 @@ impl Escaper for JsonEscaper {
 }
 
 /// Item that implements `IsEscaped` for `JsonEscaper`.
-pub struct IsEscapedForJson<'a, T: ?Sized> {
-    phantom_data: PhantomData<&'a T>,
+pub struct IsEscapedForJson<T: ?Sized> {
+    phantom_data: PhantomData<T>,
 }
 
-impl<'a, T> IsEscapedForJson<'a, T> {
+impl<T> IsEscapedForJson<T> {
     /// Build `IsSafeForJson` for the provided value.
-    pub fn new(_value: &'a T) -> Self {
+    pub fn new(_value: &T) -> Self {
         Self {
             phantom_data: PhantomData,
         }
     }
 }
 
-impl IsEscaped for &IsEscapedForJson<'_, usize> {
-    type Escaper = JsonEscaper;
-
-    fn is_escaped(&self, escaper: &Self::Escaper) -> bool {
+impl IsEscaped<JsonEscaper> for &IsEscapedForJson<usize> {
+    fn is_escaped(&self, escaper: &JsonEscaper) -> bool {
         match escaper {
             JsonEscaper::substring => true,
         }
     }
 }
 
-impl<T> IsEscaped for IsEscapedForJson<'_, T> {
-    type Escaper = JsonEscaper;
-
-    fn is_escaped(&self, _escaper: &Self::Escaper) -> bool {
+impl<T> IsEscaped<JsonEscaper> for IsEscapedForJson<T> {
+    fn is_escaped(&self, _escaper: &JsonEscaper) -> bool {
         false
     }
 }

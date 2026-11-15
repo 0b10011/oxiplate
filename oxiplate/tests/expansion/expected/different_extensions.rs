@@ -21,41 +21,35 @@ impl ::oxiplate::Render for Html {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::attr)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &::oxiplate::escapers::html::HtmlEscaper::attr,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::html::HtmlEscaper::attr,
             )?;
-        };
         oxiplate_formatter.write_str("\">Hello ")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        };
         oxiplate_formatter.write_str("!</p>\n<p>Goodbye ")?;
-        if (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::html::HtmlEscaper::build_is_escaped,
+            &::oxiplate::escapers::html::HtmlEscaper::text,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
-        };
         oxiplate_formatter.write_str("!</p>\n")?;
         ::core::result::Result::Ok(())
     }
@@ -132,29 +126,25 @@ impl ::oxiplate::Render for Json {
             Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
-        if (&&::oxiplate::escapers::json::JsonEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::json::JsonEscaper::build_is_escaped,
+            &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
-        };
         oxiplate_formatter.write_str("\",\n    \"bar\": \"goodbye ")?;
-        if (&&::oxiplate::escapers::json::JsonEscaper::build_is_escaped(&(self.name)))
-            .is_escaped(&::oxiplate::escapers::json::JsonEscaper::substring)
-        {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name)))
-                .oxiplate_write_raw(oxiplate_formatter)?;
-        } else {
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_write_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
+            &(self.name),
+            ::oxiplate::escapers::json::JsonEscaper::build_is_escaped,
+            &::oxiplate::escapers::json::JsonEscaper::substring,
+        ))
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::json::JsonEscaper::substring,
             )?;
-        };
         oxiplate_formatter.write_str("\"\n}\n")?;
         ::core::result::Result::Ok(())
     }
