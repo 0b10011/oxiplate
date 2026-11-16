@@ -18,12 +18,12 @@ impl<'a> ::oxiplate::Render for Data<'a> {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
+            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<!--")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.comment)))
-                .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::comment),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.comment)))
+                .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

@@ -18,31 +18,32 @@ impl ::oxiplate::Render for Html {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
+            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::attr),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::attr),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::html::HtmlEscaper::attr,
             )?;
         oxiplate_formatter.write_str("\">Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name))).is_escaped(
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            ),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                ),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("!</p>\n<p>Goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(&::oxiplate::escapers::html::HtmlEscaper::text),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
@@ -121,22 +122,23 @@ impl ::oxiplate::Render for Json {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
+            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::json::JsonEscaper::build_is_escaped(&(self.name))).is_escaped(
-                &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
-            ),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::json::JsonEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(
+                    &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
+                ),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\",\n    \"bar\": \"goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::json::JsonEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(&::oxiplate::escapers::json::JsonEscaper::substring),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::json::JsonEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(&::oxiplate::escapers::json::JsonEscaper::substring),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

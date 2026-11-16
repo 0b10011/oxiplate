@@ -18,12 +18,12 @@ impl ::oxiplate::Render for Html {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
+            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             ),
         ))
@@ -32,18 +32,18 @@ impl ::oxiplate::Render for Html {
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::foo),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(&::oxiplate::escapers::your_group::YourEscaper::foo),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &::oxiplate::escapers::your_group::YourEscaper::foo,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-            (&&::oxiplate::escapers::your_group::YourEscaper::build_is_escaped(&(self.name)))
-                .is_escaped(&::oxiplate::escapers::your_group::YourEscaper::bar),
+        (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
+                .prepare_text_for_output(&::oxiplate::escapers::your_group::YourEscaper::bar),
         ))
             .oxiplate_write_escaped(
                 oxiplate_formatter,

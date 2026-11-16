@@ -34,7 +34,7 @@ impl ::oxiplate::Render for Loop {
         extern crate alloc;
         use ::core::fmt::Write as _;
         use ::oxiplate::{
-            Escaper as _, IsEscaped as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
+            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
         };
         oxiplate_formatter.write_str("\n")?;
         for (r#loop, value) in filters_for_oxiplate::r#loop(&self.values) {
@@ -42,9 +42,9 @@ impl ::oxiplate::Render for Loop {
                 oxiplate_formatter.write_str("first: ")?;
             }
             oxiplate_formatter.write_str("#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(r#loop.index1)))
-                    .is_escaped(
+            (&&::oxiplate::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(r#loop.index1)))
+                    .prepare_text_for_output(
                         &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                     ),
             ))
@@ -53,9 +53,9 @@ impl ::oxiplate::Render for Loop {
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
             oxiplate_formatter.write_str(" (#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(r#loop.index0)))
-                    .is_escaped(
+            (&&::oxiplate::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(r#loop.index0)))
+                    .prepare_text_for_output(
                         &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                     ),
             ))
@@ -64,10 +64,11 @@ impl ::oxiplate::Render for Loop {
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
             oxiplate_formatter.write_str(") ")?;
-            (&&::oxiplate::UnescapedTextWrapper::new_escaped(
-                (&&::oxiplate::escapers::html::HtmlEscaper::build_is_escaped(&(value))).is_escaped(
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                ),
+            (&&::oxiplate::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(value)))
+                    .prepare_text_for_output(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
             ))
                 .oxiplate_write_escaped(
                     oxiplate_formatter,
