@@ -26,7 +26,7 @@ use crate::escaper::Escaper;
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
-/// use oxiplate::{UnescapedTextWrapper, WriteRaw as _};
+/// use oxiplate::private::{UnescapedTextWrapper, WriteRaw as _};
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
@@ -69,9 +69,10 @@ where
 }
 
 /// Trait with specialized implementations
-/// for items that implement `FastWriteRaw`
-/// that improve the performance of writing
-/// or make it possible to safely skip escaping entirely.
+/// for items that implement `FastWriteRaw`,
+/// a trait that allows for more efficient writing.
+///
+/// See [`UnescapedTextWrapper`] documentation for more information.
 pub trait WriteRaw<'a: 'b, 'b, W>
 where
     W: Write + ?Sized,

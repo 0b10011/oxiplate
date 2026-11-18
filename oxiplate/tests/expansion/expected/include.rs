@@ -20,11 +20,10 @@ impl ::oxiplate::Render for Include {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.title)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -37,7 +36,7 @@ impl ::oxiplate::Render for Include {
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
                 (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.title)))
                     .prepare_text_for_output(
                         &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -48,7 +47,7 @@ impl ::oxiplate::Render for Include {
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
                 )?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
                 (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.message)))
                     .prepare_text_for_output(
                         &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -131,11 +130,10 @@ impl ::oxiplate::Render for IncludeDeep {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("<h1>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.title)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -148,7 +146,7 @@ impl ::oxiplate::Render for IncludeDeep {
         oxiplate_formatter.write_str("</h1>\n")?;
         oxiplate_formatter.write_str("<p>foo</p>\n")?;
         oxiplate_formatter.write_str("\n<p>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.message)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,

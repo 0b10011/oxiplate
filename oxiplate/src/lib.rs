@@ -12,9 +12,15 @@ pub mod filters;
 
 pub use oxiplate_derive::Oxiplate;
 pub use oxiplate_traits::{
-    CowStr, CowStrWrapper, Escaper, FastCowStr, FastWriteEscaped, FastWriteRaw, Render,
-    TextHandler, ToCowStr, ToCowStrWrapper, UnescapedTextWrapper, WriteEscaped, WriteRaw,
+    CowStr, Escaper, FastCowStr, FastWriteEscaped, FastWriteRaw, Render, TextHandler,
 };
+
+/// Items only meant to be used by `oxiplate-derive` in code generation.
+pub mod private {
+    pub use oxiplate_traits::private::{
+        CowStrWrapper, ToCowStr, ToCowStrWrapper, UnescapedTextWrapper, WriteEscaped, WriteRaw,
+    };
+}
 
 /// Default Oxiplate experience that uses only built-in filters.
 ///

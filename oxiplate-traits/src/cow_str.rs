@@ -113,11 +113,11 @@ where
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
-/// use oxiplate::ToCowStr;
+/// use oxiplate::private::ToCowStr;
 /// let text = "hello world";
 /// assert_eq!(
 ///     "hello world",
-///     (&&oxiplate::ToCowStrWrapper::new(&text)).to_cow_str()
+///     (&&oxiplate::private::ToCowStrWrapper::new(&text)).to_cow_str()
 /// );
 /// ```
 pub struct ToCowStrWrapper<'a, T>(&'a T);
@@ -155,7 +155,7 @@ impl<'a, T: ToString> ToCowStr<'a> for &&ToCowStrWrapper<'a, T> {
 
 /// Trait that allows for more efficient conversions to `&str`.
 pub trait FastCowStr<'a> {
-    /// Helper function to use the most efficient conversion to `&str`.
+    /// Helper function to use the most efficient conversion to `Cow<str>`.
     /// Called from generated templates whenever a cow prefix is used.
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str>;
 }

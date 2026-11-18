@@ -75,11 +75,10 @@ impl<'a> ::oxiplate::Render for Types<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("\n# default:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.slice)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -90,7 +89,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.string)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -101,7 +100,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.integer)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -112,7 +111,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.float)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -123,7 +122,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.display)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -134,7 +133,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
                 &(self.display_borrowed),
             ))
@@ -147,7 +146,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.fn_string)))
                 .prepare_text_for_output(
                     &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -158,7 +157,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n\n# text:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.slice)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -167,7 +166,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.string)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -176,7 +175,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.integer)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -185,7 +184,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.float)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -194,7 +193,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.display)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -203,7 +202,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
                 &(self.display_borrowed),
             ))
@@ -214,7 +213,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.fn_string)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
         ))
@@ -223,7 +222,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::text,
             )?;
         oxiplate_formatter.write_str("\n\n# comment:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.slice)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -232,7 +231,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.string)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -241,7 +240,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.integer)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -250,7 +249,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.float)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -259,7 +258,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.display)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -268,7 +267,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
                 &(self.display_borrowed),
             ))
@@ -279,7 +278,7 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.fn_string)))
                 .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
         ))
@@ -288,25 +287,25 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n\n# raw:\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.slice), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.slice), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.string), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.string), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.integer), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.integer), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.float), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.float), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.display), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.display), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.display_borrowed), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.display_borrowed), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new((&(self.fn_string), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.fn_string), true)))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())
@@ -441,10 +440,9 @@ fn explicit_and_inferred_escaper_group_in_writ() {
         ) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            use ::oxiplate::{
-                Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-            };
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+            use ::oxiplate::{Escaper as _, TextHandler as _};
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
                 (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&("<hello>")))
                     .prepare_text_for_output(
                         &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,

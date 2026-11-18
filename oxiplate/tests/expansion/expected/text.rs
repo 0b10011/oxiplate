@@ -22,12 +22,11 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n<p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
                 (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(message)))
                     .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::text),
             ))

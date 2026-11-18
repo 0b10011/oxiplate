@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
-use oxiplate::{CowStrWrapper, Oxiplate, Render};
+use oxiplate::private::CowStrWrapper;
+use oxiplate::{Oxiplate, Render};
 
 macro_rules! test {
     ($fn_name:ident, $ty:ty, $value:expr, $expected:expr) => {

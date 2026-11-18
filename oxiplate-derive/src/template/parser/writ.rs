@@ -180,7 +180,7 @@ impl<'a> Writ<'a> {
                 #[cfg(feature = "_oxiplate")]
                 return (
                     quote_spanned! {span=>
-                        (&&::oxiplate::UnescapedTextWrapper::new((&(#text), true))).oxiplate_write_raw(oxiplate_formatter)?
+                        (&&::oxiplate::private::UnescapedTextWrapper::new((&(#text), true))).oxiplate_write_raw(oxiplate_formatter)?
                     },
                     estimated_length,
                 );
@@ -234,7 +234,7 @@ impl<'a> Writ<'a> {
         } else {
             (
                 quote_spanned! {span=>
-                    (&&::oxiplate::UnescapedTextWrapper::new(
+                    (&&::oxiplate::private::UnescapedTextWrapper::new(
                         (&&#group::build_text_handler(&(#text)))
                             .prepare_text_for_output(&<#group as ::oxiplate::Escaper>::DEFAULT),
                     )).oxiplate_write_escaped(
@@ -270,7 +270,7 @@ impl<'a> Writ<'a> {
             // FIXME: What if `oxiplate_derive` is being used?
             return (
                 quote_spanned! {span=>
-                    (&&::oxiplate::UnescapedTextWrapper::new(
+                    (&&::oxiplate::private::UnescapedTextWrapper::new(
                         (&&#group::build_text_handler(&(#text)))
                             .prepare_text_for_output(&#escaper_path),
                     )).oxiplate_write_escaped(
@@ -299,7 +299,7 @@ impl<'a> Writ<'a> {
         #[cfg(feature = "_oxiplate")]
         return (
             quote_spanned! {span=>
-                (&&::oxiplate::UnescapedTextWrapper::new((&(#text), true))).oxiplate_write_raw(oxiplate_formatter)?
+                (&&::oxiplate::private::UnescapedTextWrapper::new((&(#text), true))).oxiplate_write_raw(oxiplate_formatter)?
             },
             estimated_length,
         );

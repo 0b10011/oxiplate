@@ -33,7 +33,7 @@ impl<'a> ToTokensWithState<'a> for Cow<'a> {
 
         #[cfg(feature = "_oxiplate")]
         let expression = quote_spanned! {span=>
-            ::oxiplate::CowStrWrapper::new((&&::oxiplate::ToCowStrWrapper::new(&(#expression))).to_cow_str())
+            ::oxiplate::private::CowStrWrapper::new((&&::oxiplate::private::ToCowStrWrapper::new(&(#expression))).to_cow_str())
         };
 
         #[cfg(not(feature = "_oxiplate"))]

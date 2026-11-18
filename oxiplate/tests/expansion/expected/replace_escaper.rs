@@ -17,11 +17,10 @@ impl ::oxiplate::Render for Html {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
                 .prepare_text_for_output(
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
@@ -32,7 +31,7 @@ impl ::oxiplate::Render for Html {
                 &<::oxiplate::escapers::your_group::YourEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
                 .prepare_text_for_output(&::oxiplate::escapers::your_group::YourEscaper::foo),
         ))
@@ -41,7 +40,7 @@ impl ::oxiplate::Render for Html {
                 &::oxiplate::escapers::your_group::YourEscaper::foo,
             )?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::your_group::YourEscaper::build_text_handler(&(self.name)))
                 .prepare_text_for_output(&::oxiplate::escapers::your_group::YourEscaper::bar),
         ))

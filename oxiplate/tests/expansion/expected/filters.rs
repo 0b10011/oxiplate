@@ -53,19 +53,20 @@ impl ::oxiplate::Render for Respond {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
-                &(::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
+                &(::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(
                         &(filters_for_oxiplate::respond(
-                            ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
+                            ::oxiplate::private::CowStrWrapper::new(
+                                (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message)))
+                                    .to_cow_str(),
                             ),
-                            ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
+                            ::oxiplate::private::CowStrWrapper::new(
+                                (&&::oxiplate::private::ToCowStrWrapper::new(&("world")))
+                                    .to_cow_str(),
                             ),
                         )),
                     ))
@@ -165,13 +166,12 @@ impl ::oxiplate::Render for Shorten {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
-        (&&::oxiplate::UnescapedTextWrapper::new((
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
+        (&&::oxiplate::private::UnescapedTextWrapper::new((
             &(filters_for_oxiplate::shorten(
-                ::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
+                ::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
                 ),
                 self.max_length,
             )),
@@ -277,10 +277,9 @@ impl ::oxiplate::Render for Pad {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
-        (&&::oxiplate::UnescapedTextWrapper::new((
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
+        (&&::oxiplate::private::UnescapedTextWrapper::new((
             &(filters_for_oxiplate::pad(self.number, self.length)),
             true,
         )))
@@ -384,19 +383,20 @@ impl ::oxiplate::Render for Multiple {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{
-            Escaper as _, TextHandler as _, ToCowStr as _, WriteEscaped as _, WriteRaw as _,
-        };
-        (&&::oxiplate::UnescapedTextWrapper::new((
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
+        (&&::oxiplate::private::UnescapedTextWrapper::new((
             &(filters_for_oxiplate::shorten(
-                ::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
+                ::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(
                         &(filters_for_oxiplate::respond(
-                            ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
+                            ::oxiplate::private::CowStrWrapper::new(
+                                (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message)))
+                                    .to_cow_str(),
                             ),
-                            ::oxiplate::CowStrWrapper::new(
-                                (&&::oxiplate::ToCowStrWrapper::new(&("world"))).to_cow_str(),
+                            ::oxiplate::private::CowStrWrapper::new(
+                                (&&::oxiplate::private::ToCowStrWrapper::new(&("world")))
+                                    .to_cow_str(),
                             ),
                         )),
                     ))
