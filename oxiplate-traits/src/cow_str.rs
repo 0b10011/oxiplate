@@ -5,8 +5,7 @@ use alloc::fmt;
 use alloc::string::ToString;
 use core::fmt::{Display, Write};
 
-use crate::unescaped_text::FastWriteRaw;
-use crate::{Escaper, FastWriteEscaped};
+use crate::{Escaper, FastWriteEscaped, FastWriteRaw};
 
 /// A trait intended to be used by filters for any string-like arguments
 /// to deal with them more efficiently than `str` or `impl Display`.
