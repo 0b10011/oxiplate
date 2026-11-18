@@ -12,14 +12,17 @@ use core::fmt::{Display, Result, Write};
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
-/// that will implement `WriteEscaped` and `WriteRaw`.
-/// `FastWriteEscaped` or `FastWriteRaw` will be used when possible,
-/// otherwise `Display` will be used.
-/// `IsSafeFor` can cause escaping to be skipped entirely.
+/// that will implement `WriteEscaped` and `WriteRaw`
+/// via `FastWriteEscaped` and `FastWriteRaw` when possible,
+/// otherwise via `Display`.
+///
+/// [`super::TextHandler`] may cause escaping to be skipped
+/// for certain types.
 ///
 /// Must borrow two times
-/// before calling `oxiplate_escape()` or `oxiplate_raw()`.
-/// This is how the specialized implementations get called.
+/// before calling `oxiplate_write_escaped()` or `oxiplate_write_raw()`.
+/// This is how the specialized implementations get called
+/// in the correct order.
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
@@ -41,22 +44,23 @@ impl<'a, T> UnescapedTextWrapper<'a, T> {
 }
 
 /// Trait with specialized implementations
-/// for items that implement traits
-/// that improve the performance of writing and/or escaping,
-/// or make it possible to safely skip escaping entirely:
+/// for items that implement `FastWriteEscaped` and `FastWriteRaw`,
+/// traits that allow for more efficient writing.
 ///
-/// - `FastWriteEscaped` improves escaping and writing performance.
-/// - `FastWriteRaw` improves writing performance when not escaping.
-/// - `IsSafeFor` marks values as not needing escaping.
-///
-/// See `UnescapedTextWrapper` documentation for more information.
+/// See [`UnescapedTextWrapper`] documentation for more information.
 pub trait WriteEscaped<'a: 'b, 'b, E, W>: WriteRaw<'a, 'b, W>
 where
     E: Escaper,
     W: Write + ?Sized,
 {
-    /// Escape and write a value to a writer.
-    /// Called from generated templates whenever an escaper is used.
+    /// Escape, when necessary, and write a value to a writer.
+    /// Called from generated templates
+    /// whenever an escaper is specified or set as the default.
+    ///
+    /// [`super::TextHandler`] may cause escaping to be skipped
+    /// for certain types.
+    ///
+    /// See [`UnescapedTextWrapper`] documentation for more information.
     ///
     /// # Errors
     ///
