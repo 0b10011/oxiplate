@@ -1,6 +1,5 @@
-use oxiplate_traits::{PreparedText, TextHandler};
-
 use super::{HtmlEscaper, IsEscapedForHtml};
+use crate::{PreparedText, TextHandler};
 
 /// Item that implements `TextHandler` for `HtmlEscaper`.
 pub struct TextHandlerForHtml<'a, T> {

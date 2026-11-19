@@ -13,15 +13,12 @@ mod escapers;
 mod is_escaped;
 mod text_handler;
 
-extern crate alloc;
-
 use core::fmt::{Result, Write};
-
-use oxiplate_traits::Escaper;
 
 pub use self::escapers::escape_unformatted_text;
 pub use self::is_escaped::IsEscapedForMarkdown;
 use self::text_handler::TextHandlerForMarkdown;
+use crate::Escaper;
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
 #[allow(non_camel_case_types)]

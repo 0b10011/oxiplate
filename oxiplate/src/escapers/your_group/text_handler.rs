@@ -1,7 +1,6 @@
-use oxiplate_traits::{PreparedText, TextHandler};
-
 use super::YourEscaper;
 use super::is_escaped::IsEscapedForYourGroup;
+use crate::{PreparedText, TextHandler};
 
 /// Item that implements `TextHandler` for `YourEscaper`.
 pub struct TextHandlerForYourGroup<'a, T> {

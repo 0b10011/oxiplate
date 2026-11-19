@@ -13,15 +13,12 @@ mod escapers;
 mod is_escaped;
 mod text_handler;
 
-extern crate alloc;
-
 use core::fmt::{Result, Write};
-
-use oxiplate_traits::Escaper;
 
 pub use self::escapers::escape_substring;
 pub use self::is_escaped::IsEscapedForJson;
 use self::text_handler::TextHandlerForJson;
+use crate::Escaper;
 
 /// Escaper group to pass to Oxiplate for JSON escaping.
 /// For handling full values instead of just substrings,

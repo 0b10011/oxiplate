@@ -1,6 +1,5 @@
-use oxiplate_traits::{PreparedText, TextHandler};
-
 use super::{IsEscapedForMarkdown, MarkdownEscaper};
+use crate::{PreparedText, TextHandler};
 
 /// Item that implements `TextHandler` for `MarkdownEscaper`.
 pub struct TextHandlerForMarkdown<'a, T> {

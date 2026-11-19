@@ -1,6 +1,5 @@
-use oxiplate_traits::{PreparedText, TextHandler};
-
 use super::{IsEscapedForJson, JsonEscaper};
+use crate::{PreparedText, TextHandler};
 
 /// Item that implements `TextHandler` for `JsonEscaper`.
 pub struct TextHandlerForJson<'a, T> {

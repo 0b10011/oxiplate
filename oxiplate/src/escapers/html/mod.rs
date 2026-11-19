@@ -14,17 +14,14 @@ mod escapers;
 mod is_escaped;
 mod text_handler;
 
+use core::fmt::{Result, Write};
+
 pub use self::escapers::attr::escape_attribute_quoted_value;
 pub use self::escapers::comment::escape_comment_text;
 pub use self::escapers::text::escape_text;
 pub use self::is_escaped::IsEscapedForHtml;
 use self::text_handler::TextHandlerForHtml;
-
-extern crate alloc;
-
-use core::fmt::{Result, Write};
-
-use oxiplate_traits::Escaper;
+use crate::Escaper;
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
 #[allow(non_camel_case_types)]
