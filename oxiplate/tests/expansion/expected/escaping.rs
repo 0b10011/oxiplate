@@ -287,25 +287,39 @@ impl<'a> ::oxiplate::Render for Types<'a> {
                 &::oxiplate::escapers::html::HtmlEscaper::comment,
             )?;
         oxiplate_formatter.write_str("\n\n# raw:\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.slice), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.slice)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.string), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.string)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.integer), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.integer)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.float), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.float)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.display), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.display)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.display_borrowed), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.display_borrowed)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new((&(self.fn_string), true)))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(&(self.fn_string)),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         oxiplate_formatter.write_str("\n")?;
         ::core::result::Result::Ok(())

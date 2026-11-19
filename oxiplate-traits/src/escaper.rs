@@ -28,6 +28,19 @@ where
         Self: Sized;
 }
 
+/// Wrapper around text to output in a template
+/// that marks it as already escaped or needing escaped.
+/// Used by [`crate::private::UnescapedTextWrapper`].
+pub enum PreparedText<'a, T: ?Sized> {
+    /// Value that needs to be escaped
+    /// for the template it was generated for.
+    NeedsEscaped(&'a T),
+
+    /// Value that is already escaped
+    /// for the template it was generated for.
+    AlreadyEscaped(&'a T),
+}
+
 /// Trait to check if a value is already escaped for a provided escaper.
 pub trait TextHandler<'a, E, T>
 where
@@ -35,5 +48,5 @@ where
 {
     /// Whether the input is already considered escaped
     /// for the provided escaper.
-    fn prepare_text_for_output(&'a self, escaper: &E) -> (&'a T, bool);
+    fn prepare_text_for_output(&'a self, escaper: &E) -> PreparedText<'a, T>;
 }

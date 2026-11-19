@@ -54,31 +54,36 @@ fn precedence() {
             use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
             use ::oxiplate::{Escaper as _, TextHandler as _};
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new((
-                &(filters_for_oxiplate::trim(::oxiplate::private::CowStrWrapper::new(
-                    (&&::oxiplate::private::ToCowStrWrapper::new(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!(" ({0}) ", (9 + 5 * 2) * 100 + 89))
-                        })),
-                    ))
-                        .to_cow_str(),
-                ))),
-                true,
-            )))
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                ::oxiplate::PreparedText::AlreadyEscaped(
+                    &(filters_for_oxiplate::trim(::oxiplate::private::CowStrWrapper::new(
+                        (&&::oxiplate::private::ToCowStrWrapper::new(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(format_args!(
+                                    " ({0}) ",
+                                    (9 + 5 * 2) * 100 + 89
+                                ))
+                            })),
+                        ))
+                            .to_cow_str(),
+                    ))),
+                ),
+            ))
                 .oxiplate_write_raw(oxiplate_formatter)?;
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new((
-                &(::alloc::__export::must_use({
-                    ::alloc::fmt::format(format_args!(
-                        "{0} is awesome",
-                        filters_for_oxiplate::upper(::oxiplate::private::CowStrWrapper::new(
-                            (&&::oxiplate::private::ToCowStrWrapper::new(&(self.user.name),))
-                                .to_cow_str(),
-                        ),),
-                    ))
-                })),
-                true,
-            )))
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                ::oxiplate::PreparedText::AlreadyEscaped(
+                    &(::alloc::__export::must_use({
+                        ::alloc::fmt::format(format_args!(
+                            "{0} is awesome",
+                            filters_for_oxiplate::upper(::oxiplate::private::CowStrWrapper::new(
+                                (&&::oxiplate::private::ToCowStrWrapper::new(&(self.user.name),))
+                                    .to_cow_str(),
+                            ),),
+                        ))
+                    })),
+                ),
+            ))
                 .oxiplate_write_raw(oxiplate_formatter)?;
             oxiplate_formatter.write_str("\n")?;
             ::core::result::Result::Ok(())
@@ -153,17 +158,18 @@ fn cow_concat_field() {
             use ::core::fmt::Write as _;
             use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
             use ::oxiplate::{Escaper as _, TextHandler as _};
-            (&&::oxiplate::private::UnescapedTextWrapper::new((
-                &(::oxiplate::private::CowStrWrapper::new(
-                    (&&::oxiplate::private::ToCowStrWrapper::new(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("hello {0}", self.user.name))
-                        })),
-                    ))
-                        .to_cow_str(),
-                )),
-                true,
-            )))
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                ::oxiplate::PreparedText::AlreadyEscaped(
+                    &(::oxiplate::private::CowStrWrapper::new(
+                        (&&::oxiplate::private::ToCowStrWrapper::new(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(format_args!("hello {0}", self.user.name))
+                            })),
+                        ))
+                            .to_cow_str(),
+                    )),
+                ),
+            ))
                 .oxiplate_write_raw(oxiplate_formatter)?;
             ::core::result::Result::Ok(())
         }
@@ -237,17 +243,18 @@ fn cow_concat_function() {
             use ::core::fmt::Write as _;
             use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
             use ::oxiplate::{Escaper as _, TextHandler as _};
-            (&&::oxiplate::private::UnescapedTextWrapper::new((
-                &(::oxiplate::private::CowStrWrapper::new(
-                    (&&::oxiplate::private::ToCowStrWrapper::new(
-                        &(::alloc::__export::must_use({
-                            ::alloc::fmt::format(format_args!("hello {0}", name(&self.user)))
-                        })),
-                    ))
-                        .to_cow_str(),
-                )),
-                true,
-            )))
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                ::oxiplate::PreparedText::AlreadyEscaped(
+                    &(::oxiplate::private::CowStrWrapper::new(
+                        (&&::oxiplate::private::ToCowStrWrapper::new(
+                            &(::alloc::__export::must_use({
+                                ::alloc::fmt::format(format_args!("hello {0}", name(&self.user)))
+                            })),
+                        ))
+                            .to_cow_str(),
+                    )),
+                ),
+            ))
                 .oxiplate_write_raw(oxiplate_formatter)?;
             ::core::result::Result::Ok(())
         }

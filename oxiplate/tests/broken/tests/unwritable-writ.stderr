@@ -6,7 +6,7 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(PreparedText<'a, T>);
   | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, '_, _, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs
@@ -28,7 +28,7 @@ error[E0599]: the method `oxiplate_write_escaped` exists for reference `&&Unesca
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(PreparedText<'a, T>);
   | ---------------------------------------------- doesn't satisfy `_: WriteEscaped<'_, '_, _, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs
@@ -50,7 +50,7 @@ error[E0599]: the method `oxiplate_write_raw` exists for reference `&&UnescapedT
   |
  ::: $WORKSPACE/oxiplate-traits/src/unescaped_text.rs
   |
-  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+  | pub struct UnescapedTextWrapper<'a, T: ?Sized>(PreparedText<'a, T>);
   | ---------------------------------------------- doesn't satisfy `_: WriteRaw<'_, '_, _>`
   |
  ::: $RUST/alloc/src/vec/mod.rs

@@ -168,15 +168,16 @@ impl ::oxiplate::Render for Shorten {
         use ::core::fmt::Write as _;
         use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
         use ::oxiplate::{Escaper as _, TextHandler as _};
-        (&&::oxiplate::private::UnescapedTextWrapper::new((
-            &(filters_for_oxiplate::shorten(
-                ::oxiplate::private::CowStrWrapper::new(
-                    (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
-                ),
-                self.max_length,
-            )),
-            true,
-        )))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(
+                &(filters_for_oxiplate::shorten(
+                    ::oxiplate::private::CowStrWrapper::new(
+                        (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message))).to_cow_str(),
+                    ),
+                    self.max_length,
+                )),
+            ),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         ::core::result::Result::Ok(())
     }
@@ -279,10 +280,11 @@ impl ::oxiplate::Render for Pad {
         use ::core::fmt::Write as _;
         use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
         use ::oxiplate::{Escaper as _, TextHandler as _};
-        (&&::oxiplate::private::UnescapedTextWrapper::new((
-            &(filters_for_oxiplate::pad(self.number, self.length)),
-            true,
-        )))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(
+                &(filters_for_oxiplate::pad(self.number, self.length)),
+            ),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         ::core::result::Result::Ok(())
     }
@@ -385,27 +387,28 @@ impl ::oxiplate::Render for Multiple {
         use ::core::fmt::Write as _;
         use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
         use ::oxiplate::{Escaper as _, TextHandler as _};
-        (&&::oxiplate::private::UnescapedTextWrapper::new((
-            &(filters_for_oxiplate::shorten(
-                ::oxiplate::private::CowStrWrapper::new(
-                    (&&::oxiplate::private::ToCowStrWrapper::new(
-                        &(filters_for_oxiplate::respond(
-                            ::oxiplate::private::CowStrWrapper::new(
-                                (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message)))
-                                    .to_cow_str(),
-                            ),
-                            ::oxiplate::private::CowStrWrapper::new(
-                                (&&::oxiplate::private::ToCowStrWrapper::new(&("world")))
-                                    .to_cow_str(),
-                            ),
-                        )),
-                    ))
-                        .to_cow_str(),
-                ),
-                self.length,
-            )),
-            true,
-        )))
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            ::oxiplate::PreparedText::AlreadyEscaped(
+                &(filters_for_oxiplate::shorten(
+                    ::oxiplate::private::CowStrWrapper::new(
+                        (&&::oxiplate::private::ToCowStrWrapper::new(
+                            &(filters_for_oxiplate::respond(
+                                ::oxiplate::private::CowStrWrapper::new(
+                                    (&&::oxiplate::private::ToCowStrWrapper::new(&(self.message)))
+                                        .to_cow_str(),
+                                ),
+                                ::oxiplate::private::CowStrWrapper::new(
+                                    (&&::oxiplate::private::ToCowStrWrapper::new(&("world")))
+                                        .to_cow_str(),
+                                ),
+                            )),
+                        ))
+                            .to_cow_str(),
+                    ),
+                    self.length,
+                )),
+            ),
+        ))
             .oxiplate_write_raw(oxiplate_formatter)?;
         ::core::result::Result::Ok(())
     }

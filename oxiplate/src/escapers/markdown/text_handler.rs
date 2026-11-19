@@ -1,4 +1,4 @@
-use oxiplate_traits::TextHandler;
+use oxiplate_traits::{PreparedText, TextHandler};
 
 use super::{IsEscapedForMarkdown, MarkdownEscaper};
 
@@ -11,13 +11,17 @@ impl<'a, T> TextHandler<'a, MarkdownEscaper, T> for &TextHandlerForMarkdown<'a, 
 where
     T: IsEscapedForMarkdown,
 {
-    fn prepare_text_for_output(&self, escaper: &MarkdownEscaper) -> (&'a T, bool) {
-        (self.value, <T>::is_escaped(escaper))
+    fn prepare_text_for_output(&self, escaper: &MarkdownEscaper) -> PreparedText<'a, T> {
+        if <T>::is_escaped(escaper) {
+            PreparedText::AlreadyEscaped(self.value)
+        } else {
+            PreparedText::NeedsEscaped(self.value)
+        }
     }
 }
 
 impl<'a, T> TextHandler<'a, MarkdownEscaper, T> for TextHandlerForMarkdown<'a, T> {
-    fn prepare_text_for_output(&self, _escaper: &MarkdownEscaper) -> (&'a T, bool) {
-        (self.value, false)
+    fn prepare_text_for_output(&self, _escaper: &MarkdownEscaper) -> PreparedText<'a, T> {
+        PreparedText::NeedsEscaped(self.value)
     }
 }

@@ -9,6 +9,7 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use core::fmt::{Display, Result, Write};
 
+use crate::PreparedText;
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
@@ -26,20 +27,23 @@ use crate::escaper::Escaper;
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
+/// use oxiplate::PreparedText;
 /// use oxiplate::private::{UnescapedTextWrapper, WriteRaw as _};
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&UnescapedTextWrapper::new((&text, true))).oxiplate_write_raw(formatter)?;
+/// (&&UnescapedTextWrapper::new(PreparedText::NeedsEscaped(&text)))
+///     .oxiplate_write_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
-pub struct UnescapedTextWrapper<'a, T: ?Sized>(&'a T, bool);
+pub struct UnescapedTextWrapper<'a, T: ?Sized>(PreparedText<'a, T>);
 
 impl<'a, T> UnescapedTextWrapper<'a, T> {
     /// Wrap unescaped text.
-    pub fn new((value, is_escaped): (&'a T, bool)) -> Self {
-        Self(value, is_escaped)
+    #[must_use]
+    pub fn new(prepared_text: PreparedText<'a, T>) -> Self {
+        Self(prepared_text)
     }
 }
 
@@ -97,10 +101,9 @@ where
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("FastWriteEscaped(")?;
 
-        if self.1 {
-            self.oxiplate_write_raw(f)?;
-        } else {
-            self.0.oxiplate_fast_write_escaped(f, escaper)?;
+        match self.0 {
+            PreparedText::NeedsEscaped(value) => value.oxiplate_fast_write_escaped(f, escaper)?,
+            PreparedText::AlreadyEscaped(_) => self.oxiplate_write_raw(f)?,
         }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
@@ -120,7 +123,11 @@ where
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("FastWriteRaw(")?;
 
-        self.0.oxiplate_fast_write_raw(f)?;
+        match self.0 {
+            PreparedText::NeedsEscaped(value) | PreparedText::AlreadyEscaped(value) => {
+                value.oxiplate_fast_write_raw(f)?;
+            }
+        }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
@@ -140,10 +147,9 @@ where
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("DisplayEscaped(")?;
 
-        if self.1 {
-            self.oxiplate_write_raw(f)?;
-        } else {
-            escaper.escape(f, &ToString::to_string(self.0))?;
+        match self.0 {
+            PreparedText::NeedsEscaped(value) => escaper.escape(f, &ToString::to_string(value))?,
+            PreparedText::AlreadyEscaped(_) => self.oxiplate_write_raw(f)?,
         }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
@@ -163,7 +169,11 @@ where
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("DisplayRaw(")?;
 
-        f.write_str(&ToString::to_string(self.0))?;
+        match self.0 {
+            PreparedText::NeedsEscaped(value) | PreparedText::AlreadyEscaped(value) => {
+                f.write_str(&ToString::to_string(value))?;
+            }
+        }
 
         #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;

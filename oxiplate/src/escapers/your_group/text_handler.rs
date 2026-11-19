@@ -1,4 +1,4 @@
-use oxiplate_traits::TextHandler;
+use oxiplate_traits::{PreparedText, TextHandler};
 
 use super::YourEscaper;
 use super::is_escaped::IsEscapedForYourGroup;
@@ -12,13 +12,17 @@ impl<'a, T> TextHandler<'a, YourEscaper, T> for &TextHandlerForYourGroup<'a, T>
 where
     T: IsEscapedForYourGroup,
 {
-    fn prepare_text_for_output(&self, escaper: &YourEscaper) -> (&'a T, bool) {
-        (self.value, <T>::is_escaped(escaper))
+    fn prepare_text_for_output(&self, escaper: &YourEscaper) -> PreparedText<'a, T> {
+        if <T>::is_escaped(escaper) {
+            PreparedText::AlreadyEscaped(self.value)
+        } else {
+            PreparedText::NeedsEscaped(self.value)
+        }
     }
 }
 
 impl<'a, T> TextHandler<'a, YourEscaper, T> for TextHandlerForYourGroup<'a, T> {
-    fn prepare_text_for_output(&self, _escaper: &YourEscaper) -> (&'a T, bool) {
-        (self.value, false)
+    fn prepare_text_for_output(&self, _escaper: &YourEscaper) -> PreparedText<'a, T> {
+        PreparedText::NeedsEscaped(self.value)
     }
 }

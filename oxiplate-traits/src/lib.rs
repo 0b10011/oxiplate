@@ -12,7 +12,7 @@ mod render;
 mod unescaped_text;
 
 pub use self::cow_str::{CowStr, FastCowStr};
-pub use self::escaper::{Escaper, TextHandler};
+pub use self::escaper::{Escaper, PreparedText, TextHandler};
 pub use self::render::Render;
 pub use self::unescaped_text::{FastWriteEscaped, FastWriteRaw};
 
