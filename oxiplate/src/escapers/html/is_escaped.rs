@@ -53,6 +53,14 @@ where
     }
 }
 
+impl IsEscapedForHtml for bool {
+    fn is_escaped(escaper: &HtmlEscaper) -> bool {
+        match escaper {
+            HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
+        }
+    }
+}
+
 macro_rules! numbers_safe_for_html {
     ($($ty:ty)*) => { $(
         impl IsEscapedForHtml for $ty {

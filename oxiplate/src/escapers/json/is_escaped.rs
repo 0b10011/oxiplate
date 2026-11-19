@@ -53,6 +53,14 @@ where
     }
 }
 
+impl IsEscapedForJson for bool {
+    fn is_escaped(escaper: &JsonEscaper) -> bool {
+        match escaper {
+            JsonEscaper::substring => true,
+        }
+    }
+}
+
 macro_rules! numbers_safe_for_json {
     ($($ty:ty)*) => { $(
         impl IsEscapedForJson for $ty {

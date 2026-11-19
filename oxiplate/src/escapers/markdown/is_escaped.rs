@@ -47,3 +47,11 @@ where
         <T>::is_escaped(escaper)
     }
 }
+
+impl IsEscapedForMarkdown for bool {
+    fn is_escaped(escaper: &MarkdownEscaper) -> bool {
+        match escaper {
+            MarkdownEscaper::text => true,
+        }
+    }
+}

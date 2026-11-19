@@ -51,6 +51,14 @@ where
     }
 }
 
+impl IsEscapedForYourGroup for bool {
+    fn is_escaped(escaper: &YourEscaper) -> bool {
+        match escaper {
+            YourEscaper::foo | YourEscaper::bar => true,
+        }
+    }
+}
+
 macro_rules! numbers_safe_for_your_group {
     ($($ty:ty)*) => { $(
         impl IsEscapedForYourGroup for $ty {
