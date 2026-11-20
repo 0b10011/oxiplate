@@ -80,7 +80,9 @@ mod tests {
     use alloc::string::String;
     use core::fmt::Display;
 
-    use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+    use oxiplate_traits::cow_str_wrapper;
+
+    use crate::private::ToCowStr;
 
     macro_rules! test {
         ($test_fn:ident, $input:literal, $trim_fn:ident, $expected:literal) => {

@@ -18,15 +18,15 @@ use crate::{Escaper, FastEscape};
 /// {{ >message | append(>"!") }}
 /// ```
 #[diagnostic::on_unimplemented(
-    message = "{Self} is expected to be prefixed by `>` and implement \
-               `::oxiplate_traits::ToCowString`.",
+    message = "{Self} is expected to be prefixed by `>` and implement `::alloc::string::ToString` \
+               or `::oxiplate_traits::FastCowStr`.",
     label = "Insert `>` prefix before this expression if `{Self}` is a string-like value (`str`, \
              `impl Display`, etc).",
-    note = "Consider implementing `::oxiplate_traits::ToCowStr` if `{Self}` is owned by your \
-            crate, and then prefix with `>`.",
+    note = "Consider implementing `::oxiplate_traits::FastCowStr` for `{Self}` if it is owned by \
+            your crate, and then prefix with `>`.",
     note = "If `{Self}` is not a string-like value, perhaps you meant to pass a different \
             argument to the filter?",
-    note = "Oxiplate efficiently builds `::std::borrow::Cow<'a, str>` when a `>` prefix is used \
+    note = "Oxiplate efficiently builds `::alloc::borrow::Cow<'a, str>` when a `>` prefix is used \
             on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is used by \
             filters for string arguments. Because the syntax for doing so is not obvious and \
             prone to silently breaking, this alternative syntax is used to let Oxiplate handle \
@@ -97,11 +97,11 @@ impl<'a, W: fmt::Write + ?Sized> FastEscape<'a, W> for CowStrWrapper<'a> {
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
-/// use oxiplate::ToCowStr;
+/// use oxiplate::private::ToCowStr;
 /// let text = "hello world";
 /// assert_eq!(
 ///     "hello world",
-///     (&&oxiplate::ToCowStrWrapper::new(&text)).to_cow_str()
+///     (&&oxiplate::private::ToCowStrWrapper::new(&text)).to_cow_str()
 /// );
 /// ```
 pub struct ToCowStrWrapper<'a, T>(&'a T);

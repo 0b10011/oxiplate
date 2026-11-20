@@ -33,24 +33,24 @@ impl ::oxiplate::Render for Loop {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n")?;
         for (r#loop, value) in filters_for_oxiplate::r#loop(&self.values) {
             if r#loop.is_first {
                 oxiplate_formatter.write_str("first: ")?;
             }
             oxiplate_formatter.write_str("#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index1))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(r#loop.index1))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
             oxiplate_formatter.write_str(" (#")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(r#loop.index0))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(r#loop.index0))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
             oxiplate_formatter.write_str(") ")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(value))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(value))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;

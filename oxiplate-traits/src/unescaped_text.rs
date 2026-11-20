@@ -12,18 +12,18 @@ use core::fmt::{Display, Result, Write};
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
-/// that will implement `UnescapedText`
+/// that will implement [`UnescapedText`]
 /// via `FastEscape` when possible,
 /// otherwise via `Display`.
 /// Must borrow twice before calling `oxiplate_escape()` or `oxiplate_raw()`.
 ///
 /// ```rust
 /// # use oxiplate_traits as oxiplate;
-/// use oxiplate::UnescapedText;
+/// use oxiplate::private::UnescapedText as _;
 /// let text = "hello world";
 /// let mut string = String::new();
 /// let formatter = &mut string;
-/// (&&oxiplate::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
+/// (&&oxiplate::private::UnescapedTextWrapper::new(&text)).oxiplate_raw(formatter)?;
 /// assert_eq!("hello world", string);
 /// # Ok::<(), ::std::fmt::Error>(())
 /// ```
