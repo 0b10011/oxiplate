@@ -80,6 +80,61 @@ fallback_escaper_group = "html"
 
 And finally, you can set the escaper group for the template you're in with the [default escaper group statement](../statements/default-escaper-group.md).
 
+### Marking a type as "safe" for an escaper
+
+All escapers should provide a trait
+to mark a type as not needing to be escaped.
+They should also mark types in the Rust library
+as safe when appropriate;
+for example,
+integers are marked as safe for the built-in HTML escaper,
+but not for the Markdown escaper.
+This speeds up template generation
+when these types are output in writs.
+
+To mark one of your own types
+as safe in HTML for text,
+but not attributes or comments:
+
+```rust
+# type YourType = bool;
+impl IsEscapedForHtml for YourType {
+    fn is_escaped(escaper: &HtmlEscaper) -> YourType {
+        match escaper {
+            HtmlEscaper::text => true,
+            HtmlEscaper::attr | HtmlEscaper::comment => false,
+        }
+    }
+}
+```
+
+Each escaper provides a different trait to implement
+to mark your type as safe for it.
+The built-in escapers use:
+
+- HTML: `oxiplate_traits::IsEscapedForHtml`
+- JSON: `oxiplate_traits::IsEscapedForJson`
+- Markdown: `oxiplate_traits::IsEscapedForMarkdown`
+
+<div class="warning">
+
+Marking a type as already escaped for an escaper
+prevents escaping code from running against it for that escaper.
+If a type can _ever_ convert into a string
+that contains any character that should be escaped in that context,
+it should not be marked as escaped.
+Doing so on a website would make the website vulnerable
+to [cross site scripting attacks][].
+The one exception is a type
+that wraps/generates markup
+and handles escaping user-generated content itself.
+When in doubt,
+don't mark a type as safe.
+
+</div>
+
+[cross site scripting attacks]: https://community.owasp.org/attacks/xss/
+
 ### Require specifying the escaper
 
 Oxiplate can be configured to require all writs to specify which escaper to use,
