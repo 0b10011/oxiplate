@@ -8,52 +8,11 @@
 //! Oxiplate templates usually use `snake_case` escaper names,
 //! so it's suggested to use those on your escaper group enum.
 //!
-//! ```rust:ignore
-//! use std::fmt::{Result, Write};
-//!
-//! use oxiplate_traits::Escaper;
-//!
-//! # #[allow(dead_code)]
-//! #[allow(non_camel_case_types)]
-//! pub enum YourEscaper {
-//! #   #[allow(dead_code)]
-//!     foo,
-//! #   #[allow(dead_code)]
-//!     bar,
-//! }
-//!
-//! impl Escaper for YourEscaper {
-//!     const DEFAULT: Self = Self::foo;
-//!
-//!     #[inline]
-//!     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
-//!         match self {
-//!             Self::foo => escape_foo(f, value),
-//!             Self::bar => bar_escaper(f, value),
-//!         }
-//!     }
-//! }
-//!
-//! # #[allow(dead_code)]
-//! #[inline]
-//! fn escape_foo<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-//!     if !value.contains("foo") {
-//!         return f.write_str(value);
-//!     }
-//!
-//!     f.write_str(&value.replace("foo", "f00"))
-//! }
-//!
-//! # #[allow(dead_code)]
-//! #[inline]
-//! fn bar_escaper<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-//!     if !value.contains("bar") {
-//!         return f.write_str(value);
-//!     }
-//!
-//!     f.write_str(&value.replace("bar", "b@r"))
-//! }
-//! ```
+//! [`your_group`] contains a full example
+//! of implementing your own escaper.
+//! Consider copying that
+//! and replacing `YourEscaper` and `YourGroup`
+//! with the names of your escaper and group.
 //!
 //! ## TOML config
 //!
