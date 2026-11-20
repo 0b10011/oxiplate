@@ -1,8 +1,11 @@
 extern crate alloc;
 
 use alloc::borrow::Cow;
+use alloc::boxed::Box;
 use alloc::fmt;
-use alloc::string::ToString;
+use alloc::rc::Rc;
+use alloc::string::{String, ToString};
+use alloc::sync::Arc;
 
 use crate::{Escaper, FastEscape};
 
@@ -130,7 +133,7 @@ impl<'a, T: FastCowStr<'a>> ToCowStr<'a> for &ToCowStrWrapper<'a, T> {
     }
 }
 
-impl<'a, T: ToString> ToCowStr<'a> for &&ToCowStrWrapper<'a, T> {
+impl<'a, T: ToString> ToCowStr<'a> for ToCowStrWrapper<'a, T> {
     #[inline]
     fn to_cow_str(&'a self) -> Cow<'a, str> {
         Cow::Owned(self.0.to_string())
@@ -144,9 +147,84 @@ pub trait FastCowStr<'a> {
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str>;
 }
 
+impl<'a, T> FastCowStr<'a> for &T
+where
+    T: FastCowStr<'a>,
+{
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        <T>::oxiplate_cow_str(self)
+    }
+}
+
+impl<'a, T> FastCowStr<'a> for &mut T
+where
+    T: FastCowStr<'a>,
+{
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        <T>::oxiplate_cow_str(self)
+    }
+}
+
+impl<'a, T> FastCowStr<'a> for Box<T>
+where
+    T: FastCowStr<'a>,
+{
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        <T>::oxiplate_cow_str(self.as_ref())
+    }
+}
+
+impl<'a, T> FastCowStr<'a> for Rc<T>
+where
+    T: FastCowStr<'a>,
+{
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        <T>::oxiplate_cow_str(self.as_ref())
+    }
+}
+
+impl<'a, T> FastCowStr<'a> for Arc<T>
+where
+    T: FastCowStr<'a>,
+{
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        <T>::oxiplate_cow_str(self.as_ref())
+    }
+}
+
 impl<'a> FastCowStr<'a> for &'a str {
     #[inline]
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
         Cow::Borrowed(self)
     }
 }
+
+impl<'a> FastCowStr<'a> for String {
+    #[inline]
+    fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+        Cow::Borrowed(self)
+    }
+}
+
+#[cfg(feature = "fast-escape-ints")]
+macro_rules! fast_cow_ints {
+    ($($ty:ty)*) => { $(
+        impl<'a> FastCowStr<'a> for $ty {
+            #[inline]
+            fn oxiplate_cow_str(&'a self) -> Cow<'a, str> {
+                Cow::Owned(itoa::Buffer::new().format(*self).to_string())
+            }
+        }
+    )* };
+}
+
+#[cfg(feature = "fast-escape-ints")]
+fast_cow_ints!(
+    i8 i16 i32 i64 i128 isize
+    u8 u16 u32 u64 u128 usize
+);
