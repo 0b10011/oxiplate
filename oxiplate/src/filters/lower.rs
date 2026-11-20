@@ -38,7 +38,9 @@ mod tests {
     use alloc::sync::Arc;
     use core::fmt::Display;
 
-    use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+    use oxiplate_traits::cow_str_wrapper;
+
+    use crate::private::ToCowStr;
 
     #[test]
     fn str() {

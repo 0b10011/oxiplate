@@ -20,21 +20,21 @@ impl ::oxiplate::Render for AbsoluteData {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
             oxiplate_formatter,
             &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
         )?;
         oxiplate_formatter.write_str("</title>\n")?;
         {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.title))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
             oxiplate_formatter.write_str("</h1>\n  <p>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(self.message))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.message))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;

@@ -11,10 +11,16 @@ mod escaper;
 mod render;
 mod unescaped_text;
 
-pub use self::cow_str::{CowStr, CowStrWrapper, FastCowStr, ToCowStr, ToCowStrWrapper};
+pub use self::cow_str::{CowStr, FastCowStr};
 pub use self::escaper::Escaper;
 pub use self::render::Render;
-pub use self::unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
+pub use self::unescaped_text::FastEscape;
+
+/// Items only meant to be used by `oxiplate-derive` in code generation.
+pub mod private {
+    pub use super::cow_str::{CowStrWrapper, ToCowStr, ToCowStrWrapper};
+    pub use super::unescaped_text::{UnescapedText, UnescapedTextWrapper};
+}
 
 /// Macro to efficiently convert a value to a `CowStrWrapper`
 /// for unit testing filters that deal with string-like values.
@@ -25,17 +31,17 @@ pub use self::unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 /// # Example
 ///
 /// ```
-/// use std::borrow::Cow;
+/// extern crate alloc;
 ///
-/// use oxiplate_traits::CowStr;
-/// #[cfg(test)]
-/// # compile_error!("tests don't run in docs");
-/// use oxiplate_traits::{ToCowStr, cow_str_wrapper};
+/// use alloc::borrow::Cow;
 ///
-/// pub fn upper<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
+/// use oxiplate_traits::private::ToCowStr as _;
+/// use oxiplate_traits::{CowStr, cow_str_wrapper};
+///
+/// pub fn upper<'a, E: CowStr<'a>>(expression: E) -> String {
 ///     match expression.cow_str() {
-///         Cow::Borrowed(str) => str.to_uppercase().into(),
-///         Cow::Owned(string) => string.to_uppercase().into(),
+///         Cow::Borrowed(str) => str.to_uppercase(),
+///         Cow::Owned(string) => string.to_uppercase(),
 ///     }
 /// }
 ///
@@ -60,8 +66,8 @@ pub use self::unescaped_text::{FastEscape, UnescapedText, UnescapedTextWrapper};
 #[allow(clippy::test_attr_in_doctest)]
 macro_rules! cow_str_wrapper {
     ($expr:expr) => {
-        ::oxiplate_traits::CowStrWrapper::new(
-            (&&::oxiplate_traits::ToCowStrWrapper::new(&($expr))).to_cow_str(),
+        ::oxiplate_traits::private::CowStrWrapper::new(
+            (&&::oxiplate_traits::private::ToCowStrWrapper::new(&($expr))).to_cow_str(),
         )
     };
 }
