@@ -13,6 +13,7 @@ pub mod filters;
 pub use oxiplate_derive::Oxiplate;
 pub use oxiplate_traits::{
     CowStr, Escaper, FastCowStr, FastWriteEscaped, FastWriteRaw, PreparedText, Render, TextHandler,
+    is_escaped,
 };
 
 /// Items only meant to be used by `oxiplate-derive` in code generation.

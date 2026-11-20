@@ -1,55 +1,9 @@
 extern crate alloc;
 
 use super::YourEscaper;
+use crate::is_escaped;
 
-pub(super) trait IsEscapedForYourGroup {
-    fn is_escaped(escaper: &YourEscaper) -> bool;
-}
-
-impl<T> IsEscapedForYourGroup for &T
-where
-    T: IsEscapedForYourGroup,
-{
-    fn is_escaped(escaper: &YourEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForYourGroup for &mut T
-where
-    T: IsEscapedForYourGroup,
-{
-    fn is_escaped(escaper: &YourEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForYourGroup for alloc::boxed::Box<T>
-where
-    T: IsEscapedForYourGroup,
-{
-    fn is_escaped(escaper: &YourEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForYourGroup for alloc::rc::Rc<T>
-where
-    T: IsEscapedForYourGroup,
-{
-    fn is_escaped(escaper: &YourEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForYourGroup for alloc::sync::Arc<T>
-where
-    T: IsEscapedForYourGroup,
-{
-    fn is_escaped(escaper: &YourEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
+is_escaped!(pub(super) IsEscapedForYourGroup, YourEscaper);
 
 impl IsEscapedForYourGroup for bool {
     fn is_escaped(escaper: &YourEscaper) -> bool {

@@ -1,57 +1,9 @@
 extern crate alloc;
 
 use super::HtmlEscaper;
+use crate::is_escaped;
 
-/// Trait to check if a value is already escaped.
-pub trait IsEscapedForHtml {
-    /// Check if the value is already escaped.
-    fn is_escaped(escaper: &HtmlEscaper) -> bool;
-}
-
-impl<T> IsEscapedForHtml for &T
-where
-    T: IsEscapedForHtml,
-{
-    fn is_escaped(escaper: &HtmlEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForHtml for &mut T
-where
-    T: IsEscapedForHtml,
-{
-    fn is_escaped(escaper: &HtmlEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForHtml for alloc::boxed::Box<T>
-where
-    T: IsEscapedForHtml,
-{
-    fn is_escaped(escaper: &HtmlEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForHtml for alloc::rc::Rc<T>
-where
-    T: IsEscapedForHtml,
-{
-    fn is_escaped(escaper: &HtmlEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForHtml for alloc::sync::Arc<T>
-where
-    T: IsEscapedForHtml,
-{
-    fn is_escaped(escaper: &HtmlEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
+is_escaped!(pub IsEscapedForHtml, HtmlEscaper);
 
 impl IsEscapedForHtml for bool {
     fn is_escaped(escaper: &HtmlEscaper) -> bool {

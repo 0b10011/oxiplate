@@ -1,57 +1,9 @@
 extern crate alloc;
 
 use super::JsonEscaper;
+use crate::is_escaped;
 
-/// Trait to check if a value is already escaped.
-pub trait IsEscapedForJson {
-    /// Check if the value is already escaped.
-    fn is_escaped(escaper: &JsonEscaper) -> bool;
-}
-
-impl<T> IsEscapedForJson for &T
-where
-    T: IsEscapedForJson,
-{
-    fn is_escaped(escaper: &JsonEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForJson for &mut T
-where
-    T: IsEscapedForJson,
-{
-    fn is_escaped(escaper: &JsonEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForJson for alloc::boxed::Box<T>
-where
-    T: IsEscapedForJson,
-{
-    fn is_escaped(escaper: &JsonEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForJson for alloc::rc::Rc<T>
-where
-    T: IsEscapedForJson,
-{
-    fn is_escaped(escaper: &JsonEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
-
-impl<T> IsEscapedForJson for alloc::sync::Arc<T>
-where
-    T: IsEscapedForJson,
-{
-    fn is_escaped(escaper: &JsonEscaper) -> bool {
-        <T>::is_escaped(escaper)
-    }
-}
+is_escaped!(pub IsEscapedForJson, JsonEscaper);
 
 impl IsEscapedForJson for bool {
     fn is_escaped(escaper: &JsonEscaper) -> bool {
