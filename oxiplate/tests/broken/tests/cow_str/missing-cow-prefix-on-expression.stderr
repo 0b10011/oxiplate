@@ -1,4 +1,4 @@
-error[E0277]: &str is expected to be prefixed by `>` and implement `::oxiplate_traits::ToCowString`.
+error[E0277]: &str is expected to be prefixed by `>` and implement `::alloc::string::ToString` or `::oxiplate_traits::FastCowStr`.
   --> tests/broken/tests/cow_str/missing-cow-prefix-on-expression.rs:20:30
    |
 20 | #[oxiplate_inline(r#"{{ raw: message | respond(>"world") }}"#)]
@@ -7,9 +7,9 @@ error[E0277]: &str is expected to be prefixed by `>` and implement `::oxiplate_t
    |                              Insert `>` prefix before this expression if `&str` is a string-like value (`str`, `impl Display`, etc).
    |
    = help: the trait `CowStr<'_>` is not implemented for `&str`
-   = note: Consider implementing `::oxiplate_traits::ToCowStr` if `&str` is owned by your crate, and then prefix with `>`.
+   = note: Consider implementing `::oxiplate_traits::FastCowStr` for `&str` if it is owned by your crate, and then prefix with `>`.
    = note: If `&str` is not a string-like value, perhaps you meant to pass a different argument to the filter?
-   = note: Oxiplate efficiently builds `::std::borrow::Cow<'a, str>` when a `>` prefix is used on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is used by filters for string arguments. Because the syntax for doing so is not obvious and prone to silently breaking, this alternative syntax is used to let Oxiplate handle the details while ensuring it's tested properly.
+   = note: Oxiplate efficiently builds `::alloc::borrow::Cow<'a, str>` when a `>` prefix is used on an expression, and wraps it in `::oxiplate_traits::CowStr<'a>` which is used by filters for string arguments. Because the syntax for doing so is not obvious and prone to silently breaking, this alternative syntax is used to let Oxiplate handle the details while ensuring it's tested properly.
 help: the trait `CowStr<'a>` is implemented for `CowStrWrapper<'a>`
   --> $WORKSPACE/oxiplate-traits/src/cow_str.rs
    |

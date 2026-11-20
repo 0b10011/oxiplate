@@ -17,19 +17,19 @@ impl ::oxiplate::Render for Html {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!DOCTYPE html>\n<p title=\"Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
             oxiplate_formatter,
             &::oxiplate::escapers::html::HtmlEscaper::attr,
         )?;
         oxiplate_formatter.write_str("\">Hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
             oxiplate_formatter,
             &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
         )?;
         oxiplate_formatter.write_str("!</p>\n<p>Goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
             oxiplate_formatter,
             &::oxiplate::escapers::html::HtmlEscaper::text,
         )?;
@@ -105,14 +105,14 @@ impl ::oxiplate::Render for Json {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("{\n    \"foo\": \"hello ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
             oxiplate_formatter,
             &<::oxiplate::escapers::json::JsonEscaper as ::oxiplate::Escaper>::DEFAULT,
         )?;
         oxiplate_formatter.write_str("\",\n    \"bar\": \"goodbye ")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.name))).oxiplate_escape(
             oxiplate_formatter,
             &::oxiplate::escapers::json::JsonEscaper::substring,
         )?;

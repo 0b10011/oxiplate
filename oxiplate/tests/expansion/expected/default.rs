@@ -25,9 +25,9 @@ impl ::oxiplate::Render for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("\n<!DOCTYPE html>\n<title>")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
             &(filters_for_oxiplate::default(self.title, "Default title")),
         ))
             .oxiplate_escape(
@@ -37,7 +37,7 @@ impl ::oxiplate::Render for Data {
         oxiplate_formatter.write_str("</title>\n")?;
         if let Some(title) = self.title {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(&(title))).oxiplate_escape(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(&(title))).oxiplate_escape(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;

@@ -17,9 +17,9 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
         oxiplate_formatter.write_str("<!--")?;
-        (&&::oxiplate::UnescapedTextWrapper::new(&(self.comment))).oxiplate_escape(
+        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.comment))).oxiplate_escape(
             oxiplate_formatter,
             &::oxiplate::escapers::html::HtmlEscaper::comment,
         )?;

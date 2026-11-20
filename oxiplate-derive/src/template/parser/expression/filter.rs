@@ -81,9 +81,9 @@ impl<'a> ToTokensWithState<'a> for Filter<'a> {
             if cfg!(feature = "_oxiplate") {
                 (
                     quote_spanned! {span=>
-                        ::oxiplate::CowStrWrapper::new(
+                        ::oxiplate::private::CowStrWrapper::new(
                             (
-                                &&::oxiplate::ToCowStrWrapper::new(
+                                &&::oxiplate::private::ToCowStrWrapper::new(
                                     &(filters_for_oxiplate::#name #arguments)
                                 )
                             ).to_cow_str()
