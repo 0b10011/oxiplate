@@ -13,8 +13,9 @@ use crate::PreparedText;
 use crate::escaper::Escaper;
 
 /// Wrapper around unescaped text
-/// that will implement `WriteEscaped` and `WriteRaw`
-/// via `FastWriteEscaped` and `FastWriteRaw` when possible,
+/// that will implement [`crate::private::WriteEscaped`]
+/// and [`crate::private::WriteRaw`]
+/// via [`FastWriteEscaped`] and [`FastWriteRaw`] when possible,
 /// otherwise via `Display`.
 ///
 /// [`super::TextHandler`] may cause escaping to be skipped

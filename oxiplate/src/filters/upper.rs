@@ -35,7 +35,8 @@ mod tests {
     use alloc::string::String;
     use core::fmt::Display;
 
-    use crate::filters::cow_str_wrapper;
+    use oxiplate_traits::cow_str_wrapper;
+
     use crate::private::ToCowStr;
 
     #[test]
