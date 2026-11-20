@@ -109,10 +109,7 @@ impl<'a> Block<'a> {
         let mut tokens = TokenStream::new();
 
         #[cfg(feature = "_unreachable")]
-        {
-            let _ = block_stack;
-            block_stack = VecDeque::new();
-        }
+        block_stack.clear();
 
         let Some(blocks) = block_stack.pop_front() else {
             internal_error!(

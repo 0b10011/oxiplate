@@ -30,17 +30,26 @@ book-build:
 # Update expected output for broken and expansion tests to the current output.
 [group("~Common Commands~")]
 update-test-output: format clippy-strict rebuild-config-test-crates
+    #!/bin/bash
+
     # Update broken test results
     TRYBUILD=overwrite just run-against-broken "cargo test --locked"
 
     # Update config test output
-    [ ! -f ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ] || cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
+    if ls ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr &>/dev/null
+    then
+        cp ./oxiplate-derive/tests/config/crates/*/tests/broken/*.stderr ./oxiplate-derive/tests/config/tests/
+    fi
 
     # Update expansion test results
     OXIP_EXPANSION=overwrite cargo test --locked --test expansion --features better-errors --no-fail-fast -- --ignored || true
 
-    # Update clippy test results
-    [ ! -f ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ] || mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
+    # Run clippy tests and update results
+    just clippy-tests || true
+    if ls ./oxiplate-derive/tests/clippy/crate/actual/*.stderr &>/dev/null
+    then
+        mv ./oxiplate-derive/tests/clippy/crate/actual/*.stderr ./oxiplate-derive/tests/clippy/crate/expected/
+    fi
 
     echo "Test output updated successfully!"
 
@@ -54,7 +63,7 @@ rebuild-config-test-crates:
 [group("Test")]
 book-tests:
     cargo build --package oxiplate --target-dir target/book/
-    RUSTUP_TOOLCHAIN="nightly-2026-10-28" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
+    RUSTUP_TOOLCHAIN="nightly-2026-11-19" CARGO_MANIFEST_DIR=`pwd`/book/lib mdbook test \
         --library-path "$(find ./target/book/debug/build -name out -type d | paste -sd ',' -)"
 
 # Format code.
@@ -118,7 +127,7 @@ test: (run-against-all "cargo test --locked") \
     build-no-std (run-against-libs "cargo test --locked --doc") \
     book-tests \
     expansion-tests \
-    (cargo '' 'test --package oxiplate-derive --test clippy -- --ignored')
+    clippy-tests
 
 # Run stable tests against specified toolchain (target triples not supported).
 [group("Test")]
@@ -188,6 +197,9 @@ coverage-no-report: clean-coverage \
 [group("Test")]
 expansion-tests:
     cargo test --locked --test expansion --features better-errors -- --ignored
+
+[group("Test")]
+clippy-tests: (cargo '' 'test --package oxiplate-derive --test clippy -- --ignored')
 
 [private]
 clean-coverage:
