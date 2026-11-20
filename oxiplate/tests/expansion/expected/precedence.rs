@@ -51,11 +51,11 @@ fn precedence() {
         ) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            use ::oxiplate::{ToCowStr as _, UnescapedText as _};
+            use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
-                &(filters_for_oxiplate::trim(::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                &(filters_for_oxiplate::trim(::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(format_args!(" ({0}) ", (9 + 5 * 2) * 100 + 89))
                         })),
@@ -65,12 +65,13 @@ fn precedence() {
             ))
                 .oxiplate_raw(oxiplate_formatter)?;
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::UnescapedTextWrapper::new(
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
                 &(::alloc::__export::must_use({
                     ::alloc::fmt::format(format_args!(
                         "{0} is awesome",
-                        filters_for_oxiplate::upper(::oxiplate::CowStrWrapper::new(
-                            (&&::oxiplate::ToCowStrWrapper::new(&(self.user.name))).to_cow_str(),
+                        filters_for_oxiplate::upper(::oxiplate::private::CowStrWrapper::new(
+                            (&&::oxiplate::private::ToCowStrWrapper::new(&(self.user.name),))
+                                .to_cow_str(),
                         ),),
                     ))
                 })),
@@ -147,10 +148,10 @@ fn cow_concat_field() {
         ) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            use ::oxiplate::{ToCowStr as _, UnescapedText as _};
-            (&&::oxiplate::UnescapedTextWrapper::new(
-                &(::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
+            use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                &(::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(format_args!("hello {0}", self.user.name))
                         })),
@@ -229,10 +230,10 @@ fn cow_concat_function() {
         ) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            use ::oxiplate::{ToCowStr as _, UnescapedText as _};
-            (&&::oxiplate::UnescapedTextWrapper::new(
-                &(::oxiplate::CowStrWrapper::new(
-                    (&&::oxiplate::ToCowStrWrapper::new(
+            use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                &(::oxiplate::private::CowStrWrapper::new(
+                    (&&::oxiplate::private::ToCowStrWrapper::new(
                         &(::alloc::__export::must_use({
                             ::alloc::fmt::format(format_args!("hello {0}", name(&self.user)))
                         })),
