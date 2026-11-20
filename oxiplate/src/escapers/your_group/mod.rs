@@ -1,8 +1,11 @@
 //! Example escaper used in `crate::escapers` documentation.
 
+mod escapers;
+
 use core::fmt::{Result, Write};
 
-use oxiplate_traits::Escaper;
+use self::escapers::{bar_escaper, escape_foo};
+use crate::Escaper;
 
 /// Enum for example escaper.
 #[allow(dead_code)]
@@ -24,22 +27,4 @@ impl Escaper for YourEscaper {
             Self::bar => bar_escaper(f, value),
         }
     }
-}
-
-#[inline]
-fn escape_foo<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains("foo") {
-        return f.write_str(value);
-    }
-
-    f.write_str(&value.replace("foo", "f00"))
-}
-
-#[inline]
-fn bar_escaper<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains("bar") {
-        return f.write_str(value);
-    }
-
-    f.write_str(&value.replace("bar", "b@r"))
 }
