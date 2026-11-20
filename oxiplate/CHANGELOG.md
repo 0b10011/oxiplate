@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.15](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.14...oxiplate-v0.19.15) - 2026-11-20
+
+### Other
+
+- split escaper code up into submodules in prep for larger changes to escaping ([#416](https://github.com/0b10011/oxiplate/pull/416))
+- fixed output of clippy tests to match reality after toolchain updates
+- updated toolchain to nightly-2026-11-17
+- updated toolchain to nightly-2026-11-01
+- updated toolchain to nightly-2026-10-29
+- renamed variable to make the code easier to understand
+
 ## [0.19.14](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.13...oxiplate-v0.19.14) - 2026-11-02
 
 ### Added
