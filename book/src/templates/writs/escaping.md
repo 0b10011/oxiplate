@@ -97,9 +97,14 @@ as safe in HTML for text,
 but not attributes or comments:
 
 ```rust
-# type YourType = bool;
+# extern crate oxiplate;
+#
+# struct YourType;
+#
+use oxiplate::escapers::html::{HtmlEscaper, IsEscapedForHtml};
+
 impl IsEscapedForHtml for YourType {
-    fn is_escaped(escaper: &HtmlEscaper) -> YourType {
+    fn is_escaped(escaper: &HtmlEscaper) -> bool {
         match escaper {
             HtmlEscaper::text => true,
             HtmlEscaper::attr | HtmlEscaper::comment => false,
