@@ -6,8 +6,7 @@ mod text_handler;
 
 use core::fmt::{Result, Write};
 
-use self::escapers::bar::bar_escaper;
-use self::escapers::foo::escape_foo;
+use self::escapers::{bar_escaper, escape_foo};
 use self::text_handler::TextHandlerForYourGroup;
 use crate::Escaper;
 
