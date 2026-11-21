@@ -3,7 +3,7 @@ extern crate alloc;
 use alloc::borrow::Cow;
 use alloc::fmt;
 use alloc::string::ToString;
-use core::fmt::{Display, Write};
+use core::fmt::Write;
 
 use crate::{Escaper, FastWriteEscaped, FastWriteRaw};
 
@@ -59,12 +59,6 @@ impl<'a> CowStr<'a> for CowStrWrapper<'a> {
     #[inline]
     fn cow_str(self) -> Cow<'a, str> {
         self.0
-    }
-}
-
-impl Display for CowStrWrapper<'_> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&self.0)
     }
 }
 
