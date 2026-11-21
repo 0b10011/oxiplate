@@ -399,6 +399,43 @@ where
     }
 }
 
+impl<'a, E, W> FastWriteEscaped<'a, E, W> for bool
+where
+    E: Escaper,
+    W: Write + ?Sized,
+{
+    #[inline]
+    fn oxiplate_fast_write_escaped(&'a self, f: &mut W, escaper: &E) -> Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
+        f.write_str("bool(")?;
+
+        escaper.escape(f, if *self { "true" } else { "false" })?;
+
+        #[cfg(feature = "_debug-fast-write-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
+    }
+}
+
+impl<'a, W> FastWriteRaw<'a, W> for bool
+where
+    W: Write + ?Sized,
+{
+    #[inline]
+    fn oxiplate_fast_write_raw(&'a self, f: &mut W) -> Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
+        f.write_str("bool(")?;
+
+        f.write_str(if *self { "true" } else { "false" })?;
+
+        #[cfg(feature = "_debug-fast-write-type-priority")]
+        f.write_str(")")?;
+
+        Ok(())
+    }
+}
+
 #[cfg(feature = "fast-escape-ints")]
 macro_rules! unescaped_ints {
     ($($ty:ty)*) => { $(

@@ -293,6 +293,62 @@ test!(
     "FastWriteRaw(str(text))"
 );
 
+test!(
+    true_html,
+    bool,
+    true,
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(true)))",
+    "FastWriteRaw(bool(true))"
+);
+test!(
+    true_json,
+    bool,
+    true,
+    json,
+    "{{ substring: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(true)))",
+    "FastWriteRaw(bool(true))"
+);
+test!(
+    true_md,
+    bool,
+    true,
+    md,
+    "{{ text: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(true)))",
+    "FastWriteRaw(bool(true))"
+);
+
+test!(
+    false_html,
+    bool,
+    false,
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(false)))",
+    "FastWriteRaw(bool(false))"
+);
+test!(
+    false_json,
+    bool,
+    false,
+    json,
+    "{{ substring: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(false)))",
+    "FastWriteRaw(bool(false))"
+);
+test!(
+    false_md,
+    bool,
+    false,
+    md,
+    "{{ text: value }}",
+    "FastWriteEscaped(FastWriteRaw(bool(false)))",
+    "FastWriteRaw(bool(false))"
+);
+
 test_int_19!(i8_html, i8_json, i8_md, i8, 19_i8);
 test_int_19!(i8_mut_html, i8_mut_json, i8_mut_md, &'a mut i8, &mut 19_i8);
 test_int_19!(i8_borrow_html, i8_borrow_json, i8_borrow_md, &'a i8, &19_i8);
