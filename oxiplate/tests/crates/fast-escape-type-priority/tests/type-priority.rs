@@ -238,6 +238,46 @@ macro_rules! test_float_19_19 {
     };
 }
 
+macro_rules! test_bool {
+    (
+        $fn_name_html:ident,
+        $fn_name_json:ident,
+        $fn_name_md:ident,
+        $ty:ty,
+        $value:expr,
+        $expected_escaped:literal,
+        $expected_raw:literal
+    ) => {
+        test!(
+            $fn_name_html,
+            $ty,
+            $value,
+            html,
+            "{{ text: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+        test!(
+            $fn_name_json,
+            $ty,
+            $value,
+            json,
+            "{{ substring: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+        test!(
+            $fn_name_md,
+            $ty,
+            $value,
+            md,
+            "{{ text: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+    };
+}
+
 test!(
     cow_str_wrapper_string,
     CowStrWrapper<'a>,
@@ -293,58 +333,21 @@ test!(
     "FastWriteRaw(str(text))"
 );
 
-test!(
+test_bool!(
     true_html,
-    bool,
-    true,
-    html,
-    "{{ text: value }}",
-    "FastWriteEscaped(FastWriteRaw(bool(true)))",
-    "FastWriteRaw(bool(true))"
-);
-test!(
     true_json,
-    bool,
-    true,
-    json,
-    "{{ substring: value }}",
-    "FastWriteEscaped(FastWriteRaw(bool(true)))",
-    "FastWriteRaw(bool(true))"
-);
-test!(
     true_md,
     bool,
     true,
-    md,
-    "{{ text: value }}",
     "FastWriteEscaped(FastWriteRaw(bool(true)))",
     "FastWriteRaw(bool(true))"
 );
-
-test!(
+test_bool!(
     false_html,
-    bool,
-    false,
-    html,
-    "{{ text: value }}",
-    "FastWriteEscaped(FastWriteRaw(bool(false)))",
-    "FastWriteRaw(bool(false))"
-);
-test!(
     false_json,
-    bool,
-    false,
-    json,
-    "{{ substring: value }}",
-    "FastWriteEscaped(FastWriteRaw(bool(false)))",
-    "FastWriteRaw(bool(false))"
-);
-test!(
     false_md,
     bool,
     false,
-    md,
-    "{{ text: value }}",
     "FastWriteEscaped(FastWriteRaw(bool(false)))",
     "FastWriteRaw(bool(false))"
 );
