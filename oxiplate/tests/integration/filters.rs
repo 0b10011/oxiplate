@@ -37,7 +37,7 @@ mod filters_for_oxiplate {
 }
 
 #[derive(Oxiplate)]
-#[oxiplate_inline(r#"{{ raw: >message | >respond(>"world") }}"#)]
+#[oxiplate_inline(r#"{{ html.text: >message | >respond(>"world") }}"#)]
 struct Respond {
     message: &'static str,
 }

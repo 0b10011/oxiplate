@@ -22,13 +22,20 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         for message in &self.messages {
             oxiplate_formatter.write_str("\n")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new(&(message))).oxiplate_escape(
-                oxiplate_formatter,
-                &::oxiplate::escapers::markdown::MarkdownEscaper::text,
-            )?;
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::markdown::MarkdownEscaper::build_text_handler(&(message)))
+                    .prepare_text_for_output(
+                        &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+                    ),
+            ))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &::oxiplate::escapers::markdown::MarkdownEscaper::text,
+                )?;
             oxiplate_formatter.write_str("\n")?;
         }
         ::core::result::Result::Ok(())

@@ -12,14 +12,14 @@ mod render;
 mod unescaped_text;
 
 pub use self::cow_str::{CowStr, FastCowStr};
-pub use self::escaper::Escaper;
+pub use self::escaper::{Escaper, PreparedText, TextHandler};
 pub use self::render::Render;
-pub use self::unescaped_text::FastEscape;
+pub use self::unescaped_text::{FastWriteEscaped, FastWriteRaw};
 
 /// Items only meant to be used by `oxiplate-derive` in code generation.
 pub mod private {
     pub use super::cow_str::{CowStrWrapper, ToCowStr, ToCowStrWrapper};
-    pub use super::unescaped_text::{UnescapedText, UnescapedTextWrapper};
+    pub use super::unescaped_text::{UnescapedTextWrapper, WriteEscaped, WriteRaw};
 }
 
 /// Macro to efficiently convert a value to a `CowStrWrapper`
@@ -69,5 +69,87 @@ macro_rules! cow_str_wrapper {
         ::oxiplate_traits::private::CowStrWrapper::new(
             (&&::oxiplate_traits::private::ToCowStrWrapper::new(&($expr))).to_cow_str(),
         )
+    };
+}
+
+/// Macro to quickly build the boilerplate for `IsEscapedForEscaper` for an escaper.
+///
+/// # Usage
+///
+/// ```rust
+/// # use oxiplate_traits as oxiplate;
+/// # #[expect(dead_code, non_camel_case_types)]
+/// # enum HtmlEscaper { text, attr, comment }
+/// extern crate alloc;
+///
+/// use oxiplate::is_escaped;
+///
+/// is_escaped!(pub IsEscapedForHtml, HtmlEscaper);
+///
+/// // Add any additional implementations for your own or external types:
+/// impl IsEscapedForHtml for bool {
+///     fn is_escaped(escaper: &HtmlEscaper) -> bool {
+///         // While booleans may be safe for all contexts,
+///         // this won't always be the case.
+///         // Adjust this match as needed for each type.
+///         match escaper {
+///             HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
+///         }
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! is_escaped {
+    ($visibility:vis $trait_name:ident, $escaper:path) => {
+        /// Trait to check if a value is already escaped.
+        $visibility trait $trait_name {
+            /// Check if the value is already escaped.
+            fn is_escaped(escaper: &$escaper) -> bool;
+        }
+
+        impl<T> $trait_name for &T
+        where
+            T: $trait_name,
+        {
+            fn is_escaped(escaper: &$escaper) -> bool {
+                <T>::is_escaped(escaper)
+            }
+        }
+
+        impl<T> $trait_name for &mut T
+        where
+            T: $trait_name,
+        {
+            fn is_escaped(escaper: &$escaper) -> bool {
+                <T>::is_escaped(escaper)
+            }
+        }
+
+        impl<T> $trait_name for alloc::boxed::Box<T>
+        where
+            T: $trait_name,
+        {
+            fn is_escaped(escaper: &$escaper) -> bool {
+                <T>::is_escaped(escaper)
+            }
+        }
+
+        impl<T> $trait_name for alloc::rc::Rc<T>
+        where
+            T: $trait_name,
+        {
+            fn is_escaped(escaper: &$escaper) -> bool {
+                <T>::is_escaped(escaper)
+            }
+        }
+
+        impl<T> $trait_name for alloc::sync::Arc<T>
+        where
+            T: $trait_name,
+        {
+            fn is_escaped(escaper: &$escaper) -> bool {
+                <T>::is_escaped(escaper)
+            }
+        }
     };
 }

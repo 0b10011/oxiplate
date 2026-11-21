@@ -25,22 +25,34 @@ impl ::oxiplate::Render for Data {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("\n<!DOCTYPE html>\n<title>")?;
         (&&::oxiplate::private::UnescapedTextWrapper::new(
-            &(filters_for_oxiplate::default(self.title, "Default title")),
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
+                &(filters_for_oxiplate::default(self.title, "Default title")),
+            ))
+                .prepare_text_for_output(
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                ),
         ))
-            .oxiplate_escape(
+            .oxiplate_write_escaped(
                 oxiplate_formatter,
                 &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
             )?;
         oxiplate_formatter.write_str("</title>\n")?;
         if let Some(title) = self.title {
             oxiplate_formatter.write_str("<h1>")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new(&(title))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(title)))
+                    .prepare_text_for_output(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
+            ))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
             oxiplate_formatter.write_str("</h1>\n")?;
         }
         ::core::result::Result::Ok(())
