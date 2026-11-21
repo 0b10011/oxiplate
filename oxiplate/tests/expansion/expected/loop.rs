@@ -33,27 +33,46 @@ impl ::oxiplate::Render for Loop {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("\n")?;
         for (r#loop, value) in filters_for_oxiplate::r#loop(&self.values) {
             if r#loop.is_first {
                 oxiplate_formatter.write_str("first: ")?;
             }
             oxiplate_formatter.write_str("#")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new(&(r#loop.index1))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(r#loop.index1)))
+                    .prepare_text_for_output(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
+            ))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
             oxiplate_formatter.write_str(" (#")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new(&(r#loop.index0))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(r#loop.index0)))
+                    .prepare_text_for_output(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
+            ))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
             oxiplate_formatter.write_str(") ")?;
-            (&&::oxiplate::private::UnescapedTextWrapper::new(&(value))).oxiplate_escape(
-                oxiplate_formatter,
-                &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-            )?;
+            (&&::oxiplate::private::UnescapedTextWrapper::new(
+                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(value)))
+                    .prepare_text_for_output(
+                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                    ),
+            ))
+                .oxiplate_write_escaped(
+                    oxiplate_formatter,
+                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
+                )?;
             if r#loop.is_last {
                 oxiplate_formatter.write_str(" LAST!")?;
             }

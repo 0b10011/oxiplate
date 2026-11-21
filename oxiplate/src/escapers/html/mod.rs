@@ -11,12 +11,16 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 mod escapers;
+mod is_escaped;
+mod text_handler;
 
 use core::fmt::{Result, Write};
 
 pub use self::escapers::attr::escape_attribute_quoted_value;
 pub use self::escapers::comment::escape_comment_text;
 pub use self::escapers::text::escape_text;
+pub use self::is_escaped::IsEscapedForHtml;
+use self::text_handler::TextHandlerForHtml;
 use crate::Escaper;
 
 /// Escaper group to pass to Oxiplate for HTML escaping.
@@ -38,6 +42,8 @@ pub enum HtmlEscaper {
 impl Escaper for HtmlEscaper {
     const DEFAULT: Self = Self::text;
 
+    type TextHandler<'a, T: 'a> = TextHandlerForHtml<'a, T>;
+
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
@@ -45,5 +51,9 @@ impl Escaper for HtmlEscaper {
             Self::attr => escape_attribute_quoted_value(f, value),
             Self::comment => escape_comment_text(f, value),
         }
+    }
+
+    fn build_text_handler<T>(value: &T) -> Self::TextHandler<'_, T> {
+        TextHandlerForHtml { value }
     }
 }

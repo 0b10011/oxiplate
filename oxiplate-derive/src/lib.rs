@@ -196,7 +196,8 @@ fn parse_input(
                     extern crate alloc;
 
                     use ::core::fmt::Write as _;
-                    use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+                    use ::oxiplate::{Escaper as _, TextHandler as _};
+                    use ::oxiplate::private::{ToCowStr as _, WriteRaw as _, WriteEscaped as _};
 
                     #template
 

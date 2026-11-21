@@ -17,12 +17,17 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     ) -> ::core::fmt::Result {
         extern crate alloc;
         use ::core::fmt::Write as _;
-        use ::oxiplate::private::{ToCowStr as _, UnescapedText as _};
+        use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
+        use ::oxiplate::{Escaper as _, TextHandler as _};
         oxiplate_formatter.write_str("<!--")?;
-        (&&::oxiplate::private::UnescapedTextWrapper::new(&(self.comment))).oxiplate_escape(
-            oxiplate_formatter,
-            &::oxiplate::escapers::html::HtmlEscaper::comment,
-        )?;
+        (&&::oxiplate::private::UnescapedTextWrapper::new(
+            (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&(self.comment)))
+                .prepare_text_for_output(&::oxiplate::escapers::html::HtmlEscaper::comment),
+        ))
+            .oxiplate_write_escaped(
+                oxiplate_formatter,
+                &::oxiplate::escapers::html::HtmlEscaper::comment,
+            )?;
         oxiplate_formatter.write_str("-->")?;
         ::core::result::Result::Ok(())
     }

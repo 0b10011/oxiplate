@@ -4,70 +4,131 @@ use oxiplate::private::CowStrWrapper;
 use oxiplate::{Oxiplate, Render};
 
 macro_rules! test {
-    ($fn_name:ident, $ty:ty, $value:expr, $expected:expr) => {
+    (
+        $fn_name:ident,
+        $ty:ty,
+        $value:expr,
+        $escaper_group:ident,
+        $specified_escaper_writ:literal,
+        $expected:expr
+    ) => {
+        test!(
+            $fn_name,
+            $ty,
+            $value,
+            $escaper_group,
+            $specified_escaper_writ,
+            $expected,
+            $expected
+        );
+    };
+    (
+        $fn_name:ident,
+        $ty:ty,
+        $value:expr,
+        $escaper_group:ident,
+        $specified_escaper_writ:literal,
+        $expected_escaped:expr,
+        $expected_raw:expr
+    ) => {
         #[test]
         fn $fn_name() {
-            test!("{{ value }}", $ty, $value, $expected, "escaped");
-            test!("{{ raw: value }}", $ty, $value, $expected, "raw");
+            test!(
+                $escaper_group,
+                $specified_escaper_writ,
+                $ty,
+                $value,
+                $expected_escaped,
+                "escaped (text)"
+            );
+            test!(
+                $escaper_group,
+                "{{ value }}",
+                $ty,
+                $value,
+                $expected_escaped,
+                "escaped (default)"
+            );
+            test!(
+                $escaper_group,
+                "{{ raw: value }}",
+                $ty,
+                $value,
+                $expected_raw,
+                "raw"
+            );
 
             // Box
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ value }}",
                 Box<$ty>,
                 Box::new(value),
-                $expected,
+                $expected_escaped,
                 "box escaped"
             );
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ raw: value }}",
                 Box<$ty>,
                 Box::new(value),
-                $expected,
+                $expected_raw,
                 "box raw"
             );
 
             // Rc
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ value }}",
                 ::std::rc::Rc<$ty>,
                 ::std::rc::Rc::new(value),
-                $expected,
+                $expected_escaped,
                 "rc escaped"
             );
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ raw: value }}",
                 ::std::rc::Rc<$ty>,
                 ::std::rc::Rc::new(value),
-                $expected,
+                $expected_raw,
                 "rc raw"
             );
 
             // Arc
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ value }}",
                 ::std::sync::Arc<$ty>,
                 ::std::sync::Arc::new(value),
-                $expected,
+                $expected_escaped,
                 "arc escaped"
             );
             let value = $value;
             test!(
+                $escaper_group,
                 "{{ raw: value }}",
                 ::std::sync::Arc<$ty>,
                 ::std::sync::Arc::new(value),
-                $expected,
+                $expected_raw,
                 "arc raw"
             );
         }
     };
-    ($template:literal, $ty:ty, $value:expr, $expected:expr, $message:literal) => {{
+    (
+        $escaper_group:ident,
+        $template:literal,
+        $ty:ty,
+        $value:expr,
+        $expected:expr,
+        $message:literal
+    ) => {{
         #[derive(Oxiplate)]
-        #[oxiplate_inline(html: $template)]
+        #[oxiplate_inline($escaper_group: $template)]
         struct Value<'a> {
             value: $ty,
             #[allow(dead_code)]
@@ -81,154 +142,723 @@ macro_rules! test {
     }};
 }
 
+macro_rules! test_int_19 {
+    (
+        $fn_name_html:ident,
+        $fn_name_json:ident,
+        $fn_name_md:ident,
+        $fn_name_your_escaper:ident,
+        $ty:ty,
+        $value:expr
+    ) => {
+        test!(
+            $fn_name_html,
+            $ty,
+            $value,
+            html,
+            "{{ text: value }}",
+            "FastWriteEscaped(FastWriteRaw(int(19)))",
+            "FastWriteRaw(int(19))"
+        );
+        test!(
+            $fn_name_json,
+            $ty,
+            $value,
+            json,
+            "{{ substring: value }}",
+            "FastWriteEscaped(FastWriteRaw(int(19)))",
+            "FastWriteRaw(int(19))"
+        );
+        test!(
+            $fn_name_md,
+            $ty,
+            $value,
+            md,
+            "{{ text: value }}",
+            "FastWriteEscaped(int(19))",
+            "FastWriteRaw(int(19))"
+        );
+        test!(
+            $fn_name_your_escaper,
+            $ty,
+            $value,
+            your_escaper,
+            "{{ foo: value }}",
+            "FastWriteEscaped(FastWriteRaw(int(19)))",
+            "FastWriteRaw(int(19))"
+        );
+    };
+}
+
+macro_rules! test_float_19 {
+    (
+        $fn_name_html:ident,
+        $fn_name_json:ident,
+        $fn_name_md:ident,
+        $fn_name_your_escaper:ident,
+        $ty:ty,
+        $value:expr
+    ) => {
+        test!(
+            $fn_name_html,
+            $ty,
+            $value,
+            html,
+            "{{ text: value }}",
+            "DisplayEscaped(DisplayRaw(19))",
+            "DisplayRaw(19)"
+        );
+        test!(
+            $fn_name_json,
+            $ty,
+            $value,
+            json,
+            "{{ substring: value }}",
+            "DisplayEscaped(DisplayRaw(19))",
+            "DisplayRaw(19)"
+        );
+        test!(
+            $fn_name_md,
+            $ty,
+            $value,
+            md,
+            "{{ text: value }}",
+            "DisplayEscaped(19)",
+            "DisplayRaw(19)"
+        );
+        test!(
+            $fn_name_your_escaper,
+            $ty,
+            $value,
+            your_escaper,
+            "{{ foo: value }}",
+            "DisplayEscaped(DisplayRaw(19))",
+            "DisplayRaw(19)"
+        );
+    };
+}
+
+macro_rules! test_float_19_19 {
+    (
+        $fn_name_html:ident,
+        $fn_name_json:ident,
+        $fn_name_md:ident,
+        $fn_name_your_escaper:ident,
+        $ty:ty,
+        $value:expr
+    ) => {
+        test!(
+            $fn_name_html,
+            $ty,
+            $value,
+            html,
+            "{{ text: value }}",
+            "DisplayEscaped(DisplayRaw(19.19))",
+            "DisplayRaw(19.19)"
+        );
+        test!(
+            $fn_name_json,
+            $ty,
+            $value,
+            json,
+            "{{ substring: value }}",
+            "DisplayEscaped(DisplayRaw(19.19))",
+            "DisplayRaw(19.19)"
+        );
+        test!(
+            $fn_name_md,
+            $ty,
+            $value,
+            md,
+            "{{ text: value }}",
+            r"DisplayEscaped(19\.19)",
+            "DisplayRaw(19.19)"
+        );
+        test!(
+            $fn_name_your_escaper,
+            $ty,
+            $value,
+            your_escaper,
+            "{{ foo: value }}",
+            "DisplayEscaped(DisplayRaw(19.19))",
+            "DisplayRaw(19.19)"
+        );
+    };
+}
+
+macro_rules! test_bool {
+    (
+        $fn_name_html:ident,
+        $fn_name_json:ident,
+        $fn_name_md:ident,
+        $fn_name_your_escaper:ident,
+        $ty:ty,
+        $value:expr,
+        $expected_escaped:literal,
+        $expected_raw:literal
+    ) => {
+        test!(
+            $fn_name_html,
+            $ty,
+            $value,
+            html,
+            "{{ text: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+        test!(
+            $fn_name_json,
+            $ty,
+            $value,
+            json,
+            "{{ substring: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+        test!(
+            $fn_name_md,
+            $ty,
+            $value,
+            md,
+            "{{ text: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+        test!(
+            $fn_name_your_escaper,
+            $ty,
+            $value,
+            your_escaper,
+            "{{ foo: value }}",
+            $expected_escaped,
+            $expected_raw
+        );
+    };
+}
+
 test!(
     cow_str_wrapper_string,
     CowStrWrapper<'a>,
     CowStrWrapper::new(Cow::Owned("text".to_string())),
-    "FastEscape(CowStrWrapper(text))"
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(CowStrWrapper(text))",
+    "FastWriteRaw(CowStrWrapper(text))"
 );
 test!(
     cow_str_wrapper_str,
     CowStrWrapper<'a>,
     CowStrWrapper::new(Cow::Borrowed("text")),
-    "FastEscape(CowStrWrapper(text))"
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(CowStrWrapper(text))",
+    "FastWriteRaw(CowStrWrapper(text))"
 );
 test!(
     string,
     String,
     "text".to_string(),
-    "FastEscape(String(text))"
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(String(text))",
+    "FastWriteRaw(String(text))"
 );
 test!(
     string_mut,
     &'a mut String,
     &mut "text".to_string(),
-    "FastEscape(String(text))"
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(String(text))",
+    "FastWriteRaw(String(text))"
 );
-test!(str, &'a str, "text", "FastEscape(str(text))");
-test!(str_2, &'a &'a str, &"text", "FastEscape(str(text))");
-
-test!(i8, i8, 19_i8, "FastEscape(int(19))");
-test!(i8_mut, &'a mut i8, &mut 19_i8, "FastEscape(int(19))");
-test!(i8_borrow, &'a i8, &19_i8, "FastEscape(int(19))");
-test!(i8_borrow_2, &'a &'a i8, &&19_i8, "FastEscape(int(19))");
-test!(i8_borrow_mut, &'a mut i8, &mut 19_i8, "FastEscape(int(19))");
-
-test!(i16, i16, 19_i16, "FastEscape(int(19))");
-test!(i16_mut, &'a mut i16, &mut 19_i16, "FastEscape(int(19))");
-test!(i16_borrow, &'a i16, &19_i16, "FastEscape(int(19))");
-test!(i16_borrow_2, &'a &'a i16, &&19_i16, "FastEscape(int(19))");
 test!(
-    i16_borrow_mut,
+    str,
+    &'a str,
+    "text",
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(str(text))",
+    "FastWriteRaw(str(text))"
+);
+test!(
+    str_2,
+    &'a &'a str,
+    &"text",
+    html,
+    "{{ text: value }}",
+    "FastWriteEscaped(str(text))",
+    "FastWriteRaw(str(text))"
+);
+
+test_bool!(
+    true_html,
+    true_json,
+    true_md,
+    true_your_escaper,
+    bool,
+    true,
+    "FastWriteEscaped(FastWriteRaw(bool(true)))",
+    "FastWriteRaw(bool(true))"
+);
+test_bool!(
+    false_html,
+    false_json,
+    false_md,
+    false_your_escaper,
+    bool,
+    false,
+    "FastWriteEscaped(FastWriteRaw(bool(false)))",
+    "FastWriteRaw(bool(false))"
+);
+#[test]
+fn your_escaper_bar() {
+    test!(
+        your_escaper,
+        "{{ bar: value }}",
+        bool,
+        true,
+        "FastWriteEscaped(bool(true))",
+        "your_escaper bar true"
+    );
+    test!(
+        your_escaper,
+        "{{ bar: value }}",
+        bool,
+        false,
+        "FastWriteEscaped(bool(false))",
+        "your_escaper bar false"
+    );
+}
+
+test_int_19!(i8_html, i8_json, i8_md, i8_your_escaper, i8, 19_i8);
+test_int_19!(
+    i8_mut_html,
+    i8_mut_json,
+    i8_mut_md,
+    i8_mut_your_escaper,
+    &'a mut i8,
+    &mut 19_i8
+);
+test_int_19!(
+    i8_borrow_html,
+    i8_borrow_json,
+    i8_borrow_md,
+    i8_borrow_your_escaper,
+    &'a i8,
+    &19_i8
+);
+test_int_19!(
+    i8_borrow_2_html,
+    i8_borrow_2_json,
+    i8_borrow_2_md,
+    i8_borrow_2_your_escaper,
+    &'a &'a i8,
+    &&19_i8
+);
+test_int_19!(
+    i8_borrow_mut_html,
+    i8_borrow_mut_json,
+    i8_borrow_mut_md,
+    i8_borrow_mut_your_escaper,
+    &'a mut i8,
+    &mut 19_i8
+);
+
+test_int_19!(i16_html, i16_json, i16_md, i16_your_escaper, i16, 19_i16);
+test_int_19!(
+    i16_mut_html,
+    i16_mut_json,
+    i16_mut_md,
+    i16_mut_your_escaper,
     &'a mut i16,
-    &mut 19_i16,
-    "FastEscape(int(19))"
+    &mut 19_i16
+);
+test_int_19!(
+    i16_borrow_html,
+    i16_borrow_json,
+    i16_borrow_md,
+    i16_borrow_your_escaper,
+    &'a i16,
+    &19_i16
+);
+test_int_19!(
+    i16_borrow_2_html,
+    i16_borrow_2_json,
+    i16_borrow_2_md,
+    i16_borrow_2_your_escaper,
+    &'a &'a i16,
+    &&19_i16
+);
+test_int_19!(
+    i16_borrow_mut_html,
+    i16_borrow_mut_json,
+    i16_borrow_mut_md,
+    i16_borrow_mut_your_escaper,
+    &'a mut i16,
+    &mut 19_i16
 );
 
-test!(i32, i32, 19_i32, "FastEscape(int(19))");
-test!(i32_mut, &'a mut i32, &mut 19_i32, "FastEscape(int(19))");
-test!(i32_borrow, &'a i32, &19_i32, "FastEscape(int(19))");
-test!(i32_borrow_2, &'a &'a i32, &&19_i32, "FastEscape(int(19))");
-test!(
-    i32_borrow_mut,
+test_int_19!(i32_html, i32_json, i32_md, i32_your_escaper, i32, 19_i32);
+test_int_19!(
+    i32_mut_html,
+    i32_mut_json,
+    i32_mut_md,
+    i32_mut_your_escaper,
     &'a mut i32,
-    &mut 19_i32,
-    "FastEscape(int(19))"
+    &mut 19_i32
+);
+test_int_19!(
+    i32_borrow_html,
+    i32_borrow_json,
+    i32_borrow_md,
+    i32_borrow_your_escaper,
+    &'a i32,
+    &19_i32
+);
+test_int_19!(
+    i32_borrow_2_html,
+    i32_borrow_2_json,
+    i32_borrow_2_md,
+    i32_borrow_2_your_escaper,
+    &'a &'a i32,
+    &&19_i32
+);
+test_int_19!(
+    i32_borrow_mut_html,
+    i32_borrow_mut_json,
+    i32_borrow_mut_md,
+    i32_borrow_mut_your_escaper,
+    &'a mut i32,
+    &mut 19_i32
 );
 
-test!(i64, i64, 19_i64, "FastEscape(int(19))");
-test!(i64_mut, &'a mut i64, &mut 19_i64, "FastEscape(int(19))");
-test!(i64_borrow, &'a i64, &19_i64, "FastEscape(int(19))");
-test!(i64_borrow_2, &'a &'a i64, &&19_i64, "FastEscape(int(19))");
-test!(
-    i64_borrow_mut,
+test_int_19!(i64_html, i64_json, i64_md, i64_your_escaper, i64, 19_i64);
+test_int_19!(
+    i64_mut_html,
+    i64_mut_json,
+    i64_mut_md,
+    i64_mut_your_escaper,
     &'a mut i64,
-    &mut 19_i64,
-    "FastEscape(int(19))"
+    &mut 19_i64
+);
+test_int_19!(
+    i64_borrow_html,
+    i64_borrow_json,
+    i64_borrow_md,
+    i64_borrow_your_escaper,
+    &'a i64,
+    &19_i64
+);
+test_int_19!(
+    i64_borrow_2_html,
+    i64_borrow_2_json,
+    i64_borrow_2_md,
+    i64_borrow_2_your_escaper,
+    &'a &'a i64,
+    &&19_i64
+);
+test_int_19!(
+    i64_borrow_mut_html,
+    i64_borrow_mut_json,
+    i64_borrow_mut_md,
+    i64_borrow_mut_your_escaper,
+    &'a mut i64,
+    &mut 19_i64
 );
 
-test!(i128, i128, 19_i128, "FastEscape(int(19))");
-test!(i128_mut, &'a mut i128, &mut 19_i128, "FastEscape(int(19))");
-test!(i128_borrow, &'a i128, &19_i128, "FastEscape(int(19))");
-test!(
-    i128_borrow_2,
-    &'a &'a i128,
-    &&19_i128,
-    "FastEscape(int(19))"
+test_int_19!(
+    i128_html,
+    i128_json,
+    i128_md,
+    i128_your_escaper,
+    i128,
+    19_i128
 );
-test!(
-    i128_borrow_mut,
+test_int_19!(
+    i128_mut_html,
+    i128_mut_json,
+    i128_mut_md,
+    i128_mut_your_escaper,
     &'a mut i128,
-    &mut 19_i128,
-    "FastEscape(int(19))"
+    &mut 19_i128
+);
+test_int_19!(
+    i128_borrow_html,
+    i128_borrow_json,
+    i128_borrow_md,
+    i128_borrow_your_escaper,
+    &'a i128,
+    &19_i128
+);
+test_int_19!(
+    i128_borrow_2_html,
+    i128_borrow_2_json,
+    i128_borrow_2_md,
+    i128_borrow_2_your_escaper,
+    &'a &'a i128,
+    &&19_i128
+);
+test_int_19!(
+    i128_borrow_mut_html,
+    i128_borrow_mut_json,
+    i128_borrow_mut_md,
+    i128_borrow_mut_your_escaper,
+    &'a mut i128,
+    &mut 19_i128
 );
 
-test!(isize, isize, 19_isize, "FastEscape(int(19))");
-test!(
-    isize_mut,
+test_int_19!(
+    isize_html,
+    isize_json,
+    isize_md,
+    isize_your_escaper,
+    isize,
+    19_isize
+);
+test_int_19!(
+    isize_mut_html,
+    isize_mut_json,
+    isize_mut_md,
+    isize_mut_your_escaper,
     &'a mut isize,
-    &mut 19_isize,
-    "FastEscape(int(19))"
+    &mut 19_isize
 );
-test!(isize_borrow, &'a isize, &19_isize, "FastEscape(int(19))");
-test!(
-    isize_borrow_2,
+test_int_19!(
+    isize_borrow_html,
+    isize_borrow_json,
+    isize_borrow_md,
+    isize_borrow_your_escaper,
+    &'a isize,
+    &19_isize
+);
+test_int_19!(
+    isize_borrow_2_html,
+    isize_borrow_2_json,
+    isize_borrow_2_md,
+    isize_borrow_2_your_escaper,
     &'a &'a isize,
-    &&19_isize,
-    "FastEscape(int(19))"
+    &&19_isize
 );
 
-test!(u8, u8, 19_u8, "FastEscape(int(19))");
-test!(u8_mut, &'a mut u8, &mut 19_u8, "FastEscape(int(19))");
-test!(u8_borrow, &'a u8, &19_u8, "FastEscape(int(19))");
-test!(u8_borrow_2, &'a &'a u8, &&19_u8, "FastEscape(int(19))");
+test_int_19!(u8_html, u8_json, u8_md, u8_your_escaper, u8, 19_u8);
+test_int_19!(
+    u8_mut_html,
+    u8_mut_json,
+    u8_mut_md,
+    u8_mut_your_escaper,
+    &'a mut u8,
+    &mut 19_u8
+);
+test_int_19!(
+    u8_borrow_html,
+    u8_borrow_json,
+    u8_borrow_md,
+    u8_borrow_your_escaper,
+    &'a u8,
+    &19_u8
+);
+test_int_19!(
+    u8_borrow_2_html,
+    u8_borrow_2_json,
+    u8_borrow_2_md,
+    u8_borrow_2_your_escaper,
+    &'a &'a u8,
+    &&19_u8
+);
 
-test!(u16, u16, 19_u16, "FastEscape(int(19))");
-test!(u16_mut, &'a mut u16, &mut 19_u16, "FastEscape(int(19))");
-test!(u16_borrow, &'a u16, &19_u16, "FastEscape(int(19))");
-test!(u16_borrow_2, &'a &'a u16, &&19_u16, "FastEscape(int(19))");
+test_int_19!(u16_html, u16_json, u16_md, u16_your_escaper, u16, 19_u16);
+test_int_19!(
+    u16_mut_html,
+    u16_mut_json,
+    u16_mut_md,
+    u16_mut_your_escaper,
+    &'a mut u16,
+    &mut 19_u16
+);
+test_int_19!(
+    u16_borrow_html,
+    u16_borrow_json,
+    u16_borrow_md,
+    u16_borrow_your_escaper,
+    &'a u16,
+    &19_u16
+);
+test_int_19!(
+    u16_borrow_2_html,
+    u16_borrow_2_json,
+    u16_borrow_2_md,
+    u16_borrow_2_your_escaper,
+    &'a &'a u16,
+    &&19_u16
+);
 
-test!(u32, u32, 19_u32, "FastEscape(int(19))");
-test!(u32_mut, &'a mut u32, &mut 19_u32, "FastEscape(int(19))");
-test!(u32_borrow, &'a u32, &19_u32, "FastEscape(int(19))");
-test!(u32_borrow_2, &'a &'a u32, &&19_u32, "FastEscape(int(19))");
+test_int_19!(u32_html, u32_json, u32_md, u32_your_escaper, u32, 19_u32);
+test_int_19!(
+    u32_mut_html,
+    u32_mut_json,
+    u32_mut_md,
+    u32_mut_your_escaper,
+    &'a mut u32,
+    &mut 19_u32
+);
+test_int_19!(
+    u32_borrow_html,
+    u32_borrow_json,
+    u32_borrow_md,
+    u32_borrow_your_escaper,
+    &'a u32,
+    &19_u32
+);
+test_int_19!(
+    u32_borrow_2_html,
+    u32_borrow_2_json,
+    u32_borrow_2_md,
+    u32_borrow_2_your_escaper,
+    &'a &'a u32,
+    &&19_u32
+);
 
-test!(u64, u64, 19_u64, "FastEscape(int(19))");
-test!(u64_mut, &'a mut u64, &mut 19_u64, "FastEscape(int(19))");
-test!(u64_borrow, &'a u64, &19_u64, "FastEscape(int(19))");
-test!(u64_borrow_2, &'a &'a u64, &&19_u64, "FastEscape(int(19))");
+test_int_19!(u64_html, u64_json, u64_md, u64_your_escaper, u64, 19_u64);
+test_int_19!(
+    u64_mut_html,
+    u64_mut_json,
+    u64_mut_md,
+    u64_mut_your_escaper,
+    &'a mut u64,
+    &mut 19_u64
+);
+test_int_19!(
+    u64_borrow_html,
+    u64_borrow_json,
+    u64_borrow_md,
+    u64_borrow_your_escaper,
+    &'a u64,
+    &19_u64
+);
+test_int_19!(
+    u64_borrow_2_html,
+    u64_borrow_2_json,
+    u64_borrow_2_md,
+    u64_borrow_2_your_escaper,
+    &'a &'a u64,
+    &&19_u64
+);
 
-test!(u128, u128, 19_u128, "FastEscape(int(19))");
-test!(u128_mut, &'a mut u128, &mut 19_u128, "FastEscape(int(19))");
-test!(u128_borrow, &'a u128, &19_u128, "FastEscape(int(19))");
-test!(
-    u128_borrow_2,
+test_int_19!(
+    u128_html,
+    u128_json,
+    u128_md,
+    u128_your_escaper,
+    u128,
+    19_u128
+);
+test_int_19!(
+    u128_mut_html,
+    u128_mut_json,
+    u128_mut_md,
+    u128_mut_your_escaper,
+    &'a mut u128,
+    &mut 19_u128
+);
+test_int_19!(
+    u128_borrow_html,
+    u128_borrow_json,
+    u128_borrow_md,
+    u128_borrow_your_escaper,
+    &'a u128,
+    &19_u128
+);
+test_int_19!(
+    u128_borrow_2_html,
+    u128_borrow_2_json,
+    u128_borrow_2_md,
+    u128_borrow_2_your_escaper,
     &'a &'a u128,
-    &&19_u128,
-    "FastEscape(int(19))"
+    &&19_u128
 );
 
-test!(usize, usize, 19_usize, "FastEscape(int(19))");
-test!(
-    usize_mut,
+test_int_19!(
+    usize_html,
+    usize_json,
+    usize_md,
+    usize_your_escaper,
+    usize,
+    19_usize
+);
+test_int_19!(
+    usize_mut_html,
+    usize_mut_json,
+    usize_mut_md,
+    usize_mut_your_escaper,
     &'a mut usize,
-    &mut 19_usize,
-    "FastEscape(int(19))"
+    &mut 19_usize
 );
-test!(usize_borrow, &'a usize, &19_usize, "FastEscape(int(19))");
-test!(
-    usize_borrow_2,
+test_int_19!(
+    usize_borrow_html,
+    usize_borrow_json,
+    usize_borrow_md,
+    usize_borrow_your_escaper,
+    &'a usize,
+    &19_usize
+);
+test_int_19!(
+    usize_borrow_2_html,
+    usize_borrow_2_json,
+    usize_borrow_2_md,
+    usize_borrow_2_your_escaper,
     &'a &'a usize,
-    &&19_usize,
-    "FastEscape(int(19))"
+    &&19_usize
 );
 
-test!(f64, f64, 19.19_f64, "Display(19.19)");
-test!(f64_mut, &'a mut f64, &mut 19_f64, "Display(19)");
-test!(f64_borrow, &'a f64, &19.19_f64, "Display(19.19)");
-test!(f64_borrow_2, &'a &'a f64, &&19.19_f64, "Display(19.19)");
+test_float_19_19!(f64_html, f64_json, f64_md, f64_your_escaper, f64, 19.19_f64);
+test_float_19!(
+    f64_mut_html,
+    f64_mut_json,
+    f64_mut_md,
+    f64_mut_your_escaper,
+    &'a mut f64,
+    &mut 19_f64
+);
+test_float_19_19!(
+    f64_borrow_html,
+    f64_borrow_json,
+    f64_borrow_md,
+    f64_borrow_your_escaper,
+    &'a f64,
+    &19.19_f64
+);
+test_float_19_19!(
+    f64_borrow_2_html,
+    f64_borrow_2_json,
+    f64_borrow_2_md,
+    f64_borrow_2_your_escaper,
+    &'a &'a f64,
+    &&19.19_f64
+);
 
-test!(f32, f32, 19.19_f32, "Display(19.19)");
-test!(f32_mut, &'a mut f32, &mut 19_f32, "Display(19)");
-test!(f32_borrow, &'a f32, &19.19_f32, "Display(19.19)");
-test!(f32_borrow_2, &'a &'a f32, &&19.19_f32, "Display(19.19)");
+test_float_19_19!(f32_html, f32_json, f32_md, f32_your_escaper, f32, 19.19_f32);
+test_float_19!(
+    f32_mut_html,
+    f32_mut_json,
+    f32_mut_md,
+    f32_mut_your_escaper,
+    &'a mut f32,
+    &mut 19_f32
+);
+test_float_19_19!(
+    f32_borrow_html,
+    f32_borrow_json,
+    f32_borrow_md,
+    f32_borrow_your_escaper,
+    &'a f32,
+    &19.19_f32
+);
+test_float_19_19!(
+    f32_borrow_2_html,
+    f32_borrow_2_json,
+    f32_borrow_2_md,
+    f32_borrow_2_your_escaper,
+    &'a &'a f32,
+    &&19.19_f32
+);
