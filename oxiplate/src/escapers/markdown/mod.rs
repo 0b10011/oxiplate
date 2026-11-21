@@ -10,10 +10,14 @@
 //! Escaper functions are public in case you want to reuse them in your own escaper group.
 
 mod escapers;
+mod is_escaped;
+mod text_handler;
 
 use core::fmt::{Result, Write};
 
 pub use self::escapers::escape_unformatted_text;
+pub use self::is_escaped::IsEscapedForMarkdown;
+use self::text_handler::TextHandlerForMarkdown;
 use crate::Escaper;
 
 /// Escaper group to pass to Oxiplate for Markdown escaping.
@@ -27,10 +31,16 @@ pub enum MarkdownEscaper {
 impl Escaper for MarkdownEscaper {
     const DEFAULT: Self = Self::text;
 
+    type TextHandler<'a, T: 'a> = TextHandlerForMarkdown<'a, T>;
+
     #[inline]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result {
         match self {
             Self::text => escape_unformatted_text(f, value),
         }
+    }
+
+    fn build_text_handler<T>(value: &T) -> Self::TextHandler<'_, T> {
+        TextHandlerForMarkdown { value }
     }
 }

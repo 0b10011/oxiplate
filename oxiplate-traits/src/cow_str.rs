@@ -3,8 +3,9 @@ extern crate alloc;
 use alloc::borrow::Cow;
 use alloc::fmt;
 use alloc::string::ToString;
+use core::fmt::Write;
 
-use crate::{Escaper, FastEscape};
+use crate::{Escaper, FastWriteEscaped, FastWriteRaw};
 
 /// A trait intended to be used by filters for any string-like arguments
 /// to deal with them more efficiently than `str` or `impl Display`.
@@ -61,28 +62,37 @@ impl<'a> CowStr<'a> for CowStrWrapper<'a> {
     }
 }
 
-impl<'a, W: fmt::Write + ?Sized> FastEscape<'a, W> for CowStrWrapper<'a> {
+impl<'a, E, W> FastWriteEscaped<'a, E, W> for CowStrWrapper<'a>
+where
+    E: Escaper,
+    W: Write + ?Sized,
+{
     #[inline]
-    fn oxiplate_fast_escape(&'a self, f: &mut W, escaper: &impl Escaper) -> fmt::Result {
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+    fn oxiplate_fast_write_escaped(&'a self, f: &mut W, escaper: &E) -> fmt::Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         escaper.escape(f, self.0.as_ref())?;
 
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
 
         Ok(())
     }
+}
 
+impl<'a, W> FastWriteRaw<'a, W> for CowStrWrapper<'a>
+where
+    W: Write + ?Sized,
+{
     #[inline]
-    fn oxiplate_fast_raw(&'a self, f: &mut W) -> fmt::Result {
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+    fn oxiplate_fast_write_raw(&'a self, f: &mut W) -> fmt::Result {
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str("CowStrWrapper(")?;
 
         f.write_str(self.0.as_ref())?;
 
-        #[cfg(feature = "_debug-fast-escape-type-priority")]
+        #[cfg(feature = "_debug-fast-write-type-priority")]
         f.write_str(")")?;
 
         Ok(())
@@ -139,7 +149,7 @@ impl<'a, T: ToString> ToCowStr<'a> for &&ToCowStrWrapper<'a, T> {
 
 /// Trait that allows for more efficient conversions to `&str`.
 pub trait FastCowStr<'a> {
-    /// Helper function to use the most efficient conversion to `&str`.
+    /// Helper function to use the most efficient conversion to `Cow<str>`.
     /// Called from generated templates whenever a cow prefix is used.
     fn oxiplate_cow_str(&'a self) -> Cow<'a, str>;
 }
