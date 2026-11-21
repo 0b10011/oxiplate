@@ -8,7 +8,8 @@ is_escaped!(pub(super) IsEscapedForYourGroup, YourEscaper);
 impl IsEscapedForYourGroup for bool {
     fn is_escaped(escaper: &YourEscaper) -> bool {
         match escaper {
-            YourEscaper::foo | YourEscaper::bar => true,
+            YourEscaper::foo => true,
+            YourEscaper::bar => false,
         }
     }
 }

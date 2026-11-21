@@ -24,3 +24,32 @@ impl<'a, T> TextHandler<'a, HtmlEscaper, T> for TextHandlerForHtml<'a, T> {
         PreparedText::NeedsEscaped(self.value)
     }
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    use oxiplate_traits::PreparedText;
+
+    use super::{HtmlEscaper, IsEscapedForHtml, TextHandlerForHtml};
+    use crate::TextHandler as _;
+
+    #[derive(PartialEq, Eq)]
+    struct NotEscapedForHtml;
+
+    impl IsEscapedForHtml for NotEscapedForHtml {
+        fn is_escaped(_escaper: &HtmlEscaper) -> bool {
+            false
+        }
+    }
+
+    #[test]
+    fn not_escaped_for_html() {
+        let PreparedText::NeedsEscaped(&NotEscapedForHtml) = (&&TextHandlerForHtml {
+            value: &NotEscapedForHtml,
+        })
+            .prepare_text_for_output(&HtmlEscaper::text)
+        else {
+            panic!("Expected value to need escaping");
+        };
+    }
+}

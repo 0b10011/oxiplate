@@ -411,6 +411,25 @@ test_bool!(
     "FastWriteEscaped(FastWriteRaw(bool(false)))",
     "FastWriteRaw(bool(false))"
 );
+#[test]
+fn your_escaper_bar() {
+    test!(
+        your_escaper,
+        "{{ bar: value }}",
+        bool,
+        true,
+        "FastWriteEscaped(bool(true))",
+        "your_escaper bar true"
+    );
+    test!(
+        your_escaper,
+        "{{ bar: value }}",
+        bool,
+        false,
+        "FastWriteEscaped(bool(false))",
+        "your_escaper bar false"
+    );
+}
 
 test_int_19!(i8_html, i8_json, i8_md, i8_your_escaper, i8, 19_i8);
 test_int_19!(
