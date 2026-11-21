@@ -7,11 +7,16 @@ error[E0599]: the method `to_cow_str` exists for reference `&&ToCowStrWrapper<'_
 22 | #[oxiplate_inline(r#"{{ raw: >message | respond(>"world") }}"#)]
    |                              ^ method cannot be called on `&&ToCowStrWrapper<'_, Foo>` due to unsatisfied trait bounds
    |
+  ::: $WORKSPACE/oxiplate-traits/src/cow_str.rs
+   |
+   | pub struct ToCowStrWrapper<'a, T>(&'a T);
+   | --------------------------------- doesn't satisfy `ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
+   |
    = note: the following trait bounds were not satisfied:
            `Foo: FastCowStr<'_>`
            which is required by `&ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
            `Foo: std::fmt::Display`
-           which is required by `&&ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
+           which is required by `ToCowStrWrapper<'_, Foo>: ToCowStr<'_>`
 note: the traits `FastCowStr` and `std::fmt::Display` must be implemented
   --> $RUST/core/src/fmt/mod.rs
    |

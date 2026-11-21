@@ -32,7 +32,10 @@ pub fn lower<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
 mod tests {
     extern crate alloc;
 
+    use alloc::boxed::Box;
+    use alloc::rc::Rc;
     use alloc::string::String;
+    use alloc::sync::Arc;
     use core::fmt::Display;
 
     use oxiplate_traits::{ToCowStr, cow_str_wrapper};
@@ -47,6 +50,46 @@ mod tests {
         assert_eq!(
             "world",
             super::lower(cow_str_wrapper!(String::from("World")))
+        );
+    }
+
+    #[test]
+    fn borrowed_string() {
+        assert_eq!(
+            "world",
+            super::lower(cow_str_wrapper!(&String::from("World")))
+        );
+    }
+
+    #[test]
+    fn borrowed_mut_string() {
+        assert_eq!(
+            "world",
+            super::lower(cow_str_wrapper!(&mut String::from("World")))
+        );
+    }
+
+    #[test]
+    fn boxed_string() {
+        assert_eq!(
+            "world",
+            super::lower(cow_str_wrapper!(Box::new(String::from("World"))))
+        );
+    }
+
+    #[test]
+    fn rc_string() {
+        assert_eq!(
+            "world",
+            super::lower(cow_str_wrapper!(Rc::new(String::from("World"))))
+        );
+    }
+
+    #[test]
+    fn arc_string() {
+        assert_eq!(
+            "world",
+            super::lower(cow_str_wrapper!(Arc::new(String::from("World"))))
         );
     }
 
