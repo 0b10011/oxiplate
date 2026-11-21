@@ -1,6 +1,7 @@
 extern crate alloc;
 
 use alloc::borrow::Cow;
+use alloc::string::String;
 
 use oxiplate_traits::CowStr;
 
@@ -20,10 +21,10 @@ use oxiplate_traits::CowStr;
 ///     Ok(())
 /// }
 /// ```
-pub fn lower<'a, E: CowStr<'a>>(expression: E) -> Cow<'a, str> {
+pub fn lower<'a, E: CowStr<'a>>(expression: E) -> String {
     match expression.cow_str() {
-        Cow::Borrowed(str) => str.to_lowercase().into(),
-        Cow::Owned(string) => string.to_lowercase().into(),
+        Cow::Borrowed(str) => str.to_lowercase(),
+        Cow::Owned(string) => string.to_lowercase(),
     }
 }
 
