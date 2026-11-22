@@ -18,11 +18,13 @@ where
     /// # Errors
     ///
     /// If escaped string cannot be written to the writer.
+    #[must_use]
     fn escape<W: Write + ?Sized>(&self, f: &mut W, value: &str) -> Result;
 
     /// Get the builder to build an item
     /// that implements `IsEscaped`
     /// for a particular value.
+    #[must_use]
     fn build_text_handler<T>(value: &T) -> Self::TextHandler<'_, T>
     where
         Self: Sized;
@@ -48,5 +50,6 @@ where
 {
     /// Whether the input is already considered escaped
     /// for the provided escaper.
+    #[must_use]
     fn prepare_text_for_output(&'a self, escaper: &E) -> PreparedText<'a, T>;
 }
