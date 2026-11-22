@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.14](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.13...oxiplate-derive-v0.19.14) - 2026-11-22
+
+### Other
+
+- fixed output of clippy tests to match reality after toolchain updates
+- updated toolchain to nightly-2026-11-17
+- updated toolchain to nightly-2026-11-01
+- updated toolchain to nightly-2026-10-29
+- renamed variable to make the code easier to understand
+
 ## [0.19.13](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.12...oxiplate-derive-v0.19.13) - 2026-11-02
 
 ### Added
