@@ -6,6 +6,7 @@ use crate::is_escaped;
 is_escaped!(pub IsEscapedForJson, JsonEscaper);
 
 impl IsEscapedForJson for bool {
+    #[inline]
     fn is_escaped(escaper: &JsonEscaper) -> bool {
         match escaper {
             JsonEscaper::substring => true,
@@ -16,6 +17,7 @@ impl IsEscapedForJson for bool {
 macro_rules! numbers_safe_for_json {
     ($($ty:ty)*) => { $(
         impl IsEscapedForJson for $ty {
+            #[inline]
             fn is_escaped(escaper: &JsonEscaper) -> bool {
                 match escaper {
                     JsonEscaper::substring => true,

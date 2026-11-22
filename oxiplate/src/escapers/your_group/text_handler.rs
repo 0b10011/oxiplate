@@ -11,6 +11,7 @@ impl<'a, T> TextHandler<'a, YourEscaper, T> for &TextHandlerForYourGroup<'a, T>
 where
     T: IsEscapedForYourGroup,
 {
+    #[inline]
     fn prepare_text_for_output(&self, escaper: &YourEscaper) -> PreparedText<'a, T> {
         if <T>::is_escaped(escaper) {
             PreparedText::AlreadyEscaped(self.value)
@@ -21,6 +22,7 @@ where
 }
 
 impl<'a, T> TextHandler<'a, YourEscaper, T> for TextHandlerForYourGroup<'a, T> {
+    #[inline]
     fn prepare_text_for_output(&self, _escaper: &YourEscaper) -> PreparedText<'a, T> {
         PreparedText::NeedsEscaped(self.value)
     }

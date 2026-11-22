@@ -111,6 +111,7 @@ macro_rules! is_escaped {
         where
             T: $trait_name,
         {
+            #[inline]
             fn is_escaped(escaper: &$escaper) -> bool {
                 <T>::is_escaped(escaper)
             }
@@ -120,6 +121,7 @@ macro_rules! is_escaped {
         where
             T: $trait_name,
         {
+            #[inline]
             fn is_escaped(escaper: &$escaper) -> bool {
                 <T>::is_escaped(escaper)
             }
@@ -129,6 +131,7 @@ macro_rules! is_escaped {
         where
             T: $trait_name,
         {
+            #[inline]
             fn is_escaped(escaper: &$escaper) -> bool {
                 <T>::is_escaped(escaper)
             }
@@ -138,6 +141,7 @@ macro_rules! is_escaped {
         where
             T: $trait_name,
         {
+            #[inline]
             fn is_escaped(escaper: &$escaper) -> bool {
                 <T>::is_escaped(escaper)
             }
@@ -147,6 +151,7 @@ macro_rules! is_escaped {
         where
             T: $trait_name,
         {
+            #[inline]
             fn is_escaped(escaper: &$escaper) -> bool {
                 <T>::is_escaped(escaper)
             }

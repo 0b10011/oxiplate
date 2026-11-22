@@ -6,6 +6,7 @@ use crate::is_escaped;
 is_escaped!(pub IsEscapedForHtml, HtmlEscaper);
 
 impl IsEscapedForHtml for bool {
+    #[inline]
     fn is_escaped(escaper: &HtmlEscaper) -> bool {
         match escaper {
             HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
@@ -16,6 +17,7 @@ impl IsEscapedForHtml for bool {
 macro_rules! numbers_safe_for_html {
     ($($ty:ty)*) => { $(
         impl IsEscapedForHtml for $ty {
+            #[inline]
             fn is_escaped(escaper: &HtmlEscaper) -> bool {
                 match escaper {
                     HtmlEscaper::text | HtmlEscaper::attr | HtmlEscaper::comment => true,
