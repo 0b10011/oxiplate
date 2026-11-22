@@ -104,6 +104,7 @@ macro_rules! is_escaped {
         /// Trait to check if a value is already escaped.
         $visibility trait $trait_name {
             /// Check if the value is already escaped.
+            #[must_use]
             fn is_escaped(escaper: &$escaper) -> bool;
         }
 
