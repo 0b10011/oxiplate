@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.2.5...oxiplate-traits-v0.2.6) - 2026-11-22
+
+### Other
+
+- improved performance of the cow prefix ([#413](https://github.com/0b10011/oxiplate/pull/413))
+
 ## [0.2.5](https://github.com/0b10011/oxiplate/compare/oxiplate-traits-v0.2.4...oxiplate-traits-v0.2.5) - 2026-11-02
 
 ### Other
