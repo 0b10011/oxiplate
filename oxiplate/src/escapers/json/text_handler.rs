@@ -10,6 +10,7 @@ impl<'a, T> TextHandler<'a, JsonEscaper, T> for &TextHandlerForJson<'a, T>
 where
     T: IsEscapedForJson,
 {
+    #[inline]
     fn prepare_text_for_output(&self, escaper: &JsonEscaper) -> PreparedText<'a, T> {
         if <T>::is_escaped(escaper) {
             PreparedText::AlreadyEscaped(self.value)
@@ -20,6 +21,7 @@ where
 }
 
 impl<'a, T> TextHandler<'a, JsonEscaper, T> for TextHandlerForJson<'a, T> {
+    #[inline]
     fn prepare_text_for_output(&self, _escaper: &JsonEscaper) -> PreparedText<'a, T> {
         PreparedText::NeedsEscaped(self.value)
     }

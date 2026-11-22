@@ -6,6 +6,7 @@ use crate::is_escaped;
 is_escaped!(pub(super) IsEscapedForYourGroup, YourEscaper);
 
 impl IsEscapedForYourGroup for bool {
+    #[inline]
     fn is_escaped(escaper: &YourEscaper) -> bool {
         match escaper {
             YourEscaper::foo => true,
@@ -17,6 +18,7 @@ impl IsEscapedForYourGroup for bool {
 macro_rules! numbers_safe_for_your_group {
     ($($ty:ty)*) => { $(
         impl IsEscapedForYourGroup for $ty {
+            #[inline]
             fn is_escaped(escaper: &YourEscaper) -> bool {
                 match escaper {
                     YourEscaper::foo | YourEscaper::bar => true,
