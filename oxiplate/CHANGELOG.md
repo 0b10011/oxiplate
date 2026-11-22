@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.15...oxiplate-v0.20.0) - 2026-11-22
+
+### Added
+
+- [**breaking**] added support for marking types as "safe" for specific escapers ([#412](https://github.com/0b10011/oxiplate/pull/412))
+
+### Fixed
+
+- [**breaking**] moved private traits and structs into `private` module to make it clear those items are not part of the public api ([#417](https://github.com/0b10011/oxiplate/pull/417))
+- added `must_use` attribute to several methods in escaping process
+
+### Other
+
+- improved escaping performance, especially for text with all safe characters, by inlining some methods and likely preventing branch misprediction
+- [**breaking**] switched return value of `lower` and `upper` filters to `String` from `Cow<str>` to reduce unnecessary conversions ([#414](https://github.com/0b10011/oxiplate/pull/414))
+
 ## [0.19.15](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.19.14...oxiplate-v0.19.15) - 2026-11-22
 
 ### Other

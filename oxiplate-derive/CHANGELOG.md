@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.14...oxiplate-derive-v0.20.0) - 2026-11-22
+
+### Added
+
+- [**breaking**] added support for marking types as "safe" for specific escapers ([#412](https://github.com/0b10011/oxiplate/pull/412))
+
+### Fixed
+
+- [**breaking**] moved private traits and structs into `private` module to make it clear those items are not part of the public api ([#417](https://github.com/0b10011/oxiplate/pull/417))
+
 ## [0.19.14](https://github.com/0b10011/oxiplate/compare/oxiplate-derive-v0.19.13...oxiplate-derive-v0.19.14) - 2026-11-22
 
 ### Other
