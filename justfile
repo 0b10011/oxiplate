@@ -268,7 +268,7 @@ setup-coverage: (cargo-install '' 'cargo-llvm-cov@0.9.1')
 
 # Initial setup for generating the book.
 [group("Setup")]
-setup-book: (cargo-install '' 'mdbook@0.4.52')
+setup-book: (cargo-install '' 'mdbook@0.5.4')
 
 [private]
 [arg("toolchain", pattern='((stable|beta|nightly|\d+\.\d+(\.\d+)?(-beta(\.\d+)?)?)(-\d{4}-\d{2}-\d{2})?)?')]

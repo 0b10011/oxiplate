@@ -1,7 +1,6 @@
 [book]
 authors = ["Brandon Frohs"]
 language = "en"
-multilingual = false
 src = "book/src"
 title = "Oxiplate Documentation"
 

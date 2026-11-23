@@ -29,11 +29,8 @@ For example, to use `html` as the fallback escaper group:
 fallback_escaper_group = "html"
 ```
 
-<div class="warning">
-
-The specified fallback group must be defined as one of the groups in `escaper_groups` or provided by Oxiplate with the `built-in-escapers` feature.
-
-</div>
+> [!IMPORTANT]
+> The specified fallback group must be defined as one of the groups in `escaper_groups` or provided by Oxiplate with the `built-in-escapers` feature.
 
 ## `require_specifying_escaper`
 
@@ -89,12 +86,9 @@ For example, to enable the optimized renderer explicitly:
 optimized_renderer = true
 ```
 
-<div class="warning">
-
-Setting `optimized_renderer = true` when using `oxiplate-derive` directly causes a compile-time error.
-The optimized renderer is supported when using the main `oxiplate` crate.
-
-</div>
+> [!WARNING]
+> Setting `optimized_renderer = true` when using `oxiplate-derive` directly causes a compile-time error.
+> The optimized renderer is supported when using the main `oxiplate` crate.
 
 ## `escaper_groups`
 

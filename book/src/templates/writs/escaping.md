@@ -121,22 +121,20 @@ The built-in escapers use:
 - JSON: `oxiplate_traits::IsEscapedForJson`
 - Markdown: `oxiplate_traits::IsEscapedForMarkdown`
 
-<div class="warning">
 
-Marking a type as already escaped for an escaper
-prevents escaping code from running against it for that escaper.
-If a type can _ever_ convert into a string
-that contains any character that should be escaped in that context,
-it should not be marked as escaped.
-Doing so on a website would make the website vulnerable
-to [cross site scripting attacks][].
-The one exception is a type
-that wraps/generates markup
-and handles escaping user-generated content itself.
-When in doubt,
-don't mark a type as safe.
-
-</div>
+> [!CAUTION]
+> Marking a type as already escaped for an escaper
+> prevents escaping code from running against it for that escaper.
+> If a type can _ever_ convert into a string
+> that contains any character that should be escaped in that context,
+> it should not be marked as escaped.
+> Doing so on a website would make the website vulnerable
+> to [cross site scripting attacks][].
+> The one exception is a type
+> that wraps/generates markup
+> and handles escaping user-generated content itself.
+> When in doubt,
+> don't mark a type as safe.
 
 [cross site scripting attacks]: https://community.owasp.org/attacks/xss/
 

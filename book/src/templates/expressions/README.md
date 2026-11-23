@@ -20,11 +20,8 @@ Oxiplate supports many of the same literals Rust itself does:
 
 ## Variables, fields, and functions
 
-<div class="warning">
-
-Variables cannot be named `self`, `super`, `oxiplate_formatter`, or `oxiplate_loop_had_item`.
-
-</div>
+> [!WARNING]
+> Variables cannot be named `self`, `super`, `oxiplate_formatter`, or `oxiplate_loop_had_item`.
 
 Oxiplate accesses variables, fields, and functions similarly to Rust:
 
