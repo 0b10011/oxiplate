@@ -95,7 +95,7 @@ impl<'a> ToTokensWithMutState<'a> for FilterBlock<'a> {
         let text = quote_spanned! {span=> {
             // Temporary variable to hold the built template
             // to write to the actual formatter.
-            let template_string = {
+            let oxiplate_template_string = {
                 // Temporary formatter for the template to write to.
                 let mut oxiplate_formatter_owned = alloc::string::String::with_capacity(#estimated_length);
                 let oxiplate_formatter = &mut oxiplate_formatter_owned;

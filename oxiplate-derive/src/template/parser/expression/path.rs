@@ -96,7 +96,7 @@ pub(in crate::template::parser) enum PathIdentSegment<'a> {
     /// `Self`, `self`, `super`, `crate`
     Keyword(Source<'a>),
 
-    /// `template_string`,
+    /// `oxiplate_template_string`,
     /// but the `Source` is only for the span
     /// and will not actually be that value.
     TemplateString(Source<'a>),
@@ -127,7 +127,7 @@ impl ToTokens for PathIdentSegment<'_> {
                 identifier.to_tokens(tokens);
             }
             Self::TemplateString(source) => {
-                let identifier = Ident::new("template_string", source.span_token());
+                let identifier = Ident::new("oxiplate_template_string", source.span_token());
                 identifier.to_tokens(tokens);
             }
         }
