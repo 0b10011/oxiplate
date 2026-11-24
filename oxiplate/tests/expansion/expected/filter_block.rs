@@ -52,7 +52,7 @@ fn basic_lower() {
             (&&::oxiplate::private::UnescapedTextWrapper::new(
                 ::oxiplate::PreparedText::AlreadyEscaped(
                     &({
-                        let template_string = {
+                        let oxiplate_template_string = {
                             let mut oxiplate_formatter_owned =
                                 alloc::string::String::with_capacity(12usize);
                             let oxiplate_formatter = &mut oxiplate_formatter_owned;
@@ -60,7 +60,9 @@ fn basic_lower() {
                             oxiplate_formatter_owned
                         };
                         filters_for_oxiplate::lower(::oxiplate::private::CowStrWrapper::new(
-                            (&&::oxiplate::private::ToCowStrWrapper::new(&(template_string)))
+                            (&&::oxiplate::private::ToCowStrWrapper::new(
+                                &(oxiplate_template_string),
+                            ))
                                 .to_cow_str(),
                         ))
                     }),
@@ -140,7 +142,7 @@ fn basic_lower_upper() {
             (&&::oxiplate::private::UnescapedTextWrapper::new(
                 ::oxiplate::PreparedText::AlreadyEscaped(
                     &({
-                        let template_string = {
+                        let oxiplate_template_string = {
                             let mut oxiplate_formatter_owned =
                                 alloc::string::String::with_capacity(12usize);
                             let oxiplate_formatter = &mut oxiplate_formatter_owned;
@@ -152,7 +154,7 @@ fn basic_lower_upper() {
                                 &(filters_for_oxiplate::lower(
                                     ::oxiplate::private::CowStrWrapper::new(
                                         (&&::oxiplate::private::ToCowStrWrapper::new(
-                                            &(template_string),
+                                            &(oxiplate_template_string),
                                         ))
                                             .to_cow_str(),
                                     ),
@@ -239,7 +241,7 @@ fn writs_with_unsafe_chars() {
             (&&::oxiplate::private::UnescapedTextWrapper::new(
                 (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(
                     &({
-                        let template_string = {
+                        let oxiplate_template_string = {
                             let mut oxiplate_formatter_owned =
                                 alloc::string::String::with_capacity(1usize);
                             let oxiplate_formatter = &mut oxiplate_formatter_owned;
@@ -254,7 +256,7 @@ fn writs_with_unsafe_chars() {
                                 &(filters_for_oxiplate::lower(
                                     ::oxiplate::private::CowStrWrapper::new(
                                         (&&::oxiplate::private::ToCowStrWrapper::new(
-                                            &(template_string),
+                                            &(oxiplate_template_string),
                                         ))
                                             .to_cow_str(),
                                     ),
