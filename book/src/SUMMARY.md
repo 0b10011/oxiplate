@@ -22,6 +22,7 @@
     - [if / elseif / else](templates/statements/if-else.md)
     - [for / continue / break / else](templates/statements/for.md)
     - [match / case](templates/statements/match.md)
+    - [filter](templates/statements/filter.md)
     - [let / set](templates/statements/let.md)
 - [Expressions](templates/expressions/README.md)
     - [Expression precedence](templates/expressions/expression-precedence.md)
