@@ -3,12 +3,19 @@ use crate::template::parser::prelude::*;
 
 /// Cow prefixed expression (`>expr`).
 #[derive(Debug)]
-pub(crate) struct Cow<'a> {
+pub(in crate::template::parser) struct Cow<'a> {
     prefix: Source<'a>,
     pub(super) expression: Box<Expression<'a>>,
 }
 
 impl<'a> Cow<'a> {
+    pub(in crate::template::parser) fn new(
+        prefix: Source<'a>,
+        expression: Box<Expression<'a>>,
+    ) -> Self {
+        Self { prefix, expression }
+    }
+
     /// Parses a cow prefixed expression (`>expr`).
     pub(in crate::template::parser) fn parser() -> CowParser<'a> {
         CowParser {

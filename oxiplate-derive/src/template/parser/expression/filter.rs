@@ -4,7 +4,7 @@ use crate::template::parser::prelude::*;
 
 /// `expr | filter(args)`
 #[derive(Debug)]
-pub(crate) struct Filter<'a> {
+pub(in crate::template::parser) struct Filter<'a> {
     name: Identifier<'a>,
     pub(super) expression: Box<Expression<'a>>,
     vertical_bar: Source<'a>,

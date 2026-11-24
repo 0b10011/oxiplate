@@ -211,6 +211,11 @@ pub(crate) struct State<'a> {
     pub(crate) failed_to_set_default_escaper_group: bool,
     pub(crate) blocks: &'a VecDeque<&'a HashMap<&'a str, (BuiltTokens, Option<BuiltTokens>)>>,
     pub(crate) has_content: bool,
+
+    /// Flag to track when statements are inside of a filter block.
+    /// Makes it possible to skip escaping on writs
+    /// until after the whole block is built.
+    pub(crate) in_filter_block: bool,
 }
 
 #[cfg(test)]
@@ -228,6 +233,7 @@ impl<'a> State<'a> {
             failed_to_set_default_escaper_group: false,
             blocks: &BLOCKS,
             has_content: false,
+            in_filter_block: false,
         }
     }
 }

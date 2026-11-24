@@ -7,6 +7,7 @@ mod default;
 mod different_extensions;
 mod escaping;
 mod extends;
+mod filter_block;
 mod filters;
 mod include;
 mod r#loop;

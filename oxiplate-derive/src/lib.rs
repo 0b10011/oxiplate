@@ -283,6 +283,7 @@ fn parse_template_and_data(
         config,
         blocks,
         has_content: false,
+        in_filter_block: false,
     };
 
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);
@@ -294,6 +295,7 @@ fn parse_template_and_data(
     )
     .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
 
+    // panic!("{template}");
     Ok((
         template,
         estimated_length,

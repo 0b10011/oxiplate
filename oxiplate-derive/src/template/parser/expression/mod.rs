@@ -30,16 +30,16 @@ use self::array::Array;
 use self::calc::Calc;
 use self::call::Call;
 use self::concat::Concat;
-use self::cow::Cow;
+pub(in crate::template::parser) use self::cow::Cow;
 use self::fields::Fields;
-use self::filter::Filter;
+pub(in crate::template::parser) use self::filter::Filter;
 use self::full_range::FullRange;
 use self::group::Group;
 use self::index::Index;
 pub(super) use self::keyword::{Keyword, KeywordParser};
 pub(super) use self::literal::{Bool, Char, Float, Integer, Number, String};
 use self::method_call::MethodCall;
-pub(super) use self::path::{Identifier, PathInExpression};
+pub(super) use self::path::{Identifier, PathExprSegment, PathIdentSegment, PathInExpression};
 use self::prefixed::Prefixed;
 use self::tuple::Tuple;
 use self::tuple_index::TupleIndexingExpression;
@@ -108,7 +108,7 @@ pub(crate) enum Expression<'a> {
 
 impl<'a> Expression<'a> {
     /// Rearranges expression tree to match expression precedence.
-    pub(self) fn fix_precedence(&mut self) {
+    pub(super) fn fix_precedence(&mut self) {
         // Fix the precedence of the left expression, if any.
         match self {
             // Placeholder is only temporary
@@ -452,7 +452,7 @@ impl<'a> Expression<'a> {
     }
 
     /// Merges expressions that can be joined together.
-    pub(self) fn merge_joinable(&mut self) {
+    pub(super) fn merge_joinable(&mut self) {
         match self {
             // Placeholder is only temporary
             // and should never have this method called for it.
