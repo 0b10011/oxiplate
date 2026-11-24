@@ -140,12 +140,13 @@ pub(crate) fn consume_ident<'a>(
     let kind = match source.as_str() {
         "true" => Ok(TokenKind::Bool(true)),
         "false" => Ok(TokenKind::Bool(false)),
-        "oxiplate_formatter" => Err("`oxiplate_formatter` is a reserved name"),
-        "oxiplate_loop_had_item" => Err("`oxiplate_loop_had_item` is a reserved name"),
         "crate" => Ok(TokenKind::Crate),
         "Self" => Ok(TokenKind::SelfCurrentType),
         "self" => Ok(TokenKind::SelfCurrentModule),
         "super" => Ok(TokenKind::Super),
+        ident if ident.starts_with("oxiplate_") => {
+            Err("Identifiers starting with `oxiplate_` are reserved for internal Oxiplate use only")
+        }
         _ => Ok(TokenKind::Ident),
     };
 
