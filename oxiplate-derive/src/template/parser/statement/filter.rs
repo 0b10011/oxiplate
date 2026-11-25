@@ -150,7 +150,10 @@ impl<'a> Parser<'a> for FilterBlockParser<'a> {
             KeywordParser::new("filter"),
             ignore_recoverable_errors((Identifier::parser(), into(take(TokenKind::Period)))),
             cut("Expected escaper or escaper group", Identifier::parser()),
-            cut("Expected filters", many1(Filter::parser())),
+            cut(
+                "Expected `|` followed by a filter name",
+                many1(Filter::parser()),
+            ),
         )
             .parse(tokens)?;
 

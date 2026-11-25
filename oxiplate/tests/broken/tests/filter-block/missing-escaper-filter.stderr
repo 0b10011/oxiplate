@@ -1,0 +1,5 @@
+error: Expected escaper or escaper group
+ --> tests/broken/tests/filter-block/missing-escaper-filter.rs:4:30
+  |
+4 | #[oxiplate_inline("{% filter | %}{% endfilter %}")]
+  |                              ^

@@ -1,0 +1,5 @@
+error: Expected `|` followed by a filter name
+ --> tests/broken/tests/filter-block/missing-pipe.rs:4:34
+  |
+4 | #[oxiplate_inline("{% filter raw lower %}{% endfilter %}")]
+  |                                  ^^^^^
