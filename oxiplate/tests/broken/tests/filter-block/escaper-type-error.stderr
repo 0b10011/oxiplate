@@ -1,5 +1,5 @@
-error[E0599]: no variant, associated function, or constant named `raww` found for enum `HtmlEscaper` in the current scope
- --> tests/broken/tests/filter-block/escaper-type-error.rs:7:12
+error: No escaper group was selected and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`.
+ --> tests/broken/tests/filter-block/escaper-type-error.rs:6:12
   |
-7 | {%- filter raww | lower -%}
-  |            ^^^^ variant, associated function, or constant not found in `HtmlEscaper`
+6 | {%- filter text | lower -%}
+  |            ^^^^
