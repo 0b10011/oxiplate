@@ -101,7 +101,6 @@ impl<'a> ToTokensWithMutState<'a> for FilterBlock<'a> {
             Ok(escaper_type) => escaper_type,
             Err(tokens) => return tokens,
         };
-        let _ = escaper_type;
 
         let span = filter_keyword.source().span_token();
         let text = quote_spanned! {span=> {
@@ -184,7 +183,7 @@ impl<'a> Parser<'a> for FilterBlockParser<'a> {
 
         let template_string_source = escaper_source;
 
-        // Build `oxiplate_formatter` as an expression
+        // Build `oxiplate_template_string` as an expression
         // and wrap it in the filter calls.
         let mut filter_expression = Expression::Cow(Cow::new(
             filter_keyword.source().to_owned(),
