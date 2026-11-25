@@ -4,8 +4,8 @@ Filters are normally reserved for [writs](../writs/index.html),
 but occasionally it can be helpful to apply one or more filters
 to an entire block of content all at once.
 
-The escaper is specified first on the filter
-and run last,
+The escaper is specified first in the statement
+and run last on the content,
 just like with writs.
 To prevent double escaping or confusion,
 writs cannot specify an escaper themselves
