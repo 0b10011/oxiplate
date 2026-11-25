@@ -49,6 +49,18 @@ impl<'a> FilterBlock<'a> {
             }) => {
                 self.is_ended = true;
             }
+            Item::Statement(Statement {
+                kind: StatementKind::Block(_) | StatementKind::Include(_) | StatementKind::Filter(_),
+                source,
+            }) => {
+                self.template.0.push(Item::CompileError {
+                    message: "`block`, `include`, and `filter` statements are not allowed in \
+                              `filter` statements; is an `endfilter` statement missing?"
+                        .to_string(),
+                    error_source: source.clone(),
+                    consumed_source: source,
+                });
+            }
             Item::Statement(Statement { kind, source }) if !kind.expected_in_statements() => {
                 self.template.0.push(Item::CompileError {
                     message: "Unexpected statement in `filter` statement; is an `endfilter` \

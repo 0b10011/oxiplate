@@ -1,0 +1,7 @@
+error: `block`, `include`, and `filter` statements are not allowed in `filter` statements; is an `endfilter` statement missing?
+ --> tests/broken/tests/filter-block/unexpected-include-statement.rs:8:17
+  |
+8 |       Hello World!
+  |  _________________^
+9 | |     {%- include "page.html.oxip" -%}
+  | |____________________________________^

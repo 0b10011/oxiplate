@@ -1,0 +1,7 @@
+error: `block`, `include`, and `filter` statements are not allowed in `filter` statements; is an `endfilter` statement missing?
+ --> tests/broken/tests/filter-block/unexpected-block-statement.rs:8:17
+  |
+8 |       Hello World!
+  |  _________________^
+9 | |     {%- block foo %}{% endblock %}
+  | |__________________________________^

@@ -1,0 +1,5 @@
+error: `block`, `include`, and `filter` statements are not allowed in `filter` statements; is an `endfilter` statement missing?
+ --> tests/broken/tests/filter-block/unexpected-filter-statement.rs:9:5
+  |
+9 |     {% filter raw | upper -%}Goodbye world!{% endfilter %}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
