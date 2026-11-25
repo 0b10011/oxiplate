@@ -70,6 +70,11 @@ impl<'a> Writ<'a> {
                 group: None,
                 escaper,
             }) => {
+                #[cfg(feature = "_unreachable")]
+                if escaper.as_str() == "default" {
+                    return Ok(EscaperType::Default);
+                }
+
                 if escaper.as_str() == "raw" {
                     Ok(EscaperType::Raw)
                 } else if let Some((name, group)) = &state.default_escaper_group {

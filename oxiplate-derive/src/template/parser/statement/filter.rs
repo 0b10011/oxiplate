@@ -123,7 +123,6 @@ impl<'a> ToTokensWithMutState<'a> for FilterBlock<'a> {
         }};
 
         let (tokens, estimated_length) = match escaper_type {
-            EscaperType::Default => Writ::escaper_default(state, span, &text, estimated_length),
             EscaperType::Specified(group, group_span, escaper) => Writ::escaper_specified(
                 state,
                 &group,
@@ -134,6 +133,10 @@ impl<'a> ToTokensWithMutState<'a> for FilterBlock<'a> {
                 estimated_length,
             ),
             EscaperType::Raw => Writ::escaper_raw(&text, estimated_length),
+            EscaperType::Default => internal_error!(
+                filter_keyword.source().span_token().unwrap(),
+                "Default escaper is not supposed to be able to be specified on a filter block.",
+            ),
         };
 
         (quote_spanned! {span=> #tokens; }, estimated_length)
