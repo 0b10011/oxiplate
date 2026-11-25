@@ -352,7 +352,7 @@ impl<'a> ToTokensWithState<'a> for Writ<'a> {
                     return (
                         quote_spanned! {span=>
                             compile_error!(
-                                "Escaper is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove `raw:` or move the writ outside of the filter block."
+                                "Escaper is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove the specified escaper or move the writ outside of the filter block."
                             );
                         },
                         EstimatedLength::new(0),

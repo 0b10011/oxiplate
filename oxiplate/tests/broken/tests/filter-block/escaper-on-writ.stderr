@@ -1,4 +1,4 @@
-error: Escaper is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove `raw:` or move the writ outside of the filter block.
+error: Escaper is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove the specified escaper or move the writ outside of the filter block.
  --> tests/broken/tests/filter-block/escaper-on-writ.rs:8:5
   |
 8 |     {{ text: "Hello World!" }}
