@@ -295,7 +295,6 @@ fn parse_template_and_data(
     )
     .map_err(|err: syn::Error| (err, Some(template_type.clone()), optimized_renderer.clone()))?;
 
-    // panic!("{template}");
     Ok((
         template,
         estimated_length,
