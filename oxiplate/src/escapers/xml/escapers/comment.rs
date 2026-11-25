@@ -23,9 +23,9 @@ use core::fmt::{Result, Write};
 #[inline]
 pub fn escape_comment_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
     if
-        // Cannot start with `-` to avoid double hyphens
-        // if the previously output character happened to be `-`.
-        !value.starts_with('-')
+    // Cannot start with `-` to avoid double hyphens
+    // if the previously output character happened to be `-`.
+    !value.starts_with('-')
 
         // Cannot contain `--` to avoid double hyphens.
         && !value.contains("--")

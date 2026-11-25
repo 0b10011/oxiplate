@@ -76,4 +76,3 @@ mod tests {
     test_escape!(less_than, "<", "&lt;");
     test_escape!(cdata_end, "]]>", "]]&gt;");
 }
-

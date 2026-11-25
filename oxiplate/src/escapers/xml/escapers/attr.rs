@@ -10,7 +10,7 @@ use core::fmt::{Result, Write};
 /// Encodes `<`, `&`, `'`, and `"` per <https://www.w3.org/TR/2006/REC-xml11-20060816/#NT-AttValue>:
 /// > AttValue ::= '"' ([^<&"] | Reference)* '"'
 /// >              "'" ([^<&'] | Reference)* "'"
-/// 
+///
 /// And <https://www.w3.org/TR/2006/REC-xml11-20060816/#syntax>:
 /// > To allow attribute values to contain both single and double quotes,
 /// > the apostrophe or single-quote character (')

@@ -1,4 +1,4 @@
-use super::{XmlEscaper, IsEscapedForXml};
+use super::{IsEscapedForXml, XmlEscaper};
 use crate::{PreparedText, TextHandler};
 
 /// Item that implements `TextHandler` for `XmlEscaper`.
@@ -32,7 +32,7 @@ impl<'a, T> TextHandler<'a, XmlEscaper, T> for TextHandlerForXml<'a, T> {
 mod tests {
     use oxiplate_traits::PreparedText;
 
-    use super::{XmlEscaper, IsEscapedForXml, TextHandlerForXml};
+    use super::{IsEscapedForXml, TextHandlerForXml, XmlEscaper};
     use crate::TextHandler as _;
 
     #[derive(PartialEq, Eq)]
