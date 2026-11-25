@@ -77,8 +77,9 @@ fn read_config_and_add_built_in_escapers() -> Result<Config, syn::Error> {
     // Add built-in escapers to the user-defined escapers
     let built_in_escapers = [
         ("html", "::oxiplate::escapers::html::HtmlEscaper"),
-        ("md", "::oxiplate::escapers::markdown::MarkdownEscaper"),
         ("json", "::oxiplate::escapers::json::JsonEscaper"),
+        ("md", "::oxiplate::escapers::markdown::MarkdownEscaper"),
+        ("xml", "::oxiplate::escapers::xml::XmlEscaper"),
     ];
     for (name, path) in built_in_escapers {
         if config.escaper_groups.contains_key(name) {
