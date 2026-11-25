@@ -283,6 +283,7 @@ fn parse_template_and_data(
         config,
         blocks,
         has_content: false,
+        in_filter_block: false,
     };
 
     let parsed_tokens = parse_source_tokens(attr, &template_type, &mut state);

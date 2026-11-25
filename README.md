@@ -60,13 +60,15 @@ while still including the primary functionality expected from such a library.
   - Pattern matching also supported with `{% if let PATTERN = EXPRESSION %}` (`elseif` also works)
 - [`match` statements][match] with `{% match EXPRESSION %}`, `{% case PATTERNS %}`, and `{% endmatch %}`
   - Match guards are also supported: `{% case PATTERN if EXPRESSION %}`
+- [`filter` blocks][filter] with `{% filter ESCAPER_GROUP.ESCAPER | FILTER %}` and `{% endfilter %}`
 - [`let` statements][let] with `{% let PATTERN = EXPRESSION %}`
 - [In-template default escaper group control][default escaper group] with `{% default_escaper_group GROUP_NAME %}` and `{% replace_escaper_group GROUP_NAME %}`
 
 [default escaper group]: https://0b10011.io/oxiplate/templates/statements/default-escaper-group.html
 [expressions]: https://0b10011.io/oxiplate/templates/expressions.html
-[if]: https://0b10011.io/oxiplate/templates/statements/if-else.html
+[filter]: https://0b10011.io/oxiplate/templates/statements/filter.html
 [for]: https://0b10011.io/oxiplate/templates/statements/for.html
+[if]: https://0b10011.io/oxiplate/templates/statements/if-else.html
 [include]: https://0b10011.io/oxiplate/templates/statements/include.html
 [let]: https://0b10011.io/oxiplate/templates/statements/let.html
 [match]: https://0b10011.io/oxiplate/templates/statements/match.html

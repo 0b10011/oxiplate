@@ -1,0 +1,7 @@
+error: Unexpected 'endfilter' statement
+ --> tests/broken/tests/filter-block/stray-endfilter.rs:7:13
+  |
+7 |   Hello World!
+  |  _____________^
+8 | | {%- endfilter -%}
+  | |_________________^

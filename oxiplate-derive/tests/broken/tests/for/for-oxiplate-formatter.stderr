@@ -1,4 +1,4 @@
-error: `oxiplate_formatter` is a reserved name
+error: Identifiers starting with `oxiplate_` are reserved for internal Oxiplate use only
  --> tests/broken/tests/for/for-oxiplate-formatter.rs:4:28
   |
 4 | #[oxiplate_inline("{%- for oxiplate_formatter in numbers -%}{{ oxiplate_formatter }}{% endfor %}")]

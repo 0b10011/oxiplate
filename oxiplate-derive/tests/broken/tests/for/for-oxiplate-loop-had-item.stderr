@@ -1,4 +1,4 @@
-error: `oxiplate_loop_had_item` is a reserved name
+error: Identifiers starting with `oxiplate_` are reserved for internal Oxiplate use only
  --> tests/broken/tests/for/for-oxiplate-loop-had-item.rs:6:9
   |
 6 | {%- for oxiplate_loop_had_item in numbers -%}

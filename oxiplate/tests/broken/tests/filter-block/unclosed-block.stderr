@@ -1,0 +1,9 @@
+error: "filter" statement is never closed (unexpected end of template)
+ --> tests/broken/tests/filter-block/unclosed-block.rs:6:35
+  |
+6 |   {%- default_escaper_group html -%}
+  |  ___________________________________^
+7 | | {%- filter raw | lower -%}
+8 | |     Hello World!
+9 | | "#
+  | |_^

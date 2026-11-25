@@ -1,0 +1,7 @@
+error: Unexpected statement in `filter` statement; is an `endfilter` statement missing?
+ --> tests/broken/tests/filter-block/unexpected-statement.rs:8:17
+  |
+8 |       Hello World!
+  |  _________________^
+9 | |     {%- endif %}
+  | |________________^

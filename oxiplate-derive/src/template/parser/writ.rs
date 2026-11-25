@@ -11,9 +11,9 @@ use crate::config::EscaperGroup;
 use crate::template::parser::prelude::*;
 use crate::template::tokenizer::TagKind;
 
-enum EscaperType<'a> {
+pub(in crate::template::parser) enum EscaperType<'a: 'b, 'b> {
     Default,
-    Specified((String, &'a EscaperGroup), Span, &'a Identifier<'a>),
+    Specified((String, &'b EscaperGroup), Span, &'b Identifier<'a>),
     Raw,
 }
 
@@ -41,8 +41,11 @@ impl<'a> Writ<'a> {
         &self.source
     }
 
-    fn escaper_type(&'a self, state: &'a State) -> Result<EscaperType<'a>, BuiltTokens> {
-        match &self.escaper {
+    pub(in crate::template::parser) fn escaper_type<'b>(
+        escaper: Option<&'b Escaper<'a>>,
+        state: &'b State<'a>,
+    ) -> Result<EscaperType<'a, 'b>, BuiltTokens> {
+        match escaper {
             Some(Escaper {
                 group: Some(group),
                 escaper,
@@ -67,6 +70,11 @@ impl<'a> Writ<'a> {
                 group: None,
                 escaper,
             }) => {
+                #[cfg(feature = "_unreachable")]
+                if escaper.as_str() == "default" {
+                    return Ok(EscaperType::Default);
+                }
+
                 if escaper.as_str() == "raw" {
                     Ok(EscaperType::Raw)
                 } else if let Some((name, group)) = &state.default_escaper_group {
@@ -145,7 +153,7 @@ impl<'a> Writ<'a> {
         }
     }
 
-    fn escaper_default(
+    pub(in crate::template::parser) fn escaper_default(
         state: &State,
         span: Span,
         text: &TokenStream,
@@ -251,7 +259,7 @@ impl<'a> Writ<'a> {
         }
     }
 
-    fn escaper_specified(
+    pub(in crate::template::parser) fn escaper_specified(
         state: &State,
         group: &(String, &EscaperGroup),
         group_span: Span,
@@ -290,7 +298,10 @@ impl<'a> Writ<'a> {
         token_error!(span, r"Failed to build escape function call")
     }
 
-    fn escaper_raw(text: &TokenStream, estimated_length: EstimatedLength) -> BuiltTokens {
+    pub(in crate::template::parser) fn escaper_raw(
+        text: &TokenStream,
+        estimated_length: EstimatedLength,
+    ) -> BuiltTokens {
         let span = text.span();
 
         #[cfg(not(feature = "_oxiplate"))]
@@ -323,23 +334,54 @@ impl<'a> ToTokensWithState<'a> for Writ<'a> {
 
         let span = self.source.span_token();
 
-        let escaper_type: EscaperType = match self.escaper_type(state) {
+        let escaper_type: EscaperType = match Self::escaper_type(self.escaper.as_ref(), state) {
             Ok(escaper_type) => escaper_type,
             Err(tokens) => return tokens,
         };
 
         match escaper_type {
-            EscaperType::Default => Self::escaper_default(state, span, &text, estimated_length),
-            EscaperType::Specified(group, group_span, escaper) => Self::escaper_specified(
-                state,
-                &group,
-                group_span,
-                escaper,
-                span,
-                &text,
-                estimated_length,
-            ),
-            EscaperType::Raw => Self::escaper_raw(&text, estimated_length),
+            EscaperType::Default => {
+                if state.in_filter_block {
+                    Self::escaper_raw(&text, estimated_length)
+                } else {
+                    Self::escaper_default(state, span, &text, estimated_length)
+                }
+            }
+            EscaperType::Specified(group, group_span, escaper) => {
+                if state.in_filter_block {
+                    return (
+                        quote_spanned! {span=>
+                            compile_error!(
+                                "Escaper is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove the specified escaper or move the writ outside of the filter block."
+                            );
+                        },
+                        EstimatedLength::new(0),
+                    );
+                }
+
+                Self::escaper_specified(
+                    state,
+                    &group,
+                    group_span,
+                    escaper,
+                    span,
+                    &text,
+                    estimated_length,
+                )
+            }
+            EscaperType::Raw => {
+                if state.in_filter_block {
+                    return (
+                        quote_spanned! {span=>
+                            compile_error!(
+                                "`raw` is not allowed to be specified on a writ inside of a filter block because the filter block decides the final escaping that will occur on the contents of the entire block. Remove `raw:` or move the writ outside of the filter block."
+                            );
+                        },
+                        EstimatedLength::new(0),
+                    );
+                }
+                Self::escaper_raw(&text, estimated_length)
+            }
         }
     }
 }
@@ -351,9 +393,18 @@ impl<'a> From<Writ<'a>> for Item<'a> {
 }
 
 #[derive(Debug)]
-struct Escaper<'a> {
+pub(in crate::template::parser) struct Escaper<'a> {
     group: Option<Identifier<'a>>,
     escaper: Identifier<'a>,
+}
+
+impl<'a> Escaper<'a> {
+    pub(in crate::template::parser) fn new(
+        group: Option<Identifier<'a>>,
+        escaper: Identifier<'a>,
+    ) -> Self {
+        Self { group, escaper }
+    }
 }
 
 pub(in crate::template::parser) fn writ(open_tag_source: Source) -> WritParser {

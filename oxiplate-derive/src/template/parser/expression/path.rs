@@ -12,6 +12,16 @@ pub(in crate::template::parser) struct PathExprSegment<'a> {
 }
 
 impl<'a> PathExprSegment<'a> {
+    pub(in crate::template::parser) fn new(
+        ident_segment: PathIdentSegment<'a>,
+        generics: Option<(Separator<'a>, GenericArgs<'a>)>,
+    ) -> Self {
+        Self {
+            ident_segment,
+            generics,
+        }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathExprSegment>
     pub(in crate::template::parser) fn parser() -> PathExprSegmentParser<'a> {
         PathExprSegmentParser {
@@ -82,8 +92,14 @@ impl<'a> Parser<'a> for PathExprSegmentParser<'a> {
 #[derive(Debug)]
 pub(in crate::template::parser) enum PathIdentSegment<'a> {
     Identifier(Identifier<'a>),
+
     /// `Self`, `self`, `super`, `crate`
     Keyword(Source<'a>),
+
+    /// `oxiplate_template_string`,
+    /// but the `Source` is only for the span
+    /// and will not actually be that value.
+    TemplateString(Source<'a>),
 }
 
 impl<'a> PathIdentSegment<'a> {
@@ -97,7 +113,7 @@ impl<'a> PathIdentSegment<'a> {
     pub(in crate::template::parser) fn source(&self) -> &Source<'a> {
         match self {
             Self::Identifier(identifier) => identifier.source(),
-            Self::Keyword(source) => source,
+            Self::Keyword(source) | Self::TemplateString(source) => source,
         }
     }
 }
@@ -108,6 +124,10 @@ impl ToTokens for PathIdentSegment<'_> {
             Self::Identifier(identifier) => identifier.to_tokens(tokens),
             Self::Keyword(source) => {
                 let identifier = Ident::new(source.as_str(), source.span_token());
+                identifier.to_tokens(tokens);
+            }
+            Self::TemplateString(source) => {
+                let identifier = Ident::new("oxiplate_template_string", source.span_token());
                 identifier.to_tokens(tokens);
             }
         }
@@ -274,6 +294,18 @@ pub(in crate::template::parser) struct PathInExpression<'a> {
     additional_segments: Vec<(Separator<'a>, PathExprSegment<'a>)>,
 }
 impl<'a> PathInExpression<'a> {
+    pub(in crate::template::parser) fn new(
+        separator: Option<Separator<'a>>,
+        segment: PathExprSegment<'a>,
+        additional_segments: Vec<(Separator<'a>, PathExprSegment<'a>)>,
+    ) -> Self {
+        Self {
+            separator,
+            segment,
+            additional_segments,
+        }
+    }
+
     /// See: <https://doc.rust-lang.org/reference/paths.html#railroad-PathInExpression>
     pub(in crate::template::parser) fn parser() -> PathParser<'a> {
         PathParser {
@@ -386,7 +418,7 @@ impl<'a> Parser<'a> for PathParser<'a> {
 }
 
 #[derive(Debug)]
-struct Separator<'a>(Source<'a>);
+pub(in crate::template::parser) struct Separator<'a>(Source<'a>);
 
 impl<'a> Separator<'a> {
     fn source(&self) -> &Source<'a> {

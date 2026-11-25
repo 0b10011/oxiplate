@@ -1,0 +1,5 @@
+error: Expected a filter name
+ --> tests/broken/tests/filter-block/missing-filter.rs:4:36
+  |
+4 | #[oxiplate_inline("{% filter raw | %}{% endfilter %}")]
+  |                                    ^^

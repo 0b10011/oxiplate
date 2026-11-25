@@ -1,0 +1,5 @@
+error: No escaper group was selected and the specified escaper is not "raw". Consider setting a value for `fallback_escaper_group` in `/oxiplate.toml`.
+ --> tests/broken/tests/filter-block/escaper-type-error.rs:6:12
+  |
+6 | {%- filter text | lower -%}
+  |            ^^^^

@@ -1,0 +1,5 @@
+error: Expected `|` followed by a filter name
+ --> tests/broken/tests/filter-block/missing-escaper-pipe.rs:4:35
+  |
+4 | #[oxiplate_inline("{% filter lower() %}{% endfilter %}")]
+  |                                   ^
