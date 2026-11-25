@@ -1,0 +1,5 @@
+error[E0599]: no variant, associated function, or constant named `raww` found for enum `HtmlEscaper` in the current scope
+ --> tests/broken/tests/filter-block/escaper-type-error.rs:7:12
+  |
+7 | {%- filter raww | lower -%}
+  |            ^^^^ variant, associated function, or constant not found in `HtmlEscaper`
