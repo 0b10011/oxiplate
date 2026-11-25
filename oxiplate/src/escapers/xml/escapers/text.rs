@@ -37,7 +37,7 @@ use core::fmt::{Result, Write};
 /// If escaped string cannot be written to the writer.
 #[inline]
 pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains(['&', '<']) {
+    if !value.contains(['&', '<', '>']) {
         return f.write_str(value);
     }
 
@@ -52,3 +52,28 @@ pub fn escape_text<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
 
     Ok(())
 }
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod tests {
+    extern crate alloc;
+
+    use alloc::string::String;
+
+    macro_rules! test_escape {
+        ($fn_name:ident, $input:literal, $expected:literal) => {
+            #[test]
+            fn $fn_name() {
+                let mut string = String::new();
+                super::escape_text(&mut string, $input).unwrap();
+                assert_eq!($expected, string);
+            }
+        };
+    }
+
+    // Test characters individually to ensure all are checked in the fast path.
+    test_escape!(ampersand, "&", "&amp;");
+    test_escape!(less_than, "<", "&lt;");
+    test_escape!(cdata_end, "]]>", "]]&gt;");
+}
+

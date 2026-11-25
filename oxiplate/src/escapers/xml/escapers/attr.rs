@@ -22,7 +22,7 @@ use core::fmt::{Result, Write};
 /// If escaped string cannot be written to the writer.
 #[inline]
 pub fn escape_attribute_quoted_value<W: Write + ?Sized>(f: &mut W, value: &'_ str) -> Result {
-    if !value.contains(['&', '"', '\'']) {
+    if !value.contains(['<', '&', '"', '\'']) {
         return f.write_str(value);
     }
 
@@ -46,12 +46,29 @@ mod tests {
 
     use alloc::string::String;
 
+    macro_rules! test_escape {
+        ($fn_name:ident, $input:literal, $expected:literal) => {
+            #[test]
+            fn $fn_name() {
+                let mut string = String::new();
+                super::escape_attribute_quoted_value(&mut string, $input).unwrap();
+                assert_eq!($expected, string);
+            }
+        };
+    }
+
     #[test]
     fn test_escape_attribute_quoted_value() {
         let mut string = String::new();
-        super::escape_attribute_quoted_value(&mut string, r#"&"' hello"#).unwrap();
-        assert_eq!("&amp;&#34;&#39; hello", string);
+        super::escape_attribute_quoted_value(&mut string, r#"<&"' hello"#).unwrap();
+        assert_eq!("&lt;&amp;&quot;&apos; hello", string);
     }
+
+    // Test characters individually to ensure all are checked in the fast path.
+    test_escape!(less_than, "<", "&lt;");
+    test_escape!(ampersand, "&", "&amp;");
+    test_escape!(double_quote, r#"""#, "&quot;");
+    test_escape!(single_quote, "'", "&apos;");
 
     #[test]
     fn test_escape_attribute_quoted_value_nothing_to_escape() {
