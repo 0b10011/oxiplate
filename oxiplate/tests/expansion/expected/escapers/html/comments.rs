@@ -33,14 +33,14 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "comment_escaping::comment"]
+#[rustc_test_marker = "escapers::html::comments::comment"]
 #[doc(hidden)]
 pub static comment: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("comment_escaping::comment"),
+        name: test::StaticTestName("escapers::html::comments::comment"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/integration/comment_escaping.rs",
+        source_file: "oxiplate/tests/integration/escapers/html/comments.rs",
         start_line: 10usize,
         start_col: 4usize,
         end_line: 10usize,

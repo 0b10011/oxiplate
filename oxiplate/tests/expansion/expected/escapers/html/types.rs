@@ -326,14 +326,14 @@ impl<'a> ::oxiplate::Render for Types<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "escaping::types"]
+#[rustc_test_marker = "escapers::html::types::types"]
 #[doc(hidden)]
 pub static types: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("escaping::types"),
+        name: test::StaticTestName("escapers::html::types::types"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/integration/escaping.rs",
+        source_file: "oxiplate/tests/integration/escapers/html/types.rs",
         start_line: 69usize,
         start_col: 4usize,
         end_line: 69usize,
@@ -398,81 +398,6 @@ Hello world &lt;<script><!--
 Hello world &lt;<script><!--
 Hello world &lt;<script><!--
 ",
-        ) {
-            (left_val, right_val) => {
-                if !(*left_val == *right_val) {
-                    let kind = ::core::panicking::AssertKind::Eq;
-                    ::core::panicking::assert_failed(
-                        kind,
-                        &*left_val,
-                        &*right_val,
-                        ::core::option::Option::None,
-                    );
-                }
-            }
-        }
-    };
-}
-extern crate test;
-#[rustc_test_marker = "escaping::explicit_and_inferred_escaper_group_in_writ"]
-#[doc(hidden)]
-pub static explicit_and_inferred_escaper_group_in_writ: test::TestDescAndFn = test::TestDescAndFn {
-    desc: test::TestDesc {
-        name: test::StaticTestName("escaping::explicit_and_inferred_escaper_group_in_writ"),
-        ignore: false,
-        ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/integration/escaping.rs",
-        start_line: 123usize,
-        start_col: 4usize,
-        end_line: 123usize,
-        end_col: 47usize,
-        compile_fail: false,
-        no_run: false,
-        should_panic: test::ShouldPanic::No,
-        test_type: test::TestType::Unknown,
-    },
-    testfn: test::StaticTestFn(
-        #[coverage(off)]
-        || test::assert_test_result(explicit_and_inferred_escaper_group_in_writ()),
-    ),
-};
-fn explicit_and_inferred_escaper_group_in_writ() {
-    use alloc::format;
-    #[oxiplate_inline(html:r#"{% default_escaper_group html %}{{ "<hello>" }}"#)]
-    struct Data;
-    impl ::core::fmt::Display for Data {
-        fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-            ::oxiplate::Render::render_into(self, oxiplate_formatter)
-        }
-    }
-    impl ::oxiplate::Render for Data {
-        const ESTIMATED_LENGTH: usize = 7usize;
-        #[inline]
-        fn render_into<W: ::core::fmt::Write>(
-            &self,
-            oxiplate_formatter: &mut W,
-        ) -> ::core::fmt::Result {
-            extern crate alloc;
-            use ::core::fmt::Write as _;
-            use ::oxiplate::private::{ToCowStr as _, WriteEscaped as _, WriteRaw as _};
-            use ::oxiplate::{Escaper as _, TextHandler as _};
-            (&&::oxiplate::private::UnescapedTextWrapper::new(
-                (&&::oxiplate::escapers::html::HtmlEscaper::build_text_handler(&("<hello>")))
-                    .prepare_text_for_output(
-                        &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                    ),
-            ))
-                .oxiplate_write_escaped(
-                    oxiplate_formatter,
-                    &<::oxiplate::escapers::html::HtmlEscaper as ::oxiplate::Escaper>::DEFAULT,
-                )?;
-            ::core::result::Result::Ok(())
-        }
-    }
-    {
-        match (
-            &::alloc::__export::must_use({ ::alloc::fmt::format(format_args!("{0}", Data)) }),
-            &"&lt;hello>",
         ) {
             (left_val, right_val) => {
                 if !(*left_val == *right_val) {

@@ -41,14 +41,14 @@ impl<'a> ::oxiplate::Render for Data<'a> {
     }
 }
 extern crate test;
-#[rustc_test_marker = "text::variable"]
+#[rustc_test_marker = "escapers::html::text::variable"]
 #[doc(hidden)]
 pub static variable: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("text::variable"),
+        name: test::StaticTestName("escapers::html::text::variable"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
-        source_file: "oxiplate/tests/integration/text.rs",
+        source_file: "oxiplate/tests/integration/escapers/html/text.rs",
         start_line: 13usize,
         start_col: 4usize,
         end_line: 13usize,
