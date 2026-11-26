@@ -1,0 +1,4 @@
+fallback_escaper_group = "xml"
+
+[escaper_groups]
+xml.escaper = "::oxiplate::escapers::xml::XmlEscaper"
