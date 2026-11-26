@@ -1,0 +1,4 @@
+{% replace_escaper_group your_group %}
+{{ name }}
+{{ foo: name }}
+{{ bar: name }}
