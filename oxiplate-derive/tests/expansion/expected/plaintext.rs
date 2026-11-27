@@ -136,7 +136,8 @@ fn leading_whitespace_remove() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter.write_str("   Hello world!   ")?;
+            oxiplate_formatter.write_str("Hello world!")?;
+            oxiplate_formatter.write_str("   ")?;
             ::core::result::Result::Ok(())
         }
     }
@@ -189,7 +190,9 @@ fn leading_whitespace_collapse() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter.write_str("   Hello world!   ")?;
+            oxiplate_formatter.write_str(" ")?;
+            oxiplate_formatter.write_str("Hello world!")?;
+            oxiplate_formatter.write_str("   ")?;
             ::core::result::Result::Ok(())
         }
     }
@@ -295,7 +298,8 @@ fn trailing_whitespace_collapse() {
         fn fmt(&self, oxiplate_formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             extern crate alloc;
             use ::core::fmt::Write as _;
-            oxiplate_formatter.write_str("   Hello world!   ")?;
+            oxiplate_formatter.write_str("   Hello world!")?;
+            oxiplate_formatter.write_str(" ")?;
             ::core::result::Result::Ok(())
         }
     }
