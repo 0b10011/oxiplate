@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.2](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.20.1...oxiplate-v0.20.2) - 2026-11-27
+
+### Added
+
+- added XML escaper ([#423](https://github.com/0b10011/oxiplate/pull/423))
+
+### Other
+
+- reorganized escaper integration tests
+
 ## [0.20.1](https://github.com/0b10011/oxiplate/compare/oxiplate-v0.20.0...oxiplate-v0.20.1) - 2026-11-25
 
 ### Added
