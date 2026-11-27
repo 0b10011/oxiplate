@@ -5,6 +5,7 @@ use crate::template::tokenizer::Res;
 use crate::template::tokenizer::kind::TokenKind;
 use crate::tokenizer::BufferedSource;
 
+#[expect(clippy::unnested_or_patterns)]
 pub(crate) fn consume_plaintext<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     let source = source
         .consume_until(|char| matches!(char, '{' | whitespace!()))
