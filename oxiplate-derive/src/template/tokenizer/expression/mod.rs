@@ -17,6 +17,7 @@ pub(crate) fn consume_expression_token<'a>(
     source: &mut BufferedSource<'a>,
     has_unclosed_char_pairs: bool,
     in_tag_kind: &TagKind,
+    current_context: &Context,
 ) -> Option<Res<'a>> {
     let leading_whitespace = source
         .consume_while(|char| matches!(char, whitespace!()))
@@ -42,6 +43,7 @@ pub(crate) fn consume_expression_token<'a>(
                 leading_whitespace,
                 TagKind::Writ,
                 has_unclosed_char_pairs,
+                current_context,
             ));
         }
         '%' => {
@@ -50,6 +52,7 @@ pub(crate) fn consume_expression_token<'a>(
                 leading_whitespace,
                 TagKind::Statement,
                 has_unclosed_char_pairs,
+                current_context,
             ));
         }
         '(' => TokenKind::OpenParenthese,
@@ -66,6 +69,7 @@ pub(crate) fn consume_expression_token<'a>(
                 in_tag_kind,
                 has_unclosed_char_pairs,
                 WhitespacePreference::Remove,
+                current_context,
             ));
         }
         '_' => {
@@ -75,6 +79,7 @@ pub(crate) fn consume_expression_token<'a>(
                 in_tag_kind,
                 has_unclosed_char_pairs,
                 WhitespacePreference::Replace,
+                current_context,
             ));
         }
         '*' => TokenKind::Asterisk,
@@ -98,7 +103,17 @@ pub(crate) fn consume_expression_token<'a>(
         }
         '@' => TokenKind::At,
         'a'..='z' | 'A'..='Z' => {
-            let (new_context, result) = consume_ident(source, leading_whitespace);
+            let (mut new_context, result) = consume_ident(source, leading_whitespace);
+
+            if matches!(current_context, Context::StatementTagStart) {
+                if let Ok(ref token) = result {
+                    if matches!(token.kind(), TokenKind::Ident)
+                        && token.source().as_str() == "plaintext"
+                    {
+                        new_context = Some(Context::PlainTextStatement);
+                    }
+                }
+            }
 
             return Some((new_context, result.map(|token| (token, None))));
         }
