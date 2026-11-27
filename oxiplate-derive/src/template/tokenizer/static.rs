@@ -33,7 +33,7 @@ pub(crate) fn consume_possible_tag_start<'a>(source: &mut BufferedSource<'a>) ->
         }
         Some('%') => {
             let _ = source.next();
-            (Some(Context::Statement), TagKind::Statement)
+            (Some(Context::StatementTagStart), TagKind::Statement)
         }
         Some('#') => {
             let _ = source.next();

@@ -1,0 +1,5 @@
+error: Expected `%}`, `-%}`, or `_%}`
+ --> tests/broken/tests/plaintext/unclosed-statement.rs:4:33
+  |
+4 | #[oxiplate_inline("{% plaintext Hello world!")]
+  |                                 ^^^^^

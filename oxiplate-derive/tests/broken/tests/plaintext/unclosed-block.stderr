@@ -1,0 +1,5 @@
+error: "plaintext" statement is never closed (unexpected end of template)
+ --> tests/broken/tests/plaintext/unclosed-block.rs:4:20
+  |
+4 | #[oxiplate_inline("{% plaintext %}Hello world!")]
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^

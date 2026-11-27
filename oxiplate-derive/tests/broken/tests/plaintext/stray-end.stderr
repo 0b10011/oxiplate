@@ -1,0 +1,5 @@
+error: Unexpected 'endplaintext' statement
+ --> tests/broken/tests/plaintext/stray-end.rs:4:20
+  |
+4 | #[oxiplate_inline("{% endplaintext %}")]
+  |                    ^^^^^^^^^^^^^^^^^^

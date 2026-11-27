@@ -1,6 +1,7 @@
 mod comment;
 mod expression;
 mod kind;
+mod plaintext;
 mod r#static;
 
 use std::mem::take;
@@ -10,6 +11,7 @@ use self::expression::{consume_expression_token, consume_ident};
 pub(crate) use self::kind::{
     TagKind, TokenKind, WhitespaceAdjustmentTagPreference, WhitespacePreference,
 };
+use self::plaintext::{consume_endplaintext_tag, consume_plaintext};
 use self::r#static::{consume_possible_tag_start, consume_static_text, consume_static_whitespace};
 use crate::Source;
 pub(crate) use crate::tokenizer::Eof;
@@ -95,6 +97,7 @@ impl<'a> Tokens<'a> {
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Remove,
+                        &self.context,
                     ),
                     '_' => consume_possible_tag_end_whitespace_adjustment(
                         &mut self.source,
@@ -102,26 +105,49 @@ impl<'a> Tokens<'a> {
                         &TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
                         WhitespacePreference::Replace,
+                        &self.context,
                     ),
                     '#' => consume_possible_tag_end(
                         &mut self.source,
                         None,
                         TagKind::Comment,
                         !self.char_pair_stack.is_empty(),
+                        &self.context,
                     ),
                     _char => consume_comment(&mut self.source),
                 };
                 (new_context, token)
             }
-            Context::Statement => consume_expression_token(
+            Context::StatementTagStart => {
+                let (mut new_context, token) = consume_expression_token(
+                    &mut self.source,
+                    !self.char_pair_stack.is_empty(),
+                    &TagKind::Statement,
+                    &self.context,
+                )?;
+
+                if new_context.is_none() {
+                    new_context = Some(Context::Statement);
+                }
+
+                (new_context, token)
+            }
+            Context::Statement | Context::PlainTextStatement => consume_expression_token(
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Statement,
+                &self.context,
             )?,
+            Context::PlainText => match self.source.next()? {
+                '{' => consume_endplaintext_tag(&mut self.source),
+                whitespace!() => consume_static_whitespace(&mut self.source),
+                _char => consume_plaintext(&mut self.source),
+            },
             Context::Writ => consume_expression_token(
                 &mut self.source,
                 !self.char_pair_stack.is_empty(),
                 &TagKind::Writ,
+                &self.context,
             )?,
         };
 
@@ -200,7 +226,10 @@ impl<'a> Iterator for Tokens<'a> {
 #[derive(Debug)]
 enum Context {
     Comment,
+    StatementTagStart,
     Statement,
+    PlainTextStatement,
+    PlainText,
     Static,
     Writ,
 }
@@ -222,6 +251,7 @@ fn consume_possible_tag_end<'a>(
     leading_whitespace: Option<Source<'a>>,
     tag_end_kind: TagKind,
     has_unclosed_char_pairs: bool,
+    current_context: &Context,
 ) -> Res<'a> {
     if has_unclosed_char_pairs || source.peek() != Some('}') {
         let source = source
@@ -245,8 +275,14 @@ fn consume_possible_tag_end<'a>(
         .consume()
         .expect("Buffer should contain `}}`, `%}`, or `#}`");
 
+    let new_context = if matches!(current_context, Context::PlainTextStatement) {
+        Context::PlainText
+    } else {
+        Context::Static
+    };
+
     (
-        Some(Context::Static),
+        Some(new_context),
         Ok((
             Token::new(
                 TokenKind::TagEnd {
@@ -267,6 +303,7 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
     in_tag_kind: &TagKind,
     has_unclosed_char_pairs: bool,
     whitespace_preference: WhitespacePreference,
+    current_context: &Context,
 ) -> Res<'a> {
     let tag_end_kind = match source.peek_2() {
         Some(['}', '}']) => Some(TagKind::Writ),
@@ -325,6 +362,7 @@ fn consume_possible_tag_end_whitespace_adjustment<'a>(
         in_tag_kind,
         tag_end_kind.expect("`None` should have just been checked for"),
         whitespace_preference,
+        current_context,
     )
 }
 
@@ -344,6 +382,7 @@ fn unchecked_consume_tag_end_whitespace_adjustment<'a>(
     in_tag_kind: &TagKind,
     tag_end_kind: TagKind,
     whitespace_preference: WhitespacePreference,
+    current_context: &Context,
 ) -> Res<'a> {
     let _ = source.next();
     let _ = source.next();
@@ -354,8 +393,15 @@ fn unchecked_consume_tag_end_whitespace_adjustment<'a>(
 
     if tag_end_kind == *in_tag_kind {
         // Ending current tag
+
+        let new_context = if matches!(current_context, Context::PlainTextStatement) {
+            Context::PlainText
+        } else {
+            Context::Static
+        };
+
         (
-            Some(Context::Static),
+            Some(new_context),
             Ok((
                 Token::new(
                     TokenKind::TagEnd {
@@ -399,6 +445,7 @@ mod tests {
     use super::{TagKind, WhitespacePreference};
     use crate::Source;
     use crate::source::{SourceOwned, test_source};
+    use crate::template::tokenizer::Context;
     use crate::tokenizer::BufferedSource;
 
     #[test]
@@ -447,6 +494,7 @@ mod tests {
             &TagKind::Writ,
             false,
             WhitespacePreference::Indifferent,
+            &Context::Writ,
         );
 
         assert!(new_context.is_none());
@@ -465,6 +513,7 @@ mod tests {
             &TagKind::Writ,
             false,
             WhitespacePreference::Remove,
+            &Context::Writ,
         );
 
         assert!(new_context.is_none());
@@ -487,6 +536,7 @@ mod tests {
             &TagKind::Comment,
             TagKind::Statement,
             WhitespacePreference::Remove,
+            &Context::Comment,
         );
 
         assert!(new_context.is_none());
