@@ -105,7 +105,7 @@ impl<'a> ToTokensWithMutState<'a> for PlainText<'a> {
             estimated_length += EstimatedLength::new(text.len());
         }
 
-        // Append leading whitespace that may have been adjusted by the tag.
+        // Append trailing whitespace that may have been adjusted by the tag.
         if let Some(ref trailing_whitespace) = self.trailing_whitespace {
             let span = trailing_whitespace.1.span_token();
             let trailing_whitespace = trailing_whitespace.0;
