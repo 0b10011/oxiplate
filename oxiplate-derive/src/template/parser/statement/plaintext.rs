@@ -2,10 +2,12 @@ use super::{Statement, StatementKind};
 use crate::template::parser::expression::KeywordParser;
 use crate::template::parser::item::Item;
 use crate::template::parser::prelude::*;
+use crate::template::parser::template::Template;
 
 #[derive(Debug)]
 pub(in crate::template::parser) struct PlainText<'a> {
     text: Option<Source<'a>>,
+    errors: Template<'a>,
     is_ended: bool,
 }
 
@@ -35,7 +37,8 @@ impl<'a> PlainText<'a> {
                 kind: StatementKind::EndPlainText,
                 ..
             }) => self.is_ended = true,
-            item => {
+            Item::CompileError { .. } => self.errors.0.push(item),
+            _ => {
                 self.text = Some(
                     item.source()
                         .append_to_some(self.text.clone(), "Item expected after previous item"),
@@ -56,14 +59,16 @@ impl<'a> From<PlainText<'a>> for StatementKind<'a> {
 }
 
 impl<'a> ToTokensWithMutState<'a> for PlainText<'a> {
-    fn to_tokens_with_mut_state<'b: 'a>(&'a self, _state: &mut State<'b>) -> BuiltTokens {
+    fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
         if let Some(ref text) = self.text {
             let span = text.span_token();
             let text = text.as_str();
+            let (errors, _) = self.errors.to_tokens_with_mut_state(state);
 
             (
                 quote_spanned! {span=>
                     oxiplate_formatter.write_str(#text)?;
+                    #errors
                 },
                 EstimatedLength::new(text.len()),
             )
@@ -91,6 +96,7 @@ impl<'a> Parser<'a> for PlainTextParser<'a> {
             Statement {
                 kind: PlainText {
                     text: None,
+                    errors: Template(Vec::new()),
                     is_ended: false,
                 }
                 .into(),
