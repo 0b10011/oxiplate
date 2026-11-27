@@ -55,15 +55,10 @@ fn statement() {
 #[test]
 fn statement_broken() {
     #[derive(Oxiplate)]
-    #[oxiplate_inline(
-        r#"{% plaintext %}{% if +_)(*&^%$#@!~"';',.><=-/?` %}{% endplaintext %}"#
-    )]
+    #[oxiplate_inline(r#"{% plaintext %}{% if +_)(*&^%$#@!~"';',.><=-/?` %}{% endplaintext %}"#)]
     struct Data;
 
-    assert_eq!(
-        format!("{Data}"),
-        r#"{% if +_)(*&^%$#@!~"';',.><=-/?` %}"#
-    );
+    assert_eq!(format!("{Data}"), r#"{% if +_)(*&^%$#@!~"';',.><=-/?` %}"#);
 }
 
 #[test]
