@@ -82,9 +82,9 @@ impl<'a> Parser<'a> for PlainTextParser<'a> {
     type Output = Statement<'a>;
 
     fn parse(&self, tokens: TokenSlice<'a>) -> Res<'a, Self::Output> {
-        let (tokens, include_keyword) = KeywordParser::new("plaintext").parse(tokens)?;
+        let (tokens, plaintext_keyword) = KeywordParser::new("plaintext").parse(tokens)?;
 
-        let source = include_keyword.source().to_owned();
+        let source = plaintext_keyword.source().to_owned();
 
         Ok((
             tokens,
