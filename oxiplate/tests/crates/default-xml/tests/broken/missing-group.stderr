@@ -1,0 +1,5 @@
+error: The specified escaper group `xm` is not registered in `/oxiplate.toml`. Registered escaper groups: xml
+ --> tests/broken/missing-group.rs:4:19
+  |
+4 | #[oxiplate_inline(xm: "{{ message }}")]
+  |                   ^^

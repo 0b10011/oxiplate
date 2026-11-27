@@ -46,4 +46,5 @@
 pub mod html;
 pub mod json;
 pub mod markdown;
+pub mod xml;
 pub mod your_group;

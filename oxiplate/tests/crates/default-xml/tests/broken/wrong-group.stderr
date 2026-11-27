@@ -1,0 +1,5 @@
+error: Invalid escaper group specified
+ --> tests/broken/wrong-group.rs:4:63
+  |
+4 | #[oxiplate_inline(xml: "{% for message in &messages %}\n<p>{{ xm.text: message }}</p>{% endfor %}\n")]
+  |                                                               ^^
