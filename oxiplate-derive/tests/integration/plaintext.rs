@@ -30,6 +30,15 @@ fn writ() {
 }
 
 #[test]
+fn writ_broken() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{% plaintext %}{{ +_)(*&^%$#@!~"';',.><=-/?` }}{% endplaintext %}"#)]
+    struct Data;
+
+    assert_eq!(format!("{Data}"), r#"{{ +_)(*&^%$#@!~"';',.><=-/?` }}"#);
+}
+
+#[test]
 fn statement() {
     #[derive(Oxiplate)]
     #[oxiplate_inline(
@@ -44,10 +53,33 @@ fn statement() {
 }
 
 #[test]
+fn statement_broken() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(
+        r#"{% plaintext %}{% if +_)(*&^%$#@!~"';',.><=-/?` %}{% endplaintext %}"#
+    )]
+    struct Data;
+
+    assert_eq!(
+        format!("{Data}"),
+        r#"{% if +_)(*&^%$#@!~"';',.><=-/?` %}"#
+    );
+}
+
+#[test]
 fn comment() {
     #[derive(Oxiplate)]
     #[oxiplate_inline(r#"{% plaintext %}Hello {#- world #}!{% endplaintext %}"#)]
     struct Data;
 
     assert_eq!(format!("{Data}"), r#"Hello {#- world #}!"#);
+}
+
+#[test]
+fn comment_broken() {
+    #[derive(Oxiplate)]
+    #[oxiplate_inline(r#"{% plaintext %}Hello {#- world!{% endplaintext %}"#)]
+    struct Data;
+
+    assert_eq!(format!("{Data}"), r#"Hello {#- world!"#);
 }
