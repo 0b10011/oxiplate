@@ -7,7 +7,7 @@ use crate::tokenizer::BufferedSource;
 
 pub(crate) fn consume_plaintext<'a>(source: &mut BufferedSource<'a>) -> Res<'a> {
     let source = source
-        .consume_until(|char| matches!(char, whitespace!() | '{'))
+        .consume_until(|char| matches!(char, '{' | whitespace!()))
         .expect("Buffer should contain at least one character");
 
     (
