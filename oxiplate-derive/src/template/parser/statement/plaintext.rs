@@ -60,10 +60,11 @@ impl<'a> From<PlainText<'a>> for StatementKind<'a> {
 
 impl<'a> ToTokensWithMutState<'a> for PlainText<'a> {
     fn to_tokens_with_mut_state<'b: 'a>(&'a self, state: &mut State<'b>) -> BuiltTokens {
+        let (errors, _) = self.errors.to_tokens_with_mut_state(state);
+
         if let Some(ref text) = self.text {
             let span = text.span_token();
             let text = text.as_str();
-            let (errors, _) = self.errors.to_tokens_with_mut_state(state);
 
             (
                 quote_spanned! {span=>
@@ -73,7 +74,7 @@ impl<'a> ToTokensWithMutState<'a> for PlainText<'a> {
                 EstimatedLength::new(text.len()),
             )
         } else {
-            (TokenStream::new(), EstimatedLength::new(0))
+            (quote! { #errors }, EstimatedLength::new(0))
         }
     }
 }
