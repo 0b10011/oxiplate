@@ -14,6 +14,7 @@ mod r#let;
 mod r#match;
 mod no_implicit_prelude;
 mod overridden_core;
+mod plaintext;
 mod recursion;
 mod string_continuation;
 mod unicode;

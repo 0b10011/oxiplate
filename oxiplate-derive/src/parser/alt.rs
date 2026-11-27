@@ -110,14 +110,14 @@ macro_rules! alt {
 alt!(
     0 P0, 1 P1, 2 P2, 3 P3, 4 P4, 5 P5, 6 P6, 7 P7, 8 P8, 9 P9,
     10 P10, 11 P11, 12 P12, 13 P13, 14 P14, 15 P15, 16 P16, 17 P17, 18 P18, 19 P19,
-    20 P20
+    20 P20, 21 P21, 22 P22
 );
 
 #[cfg(test)]
 #[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     #[test]
-    #[should_panic = "Attempting to use `alt()` with 21 variants, but only 20 variants are \
+    #[should_panic = "Attempting to use `alt()` with 23 variants, but only 22 variants are \
                       currently supported. Consider adding additional member tokens to the \
                       `alt!()` invocation, or reducing the number of items passed into `alt()`."]
     fn max_alt_variants() {
@@ -150,6 +150,8 @@ mod tests {
             take(TokenKind::RangeExclusive),
             take(TokenKind::RangeInclusive),
             take(TokenKind::SelfCurrentModule),
+            take(TokenKind::SelfCurrentType),
+            take(TokenKind::Semicolon),
         ))
         .parse(TokenSlice::new(&[], &Eof::for_test(source)))
         .unwrap();

@@ -8,10 +8,12 @@ mod r#if;
 mod include;
 mod r#let;
 mod r#match;
+mod plaintext;
 
 pub(crate) use self::escaper::DefaultEscaper;
 use self::filter::FilterBlock;
 use self::r#let::Let;
+use self::plaintext::PlainText;
 use super::expression::Identifier;
 use super::item::tag_end;
 use super::r#static::StaticType;
@@ -54,6 +56,9 @@ pub(crate) enum StatementKind<'a> {
     Filter(FilterBlock<'a>),
     EndFilter,
 
+    PlainText(PlainText<'a>),
+    EndPlainText,
+
     Let(Let<'a>),
 }
 
@@ -74,7 +79,8 @@ impl StatementKind<'_> {
             | Self::EndFor
             | Self::Case(_)
             | Self::EndMatch
-            | Self::EndFilter => false,
+            | Self::EndFilter
+            | Self::EndPlainText => false,
 
             Self::Block(_)
             | Self::Include(_)
@@ -84,6 +90,7 @@ impl StatementKind<'_> {
             | Self::Break(_)
             | Self::Match(_)
             | Self::Filter(_)
+            | Self::PlainText(_)
             | Self::Let(_) => true,
         }
     }
@@ -110,8 +117,10 @@ impl<'a> Statement<'a> {
             For(statement) => statement.is_ended,
             Match(statement) => statement.is_ended(),
             Filter(statement) => statement.is_ended(),
+            PlainText(statement) => statement.is_ended(),
             DefaultEscaper(_) | Parent | EndBlock(_) | Include(_) | ElseIf(_) | Else | EndIf
-            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) | EndFilter => true,
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) | EndFilter
+            | EndPlainText => true,
         }
     }
 
@@ -131,8 +140,10 @@ impl<'a> Statement<'a> {
             For(statement) => statement.add_item(item),
             Match(statement) => statement.add_item(item),
             Filter(statement) => statement.add_item(item),
+            PlainText(statement) => statement.add_item(item),
             DefaultEscaper(_) | Parent | EndBlock(_) | Include(_) | ElseIf(_) | Else | EndIf
-            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) | EndFilter => {
+            | Continue(_) | Break(_) | EndFor | Case(_) | EndMatch | Let(_) | EndFilter
+            | EndPlainText => {
                 unreachable!("add_item() should not be called for this kind of statement")
             }
         }
@@ -183,6 +194,8 @@ impl<'a> Statement<'a> {
             StatementKind::EndMatch => unexpected!("endmatch"),
             StatementKind::Filter(statement) => statement.to_tokens_with_mut_state(state),
             StatementKind::EndFilter => unexpected!("endfilter"),
+            StatementKind::PlainText(statement) => statement.to_tokens_with_mut_state(state),
+            StatementKind::EndPlainText => unexpected!("endplaintext"),
             StatementKind::Let(statement) => statement.to_tokens_with_mut_state(state),
         };
 
@@ -235,6 +248,8 @@ impl<'a> Parser<'a> for StatementParser<'a> {
                 into(r#match::Match::parse_end()),
                 into(FilterBlock::parser()),
                 into(FilterBlock::end_parser()),
+                into(PlainText::parser()),
+                into(PlainText::end_parser()),
                 // `let` and `set` are both checked for in the same parser.
                 // If `let` is found to be popular enough
                 // to justify checking for it sooner,
@@ -327,6 +342,7 @@ fn eof<'a>(
         StatementKind::For(_) => context_message!("for"),
         StatementKind::Match(_) => context_message!("match"),
         StatementKind::Filter(_) => context_message!("filter"),
+        StatementKind::PlainText(_) => context_message!("plaintext"),
         StatementKind::DefaultEscaper(_)
         | StatementKind::Extends(_)
         | StatementKind::Parent
@@ -341,6 +357,7 @@ fn eof<'a>(
         | StatementKind::Case(_)
         | StatementKind::EndMatch
         | StatementKind::EndFilter
+        | StatementKind::EndPlainText
         | StatementKind::Let(_) => {
             unreachable!("These blocks should never fail to be closed because of EOF")
         }
