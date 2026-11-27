@@ -568,7 +568,15 @@ test_int_19!(
     &mut 19_i8
 );
 
-test_int_19!(i16_html, i16_xml, i16_json, i16_md, i16_your_escaper, i16, 19_i16);
+test_int_19!(
+    i16_html,
+    i16_xml,
+    i16_json,
+    i16_md,
+    i16_your_escaper,
+    i16,
+    19_i16
+);
 test_int_19!(
     i16_mut_mut_html,
     i16_mut_mut_xml,
@@ -606,7 +614,15 @@ test_int_19!(
     &mut 19_i16
 );
 
-test_int_19!(i32_html, i32_xml, i32_json, i32_md, i32_your_escaper, i32, 19_i32);
+test_int_19!(
+    i32_html,
+    i32_xml,
+    i32_json,
+    i32_md,
+    i32_your_escaper,
+    i32,
+    19_i32
+);
 test_int_19!(
     i32_mut_mut_html,
     i32_mut_mut_xml,
@@ -644,7 +660,15 @@ test_int_19!(
     &mut 19_i32
 );
 
-test_int_19!(i64_html, i64_xml, i64_json, i64_md, i64_your_escaper, i64, 19_i64);
+test_int_19!(
+    i64_html,
+    i64_xml,
+    i64_json,
+    i64_md,
+    i64_your_escaper,
+    i64,
+    19_i64
+);
 test_int_19!(
     i64_mut_mut_html,
     i64_mut_mut_xml,
@@ -794,7 +818,15 @@ test_int_19!(
     &&19_u8
 );
 
-test_int_19!(u16_html, u16_xml, u16_json, u16_md, u16_your_escaper, u16, 19_u16);
+test_int_19!(
+    u16_html,
+    u16_xml,
+    u16_json,
+    u16_md,
+    u16_your_escaper,
+    u16,
+    19_u16
+);
 test_int_19!(
     u16_mut_mut_html,
     u16_mut_mut_xml,
@@ -823,7 +855,15 @@ test_int_19!(
     &&19_u16
 );
 
-test_int_19!(u32_html, u32_xml, u32_json, u32_md, u32_your_escaper, u32, 19_u32);
+test_int_19!(
+    u32_html,
+    u32_xml,
+    u32_json,
+    u32_md,
+    u32_your_escaper,
+    u32,
+    19_u32
+);
 test_int_19!(
     u32_mut_mut_html,
     u32_mut_mut_xml,
@@ -852,7 +892,15 @@ test_int_19!(
     &&19_u32
 );
 
-test_int_19!(u64_html, u64_xml, u64_json, u64_md, u64_your_escaper, u64, 19_u64);
+test_int_19!(
+    u64_html,
+    u64_xml,
+    u64_json,
+    u64_md,
+    u64_your_escaper,
+    u64,
+    19_u64
+);
 test_int_19!(
     u64_mut_mut_html,
     u64_mut_mut_xml,
@@ -955,7 +1003,15 @@ test_int_19!(
     &&19_usize
 );
 
-test_float_19_19!(f64_html, f64_xml, f64_json, f64_md, f64_your_escaper, f64, 19.19_f64);
+test_float_19_19!(
+    f64_html,
+    f64_xml,
+    f64_json,
+    f64_md,
+    f64_your_escaper,
+    f64,
+    19.19_f64
+);
 test_float_19!(
     f64_mut_mut_html,
     f64_mut_mut_xml,
@@ -984,7 +1040,15 @@ test_float_19_19!(
     &&19.19_f64
 );
 
-test_float_19_19!(f32_html, f32_xml, f32_json, f32_md, f32_your_escaper, f32, 19.19_f32);
+test_float_19_19!(
+    f32_html,
+    f32_xml,
+    f32_json,
+    f32_md,
+    f32_your_escaper,
+    f32,
+    19.19_f32
+);
 test_float_19!(
     f32_mut_mut_html,
     f32_mut_mut_xml,
